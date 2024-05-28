@@ -29,11 +29,11 @@ import kotlinx.coroutines.coroutineScope
 /**
  * A data loader that loads the following objects either from file based caches or from resources.
  *
- * categorizedEmojiData: a list that holds bundled emoji separated by category, filtered
- * by renderability check. This is the data source for EmojiPickerView.
+ * categorizedEmojiData: a list that holds bundled emoji separated by category, filtered by
+ * renderability check. This is the data source for EmojiPickerView.
  *
- * emojiVariantsLookup: a map of emoji variants in bundled emoji, keyed by the base
- * emoji. This allows faster variants lookup.
+ * emojiVariantsLookup: a map of emoji variants in bundled emoji, keyed by the base emoji. This
+ * allows faster variants lookup.
  *
  * primaryEmojiLookup: a map of base emoji to its variants in bundled emoji. This allows faster
  * variants lookup.
@@ -48,36 +48,32 @@ internal object BundledEmojiListLoader {
             context.resources.obtainTypedArray(R.array.emoji_categories_icons).use { typedArray ->
                 IntArray(typedArray.length()) { typedArray.getResourceId(it, 0) }
             }
-        val resources = if (UnicodeRenderableManager.isEmoji12Supported())
-            R.array.emoji_by_category_raw_resources_gender_inclusive
-        else
-            R.array.emoji_by_category_raw_resources
+        val resources =
+            if (UnicodeRenderableManager.isEmoji12Supported())
+                R.array.emoji_by_category_raw_resources_gender_inclusive
+            else R.array.emoji_by_category_raw_resources
         val emojiFileCache = FileCache.getInstance(context)
 
-        categorizedEmojiData = context.resources
-            .obtainTypedArray(resources)
-            .use { ta ->
-                loadEmoji(
-                    ta,
-                    categoryHeaderIconIds,
-                    categoryNames,
-                    emojiFileCache,
-                    context
-                )
+        categorizedEmojiData =
+            context.resources.obtainTypedArray(resources).use { ta ->
+                loadEmoji(ta, categoryHeaderIconIds, categoryNames, emojiFileCache, context)
             }
-        emojiVariantsLookup = categorizedEmojiData!!
-            .flatMap { it.emojiDataList }
-            .filter { it.variants.isNotEmpty() }
-            .flatMap { it.variants.map { variant -> EmojiViewItem(variant, it.variants) } }
-            .associate { it.emoji to it.variants }
-            .also { emojiVariantsLookup = it }
+        emojiVariantsLookup =
+            categorizedEmojiData!!
+                .flatMap { it.emojiDataList }
+                .filter { it.variants.isNotEmpty() }
+                .flatMap { it.variants.map { variant -> EmojiViewItem(variant, it.variants) } }
+                .associate { it.emoji to it.variants }
+                .also { emojiVariantsLookup = it }
     }
 
-    internal fun getCategorizedEmojiData() = categorizedEmojiData
-        ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
+    internal fun getCategorizedEmojiData() =
+        categorizedEmojiData
+            ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
 
-    internal fun getEmojiVariantsLookup() = emojiVariantsLookup
-        ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
+    internal fun getEmojiVariantsLookup() =
+        emojiVariantsLookup
+            ?: throw IllegalStateException("BundledEmojiListLoader.load is not called or complete")
 
     private suspend fun loadEmoji(
         ta: TypedArray,
@@ -86,19 +82,19 @@ internal object BundledEmojiListLoader {
         emojiFileCache: FileCache,
         context: Context
     ): List<EmojiDataCategory> = coroutineScope {
-        (0 until ta.length()).map {
-            async {
-                emojiFileCache.getOrPut(getCacheFileName(it)) {
-                    loadSingleCategory(context, ta.getResourceId(it, 0))
-                }.let { data ->
-                    EmojiDataCategory(
-                        categoryHeaderIconIds[it],
-                        categoryNames[it],
-                        data
-                    )
+        (0 until ta.length())
+            .map {
+                async {
+                    emojiFileCache
+                        .getOrPut(getCacheFileName(it)) {
+                            loadSingleCategory(context, ta.getResourceId(it, 0))
+                        }
+                        .let { data ->
+                            EmojiDataCategory(categoryHeaderIconIds[it], categoryNames[it], data)
+                        }
                 }
             }
-        }.awaitAll()
+            .awaitAll()
     }
 
     private fun loadSingleCategory(
@@ -114,7 +110,8 @@ internal object BundledEmojiListLoader {
             .map { EmojiViewItem(it.first(), it.drop(1)) }
 
     private fun getCacheFileName(categoryIndex: Int) =
-        StringBuilder().append("emoji.v1.")
+        StringBuilder()
+            .append("emoji.v1.")
             .append(if (EmojiPickerView.emojiCompatLoaded) 1 else 0)
             .append(".")
             .append(categoryIndex)
@@ -127,9 +124,7 @@ internal object BundledEmojiListLoader {
      * renderability of emojis and keep only when they are renderable on the current device.
      */
     private fun filterRenderableEmojis(emojiList: List<String>) =
-        emojiList.filter {
-            UnicodeRenderableManager.isEmojiRenderable(it)
-        }.toList()
+        emojiList.filter { UnicodeRenderableManager.isEmojiRenderable(it) }.toList()
 
     internal data class EmojiDataCategory(
         @DrawableRes val headerIconId: Int,

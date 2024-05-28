@@ -31,7 +31,7 @@ abstract class ActionParameters internal constructor() {
      * Key for [ActionParameters] values. Type T is the type of the associated value. The [Key.name]
      * must be unique, keys with the same name are considered equal.
      */
-    class Key<T : Any> (val name: String) {
+    class Key<T : Any>(val name: String) {
         /**
          * Infix function to create a Parameters.Pair.
          *
@@ -52,10 +52,7 @@ abstract class ActionParameters internal constructor() {
      *
      * Create this using the infix function [to].
      */
-    class Pair<T : Any> internal constructor(
-        internal val key: Key<T>,
-        internal val value: T
-    ) {
+    class Pair<T : Any> internal constructor(internal val key: Key<T>, internal val value: T) {
         override fun equals(other: Any?): Boolean =
             other is Pair<*> && key == other.key && value == other.value
 
@@ -77,7 +74,7 @@ abstract class ActionParameters internal constructor() {
      * @param T the type of the parameter
      * @param key the key for the parameter
      * @throws ClassCastException if there is something stored with the same name as [key] but it
-     * cannot be cast to T
+     *   cannot be cast to T
      */
     abstract operator fun <T : Any> get(key: Key<T>): T?
 
@@ -88,7 +85,7 @@ abstract class ActionParameters internal constructor() {
      * @param key the key for the parameter
      * @param defaultValue the default value to return if key is missing
      * @throws ClassCastException if there is something stored with the same name as [key] but it
-     * cannot be cast to T
+     *   cannot be cast to T
      */
     abstract fun <T : Any> getOrDefault(key: Key<T>, defaultValue: @UnsafeVariance T): T
 
@@ -100,9 +97,7 @@ abstract class ActionParameters internal constructor() {
      */
     abstract fun asMap(): Map<Key<out Any>, Any>
 
-    /**
-     * Returns whether there are any keys stored in the parameters.
-     */
+    /** Returns whether there are any keys stored in the parameters. */
     abstract fun isEmpty(): Boolean
 }
 
@@ -110,9 +105,9 @@ abstract class ActionParameters internal constructor() {
  * Mutable version of [ActionParameters]. Allows for editing the underlying data, and adding or
  * removing key-value pairs.
  */
-class MutableActionParameters internal constructor(
-    internal val map: MutableMap<Key<out Any>, Any> = mutableMapOf()
-) : ActionParameters() {
+class MutableActionParameters
+internal constructor(internal val map: MutableMap<Key<out Any>, Any> = mutableMapOf()) :
+    ActionParameters() {
 
     override operator fun <T : Any> contains(key: Key<T>): Boolean = map.containsKey(key)
 
@@ -146,12 +141,9 @@ class MutableActionParameters internal constructor(
      * @param key the parameter to remove
      * @return the original value of the parameter
      */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> remove(key: Key<T>) = map.remove(key) as T?
+    @Suppress("UNCHECKED_CAST") fun <T : Any> remove(key: Key<T>) = map.remove(key) as T?
 
-    /**
-     * Removes all parameters from this MutableParameters.
-     */
+    /** Removes all parameters from this MutableParameters. */
     fun clear() = map.clear()
 
     override fun equals(other: Any?): Boolean = other is MutableActionParameters && map == other.map
@@ -182,13 +174,12 @@ fun actionParametersOf(vararg pairs: ActionParameters.Pair<out Any>): ActionPara
  */
 fun mutableActionParametersOf(
     vararg pairs: ActionParameters.Pair<out Any>
-): MutableActionParameters = MutableActionParameters(
-    mutableMapOf(*pairs.map { it.key to it.value }.toTypedArray())
-)
+): MutableActionParameters =
+    MutableActionParameters(mutableMapOf(*pairs.map { it.key to it.value }.toTypedArray()))
 
 /**
- * Gets a mutable copy of Parameters, containing all key value pairs. This can be used to edit
- * the parameter data without creating a new object.
+ * Gets a mutable copy of Parameters, containing all key value pairs. This can be used to edit the
+ * parameter data without creating a new object.
  *
  * This is similar to [Map.toMutableMap].
  *

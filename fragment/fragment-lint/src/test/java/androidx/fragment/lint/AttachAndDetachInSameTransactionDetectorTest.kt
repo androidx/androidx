@@ -37,15 +37,14 @@ class AttachAndDetachInSameTransactionDetectorTest : LintDetectorTest() {
         mutableListOf(AttachAndDetachInSameTransactionDetector.DETACH_ATTACH_OPERATIONS_ISSUE)
 
     private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *FRAGMENT_TRANSACTION_STUBS)
-            .run()
+        return lint().files(*files, *FRAGMENT_TRANSACTION_STUBS).run()
     }
 
     @Test
     fun pass() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -91,9 +90,9 @@ class Test {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -110,16 +109,16 @@ class Foo {
     }
 }
             """
+                )
             )
-        )
             .expectClean()
     }
 
     @Test
     fun inMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -136,8 +135,8 @@ class Test {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/Test.kt:11: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachSameFragment]
@@ -151,8 +150,8 @@ src/com/example/Test.kt:11: Warning: Calling detach() and attach() in the same F
     @Test
     fun helperMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -173,8 +172,8 @@ class Test {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/Test.kt:15: Warning: Calling detach() and attach() in the same FragmentTransaction is a no-op, meaning it does not recreate the Fragment's view. If you would like the view to be recreated, separate these operations into separate transactions. [DetachAndAttachSameFragment]

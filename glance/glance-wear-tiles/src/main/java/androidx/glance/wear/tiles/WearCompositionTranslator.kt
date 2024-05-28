@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:Suppress("deprecation")
+
 package androidx.glance.wear.tiles
 
 import android.content.Context
@@ -127,13 +128,14 @@ private fun PaddingInDp.toProto(): androidx.wear.tiles.ModifiersBuilders.Padding
 @Suppress("deprecation") // for backward compatibility
 private fun BackgroundModifier.toProto(
     context: Context
-): androidx.wear.tiles.ModifiersBuilders.Background? = when (this) {
-    is BackgroundModifier.Color ->
-        androidx.wear.tiles.ModifiersBuilders.Background.Builder()
-            .setColor(ColorBuilders.argb(this.colorProvider.getColorAsArgb(context)))
-            .build()
-    else -> error("Unexpected modifier $this")
-}
+): androidx.wear.tiles.ModifiersBuilders.Background? =
+    when (this) {
+        is BackgroundModifier.Color ->
+            androidx.wear.tiles.ModifiersBuilders.Background.Builder()
+                .setColor(ColorBuilders.argb(this.colorProvider.getColorAsArgb(context)))
+                .build()
+        else -> error("Unexpected modifier $this")
+    }
 
 @Suppress("deprecation") // for backward compatibility
 private fun BorderModifier.toProto(context: Context): androidx.wear.tiles.ModifiersBuilders.Border =
@@ -688,8 +690,7 @@ private fun translateEmittableCurvedLine(
     context: Context,
     element: EmittableCurvedLine
 ): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    var sweepAngleDegrees =
-        element.curvedModifier.findModifier<SweepAngleModifier>() ?.degrees ?: 0f
+    var sweepAngleDegrees = element.curvedModifier.findModifier<SweepAngleModifier>()?.degrees ?: 0f
     var thickness = element.curvedModifier.findModifier<ThicknessModifier>()?.thickness ?: 0.dp
 
     return androidx.wear.tiles.LayoutElementBuilders.ArcLine.Builder()
@@ -705,8 +706,7 @@ private fun translateEmittableCurvedSpacer(
     context: Context,
     element: EmittableCurvedSpacer
 ): androidx.wear.tiles.LayoutElementBuilders.ArcLayoutElement {
-    var sweepAngleDegrees =
-    element.curvedModifier.findModifier<SweepAngleModifier>()?.degrees ?: 0f
+    var sweepAngleDegrees = element.curvedModifier.findModifier<SweepAngleModifier>()?.degrees ?: 0f
     var thickness = element.curvedModifier.findModifier<ThicknessModifier>()?.thickness ?: 0.dp
 
     return androidx.wear.tiles.LayoutElementBuilders.ArcSpacer.Builder()

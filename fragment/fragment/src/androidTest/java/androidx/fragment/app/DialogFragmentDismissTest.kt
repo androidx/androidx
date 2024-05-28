@@ -37,9 +37,7 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Class representing the different ways of dismissing a [DialogFragment]
- */
+/** Class representing the different ways of dismissing a [DialogFragment] */
 sealed class Operation {
     abstract fun run(dialogFragment: DialogFragment)
 
@@ -78,28 +76,22 @@ object FragmentDismissNow : Operation() {
 
 @LargeTest
 @RunWith(Parameterized::class)
-class DialogFragmentDismissTest(
-    private val operation: Operation,
-    private val mainThread: Boolean
-) {
+class DialogFragmentDismissTest(private val operation: Operation, private val mainThread: Boolean) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "operation={0}, mainThread={1}")
-        fun data() = mutableListOf<Array<Any>>().apply {
-            arrayOf(
-                ActivityFinish,
-                FragmentDismiss,
-                DialogDismiss,
-                DialogCancel
-            ).forEach { operation ->
-                // Run the operation on the main thread
-                add(arrayOf(operation, true))
-                // Run the operation off the main thread
-                add(arrayOf(operation, false))
+        fun data() =
+            mutableListOf<Array<Any>>().apply {
+                arrayOf(ActivityFinish, FragmentDismiss, DialogDismiss, DialogCancel).forEach {
+                    operation ->
+                    // Run the operation on the main thread
+                    add(arrayOf(operation, true))
+                    // Run the operation off the main thread
+                    add(arrayOf(operation, false))
+                }
+                // dismissNow can only be run on the main thread
+                add(arrayOf(FragmentDismissNow, true))
             }
-            // dismissNow can only be run on the main thread
-            add(arrayOf(FragmentDismissNow, true))
-        }
     }
 
     @get:Rule
@@ -107,19 +99,15 @@ class DialogFragmentDismissTest(
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityScenarioTestRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityScenarioTestRule)
 
     @Test
     fun testDialogFragmentDismiss() {
         val fragment = TestDialogFragment()
-        activityScenarioTestRule.withActivity {
-            fragment.showNow(supportFragmentManager, null)
-        }
+        activityScenarioTestRule.withActivity { fragment.showNow(supportFragmentManager, null) }
 
-        assertWithMessage("Dialog was not being shown")
-            .that(fragment.dialog?.isShowing)
-            .isTrue()
+        assertWithMessage("Dialog was not being shown").that(fragment.dialog?.isShowing).isTrue()
 
         var dialogIsNonNull = false
         var isShowing = false
@@ -149,9 +137,7 @@ class DialogFragmentDismissTest(
         }
 
         if (mainThread) {
-            activityScenarioTestRule.withActivity {
-                operation.run(fragment)
-            }
+            activityScenarioTestRule.withActivity { operation.run(fragment) }
         } else {
             operation.run(fragment)
         }
@@ -172,20 +158,18 @@ class DialogFragmentDismissTest(
         assertWithMessage("onDismiss() should be called before onDestroy()")
             .that(onDismissCalledCount)
             .isEqualTo(1)
-        assertWithMessage("Dialog should not be null in onStop()")
-            .that(dialogIsNonNull)
-            .isTrue()
+        assertWithMessage("Dialog should not be null in onStop()").that(dialogIsNonNull).isTrue()
 
         if (operation is ActivityFinish) {
             assertWithMessage(
-                "Dialog should still be showing in onStop() during the normal lifecycle"
-            )
+                    "Dialog should still be showing in onStop() during the normal lifecycle"
+                )
                 .that(isShowing)
                 .isTrue()
         } else {
-            assertWithMessage(
-                "Dialog should not be showing in onStop() when manually dismissed"
-            ).that(isShowing).isFalse()
+            assertWithMessage("Dialog should not be showing in onStop() when manually dismissed")
+                .that(isShowing)
+                .isFalse()
 
             assertWithMessage("Dialog should be null after dismiss()")
                 .that(fragment.dialog)
@@ -199,18 +183,14 @@ class DialogFragmentDismissTest(
         val fm = activityScenarioTestRule.withActivity { supportFragmentManager }
 
         activityScenarioTestRule.withActivity {
-            fm.beginTransaction()
-                .add(dialogFragment, null)
-                .commitNow()
+            fm.beginTransaction().add(dialogFragment, null).commitNow()
         }
 
         val dialog = dialogFragment.requireDialog()
 
         activityScenarioTestRule.withActivity {
             dialog.dismiss()
-            fm.beginTransaction()
-                .remove(dialogFragment)
-                .commitNow()
+            fm.beginTransaction().remove(dialogFragment).commitNow()
         }
 
         activityScenarioTestRule.withActivity {

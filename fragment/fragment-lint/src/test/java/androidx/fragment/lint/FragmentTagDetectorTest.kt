@@ -32,10 +32,11 @@ class FragmentTagDetectorTest : LintDetectorTest() {
 
     @Test
     fun expectPass() {
-        lint().files(
-            xml(
-                "res/layout/layout.xml",
-                """
+        lint()
+            .files(
+                xml(
+                    "res/layout/layout.xml",
+                    """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -46,18 +47,19 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_height="match_parent" />
 </FrameLayout>
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun expectFail() {
-        lint().files(
-            xml(
-                "res/layout/layout.xml",
-                """
+        lint()
+            .files(
+                xml(
+                    "res/layout/layout.xml",
+                    """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -67,8 +69,8 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_height="match_parent" />
 </FrameLayout>
             """
+                )
             )
-        )
             .run()
             .expect(
                 """
@@ -82,10 +84,11 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
 
     @Test
     fun expectFix() {
-        lint().files(
-            xml(
-                "res/layout/layout.xml",
-                """
+        lint()
+            .files(
+                xml(
+                    "res/layout/layout.xml",
+                    """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -95,8 +98,8 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_height="match_parent" />
 </FrameLayout>
             """
+                )
             )
-        )
             .run()
             .expect(
                 """

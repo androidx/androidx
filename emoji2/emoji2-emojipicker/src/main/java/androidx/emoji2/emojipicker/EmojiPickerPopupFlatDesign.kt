@@ -20,9 +20,7 @@ import android.content.Context
 import android.view.View
 import android.widget.LinearLayout
 
-/**
- * Emoji picker popup view with flat design to list emojis.
- */
+/** Emoji picker popup view with flat design to list emojis. */
 internal class EmojiPickerPopupFlatDesign(
     override val context: Context,
     override val targetEmojiView: View,
@@ -46,10 +44,12 @@ internal class EmojiPickerPopupFlatDesign(
         }
         template = overrideTemplate
     }
+
     override fun getNumberOfRows(): Int {
         val column = getNumberOfColumns()
         return variants.size / column + if (variants.size % column == 0) 0 else 1
     }
+
     override fun getNumberOfColumns(): Int {
         return minOf(FLAT_COLUMN_MAX_COUNT, template[0].size)
     }

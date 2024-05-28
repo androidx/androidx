@@ -23,13 +23,11 @@ import androidx.annotation.RestrictTo.Scope
  * A wrapper for Glance composable node under test.
  *
  * @param T A representation of Glance composable node (e.g. MappedNode) on which assertions can be
- *          performed
+ *   performed
  * @param value an object of the representation of the Glance composable node
  */
 abstract class GlanceNode<T> @RestrictTo(Scope.LIBRARY_GROUP) constructor(val value: T) {
-    /**
-     * Returns children of current glance node.
-     */
+    /** Returns children of current glance node. */
     abstract fun children(): List<GlanceNode<T>>
 
     /**

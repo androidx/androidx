@@ -33,8 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class,
-    ExperimentalGlanceWearTilesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalGlanceWearTilesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceWearTilesTest {
     private lateinit var fakeCoroutineScope: TestScope
@@ -46,31 +45,37 @@ class GlanceWearTilesTest {
 
     @Test
     @Suppress("deprecation") // For backwards compatibility.
-    fun createEmptyUi() = fakeCoroutineScope.runTest {
-        val compositionResult =
-            compose(
-                context = ApplicationProvider.getApplicationContext<Context>(),
-                size = DpSize(100.dp, 50.dp)) {
-            }
-        assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
-        assertThat(
-            (compositionResult.layout as androidx.wear.tiles.LayoutElementBuilders.Box)
-            .contents).isEmpty()
-    }
+    fun createEmptyUi() =
+        fakeCoroutineScope.runTest {
+            val compositionResult =
+                compose(
+                    context = ApplicationProvider.getApplicationContext<Context>(),
+                    size = DpSize(100.dp, 50.dp)
+                ) {}
+            assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
+            assertThat(
+                    (compositionResult.layout as androidx.wear.tiles.LayoutElementBuilders.Box)
+                        .contents
+                )
+                .isEmpty()
+        }
 
     @Test
     @Suppress("deprecation") // For backwards compatibility.
-    fun createSimpleWearTiles() = fakeCoroutineScope.runTest {
-        val compositionResult =
-            compose(
-                context = ApplicationProvider.getApplicationContext<Context>(),
-                size = DpSize(100.dp, 50.dp)) {
-                Text("text content")
-            }
+    fun createSimpleWearTiles() =
+        fakeCoroutineScope.runTest {
+            val compositionResult =
+                compose(
+                    context = ApplicationProvider.getApplicationContext<Context>(),
+                    size = DpSize(100.dp, 50.dp)
+                ) {
+                    Text("text content")
+                }
 
-        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
-        assertThat(box.contents).hasSize(1)
-        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
-        assertThat(text.text!!.value).isEqualTo("text content")
-    }
+            val box =
+                assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
+            assertThat(box.contents).hasSize(1)
+            val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
+            assertThat(text.text!!.value).isEqualTo("text content")
+        }
 }

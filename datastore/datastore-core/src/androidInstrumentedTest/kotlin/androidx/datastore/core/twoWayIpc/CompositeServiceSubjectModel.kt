@@ -29,8 +29,7 @@ internal class CompositeServiceSubjectModel {
 
     open class Key<T>
 
-    @Suppress("UNCHECKED_CAST")
-    operator fun <T> get(key: Key<T>) = data[key] as T
+    @Suppress("UNCHECKED_CAST") operator fun <T> get(key: Key<T>) = data[key] as T
 
     fun <T> contains(key: Key<T>) = data.containsKey(key)
 
@@ -38,9 +37,7 @@ internal class CompositeServiceSubjectModel {
         data[key] = value
     }
 
-    /**
-     * Gets the value with [key] and atomically creates it if [key] is not set.
-     */
+    /** Gets the value with [key] and atomically creates it if [key] is not set. */
     @Suppress("UNCHECKED_CAST")
     fun <T> getOrPut(key: Key<T>, create: () -> T): T {
         data[key]?.let {
@@ -50,9 +47,7 @@ internal class CompositeServiceSubjectModel {
             data[key]?.let {
                 return it as T
             }
-            return create().also {
-                data[key] = it
-            }
+            return create().also { data[key] = it }
         }
     }
 }

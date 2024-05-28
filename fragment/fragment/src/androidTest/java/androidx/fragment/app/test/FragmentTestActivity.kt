@@ -25,9 +25,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
 import java.util.concurrent.CountDownLatch
 
-/**
- * A simple activity used for Fragment Transitions and lifecycle event ordering
- */
+/** A simple activity used for Fragment Transitions and lifecycle event ordering */
 class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
 
     val finishCountDownLatch = CountDownLatch(1)
@@ -42,8 +40,7 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
     @Deprecated("Deprecated in ComponentActivity")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        supportFragmentManager.beginTransaction()
-            .commitNow()
+        supportFragmentManager.beginTransaction().commitNow()
     }
 
     override fun invalidateMenu() {
@@ -64,7 +61,8 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
             super.onCreate(savedInstanceState)
 
             if (childFragmentManager.findFragmentByTag(CHILD_FRAGMENT_TAG) == null) {
-                childFragmentManager.beginTransaction()
+                childFragmentManager
+                    .beginTransaction()
                     .add(
                         ChildFragment().apply {
                             if (retainChildInstance) {
@@ -105,10 +103,8 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
     }
 }
 
-class SimpleToStringFragmentLayout(
-    context: Context,
-    attributesSet: AttributeSet
-) : FrameLayout(context, attributesSet) {
+class SimpleToStringFragmentLayout(context: Context, attributesSet: AttributeSet) :
+    FrameLayout(context, attributesSet) {
     override fun toString(): String {
         return "${javaClass.simpleName}{$id}"
     }

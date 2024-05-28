@@ -28,11 +28,10 @@ import kotlinx.coroutines.launch
 
 /**
  * Mechanism for glance sessions to start a monitor of global snapshot state writes in order to
- * schedule periodic dispatch of apply notifications.
- * Sessions should call [ensureStarted] during setup to initialize periodic global snapshot
- * notifications (which are necessary in order for recompositions to be scheduled in response to
- * state changes). These will be sent on Dispatchers.Default.
- * This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
+ * schedule periodic dispatch of apply notifications. Sessions should call [ensureStarted] during
+ * setup to initialize periodic global snapshot notifications (which are necessary in order for
+ * recompositions to be scheduled in response to state changes). These will be sent on
+ * Dispatchers.Default. This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 object GlobalSnapshotManager {
@@ -57,18 +56,17 @@ object GlobalSnapshotManager {
     }
 }
 
-/**
- * Monitors global snapshot state writes and sends apply notifications.
- */
+/** Monitors global snapshot state writes and sends apply notifications. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 suspend fun globalSnapshotMonitor() {
     val channel = Channel<Unit>(1)
     val sent = AtomicBoolean(false)
-    val observerHandle = Snapshot.registerGlobalWriteObserver {
-        if (sent.compareAndSet(false, true)) {
-            channel.trySend(Unit)
+    val observerHandle =
+        Snapshot.registerGlobalWriteObserver {
+            if (sent.compareAndSet(false, true)) {
+                channel.trySend(Unit)
+            }
         }
-    }
     try {
         channel.consumeEach {
             sent.set(false)

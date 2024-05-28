@@ -64,25 +64,27 @@ class FragmentViewModelLazyTest {
         val activityVM: TestActivityViewModel by activityViewModels()
         val activityVM2: TestActivityViewModel2 by viewModels({ requireActivity() })
         val savedStateViewModel: TestSavedStateViewModel by viewModels({ requireActivity() })
-        val activityVMCE: TestActivityViewModelCE by activityViewModels(
-            extrasProducer = {
-                MutableCreationExtras().apply {
-                    set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
-                    set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
-                    set(DEFAULT_ARGS_KEY, bundleOf("test" to "value2"))
+        val activityVMCE: TestActivityViewModelCE by
+            activityViewModels(
+                extrasProducer = {
+                    MutableCreationExtras().apply {
+                        set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
+                        set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
+                        set(DEFAULT_ARGS_KEY, bundleOf("test" to "value2"))
+                    }
                 }
-            }
-        )
-        val savedStateViewModelCE: TestSavedStateViewModelCE by viewModels(
-            ownerProducer = { requireActivity() },
-            extrasProducer = {
-                MutableCreationExtras().apply {
-                    set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
-                    set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
-                    set(DEFAULT_ARGS_KEY, bundleOf("test" to "value3"))
+            )
+        val savedStateViewModelCE: TestSavedStateViewModelCE by
+            viewModels(
+                ownerProducer = { requireActivity() },
+                extrasProducer = {
+                    MutableCreationExtras().apply {
+                        set(SAVED_STATE_REGISTRY_OWNER_KEY, requireActivity())
+                        set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
+                        set(DEFAULT_ARGS_KEY, bundleOf("test" to "value3"))
+                    }
                 }
-            }
-        )
+            )
 
         override fun onCreate(savedInstanceState: Bundle?) {
             injectedFactory = VMFactory("dagger")
@@ -113,16 +115,23 @@ class FragmentViewModelLazyTest {
     }
 
     class TestViewModel : ViewModel()
+
     class TestActivityViewModel : ViewModel()
+
     class TestActivityViewModel2 : ViewModel()
+
     class TestFactorizedViewModel(val prop: String) : ViewModel()
+
     class TestDaggerViewModel(val prop: String) : ViewModel()
+
     class TestSavedStateViewModel(handle: SavedStateHandle) : ViewModel() {
         val defaultValue = handle.get<String>("test")
     }
+
     class TestActivityViewModelCE(handle: SavedStateHandle) : ViewModel() {
         val defaultValue = handle.get<String>("test")
     }
+
     class TestSavedStateViewModelCE(handle: SavedStateHandle) : ViewModel() {
         val defaultValue = handle.get<String>("test")
     }
@@ -134,7 +143,8 @@ class FragmentViewModelLazyTest {
                 TestFactorizedViewModel::class.java -> TestFactorizedViewModel(prop)
                 TestDaggerViewModel::class.java -> TestDaggerViewModel(prop)
                 else -> throw IllegalArgumentException()
-            } as T
+            }
+                as T
         }
     }
 }

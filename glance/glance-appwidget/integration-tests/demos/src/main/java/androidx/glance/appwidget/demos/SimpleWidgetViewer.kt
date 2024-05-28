@@ -48,36 +48,35 @@ import androidx.glance.appwidget.runComposition
 import kotlinx.coroutines.Dispatchers
 
 /**
- * Activity that displays Glance widgets using `GlanceAppWidget.runComposition`
- * to output RemoteViews without having a bound widget.
+ * Activity that displays Glance widgets using `GlanceAppWidget.runComposition` to output
+ * RemoteViews without having a bound widget.
  */
 class SimpleWidgetViewer : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val widgets = listOf(
-                ActionAppWidget(),
-                BackgroundTintWidget(),
-                ButtonsWidget(),
-                CompoundButtonAppWidget(),
-                DefaultColorsAppWidget(),
-                DefaultStateAppWidget(),
-                ErrorUiAppWidget(),
-                ExactAppWidget(),
-                FontDemoWidget(),
-                ImageAppWidget(),
-                ProgressIndicatorAppWidget(),
-                RemoteViewsWidget(),
-                ResizingAppWidget(),
-                ResponsiveAppWidget(),
-                RippleAppWidget(),
-                ScrollableAppWidget(),
-                TypographyDemoAppWidget(),
-                VerticalGridAppWidget(),
-            )
-            var selectedWidget by remember {
-                mutableStateOf(widgets.random())
-            }
+            val widgets =
+                listOf(
+                    ActionAppWidget(),
+                    BackgroundTintWidget(),
+                    ButtonsWidget(),
+                    CompoundButtonAppWidget(),
+                    DefaultColorsAppWidget(),
+                    DefaultStateAppWidget(),
+                    ErrorUiAppWidget(),
+                    ExactAppWidget(),
+                    FontDemoWidget(),
+                    ImageAppWidget(),
+                    ProgressIndicatorAppWidget(),
+                    RemoteViewsWidget(),
+                    ResizingAppWidget(),
+                    ResponsiveAppWidget(),
+                    RippleAppWidget(),
+                    ScrollableAppWidget(),
+                    TypographyDemoAppWidget(),
+                    VerticalGridAppWidget(),
+                )
+            var selectedWidget by remember { mutableStateOf(widgets.random()) }
             Column(Modifier.fillMaxSize()) {
                 LazyColumn(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.3F)) {
                     widgets.forEach { widget ->
@@ -122,15 +121,17 @@ fun WidgetView(widget: GlanceAppWidget, size: DpSize = DpSize(200.dp, 200.dp)) {
  */
 private fun AppWidgetHostView.setFakeAppWidget() {
     val context = context
-    val info = AppWidgetProviderInfo().apply {
-        initialLayout = androidx.glance.appwidget.R.layout.glance_default_loading_layout
-    }
-    try {
-        val activityInfo = ActivityInfo().apply {
-            applicationInfo = context.applicationInfo
-            packageName = context.packageName
-            labelRes = applicationInfo.labelRes
+    val info =
+        AppWidgetProviderInfo().apply {
+            initialLayout = androidx.glance.appwidget.R.layout.glance_default_loading_layout
         }
+    try {
+        val activityInfo =
+            ActivityInfo().apply {
+                applicationInfo = context.applicationInfo
+                packageName = context.packageName
+                labelRes = applicationInfo.labelRes
+            }
 
         info::class.java.getDeclaredField("providerInfo").run {
             isAccessible = true

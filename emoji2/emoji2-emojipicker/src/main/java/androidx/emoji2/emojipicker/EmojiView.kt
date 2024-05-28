@@ -34,14 +34,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
 import androidx.emoji2.text.EmojiCompat
 
-/**
- * A customized view to support drawing emojis asynchronously.
- */
-internal class EmojiView @JvmOverloads constructor(
+/** A customized view to support drawing emojis asynchronously. */
+internal class EmojiView
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
-) :
-    View(context, attrs) {
+) : View(context, attrs) {
 
     companion object {
         private const val EMOJI_DRAW_TEXT_SIZE_SP = 30
@@ -54,25 +53,26 @@ internal class EmojiView @JvmOverloads constructor(
 
     internal var willDrawVariantIndicator: Boolean = true
 
-    private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
-        textSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            EMOJI_DRAW_TEXT_SIZE_SP.toFloat(),
-            context.resources.displayMetrics
-        )
-    }
+    private val textPaint =
+        TextPaint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
+            textSize =
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    EMOJI_DRAW_TEXT_SIZE_SP.toFloat(),
+                    context.resources.displayMetrics
+                )
+        }
 
-    private val offscreenCanvasBitmap: Bitmap = with(textPaint.fontMetricsInt) {
-        val size = bottom - top
-        Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-    }
+    private val offscreenCanvasBitmap: Bitmap =
+        with(textPaint.fontMetricsInt) {
+            val size = bottom - top
+            Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val size =
-            minOf(
-                MeasureSpec.getSize(widthMeasureSpec),
-                MeasureSpec.getSize(heightMeasureSpec)
-            ) - context.resources.getDimensionPixelSize(R.dimen.emoji_picker_emoji_view_padding)
+            minOf(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec)) -
+                context.resources.getDimensionPixelSize(R.dimen.emoji_picker_emoji_view_padding)
         setMeasuredDimension(size, size)
     }
 
@@ -97,9 +97,12 @@ internal class EmojiView @JvmOverloads constructor(
                     if (value == this.emoji) {
                         drawEmoji(
                             if (EmojiPickerView.emojiCompatLoaded)
-                                EmojiCompat.get().process(value) ?: value else value,
-                            drawVariantIndicator = willDrawVariantIndicator &&
-                                BundledEmojiListLoader.getEmojiVariantsLookup().containsKey(value)
+                                EmojiCompat.get().process(value) ?: value
+                            else value,
+                            drawVariantIndicator =
+                                willDrawVariantIndicator &&
+                                    BundledEmojiListLoader.getEmojiVariantsLookup()
+                                        .containsKey(value)
                         )
                         contentDescription = value
                     }
@@ -127,24 +130,28 @@ internal class EmojiView @JvmOverloads constructor(
                 )
             }
             if (drawVariantIndicator) {
-                context.getDrawable(R.drawable.variant_availability_indicator)?.apply {
-                    val canvasWidth = this@applyCanvas.width
-                    val canvasHeight = this@applyCanvas.height
-                    val indicatorWidth =
-                        context.resources.getDimensionPixelSize(
-                            R.dimen.variant_availability_indicator_width
-                        )
-                    val indicatorHeight =
-                        context.resources.getDimensionPixelSize(
-                            R.dimen.variant_availability_indicator_height
-                        )
-                    bounds = Rect(
-                        canvasWidth - indicatorWidth,
-                        canvasHeight - indicatorHeight,
-                        canvasWidth,
-                        canvasHeight
-                    )
-                }!!.draw(this)
+                context
+                    .getDrawable(R.drawable.variant_availability_indicator)
+                    ?.apply {
+                        val canvasWidth = this@applyCanvas.width
+                        val canvasHeight = this@applyCanvas.height
+                        val indicatorWidth =
+                            context.resources.getDimensionPixelSize(
+                                R.dimen.variant_availability_indicator_width
+                            )
+                        val indicatorHeight =
+                            context.resources.getDimensionPixelSize(
+                                R.dimen.variant_availability_indicator_height
+                            )
+                        bounds =
+                            Rect(
+                                canvasWidth - indicatorWidth,
+                                canvasHeight - indicatorHeight,
+                                canvasWidth,
+                                canvasHeight
+                            )
+                    }!!
+                    .draw(this)
             }
         }
     }
@@ -152,13 +159,13 @@ internal class EmojiView @JvmOverloads constructor(
     @RequiresApi(23)
     internal object Api23Impl {
         fun createStaticLayout(emoji: Spanned, textPaint: TextPaint, width: Int): StaticLayout =
-            StaticLayout.Builder.obtain(
-                emoji, 0, emoji.length, textPaint, width
-            ).apply {
-                setAlignment(Layout.Alignment.ALIGN_CENTER)
-                setLineSpacing(/* spacingAdd = */ 0f, /* spacingMult = */ 1f)
-                setIncludePad(false)
-            }.build()
+            StaticLayout.Builder.obtain(emoji, 0, emoji.length, textPaint, width)
+                .apply {
+                    setAlignment(Layout.Alignment.ALIGN_CENTER)
+                    setLineSpacing(/* spacingAdd= */ 0f, /* spacingMult= */ 1f)
+                    setIncludePad(false)
+                }
+                .build()
     }
 
     private fun createStaticLayout(emoji: Spanned, width: Int): StaticLayout {

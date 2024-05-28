@@ -45,11 +45,12 @@ class RemoteCollectionItemsTest {
     fun testBuilder_viewTypeCountUnspecified() {
         val firstItem = RemoteViews(packageName, R.layout.list_view_row)
         val secondItem = RemoteViews(packageName, R.layout.list_view_row_2)
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 3, firstItem)
-            .addItem(id = 5, secondItem)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 3, firstItem)
+                .addItem(id = 5, secondItem)
+                .build()
 
         assertThat(items.itemCount).isEqualTo(2)
         assertThat(items.getItemId(0)).isEqualTo(3)
@@ -66,11 +67,12 @@ class RemoteCollectionItemsTest {
     fun testBuilder_viewTypeCountSpecified() {
         val firstItem = RemoteViews(packageName, R.layout.list_view_row)
         val secondItem = RemoteViews(packageName, R.layout.list_view_row_2)
-        val items = RemoteCollectionItems.Builder()
-            .addItem(id = 3, firstItem)
-            .addItem(id = 5, secondItem)
-            .setViewTypeCount(15)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .addItem(id = 3, firstItem)
+                .addItem(id = 5, secondItem)
+                .setViewTypeCount(15)
+                .build()
 
         assertThat(items.viewTypeCount).isEqualTo(15)
     }
@@ -80,12 +82,13 @@ class RemoteCollectionItemsTest {
         val firstItem = RemoteViews(packageName, R.layout.list_view_row)
         val secondItem = RemoteViews(packageName, R.layout.list_view_row)
         val thirdItem = RemoteViews(packageName, R.layout.list_view_row)
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(false)
-            .addItem(id = 42, firstItem)
-            .addItem(id = 42, secondItem)
-            .addItem(id = 42, thirdItem)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(false)
+                .addItem(id = 42, firstItem)
+                .addItem(id = 42, secondItem)
+                .addItem(id = 42, thirdItem)
+                .build()
 
         assertThat(items.itemCount).isEqualTo(3)
         assertThat(items.getItemId(0)).isEqualTo(42)

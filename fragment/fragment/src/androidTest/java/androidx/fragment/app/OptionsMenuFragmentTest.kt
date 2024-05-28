@@ -58,171 +58,181 @@ class OptionsMenuFragmentTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun fragmentWithOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = MenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should have an options menu")
-            .that(fragment.hasOptionsMenu()).isTrue()
+            .that(fragment.hasOptionsMenu())
+            .isTrue()
         assertWithMessage("Adding fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(2)
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
         assertWithMessage("Child fragments should not have an options menu")
-            .that(fragment.mChildFragmentManager.checkForMenus()).isFalse()
+            .that(fragment.mChildFragmentManager.checkForMenus())
+            .isFalse()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Removing fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(3)
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @LargeTest
     @Test
     fun setMenuVisibilityShowHide() {
-       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
-           withActivity {
-               /** Internal call to [SimpleContainerActivity.invalidateMenu] from [SimpleContainerActivity.addMenuProvider] upon activity creation */
-               assertThat(invalidateCount).isEqualTo(1)
-           }
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            withActivity {
+                /**
+                 * Internal call to [SimpleContainerActivity.invalidateMenu] from
+                 * [SimpleContainerActivity.addMenuProvider] upon activity creation
+                 */
+                assertThat(invalidateCount).isEqualTo(1)
+            }
 
             val fm = withActivity { supportFragmentManager }
             val fragment = MenuFragment()
 
-            withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment)
-                    .commitNow()
-            }
+            withActivity { fm.beginTransaction().add(R.id.fragmentContainer, fragment).commitNow() }
 
             assertWithMessage("Fragment should have an options menu")
-                .that(fragment.hasOptionsMenu()).isTrue()
-
-           withActivity {
-               assertWithMessage("Adding fragment with options menu should invalidate menu")
-                   .that(invalidateCount).isEqualTo(2)
-           }
+                .that(fragment.hasOptionsMenu())
+                .isTrue()
 
             withActivity {
-                fm.beginTransaction()
-                    .hide(fragment)
-                    .commitNow()
+                assertWithMessage("Adding fragment with options menu should invalidate menu")
+                    .that(invalidateCount)
+                    .isEqualTo(2)
+            }
+
+            withActivity {
+                fm.beginTransaction().hide(fragment).commitNow()
                 assertWithMessage("Hiding fragment with options menu should invalidate menu")
-                    .that(invalidateCount).isEqualTo(3)
+                    .that(invalidateCount)
+                    .isEqualTo(3)
             }
 
             fragment.onCreateOptionsMenuCountDownLatch = CountDownLatch(1)
 
             withActivity {
-                fm.beginTransaction()
-                    .show(fragment)
-                    .commitNow()
+                fm.beginTransaction().show(fragment).commitNow()
                 assertWithMessage("Showing fragment with options menu should invalidate menu")
-                    .that(invalidateCount).isEqualTo(4)
+                    .that(invalidateCount)
+                    .isEqualTo(4)
             }
 
             assertWithMessage("onCreateOptionsMenu was not called")
                 .that(fragment.onCreateOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
                 .isTrue()
 
-           withActivity {
-               fm.beginTransaction()
-                   .remove(fragment)
-                   .commitNow()
-               executePendingTransactions()
-               assertWithMessage("Removing fragment with options menu should invalidate menu")
-                   .that(invalidateCount).isEqualTo(5)
-           }
+            withActivity {
+                fm.beginTransaction().remove(fragment).commitNow()
+                executePendingTransactions()
+                assertWithMessage("Removing fragment with options menu should invalidate menu")
+                    .that(invalidateCount)
+                    .isEqualTo(5)
+            }
         }
     }
 
     @Test
     fun fragmentWithNoOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = StrictViewFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should not have an options menu")
-            .that(fragment.hasOptionsMenu()).isFalse()
+            .that(fragment.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Adding fragment without options menu should not invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(1)
+            .that(activity.invalidateCount)
+            .isEqualTo(1)
         assertWithMessage("Child fragments should not have an options menu")
-            .that(fragment.mChildFragmentManager.checkForMenus()).isFalse()
+            .that(fragment.mChildFragmentManager.checkForMenus())
+            .isFalse()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertThat(activity.invalidateCount).isEqualTo(1)
         assertWithMessage("Removing fragment without options menu should not invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(1)
+            .that(activity.invalidateCount)
+            .isEqualTo(1)
     }
 
     @Test
     fun childFragmentWithOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val parent = ParentOptionsMenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, parent, "parent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, parent, "parent").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should not have an options menu")
-            .that(parent.hasOptionsMenu()).isFalse()
+            .that(parent.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Child fragment should have an options menu")
-            .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
+            .that(parent.mChildFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding child fragment with options menu and parent fragment " +
-                "without should invalidate menu only once"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Adding child fragment with options menu and parent fragment " +
+                    "without should invalidate menu only once"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(parent.childFragment)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(parent.childFragment).commit()
+        activityRule.executePendingTransactions()
+        assertWithMessage("Removing child fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
+
+        fm.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing child fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
-
-        fm.beginTransaction()
-            .remove(parent)
-            .commit()
-        activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing parent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing parent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun childFragmentWithOptionsMenuParentMenuVisibilityFalse() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
@@ -230,19 +240,21 @@ class OptionsMenuFragmentTest {
         val fm = activity.supportFragmentManager
 
         parent.setMenuVisibility(false)
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, parent, "parent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, parent, "parent").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should not have an options menu")
-            .that(parent.hasOptionsMenu()).isFalse()
+            .that(parent.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Child fragment should have an options menu")
-            .that(parent.childFragmentManager.checkForMenus()).isTrue()
+            .that(parent.childFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding child fragment with options menu and parent fragment " +
-                "without should invalidate menu only once"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Adding child fragment with options menu and parent fragment " +
+                    "without should invalidate menu only once"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         activityRule.runOnUiThread {
             assertWithMessage("child fragment onCreateOptions menu was not called")
@@ -250,27 +262,28 @@ class OptionsMenuFragmentTest {
                 .isEqualTo(1)
         }
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(parent.childFragment)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(parent.childFragment).commit()
         activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing child fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+        assertWithMessage("Removing child fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
 
-        fm.beginTransaction()
-            .remove(parent)
-            .commit()
+        fm.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing parent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing parent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun childFragmentWithPrepareOptionsMenuParentMenuVisibilityFalse() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
@@ -278,19 +291,21 @@ class OptionsMenuFragmentTest {
         val fm = activity.supportFragmentManager
 
         parent.setMenuVisibility(false)
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, parent, "parent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, parent, "parent").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should not have an options menu")
-            .that(parent.hasOptionsMenu()).isFalse()
+            .that(parent.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Child fragment should have an options menu")
-            .that(parent.childFragmentManager.checkForMenus()).isTrue()
+            .that(parent.childFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding child fragment with options menu and parent fragment " +
-                "without should invalidate menu only once"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Adding child fragment with options menu and parent fragment " +
+                    "without should invalidate menu only once"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         activityRule.runOnUiThread {
             assertWithMessage("child fragment onCreateOptions menu was not called")
@@ -298,195 +313,207 @@ class OptionsMenuFragmentTest {
                 .isEqualTo(1)
         }
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(parent.childFragment)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(parent.childFragment).commit()
         activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing child fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+        assertWithMessage("Removing child fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
 
-        fm.beginTransaction()
-            .remove(parent)
-            .commit()
+        fm.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing parent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing parent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun parentAndChildFragmentWithOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val parent = ParentOptionsMenuFragment(true)
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, parent, "parent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, parent, "parent").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should have an options menu")
-            .that(parent.hasOptionsMenu()).isTrue()
+            .that(parent.hasOptionsMenu())
+            .isTrue()
         assertWithMessage("Child fragment should have an options menu")
-            .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
+            .that(parent.mChildFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding parent and child fragment both with options menu should invalidate menu twice"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Adding parent and child fragment both with options menu should invalidate menu twice"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(parent.childFragment)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(parent.childFragment).commit()
         activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing child fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(4)
+        assertWithMessage("Removing child fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(4)
 
-        fm.beginTransaction()
-            .remove(parent)
-            .commit()
+        fm.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing parent fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(5)
+        assertWithMessage("Removing parent fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(5)
     }
 
     @Test
     fun grandchildFragmentWithOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val grandParent = StrictViewFragment(R.layout.double_container)
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, grandParent, "grandParent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, grandParent, "grandParent").commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Adding grandparent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(1)
+                "Adding grandparent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(1)
 
         val parent = ParentOptionsMenuFragment()
-        grandParent.childFragmentManager.beginTransaction()
+        grandParent.childFragmentManager
+            .beginTransaction()
             .add(R.id.fragmentContainer1, parent)
             .commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Parent fragment should not have an options menu")
-            .that(grandParent.hasOptionsMenu()).isFalse()
+            .that(grandParent.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Grandchild fragment should have an options menu")
-            .that(grandParent.mChildFragmentManager.checkForMenus()).isTrue()
+            .that(grandParent.mChildFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding grandchild fragment with options menu and " +
-            "parent fragment without should invalidate menu only once"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Adding grandchild fragment with options menu and " +
+                    "parent fragment without should invalidate menu only once"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(parent.childFragment)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(parent.childFragment).commit()
+        activityRule.executePendingTransactions()
+        assertWithMessage("Removing grandchild fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
+
+        grandParent.mChildFragmentManager.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing grandchild fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing parent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
 
-        grandParent.mChildFragmentManager.beginTransaction()
-            .remove(parent)
-            .commit()
+        fm.beginTransaction().remove(grandParent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing parent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
-
-        fm.beginTransaction()
-            .remove(grandParent)
-            .commit()
-        activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing grandparent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing grandparent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     // Ensure that we check further than just the first child fragment
     @Test
     fun secondChildFragmentWithOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val parent = StrictViewFragment(R.layout.double_container)
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, parent, "parent")
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, parent, "parent").commit()
         activityRule.executePendingTransactions()
 
         val childWithoutMenu = Fragment()
-        parent.childFragmentManager.beginTransaction()
+        parent.childFragmentManager
+            .beginTransaction()
             .add(R.id.fragmentContainer1, childWithoutMenu)
             .commit()
         activityRule.executePendingTransactions()
 
         val childWithMenu = MenuFragment()
-        parent.childFragmentManager.beginTransaction()
+        parent.childFragmentManager
+            .beginTransaction()
             .add(R.id.fragmentContainer2, childWithMenu)
             .commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("Fragment should not have an options menu")
-            .that(parent.hasOptionsMenu()).isFalse()
+            .that(parent.hasOptionsMenu())
+            .isFalse()
         assertWithMessage("Second child fragment should have an options menu")
-            .that(parent.mChildFragmentManager.checkForMenus()).isTrue()
+            .that(parent.mChildFragmentManager.checkForMenus())
+            .isTrue()
         assertWithMessage(
-            "Adding second child fragment with options menu and the parent and " +
-                "first child fragments without should invalidate menu only once"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Adding second child fragment with options menu and the parent and " +
+                    "first child fragments without should invalidate menu only once"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(childWithoutMenu)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(childWithoutMenu).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing first child fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(2)
+                "Removing first child fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
-        parent.mChildFragmentManager.beginTransaction()
-            .remove(childWithMenu)
-            .commit()
+        parent.mChildFragmentManager.beginTransaction().remove(childWithMenu).commit()
+        activityRule.executePendingTransactions()
+        assertWithMessage("Removing second child fragment with options menu should invalidate menu")
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
+
+        fm.beginTransaction().remove(parent).commit()
         activityRule.executePendingTransactions()
         assertWithMessage(
-            "Removing second child fragment with options menu should invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
-
-        fm.beginTransaction()
-            .remove(parent)
-            .commit()
-        activityRule.executePendingTransactions()
-        assertWithMessage(
-            "Removing parent fragment without options menu should not invalidate menu"
-        ).that(activity.invalidateCount).isEqualTo(3)
+                "Removing parent fragment without options menu should not invalidate menu"
+            )
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun onPrepareOptionsMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = MenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Adding fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(2)
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         openActionBarOverflowOrOptionsMenu(activity.applicationContext)
         onView(ViewMatchers.withText("Item1")).perform(ViewActions.click())
@@ -494,29 +521,30 @@ class OptionsMenuFragmentTest {
             .that(fragment.onPrepareOptionsMenuCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
             .isTrue()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Removing fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(3)
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun inflatesMenu() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = MenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Adding fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(2)
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         openActionBarOverflowOrOptionsMenu(activity.applicationContext)
         onView(ViewMatchers.withText("Item1"))
@@ -524,29 +552,30 @@ class OptionsMenuFragmentTest {
         onView(ViewMatchers.withText("Item2"))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Removing fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(3)
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun menuItemSelected() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = MenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Adding fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(2)
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         openActionBarOverflowOrOptionsMenu(activity.applicationContext)
         onView(ViewMatchers.withText("Item1")).perform(ViewActions.click())
@@ -554,44 +583,42 @@ class OptionsMenuFragmentTest {
         openActionBarOverflowOrOptionsMenu(activity.applicationContext)
         onView(ViewMatchers.withText("Item2")).perform(ViewActions.click())
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Removing fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(3)
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Test
     fun onOptionsMenuClosed() {
         val activity = activityRule.getActivity()
-        /** Internal call to [FragmentTestActivity.invalidateMenu] from [FragmentTestActivity.addMenuProvider] upon activity creation */
+        /**
+         * Internal call to [FragmentTestActivity.invalidateMenu] from
+         * [FragmentTestActivity.addMenuProvider] upon activity creation
+         */
         assertThat(activity.invalidateCount).isEqualTo(1)
 
         activityRule.setContentView(R.layout.simple_container)
         val fragment = MenuFragment()
         val fm = activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(R.id.fragmentContainer, fragment)
-            .commit()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Adding fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(2)
+            .that(activity.invalidateCount)
+            .isEqualTo(2)
 
         openActionBarOverflowOrOptionsMenu(activity.applicationContext)
-        activityRule.runOnUiThread {
-            activity.closeOptionsMenu()
-        }
+        activityRule.runOnUiThread { activity.closeOptionsMenu() }
         assertWithMessage("onOptionsMenuClosed was not called")
             .that(fragment.onOptionsMenuClosedCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
             .isTrue()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commit()
+        fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
         assertWithMessage("Removing fragment with options menu should invalidate menu")
-            .that(activity.invalidateCount).isEqualTo(3)
+            .that(activity.invalidateCount)
+            .isEqualTo(3)
     }
 
     @Suppress("DEPRECATION")
@@ -623,9 +650,8 @@ class OptionsMenuFragmentTest {
     }
 
     @Suppress("DEPRECATION")
-    class ParentOptionsMenuFragment(
-        val createMenu: Boolean = false
-    ) : StrictViewFragment(R.layout.double_container) {
+    class ParentOptionsMenuFragment(val createMenu: Boolean = false) :
+        StrictViewFragment(R.layout.double_container) {
         val childFragment = MenuFragment()
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -640,7 +666,8 @@ class OptionsMenuFragmentTest {
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            childFragmentManager.beginTransaction()
+            childFragmentManager
+                .beginTransaction()
                 .replace(R.id.fragmentContainer1, childFragment)
                 .commit()
             childFragmentManager.executePendingTransactions()

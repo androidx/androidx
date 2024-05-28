@@ -39,16 +39,11 @@ import androidx.glance.layout.wrapContentHeight
 import androidx.glance.layout.wrapContentSize
 import androidx.glance.text.Text
 
-/**
- * Sample AppWidget that showcase the [AndroidRemoteViews] fallback composable.
- */
+/** Sample AppWidget that showcase the [AndroidRemoteViews] fallback composable. */
 class RemoteViewsWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.White),
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally
@@ -58,11 +53,11 @@ class RemoteViewsWidget : GlanceAppWidget() {
                 RemoteViews(LocalContext.current.packageName, R.layout.test_remote_views_single)
             AndroidRemoteViews(
                 remoteViews = remoteViews,
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .cornerRadius(16.dp)
-                    .background(Color.Red)
+                modifier =
+                    GlanceModifier.fillMaxWidth()
+                        .wrapContentHeight()
+                        .cornerRadius(16.dp)
+                        .background(Color.Red)
             )
 
             // Demonstrates a remote view layout being used as a container for regular glance

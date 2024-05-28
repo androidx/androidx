@@ -45,23 +45,18 @@ class PreferencesSerializerJavaTest {
     fun setUp() {
         testFile = testIO.newTempFile()
     }
+
     fun doTest(test: suspend TestScope.() -> Unit) {
-        runTest(timeout = 10000.milliseconds) {
-            test(this)
-        }
+        runTest(timeout = 10000.milliseconds) { test(this) }
     }
 
     @Test
     fun testThrowsCorruptionException() = doTest {
         // Not a valid proto - protos cannot start with a 0 byte.
-        fileSystem.write(testFile.path) {
-            this.write(byteArrayOf(0, 1, 2, 3, 4))
-        }
+        fileSystem.write(testFile.path) { this.write(byteArrayOf(0, 1, 2, 3, 4)) }
 
         assertFailsWith<CorruptionException> {
-            fileSystem.read(testFile.path) {
-                preferencesSerializer.readFrom(this)
-            }
+            fileSystem.read(testFile.path) { preferencesSerializer.readFrom(this) }
         }
     }
 
@@ -69,18 +64,12 @@ class PreferencesSerializerJavaTest {
     @Suppress("UNCHECKED_CAST")
     fun testGetAllCantMutateInternalState() {
         val intKey = intPreferencesKey("int_key")
-        val stringSetKey =
-            stringSetPreferencesKey("string_set_key")
+        val stringSetKey = stringSetPreferencesKey("string_set_key")
 
-        val prefs = preferencesOf(
-            intKey to 123,
-            stringSetKey to setOf("1", "2", "3")
-        )
+        val prefs = preferencesOf(intKey to 123, stringSetKey to setOf("1", "2", "3"))
 
         val mutableAllPreferences = prefs.asMap() as MutableMap
-        assertFailsWith<UnsupportedOperationException> {
-            mutableAllPreferences[intKey] = 99999
-        }
+        assertFailsWith<UnsupportedOperationException> { mutableAllPreferences[intKey] = 99999 }
         assertFailsWith<UnsupportedOperationException> {
             (mutableAllPreferences[stringSetKey] as MutableSet<String>).clear()
         }
@@ -91,8 +80,7 @@ class PreferencesSerializerJavaTest {
 
     @Test
     fun testModifyingStringSetDoesntModifyInternalState() {
-        val stringSetKey =
-            stringSetPreferencesKey("string_set_key")
+        val stringSetKey = stringSetPreferencesKey("string_set_key")
 
         val stringSet = mutableSetOf("1", "2", "3")
 
@@ -104,9 +92,7 @@ class PreferencesSerializerJavaTest {
         val returnedSet: Set<String> = prefs[stringSetKey]!!
         val mutableReturnedSet: MutableSet<String> = returnedSet as MutableSet<String>
 
-        assertFailsWith<UnsupportedOperationException> {
-            mutableReturnedSet.clear()
-        }
+        assertFailsWith<UnsupportedOperationException> { mutableReturnedSet.clear() }
         assertFailsWith<UnsupportedOperationException> {
             mutableReturnedSet.add("Original set does not contain this string")
         }
@@ -119,8 +105,7 @@ class PreferencesSerializerJavaTest {
     @Suppress("UNUSED_VARIABLE")
     fun testWrongTypeThrowsClassCastException() {
         val stringKey = stringPreferencesKey("string_key")
-        val intKey =
-            intPreferencesKey("string_key") // long key of the same name as stringKey!
+        val intKey = intPreferencesKey("string_key") // long key of the same name as stringKey!
         val longKey = longPreferencesKey("string_key")
 
         val prefs = preferencesOf(intKey to 123456)

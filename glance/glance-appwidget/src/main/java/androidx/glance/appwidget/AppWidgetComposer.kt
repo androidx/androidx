@@ -51,12 +51,13 @@ suspend fun GlanceAppWidget.compose(
     state: Any? = null,
 ): RemoteViews =
     runComposition(
-        context = context,
-        id = id,
-        options = options ?: Bundle(),
-        sizes = size?.let { listOf(size) },
-        state = state
-    ).first()
+            context = context,
+            id = id,
+            options = options ?: Bundle(),
+            sizes = size?.let { listOf(size) },
+            state = state
+        )
+        .first()
 
 /**
  * Returns a Flow<RemoteViews> that, on collection, starts a composition session for this
@@ -79,28 +80,36 @@ fun GlanceAppWidget.runComposition(
     sizes: List<DpSize>? = null,
     state: Any? = null,
 ): Flow<RemoteViews> = flow {
-    val session = AppWidgetSession(
-        widget = this@runComposition,
-        id = id as AppWidgetId,
-        initialOptions = sizes?.let { optionsBundleOf(it).apply { putAll(options) } } ?: options,
-        initialGlanceState = state,
-        lambdaReceiver = ComponentName(context, UnmanagedSessionReceiver::class.java),
-        sizeMode = if (sizes != null) {
-            // If sizes are provided to this function, override to SizeMode.Exact so we can use them.
-            SizeMode.Exact
-        } else if (sizeMode is SizeMode.Responsive || id.isRealId) {
-            // If sizes are not provided and the widget is SizeMode.Responsive, use those sizes.
-            // Else if sizes are not provided but this is a bound widget, use the widget's sizeMode
-            // (Single or Exact).
-            sizeMode
-        } else {
-            // When no sizes are provided, the widget is not SizeMode.Responsive, and we are not
-            // composing for a bound widget, use SizeMode.Exact (which means AppWidgetSession will
-            // use DpSize.Zero).
-            SizeMode.Exact
-        },
-        shouldPublish = false,
-    )
+    val session =
+        AppWidgetSession(
+            widget = this@runComposition,
+            id = id as AppWidgetId,
+            initialOptions =
+                sizes?.let { optionsBundleOf(it).apply { putAll(options) } } ?: options,
+            initialGlanceState = state,
+            lambdaReceiver = ComponentName(context, UnmanagedSessionReceiver::class.java),
+            sizeMode =
+                if (sizes != null) {
+                    // If sizes are provided to this function, override to SizeMode.Exact so we can
+                    // use them.
+                    SizeMode.Exact
+                } else if (sizeMode is SizeMode.Responsive || id.isRealId) {
+                    // If sizes are not provided and the widget is SizeMode.Responsive, use those
+                    // sizes.
+                    // Else if sizes are not provided but this is a bound widget, use the widget's
+                    // sizeMode
+                    // (Single or Exact).
+                    sizeMode
+                } else {
+                    // When no sizes are provided, the widget is not SizeMode.Responsive, and we are
+                    // not
+                    // composing for a bound widget, use SizeMode.Exact (which means
+                    // AppWidgetSession will
+                    // use DpSize.Zero).
+                    SizeMode.Exact
+                },
+            shouldPublish = false,
+        )
     coroutineScope {
         launch {
             // Register this session to receive lambda actions and provide list items while this
@@ -111,8 +120,6 @@ fun GlanceAppWidget.runComposition(
             session.runSession(context)
             this@coroutineScope.cancel()
         }
-        session.lastRemoteViews
-            .filterNotNull()
-            .collect { emit(it) }
+        session.lastRemoteViews.filterNotNull().collect { emit(it) }
     }
 }

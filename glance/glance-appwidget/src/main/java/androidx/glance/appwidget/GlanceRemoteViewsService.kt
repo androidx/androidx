@@ -83,9 +83,7 @@ class GlanceRemoteViewsService : RemoteViewsService() {
 
         // Removes items in the store for the requested view in appwidget for the specified size.
         private fun removeItems(appWidgetId: Int, viewId: Int, sizeInfo: String) {
-            synchronized(InMemoryStore) {
-                InMemoryStore.removeItems(appWidgetId, viewId, sizeInfo)
-            }
+            synchronized(InMemoryStore) { InMemoryStore.removeItems(appWidgetId, viewId, sizeInfo) }
         }
     }
 
@@ -128,18 +126,20 @@ class GlanceRemoteViewsService : RemoteViewsService() {
         }
 
         private suspend fun startSessionIfNeededAndWaitUntilReady(glanceId: AppWidgetId) {
-            val job = getGlanceAppWidget()?.let { widget ->
-                GlanceSessionManager.runWithLock {
-                    if (isSessionRunning(context, glanceId.toSessionKey())) {
-                        // If session is already running, data must have already been loaded into
-                        // the store during composition.
-                        return@runWithLock null
+            val job =
+                getGlanceAppWidget()?.let { widget ->
+                    GlanceSessionManager.runWithLock {
+                        if (isSessionRunning(context, glanceId.toSessionKey())) {
+                            // If session is already running, data must have already been loaded
+                            // into
+                            // the store during composition.
+                            return@runWithLock null
+                        }
+                        startSession(context, AppWidgetSession(widget, glanceId))
+                        val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
+                        session.waitForReady()
                     }
-                    startSession(context, AppWidgetSession(widget, glanceId))
-                    val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
-                    session.waitForReady()
-                }
-            } ?: UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()
+                } ?: UnmanagedSessionReceiver.getSession(appWidgetId)?.waitForReady()
             // The following join() may throw CancellationException if the session is closed before
             // it is ready. This will have the effect of cancelling the runBlocking scope.
             job?.join()
@@ -150,8 +150,8 @@ class GlanceRemoteViewsService : RemoteViewsService() {
             val providerInfo = appWidgetManager.getAppWidgetInfo(appWidgetId)
             return providerInfo?.provider?.className?.let { className ->
                 val receiverClass = Class.forName(className)
-                (receiverClass.getDeclaredConstructor()
-                    .newInstance() as GlanceAppWidgetReceiver).glanceAppWidget
+                (receiverClass.getDeclaredConstructor().newInstance() as GlanceAppWidgetReceiver)
+                    .glanceAppWidget
             }
         }
 
@@ -190,9 +190,7 @@ class GlanceRemoteViewsService : RemoteViewsService() {
     }
 }
 
-/**
- * An in-memory store holding [RemoteCollectionItems] for each sized lazy view in appWidgets.
- */
+/** An in-memory store holding [RemoteCollectionItems] for each sized lazy view in appWidgets. */
 private class RemoteCollectionItemsInMemoryStore {
     private val items = mutableMapOf<String, RemoteCollectionItems>()
 
@@ -205,16 +203,12 @@ private class RemoteCollectionItemsInMemoryStore {
         items[key(appWidgetId, viewId, sizeInfo)] = remoteCollectionItems
     }
 
-    /**
-     * Returns the collection items corresponding to the requested view in appwidget and size.
-     */
+    /** Returns the collection items corresponding to the requested view in appwidget and size. */
     fun getItems(appWidgetId: Int, viewId: Int, sizeInfo: String): RemoteCollectionItems {
         return items[key(appWidgetId, viewId, sizeInfo)] ?: RemoteCollectionItems.Empty
     }
 
-    /**
-     * Removes the collection items corresponding to the requested view in appwidget and size.
-     */
+    /** Removes the collection items corresponding to the requested view in appwidget and size. */
     fun removeItems(appWidgetId: Int, viewId: Int, sizeInfo: String) {
         items.remove(key(appWidgetId, viewId, sizeInfo))
     }
@@ -244,24 +238,20 @@ internal fun RemoteViews.setRemoteAdapter(
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
         CollectionItemsApi31Impl.setRemoteAdapter(this, viewId, items)
     } else {
-        val intent = Intent(context, GlanceRemoteViewsService::class.java)
-            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-            .putExtra(GlanceRemoteViewsService.EXTRA_VIEW_ID, viewId)
-            .putExtra(GlanceRemoteViewsService.EXTRA_SIZE_INFO, sizeInfo)
-            .apply {
-                // Set a data Uri to disambiguate Intents for different widget/view ids.
-                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
-            }
+        val intent =
+            Intent(context, GlanceRemoteViewsService::class.java)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                .putExtra(GlanceRemoteViewsService.EXTRA_VIEW_ID, viewId)
+                .putExtra(GlanceRemoteViewsService.EXTRA_SIZE_INFO, sizeInfo)
+                .apply {
+                    // Set a data Uri to disambiguate Intents for different widget/view ids.
+                    data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
+                }
         check(context.packageManager.resolveService(intent, 0) != null) {
             "GlanceRemoteViewsService could not be resolved, check the app manifest."
         }
         setRemoteAdapter(viewId, intent)
-        GlanceRemoteViewsService.saveItems(
-            appWidgetId,
-            viewId,
-            sizeInfo,
-            items
-        )
+        GlanceRemoteViewsService.saveItems(appWidgetId, viewId, sizeInfo, items)
         AppWidgetManager.getInstance(context).notifyAppWidgetViewDataChanged(appWidgetId, viewId)
     }
 }
@@ -274,8 +264,7 @@ private object CollectionItemsApi31Impl {
     }
 
     @DoNotInline
-    fun toPlatformCollectionItems(items: RemoteCollectionItems):
-        RemoteViews.RemoteCollectionItems {
+    fun toPlatformCollectionItems(items: RemoteCollectionItems): RemoteViews.RemoteCollectionItems {
         return RemoteViews.RemoteCollectionItems.Builder()
             .setHasStableIds(items.hasStableIds())
             .setViewTypeCount(items.viewTypeCount)

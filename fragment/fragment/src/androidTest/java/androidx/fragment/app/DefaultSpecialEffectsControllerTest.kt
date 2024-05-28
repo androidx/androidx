@@ -34,50 +34,46 @@ import org.mockito.Mockito.mock
 @MediumTest
 class DefaultSpecialEffectsControllerTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun fragmentManagerGetSetSpecialEffectsController() {
-       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val factory = SpecialEffectsControllerFactory {
                 mock(SpecialEffectsController::class.java)
             }
             fm.specialEffectsControllerFactory = factory
-            assertThat(fm.specialEffectsControllerFactory)
-                .isEqualTo(factory)
+            assertThat(fm.specialEffectsControllerFactory).isEqualTo(factory)
         }
     }
 
     /**
-     * Ensure that FragmentManager returns [DefaultSpecialEffectsController] implementations
-     * from its default factory
+     * Ensure that FragmentManager returns [DefaultSpecialEffectsController] implementations from
+     * its default factory
      */
     @Test
     fun fragmentManagerDefaultFactory() {
-       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val fm = withActivity { supportFragmentManager }
             val factory = fm.specialEffectsControllerFactory
             val controller = factory.createController(container)
-            assertThat(controller)
-                .isInstanceOf(DefaultSpecialEffectsController::class.java)
+            assertThat(controller).isInstanceOf(DefaultSpecialEffectsController::class.java)
         }
     }
 
     /**
-     * Ensure that FragmentManager returns [DefaultSpecialEffectsController] implementations
-     * from its default factory when using [SpecialEffectsController.getOrCreateController].
+     * Ensure that FragmentManager returns [DefaultSpecialEffectsController] implementations from
+     * its default factory when using [SpecialEffectsController.getOrCreateController].
      */
     @Test
     fun fragmentManagerGetOrCreateController() {
-       withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }
             val controller = SpecialEffectsController.getOrCreateController(container, fm)
-            assertThat(controller)
-                .isInstanceOf(DefaultSpecialEffectsController::class.java)
+            assertThat(controller).isInstanceOf(DefaultSpecialEffectsController::class.java)
         }
     }
 }

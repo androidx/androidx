@@ -36,27 +36,24 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class DrawerBackHandlingTest {
     @get:Rule
-    public val activityScenarioRule = ActivityScenarioRule(
-        DrawerSingleStartActivity::class.java
-    )
+    public val activityScenarioRule = ActivityScenarioRule(DrawerSingleStartActivity::class.java)
 
     @Ignore
     @Test
     @SmallTest
     public fun testBackPress() {
         val listener = ObservableDrawerListener()
-        val drawerLayout = activityScenarioRule.withActivity {
-            val drawerLayout = findViewById<DrawerLayout>(R.id.drawer)
-            drawerLayout.addDrawerListener(listener)
-            drawerLayout.open()
-            drawerLayout
-        }
+        val drawerLayout =
+            activityScenarioRule.withActivity {
+                val drawerLayout = findViewById<DrawerLayout>(R.id.drawer)
+                drawerLayout.addDrawerListener(listener)
+                drawerLayout.open()
+                drawerLayout
+            }
 
         // Wait until the animation ends. We disable animations on test
         // devices, but this is useful when running on a local device.
-        PollingCheck.waitFor {
-            listener.drawerOpenedCalled
-        }
+        PollingCheck.waitFor { listener.drawerOpenedCalled }
         listener.reset()
 
         // Ensure that back pressed dispatcher callback is registered on T+.
@@ -66,9 +63,7 @@ public class DrawerBackHandlingTest {
 
         Espresso.onView(ViewMatchers.isRoot()).perform(ViewActions.pressKey(KeyEvent.KEYCODE_BACK))
 
-        PollingCheck.waitFor {
-            listener.drawerClosedCalled
-        }
+        PollingCheck.waitFor { listener.drawerClosedCalled }
         listener.reset()
 
         Assert.assertNull(drawerLayout.findOpenDrawer())

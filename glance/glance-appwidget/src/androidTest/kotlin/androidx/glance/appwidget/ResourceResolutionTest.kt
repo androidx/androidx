@@ -36,17 +36,13 @@ import org.junit.Test
 @MediumTest
 class ResourceResolutionTest {
 
-    @get:Rule
-    val mHostRule = AppWidgetHostRule()
+    @get:Rule val mHostRule = AppWidgetHostRule()
 
     @Test
     fun resolveFromResources() {
         TestGlanceAppWidget.uiDefinition = {
             Column(modifier = GlanceModifier.fillMaxSize()) {
-                Text(
-                    "dimension",
-                    modifier = GlanceModifier.width(R.dimen.testDimension)
-                )
+                Text("dimension", modifier = GlanceModifier.width(R.dimen.testDimension))
             }
         }
 
@@ -55,11 +51,8 @@ class ResourceResolutionTest {
         mHostRule.onHostView { hostView ->
             val textView =
                 assertNotNull(hostView.findChild<TextView> { it.text.toString() == "dimension" })
-            assertThat(textView.measuredWidth).isEqualTo(
-                textView.context.resources.getDimensionPixelSize(
-                    R.dimen.testDimension
-                )
-            )
+            assertThat(textView.measuredWidth)
+                .isEqualTo(textView.context.resources.getDimensionPixelSize(R.dimen.testDimension))
         }
     }
 
@@ -69,9 +62,10 @@ class ResourceResolutionTest {
             Column(modifier = GlanceModifier.fillMaxSize()) {
                 Text(
                     "dimension",
-                    modifier = GlanceModifier.fillMaxSize()
-                        .padding(horizontal = 15.dp)
-                        .padding(vertical = R.dimen.testDimension)
+                    modifier =
+                        GlanceModifier.fillMaxSize()
+                            .padding(horizontal = 15.dp)
+                            .padding(vertical = R.dimen.testDimension)
                 )
             }
         }
@@ -84,16 +78,10 @@ class ResourceResolutionTest {
                 assertNotNull(hostView.findChild<TextView> { it.text.toString() == "dimension" })
             assertThat(textView.paddingLeft).isEqualTo(15.dp.toPixels(displayMetrics))
             assertThat(textView.paddingRight).isEqualTo(15.dp.toPixels(displayMetrics))
-            assertThat(textView.paddingTop).isEqualTo(
-                textView.context.resources.getDimensionPixelSize(
-                    R.dimen.testDimension
-                )
-            )
-            assertThat(textView.paddingBottom).isEqualTo(
-                textView.context.resources.getDimensionPixelSize(
-                    R.dimen.testDimension
-                )
-            )
+            assertThat(textView.paddingTop)
+                .isEqualTo(textView.context.resources.getDimensionPixelSize(R.dimen.testDimension))
+            assertThat(textView.paddingBottom)
+                .isEqualTo(textView.context.resources.getDimensionPixelSize(R.dimen.testDimension))
         }
     }
 }

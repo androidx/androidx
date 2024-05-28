@@ -31,9 +31,7 @@ import androidx.glance.GlanceNode
 fun AndroidLayoutElement(layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement) {
     GlanceNode(
         factory = ::EmittableAndroidLayoutElement,
-        update = {
-            this.set(layoutElement) { this.layoutElement = it }
-        },
+        update = { this.set(layoutElement) { this.layoutElement = it } },
     )
 }
 
@@ -42,10 +40,11 @@ internal class EmittableAndroidLayoutElement : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
     lateinit var layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement
 
-    override fun copy(): Emittable = EmittableAndroidLayoutElement().also {
-        it.modifier = modifier
-        it.layoutElement = layoutElement
-    }
+    override fun copy(): Emittable =
+        EmittableAndroidLayoutElement().also {
+            it.modifier = modifier
+            it.layoutElement = layoutElement
+        }
 
     override fun toString(): String = "EmittableAndroidLayoutElement()"
 }

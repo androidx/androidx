@@ -40,10 +40,7 @@ public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
-): FragmentScenario<F> = launchFragment(
-    fragmentArgs, themeResId, Lifecycle.State.RESUMED,
-    factory
-)
+): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
 @Deprecated(
     "Superseded by launchFragment that takes an initialState",
@@ -53,9 +50,7 @@ public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     crossinline instantiate: () -> F
-): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId) {
-    instantiate()
-}
+): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId) { instantiate() }
 
 @Deprecated(
     "Superseded by launchFragmentInContainer that takes an initialState",
@@ -65,10 +60,8 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     factory: FragmentFactory? = null
-): FragmentScenario<F> = launchFragmentInContainer(
-    fragmentArgs, themeResId, Lifecycle.State.RESUMED,
-    factory
-)
+): FragmentScenario<F> =
+    launchFragmentInContainer(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
 @Deprecated(
     "Superseded by launchFragmentInContainer that takes an initialState",
@@ -78,20 +71,18 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     crossinline instantiate: () -> F
-): FragmentScenario<F> = launchFragmentInContainer(fragmentArgs, themeResId) {
-    instantiate()
-}
+): FragmentScenario<F> = launchFragmentInContainer(fragmentArgs, themeResId) { instantiate() }
 
 /**
- * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using
- * given [FragmentFactory] and waits for it to reach [initialState].
+ * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using given
+ * [FragmentFactory] and waits for it to reach [initialState].
  *
  * This method cannot be called from the main thread.
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
  * @param initialState the initial [Lifecycle.State]. Passing in
- * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+ *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -99,10 +90,7 @@ public inline fun <reified F : Fragment> launchFragment(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     factory: FragmentFactory? = null
-): FragmentScenario<F> = launch(
-    F::class.java, fragmentArgs, themeResId, initialState,
-    factory
-)
+): FragmentScenario<F> = launch(F::class.java, fragmentArgs, themeResId, initialState, factory)
 
 /**
  * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using
@@ -113,7 +101,7 @@ public inline fun <reified F : Fragment> launchFragment(
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
  * @param initialState the initial [Lifecycle.State]. Passing in
- * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+ *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment.
  */
 public inline fun <reified F : Fragment> launchFragment(
@@ -121,29 +109,31 @@ public inline fun <reified F : Fragment> launchFragment(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-): FragmentScenario<F> = launch(
-    F::class.java, fragmentArgs, themeResId, initialState,
-    object : FragmentFactory() {
-        override fun instantiate(
-            classLoader: ClassLoader,
-            className: String
-        ) = when (className) {
-            F::class.java.name -> instantiate()
-            else -> super.instantiate(classLoader, className)
+): FragmentScenario<F> =
+    launch(
+        F::class.java,
+        fragmentArgs,
+        themeResId,
+        initialState,
+        object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String) =
+                when (className) {
+                    F::class.java.name -> instantiate()
+                    else -> super.instantiate(classLoader, className)
+                }
         }
-    }
-)
+    )
 
 /**
- * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
- * given arguments hosted by an empty [FragmentActivity] and waits for it to reach [initialState].
+ * Launches a Fragment in the Activity's root view container `android.R.id.content`, with given
+ * arguments hosted by an empty [FragmentActivity] and waits for it to reach [initialState].
  *
  * This method cannot be called from the main thread.
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
  * @param initialState the initial [Lifecycle.State]. Passing in
- * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+ *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param factory a fragment factory to use or null to use default factory
  */
 public inline fun <reified F : Fragment> launchFragmentInContainer(
@@ -151,43 +141,49 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     factory: FragmentFactory? = null
-): FragmentScenario<F> = FragmentScenario.launchInContainer(
-    F::class.java, fragmentArgs, themeResId, initialState,
-    factory
-)
+): FragmentScenario<F> =
+    FragmentScenario.launchInContainer(
+        F::class.java,
+        fragmentArgs,
+        themeResId,
+        initialState,
+        factory
+    )
 
 /**
- * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
- * given arguments hosted by an empty [FragmentActivity] using
- * [instantiate] to create the Fragment and waits for it to reach [initialState].
+ * Launches a Fragment in the Activity's root view container `android.R.id.content`, with given
+ * arguments hosted by an empty [FragmentActivity] using [instantiate] to create the Fragment and
+ * waits for it to reach [initialState].
  *
  * This method cannot be called from the main thread.
  *
  * @param fragmentArgs a bundle to passed into fragment
  * @param themeResId a style resource id to be set to the host activity's theme
  * @param initialState the initial [Lifecycle.State]. Passing in
- * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+ *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
  * @param instantiate method which will be used to instantiate the Fragment. This is a
- * simplification of the [FragmentFactory] interface for cases where only a single class
- * needs a custom constructor called.
+ *   simplification of the [FragmentFactory] interface for cases where only a single class needs a
+ *   custom constructor called.
  */
 public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline instantiate: () -> F
-): FragmentScenario<F> = FragmentScenario.launchInContainer(
-    F::class.java, fragmentArgs, themeResId, initialState,
-    object : FragmentFactory() {
-        override fun instantiate(
-            classLoader: ClassLoader,
-            className: String
-        ) = when (className) {
-            F::class.java.name -> instantiate()
-            else -> super.instantiate(classLoader, className)
+): FragmentScenario<F> =
+    FragmentScenario.launchInContainer(
+        F::class.java,
+        fragmentArgs,
+        themeResId,
+        initialState,
+        object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String) =
+                when (className) {
+                    F::class.java.name -> instantiate()
+                    else -> super.instantiate(classLoader, className)
+                }
         }
-    }
-)
+    )
 
 /**
  * Run [block] using [FragmentScenario.onFragment], returning the result of the [block].
@@ -216,19 +212,18 @@ public inline fun <reified F : Fragment, T : Any> FragmentScenario<F>.withFragme
  * works with arbitrary fragments and works consistently across different versions of the Android
  * framework.
  *
- * FragmentScenario only supports [androidx.fragment.app.Fragment][Fragment]. If you are using
- * a deprecated fragment class such as `android.support.v4.app.Fragment` or
- * [android.app.Fragment], please update your code to
- * [androidx.fragment.app.Fragment][Fragment].
+ * FragmentScenario only supports [androidx.fragment.app.Fragment][Fragment]. If you are using a
+ * deprecated fragment class such as `android.support.v4.app.Fragment` or [android.app.Fragment],
+ * please update your code to [androidx.fragment.app.Fragment][Fragment].
  *
- * If your testing Fragment has a dependency to specific theme such as `Theme.AppCompat`,
- * use the theme ID parameter in [launch] method.
+ * If your testing Fragment has a dependency to specific theme such as `Theme.AppCompat`, use the
+ * theme ID parameter in [launch] method.
  *
  * @param F The Fragment class being tested
- *
  * @see ActivityScenario a scenario API for Activity
  */
-public class FragmentScenario<F : Fragment> private constructor(
+public class FragmentScenario<F : Fragment>
+private constructor(
     @Suppress("MemberVisibilityCanBePrivate") /* synthetic access */
     internal val fragmentClass: Class<F>,
     private val activityScenario: ActivityScenario<EmptyFragmentActivity>
@@ -237,34 +232,30 @@ public class FragmentScenario<F : Fragment> private constructor(
     /**
      * Moves Fragment state to a new state.
      *
-     *  If a new state and current state are the same, this method does nothing. It accepts
-     * all [Lifecycle.State]s. [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state.
-     * You cannot move to any other state after the Fragment reaches that state.
+     * If a new state and current state are the same, this method does nothing. It accepts all
+     * [Lifecycle.State]s. [DESTROYED][Lifecycle.State.DESTROYED] is a terminal state. You cannot
+     * move to any other state after the Fragment reaches that state.
      *
      * This method cannot be called from the main thread.
      */
     public fun moveToState(newState: Lifecycle.State): FragmentScenario<F> {
         if (newState == Lifecycle.State.DESTROYED) {
             activityScenario.onActivity { activity ->
-                val fragment = activity.supportFragmentManager
-                    .findFragmentByTag(FRAGMENT_TAG)
+                val fragment = activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
                 // Null means the fragment has been destroyed already.
                 if (fragment != null) {
-                    activity.supportFragmentManager.commitNow {
-                        remove(fragment)
-                    }
+                    activity.supportFragmentManager.commitNow { remove(fragment) }
                 }
             }
         } else {
             activityScenario.onActivity { activity ->
-                val fragment = requireNotNull(
-                    activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
-                ) {
-                    "The fragment has been removed from the FragmentManager already."
-                }
-                activity.supportFragmentManager.commitNow {
-                    setMaxLifecycle(fragment, newState)
-                }
+                val fragment =
+                    requireNotNull(
+                        activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
+                    ) {
+                        "The fragment has been removed from the FragmentManager already."
+                    }
+                activity.supportFragmentManager.commitNow { setMaxLifecycle(fragment, newState) }
             }
         }
         return this
@@ -273,8 +264,8 @@ public class FragmentScenario<F : Fragment> private constructor(
     /**
      * Recreates the host Activity.
      *
-     * After this method call, it is ensured that the Fragment state goes back to the same state
-     * as its previous state.
+     * After this method call, it is ensured that the Fragment state goes back to the same state as
+     * its previous state.
      *
      * This method cannot be called from the main thread.
      */
@@ -288,8 +279,8 @@ public class FragmentScenario<F : Fragment> private constructor(
      * be executed by the main thread. A Fragment that is instrumented by the FragmentScenario is
      * passed to [FragmentAction.perform] method.
      *
-     * You should never keep the Fragment reference as it will lead to unpredictable behaviour.
-     * It should only be accessed in [FragmentAction.perform] scope.
+     * You should never keep the Fragment reference as it will lead to unpredictable behaviour. It
+     * should only be accessed in [FragmentAction.perform] scope.
      */
     public fun interface FragmentAction<F : Fragment> {
         /**
@@ -303,21 +294,20 @@ public class FragmentScenario<F : Fragment> private constructor(
     /**
      * Runs a given [action] on the current Activity's main thread.
      *
-     * Note that you should never keep Fragment reference passed into your [action]
-     * because it can be recreated at anytime during state transitions.
+     * Note that you should never keep Fragment reference passed into your [action] because it can
+     * be recreated at anytime during state transitions.
      *
-     * Throwing an exception from [action] makes the host Activity crash. You can
-     * inspect the exception in logcat outputs.
+     * Throwing an exception from [action] makes the host Activity crash. You can inspect the
+     * exception in logcat outputs.
      *
      * This method cannot be called from the main thread.
      */
     public fun onFragment(action: FragmentAction<F>): FragmentScenario<F> {
         activityScenario.onActivity { activity ->
-            val fragment = requireNotNull(
-                activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
-            ) {
-                "The fragment has been removed from the FragmentManager already."
-            }
+            val fragment =
+                requireNotNull(activity.supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)) {
+                    "The fragment has been removed from the FragmentManager already."
+                }
             check(fragmentClass.isInstance(fragment))
             action.perform(requireNotNull(fragmentClass.cast(fragment)))
         }
@@ -336,9 +326,8 @@ public class FragmentScenario<F : Fragment> private constructor(
         private const val FRAGMENT_TAG = "FragmentScenario_Fragment_Tag"
 
         /**
-         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using
-         * the given [FragmentFactory] and waits for it to reach the resumed state.
-         *
+         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using the
+         * given [FragmentFactory] and waits for it to reach the resumed state.
          *
          * This method cannot be called from the main thread.
          *
@@ -351,18 +340,19 @@ public class FragmentScenario<F : Fragment> private constructor(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
             factory: FragmentFactory?
-        ): FragmentScenario<F> = launch(
-            fragmentClass,
-            fragmentArgs,
-            R.style.FragmentScenarioEmptyFragmentActivityTheme,
-            Lifecycle.State.RESUMED,
-            factory
-        )
+        ): FragmentScenario<F> =
+            launch(
+                fragmentClass,
+                fragmentArgs,
+                R.style.FragmentScenarioEmptyFragmentActivityTheme,
+                Lifecycle.State.RESUMED,
+                factory
+            )
 
         /**
-         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] themed
-         * by [themeResId], using the given [FragmentFactory] and waits for it to reach the
-         * resumed state.
+         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] themed by
+         * [themeResId], using the given [FragmentFactory] and waits for it to reach the resumed
+         * state.
          *
          * This method cannot be called from the main thread.
          *
@@ -377,18 +367,12 @@ public class FragmentScenario<F : Fragment> private constructor(
             fragmentArgs: Bundle?,
             @StyleRes themeResId: Int,
             factory: FragmentFactory?
-        ): FragmentScenario<F> = launch(
-            fragmentClass,
-            fragmentArgs,
-            themeResId,
-            Lifecycle.State.RESUMED,
-            factory
-        )
+        ): FragmentScenario<F> =
+            launch(fragmentClass, fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
         /**
-         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] themed
-         * by [themeResId], using the given [FragmentFactory] and waits for it to reach
-         * [initialState].
+         * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] themed by
+         * [themeResId], using the given [FragmentFactory] and waits for it to reach [initialState].
          *
          * This method cannot be called from the main thread.
          *
@@ -396,7 +380,7 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
          * @param initialState The initial [Lifecycle.State]. Passing in
-         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+         *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads
@@ -407,19 +391,20 @@ public class FragmentScenario<F : Fragment> private constructor(
             @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
             initialState: Lifecycle.State = Lifecycle.State.RESUMED,
             factory: FragmentFactory? = null
-        ): FragmentScenario<F> = internalLaunch(
-            fragmentClass,
-            fragmentArgs,
-            themeResId,
-            initialState,
-            factory,
-            0 /*containerViewId=*/
-        )
+        ): FragmentScenario<F> =
+            internalLaunch(
+                fragmentClass,
+                fragmentArgs,
+                themeResId,
+                initialState,
+                factory,
+                0
+            /* containerViewId= */ )
 
         /**
          * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
-         * given arguments hosted by an empty [FragmentActivity] using the given
-         * [FragmentFactory] and waits for it to reach the resumed state.
+         * given arguments hosted by an empty [FragmentActivity] using the given [FragmentFactory]
+         * and waits for it to reach the resumed state.
          *
          * This method cannot be called from the main thread.
          *
@@ -432,18 +417,19 @@ public class FragmentScenario<F : Fragment> private constructor(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
             factory: FragmentFactory?
-        ): FragmentScenario<F> = launchInContainer(
-            fragmentClass,
-            fragmentArgs,
-            R.style.FragmentScenarioEmptyFragmentActivityTheme,
-            Lifecycle.State.RESUMED,
-            factory
-        )
+        ): FragmentScenario<F> =
+            launchInContainer(
+                fragmentClass,
+                fragmentArgs,
+                R.style.FragmentScenarioEmptyFragmentActivityTheme,
+                Lifecycle.State.RESUMED,
+                factory
+            )
 
         /**
          * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
-         * given arguments hosted by an empty [FragmentActivity] themed by [themeResId],
-         * using the given [FragmentFactory] and waits for it to reach the resumed state.
+         * given arguments hosted by an empty [FragmentActivity] themed by [themeResId], using the
+         * given [FragmentFactory] and waits for it to reach the resumed state.
          *
          * This method cannot be called from the main thread.
          *
@@ -458,18 +444,19 @@ public class FragmentScenario<F : Fragment> private constructor(
             fragmentArgs: Bundle?,
             @StyleRes themeResId: Int,
             factory: FragmentFactory?
-        ): FragmentScenario<F> = launchInContainer(
-            fragmentClass,
-            fragmentArgs,
-            themeResId,
-            Lifecycle.State.RESUMED,
-            factory
-        )
+        ): FragmentScenario<F> =
+            launchInContainer(
+                fragmentClass,
+                fragmentArgs,
+                themeResId,
+                Lifecycle.State.RESUMED,
+                factory
+            )
 
         /**
          * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
-         * given arguments hosted by an empty [FragmentActivity] themed by [themeResId],
-         * using the given [FragmentFactory] and waits for it to reach [initialState].
+         * given arguments hosted by an empty [FragmentActivity] themed by [themeResId], using the
+         * given [FragmentFactory] and waits for it to reach [initialState].
          *
          * This method cannot be called from the main thread.
          *
@@ -477,7 +464,7 @@ public class FragmentScenario<F : Fragment> private constructor(
          * @param fragmentArgs a bundle to passed into fragment
          * @param themeResId a style resource id to be set to the host activity's theme
          * @param initialState The initial [Lifecycle.State]. Passing in
-         * [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
+         *   [DESTROYED][Lifecycle.State.DESTROYED] will result in an [IllegalArgumentException].
          * @param factory a fragment factory to use or null to use default factory
          */
         @JvmOverloads
@@ -488,14 +475,15 @@ public class FragmentScenario<F : Fragment> private constructor(
             @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
             initialState: Lifecycle.State = Lifecycle.State.RESUMED,
             factory: FragmentFactory? = null
-        ): FragmentScenario<F> = internalLaunch(
-            fragmentClass,
-            fragmentArgs,
-            themeResId,
-            initialState,
-            factory,
-            android.R.id.content
-        )
+        ): FragmentScenario<F> =
+            internalLaunch(
+                fragmentClass,
+                fragmentArgs,
+                themeResId,
+                initialState,
+                factory,
+                android.R.id.content
+            )
 
         internal fun <F : Fragment> internalLaunch(
             fragmentClass: Class<F>,
@@ -508,25 +496,26 @@ public class FragmentScenario<F : Fragment> private constructor(
             require(initialState != Lifecycle.State.DESTROYED) {
                 "Cannot set initial Lifecycle state to $initialState for FragmentScenario"
             }
-            val componentName = ComponentName(
-                ApplicationProvider.getApplicationContext(),
-                EmptyFragmentActivity::class.java
-            )
-            val startActivityIntent = Intent.makeMainActivity(componentName)
-                .putExtra(EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY, themeResId)
-            val scenario = FragmentScenario(
-                fragmentClass,
-                ActivityScenario.launch(
-                    startActivityIntent
+            val componentName =
+                ComponentName(
+                    ApplicationProvider.getApplicationContext(),
+                    EmptyFragmentActivity::class.java
                 )
-            )
+            val startActivityIntent =
+                Intent.makeMainActivity(componentName)
+                    .putExtra(EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY, themeResId)
+            val scenario =
+                FragmentScenario(fragmentClass, ActivityScenario.launch(startActivityIntent))
             scenario.activityScenario.onActivity { activity ->
                 if (factory != null) {
                     FragmentFactoryHolderViewModel.getInstance(activity).fragmentFactory = factory
                     activity.supportFragmentManager.fragmentFactory = factory
                 }
-                val fragment = activity.supportFragmentManager.fragmentFactory
-                    .instantiate(requireNotNull(fragmentClass.classLoader), fragmentClass.name)
+                val fragment =
+                    activity.supportFragmentManager.fragmentFactory.instantiate(
+                        requireNotNull(fragmentClass.classLoader),
+                        fragmentClass.name
+                    )
                 fragment.arguments = fragmentArgs
                 activity.supportFragmentManager.commitNow {
                     add(containerViewId, fragment, FRAGMENT_TAG)

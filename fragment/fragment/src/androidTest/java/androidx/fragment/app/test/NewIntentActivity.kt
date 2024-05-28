@@ -28,10 +28,7 @@ class NewIntentActivity : FragmentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .add(FooFragment(), "derp")
-                .commitNow()
+            supportFragmentManager.beginTransaction().add(FooFragment(), "derp").commitNow()
         }
     }
 

@@ -30,8 +30,7 @@ import org.junit.runner.RunWith
 @LargeTest
 class EmojiHasGlyphBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun hasGlyph() {
@@ -39,8 +38,6 @@ class EmojiHasGlyphBenchmark {
         val snowman = POLARBEAR
         val textPaint = TextPaint()
 
-        benchmarkRule.measureRepeated {
-            PaintCompat.hasGlyph(textPaint, snowman)
-        }
+        benchmarkRule.measureRepeated { PaintCompat.hasGlyph(textPaint, snowman) }
     }
 }

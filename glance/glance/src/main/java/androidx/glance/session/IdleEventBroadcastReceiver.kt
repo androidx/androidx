@@ -29,19 +29,17 @@ import kotlinx.coroutines.launch
 
 internal class IdleEventBroadcastReceiver(val onIdle: () -> Unit) : BroadcastReceiver() {
     companion object {
-        val events = listOf(
-            PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED,
-            PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED,
-            PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED
-        )
-        val filter = IntentFilter().apply {
-            events.forEach { addAction(it) }
-        }
+        val events =
+            listOf(
+                PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED,
+                PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED,
+                PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED
+            )
+        val filter = IntentFilter().apply { events.forEach { addAction(it) } }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action in events)
-            checkIdleStatus(context)
+        if (intent.action in events) checkIdleStatus(context)
     }
 
     internal fun checkIdleStatus(context: Context) {
@@ -73,9 +71,7 @@ private object Api23Impl {
     }
 }
 
-/**
- * Observe idle events while running [block]. If the device enters idle mode, run [onIdle].
- */
+/** Observe idle events while running [block]. If the device enters idle mode, run [onIdle]. */
 internal suspend fun <T> observeIdleEvents(
     context: Context,
     onIdle: suspend () -> Unit,

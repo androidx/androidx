@@ -42,30 +42,31 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentFocusTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun focusedViewRemoved() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
-            val (fragment, firstEditText) = withActivity {
-                setContentView(R.layout.simple_container)
-                val container = findViewById<View>(R.id.fragmentContainer) as ViewGroup
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val (fragment, firstEditText) =
+                withActivity {
+                    setContentView(R.layout.simple_container)
+                    val container = findViewById<View>(R.id.fragmentContainer) as ViewGroup
 
-                val firstEditText = EditText(container.context)
-                container.addView(firstEditText)
-                firstEditText.requestFocus()
+                    val firstEditText = EditText(container.context)
+                    container.addView(firstEditText)
+                    firstEditText.requestFocus()
 
-                val fragment = RemoveEditViewFragment()
+                    val fragment = RemoveEditViewFragment()
 
-                supportFragmentManager.beginTransaction()
-                    .setCustomAnimations(1, 0)
-                    .replace(R.id.fragmentContainer, fragment)
-                    .setReorderingAllowed(true)
-                    .commitNow()
+                    supportFragmentManager
+                        .beginTransaction()
+                        .setCustomAnimations(1, 0)
+                        .replace(R.id.fragmentContainer, fragment)
+                        .setReorderingAllowed(true)
+                        .commitNow()
 
-                fragment to firstEditText
-            }
+                    fragment to firstEditText
+                }
 
             assertThat(fragment.endAnimationCountDownLatch.await(1000, TimeUnit.MILLISECONDS))
                 .isTrue()
@@ -80,13 +81,14 @@ class FragmentFocusTest {
 
     @Test
     fun focusedViewRootView() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = RequestViewFragment()
 
             withActivity {
                 setContentView(R.layout.simple_container)
 
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .setCustomAnimations(1, 0)
                     .replace(R.id.fragmentContainer, fragment)
                     .setReorderingAllowed(true)
@@ -105,11 +107,12 @@ class FragmentFocusTest {
 
     @Test
     fun inResumefocusedViewRemoved() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val fragment = StrictViewFragment(R.layout.simple_container)
 
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .replace(R.id.content, fragment)
                     .setReorderingAllowed(true)
                     .commitNow()
@@ -121,7 +124,8 @@ class FragmentFocusTest {
                 (fragment.requireView() as ViewGroup).addView(editText)
                 editText.requestFocus()
 
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .remove(fragment)
                     .setReorderingAllowed(true)
                     .commitNow()
@@ -133,31 +137,35 @@ class FragmentFocusTest {
 
     class RemoveEditViewFragment : StrictViewFragment(R.layout.with_edit_text) {
         val endAnimationCountDownLatch = CountDownLatch(1)
+
         override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
             if (nextAnim == 0) {
                 return null
             }
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
-            animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator) {
-                    val editText = requireView().findViewById<EditText>(R.id.editText)
-                    (view as ViewGroup).removeView(editText)
-                    requireActivity().findViewById<ViewGroup>(
-                        R.id.fragmentContainer
-                    ).addView(editText)
-                }
+            animator.addListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationStart(animation: Animator) {
+                        val editText = requireView().findViewById<EditText>(R.id.editText)
+                        (view as ViewGroup).removeView(editText)
+                        requireActivity()
+                            .findViewById<ViewGroup>(R.id.fragmentContainer)
+                            .addView(editText)
+                    }
 
-                override fun onAnimationEnd(animation: Animator) {
-                    endAnimationCountDownLatch.countDown()
+                    override fun onAnimationEnd(animation: Animator) {
+                        endAnimationCountDownLatch.countDown()
+                    }
                 }
-            })
+            )
             return animator
         }
     }
 
     class RequestViewFragment : StrictViewFragment() {
         val endAnimationCountDownLatch = CountDownLatch(1)
+
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
             view.isFocusable = true
@@ -171,11 +179,13 @@ class FragmentFocusTest {
             }
 
             val animator = ValueAnimator.ofFloat(0f, 1f).setDuration(1)
-            animator.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    endAnimationCountDownLatch.countDown()
+            animator.addListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        endAnimationCountDownLatch.countDown()
+                    }
                 }
-            })
+            )
             return animator
         }
     }

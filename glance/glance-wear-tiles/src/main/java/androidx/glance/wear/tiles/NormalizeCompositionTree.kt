@@ -45,9 +45,7 @@ import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
 
 internal fun normalizeCompositionTree(context: Context, root: EmittableWithChildren) {
-    root.transformTree { view ->
-        view.normalizeVisibility(context)
-    }
+    root.transformTree { view -> view.normalizeVisibility(context) }
 }
 
 /** Transform each node in the tree. */
@@ -63,9 +61,7 @@ private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable?
         if (newChild is EmittableWithChildren) newChild.transformTree(block)
     }
     toDelete.reverse()
-    toDelete.forEach {
-        children.removeAt(it)
-    }
+    toDelete.forEach { children.removeAt(it) }
 }
 
 private fun Emittable.normalizeVisibility(context: Context): Emittable? =
@@ -106,14 +102,16 @@ private fun Emittable.makeInvisible(context: Context): Emittable {
         }
         is EmittableText -> {
             val oldStyle = style
-            style = oldStyle?.updateColor(Color.Transparent)
-                ?: TextStyle(color = ColorProvider(Color.Transparent))
+            style =
+                oldStyle?.updateColor(Color.Transparent)
+                    ?: TextStyle(color = ColorProvider(Color.Transparent))
             this
         }
         is EmittableCurvedText -> {
             val oldStyle = style
-            style = oldStyle?.updateColor(Color.Transparent)
-                ?: CurvedTextStyle(color = ColorProvider(Color.Transparent))
+            style =
+                oldStyle?.updateColor(Color.Transparent)
+                    ?: CurvedTextStyle(color = ColorProvider(Color.Transparent))
             this
         }
         else -> this
@@ -122,31 +120,34 @@ private fun Emittable.makeInvisible(context: Context): Emittable {
 
 /** Keeps only size-related modifiers, that is: width, height and padding. */
 private fun Emittable.keepOnlySizeModifiers(): Emittable {
-    modifier = modifier.foldIn<GlanceModifier>(GlanceModifier) { acc, cur ->
-        if (cur is WidthModifier || cur is HeightModifier || cur is PaddingModifier) {
-            acc.then(cur)
-        } else {
-            acc
+    modifier =
+        modifier.foldIn<GlanceModifier>(GlanceModifier) { acc, cur ->
+            if (cur is WidthModifier || cur is HeightModifier || cur is PaddingModifier) {
+                acc.then(cur)
+            } else {
+                acc
+            }
         }
-    }
     return this
 }
 
-private fun TextStyle.updateColor(color: Color) = TextStyle(
-    color = ColorProvider(color),
-    fontSize = fontSize,
-    fontWeight = fontWeight,
-    fontStyle = fontStyle,
-    textAlign = textAlign,
-    textDecoration = textDecoration,
-)
+private fun TextStyle.updateColor(color: Color) =
+    TextStyle(
+        color = ColorProvider(color),
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+        textAlign = textAlign,
+        textDecoration = textDecoration,
+    )
 
-private fun CurvedTextStyle.updateColor(color: Color) = CurvedTextStyle(
-    color = ColorProvider(color),
-    fontSize = fontSize,
-    fontWeight = fontWeight,
-    fontStyle = fontStyle,
-)
+private fun CurvedTextStyle.updateColor(color: Color) =
+    CurvedTextStyle(
+        color = ColorProvider(color),
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        fontStyle = fontStyle,
+    )
 
 private fun ImageProvider.getImageSize(context: Context): DpSize {
     val density = context.resources.displayMetrics.density

@@ -38,8 +38,8 @@ import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeS
 
 // TODO: Define template layouts for other surfaces
 /**
- * Composable layout for a single entity template app widget. The template describes a widget
- * layout based around a single entity.
+ * Composable layout for a single entity template app widget. The template describes a widget layout
+ * based around a single entity.
  *
  * @param data the data that defines the widget
  */
@@ -99,9 +99,7 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
     Row(modifier = createTopLevelModifier(data)) {
-        Column(
-            modifier = GlanceModifier.defaultWeight().fillMaxHeight()
-        ) {
+        Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight()) {
             data.headerBlock?.let {
                 HeaderBlockTemplate(data.headerBlock)
                 Spacer(modifier = GlanceModifier.height(16.dp))
@@ -145,9 +143,11 @@ private fun createTopLevelModifier(
     data: SingleEntityTemplateData,
     isImmersive: Boolean = false
 ): GlanceModifier {
-    var modifier = GlanceModifier
-        .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
-        .background(GlanceTheme.colors.primaryContainer)
+    var modifier =
+        GlanceModifier.fillMaxSize()
+            .padding(16.dp)
+            .cornerRadius(16.dp)
+            .background(GlanceTheme.colors.primaryContainer)
     if (isImmersive && data.imageBlock?.images?.isNotEmpty() == true) {
         val mainImage = data.imageBlock.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)

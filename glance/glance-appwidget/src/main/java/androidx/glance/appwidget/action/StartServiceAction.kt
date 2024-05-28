@@ -39,19 +39,17 @@ class StartServiceClassAction(
 ) : StartServiceAction
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class StartServiceIntentAction(
-    val intent: Intent,
-    override val isForegroundService: Boolean
-) : StartServiceAction
+class StartServiceIntentAction(val intent: Intent, override val isForegroundService: Boolean) :
+    StartServiceAction
 
 /**
- * Creates an [Action] that launches a [Service] from the given [Intent] when triggered. The
- * intent should specify a component with [Intent.setClass] or [Intent.setComponent].
+ * Creates an [Action] that launches a [Service] from the given [Intent] when triggered. The intent
+ * should specify a component with [Intent.setClass] or [Intent.setComponent].
  *
  * @param intent the intent used to launch the activity
  * @param isForegroundService set to true when the provided [Service] runs in foreground. This flag
- * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
- * foreground service to be launched differently
+ *   is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
+ *   foreground service to be launched differently
  */
 fun actionStartService(intent: Intent, isForegroundService: Boolean = false): Action =
     StartServiceIntentAction(intent, isForegroundService)
@@ -61,37 +59,33 @@ fun actionStartService(intent: Intent, isForegroundService: Boolean = false): Ac
  *
  * @param componentName component of the Service to launch
  * @param isForegroundService set to true when the provided [Service] runs in foreground. This flag
- * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
- * foreground service to be launched differently
+ *   is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
+ *   foreground service to be launched differently
  */
-fun actionStartService(
-    componentName: ComponentName,
-    isForegroundService: Boolean = false
-): Action = StartServiceComponentAction(componentName, isForegroundService)
+fun actionStartService(componentName: ComponentName, isForegroundService: Boolean = false): Action =
+    StartServiceComponentAction(componentName, isForegroundService)
 
 /**
  * Creates an [Action] that launches the specified [Service] when triggered.
  *
  * @param service class of the Service to launch
  * @param isForegroundService set to true when the provided [Service] runs in foreground. This flag
- * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
- * foreground service to be launched differently
+ *   is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
+ *   foreground service to be launched differently
  */
 fun <T : Service> actionStartService(
     service: Class<T>,
     isForegroundService: Boolean = false
-): Action =
-    StartServiceClassAction(service, isForegroundService)
+): Action = StartServiceClassAction(service, isForegroundService)
 
 /**
  * Creates an [Action] that launches the specified [Service] when triggered.
  *
  * @param isForegroundService set to true when the provided [Service] runs in foreground. This flag
- * is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
- * foreground service to be launched differently.
+ *   is only used for device versions after [android.os.Build.VERSION_CODES.O] that requires
+ *   foreground service to be launched differently.
  */
 @Suppress("MissingNullability")
 /* Shouldn't need to specify @NonNull. b/199284086 */
-inline fun <reified T : Service> actionStartService(
-    isForegroundService: Boolean = false
-): Action = actionStartService(T::class.java, isForegroundService)
+inline fun <reified T : Service> actionStartService(isForegroundService: Boolean = false): Action =
+    actionStartService(T::class.java, isForegroundService)

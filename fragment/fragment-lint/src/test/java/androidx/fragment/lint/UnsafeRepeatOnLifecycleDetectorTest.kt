@@ -35,7 +35,8 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(UnsafeRepeatOnLifecycleDetector.ISSUE)
 
-    private val TEMPLATE = """
+    private val TEMPLATE =
+        """
         package foo
 
         import androidx.lifecycle.Lifecycle
@@ -56,16 +57,18 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
         class BaseFragment : Fragment()
         interface FragmentListener
         interface OtherFragmentListener
-    """.trimIndent()
+    """
+            .trimIndent()
 
     @Test
     fun `called directly from fragment`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format("Fragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -74,18 +77,23 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             repeatOnLifecycle(Lifecycle.State.STARTED) { }
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `called with fragment lifecycle`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "Fragment()",
+                        "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -94,18 +102,23 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `called with fragment viewLifecycleOwner property`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "Fragment()",
+                        "viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -113,12 +126,16 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `called with fragment viewLifecycleOwner function`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "getViewLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "Fragment()",
+                        "getViewLifecycleOwner().repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -126,12 +143,16 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `called with fragment viewLifecycleOwner property lifecycle`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "Fragment()",
+                        "viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -139,12 +160,16 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `called with fragment viewLifecycleOwner function lifecycle`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("Fragment()", "getViewLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "Fragment()",
+                        "getViewLifecycleOwner().lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -152,12 +177,16 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `called with extended fragment listener`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("BaseFragment(), FragmentListener", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "BaseFragment(), FragmentListener",
+                        "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -166,18 +195,23 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             repeatOnLifecycle(Lifecycle.State.STARTED) { }
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `called with two extended fragment listeners`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("FragmentListener, OtherFragmentListener, BaseFragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "FragmentListener, OtherFragmentListener, BaseFragment()",
+                        "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expect(
@@ -186,18 +220,23 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             repeatOnLifecycle(Lifecycle.State.STARTED) { }
                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun `called with dialog fragment`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            TestFiles.kt(
-                TEMPLATE.format("DialogFragment()", "repeatOnLifecycle(Lifecycle.State.STARTED) { }")
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                TestFiles.kt(
+                    TEMPLATE.format(
+                        "DialogFragment()",
+                        "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                    )
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -205,10 +244,11 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `viewLifecycleOwner in with outside of launch`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            kotlin(
-                """
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                kotlin(
+                    """
                     package foo
                     
                     import androidx.lifecycle.Lifecycle
@@ -227,9 +267,10 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             }               
                         }
                     }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()
@@ -237,10 +278,11 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
 
     @Test
     fun `viewLifecycleOwner scope directly`() {
-        lint().files(
-            *REPEAT_ON_LIFECYCLE_STUBS,
-            kotlin(
-                """
+        lint()
+            .files(
+                *REPEAT_ON_LIFECYCLE_STUBS,
+                kotlin(
+                    """
                     package foo
                     
                     import androidx.lifecycle.Lifecycle
@@ -257,9 +299,10 @@ class UnsafeRepeatOnLifecycleDetectorTest : LintDetectorTest() {
                             }                    
                         }
                     }
-                """.trimIndent()
+                """
+                        .trimIndent()
+                )
             )
-        )
             .allowCompilationErrors(false)
             .run()
             .expectClean()

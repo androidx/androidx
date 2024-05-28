@@ -48,8 +48,8 @@ import androidx.glance.unit.ColorProvider
 
 /**
  * Sample AppWidget that showcase the Responsive SizeMode changing its content to Row, Column or Box
- * based on the available space. In addition to shows how alignment and default weight works
- * on these components.
+ * based on the available space. In addition to shows how alignment and default weight works on
+ * these components.
  */
 class ResponsiveAppWidget : GlanceAppWidget() {
 
@@ -63,14 +63,10 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         private val LARGE_COLUMN = DpSize(48.dp, 300.dp)
     }
 
-    override val sizeMode = SizeMode.Responsive(
-        setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN)
-    )
+    override val sizeMode =
+        SizeMode.Responsive(setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN))
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         // Content will be called for each of the provided sizes
         when (LocalSize.current) {
             COLUMN -> ResponsiveColumn(numItems = 3)
@@ -80,26 +76,21 @@ class ResponsiveAppWidget : GlanceAppWidget() {
             SMALL_BOX -> ResponsiveBox(numItems = 1)
             BIG_BOX -> ResponsiveBox(numItems = 3)
             VERY_BIG_BOX -> ResponsiveBox(numItems = 5)
-            else ->
-                throw IllegalArgumentException("Invalid size not matching the provided ones")
+            else -> throw IllegalArgumentException("Invalid size not matching the provided ones")
         }
     }
 }
 
 private val ItemClickedKey = ActionParameters.Key<String>("name")
 
-private val parentModifier = GlanceModifier
-    .fillMaxSize()
-    .padding(8.dp)
-    .background(R.color.default_widget_background)
+private val parentModifier =
+    GlanceModifier.fillMaxSize().padding(8.dp).background(R.color.default_widget_background)
 
 private val columnColors = listOf(Color(0xff70D689), Color(0xffB2E5BF))
 private val rowColors = listOf(Color(0xff5087EF), Color(0xffA2BDF2))
 private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
 
-/**
- * Displays a column with three items that share evenly the available space
- */
+/** Displays a column with three items that share evenly the available space */
 @Composable
 private fun ResponsiveColumn(numItems: Int) {
     Column(parentModifier) {
@@ -111,9 +102,7 @@ private fun ResponsiveColumn(numItems: Int) {
     }
 }
 
-/**
- * Displays a row with three items that share evenly the available space
- */
+/** Displays a row with three items that share evenly the available space */
 @Composable
 private fun ResponsiveRow(numItems: Int) {
     Row(parentModifier) {
@@ -125,9 +114,7 @@ private fun ResponsiveRow(numItems: Int) {
     }
 }
 
-/**
- * Displays a Box with three items on top of each other
- */
+/** Displays a Box with three items on top of each other */
 @Composable
 private fun ResponsiveBox(numItems: Int) {
     val size = LocalSize.current
@@ -136,7 +123,8 @@ private fun ResponsiveBox(numItems: Int) {
             val index = numItems - it + 1
             val color = boxColors[(index - 1) % boxColors.size]
             val boxSize = (size.width * index) / numItems
-            ContentItem("$index",
+            ContentItem(
+                "$index",
                 color,
                 GlanceModifier.size(boxSize),
                 textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
@@ -157,18 +145,15 @@ private fun ContentItem(
         Button(
             text = text,
             modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = ColorProvider(color),
-                contentColor = ColorProvider(Color.White)
-            ),
+            colors =
+                ButtonDefaults.buttonColors(
+                    backgroundColor = ColorProvider(color),
+                    contentColor = ColorProvider(Color.White)
+                ),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
             onClick = {
                 Handler(context.mainLooper).post {
-                    Toast.makeText(
-                        context,
-                        "Item clicked: $text",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, "Item clicked: $text", Toast.LENGTH_SHORT).show()
                 }
             }
         )

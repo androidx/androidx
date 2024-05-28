@@ -55,9 +55,8 @@ internal val DEFAULT_TIMEOUT = 2.seconds
  * An implementation of [GlanceAppWidgetUnitTest] that provides APIs to run composition for
  * appwidget-specific Glance composable content.
  */
-internal class GlanceAppWidgetUnitTestEnvironment(
-    private val timeout: Duration
-) : GlanceAppWidgetUnitTest {
+internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration) :
+    GlanceAppWidgetUnitTest {
     private var testContext = TestContext<MappedNode, GlanceMappedNode>()
     private var testScope = TestScope()
 
@@ -72,49 +71,48 @@ internal class GlanceAppWidgetUnitTestEnvironment(
     private lateinit var recomposer: Recomposer
     private lateinit var composition: Composition
 
-    fun runTest(block: GlanceAppWidgetUnitTest.() -> Unit) = testScope.runTest(timeout) {
-        var snapshotMonitor: Job? = null
-        try {
-            // GlobalSnapshotManager.ensureStarted() uses Dispatcher.Default, so using
-            // globalSnapshotMonitor instead to be able to use test dispatcher instead.
-            snapshotMonitor = launch { globalSnapshotMonitor() }
-            val applier = Applier(root)
-            recomposer = Recomposer(testScope.coroutineContext)
-            composition = Composition(applier, recomposer)
-            block()
-        } finally {
-            composition.dispose()
-            snapshotMonitor?.cancel()
-            recomposer.cancel()
-            recomposer.join()
+    fun runTest(block: GlanceAppWidgetUnitTest.() -> Unit) =
+        testScope.runTest(timeout) {
+            var snapshotMonitor: Job? = null
+            try {
+                // GlobalSnapshotManager.ensureStarted() uses Dispatcher.Default, so using
+                // globalSnapshotMonitor instead to be able to use test dispatcher instead.
+                snapshotMonitor = launch { globalSnapshotMonitor() }
+                val applier = Applier(root)
+                recomposer = Recomposer(testScope.coroutineContext)
+                composition = Composition(applier, recomposer)
+                block()
+            } finally {
+                composition.dispose()
+                snapshotMonitor?.cancel()
+                recomposer.cancel()
+                recomposer.join()
+            }
         }
-    }
 
     // Among the appWidgetOptions available, size related options shouldn't generally be necessary
     // for developers to look up - the LocalSize composition local should suffice. So, currently, we
     // only initialize host category.
-    private val appWidgetOptions = Bundle().apply {
-        putInt(
-            AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-            GlanceAppWidgetUnitTestDefaults.hostCategory()
-        )
-    }
-
-    override fun provideComposable(composable: @Composable () -> Unit) {
-        check(testContext.rootGlanceNode == null) {
-            "provideComposable can only be called once"
+    private val appWidgetOptions =
+        Bundle().apply {
+            putInt(
+                AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
+                GlanceAppWidgetUnitTestDefaults.hostCategory()
+            )
         }
 
+    override fun provideComposable(composable: @Composable () -> Unit) {
+        check(testContext.rootGlanceNode == null) { "provideComposable can only be called once" }
+
         testScope.launch {
-            var compositionLocals = arrayOf(
-                LocalGlanceId provides fakeGlanceID,
-                LocalState provides state,
-                LocalAppWidgetOptions provides appWidgetOptions,
-                LocalSize provides size
-            )
-            context?.let {
-                compositionLocals = compositionLocals.plus(LocalContext provides it)
-            }
+            var compositionLocals =
+                arrayOf(
+                    LocalGlanceId provides fakeGlanceID,
+                    LocalState provides state,
+                    LocalAppWidgetOptions provides appWidgetOptions,
+                    LocalSize provides size
+                )
+            context?.let { compositionLocals = compositionLocals.plus(LocalContext provides it) }
 
             composition.setContent {
                 CompositionLocalProvider(
@@ -131,15 +129,11 @@ internal class GlanceAppWidgetUnitTestEnvironment(
                 recomposer.currentState.collect { curState ->
                     when (curState) {
                         Recomposer.State.Idle -> {
-                            testContext.rootGlanceNode = GlanceMappedNode(
-                                emittable = root.copy()
-                            )
+                            testContext.rootGlanceNode = GlanceMappedNode(emittable = root.copy())
                         }
-
                         Recomposer.State.ShutDown -> {
                             cancel()
                         }
-
                         else -> {}
                     }
                 }
@@ -194,9 +188,7 @@ internal class GlanceAppWidgetUnitTestEnvironment(
         this.context = context
     }
 
-    /**
-     * Test clock that sends all frames immediately.
-     */
+    /** Test clock that sends all frames immediately. */
     // Same as TestUtils.TestFrameClock used in Glance unit tests.
     private class TestFrameClock : MonotonicFrameClock {
         override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R) =

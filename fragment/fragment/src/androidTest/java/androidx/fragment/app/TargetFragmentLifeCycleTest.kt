@@ -41,8 +41,8 @@ class TargetFragmentLifeCycleTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun targetFragmentNoCycles() {
@@ -56,10 +56,9 @@ class TargetFragmentLifeCycleTest {
             three.setTargetFragment(one, 0)
             Assert.fail("creating a fragment target cycle did not throw IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
-            assertThat(e).hasMessageThat().contains(
-                "Setting $one as the target of $three would" +
-                    " create a target cycle"
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains("Setting $one as the target of $three would" + " create a target cycle")
         }
     }
 
@@ -73,16 +72,17 @@ class TargetFragmentLifeCycleTest {
     }
 
     /**
-     * Test that target fragments are in a useful state when we restore them, even if they're
-     * on the back stack.
+     * Test that target fragments are in a useful state when we restore them, even if they're on the
+     * back stack.
      */
     @Test
     @UiThreadTest
     fun targetFragmentRestoreLifecycleStateBackStack() {
         val viewModelStore = ViewModelStore()
-        val fc1 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc1 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm1 = fc1.supportFragmentManager
 
@@ -119,9 +119,10 @@ class TargetFragmentLifeCycleTest {
     @UiThreadTest
     fun targetFragmentRestoreLifecycleStateManagerOrder() {
         val viewModelStore = ViewModelStore()
-        val fc1 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc1 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm1 = fc1.supportFragmentManager
 
@@ -168,22 +169,26 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         referrer.setTargetFragment(null, 0)
 
         assertWithMessage("Target Fragment should cleared after setTargetFragment with null")
-            .that(referrer.targetFragment).isNull()
+            .that(referrer.targetFragment)
+            .isNull()
 
         fm.beginTransaction().remove(referrer).commitNow()
 
         assertWithMessage("Target Fragment should still be cleared after being removed")
-            .that(referrer.targetFragment).isNull()
+            .that(referrer.targetFragment)
+            .isNull()
 
         fc.shutdown(viewModelStore)
     }
@@ -201,30 +206,34 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(referrer, "referrer").add(target, "target").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         val newTarget = TargetFragment()
         referrer.setTargetFragment(newTarget, 0)
 
         assertWithMessage("New Target Fragment should returned despite not being added")
-            .that(referrer.targetFragment).isSameInstanceAs(newTarget)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(newTarget)
 
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Replacement Target Fragment should override previous target")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fc.shutdown(viewModelStore)
     }
 
     /**
-     * Test the availability of getTargetFragment() when the target Fragment is already
-     * attached to a FragmentManager, but the referrer Fragment is not attached.
+     * Test the availability of getTargetFragment() when the target Fragment is already attached to
+     * a FragmentManager, but the referrer Fragment is not attached.
      */
     @Test
     @UiThreadTest
@@ -242,24 +251,27 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().remove(referrer).commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being removed")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fc.shutdown(viewModelStore)
     }
 
     /**
-     * Test the availability of getTargetFragment() when the target fragment is
-     * not retained and the referrer fragment is not retained.
+     * Test the availability of getTargetFragment() when the target fragment is not retained and the
+     * referrer fragment is not retained.
      */
     @Test
     @UiThreadTest
@@ -274,27 +286,31 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().remove(referrer).commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being removed")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fc.shutdown(viewModelStore)
 
         assertWithMessage("Target Fragment should be accessible after destruction")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
     }
 
     /**
-     * Test the availability of getTargetFragment() when the target fragment is
-     * retained and the referrer fragment is not retained.
+     * Test the availability of getTargetFragment() when the target fragment is retained and the
+     * referrer fragment is not retained.
      */
     @Suppress("DEPRECATION")
     @Test
@@ -311,27 +327,31 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().remove(referrer).commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being removed")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fc.shutdown(viewModelStore)
 
         assertWithMessage("Target Fragment should be accessible after destruction")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
     }
 
     /**
-     * Test the availability of getTargetFragment() when the target fragment is
-     * not retained and the referrer fragment is retained.
+     * Test the availability of getTargetFragment() when the target fragment is not retained and the
+     * referrer fragment is retained.
      */
     @Suppress("DEPRECATION")
     @Test
@@ -348,12 +368,14 @@ class TargetFragmentLifeCycleTest {
         referrer.retainInstance = true
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         // Save the state
         fc.dispatchPause()
@@ -362,12 +384,13 @@ class TargetFragmentLifeCycleTest {
         fc.dispatchDestroy()
 
         assertWithMessage("Target Fragment should be accessible after target Fragment destruction")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
     }
 
     /**
-     * Test the availability of getTargetFragment() when the target fragment is
-     * retained and the referrer fragment is also retained.
+     * Test the availability of getTargetFragment() when the target fragment is retained and the
+     * referrer fragment is also retained.
      */
     @Suppress("DEPRECATION")
     @Test
@@ -385,12 +408,14 @@ class TargetFragmentLifeCycleTest {
         referrer.setTargetFragment(target, 0)
 
         assertWithMessage("Target Fragment should be accessible before being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow()
 
         assertWithMessage("Target Fragment should be accessible after being added")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
 
         // Save the state
         fc.dispatchPause()
@@ -399,7 +424,8 @@ class TargetFragmentLifeCycleTest {
         fc.dispatchDestroy()
 
         assertWithMessage("Target Fragment should be accessible after FragmentManager destruction")
-            .that(referrer.targetFragment).isSameInstanceAs(target)
+            .that(referrer.targetFragment)
+            .isSameInstanceAs(target)
     }
 
     class TargetFragment : Fragment() {
@@ -417,14 +443,16 @@ class TargetFragmentLifeCycleTest {
 
             val target = targetFragment
             assertWithMessage("target fragment was null during referrer onCreate")
-                .that(target).isNotNull()
+                .that(target)
+                .isNotNull()
 
             if (target !is TargetFragment) {
                 throw IllegalStateException("target fragment was not a TargetFragment")
             }
 
             assertWithMessage("target fragment has not yet been created")
-                .that(target.calledCreate).isTrue()
+                .that(target.calledCreate)
+                .isTrue()
         }
     }
 }

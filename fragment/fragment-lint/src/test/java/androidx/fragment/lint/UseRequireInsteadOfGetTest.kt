@@ -29,8 +29,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class UseRequireInsteadOfGetTest {
 
-    private val fragmentStub = java(
-        """
+    private val fragmentStub =
+        java(
+                """
         package androidx.fragment.app;
     
         public class Fragment {
@@ -60,10 +61,12 @@ class UseRequireInsteadOfGetTest {
           }
         }
       """
-    ).indented()
+            )
+            .indented()
 
-    private val preconditionsStub = java(
-        """
+    private val preconditionsStub =
+        java(
+                """
         package util;
 
         public final class Preconditions {
@@ -76,12 +79,11 @@ class UseRequireInsteadOfGetTest {
           }
         }
       """
-    ).indented()
+            )
+            .indented()
 
     private fun useRequireLint(): TestLintTask {
-        return lint()
-            .detector(UseRequireInsteadOfGet())
-            .issues(UseRequireInsteadOfGet.ISSUE)
+        return lint().detector(UseRequireInsteadOfGet()).issues(UseRequireInsteadOfGet.ISSUE)
     }
 
     @Test
@@ -91,7 +93,7 @@ class UseRequireInsteadOfGetTest {
                 fragmentStub,
                 preconditionsStub,
                 java(
-                    """
+                        """
                   package foo;
 
                   import androidx.fragment.app.Fragment;
@@ -138,7 +140,8 @@ class UseRequireInsteadOfGetTest {
                     }
                   }
                 """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -167,7 +170,8 @@ class UseRequireInsteadOfGetTest {
                   checkNotNull(fragment.getView());
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
               7 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -199,7 +203,8 @@ class UseRequireInsteadOfGetTest {
               @@ -16 +16
               -     checkNotNull(fragment.getView());
               +     fragment.requireView();
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -210,7 +215,7 @@ class UseRequireInsteadOfGetTest {
                 fragmentStub,
                 preconditionsStub,
                 java(
-                    """
+                        """
                   package foo;
 
                   import androidx.fragment.app.Fragment;
@@ -255,7 +260,8 @@ class UseRequireInsteadOfGetTest {
                     }
                   }
                 """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -284,7 +290,8 @@ class UseRequireInsteadOfGetTest {
                   checkNotNull(getView());
                   ~~~~~~~~~~~~~~~~~~~~~~~
               7 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -316,7 +323,8 @@ class UseRequireInsteadOfGetTest {
               @@ -14 +14
               -     checkNotNull(getView());
               +     requireView();
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -327,7 +335,7 @@ class UseRequireInsteadOfGetTest {
                 fragmentStub,
                 preconditionsStub,
                 java(
-                    """
+                        """
                   package foo;
 
                   import androidx.fragment.app.Fragment;
@@ -339,7 +347,8 @@ class UseRequireInsteadOfGetTest {
                     }
                   }
                 """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -350,7 +359,8 @@ class UseRequireInsteadOfGetTest {
                   Preconditions.checkNotNull(getArguments());
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
               1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -358,7 +368,8 @@ class UseRequireInsteadOfGetTest {
               @@ -8 +8
               -     Preconditions.checkNotNull(getArguments());
               +     requireArguments();
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -369,7 +380,7 @@ class UseRequireInsteadOfGetTest {
             .files(
                 fragmentStub,
                 kotlin(
-                    """
+                        """
               package foo
 
               import androidx.fragment.app.Fragment
@@ -451,7 +462,8 @@ class UseRequireInsteadOfGetTest {
                 }
               }
             """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -543,7 +555,8 @@ class UseRequireInsteadOfGetTest {
               fragment.view!!
               ~~~~~~~~~~~~~~~
           28 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -659,7 +672,8 @@ class UseRequireInsteadOfGetTest {
           @@ -39 +39
           -     fragment.view!!
           +     fragment.requireView()
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -670,7 +684,7 @@ class UseRequireInsteadOfGetTest {
             .files(
                 fragmentStub,
                 kotlin(
-                    """
+                        """
               package foo
 
               import androidx.fragment.app.Fragment
@@ -681,7 +695,8 @@ class UseRequireInsteadOfGetTest {
                 }
               }
             """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -692,7 +707,8 @@ class UseRequireInsteadOfGetTest {
               parentFragment?.requireView()!!
               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -700,7 +716,8 @@ class UseRequireInsteadOfGetTest {
           @@ -7 +7
           -     parentFragment?.requireView()!!
           +     parentFragment!!.requireView()
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -711,7 +728,7 @@ class UseRequireInsteadOfGetTest {
             .files(
                 fragmentStub,
                 kotlin(
-                    """
+                        """
               package foo
 
               import androidx.fragment.app.Fragment
@@ -722,7 +739,8 @@ class UseRequireInsteadOfGetTest {
                 }
               }
             """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -733,7 +751,8 @@ class UseRequireInsteadOfGetTest {
               parentFragment!!.requireView()
               ~~~~~~~~~~~~~~~~
           1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -741,7 +760,8 @@ class UseRequireInsteadOfGetTest {
           @@ -7 +7
           -     parentFragment!!.requireView()
           +     requireParentFragment().requireView()
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -752,7 +772,7 @@ class UseRequireInsteadOfGetTest {
             .files(
                 fragmentStub,
                 kotlin(
-                    """
+                        """
               package foo
 
               import androidx.fragment.app.Fragment
@@ -832,7 +852,8 @@ class UseRequireInsteadOfGetTest {
                 }
               }
             """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .skipTestModes(TestMode.WHITESPACE) // b/203246909
@@ -924,7 +945,8 @@ class UseRequireInsteadOfGetTest {
               view!!
               ~~~~~~
           28 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -1040,7 +1062,8 @@ class UseRequireInsteadOfGetTest {
           @@ -37 +37
           -     view!!
           +     requireView()
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
@@ -1051,7 +1074,7 @@ class UseRequireInsteadOfGetTest {
                 fragmentStub,
                 preconditionsStub,
                 java(
-                    """
+                        """
                   package foo;
 
                   import androidx.fragment.app.Fragment;
@@ -1064,7 +1087,8 @@ class UseRequireInsteadOfGetTest {
                     }
                   }
                 """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .run()
@@ -1078,7 +1102,7 @@ class UseRequireInsteadOfGetTest {
                 fragmentStub,
                 preconditionsStub,
                 java(
-                    """
+                        """
                   package foo;
 
                   import androidx.fragment.app.Fragment;
@@ -1091,7 +1115,8 @@ class UseRequireInsteadOfGetTest {
                     }
                   }
                 """
-                ).indented()
+                    )
+                    .indented()
             )
             .allowCompilationErrors(false)
             .run()

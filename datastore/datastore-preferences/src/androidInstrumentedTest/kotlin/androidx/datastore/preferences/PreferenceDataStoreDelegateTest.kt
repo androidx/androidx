@@ -41,46 +41,48 @@ val stringKey = stringPreferencesKey("key1")
 val booleanKey = booleanPreferencesKey("key2")
 
 val Context.basic by preferencesDataStore(name = "test1")
-val Context.withCorruptionHandler by preferencesDataStore(
-    name = "test2",
-    corruptionHandler = ReplaceFileCorruptionHandler {
-        preferencesOf(booleanKey to true)
-    }
-)
+val Context.withCorruptionHandler by
+    preferencesDataStore(
+        name = "test2",
+        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(booleanKey to true) }
+    )
 
-val Context.withMigrations by preferencesDataStore(
-    name = "test3",
-    produceMigrations = {
-        listOf(
-            object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate(currentData: Preferences) = true
+val Context.withMigrations by
+    preferencesDataStore(
+        name = "test3",
+        produceMigrations = {
+            listOf(
+                object : DataMigration<Preferences> {
+                    override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun migrate(currentData: Preferences) =
-                    currentData.toMutablePreferences().apply { set(stringKey, "value") }
-                        .toPreferences()
+                    override suspend fun migrate(currentData: Preferences) =
+                        currentData
+                            .toMutablePreferences()
+                            .apply { set(stringKey, "value") }
+                            .toPreferences()
 
-                override suspend fun cleanUp() {}
-            },
-            object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate(currentData: Preferences) = true
+                    override suspend fun cleanUp() {}
+                },
+                object : DataMigration<Preferences> {
+                    override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun migrate(currentData: Preferences) =
-                    currentData.toMutablePreferences().apply { set(booleanKey, true) }
-                        .toPreferences()
+                    override suspend fun migrate(currentData: Preferences) =
+                        currentData
+                            .toMutablePreferences()
+                            .apply { set(booleanKey, true) }
+                            .toPreferences()
 
-                override suspend fun cleanUp() {}
-            }
-
-        )
-    }
-)
+                    override suspend fun cleanUp() {}
+                }
+            )
+        }
+    )
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
 @FlowPreview
 class PreferenceDataStoreDelegateTest {
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
 
     private lateinit var dataStoreScope: TestScope
     private lateinit var context: Context
@@ -92,41 +94,38 @@ class PreferenceDataStoreDelegateTest {
     }
 
     @Test
-    fun testNewInstance() = runBlocking<Unit> {
-        val expectedPreferences =
-            preferencesOf(stringKey to "value")
+    fun testNewInstance() =
+        runBlocking<Unit> {
+            val expectedPreferences = preferencesOf(stringKey to "value")
 
-        assertEquals(
-            context.basic.edit { prefs ->
-                prefs[stringKey] = "value"
-            },
-            expectedPreferences
-        )
-        assertEquals(expectedPreferences, context.basic.data.first())
-    }
-
-    @Test
-    fun testCorruptionHandlerInstalled() = runBlocking<Unit> {
-        context.preferencesDataStoreFile("test2").let {
-            it.parentFile!!.mkdirs()
-
-            it.writeBytes(
-                byteArrayOf(0x00, 0x00, 0x00, 0x03) // Protos can not start with 0x00.
+            assertEquals(
+                context.basic.edit { prefs -> prefs[stringKey] = "value" },
+                expectedPreferences
             )
+            assertEquals(expectedPreferences, context.basic.data.first())
         }
 
-        val valueToReplace = preferencesOf(booleanKey to true)
+    @Test
+    fun testCorruptionHandlerInstalled() =
+        runBlocking<Unit> {
+            context.preferencesDataStoreFile("test2").let {
+                it.parentFile!!.mkdirs()
 
-        assertEquals(valueToReplace, context.withCorruptionHandler.data.first())
-    }
+                it.writeBytes(
+                    byteArrayOf(0x00, 0x00, 0x00, 0x03) // Protos can not start with 0x00.
+                )
+            }
+
+            val valueToReplace = preferencesOf(booleanKey to true)
+
+            assertEquals(valueToReplace, context.withCorruptionHandler.data.first())
+        }
 
     @Test
-    fun testMigrationsInstalled() = runBlocking<Unit> {
-        val expectedPreferences = preferencesOf(
-            stringKey to "value",
-            booleanKey to true
-        )
+    fun testMigrationsInstalled() =
+        runBlocking<Unit> {
+            val expectedPreferences = preferencesOf(stringKey to "value", booleanKey to true)
 
-        assertEquals(expectedPreferences, context.withMigrations.data.first())
-    }
+            assertEquals(expectedPreferences, context.withMigrations.data.first())
+        }
 }

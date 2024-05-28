@@ -34,20 +34,19 @@ import org.junit.runner.RunWith
 class FragmentFinishEarlyTest {
 
     @Suppress("DEPRECATION")
-    val activityRule = androidx.test.rule.ActivityTestRule(
-        FragmentFinishEarlyTestActivity::class.java,
-        false,
-        false
-    )
+    val activityRule =
+        androidx.test.rule.ActivityTestRule(
+            FragmentFinishEarlyTestActivity::class.java,
+            false,
+            false
+        )
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
-    /**
-     * FragmentActivity should not raise the state of a Fragment while it is being destroyed.
-     */
+    /** FragmentActivity should not raise the state of a Fragment while it is being destroyed. */
     @SdkSuppress(minSdkVersion = 24) // this is failing remotely for API 23 devices b/178692379
     @Test
     fun fragmentActivityFinishEarly() {
@@ -57,9 +56,7 @@ class FragmentFinishEarlyTest {
     }
 }
 
-/**
- * A simple activity used for testing an Early Finishing Activity
- */
+/** A simple activity used for testing an Early Finishing Activity */
 class FragmentFinishEarlyTestActivity : FragmentActivity() {
     val onDestroyLatch = CountDownLatch(1)
     val fragment = StrictFragment()
@@ -67,9 +64,7 @@ class FragmentFinishEarlyTestActivity : FragmentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         finish()
-        supportFragmentManager.beginTransaction()
-            .add(fragment, "not destroyed")
-            .commit()
+        supportFragmentManager.beginTransaction().add(fragment, "not destroyed").commit()
     }
 
     override fun onDestroy() {

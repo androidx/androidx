@@ -17,24 +17,28 @@ package androidx.datastore.core
 
 import kotlinx.coroutines.CoroutineDispatcher
 
-/**
- * Common IOException to be defined in jvm and native code.
- */
+/** Common IOException to be defined in jvm and native code. */
 expect open class IOException(message: String?, cause: Throwable?) : Exception {
     constructor(message: String?)
 }
 
 internal expect class AtomicInt {
     constructor(initialValue: Int = 0)
+
     fun getAndIncrement(): Int
+
     fun incrementAndGet(): Int
+
     fun decrementAndGet(): Int
+
     fun get(): Int
 }
 
 internal expect class AtomicBoolean {
     constructor(initialValue: Boolean)
+
     fun get(): Boolean
+
     fun set(value: Boolean)
 }
 

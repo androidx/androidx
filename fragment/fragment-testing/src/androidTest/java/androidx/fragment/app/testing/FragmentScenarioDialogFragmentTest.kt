@@ -31,9 +31,7 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for FragmentScenario's implementation against DialogFragment.
- */
+/** Tests for FragmentScenario's implementation against DialogFragment. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FragmentScenarioDialogFragmentTest {
@@ -103,9 +101,7 @@ class FragmentScenarioDialogFragmentTest {
 
     @Test
     fun fromResumedToDestroyed() {
-        with(launchFragment<SimpleDialogFragment>()) {
-            moveToState(State.DESTROYED)
-        }
+        with(launchFragment<SimpleDialogFragment>()) { moveToState(State.DESTROYED) }
     }
 
     @Test

@@ -23,26 +23,24 @@ package androidx.glance.semantics
  * of used directly.
  */
 object SemanticsProperties {
-    /**
-     * @see SemanticsPropertyReceiver.contentDescription
-     */
-    val ContentDescription = SemanticsPropertyKey<List<String>>(
-        name = "ContentDescription",
-        mergePolicy = { parentValue, childValue ->
-            parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
-        }
-    )
+    /** @see SemanticsPropertyReceiver.contentDescription */
+    val ContentDescription =
+        SemanticsPropertyKey<List<String>>(
+            name = "ContentDescription",
+            mergePolicy = { parentValue, childValue ->
+                parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
+            }
+        )
 
-    /**
-     * @see SemanticsPropertyReceiver.testTag
-     */
-    val TestTag = SemanticsPropertyKey<String>(
-        name = "TestTag",
-        mergePolicy = { parentValue, _ ->
-            // No merge
-            parentValue
-        }
-    )
+    /** @see SemanticsPropertyReceiver.testTag */
+    val TestTag =
+        SemanticsPropertyKey<String>(
+            name = "TestTag",
+            mergePolicy = { parentValue, _ ->
+                // No merge
+                parentValue
+            }
+        )
 }
 
 /**
@@ -50,9 +48,7 @@ object SemanticsProperties {
  * a type-safe way. Each key has one particular statically defined value type T.
  */
 class SemanticsPropertyKey<T>(
-    /**
-     * The name of the property. Should be the same as the constant from shich it is accessed.
-     */
+    /** The name of the property. Should be the same as the constant from shich it is accessed. */
     val name: String,
     internal val mergePolicy: (T?, T) -> T? = { parentValue, childValue ->
         parentValue ?: childValue
@@ -76,15 +72,13 @@ interface SemanticsPropertyReceiver {
  * similar use cases.
  */
 var SemanticsPropertyReceiver.contentDescription: String
-    /**
-     * Throws [UnsupportedOperationException]. Should not be called.
-     */
+    /** Throws [UnsupportedOperationException]. Should not be called. */
     get() {
-        throw UnsupportedOperationException(
-            "You cannot retrieve a semantics property directly"
-        )
+        throw UnsupportedOperationException("You cannot retrieve a semantics property directly")
     }
-    set(value) { set(SemanticsProperties.ContentDescription, listOf(value)) }
+    set(value) {
+        set(SemanticsProperties.ContentDescription, listOf(value))
+    }
 
 /**
  * Test tag attached to this Glance composable node.
@@ -92,30 +86,25 @@ var SemanticsPropertyReceiver.contentDescription: String
  * This is a free form String and can be used to find nodes in testing frameworks.
  */
 var SemanticsPropertyReceiver.testTag: String
-    /**
-     * Throws [UnsupportedOperationException]. Should not be called.
-     */
+    /** Throws [UnsupportedOperationException]. Should not be called. */
     get() {
-        throw UnsupportedOperationException(
-            "You cannot retrieve a semantics property directly"
-        )
+        throw UnsupportedOperationException("You cannot retrieve a semantics property directly")
     }
     set(value) {
         set(SemanticsProperties.TestTag, value)
     }
 
-/**
- * Describes the semantics information associated with the owning component.
- */
+/** Describes the semantics information associated with the owning component. */
 class SemanticsConfiguration : SemanticsPropertyReceiver {
     private val props: MutableMap<SemanticsPropertyKey<*>, Any?> = mutableMapOf()
+
     override fun <T> set(key: SemanticsPropertyKey<T>, value: T) {
         props[key] = value
     }
 
     /**
-     * Retrieves the value for the given property, if one has been set,
-     * If a value has not been set, throws [IllegalStateException]
+     * Retrieves the value for the given property, if one has been set, If a value has not been set,
+     * throws [IllegalStateException]
      */
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
@@ -126,8 +115,8 @@ class SemanticsConfiguration : SemanticsPropertyReceiver {
     }
 
     /**
-     * Retrieves the value for the given property, if one has been set,
-     * If a value has not been set, returns the provided default value.
+     * Retrieves the value for the given property, if one has been set, If a value has not been set,
+     * returns the provided default value.
      */
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
@@ -136,8 +125,8 @@ class SemanticsConfiguration : SemanticsPropertyReceiver {
     }
 
     /**
-     * Retrieves the value for the given property, if one has been set,
-     * If a value has not been set, returns null
+     * Retrieves the value for the given property, if one has been set, If a value has not been set,
+     * returns null
      */
     fun <T> getOrNull(key: SemanticsPropertyKey<T>): T? {
         return getOrElseNullable(key) { null }

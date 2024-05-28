@@ -17,15 +17,14 @@
 package androidx.glance.template
 
 /**
- * The semantic data required to build Single Entity Template layouts. The template allows for
- * a header, text section with up to three text items, main image, and single action button.
+ * The semantic data required to build Single Entity Template layouts. The template allows for a
+ * header, text section with up to three text items, main image, and single action button.
  *
  * @param headerBlock The header block of the entity by [HeaderBlock].
  * @param textBlock The text block for up to three types of texts for the entity.
  * @param imageBlock The image block for the entity main image by [ImageBlock].
  * @param actionBlock The entity single action button by [ActionBlock].
  */
-
 class SingleEntityTemplateData(
     val headerBlock: HeaderBlock? = null,
     val textBlock: TextBlock? = null,

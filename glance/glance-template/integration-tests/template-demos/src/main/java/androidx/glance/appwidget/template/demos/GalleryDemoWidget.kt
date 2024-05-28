@@ -41,13 +41,12 @@ import androidx.glance.template.TextType
  * text/image block flow using data and gallery template from [BaseGalleryTemplateWidget].
  */
 class SmallGalleryTemplateDemoWidget : BaseGalleryTemplateWidget() {
-    @Composable
-    override fun TemplateContent() = GalleryTemplateContent()
+    @Composable override fun TemplateContent() = GalleryTemplateContent()
 }
 
 /**
- * Gallery demo for the Medium sized images with 16:9 aspect ratio and right-to-left main
- * text/image block flow using data and gallery template from [BaseGalleryTemplateWidget].
+ * Gallery demo for the Medium sized images with 16:9 aspect ratio and right-to-left main text/image
+ * block flow using data and gallery template from [BaseGalleryTemplateWidget].
  */
 class MediumGalleryTemplateDemoWidget : BaseGalleryTemplateWidget() {
     @Composable
@@ -56,8 +55,8 @@ class MediumGalleryTemplateDemoWidget : BaseGalleryTemplateWidget() {
 }
 
 /**
- * Gallery demo for the Large sized images with 2:3 aspect ratio and left-to-right main
- * text/image block flow using data and gallery template from [BaseGalleryTemplateWidget].
+ * Gallery demo for the Large sized images with 2:3 aspect ratio and left-to-right main text/image
+ * block flow using data and gallery template from [BaseGalleryTemplateWidget].
  */
 class LargeGalleryTemplateDemoWidget : BaseGalleryTemplateWidget() {
     @Composable
@@ -77,8 +76,8 @@ class LargeImageGalleryReceiver : GlanceAppWidgetReceiver() {
 }
 
 /**
- * Base Gallery Demo widget binding [GalleryTemplateData] to [GalleryTemplate] layout.
- * It is overridable by gallery image aspect ratio, image size, and main blocks ordering.
+ * Base Gallery Demo widget binding [GalleryTemplateData] to [GalleryTemplate] layout. It is
+ * overridable by gallery image aspect ratio, image size, and main blocks ordering.
  */
 abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
 
@@ -100,46 +99,54 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
             }
             GalleryTemplate(
                 GalleryTemplateData(
-                    header = HeaderBlock(
-                        text = TemplateText("Gallery Template example"),
-                        icon = TemplateImageWithDescription(
-                            ImageProvider(R.drawable.ic_widgets),
-                            "test logo"
+                    header =
+                        HeaderBlock(
+                            text = TemplateText("Gallery Template example"),
+                            icon =
+                                TemplateImageWithDescription(
+                                    ImageProvider(R.drawable.ic_widgets),
+                                    "test logo"
+                                ),
                         ),
-                    ),
-                    mainTextBlock = TextBlock(
-                        text1 = TemplateText("Title1", TextType.Title),
-                        text2 = TemplateText("Headline1", TextType.Headline),
-                        text3 = TemplateText("Label1", TextType.Label),
-                        priority = if (isMainTextBlockFirst) 0 else 1,
-                    ),
-                    mainImageBlock = ImageBlock(
-                        images = listOf(
-                            TemplateImageWithDescription(
-                                ImageProvider(R.drawable.palm_leaf),
-                                "test image"
-                            )
+                    mainTextBlock =
+                        TextBlock(
+                            text1 = TemplateText("Title1", TextType.Title),
+                            text2 = TemplateText("Headline1", TextType.Headline),
+                            text3 = TemplateText("Label1", TextType.Label),
+                            priority = if (isMainTextBlockFirst) 0 else 1,
                         ),
-                        size = ImageSize.Medium,
-                        priority = if (isMainTextBlockFirst) 1 else 0,
-                    ),
-                    mainActionBlock = ActionBlock(
-                        actionButtons = listOf(
-                            TemplateTextButton(
-                                actionRunCallback<DefaultNoopAction>(),
-                                "Act1"
-                            ),
-                            TemplateTextButton(
-                                actionRunCallback<DefaultNoopAction>(),
-                                "Act2"
-                            ),
+                    mainImageBlock =
+                        ImageBlock(
+                            images =
+                                listOf(
+                                    TemplateImageWithDescription(
+                                        ImageProvider(R.drawable.palm_leaf),
+                                        "test image"
+                                    )
+                                ),
+                            size = ImageSize.Medium,
+                            priority = if (isMainTextBlockFirst) 1 else 0,
                         ),
-                    ),
-                    galleryImageBlock = ImageBlock(
-                        images = galleryContent,
-                        aspectRatio = aspectRatio,
-                        size = imageSize,
-                    ),
+                    mainActionBlock =
+                        ActionBlock(
+                            actionButtons =
+                                listOf(
+                                    TemplateTextButton(
+                                        actionRunCallback<DefaultNoopAction>(),
+                                        "Act1"
+                                    ),
+                                    TemplateTextButton(
+                                        actionRunCallback<DefaultNoopAction>(),
+                                        "Act2"
+                                    ),
+                                ),
+                        ),
+                    galleryImageBlock =
+                        ImageBlock(
+                            images = galleryContent,
+                            aspectRatio = aspectRatio,
+                            size = imageSize,
+                        ),
                 )
             )
         }

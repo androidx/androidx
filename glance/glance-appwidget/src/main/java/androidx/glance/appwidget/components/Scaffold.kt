@@ -39,8 +39,8 @@ import androidx.glance.unit.ColorProvider
  * @param modifier a modifier
  * @param titleBar A composable that creates the [TitleBar]. Optional parameter.
  * @param backgroundColor the background color for the layout.
- * @param horizontalPadding Scaffold provides a default padding which should work for most
- *  use cases. However, it can be overridden.
+ * @param horizontalPadding Scaffold provides a default padding which should work for most use
+ *   cases. However, it can be overridden.
  * @param content The main content of the widget.
  */
 @Composable
@@ -51,22 +51,17 @@ fun Scaffold(
     horizontalPadding: Dp = 12.dp,
     content: @Composable () -> Unit,
 ) {
-    var theModifier = modifier
-        .fillMaxSize()
-        .background(backgroundColor)
-        .appWidgetBackground()
+    var theModifier = modifier.fillMaxSize().background(backgroundColor).appWidgetBackground()
 
-    val systemCornerRadiusDefined = LocalContext.current.resources
-        .getResourceName(android.R.dimen.system_app_widget_background_radius) != null
-    if (android.os.Build.VERSION.SDK_INT >= 31 && systemCornerRadiusDefined
-    ) {
+    val systemCornerRadiusDefined =
+        LocalContext.current.resources.getResourceName(
+            android.R.dimen.system_app_widget_background_radius
+        ) != null
+    if (android.os.Build.VERSION.SDK_INT >= 31 && systemCornerRadiusDefined) {
         theModifier = theModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
     }
 
-    Box(
-        modifier = theModifier
-
-    ) {
+    Box(modifier = theModifier) {
         Column(GlanceModifier.fillMaxSize()) {
             titleBar?.invoke()
             Box(

@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.5.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha06)" variant="all" version="8.5.0-alpha06">
 
     <issue
         id="RestrictedApiAndroidX"
         message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
-        errorLine1="                color = ColorProvider(androidx.glance.R.color.glance_colorSecondary)"
+        errorLine1="                    color = ColorProvider(androidx.glance.R.color.glance_colorError),"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="                        ColorProvider(resId = androidx.glance.R.color.glance_colorSecondary)"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
@@ -13,17 +22,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
-        errorLine1="                color = ColorProvider(androidx.glance.R.color.glance_colorError),"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
-        errorLine1="                backgroundColor = ColorProvider("
-        errorLine2="                                  ~~~~~~~~~~~~~">
+        errorLine1="                    color = ColorProvider(androidx.glance.R.color.glance_colorSecondary)"
+        errorLine2="                            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/demos/ProgressIndicatorAppWidget.kt"/>
     </issue>

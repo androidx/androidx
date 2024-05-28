@@ -25,9 +25,7 @@ import io.reactivex.Single
 import kotlinx.coroutines.rx2.await
 
 @JvmDefaultWithCompatibility
-/**
- * Client implemented migration interface.
- */
+/** Client implemented migration interface. */
 public interface RxSharedPreferencesMigration<T> {
     /**
      * Whether or not the migration should be run. This can be used to skip a read from the
@@ -41,14 +39,14 @@ public interface RxSharedPreferencesMigration<T> {
     }
 
     /**
-     * Maps SharedPreferences into T. Implementations should be idempotent
-     * since this may be called multiple times. See [DataMigration.migrate] for more
-     * information. The method accepts a SharedPreferencesView which is the view of the
-     * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data.
+     * Maps SharedPreferences into T. Implementations should be idempotent since this may be called
+     * multiple times. See [DataMigration.migrate] for more information. The method accepts a
+     * SharedPreferencesView which is the view of the SharedPreferences to migrate from (limited to
+     * [keysToMigrate] and a T which represent the current data. The function must return the
+     * migrated data.
      *
-     * If SharedPreferences is empty or does not contain any keys which you specified, this
-     * callback will not run.
+     * If SharedPreferences is empty or does not contain any keys which you specified, this callback
+     * will not run.
      *
      * @param sharedPreferencesView the current state of the SharedPreferences
      * @param currentData the most recently persisted data
@@ -57,9 +55,7 @@ public interface RxSharedPreferencesMigration<T> {
     public fun migrate(sharedPreferencesView: SharedPreferencesView, currentData: T): Single<T>
 }
 
-/**
- * RxSharedPreferencesMigrationBuilder for the RxSharedPreferencesMigration.
- */
+/** RxSharedPreferencesMigrationBuilder for the RxSharedPreferencesMigration. */
 @SuppressLint("TopLevelBuilder")
 public class RxSharedPreferencesMigrationBuilder<T>
 /**
@@ -78,10 +74,9 @@ constructor(
     private var keysToMigrate: Set<String>? = null
 
     /**
-     * Set the list of keys to migrate. The keys will be mapped to datastore.Preferences with
-     * their same values. If the key is already present in the new Preferences, the key
-     * will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated.
+     * Set the list of keys to migrate. The keys will be mapped to datastore.Preferences with their
+     * same values. If the key is already present in the new Preferences, the key will not be
+     * migrated again. If the key is not present in the SharedPreferences it will not be migrated.
      *
      * This method is optional and if keysToMigrate is not set, all keys will be migrated from the
      * existing SharedPreferences.

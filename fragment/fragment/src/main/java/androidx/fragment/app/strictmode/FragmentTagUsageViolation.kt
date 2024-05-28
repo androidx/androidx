@@ -18,17 +18,16 @@ package androidx.fragment.app.strictmode
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 
-/**
- * See [FragmentStrictMode.Policy.Builder.detectFragmentTagUsage].
- */
-class FragmentTagUsageViolation internal constructor(
+/** See [FragmentStrictMode.Policy.Builder.detectFragmentTagUsage]. */
+class FragmentTagUsageViolation
+internal constructor(
     fragment: Fragment,
     /**
-     * Gets the parent container that the [Fragment] causing the Violation
-     * would have been added to.
+     * Gets the parent container that the [Fragment] causing the Violation would have been added to.
      */
     val parentContainer: ViewGroup?
-) : Violation(
-    fragment,
-    "Attempting to use <fragment> tag to add fragment $fragment to container $parentContainer"
-)
+) :
+    Violation(
+        fragment,
+        "Attempting to use <fragment> tag to add fragment $fragment to container $parentContainer"
+    )

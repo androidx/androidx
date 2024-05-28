@@ -9,95 +9,88 @@ import org.junit.Test
 @SmallTest
 @Suppress("DEPRECATION")
 class FragmentManagerTest {
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    private val fragmentManager
+        get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest
-    @Test fun transaction() {
+    @Test
+    fun transaction() {
         val fragment = TestFragment()
-        fragmentManager.transaction {
-            add(fragment, null)
-        }
+        fragmentManager.transaction { add(fragment, null) }
         assertThat(fragmentManager.fragments).doesNotContain(fragment)
         fragmentManager.executePendingTransactions()
         assertThat(fragmentManager.fragments).contains(fragment)
     }
 
     @UiThreadTest
-    @Test fun transactionNow() {
+    @Test
+    fun transactionNow() {
         val fragment = TestFragment()
-        fragmentManager.transaction(now = true) {
-            add(fragment, null)
-        }
+        fragmentManager.transaction(now = true) { add(fragment, null) }
         assertThat(fragmentManager.fragments).contains(fragment)
     }
 
     @UiThreadTest
-    @Test fun transactionAllowingStateLoss() {
+    @Test
+    fun transactionAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
         val fragmentManager = FragmentManagerImpl()
 
-        fragmentManager.transaction(allowStateLoss = true) {
-            add(TestFragment(), null)
-        }
+        fragmentManager.transaction(allowStateLoss = true) { add(TestFragment(), null) }
         assertThat(fragmentManager.fragments).isEmpty()
     }
 
     @UiThreadTest
-    @Test fun transactionNowAllowingStateLoss() {
+    @Test
+    fun transactionNowAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
         val fragmentManager = FragmentManagerImpl()
 
-        fragmentManager.transaction(now = true, allowStateLoss = true) {
-            add(TestFragment(), null)
-        }
+        fragmentManager.transaction(now = true, allowStateLoss = true) { add(TestFragment(), null) }
         assertThat(fragmentManager.fragments).isEmpty()
     }
 
     @UiThreadTest
-    @Test fun commit() {
+    @Test
+    fun commit() {
         val fragment = TestFragment()
-        fragmentManager.commit {
-            add(fragment, null)
-        }
+        fragmentManager.commit { add(fragment, null) }
         assertThat(fragmentManager.fragments).doesNotContain(fragment)
         fragmentManager.executePendingTransactions()
         assertThat(fragmentManager.fragments).contains(fragment)
     }
 
     @UiThreadTest
-    @Test fun commitAllowingStateLoss() {
+    @Test
+    fun commitAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
         val fragmentManager = FragmentManagerImpl()
 
-        fragmentManager.commit(allowStateLoss = true) {
-            add(TestFragment(), null)
-        }
+        fragmentManager.commit(allowStateLoss = true) { add(TestFragment(), null) }
         assertThat(fragmentManager.fragments).isEmpty()
     }
 
     @UiThreadTest
-    @Test fun commitNow() {
+    @Test
+    fun commitNow() {
         val fragment = TestFragment()
-        fragmentManager.commitNow {
-            add(fragment, null)
-        }
+        fragmentManager.commitNow { add(fragment, null) }
         assertThat(fragmentManager.fragments).contains(fragment)
     }
 
     @UiThreadTest
-    @Test fun commitNowAllowingStateLoss() {
+    @Test
+    fun commitNowAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
         val fragmentManager = FragmentManagerImpl()
 
-        fragmentManager.commitNow(allowStateLoss = true) {
-            add(TestFragment(), null)
-        }
+        fragmentManager.commitNow(allowStateLoss = true) { add(TestFragment(), null) }
         assertThat(fragmentManager.fragments).isEmpty()
     }
 }
 
 class TestActivity : FragmentActivity()
+
 class TestFragment : Fragment()

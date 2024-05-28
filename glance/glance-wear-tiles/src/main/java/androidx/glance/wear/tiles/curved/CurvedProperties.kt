@@ -27,9 +27,9 @@ import androidx.glance.unit.ColorProvider
  * elements added to a [CurvedRow] should be laid out with respect to the [CurvedRow]'s anchor
  * angle.
  *
- * As an example, assume that the following diagrams are wrapped to an arc, and
- * each represents a [CurvedRow] element containing a single text element. The text
- * element's anchor angle is "0" for all cases.
+ * As an example, assume that the following diagrams are wrapped to an arc, and each represents a
+ * [CurvedRow] element containing a single text element. The text element's anchor angle is "0" for
+ * all cases.
  *
  * ```
  * AnchorType.Start:
@@ -50,21 +50,21 @@ import androidx.glance.unit.ColorProvider
 public value class AnchorType private constructor(private val value: Int) {
     public companion object {
         /**
-         * Anchor at the start of the elements. This will cause elements added to a
-         * [CurvedRow] to begin at the given anchor angle, and sweep around to the right.
+         * Anchor at the start of the elements. This will cause elements added to a [CurvedRow] to
+         * begin at the given anchor angle, and sweep around to the right.
          */
         public val Start: AnchorType = AnchorType(0)
 
         /**
-         * Anchor at the center of the elements. This will cause the center of the
-         * whole set of elements added to a [CurvedRow] to be pinned at the given anchor angle.
+         * Anchor at the center of the elements. This will cause the center of the whole set of
+         * elements added to a [CurvedRow] to be pinned at the given anchor angle.
          */
         public val Center: AnchorType = AnchorType(1)
 
         /**
-         * Anchor at the end of the elements. This will cause the set of elements
-         * inside the [CurvedRow] to end at the specified anchor angle, i.e. all elements
-         * should be to the left of anchor angle.
+         * Anchor at the end of the elements. This will cause the set of elements inside the
+         * [CurvedRow] to end at the specified anchor angle, i.e. all elements should be to the left
+         * of anchor angle.
          */
         public val End: AnchorType = AnchorType(2)
     }
@@ -77,26 +77,18 @@ public value class AnchorType private constructor(private val value: Int) {
 @JvmInline
 public value class RadialAlignment private constructor(private val value: Int) {
     companion object {
-        /**
-         * Put the child closest to the center of the [CurvedRow], within the available space
-         */
+        /** Put the child closest to the center of the [CurvedRow], within the available space */
         val Inner = RadialAlignment(0)
 
-        /**
-         * Put the child in the middle point of the available space.
-         */
+        /** Put the child in the middle point of the available space. */
         val Center = RadialAlignment(1)
 
-        /**
-         * Put the child farthest from the center of the [CurvedRow], within the available space
-         */
+        /** Put the child farthest from the center of the [CurvedRow], within the available space */
         val Outer = RadialAlignment(2)
     }
 }
 
-/**
- * Description of a text style for the [CurvedScope.curvedText] composable.
- */
+/** Description of a text style for the [CurvedScope.curvedText] composable. */
 @Immutable
 public class CurvedTextStyle(
     public val color: ColorProvider? = null,

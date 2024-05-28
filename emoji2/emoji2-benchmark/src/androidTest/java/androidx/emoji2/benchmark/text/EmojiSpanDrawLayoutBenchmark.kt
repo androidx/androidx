@@ -38,8 +38,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 23)
 class EmojiSpanDrawLayoutBenchmark(private val size: Int) {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     companion object {
         @Parameterized.Parameters(name = "size={0}")
@@ -50,8 +49,9 @@ class EmojiSpanDrawLayoutBenchmark(private val size: Int) {
     @Test
     fun emojiSpansDraw() {
         initializeEmojiCompatWithBundledForTest()
-        val text = EmojiCompat.get().process(POLARBEAR.repeat(size)) as? Spanned
-            ?: throw IllegalStateException("Fail the test")
+        val text =
+            EmojiCompat.get().process(POLARBEAR.repeat(size)) as? Spanned
+                ?: throw IllegalStateException("Fail the test")
         // this assertion is just to validate we're actually benchmarking EmojiSpans
         assertEquals(size, text.getSpans(0, text.length, EmojiSpan::class.java).size)
         measureRepeatedDrawText(text)
@@ -72,20 +72,17 @@ class EmojiSpanDrawLayoutBenchmark(private val size: Int) {
 
     private fun measureRepeatedDrawText(text: CharSequence) {
         val paint = TextPaint()
-        val layout = StaticLayout.Builder
-            .obtain(text, 0, size, paint, Int.MAX_VALUE)
-            .build()
+        val layout = StaticLayout.Builder.obtain(text, 0, size, paint, Int.MAX_VALUE).build()
         var bitmap: Bitmap? = null
         try {
-            bitmap = Bitmap.createBitmap(
-                layout.getLineWidth(1).toInt() + 100,
-                100,
-                Bitmap.Config.ARGB_8888
-            )
+            bitmap =
+                Bitmap.createBitmap(
+                    layout.getLineWidth(1).toInt() + 100,
+                    100,
+                    Bitmap.Config.ARGB_8888
+                )
             val canvas = Canvas(bitmap)
-            benchmarkRule.measureRepeated {
-                layout.draw(canvas)
-            }
+            benchmarkRule.measureRepeated { layout.draw(canvas) }
         } finally {
             bitmap?.recycle()
         }

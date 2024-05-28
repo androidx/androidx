@@ -22,8 +22,8 @@ import android.content.Intent
 import androidx.annotation.RestrictTo
 
 /**
- * Broadcast receiver handling updates after a package update. Useful to know if classes appeared
- * or disappeared and need cleaning.
+ * Broadcast receiver handling updates after a package update. Useful to know if classes appeared or
+ * disappeared and need cleaning.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class MyPackageReplacedReceiver : BroadcastReceiver() {

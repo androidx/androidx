@@ -48,7 +48,8 @@ class EmptyFragmentActivity : FragmentActivity() {
     }
 
     companion object {
-        const val THEME_EXTRAS_BUNDLE_KEY = "androidx.fragment.app.testing.FragmentScenario" +
-            ".EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY"
+        const val THEME_EXTRAS_BUNDLE_KEY =
+            "androidx.fragment.app.testing.FragmentScenario" +
+                ".EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY"
     }
 }

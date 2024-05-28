@@ -44,22 +44,27 @@ import org.jetbrains.uast.tryResolve
 class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
 
     companion object Issues {
-        val DETACH_ATTACH_OPERATIONS_ISSUE = Issue.create(
-            id = "DetachAndAttachSameFragment",
-            briefDescription = "Separate attach() and detach() into separate FragmentTransactions",
-            explanation = """When doing a FragmentTransaction that includes both attach() \
+        val DETACH_ATTACH_OPERATIONS_ISSUE =
+            Issue.create(
+                id = "DetachAndAttachSameFragment",
+                briefDescription =
+                    "Separate attach() and detach() into separate FragmentTransactions",
+                explanation =
+                    """When doing a FragmentTransaction that includes both attach() \
                 and detach() operations being committed on the same fragment instance, it is a \
                 no-op. The reason for this is that the FragmentManager optimizes all operations \
                 within a single transaction so the attach() and detach() cancel each other out \
                 and neither is actually executed. To get the desired behavior, you should separate \
                 the attach() and detach() calls into separate FragmentTransactions.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                AttachAndDetachInSameTransactionDetector::class.java, Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        AttachAndDetachInSameTransactionDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    ),
+                androidSpecific = true
+            )
 
         // Target method names
         private const val ATTACH = "attach"
@@ -73,11 +78,7 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableMethodNames(): List<String> = listOf(BEGIN_TRANSACTION)
 
-    override fun visitMethodCall(
-        context: JavaContext,
-        node: UCallExpression,
-        method: PsiMethod
-    ) {
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         when (method.name) {
             BEGIN_TRANSACTION -> checkTransactionCommits(context, node, method)
             else -> super.visitMethodCall(context, node, method)
@@ -93,29 +94,33 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
             val method = node.getParentOfType(UMethod::class.java) ?: return
             var attachingFragment: UElement? = null
             var detachingFragment: UElement? = null
-            val visitor = object : DataFlowAnalyzer(setOf(node), emptyList()) {
-                override fun receiver(call: UCallExpression) {
-                    if (isAttachFragmentMethodCall(context, call)) {
-                        val arg = call.valueArguments.firstOrNull {
-                            it.getExpressionType().extends(context, FRAGMENT_CLS, false)
+            val visitor =
+                object : DataFlowAnalyzer(setOf(node), emptyList()) {
+                    override fun receiver(call: UCallExpression) {
+                        if (isAttachFragmentMethodCall(context, call)) {
+                            val arg =
+                                call.valueArguments.firstOrNull {
+                                    it.getExpressionType().extends(context, FRAGMENT_CLS, false)
+                                }
+                            attachingFragment = arg?.tryResolve()?.toUElement()
                         }
-                        attachingFragment = arg?.tryResolve()?.toUElement()
-                    }
-                    if (isDetachFragmentMethodCall(context, call)) {
-                        val arg = call.valueArguments.firstOrNull {
-                            it.getExpressionType().extends(context, FRAGMENT_CLS, false)
+                        if (isDetachFragmentMethodCall(context, call)) {
+                            val arg =
+                                call.valueArguments.firstOrNull {
+                                    it.getExpressionType().extends(context, FRAGMENT_CLS, false)
+                                }
+                            detachingFragment = arg?.tryResolve()?.toUElement()
                         }
-                        detachingFragment = arg?.tryResolve()?.toUElement()
                     }
                 }
-            }
             method.accept(visitor)
 
             if (attachingFragment != null && attachingFragment == detachingFragment) {
-                val message = "Calling detach() and attach() in the same FragmentTransaction is " +
-                    "a no-op, meaning it does not recreate the Fragment's view. If you would " +
-                    "like the view to be recreated, separate these operations into separate " +
-                    "transactions."
+                val message =
+                    "Calling detach() and attach() in the same FragmentTransaction is " +
+                        "a no-op, meaning it does not recreate the Fragment's view. If you would " +
+                        "like the view to be recreated, separate these operations into separate " +
+                        "transactions."
                 context.report(
                     DETACH_ATTACH_OPERATIONS_ISSUE,
                     node,
@@ -126,27 +131,18 @@ class AttachAndDetachInSameTransactionDetector : Detector(), SourceCodeScanner {
         }
     }
 
-    private fun isBeginTransaction(
-        context: JavaContext,
-        method: PsiMethod
-    ): Boolean {
+    private fun isBeginTransaction(context: JavaContext, method: PsiMethod): Boolean {
         return BEGIN_TRANSACTION == method.name &&
             context.evaluator.isMemberInSubClassOf(method, FRAGMENT_MANAGER_CLS)
     }
 
-    internal fun isAttachFragmentMethodCall(
-        context: JavaContext,
-        call: UCallExpression
-    ): Boolean {
+    internal fun isAttachFragmentMethodCall(context: JavaContext, call: UCallExpression): Boolean {
         val methodName = getMethodName(call)
         return ATTACH == methodName &&
             isMethodOnFragmentClass(context, call, FRAGMENT_TRANSACTION_CLS, true)
     }
 
-    internal fun isDetachFragmentMethodCall(
-        context: JavaContext,
-        call: UCallExpression
-    ): Boolean {
+    internal fun isDetachFragmentMethodCall(context: JavaContext, call: UCallExpression): Boolean {
         val methodName = getMethodName(call)
         return DETACH == methodName &&
             isMethodOnFragmentClass(context, call, FRAGMENT_TRANSACTION_CLS, true)

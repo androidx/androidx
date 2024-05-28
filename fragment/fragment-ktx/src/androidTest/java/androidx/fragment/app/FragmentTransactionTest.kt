@@ -26,56 +26,51 @@ import org.junit.Test
 @SmallTest
 class FragmentTransactionTest {
     @Suppress("DEPRECATION")
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
+    private val fragmentManager
+        get() = activityRule.activity.supportFragmentManager
 
     @UiThreadTest
-    @Test fun addWithContainerId() {
+    @Test
+    fun addWithContainerId() {
         val args = Bundle()
-        fragmentManager.beginTransaction()
+        fragmentManager
+            .beginTransaction()
             .add<TestFragment>(android.R.id.content, "tag", args)
             .commitNow()
         val fragment = fragmentManager.findFragmentById(android.R.id.content)
-        assertThat(fragment)
-            .isInstanceOf(TestFragment::class.java)
-        assertThat(fragment?.arguments)
-            .isSameInstanceAs(args)
-        assertThat(fragmentManager.findFragmentByTag("tag"))
-            .isSameInstanceAs(fragment)
+        assertThat(fragment).isInstanceOf(TestFragment::class.java)
+        assertThat(fragment?.arguments).isSameInstanceAs(args)
+        assertThat(fragmentManager.findFragmentByTag("tag")).isSameInstanceAs(fragment)
     }
 
     @UiThreadTest
-    @Test fun addWithTag() {
-        fragmentManager.beginTransaction()
-            .add<TestFragment>("tag")
-            .commitNow()
-        assertThat(fragmentManager.findFragmentByTag("tag"))
-            .isInstanceOf(TestFragment::class.java)
+    @Test
+    fun addWithTag() {
+        fragmentManager.beginTransaction().add<TestFragment>("tag").commitNow()
+        assertThat(fragmentManager.findFragmentByTag("tag")).isInstanceOf(TestFragment::class.java)
     }
 
     @UiThreadTest
-    @Test fun replace() {
-        fragmentManager.beginTransaction()
-            .replace<TestFragment>(android.R.id.content)
-            .commitNow()
+    @Test
+    fun replace() {
+        fragmentManager.beginTransaction().replace<TestFragment>(android.R.id.content).commitNow()
         assertThat(fragmentManager.findFragmentById(android.R.id.content))
             .isInstanceOf(TestFragment::class.java)
     }
 
     @UiThreadTest
-    @Test fun replaceWithTag() {
+    @Test
+    fun replaceWithTag() {
         val args = Bundle()
-        fragmentManager.beginTransaction()
+        fragmentManager
+            .beginTransaction()
             .replace<TestFragment>(android.R.id.content, "tag", args)
             .commitNow()
         val fragment = fragmentManager.findFragmentById(android.R.id.content)
-        assertThat(fragment)
-            .isInstanceOf(TestFragment::class.java)
-        assertThat(fragment?.arguments)
-            .isSameInstanceAs(args)
-        assertThat(fragmentManager.findFragmentByTag("tag"))
-            .isSameInstanceAs(fragment)
+        assertThat(fragment).isInstanceOf(TestFragment::class.java)
+        assertThat(fragment?.arguments).isSameInstanceAs(args)
+        assertThat(fragmentManager.findFragmentByTag("tag")).isSameInstanceAs(fragment)
     }
 }

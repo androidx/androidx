@@ -26,17 +26,13 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 internal class SimpleActor<T>(
-    /**
-     * The scope in which to consume messages.
-     */
+    /** The scope in which to consume messages. */
     private val scope: CoroutineScope,
-    /**
-     * Function that will be called when scope is cancelled. Should *not* throw exceptions.
-     */
+    /** Function that will be called when scope is cancelled. Should *not* throw exceptions. */
     onComplete: (Throwable?) -> Unit,
     /**
-     * Function that will be called for each element when the scope is cancelled. Should *not*
-     * throw exceptions.
+     * Function that will be called for each element when the scope is cancelled. Should *not* throw
+     * exceptions.
      */
     onUndeliveredElement: (T, Throwable?) -> Unit,
     /**
@@ -49,8 +45,8 @@ internal class SimpleActor<T>(
     private val messageQueue = Channel<T>(capacity = UNLIMITED)
 
     /**
-     * Count of the number of remaining messages to process. When the messageQueue is closed,
-     * this is no longer used.
+     * Count of the number of remaining messages to process. When the messageQueue is closed, this
+     * is no longer used.
      */
     private val remainingMessages = AtomicInt(0)
 
@@ -66,9 +62,8 @@ internal class SimpleActor<T>(
             messageQueue.close(ex)
 
             while (true) {
-                messageQueue.tryReceive().getOrNull()?.let { msg ->
-                    onUndeliveredElement(msg, ex)
-                } ?: break
+                messageQueue.tryReceive().getOrNull()?.let { msg -> onUndeliveredElement(msg, ex) }
+                    ?: break
             }
         }
     }
@@ -76,31 +71,29 @@ internal class SimpleActor<T>(
     /**
      * Sends a message to a message queue to be processed by [consumeMessage] in [scope].
      *
-     * If [offer] completes successfully, the msg *will* be processed either by
-     * consumeMessage or
+     * If [offer] completes successfully, the msg *will* be processed either by consumeMessage or
      * onUndeliveredElement. If [offer] throws an exception, the message may or may not be
      * processed.
      */
     fun offer(msg: T) {
         /**
          * Possible states:
-         * 1) remainingMessages = 0
-         *   All messages have been consumed, so there is no active consumer
-         * 2) remainingMessages > 0, no active consumer
-         *   One of the senders is responsible for triggering the consumer
-         * 3) remainingMessages > 0, active consumer
-         *   Consumer will continue to consume until remainingMessages is 0
-         * 4) messageQueue is closed, there are remaining messages to consume
-         *   Attempts to offer messages will fail, onComplete() will consume remaining messages
-         *   with onUndelivered. The Consumer has already completed since close() is called by
-         *   onComplete().
-         * 5) messageQueue is closed, there are no remaining messages to consume
-         *   Attempts to offer messages will fail.
+         * 1) remainingMessages = 0 All messages have been consumed, so there is no active consumer
+         * 2) remainingMessages > 0, no active consumer One of the senders is responsible for
+         *    triggering the consumer
+         * 3) remainingMessages > 0, active consumer Consumer will continue to consume until
+         *    remainingMessages is 0
+         * 4) messageQueue is closed, there are remaining messages to consume Attempts to offer
+         *    messages will fail, onComplete() will consume remaining messages with onUndelivered.
+         *    The Consumer has already completed since close() is called by onComplete().
+         * 5) messageQueue is closed, there are no remaining messages to consume Attempts to offer
+         *    messages will fail.
          */
 
         // should never return false bc the channel capacity is unlimited
         check(
-            messageQueue.trySend(msg)
+            messageQueue
+                .trySend(msg)
                 .onClosed { throw it ?: ClosedSendChannelException("Channel was closed normally") }
                 .isSuccess
         )

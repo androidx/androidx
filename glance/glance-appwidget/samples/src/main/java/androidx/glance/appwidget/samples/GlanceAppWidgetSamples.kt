@@ -50,9 +50,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/**
- *  This sample demonstrates how to do create a simple [GlanceAppWidget] and update the widget.
- */
+/** This sample demonstrates how to do create a simple [GlanceAppWidget] and update the widget. */
 @Sampled
 fun provideGlanceSample() {
     class MyWidget : GlanceAppWidget() {
@@ -73,13 +71,14 @@ fun provideGlanceSample() {
                 val scope = rememberCoroutineScope()
                 Text(
                     text = "Hello ${data[Name]}",
-                    modifier = GlanceModifier.clickable("changeName") {
-                        scope.launch {
-                            store.updateData {
-                                it.toMutablePreferences().apply { set(Name, "Changed") }
+                    modifier =
+                        GlanceModifier.clickable("changeName") {
+                            scope.launch {
+                                store.updateData {
+                                    it.toMutablePreferences().apply { set(Name, "Changed") }
+                                }
                             }
                         }
-                    }
                 )
             }
         }
@@ -100,15 +99,13 @@ fun provideGlanceSample() {
 // Without this declaration, the class reference to WeatherWidgetWorker::class.java below does not
 // work because it is defined in that function after it is referenced. This will not show up in the
 // sample.
-class WeatherWidgetWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class WeatherWidgetWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     override suspend fun doWork() = Result.success()
 }
 
 /**
- *  This sample demonstrates how to do periodic updates using a unique periodic [CoroutineWorker].
+ * This sample demonstrates how to do periodic updates using a unique periodic [CoroutineWorker].
  */
 @Sampled
 fun provideGlancePeriodicWorkSample() {
@@ -128,22 +125,24 @@ fun provideGlancePeriodicWorkSample() {
         override suspend fun provideGlance(context: Context, id: GlanceId) {
             coroutineScope {
                 val store = context.weatherWidgetStore
-                val currentDegrees = store.data
-                    .map { prefs -> prefs[CurrentDegrees] }
-                    .stateIn(this@coroutineScope)
+                val currentDegrees =
+                    store.data.map { prefs -> prefs[CurrentDegrees] }.stateIn(this@coroutineScope)
 
                 // Load the current weather if there is not a current value present.
                 if (currentDegrees.value == null) store.loadWeather()
 
                 // Create unique periodic work to keep this widget updated at a regular interval.
-                WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                    "weatherWidgetWorker",
-                    ExistingPeriodicWorkPolicy.KEEP,
-                    PeriodicWorkRequest.Builder(
-                        WeatherWidgetWorker::class.java,
-                        15.minutes.toJavaDuration()
-                    ).setInitialDelay(15.minutes.toJavaDuration()).build()
-                )
+                WorkManager.getInstance(context)
+                    .enqueueUniquePeriodicWork(
+                        "weatherWidgetWorker",
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        PeriodicWorkRequest.Builder(
+                                WeatherWidgetWorker::class.java,
+                                15.minutes.toJavaDuration()
+                            )
+                            .setInitialDelay(15.minutes.toJavaDuration())
+                            .build()
+                    )
 
                 // Note: you can also set `android:updatePeriodMillis` to control how often the
                 // launcher requests an update, but this does not support periods less than
@@ -157,10 +156,8 @@ fun provideGlancePeriodicWorkSample() {
         }
     }
 
-    class WeatherWidgetWorker(
-        appContext: Context,
-        params: WorkerParameters
-    ) : CoroutineWorker(appContext, params) {
+    class WeatherWidgetWorker(appContext: Context, params: WorkerParameters) :
+        CoroutineWorker(appContext, params) {
         override suspend fun doWork(): Result {
             WeatherWidget().apply {
                 applicationContext.weatherWidgetStore.loadWeather()

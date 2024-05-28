@@ -61,11 +61,12 @@ class HelloTileService : GlanceTileService() {
             Spacer(GlanceModifier.height(10.dp))
             Text(
                 text = context.getString(R.string.hello_tile_greeting),
-                style = TextStyle(
-                    color = ColorProvider(Color.White),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
+                style =
+                    TextStyle(
+                        color = ColorProvider(Color.White),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
             )
         }
     }

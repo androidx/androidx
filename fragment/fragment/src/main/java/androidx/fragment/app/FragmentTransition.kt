@@ -19,46 +19,42 @@ import android.os.Build
 import android.view.View
 import androidx.collection.ArrayMap
 
-/**
- * Contains the Fragment Transition functionality.
- */
+/** Contains the Fragment Transition functionality. */
 internal object FragmentTransition {
     @JvmField
     val PLATFORM_IMPL: FragmentTransitionImpl? =
         if (Build.VERSION.SDK_INT >= 21) FragmentTransitionCompat21() else null
 
-    @JvmField
-    val SUPPORT_IMPL = resolveSupportImpl()
+    @JvmField val SUPPORT_IMPL = resolveSupportImpl()
 
     @Suppress("UNCHECKED_CAST")
-    private fun resolveSupportImpl(): FragmentTransitionImpl? = try {
-        val impl = Class.forName(
-            "androidx.transition.FragmentTransitionSupport"
-        ) as Class<FragmentTransitionImpl>
-        impl.getDeclaredConstructor().newInstance()
-    } catch (ignored: Exception) {
-        // support-transition is not loaded; ignore
-        null
-    }
+    private fun resolveSupportImpl(): FragmentTransitionImpl? =
+        try {
+            val impl =
+                Class.forName("androidx.transition.FragmentTransitionSupport")
+                    as Class<FragmentTransitionImpl>
+            impl.getDeclaredConstructor().newInstance()
+        } catch (ignored: Exception) {
+            // support-transition is not loaded; ignore
+            null
+        }
 
-    /**
-     * Utility to find the String key in [map] that maps to [value].
-     */
+    /** Utility to find the String key in [map] that maps to [value]. */
     @JvmStatic
-    fun ArrayMap<String, String>.findKeyForValue(
-        value: String
-    ): String? = filter { entry ->
-        // Find the entries with the given value
-        entry.value == value
-    }.map { entry ->
-        // And get the key associated with that value
-        entry.key
-    }.firstOrNull()
+    fun ArrayMap<String, String>.findKeyForValue(value: String): String? =
+        filter { entry ->
+                // Find the entries with the given value
+                entry.value == value
+            }
+            .map { entry ->
+                // And get the key associated with that value
+                entry.key
+            }
+            .firstOrNull()
 
     /**
-     * A utility to retain only the mappings in the map that have a value
-     * that has a key in [namedViews]. This is a useful equivalent to
-     * [ArrayMap.retainAll] for values.
+     * A utility to retain only the mappings in the map that have a value that has a key in
+     * [namedViews]. This is a useful equivalent to [ArrayMap.retainAll] for values.
      */
     @JvmStatic
     fun ArrayMap<String, String>.retainValues(namedViews: ArrayMap<String, View>) {
@@ -72,8 +68,8 @@ internal object FragmentTransition {
 
     /**
      * Calls the [android.app.SharedElementCallback.onSharedElementStart] or
-     * [android.app.SharedElementCallback.onSharedElementEnd] on the appropriate
-     * incoming or outgoing fragment.
+     * [android.app.SharedElementCallback.onSharedElementEnd] on the appropriate incoming or
+     * outgoing fragment.
      *
      * @param inFragment The incoming fragment
      * @param outFragment The outgoing fragment
@@ -89,11 +85,12 @@ internal object FragmentTransition {
         sharedElements: ArrayMap<String, View>,
         isStart: Boolean
     ) {
-        val sharedElementCallback = if (isPop) {
-            outFragment.enterTransitionCallback
-        } else {
-            inFragment.enterTransitionCallback
-        }
+        val sharedElementCallback =
+            if (isPop) {
+                outFragment.enterTransitionCallback
+            } else {
+                inFragment.enterTransitionCallback
+            }
         if (sharedElementCallback != null) {
             val views = sharedElements.map { it.value }
             val names = sharedElements.map { it.key }
@@ -105,14 +102,10 @@ internal object FragmentTransition {
         }
     }
 
-    /**
-     * Sets the visibility of all Views in [views] to [visibility].
-     */
+    /** Sets the visibility of all Views in [views] to [visibility]. */
     @JvmStatic
     fun setViewVisibility(views: List<View>, visibility: Int) {
-        views.forEach { view ->
-            view.visibility = visibility
-        }
+        views.forEach { view -> view.visibility = visibility }
     }
 
     @JvmStatic

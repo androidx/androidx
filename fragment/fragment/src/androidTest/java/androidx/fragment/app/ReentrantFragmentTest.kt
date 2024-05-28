@@ -39,16 +39,17 @@ class ReentrantFragmentTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "fromState={0}, toState={1}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.CREATED))
-            add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ACTIVITY_CREATED))
-            add(arrayOf(StrictFragment.State.ACTIVITY_CREATED, StrictFragment.State.STARTED))
-            add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.RESUMED))
-            add(arrayOf(StrictFragment.State.RESUMED, StrictFragment.State.STARTED))
-            add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.CREATED))
-            add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ATTACHED))
-            add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.DETACHED))
-        }
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.CREATED))
+                add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ACTIVITY_CREATED))
+                add(arrayOf(StrictFragment.State.ACTIVITY_CREATED, StrictFragment.State.STARTED))
+                add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.RESUMED))
+                add(arrayOf(StrictFragment.State.RESUMED, StrictFragment.State.STARTED))
+                add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.CREATED))
+                add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ATTACHED))
+                add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.DETACHED))
+            }
     }
 
     @Suppress("DEPRECATION")
@@ -56,8 +57,8 @@ class ReentrantFragmentTest(
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     // Make sure that executing transactions during activity lifecycle events
     // is properly prevented.
@@ -112,10 +113,7 @@ class ReentrantFragmentTest(
                 // is being restored as the fragment controller state is being brought up.
 
                 try {
-                    activityRule.startupFragmentController(
-                        viewModelStore,
-                        savedState
-                    )
+                    activityRule.startupFragmentController(viewModelStore, savedState)
                     fail(
                         "Expected IllegalStateException when moving from " +
                             "$fromState to $toState"
@@ -167,16 +165,16 @@ class ReentrantFragment : StrictFragment() {
     override fun onStateChanged(fromState: State) {
         super.onStateChanged(fromState)
         // We execute the transaction when shutting down or after restoring
-        if (fromState == this.fromState && currentState == toState &&
-            (toState < this.fromState || isRestored)
+        if (
+            fromState == this.fromState &&
+                currentState == toState &&
+                (toState < this.fromState || isRestored)
         ) {
             executeTransaction()
         }
     }
 
     private fun executeTransaction() {
-        parentFragmentManager.beginTransaction()
-            .add(StrictFragment(), "should throw")
-            .commitNow()
+        parentFragmentManager.beginTransaction().add(StrictFragment(), "should throw").commitNow()
     }
 }

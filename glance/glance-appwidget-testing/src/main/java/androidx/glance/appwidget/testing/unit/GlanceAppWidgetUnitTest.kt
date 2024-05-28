@@ -35,9 +35,8 @@ import kotlin.time.Duration
  * and make assertions on them.
  *
  * Test your individual Glance composable functions in isolation to verify that your logic outputs
- * right elements. For example: if input data is 'x', an image 'y' was
- * outputted. In sample below, the test class has a separate test for the header and the status
- * row.
+ * right elements. For example: if input data is 'x', an image 'y' was outputted. In sample below,
+ * the test class has a separate test for the header and the status row.
  *
  * Tests can be run on JVM as these don't involve rendering the UI. If your logic depends on
  * [Context] or other android APIs, tests can be run on Android unit testing frameworks such as
@@ -69,21 +68,19 @@ sealed interface GlanceAppWidgetUnitTest :
     GlanceNodeAssertionsProvider<MappedNode, GlanceMappedNode> {
     /**
      * Sets the size of the appWidget to be assumed for the test. This corresponds to the
-     * `LocalSize.current` composition local. If you are accessing the local size, you must
-     * call this method to set the intended size for the test.
+     * `LocalSize.current` composition local. If you are accessing the local size, you must call
+     * this method to set the intended size for the test.
      *
-     * Note: This should be called before calling [provideComposable].
-     * Default is `349.dp, 455.dp` that of a 5x4 widget in Pixel 4 portrait mode. See
-     * [GlanceAppWidgetUnitTestDefaults.size]
-     *
+     * Note: This should be called before calling [provideComposable]. Default is `349.dp, 455.dp`
+     * that of a 5x4 widget in Pixel 4 portrait mode. See [GlanceAppWidgetUnitTestDefaults.size]
      * 1. If your appWidget uses `sizeMode == Single`, you can set this to the `minWidth` and
-     * `minHeight` set in your appwidget info xml.
-     * 2. If your appWidget uses `sizeMode == Exact`, you can identify the sizes to test looking
-     * at the documentation on
-     * [Determine a size for your widget](https://developer.android.com/develop/ui/views/appwidgets/layouts#anatomy_determining_size).
-     * and identifying landscape and portrait sizes that your widget may appear on.
+     *    `minHeight` set in your appwidget info xml.
+     * 2. If your appWidget uses `sizeMode == Exact`, you can identify the sizes to test looking at
+     *    the documentation on
+     *    [Determine a size for your widget](https://developer.android.com/develop/ui/views/appwidgets/layouts#anatomy_determining_size).
+     *    and identifying landscape and portrait sizes that your widget may appear on.
      * 3. If your appWidget uses `sizeMode == Responsive`, you can set this to one of the sizes from
-     * the list that you provide when specifying the sizeMode.
+     *    the list that you provide when specifying the sizeMode.
      */
     fun setAppWidgetSize(size: DpSize)
 
@@ -97,7 +94,7 @@ sealed interface GlanceAppWidgetUnitTest :
      *
      * @param state the state to be used for testing the composable.
      * @param T type of state used in your [GlanceStateDefinition] e.g. `Preferences` if your state
-     *          definition is `GlanceStateDefinition<Preferences>`
+     *   definition is `GlanceStateDefinition<Preferences>`
      */
     fun <T> setState(state: T)
 
@@ -130,9 +127,7 @@ sealed interface GlanceAppWidgetUnitTest :
     fun awaitIdle()
 }
 
-/**
- * Provides default values for various properties used in the Glance appWidget unit tests.
- */
+/** Provides default values for various properties used in the Glance appWidget unit tests. */
 object GlanceAppWidgetUnitTestDefaults {
     /**
      * [GlanceId] that can be assumed for state updates testing a Glance composable in isolation.

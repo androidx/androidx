@@ -19,9 +19,7 @@ package androidx.datastore.core
 import java.io.FileOutputStream
 import java.io.OutputStream
 
-/**
- * Wrapper on FileOutputStream to prevent closing the underlying OutputStream.
- */
+/** Wrapper on FileOutputStream to prevent closing the underlying OutputStream. */
 internal class UncloseableOutputStream(val fileOutputStream: FileOutputStream) : OutputStream() {
 
     override fun write(b: Int) {

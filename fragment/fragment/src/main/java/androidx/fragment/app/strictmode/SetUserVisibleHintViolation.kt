@@ -17,17 +17,17 @@ package androidx.fragment.app.strictmode
 
 import androidx.fragment.app.Fragment
 
-/**
- * See [FragmentStrictMode.Policy.Builder.detectSetUserVisibleHint].
- */
-class SetUserVisibleHintViolation internal constructor(
+/** See [FragmentStrictMode.Policy.Builder.detectSetUserVisibleHint]. */
+class SetUserVisibleHintViolation
+internal constructor(
     fragment: Fragment,
     /**
-     * Indicates what the `isVisibleToUser` field for the [Fragment] causing the
-     * Violation was being set to.
+     * Indicates what the `isVisibleToUser` field for the [Fragment] causing the Violation was being
+     * set to.
      */
     val isVisibleToUser: Boolean
-) : Violation(
-    fragment,
-    "Attempting to set user visible hint to $isVisibleToUser for fragment $fragment"
-)
+) :
+    Violation(
+        fragment,
+        "Attempting to set user visible hint to $isVisibleToUser for fragment $fragment"
+    )

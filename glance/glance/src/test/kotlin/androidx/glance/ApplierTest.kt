@@ -97,13 +97,12 @@ class ApplierTest {
         val m = MiddleEmittable()
         applier.insertTopDown(1, m)
         applier.down(m)
-        val ex = assertFailsWith<IllegalArgumentException> {
-            applier.insertTopDown(0, LeafEmittable())
-        }
-        assertThat(ex.message).isEqualTo(
-            "Too many embedded views for the current surface. " +
-                "The maximum depth is: 1"
-        )
+        val ex =
+            assertFailsWith<IllegalArgumentException> { applier.insertTopDown(0, LeafEmittable()) }
+        assertThat(ex.message)
+            .isEqualTo(
+                "Too many embedded views for the current surface. " + "The maximum depth is: 1"
+            )
     }
 
     @Test
@@ -119,13 +118,11 @@ class ApplierTest {
         applier.insertTopDown(0, m)
         applier.down(m)
 
-        val ex = assertFailsWith<IllegalArgumentException> {
-            applier.insertTopDown(0, LeafEmittable())
-        }
+        val ex =
+            assertFailsWith<IllegalArgumentException> { applier.insertTopDown(0, LeafEmittable()) }
 
-        assertThat(ex.message).isEqualTo(
-            "Too many embedded views for the current surface. The maximum depth is: 1"
-        )
+        assertThat(ex.message)
+            .isEqualTo("Too many embedded views for the current surface. The maximum depth is: 1")
     }
 
     private companion object {
@@ -143,9 +140,7 @@ class ApplierTest {
 private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildren(maxDepth) {
     override var modifier: GlanceModifier = GlanceModifier
 
-    override fun copy(): Emittable = RootEmittable().also {
-        it.modifier = modifier
-    }
+    override fun copy(): Emittable = RootEmittable().also { it.modifier = modifier }
 
     override fun toString(): String = "RootEmittable(modifier=$modifier)"
 }
@@ -153,9 +148,7 @@ private class RootEmittable(maxDepth: Int = Int.MAX_VALUE) : EmittableWithChildr
 private class MiddleEmittable : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
 
-    override fun copy(): Emittable = MiddleEmittable().also {
-        it.modifier = modifier
-    }
+    override fun copy(): Emittable = MiddleEmittable().also { it.modifier = modifier }
 
     override fun toString(): String = "MiddleEmittable(modifier=$modifier)"
 }
@@ -163,9 +156,7 @@ private class MiddleEmittable : EmittableWithChildren() {
 private class LeafEmittable : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
 
-    override fun copy(): Emittable = LeafEmittable().also {
-        it.modifier = modifier
-    }
+    override fun copy(): Emittable = LeafEmittable().also { it.modifier = modifier }
 
     override fun toString(): String = "LeafEmittable(modifier=$modifier)"
 }
@@ -173,9 +164,7 @@ private class LeafEmittable : Emittable {
 private class ResetsDepthEmittable : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
 
-    override fun copy(): Emittable = ResetsDepthEmittable().also {
-        it.modifier = modifier
-    }
+    override fun copy(): Emittable = ResetsDepthEmittable().also { it.modifier = modifier }
 
     override fun toString(): String = "ResetsDepthEmittable(modifier=$modifier)"
 }

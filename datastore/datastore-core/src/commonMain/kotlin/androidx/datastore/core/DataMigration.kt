@@ -17,11 +17,10 @@
 package androidx.datastore.core
 
 /**
- * Interface for migrations to DataStore. Methods on this migration ([shouldMigrate], [migrate]
- * and [cleanUp]) may be called multiple times, so their implementations must be idempotent.
- * These methods may be called multiple times if DataStore encounters issues when writing the
- * newly migrated data to disk or if any migration installed in the same DataStore throws an
- * Exception.
+ * Interface for migrations to DataStore. Methods on this migration ([shouldMigrate], [migrate] and
+ * [cleanUp]) may be called multiple times, so their implementations must be idempotent. These
+ * methods may be called multiple times if DataStore encounters issues when writing the newly
+ * migrated data to disk or if any migration installed in the same DataStore throws an Exception.
  *
  * If you're migrating from SharedPreferences see [SharedPreferencesMigration].
  */
@@ -35,42 +34,42 @@ public interface DataMigration<T> {
      *
      * Note that this will always be called before each call to [migrate].
      *
-     * Note that accessing any data from DataStore directly from inside this function will result
-     * in deadlock, since DataStore doesn't return data until all migrations complete.
+     * Note that accessing any data from DataStore directly from inside this function will result in
+     * deadlock, since DataStore doesn't return data until all migrations complete.
      *
      * @param currentData the current data (which might already be populated from previous runs of
-     * this or other migrations)
+     *   this or other migrations)
      */
     public suspend fun shouldMigrate(currentData: T): Boolean
 
     /**
-     * Perform the migration. Implementations should be idempotent since this may be called
-     * multiple times. If migrate fails, DataStore will not commit any data to disk, cleanUp will
-     * not be called, and the exception will be propagated back to the DataStore call that
-     * triggered the migration. Future calls to DataStore will result in DataMigrations being
-     * attempted again. This method may be run multiple times when any failure is encountered.
+     * Perform the migration. Implementations should be idempotent since this may be called multiple
+     * times. If migrate fails, DataStore will not commit any data to disk, cleanUp will not be
+     * called, and the exception will be propagated back to the DataStore call that triggered the
+     * migration. Future calls to DataStore will result in DataMigrations being attempted again.
+     * This method may be run multiple times when any failure is encountered.
      *
      * Note that this will always be called before a call to [cleanUp].
      *
-     * Note that accessing any data from DataStore directly from inside this function will result
-     * in deadlock, since DataStore doesn't return data until all migrations complete.
+     * Note that accessing any data from DataStore directly from inside this function will result in
+     * deadlock, since DataStore doesn't return data until all migrations complete.
      *
      * @param currentData the current data (it might be populated from other migrations or from
-     * manual changes before this migration was added to the app)
+     *   manual changes before this migration was added to the app)
      * @return The migrated data.
      */
     public suspend fun migrate(currentData: T): T
 
     /**
-     * Clean up any old state/data that was migrated into the DataStore. This will not be called
-     * if the migration fails. If cleanUp throws an exception, the exception will be propagated
-     * back to the DataStore call that triggered the migration and future calls to DataStore will
-     * result in DataMigrations being attempted again. This method may be run multiple times when
-     * any failure is encountered.
+     * Clean up any old state/data that was migrated into the DataStore. This will not be called if
+     * the migration fails. If cleanUp throws an exception, the exception will be propagated back to
+     * the DataStore call that triggered the migration and future calls to DataStore will result in
+     * DataMigrations being attempted again. This method may be run multiple times when any failure
+     * is encountered.
      *
-     * This is useful for cleaning up files or data outside of DataStore and accessing any
-     * data from DataStore directly from inside this function will result in deadlock, since
-     * DataStore doesn't return data until all migrations complete.
+     * This is useful for cleaning up files or data outside of DataStore and accessing any data from
+     * DataStore directly from inside this function will result in deadlock, since DataStore doesn't
+     * return data until all migrations complete.
      */
     public suspend fun cleanUp()
 }

@@ -45,17 +45,13 @@ import androidx.glance.text.TextStyle
 import kotlin.math.roundToInt
 
 /**
- * Demonstrates different methods of handling errors. A widget can use either
- * the default Glance error ui, provide a custom layout, or ignore the error
- * and not make any change to the ui state.
+ * Demonstrates different methods of handling errors. A widget can use either the default Glance
+ * error ui, provide a custom layout, or ignore the error and not make any change to the ui state.
  */
 class ErrorUiAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) {
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repo = ErrorUiAppWidgetConfigurationRepo(context = context, glanceId = id)
 
         provideContent {
@@ -63,18 +59,20 @@ class ErrorUiAppWidget : GlanceAppWidget() {
             val errorBehavior = repo.getOnErrorBehavior()
 
             Column(
-                modifier = GlanceModifier.fillMaxSize()
-                    .background(day = Color.LightGray, night = Color.DarkGray)
-                    .padding(8.dp),
+                modifier =
+                    GlanceModifier.fillMaxSize()
+                        .background(day = Color.LightGray, night = Color.DarkGray)
+                        .padding(8.dp),
             ) {
                 Text(
                     "Error UI Demo. Method: $errorBehavior",
                     modifier = GlanceModifier.fillMaxWidth().wrapContentHeight(),
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    style =
+                        TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
                 )
                 Box(
                     modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
@@ -84,9 +82,7 @@ class ErrorUiAppWidget : GlanceAppWidget() {
                         "Error UI triggers if width or height reach 400 dp in any orientation.",
                         style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 15.sp)
                     )
-                    check(size.width < 400.dp && size.height < 400.dp) {
-                        "Too large now!"
-                    }
+                    check(size.width < 400.dp && size.height < 400.dp) { "Too large now!" }
                 }
                 Text(
                     " Current size: ${size.width.value.roundToInt()} dp x " +
@@ -115,13 +111,8 @@ class ErrorUiAppWidget : GlanceAppWidget() {
         val repo = ErrorUiAppWidgetConfigurationRepo(context = context, glanceId = glanceId)
 
         when (repo.getOnErrorBehavior()) {
-            OnErrorBehavior.Default -> super.onCompositionError(
-                context,
-                glanceId,
-                appWidgetId,
-                throwable
-            )
-
+            OnErrorBehavior.Default ->
+                super.onCompositionError(context, glanceId, appWidgetId, throwable)
             OnErrorBehavior.Custom -> showCustomError()
             OnErrorBehavior.Ignore -> Unit // do nothing beyond the logging
         }

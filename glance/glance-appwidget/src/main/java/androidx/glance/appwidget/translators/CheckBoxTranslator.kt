@@ -36,11 +36,12 @@ internal fun RemoteViews.translateEmittableCheckBox(
     element: EmittableCheckBox
 ) {
 
-    val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LayoutType.CheckBox
-    } else {
-        LayoutType.CheckBoxBackport
-    }
+    val layoutType =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            LayoutType.CheckBox
+        } else {
+            LayoutType.CheckBoxBackport
+        }
 
     val viewDef = insertView(translationContext, layoutType, element.modifier)
     val actionTargetId: Int
@@ -50,11 +51,7 @@ internal fun RemoteViews.translateEmittableCheckBox(
         val checkBoxId = inflateViewStub(translationContext, R.id.checkBox)
         textViewId = checkBoxId
         actionTargetId = checkBoxId
-        CompoundButtonApi31Impl.setCompoundButtonChecked(
-            this,
-            checkBoxId,
-            element.checked
-        )
+        CompoundButtonApi31Impl.setCompoundButtonChecked(this, checkBoxId, element.checked)
         when (val colors = element.colors.checkBox) {
             is CheckedUncheckedColorProvider -> {
                 val (day, night) = colors.toDayNightColorStateList(translationContext.context)
@@ -63,7 +60,7 @@ internal fun RemoteViews.translateEmittableCheckBox(
             is ResourceCheckableColorProvider -> {
                 setCompoundButtonTintList(checkBoxId, colors.resId)
             }
-        }.let { }
+        }.let {}
     } else {
         val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
         textViewId = inflateViewStub(translationContext, R.id.checkBoxText)

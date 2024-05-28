@@ -34,11 +34,9 @@ import org.junit.rules.Timeout
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DataStoreFactoryTest {
-    @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    @get:Rule val timeout = Timeout(10, TimeUnit.SECONDS)
 
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
 
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestScope
@@ -51,18 +49,14 @@ class DataStoreFactoryTest {
 
     @Test
     fun testNewInstance() = runTest {
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                testFile
+            }
 
         val expectedByte = 123.toByte()
 
-        assertThat(
-            store.updateData {
-                expectedByte
-            }
-        ).isEqualTo(expectedByte)
+        assertThat(store.updateData { expectedByte }).isEqualTo(expectedByte)
         assertThat(store.data.first()).isEqualTo(expectedByte)
     }
 
@@ -70,15 +64,17 @@ class DataStoreFactoryTest {
     fun testCorruptionHandlerInstalled() = runTest {
         val valueToReplace = 123.toByte()
 
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(
-                TestingSerializerConfig(failReadWithCorruptionException = true)
-            ),
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
-                valueToReplace
-            },
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            DataStoreFactory.create(
+                serializer =
+                    TestingSerializer(
+                        TestingSerializerConfig(failReadWithCorruptionException = true)
+                    ),
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { valueToReplace },
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
@@ -87,24 +83,31 @@ class DataStoreFactoryTest {
     fun testMigrationsInstalled() = runTest {
         val migratedByte = 1
 
-        val migratePlus2 = object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-            override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
-            override suspend fun cleanUp() {}
-        }
-        val migrateMinus1 = object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
+        val migratePlus2 =
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
 
-            override suspend fun migrate(currentData: Byte) = currentData.dec()
+                override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
 
-            override suspend fun cleanUp() {}
-        }
+                override suspend fun cleanUp() {}
+            }
+        val migrateMinus1 =
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
 
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            migrations = listOf(migratePlus2, migrateMinus1),
-            scope = dataStoreScope
-        ) { testFile }
+                override suspend fun migrate(currentData: Byte) = currentData.dec()
+
+                override suspend fun cleanUp() {}
+            }
+
+        val store =
+            DataStoreFactory.create(
+                serializer = TestingSerializer(),
+                migrations = listOf(migratePlus2, migrateMinus1),
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         assertThat(store.data.first()).isEqualTo(migratedByte)
     }

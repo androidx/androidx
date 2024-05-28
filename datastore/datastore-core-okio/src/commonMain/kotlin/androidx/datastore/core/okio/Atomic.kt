@@ -18,23 +18,28 @@ package androidx.datastore.core.okio
 
 internal expect class AtomicInt {
     constructor(initialValue: Int)
+
     fun getAndIncrement(): Int
+
     fun incrementAndGet(): Int
+
     fun decrementAndGet(): Int
+
     fun get(): Int
 }
 
 internal expect class AtomicBoolean {
     constructor(initialValue: Boolean)
+
     fun get(): Boolean
+
     fun set(value: Boolean)
 }
 
 /**
  * Simple class to provide synchronization blocks.
  *
- * On JVM/ART, this uses simple JDK's synchronization.
- * On other platforms, it uses atomic-fu.
+ * On JVM/ART, this uses simple JDK's synchronization. On other platforms, it uses atomic-fu.
  *
  * @see withLock
  */

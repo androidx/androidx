@@ -42,48 +42,38 @@ class FragmentScenarioViewModelTest {
         val mockViewModel = mock(InjectedViewModel::class.java)
         val fakeUserName = "test"
         `when`(mockViewModel.getUserName()).thenReturn(fakeUserName)
-        val viewModelFactory = object : ViewModelProvider.NewInstanceFactory() {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return when (modelClass) {
-                    InjectedViewModel::class.java -> mockViewModel as T
-                    else -> super.create(modelClass)
+        val viewModelFactory =
+            object : ViewModelProvider.NewInstanceFactory() {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return when (modelClass) {
+                        InjectedViewModel::class.java -> mockViewModel as T
+                        else -> super.create(modelClass)
+                    }
                 }
             }
-        }
         // Launch the Fragment with our ViewModelProvider.Factory
-        with(
-            launchFragment {
-                InjectedViewModelFactoryFragment(viewModelFactory)
-            }
-        ) {
+        with(launchFragment { InjectedViewModelFactoryFragment(viewModelFactory) }) {
             onFragment { fragment ->
-                assertThat(fragment.viewModel)
-                    .isSameInstanceAs(mockViewModel)
-                assertThat(fragment.viewModel.getUserName())
-                    .isEqualTo(fakeUserName)
+                assertThat(fragment.viewModel).isSameInstanceAs(mockViewModel)
+                assertThat(fragment.viewModel.getUserName()).isEqualTo(fakeUserName)
             }
             // Ensure that the ViewModel survives recreation
             recreate()
             onFragment { fragment ->
-                assertThat(fragment.viewModel)
-                    .isSameInstanceAs(mockViewModel)
-                assertThat(fragment.viewModel.getUserName())
-                    .isEqualTo(fakeUserName)
+                assertThat(fragment.viewModel).isSameInstanceAs(mockViewModel)
+                assertThat(fragment.viewModel.getUserName()).isEqualTo(fakeUserName)
             }
         }
     }
 }
 
 open class InjectedViewModel : ViewModel() {
-    /**
-     * This would normally be more complicated logic or return a LiveData instance
-     */
+    /** This would normally be more complicated logic or return a LiveData instance */
     open fun getUserName() = ""
 }
 
-class InjectedViewModelFactoryFragment(
-    private val viewModelFactory: ViewModelProvider.Factory
-) : Fragment() {
+class InjectedViewModelFactoryFragment(private val viewModelFactory: ViewModelProvider.Factory) :
+    Fragment() {
     val viewModel: InjectedViewModel by viewModels { viewModelFactory }
 }

@@ -39,11 +39,9 @@ import kotlinx.coroutines.withContext
  * The emoji picker view that provides up-to-date emojis in a vertical scrollable view with a
  * clickable horizontal header.
  */
-class EmojiPickerView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) :
+class EmojiPickerView
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
 
     internal companion object {
@@ -55,9 +53,9 @@ class EmojiPickerView @JvmOverloads constructor(
      * The number of rows of the emoji picker.
      *
      * Optional field. If not set, the value will be calculated based on parent view height and
-     * [emojiGridColumns].
-     * Float value indicates that the picker could display the last row partially, so the users get
-     * the idea that they can scroll down for more contents.
+     * [emojiGridColumns]. Float value indicates that the picker could display the last row
+     * partially, so the users get the idea that they can scroll down for more contents.
+     *
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridRows
      */
     var emojiGridRows: Float
@@ -75,6 +73,7 @@ class EmojiPickerView @JvmOverloads constructor(
      *
      * Default value([EmojiPickerConstants.DEFAULT_BODY_COLUMNS]: 9) will be used if
      * emojiGridColumns is set to non-positive value.
+     *
      * @attr ref androidx.emoji2.emojipicker.R.styleable.EmojiPickerView_emojiGridColumns
      */
     var emojiGridColumns: Int = EmojiPickerConstants.DEFAULT_BODY_COLUMNS
@@ -102,36 +101,41 @@ class EmojiPickerView @JvmOverloads constructor(
     init {
         val typedArray: TypedArray =
             context.obtainStyledAttributes(attrs, R.styleable.EmojiPickerView, 0, 0)
-        _emojiGridRows = with(R.styleable.EmojiPickerView_emojiGridRows) {
-            if (typedArray.hasValue(this)) {
-                typedArray.getFloat(this, 0F)
-            } else null
-        }
-        emojiGridColumns = typedArray.getInt(
-            R.styleable.EmojiPickerView_emojiGridColumns,
-            EmojiPickerConstants.DEFAULT_BODY_COLUMNS
-        )
+        _emojiGridRows =
+            with(R.styleable.EmojiPickerView_emojiGridRows) {
+                if (typedArray.hasValue(this)) {
+                    typedArray.getFloat(this, 0F)
+                } else null
+            }
+        emojiGridColumns =
+            typedArray.getInt(
+                R.styleable.EmojiPickerView_emojiGridColumns,
+                EmojiPickerConstants.DEFAULT_BODY_COLUMNS
+            )
         typedArray.recycle()
 
         if (EmojiCompat.isConfigured()) {
             when (EmojiCompat.get().loadState) {
                 EmojiCompat.LOAD_STATE_SUCCEEDED -> emojiCompatLoaded = true
-
-                EmojiCompat.LOAD_STATE_LOADING, EmojiCompat.LOAD_STATE_DEFAULT ->
-                    EmojiCompat.get().registerInitCallback(object : EmojiCompat.InitCallback() {
-                        override fun onInitialized() {
-                            emojiCompatLoaded = true
-                            scope.launch(Dispatchers.IO) {
-                                BundledEmojiListLoader.load(context)
-                                withContext(Dispatchers.Main) {
-                                    emojiPickerItems = buildEmojiPickerItems()
-                                    bodyAdapter.notifyDataSetChanged()
+                EmojiCompat.LOAD_STATE_LOADING,
+                EmojiCompat.LOAD_STATE_DEFAULT ->
+                    EmojiCompat.get()
+                        .registerInitCallback(
+                            object : EmojiCompat.InitCallback() {
+                                override fun onInitialized() {
+                                    emojiCompatLoaded = true
+                                    scope.launch(Dispatchers.IO) {
+                                        BundledEmojiListLoader.load(context)
+                                        withContext(Dispatchers.Main) {
+                                            emojiPickerItems = buildEmojiPickerItems()
+                                            bodyAdapter.notifyDataSetChanged()
+                                        }
+                                    }
                                 }
-                            }
-                        }
 
-                        override fun onFailed(throwable: Throwable?) {}
-                    })
+                                override fun onFailed(throwable: Throwable?) {}
+                            }
+                        )
             }
         }
         scope.launch(Dispatchers.IO) {
@@ -139,9 +143,7 @@ class EmojiPickerView @JvmOverloads constructor(
             refreshRecent()
             load.join()
 
-            withContext(Dispatchers.Main) {
-                showEmojiPickerView()
-            }
+            withContext(Dispatchers.Main) { showEmojiPickerView() }
         }
     }
 
@@ -160,63 +162,81 @@ class EmojiPickerView @JvmOverloads constructor(
         )
     }
 
-    internal fun buildEmojiPickerItems() = EmojiPickerItems(buildList {
-        add(ItemGroup(
-            R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
-            CategoryTitle(context.getString(R.string.emoji_category_recent)),
-            recentItems,
-            maxContentItemCount = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
-            emptyPlaceholderItem = PlaceholderText(
-                context.getString(R.string.emoji_empty_recent_category)
-            )
-        ).also { recentItemGroup = it })
-
-        for ((i, category) in BundledEmojiListLoader.getCategorizedEmojiData().withIndex()) {
-            add(
-                ItemGroup(
-                    category.headerIconId,
-                    CategoryTitle(category.categoryName),
-                    category.emojiDataList.mapIndexed { j, emojiData ->
-                        EmojiViewData(stickyVariantProvider[emojiData.emoji], dataIndex = i + j)
-                    },
+    internal fun buildEmojiPickerItems() =
+        EmojiPickerItems(
+            buildList {
+                add(
+                    ItemGroup(
+                            R.drawable.quantum_gm_ic_access_time_filled_vd_theme_24,
+                            CategoryTitle(context.getString(R.string.emoji_category_recent)),
+                            recentItems,
+                            maxContentItemCount = DEFAULT_MAX_RECENT_ITEM_ROWS * emojiGridColumns,
+                            emptyPlaceholderItem =
+                                PlaceholderText(
+                                    context.getString(R.string.emoji_empty_recent_category)
+                                )
+                        )
+                        .also { recentItemGroup = it }
                 )
-            )
-        }
-    })
+
+                for ((i, category) in
+                    BundledEmojiListLoader.getCategorizedEmojiData().withIndex()) {
+                    add(
+                        ItemGroup(
+                            category.headerIconId,
+                            CategoryTitle(category.categoryName),
+                            category.emojiDataList.mapIndexed { j, emojiData ->
+                                EmojiViewData(
+                                    stickyVariantProvider[emojiData.emoji],
+                                    dataIndex = i + j
+                                )
+                            },
+                        )
+                    )
+                }
+            }
+        )
 
     private fun showEmojiPickerView() {
         emojiPickerItems = buildEmojiPickerItems()
 
-        val bodyLayoutManager = GridLayoutManager(
-            context,
-            emojiGridColumns,
-            LinearLayoutManager.VERTICAL,
-            /* reverseLayout = */ false
-        ).apply {
-            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return when (emojiPickerItems.getBodyItem(position).itemType) {
-                        ItemType.CATEGORY_TITLE, ItemType.PLACEHOLDER_TEXT -> emojiGridColumns
-                        else -> 1
-                    }
+        val bodyLayoutManager =
+            GridLayoutManager(
+                    context,
+                    emojiGridColumns,
+                    LinearLayoutManager.VERTICAL,
+                    /* reverseLayout = */ false
+                )
+                .apply {
+                    spanSizeLookup =
+                        object : GridLayoutManager.SpanSizeLookup() {
+                            override fun getSpanSize(position: Int): Int {
+                                return when (emojiPickerItems.getBodyItem(position).itemType) {
+                                    ItemType.CATEGORY_TITLE,
+                                    ItemType.PLACEHOLDER_TEXT -> emojiGridColumns
+                                    else -> 1
+                                }
+                            }
+                        }
                 }
-            }
-        }
 
         val headerAdapter =
-            EmojiPickerHeaderAdapter(context, emojiPickerItems, onHeaderIconClicked = {
-                with(emojiPickerItems.firstItemPositionByGroupIndex(it)) {
-                    if (this == emojiPickerItems.groupRange(recentItemGroup).first) {
-                        scope.launch {
-                            refreshRecent()
+            EmojiPickerHeaderAdapter(
+                context,
+                emojiPickerItems,
+                onHeaderIconClicked = {
+                    with(emojiPickerItems.firstItemPositionByGroupIndex(it)) {
+                        if (this == emojiPickerItems.groupRange(recentItemGroup).first) {
+                            scope.launch { refreshRecent() }
                         }
+                        bodyLayoutManager.scrollToPositionWithOffset(this, 0)
+                        // The scroll position change will not be reflected until the next layout
+                        // call,
+                        // so force a new layout call here.
+                        invalidate()
                     }
-                    bodyLayoutManager.scrollToPositionWithOffset(this, 0)
-                    // The scroll position change will not be reflected until the next layout call,
-                    // so force a new layout call here.
-                    invalidate()
                 }
-            })
+            )
 
         // clear view's children in case of resetting layout
         super.removeAllViews()
@@ -224,11 +244,7 @@ class EmojiPickerView @JvmOverloads constructor(
             // set headerView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_header).apply {
                 layoutManager =
-                    object : LinearLayoutManager(
-                        context,
-                        HORIZONTAL,
-                        /* reverseLayout = */ false
-                    ) {
+                    object : LinearLayoutManager(context, HORIZONTAL, /* reverseLayout= */ false) {
                         override fun checkLayoutParams(lp: RecyclerView.LayoutParams): Boolean {
                             lp.width =
                                 (width - paddingStart - paddingEnd) / emojiPickerItems.numGroups
@@ -241,35 +257,39 @@ class EmojiPickerView @JvmOverloads constructor(
             // set bodyView
             ViewCompat.requireViewById<RecyclerView>(this, R.id.emoji_picker_body).apply {
                 layoutManager = bodyLayoutManager
-                adapter = createEmojiPickerBodyAdapter().apply {
-                    setHasStableIds(true)
-                }.also { bodyAdapter = it }
-                addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        super.onScrolled(recyclerView, dx, dy)
-                        headerAdapter.selectedGroupIndex =
-                            emojiPickerItems.groupIndexByItemPosition(
-                                bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
-                            )
-                        if (recentNeedsRefreshing &&
-                            bodyLayoutManager.findFirstVisibleItemPosition() !in
-                            emojiPickerItems.groupRange(recentItemGroup)
-                        ) {
-                            scope.launch {
-                                refreshRecent()
+                adapter =
+                    createEmojiPickerBodyAdapter()
+                        .apply { setHasStableIds(true) }
+                        .also { bodyAdapter = it }
+                addOnScrollListener(
+                    object : RecyclerView.OnScrollListener() {
+                        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                            super.onScrolled(recyclerView, dx, dy)
+                            headerAdapter.selectedGroupIndex =
+                                emojiPickerItems.groupIndexByItemPosition(
+                                    bodyLayoutManager.findFirstCompletelyVisibleItemPosition()
+                                )
+                            if (
+                                recentNeedsRefreshing &&
+                                    bodyLayoutManager.findFirstVisibleItemPosition() !in
+                                        emojiPickerItems.groupRange(recentItemGroup)
+                            ) {
+                                scope.launch { refreshRecent() }
                             }
                         }
                     }
-                })
+                )
                 // Disable item insertion/deletion animation. This keeps view holder unchanged when
                 // item updates.
                 itemAnimator = null
-                setRecycledViewPool(RecyclerView.RecycledViewPool().apply {
-                    setMaxRecycledViews(
-                        ItemType.EMOJI.ordinal,
-                        EmojiPickerConstants.EMOJI_VIEW_POOL_SIZE
-                    )
-                })
+                setRecycledViewPool(
+                    RecyclerView.RecycledViewPool().apply {
+                        setMaxRecycledViews(
+                            ItemType.EMOJI.ordinal,
+                            EmojiPickerConstants.EMOJI_VIEW_POOL_SIZE
+                        )
+                    }
+                )
             }
         }
     }
@@ -282,12 +302,14 @@ class EmojiPickerView @JvmOverloads constructor(
         val recent = recentEmojiProvider.getRecentEmojiList()
         withContext(Dispatchers.Main) {
             recentItems.clear()
-            recentItems.addAll(recent.map {
-                EmojiViewData(
-                    it,
-                    updateToSticky = false,
-                )
-            })
+            recentItems.addAll(
+                recent.map {
+                    EmojiViewData(
+                        it,
+                        updateToSticky = false,
+                    )
+                }
+            )
             if (::emojiPickerItems.isInitialized) {
                 val range = emojiPickerItems.groupRange(recentItemGroup)
                 if (recentItemGroup.size > oldGroupSize) {
@@ -386,6 +408,7 @@ class EmojiPickerView @JvmOverloads constructor(
 
     /**
      * The following functions disallow clients to remove view from the EmojiPickerView
+     *
      * @throws UnsupportedOperationException
      */
     override fun removeAllViews() {

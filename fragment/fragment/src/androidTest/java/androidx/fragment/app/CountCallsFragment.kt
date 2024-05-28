@@ -27,9 +27,8 @@ import androidx.fragment.test.R
  * Counts the number of onCreateView, onHiddenChanged (onHide, onShow), onAttach, and onDetach
  * calls.
  */
-class CountCallsFragment(
-    @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
-) : StrictViewFragment(contentLayoutId) {
+class CountCallsFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+    StrictViewFragment(contentLayoutId) {
     var onCreateViewCount = 0
     var onDestroyViewCount = 0
     var onHideCount = 0

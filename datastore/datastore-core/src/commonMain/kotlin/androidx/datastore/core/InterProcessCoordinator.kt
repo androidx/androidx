@@ -23,9 +23,9 @@ import kotlinx.coroutines.flow.Flow
  * InterProcessCoordinator provides functionalities that support DataStore instances to coordinate
  * the concurrent work running on multiple threads and multiple processes to guarantee its data
  * consistency. Typically users should use default coordinators provided by the library, including
- * [createSingleProcessCoordinator] for use cases where DataStore is only used in a single
- * process, and [createMultiProcessCoordinator] for a DataStore that needs to be accessed in
- * multiple processes.
+ * [createSingleProcessCoordinator] for use cases where DataStore is only used in a single process,
+ * and [createMultiProcessCoordinator] for a DataStore that needs to be accessed in multiple
+ * processes.
  */
 interface InterProcessCoordinator {
 
@@ -38,8 +38,8 @@ interface InterProcessCoordinator {
     /**
      * Get the exclusive lock shared by the coordinators from DataStore instances (even from
      * different processes) to run a suspending code [block] that returns type `T`. It guarantees
-     * one-at-a-time execution for all the [block] called with this method. If some other process
-     * or thread is holding the lock, it will wait until the lock is available.
+     * one-at-a-time execution for all the [block] called with this method. If some other process or
+     * thread is holding the lock, it will wait until the lock is available.
      *
      * @param block The block of code that is performed with the lock resource.
      */
@@ -52,7 +52,7 @@ interface InterProcessCoordinator {
      * run immediately after the attempt, without waiting for the lock to become available.
      *
      * @param block The block of code that is performed after attempting to get the lock resource.
-     * Block will receive a Boolean parameter which is true if the try lock succeeded.
+     *   Block will receive a Boolean parameter which is true if the try lock succeeded.
      */
     suspend fun <T> tryLock(block: suspend (Boolean) -> T): T
 

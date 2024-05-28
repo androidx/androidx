@@ -43,10 +43,11 @@ class AppWidgetHostRule(
 ) : TestRule {
     private val mInstrumentation = InstrumentationRegistry.getInstrumentation()
     private val mUiAutomation = mInstrumentation.uiAutomation
-    private val targetComponent = ComponentName(
-        "androidx.glance.appwidget.macrobenchmark.target",
-        "androidx.glance.appwidget.macrobenchmark.target.BasicAppWidgetReceiver",
-    )
+    private val targetComponent =
+        ComponentName(
+            "androidx.glance.appwidget.macrobenchmark.target",
+            "androidx.glance.appwidget.macrobenchmark.target.BasicAppWidgetReceiver",
+        )
 
     private val mActivityRule: ActivityScenarioRule<AppWidgetHostTestActivity> =
         ActivityScenarioRule(
@@ -56,7 +57,8 @@ class AppWidgetHostRule(
                         ApplicationProvider.getApplicationContext(),
                         AppWidgetHostTestActivity::class.java,
                     )
-                ).putExtra(AppWidgetHostTestActivity.EXTRA_TARGET_RECEIVER, targetComponent)
+                )
+                .putExtra(AppWidgetHostTestActivity.EXTRA_TARGET_RECEIVER, targetComponent)
         )
 
     private val mUiDevice = UiDevice.getInstance(mInstrumentation)
@@ -77,21 +79,24 @@ class AppWidgetHostRule(
 
     private var mHostStarted = false
     private lateinit var hostView: TestAppWidgetHostView
-    private val appWidgetId: Int get() = hostView.appWidgetId
+    private val appWidgetId: Int
+        get() = hostView.appWidgetId
+
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
 
-    override fun apply(base: Statement, description: Description) = object : Statement() {
-        override fun evaluate() {
-            mInnerRules.apply(base, description).evaluate()
-            if (mHostStarted) {
-                mUiAutomation.dropShellPermissionIdentity()
+    override fun apply(base: Statement, description: Description) =
+        object : Statement() {
+            override fun evaluate() {
+                mInnerRules.apply(base, description).evaluate()
+                if (mHostStarted) {
+                    mUiAutomation.dropShellPermissionIdentity()
+                }
             }
         }
-    }
 
     /**
-     * Start the host and bind the app widget.
-     * Measures time from binding an app widget to receiving the first RemoteViews.
+     * Start the host and bind the app widget. Measures time from binding an app widget to receiving
+     * the first RemoteViews.
      */
     suspend fun startHost() {
         mUiAutomation.adoptShellPermissionIdentity(Manifest.permission.BIND_APPWIDGET)
@@ -99,26 +104,24 @@ class AppWidgetHostRule(
 
         Trace.beginSection("appWidgetInitialUpdate")
         mActivityRule.scenario.onActivity { activity ->
-            hostView = checkNotNull(activity.bindAppWidget(mPortraitSize, mLandscapeSize)) {
-                "Failed to bind widget and create host view"
-            }
+            hostView =
+                checkNotNull(activity.bindAppWidget(mPortraitSize, mLandscapeSize)) {
+                    "Failed to bind widget and create host view"
+                }
         }
         hostView.waitForRemoteViews()
         Trace.endSection()
     }
 
-    /**
-     * Measures time from sending APPWIDGET_UPDATE broadcast to receiving RemoteViews.
-     */
+    /** Measures time from sending APPWIDGET_UPDATE broadcast to receiving RemoteViews. */
     suspend fun updateAppWidget() {
-        val intent = Intent(GlanceAppWidgetReceiver.ACTION_DEBUG_UPDATE)
-            .setPackage("androidx.glance.appwidget.macrobenchmark.target")
-            .setComponent(targetComponent)
-            .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId))
+        val intent =
+            Intent(GlanceAppWidgetReceiver.ACTION_DEBUG_UPDATE)
+                .setPackage("androidx.glance.appwidget.macrobenchmark.target")
+                .setComponent(targetComponent)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(appWidgetId))
         Trace.beginSection("appWidgetUpdate")
-        hostView.runAndWaitForRemoteViews {
-            mContext.sendBroadcast(intent)
-        }
+        hostView.runAndWaitForRemoteViews { mContext.sendBroadcast(intent) }
         Trace.endSection()
     }
 }

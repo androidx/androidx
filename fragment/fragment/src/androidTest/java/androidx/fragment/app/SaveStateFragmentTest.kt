@@ -41,8 +41,8 @@ class SaveStateFragmentTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     @UiThreadTest
@@ -72,9 +72,11 @@ class SaveStateFragmentTest {
         executePendingTransactions(fm)
 
         assertWithMessage("setInitialSavedState did not restore saved state")
-            .that(fragment.savedState).isEqualTo("Saved")
+            .that(fragment.savedState)
+            .isEqualTo("Saved")
         assertWithMessage("setInitialSavedState did not restore user visible hint")
-            .that(fragment.userVisibleHint).isEqualTo(false)
+            .that(fragment.userVisibleHint)
+            .isEqualTo(false)
     }
 
     @Test
@@ -105,9 +107,11 @@ class SaveStateFragmentTest {
         executePendingTransactions(fm)
 
         assertWithMessage("setInitialSavedState did not restore saved state")
-            .that(fragment.savedState).isEqualTo("Saved")
+            .that(fragment.savedState)
+            .isEqualTo("Saved")
         assertWithMessage("setUserVisibleHint should override setInitialSavedState")
-            .that(fragment.userVisibleHint).isEqualTo(false)
+            .that(fragment.userVisibleHint)
+            .isEqualTo(false)
     }
 
     @Test
@@ -119,17 +123,14 @@ class SaveStateFragmentTest {
 
         val fragment = SaveViewStateFragment()
 
-        fm1.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm1.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         val editText = fragment.requireView().findViewById<EditText>(R.id.editText)
 
         editText.setText("saved")
 
         fc1.dispatchPause()
-        @Suppress("DEPRECATION")
-        val savedState = fc1.saveAllState()
+        @Suppress("DEPRECATION") val savedState = fc1.saveAllState()
         fc1.dispatchStop()
         fc1.dispatchDestroy()
 
@@ -137,8 +138,7 @@ class SaveStateFragmentTest {
         val fm2 = fc2.supportFragmentManager
 
         val restoredFragment = fm2.findFragmentById(android.R.id.content) as SaveViewStateFragment
-        assertWithMessage("Fragment was not restored")
-            .that(restoredFragment).isNotNull()
+        assertWithMessage("Fragment was not restored").that(restoredFragment).isNotNull()
 
         val restoredEditText = restoredFragment.requireView().findViewById<EditText>(R.id.editText)
 
@@ -157,9 +157,10 @@ class SaveStateFragmentTest {
         // Create a new FragmentManager in isolation, nest some assorted fragments
         // and then restore them to a second new FragmentManager.
         val viewModelStore = ViewModelStore()
-        val fc1 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc1 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm1 = fc1.supportFragmentManager
 
@@ -183,32 +184,44 @@ class SaveStateFragmentTest {
         // Grandparent fragment will not retain instance
         val grandparentFragment = StateSaveFragment("Grandparent", "UnsavedGrandparent")
         assertWithMessage("grandparent fragment saved state not initialized")
-            .that(grandparentFragment.savedState).isNotNull()
+            .that(grandparentFragment.savedState)
+            .isNotNull()
         assertWithMessage("grandparent fragment unsaved state not initialized")
-            .that(grandparentFragment.unsavedState).isNotNull()
+            .that(grandparentFragment.unsavedState)
+            .isNotNull()
         fm1.beginTransaction().add(grandparentFragment, "tag:grandparent").commitNow()
 
         // Parent fragment will retain instance
         val parentFragment = StateSaveFragment("Parent", "UnsavedParent", true)
         assertWithMessage("parent fragment saved state not initialized")
-            .that(parentFragment.savedState).isNotNull()
+            .that(parentFragment.savedState)
+            .isNotNull()
         assertWithMessage("parent fragment unsaved state not initialized")
-            .that(parentFragment.unsavedState).isNotNull()
-        grandparentFragment.childFragmentManager.beginTransaction()
-            .add(parentFragment, "tag:parent").commitNow()
+            .that(parentFragment.unsavedState)
+            .isNotNull()
+        grandparentFragment.childFragmentManager
+            .beginTransaction()
+            .add(parentFragment, "tag:parent")
+            .commitNow()
         assertWithMessage("parent fragment is not a child of grandparent")
-            .that(parentFragment.parentFragment).isSameInstanceAs(grandparentFragment)
+            .that(parentFragment.parentFragment)
+            .isSameInstanceAs(grandparentFragment)
 
         // Child fragment will not retain instance
         val childFragment = StateSaveFragment("Child", "UnsavedChild")
         assertWithMessage("child fragment saved state not initialized")
-            .that(childFragment.savedState).isNotNull()
+            .that(childFragment.savedState)
+            .isNotNull()
         assertWithMessage("child fragment unsaved state not initialized")
-            .that(childFragment.unsavedState).isNotNull()
-        parentFragment.childFragmentManager.beginTransaction()
-            .add(childFragment, "tag:child").commitNow()
+            .that(childFragment.unsavedState)
+            .isNotNull()
+        parentFragment.childFragmentManager
+            .beginTransaction()
+            .add(childFragment, "tag:child")
+            .commitNow()
         assertWithMessage("child fragment is not a child of grandparent")
-            .that(childFragment.parentFragment).isSameInstanceAs(parentFragment)
+            .that(childFragment.parentFragment)
+            .isSameInstanceAs(parentFragment)
 
         // Saved for comparison later
         val parentChildFragmentManager = parentFragment.childFragmentManager
@@ -227,9 +240,10 @@ class SaveStateFragmentTest {
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
-        val fc2 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc2 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm2 = fc2.supportFragmentManager
 
@@ -241,7 +255,8 @@ class SaveStateFragmentTest {
         val restoredRemovedFragment = fm2.findFragmentByTag("tag:removed") as StateSaveFragment?
         assertThat(restoredRemovedFragment).isNull()
         assertWithMessage("Removed Fragment should be destroyed")
-            .that(removedFragment.calledOnDestroy).isTrue()
+            .that(removedFragment.calledOnDestroy)
+            .isTrue()
 
         val restoredDetachedFragment = fm2.findFragmentByTag("tag:detached") as StateSaveFragment
         assertThat(restoredDetachedFragment).isNotNull()
@@ -250,36 +265,46 @@ class SaveStateFragmentTest {
         assertWithMessage("grandparent fragment not restored").that(restoredGrandparent).isNotNull()
 
         assertWithMessage("grandparent fragment instance was saved")
-            .that(restoredGrandparent).isNotSameInstanceAs(grandparentFragment)
+            .that(restoredGrandparent)
+            .isNotSameInstanceAs(grandparentFragment)
         assertWithMessage("grandparent fragment saved state was not equal")
-            .that(restoredGrandparent.savedState).isEqualTo(grandparentFragment.savedState)
+            .that(restoredGrandparent.savedState)
+            .isEqualTo(grandparentFragment.savedState)
         assertWithMessage("grandparent fragment unsaved state was unexpectedly preserved")
-            .that(restoredGrandparent.unsavedState).isNotEqualTo(grandparentFragment.unsavedState)
+            .that(restoredGrandparent.unsavedState)
+            .isNotEqualTo(grandparentFragment.unsavedState)
 
-        val restoredParent = restoredGrandparent
-            .childFragmentManager.findFragmentByTag("tag:parent") as StateSaveFragment
+        val restoredParent =
+            restoredGrandparent.childFragmentManager.findFragmentByTag("tag:parent")
+                as StateSaveFragment
         assertWithMessage("parent fragment not restored").that(restoredParent).isNotNull()
 
         assertWithMessage("parent fragment instance was not saved")
-            .that(restoredParent).isSameInstanceAs(parentFragment)
+            .that(restoredParent)
+            .isSameInstanceAs(parentFragment)
         assertWithMessage("parent fragment saved state was not equal")
-            .that(restoredParent.savedState).isEqualTo(parentFragment.savedState)
+            .that(restoredParent.savedState)
+            .isEqualTo(parentFragment.savedState)
         assertWithMessage("parent fragment unsaved state was not equal")
-            .that(restoredParent.unsavedState).isEqualTo(parentFragment.unsavedState)
+            .that(restoredParent.unsavedState)
+            .isEqualTo(parentFragment.unsavedState)
         assertWithMessage("parent fragment has the same child FragmentManager")
             .that(restoredParent.childFragmentManager)
             .isNotSameInstanceAs(parentChildFragmentManager)
 
-        val restoredChild = restoredParent
-            .childFragmentManager.findFragmentByTag("tag:child") as StateSaveFragment
+        val restoredChild =
+            restoredParent.childFragmentManager.findFragmentByTag("tag:child") as StateSaveFragment
         assertWithMessage("child fragment not restored").that(restoredChild).isNotNull()
 
         assertWithMessage("child fragment instance state was saved")
-            .that(restoredChild).isNotSameInstanceAs(childFragment)
+            .that(restoredChild)
+            .isNotSameInstanceAs(childFragment)
         assertWithMessage("child fragment saved state was not equal")
-            .that(restoredChild.savedState).isEqualTo(childFragment.savedState)
+            .that(restoredChild.savedState)
+            .isEqualTo(childFragment.savedState)
         assertWithMessage("child fragment saved state was unexpectedly equal")
-            .that(restoredChild.unsavedState).isNotEqualTo(childFragment.unsavedState)
+            .that(restoredChild.unsavedState)
+            .isNotEqualTo(childFragment.unsavedState)
 
         fc2.dispatchActivityCreated()
         fc2.noteStateNotSaved()
@@ -294,7 +319,8 @@ class SaveStateFragmentTest {
         fc2.shutdown(viewModelStore)
 
         assertWithMessage("grandparent not destroyed")
-            .that(restoredGrandparent.calledOnDestroy).isTrue()
+            .that(restoredGrandparent.calledOnDestroy)
+            .isTrue()
         assertWithMessage("parent not destroyed").that(restoredParent.calledOnDestroy).isTrue()
         assertWithMessage("child not destroyed").that(restoredChild.calledOnDestroy).isTrue()
     }
@@ -313,9 +339,10 @@ class SaveStateFragmentTest {
         // 6. Finish Activity B
 
         val viewModelStore = ViewModelStore()
-        val fc1 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc1 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm1 = fc1.supportFragmentManager
 
@@ -355,9 +382,10 @@ class SaveStateFragmentTest {
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
-        val fc2 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc2 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm2 = fc2.supportFragmentManager
 
@@ -368,7 +396,8 @@ class SaveStateFragmentTest {
         val restoredFragment = fm2.findFragmentByTag("tag:retained") as StateSaveFragment
         assertWithMessage("retained fragment not restored").that(restoredFragment).isNotNull()
         assertWithMessage("The retained Fragment shouldn't be recreated")
-            .that(restoredFragment).isEqualTo(retainedFragment)
+            .that(restoredFragment)
+            .isEqualTo(retainedFragment)
         val restoredOnStartFragment = fm2.findFragmentByTag("tag:onStart") as StateSaveFragment?
         assertWithMessage("Retained Fragment added after saved state shouldn't be restored")
             .that(restoredOnStartFragment)
@@ -410,9 +439,11 @@ class SaveStateFragmentTest {
 
         // Confirm the initial state
         assertWithMessage("Initial parent saved instance state should be null")
-            .that(parentFragment.lastSavedInstanceState).isNull()
+            .that(parentFragment.lastSavedInstanceState)
+            .isNull()
         assertWithMessage("Initial child saved instance state should be null")
-            .that(childFragment.lastSavedInstanceState).isNull()
+            .that(childFragment.lastSavedInstanceState)
+            .isNull()
 
         // Bring the state back down to destroyed, simulating an activity restart
         fc1.dispatchPause()
@@ -426,17 +457,21 @@ class SaveStateFragmentTest {
 
         val restoredParentFragment = fm2.findFragmentByTag("parent") as StrictFragment
         assertWithMessage("Parent fragment was not restored")
-            .that(restoredParentFragment).isNotNull()
-        val restoredChildFragment = restoredParentFragment
-            .childFragmentManager.findFragmentByTag("child") as StrictFragment
+            .that(restoredParentFragment)
+            .isNotNull()
+        val restoredChildFragment =
+            restoredParentFragment.childFragmentManager.findFragmentByTag("child") as StrictFragment
         assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
 
         assertWithMessage(
-            "Parent fragment saved instance state should still be null since it is " +
-                "a retained Fragment"
-        ).that(restoredParentFragment.lastSavedInstanceState).isNull()
+                "Parent fragment saved instance state should still be null since it is " +
+                    "a retained Fragment"
+            )
+            .that(restoredParentFragment.lastSavedInstanceState)
+            .isNull()
         assertWithMessage("Child fragment saved instance state should be non-null")
-            .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
+            .that(restoredChildFragment.lastSavedInstanceState)
+            .isNotNull()
 
         // Bring the state back down to destroyed before we finish the test
         fc2.shutdown(viewModelStore)
@@ -447,9 +482,10 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun restoreNestedFragmentsOnBackStack() {
         val viewModelStore = ViewModelStore()
-        val fc1 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc1 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm1 = fc1.supportFragmentManager
 
@@ -465,10 +501,12 @@ class SaveStateFragmentTest {
 
         // Now add a Fragment to the back stack
         val replacementChildFragment = StrictFragment()
-        childFragmentManager.beginTransaction()
+        childFragmentManager
+            .beginTransaction()
             .remove(childFragment)
             .add(replacementChildFragment, "child")
-            .addToBackStack("back_stack").commit()
+            .addToBackStack("back_stack")
+            .commit()
         childFragmentManager.executePendingTransactions()
 
         // Move the activity to resumed
@@ -486,9 +524,10 @@ class SaveStateFragmentTest {
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
-        val fc2 = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc2 =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         val fm2 = fc2.supportFragmentManager
 
@@ -498,9 +537,10 @@ class SaveStateFragmentTest {
 
         val restoredParentFragment = fm2.findFragmentByTag("parent") as StrictFragment
         assertWithMessage("Parent fragment was not restored")
-            .that(restoredParentFragment).isNotNull()
-        val restoredChildFragment = restoredParentFragment
-            .childFragmentManager.findFragmentByTag("child") as StrictFragment
+            .that(restoredParentFragment)
+            .isNotNull()
+        val restoredChildFragment =
+            restoredParentFragment.childFragmentManager.findFragmentByTag("child") as StrictFragment
         assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
 
         fc2.dispatchActivityCreated()
@@ -515,8 +555,8 @@ class SaveStateFragmentTest {
     }
 
     /**
-     * When a fragment has been optimized out, it state should still be saved during
-     * save and restore instance state.
+     * When a fragment has been optimized out, it state should still be saved during save and
+     * restore instance state.
      */
     @Test
     @UiThreadTest
@@ -614,8 +654,8 @@ class SaveStateFragmentTest {
     }
 
     /**
-     * Test to ensure that when dispatch* is called that the fragment manager
-     * doesn't cause the contained fragment states to change even if no state changes.
+     * Test to ensure that when dispatch* is called that the fragment manager doesn't cause the
+     * contained fragment states to change even if no state changes.
      */
     @Test
     @UiThreadTest
@@ -632,12 +672,14 @@ class SaveStateFragmentTest {
 
         val fragment1 = fm.findFragmentByTag("1") as StrictFragment
         assertWithMessage("Fragment should be resumed after restart")
-            .that(fragment1.calledOnResume).isTrue()
+            .that(fragment1.calledOnResume)
+            .isTrue()
         fragment1.calledOnResume = false
         fc.dispatchResume()
 
         assertWithMessage("Fragment should not get onResume() after second dispatchResume()")
-            .that(fragment1.calledOnResume).isFalse()
+            .that(fragment1.calledOnResume)
+            .isFalse()
     }
 
     @Test
@@ -651,25 +693,28 @@ class SaveStateFragmentTest {
         fm.beginTransaction().add(f, "1").commitNow()
 
         assertWithMessage("fragment reported state saved while resumed")
-            .that(f.isStateSaved).isFalse()
+            .that(f.isStateSaved)
+            .isFalse()
 
         fc.dispatchPause()
-        @Suppress("DEPRECATION")
-        fc.saveAllState()
+        @Suppress("DEPRECATION") fc.saveAllState()
 
         assertWithMessage("fragment reported state not saved after saveAllState")
-            .that(f.isStateSaved).isTrue()
+            .that(f.isStateSaved)
+            .isTrue()
 
         fc.dispatchStop()
 
         assertWithMessage("fragment reported state not saved after stop")
-            .that(f.isStateSaved).isTrue()
+            .that(f.isStateSaved)
+            .isTrue()
 
         viewModelStore.clear()
         fc.dispatchDestroy()
 
         assertWithMessage("fragment reported state saved after destroy")
-            .that(f.isStateSaved).isFalse()
+            .that(f.isStateSaved)
+            .isFalse()
     }
 
     @Test

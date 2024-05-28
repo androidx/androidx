@@ -36,24 +36,26 @@ import org.w3c.dom.Element
 class FragmentTagDetector : ResourceXmlDetector() {
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "FragmentTagUsage",
-            briefDescription = "Use FragmentContainerView instead of the <fragment> tag",
-            explanation = """FragmentContainerView replaces the <fragment> tag as the preferred \
+        val ISSUE =
+            Issue.create(
+                    id = "FragmentTagUsage",
+                    briefDescription = "Use FragmentContainerView instead of the <fragment> tag",
+                    explanation =
+                        """FragmentContainerView replaces the <fragment> tag as the preferred \
                 way of adding fragments via XML. Unlike the <fragment> tag, FragmentContainerView \
                 uses a normal `FragmentTransaction` under the hood to add the initial fragment, \
                 allowing further FragmentTransaction operations on the FragmentContainerView \
                 and providing a consistent timing for lifecycle events.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                FragmentTagDetector::class.java, Scope.RESOURCE_FILE_SCOPE
-            ),
-            androidSpecific = true
-        ).addMoreInfo(
-            "https://developer.android.com" +
-                "/reference/androidx/fragment/app/FragmentContainerView.html"
-        )
+                    category = Category.CORRECTNESS,
+                    severity = Severity.WARNING,
+                    implementation =
+                        Implementation(FragmentTagDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
+                    androidSpecific = true
+                )
+                .addMoreInfo(
+                    "https://developer.android.com" +
+                        "/reference/androidx/fragment/app/FragmentContainerView.html"
+                )
     }
 
     override fun appliesTo(folderType: ResourceFolderType): Boolean {
@@ -64,12 +66,14 @@ class FragmentTagDetector : ResourceXmlDetector() {
 
     override fun visitElement(context: XmlContext, element: Element) {
         context.report(
-            ISSUE, context.getNameLocation(element),
+            ISSUE,
+            context.getNameLocation(element),
             "Replace the <fragment> tag with FragmentContainerView.",
             LintFix.create()
                 .replace()
                 .text(VIEW_FRAGMENT)
-                .with("androidx.fragment.app.FragmentContainerView").build()
+                .with("androidx.fragment.app.FragmentContainerView")
+                .build()
         )
     }
 }

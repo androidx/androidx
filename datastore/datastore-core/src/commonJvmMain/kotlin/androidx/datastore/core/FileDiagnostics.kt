@@ -23,14 +23,13 @@ import java.io.IOException
  * Utility class that attaches filestat info to crash reports.
  *
  * How to investigate a crash report using this class:
- *
  * 1. If the crash report retained an "attachFileSystemMessage" exception message, look at that.
  * 2. Match the "attachFileStacktrace" line number in the stack trace to that of the code. The
  *    surrounding "if" statements indicate filestat info about the on disk file.
  * 3. Match the "attachParentStacktrace" line number in the stack trace to that of the code. The
- *    surrounding "if" statements indicate filestat info about the on disk file's parent
- *    directory. For example, seeing attachFileDebugInfo line 44 indicates we have file read
- *    permission but not write permission.
+ *    surrounding "if" statements indicate filestat info about the on disk file's parent directory.
+ *    For example, seeing attachFileDebugInfo line 44 indicates we have file read permission but not
+ *    write permission.
  */
 internal object FileDiagnostics {
     fun attachFileDebugInfo(file: File, cause: IOException): IOException {

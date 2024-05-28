@@ -25,9 +25,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Integration test for {@link DoubleTransitionBugFragment}.
- */
+/** Integration test for {@link DoubleTransitionBugFragment}. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class DoubleTransitionBugFragmentTest {

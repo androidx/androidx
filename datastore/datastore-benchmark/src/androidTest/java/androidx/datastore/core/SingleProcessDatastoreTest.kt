@@ -38,11 +38,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SingleProcessDatastoreTest {
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
     private lateinit var testScope: TestScope
     private lateinit var dataStoreScope: TestScope
 
@@ -54,86 +52,88 @@ class SingleProcessDatastoreTest {
 
     @Test
     @LargeTest
-    fun create() = testScope.runTest {
-        benchmark.measureRepeated {
-            // create a new scope for each instance and cancel it to avoid hoarding memory
-            val newScope = runWithTimingDisabled {
-                TestScope(UnconfinedTestDispatcher())
+    fun create() =
+        testScope.runTest {
+            benchmark.measureRepeated {
+                // create a new scope for each instance and cancel it to avoid hoarding memory
+                val newScope = runWithTimingDisabled { TestScope(UnconfinedTestDispatcher()) }
+                val testFile = tmp.newFile()
+                val store =
+                    DataStoreFactory.create(serializer = TestingSerializer(), scope = newScope) {
+                        testFile
+                    }
+                runWithTimingDisabled {
+                    newScope.cancel()
+                    Assert.assertNotNull(store)
+                }
             }
+        }
+
+    @Test
+    @MediumTest
+    fun read() =
+        testScope.runTest {
+            val scope = this
             val testFile = tmp.newFile()
-            val store = DataStoreFactory.create(
-                serializer = TestingSerializer(),
-                scope = newScope
-            ) { testFile }
-            runWithTimingDisabled {
-                newScope.cancel()
-                Assert.assertNotNull(store)
-            }
-        }
-    }
-
-    @Test
-    @MediumTest
-    fun read() = testScope.runTest {
-        val scope = this
-        val testFile = tmp.newFile()
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) { testFile }
-        store.updateData { 1 }
-        benchmark.measureRepeated {
-            runBlocking(scope.coroutineContext) {
-                val data = store.data.first()
-                runWithTimingDisabled {
-                    val exp: Byte = 1
-                    Assert.assertEquals(exp, data)
+            val store =
+                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                    testFile
+                }
+            store.updateData { 1 }
+            benchmark.measureRepeated {
+                runBlocking(scope.coroutineContext) {
+                    val data = store.data.first()
+                    runWithTimingDisabled {
+                        val exp: Byte = 1
+                        Assert.assertEquals(exp, data)
+                    }
                 }
             }
         }
-    }
 
     @Test
     @MediumTest
-    fun update_withoutValueChange() = testScope.runTest {
-        val scope = this
-        val testFile = tmp.newFile()
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) { testFile }
-        benchmark.measureRepeated {
-            runBlocking(scope.coroutineContext) {
-                store.updateData { 1 }
-                val data = store.data.first()
-                runWithTimingDisabled {
-                    val exp: Byte = 1
-                    Assert.assertEquals(exp, data)
+    fun update_withoutValueChange() =
+        testScope.runTest {
+            val scope = this
+            val testFile = tmp.newFile()
+            val store =
+                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                    testFile
+                }
+            benchmark.measureRepeated {
+                runBlocking(scope.coroutineContext) {
+                    store.updateData { 1 }
+                    val data = store.data.first()
+                    runWithTimingDisabled {
+                        val exp: Byte = 1
+                        Assert.assertEquals(exp, data)
+                    }
                 }
             }
         }
-    }
 
     @Test
     @MediumTest
-    fun update_withValueChange() = testScope.runTest {
-        val scope = this
-        val testFile = tmp.newFile()
-        val store = DataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) { testFile }
-        var counter = 0
-        benchmark.measureRepeated {
-            runBlocking(scope.coroutineContext) {
-                val newValue = (++ counter).toByte()
-                store.updateData { newValue }
-                val data = store.data.first()
-                runWithTimingDisabled {
-                    val exp: Byte = newValue
-                    Assert.assertEquals(exp, data)
+    fun update_withValueChange() =
+        testScope.runTest {
+            val scope = this
+            val testFile = tmp.newFile()
+            val store =
+                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                    testFile
+                }
+            var counter = 0
+            benchmark.measureRepeated {
+                runBlocking(scope.coroutineContext) {
+                    val newValue = (++counter).toByte()
+                    store.updateData { newValue }
+                    val data = store.data.first()
+                    runWithTimingDisabled {
+                        val exp: Byte = newValue
+                        Assert.assertEquals(exp, data)
+                    }
                 }
             }
         }
-    }
 }

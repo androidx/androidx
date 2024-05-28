@@ -26,7 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-/** RecyclerView adapter for emoji header.  */
+/** RecyclerView adapter for emoji header. */
 internal class EmojiPickerHeaderAdapter(
     context: Context,
     private val emojiPickerItems: EmojiPickerItems,
@@ -43,24 +43,28 @@ internal class EmojiPickerHeaderAdapter(
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return object : ViewHolder(
-            layoutInflater.inflate(
-                R.layout.header_icon_holder, parent,
-                /* attachToRoot = */ false
-            )
-        ) {}
+        return object :
+            ViewHolder(
+                layoutInflater.inflate(
+                    R.layout.header_icon_holder,
+                    parent,
+                    /* attachToRoot = */ false
+                )
+            ) {}
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val isItemSelected = i == selectedGroupIndex
-        val headerIcon = ViewCompat.requireViewById<ImageView>(
-            viewHolder.itemView,
-            R.id.emoji_picker_header_icon
-        ).apply {
-            setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
-            isSelected = isItemSelected
-            contentDescription = emojiPickerItems.getHeaderIconDescription(i)
-        }
+        val headerIcon =
+            ViewCompat.requireViewById<ImageView>(
+                    viewHolder.itemView,
+                    R.id.emoji_picker_header_icon
+                )
+                .apply {
+                    setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))
+                    isSelected = isItemSelected
+                    contentDescription = emojiPickerItems.getHeaderIconDescription(i)
+                }
         viewHolder.itemView.setOnClickListener {
             onHeaderIconClicked(i)
             selectedGroupIndex = i

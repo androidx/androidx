@@ -28,28 +28,25 @@ import java.io.OutputStream
  */
 public interface Serializer<T> {
 
-    /**
-     * Value to return if there is no data on disk.
-     */
+    /** Value to return if there is no data on disk. */
     public val defaultValue: T
 
     /**
      * Unmarshal object from stream.
      *
      * @param input the InputStream with the data to deserialize
-     *
      * @throws androidx.datastore.core.CorruptionException if the data from [input] is corrupted
-     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a
-     *   protobuf message and it is corrupted. Other unrecoverable [IOException] from the file
-     *   system should not be thrown as [CorruptionException].
+     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a protobuf
+     *   message and it is corrupted. Other unrecoverable [IOException] from the file system should
+     *   not be thrown as [CorruptionException].
      */
     public suspend fun readFrom(input: InputStream): T
 
     /**
-     *  Marshal object to a stream. Closing the provided OutputStream is a no-op.
+     * Marshal object to a stream. Closing the provided OutputStream is a no-op.
      *
-     *  @param t the data to write to output
-     *  @param output the OutputStream to serialize data to
+     * @param t the data to write to output
+     * @param output the OutputStream to serialize data to
      */
     public suspend fun writeTo(t: T, output: OutputStream)
 }

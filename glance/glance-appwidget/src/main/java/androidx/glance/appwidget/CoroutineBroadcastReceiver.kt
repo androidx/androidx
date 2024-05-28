@@ -29,8 +29,8 @@ import kotlinx.coroutines.launch
 /**
  * Execute the block asynchronously in a scope with the lifetime of the broadcast.
  *
- * The coroutine scope will finish once the block return, as the broadcast will finish at that
- * point too, allowing the system to kill the broadcast.
+ * The coroutine scope will finish once the block return, as the broadcast will finish at that point
+ * too, allowing the system to kill the broadcast.
  */
 internal fun BroadcastReceiver.goAsync(
     coroutineContext: CoroutineContext = Dispatchers.Default,

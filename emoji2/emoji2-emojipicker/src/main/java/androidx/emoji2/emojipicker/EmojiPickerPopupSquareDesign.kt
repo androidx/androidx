@@ -20,9 +20,7 @@ import android.content.Context
 import android.view.View
 import android.widget.LinearLayout
 
-/**
- * Emoji picker popup view with square design.
- */
+/** Emoji picker popup view with square design. */
 internal class EmojiPickerPopupSquareDesign(
     override val context: Context,
     override val targetEmojiView: View,
@@ -33,25 +31,27 @@ internal class EmojiPickerPopupSquareDesign(
     init {
         template = SQUARE_LAYOUT_TEMPLATE
     }
+
     override fun getNumberOfRows(): Int {
         return SQUARE_LAYOUT_TEMPLATE.size
     }
+
     override fun getNumberOfColumns(): Int {
         return SQUARE_LAYOUT_TEMPLATE[0].size
     }
 
     companion object {
         /**
-         * Square variant layout template without skin tone.
-         * 0 : a place holder
-         * Positive number is the index + 1 in the variant array
+         * Square variant layout template without skin tone. 0 : a place holder Positive number is
+         * the index + 1 in the variant array
          */
-        private val SQUARE_LAYOUT_TEMPLATE = arrayOf(
-            intArrayOf(0, 2, 3, 4, 5, 6),
-            intArrayOf(0, 7, 8, 9, 10, 11),
-            intArrayOf(0, 12, 13, 14, 15, 16),
-            intArrayOf(0, 17, 18, 19, 20, 21),
-            intArrayOf(1, 22, 23, 24, 25, 26)
-        )
+        private val SQUARE_LAYOUT_TEMPLATE =
+            arrayOf(
+                intArrayOf(0, 2, 3, 4, 5, 6),
+                intArrayOf(0, 7, 8, 9, 10, 11),
+                intArrayOf(0, 12, 13, 14, 15, 16),
+                intArrayOf(0, 17, 18, 19, 20, 21),
+                intArrayOf(1, 22, 23, 24, 25, 26)
+            )
     }
 }

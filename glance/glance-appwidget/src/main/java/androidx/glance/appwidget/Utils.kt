@@ -33,8 +33,7 @@ internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayM
 internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
 
-internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) =
-    (this / displayMetrics.density).dp
+internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) = (this / displayMetrics.density).dp
 
 /**
  * KTX for calling `setEnabled` on a View. Note that this is **not safe on TextViews (and

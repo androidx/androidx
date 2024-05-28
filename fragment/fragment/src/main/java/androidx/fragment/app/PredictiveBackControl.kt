@@ -15,9 +15,7 @@
  */
 package androidx.fragment.app
 
-/**
- * @see FragmentManager.enablePredictiveBack
- */
+/** @see FragmentManager.enablePredictiveBack */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)

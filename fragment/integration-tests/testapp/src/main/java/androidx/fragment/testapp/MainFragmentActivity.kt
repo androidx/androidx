@@ -18,7 +18,5 @@ package androidx.fragment.testapp
 
 import androidx.fragment.app.FragmentActivity
 
-/**
- * A simple app used for testing different Fragment Animations
- */
+/** A simple app used for testing different Fragment Animations */
 class MainFragmentActivity : FragmentActivity(R.layout.main_activity)

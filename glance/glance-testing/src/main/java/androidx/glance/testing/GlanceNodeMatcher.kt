@@ -25,16 +25,12 @@ class GlanceNodeMatcher<R>(
     internal val description: String,
     private val matcher: (GlanceNode<R>) -> Boolean
 ) {
-    /**
-     * Returns whether the given node is matched by this matcher.
-     */
+    /** Returns whether the given node is matched by this matcher. */
     fun matches(node: GlanceNode<R>): Boolean {
         return matcher(node)
     }
 
-    /**
-     * Returns whether at least one of the given nodes is matched by this matcher.
-     */
+    /** Returns whether at least one of the given nodes is matched by this matcher. */
     fun matchesAny(nodes: Iterable<GlanceNode<R>>): Boolean {
         return nodes.any(matcher)
     }
@@ -61,12 +57,8 @@ class GlanceNodeMatcher<R>(
         }
     }
 
-    /**
-     * Returns whether the given node does not match the matcher.
-     */
+    /** Returns whether the given node does not match the matcher. */
     operator fun not(): GlanceNodeMatcher<R> {
-        return GlanceNodeMatcher(("NOT ($description)")) {
-            !matcher(it)
-        }
+        return GlanceNodeMatcher(("NOT ($description)")) { !matcher(it) }
     }
 }

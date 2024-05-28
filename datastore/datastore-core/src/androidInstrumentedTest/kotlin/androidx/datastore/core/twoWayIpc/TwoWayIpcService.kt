@@ -31,19 +31,18 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 
 /**
- * Another service of the same type, that runs in another separate
- * process.
+ * Another service of the same type, that runs in another separate process.
  *
  * @see TwoWayIpcService
  */
 class TwoWayIpcService2 : TwoWayIpcService()
 
 /**
- * An Android [android.app.Service] implementation that can create and maintain
- * multiple [TwoWayIpcSubject] instances.
+ * An Android [android.app.Service] implementation that can create and maintain multiple
+ * [TwoWayIpcSubject] instances.
  *
- * It properly scopes those subjects and destroys their scopes when the Service is
- * destroyed, allowing tests to properly maintain resources.
+ * It properly scopes those subjects and destroys their scopes when the Service is destroyed,
+ * allowing tests to properly maintain resources.
  *
  * @see androidx.datastore.core.multiprocess.MultiProcessTestRule
  */
@@ -51,52 +50,43 @@ open class TwoWayIpcService : LifecycleService() {
     private val subjects = mutableListOf<TwoWayIpcSubject>()
     private val jobForSubjects = Job()
     private val scopeForSubjects = CoroutineScope(jobForSubjects + Dispatchers.IO)
-    private val messenger: Messenger = Messenger(
-        Handler(
-            Looper.getMainLooper()
-        ) { incoming ->
-            // make a copy to prevent recycling
-            when (incoming.what) {
-                MSG_CREATE_SUBJECT -> {
-                    val subject = TwoWayIpcSubject(scopeForSubjects).also {
-                        subjects.add(it)
-                    }
+    private val messenger: Messenger =
+        Messenger(
+            Handler(Looper.getMainLooper()) { incoming ->
+                // make a copy to prevent recycling
+                when (incoming.what) {
+                    MSG_CREATE_SUBJECT -> {
+                        val subject = TwoWayIpcSubject(scopeForSubjects).also { subjects.add(it) }
 
-                    @Suppress("DEPRECATION")
-                    val messenger = incoming.data.getParcelable<Messenger>("messenger")
-                    checkNotNull(messenger) {
-                        "missing messenger"
+                        @Suppress("DEPRECATION")
+                        val messenger = incoming.data.getParcelable<Messenger>("messenger")
+                        checkNotNull(messenger) { "missing messenger" }
+                        subject.bus.setOutgoingMessenger(messenger)
+                        val response =
+                            Message.obtain().also {
+                                it.data.putParcelable("messenger", subject.bus.incomingMessenger)
+                            }
+                        incoming.replyTo.send(response)
                     }
-                    subject.bus.setOutgoingMessenger(messenger)
-                    val response = Message.obtain().also {
-                        it.data.putParcelable("messenger", subject.bus.incomingMessenger)
-                    }
-                    incoming.replyTo.send(response)
-                }
-                MSG_DESTROY_SUBJECTS -> {
-                    val incomingCopy = Message.obtain().also {
-                        it.copyFrom(incoming)
-                    }
-                    lifecycleScope.launch {
-                        IpcLogger.log("destroying subjects")
-                        try {
-                            jobForSubjects.cancelAndJoin()
-                            IpcLogger.log("destroyed subjects")
-                        } finally {
-                            incomingCopy.replyTo.send(
-                                Message.obtain().also {
-                                    it.data.putBoolean("closed", true)
-                                }
-                            )
+                    MSG_DESTROY_SUBJECTS -> {
+                        val incomingCopy = Message.obtain().also { it.copyFrom(incoming) }
+                        lifecycleScope.launch {
+                            IpcLogger.log("destroying subjects")
+                            try {
+                                jobForSubjects.cancelAndJoin()
+                                IpcLogger.log("destroyed subjects")
+                            } finally {
+                                incomingCopy.replyTo.send(
+                                    Message.obtain().also { it.data.putBoolean("closed", true) }
+                                )
+                            }
                         }
                     }
+                    else -> error("unknown message type ${incoming.what}")
                 }
-
-                else -> error("unknown message type ${incoming.what}")
+                true
             }
-            true
-        }
-    )
+        )
 
     override fun onBind(intent: Intent): IBinder? {
         return messenger.binder
