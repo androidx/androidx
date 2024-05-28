@@ -30,6 +30,13 @@ class PairTest {
     }
 
     @Test
+    fun intConstructionEquality() {
+        val pair1 = IntIntPair(-1, 2)
+        val pair2 = IntIntPair(pair1.packedValue)
+        assertEquals(pair1, pair2)
+    }
+
+    @Test
     fun intEquality() {
         val pair = IntIntPair(3, 5)
         val pairEqual = IntIntPair(3, 5)
@@ -56,6 +63,16 @@ class PairTest {
         val pair = FloatFloatPair(3f, 5f)
         assertEquals(3f, pair.first)
         assertEquals(5f, pair.second)
+    }
+
+    @Test
+    fun floatConstructionEquality() {
+        val pair1 = FloatFloatPair(-1f, 2f)
+        val pair2 = FloatFloatPair(pair1.packedValue)
+        assertEquals(pair1, pair2)
+        val pair3 = FloatFloatPair(Float.NaN, Float.NEGATIVE_INFINITY)
+        val pair4 = FloatFloatPair(pair3.packedValue)
+        assertEquals(pair3, pair4)
     }
 
     @Test

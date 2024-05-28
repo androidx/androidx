@@ -30,7 +30,10 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 public value class FloatFloatPair
-internal constructor(@PublishedApi @JvmField internal val packedValue: Long) {
+internal constructor(
+    /** The internal representation of the [FloatFloatPair]. */
+    @JvmField public val packedValue: Long
+) {
     /**
      * Constructs a [FloatFloatPair] with two [Float] values.
      *

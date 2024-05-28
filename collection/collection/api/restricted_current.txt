@@ -225,6 +225,7 @@ package androidx.collection {
     method public inline float getSecond();
     property public final inline float first;
     property public final inline float second;
+    field public final long packedValue;
   }
 
   public abstract sealed class FloatIntMap {
@@ -633,6 +634,7 @@ package androidx.collection {
     method public int getSecond();
     property public final int first;
     property public final int second;
+    field public final long packedValue;
   }
 
   public abstract sealed class IntList {
