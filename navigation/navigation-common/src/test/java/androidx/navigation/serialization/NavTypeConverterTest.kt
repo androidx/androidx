@@ -418,8 +418,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchNativeTypeCustomTypeParam() {
-        @Serializable
-        class TestClass(val arg: Int, val arg2: String)
+        @Serializable class TestClass(val arg: Int, val arg2: String)
 
         val descriptor = serializer<List<TestClass>>().descriptor
         val kType = typeOf<List<TestClass>>()
@@ -435,11 +434,9 @@ class NavTypeConverterTest {
 
     @Test
     fun matchNativeTypeCustomTypeParamNested() {
-        @Serializable
-        open class Nested(val arg: Int)
+        @Serializable open class Nested(val arg: Int)
 
-        @Serializable
-        class TestClass<T : Nested>(val arg: Nested)
+        @Serializable class TestClass<T : Nested>(val arg: Nested)
 
         val descriptor = serializer<List<TestClass<Nested>>>().descriptor
         val kType = typeOf<List<TestClass<Nested>>>()
@@ -448,8 +445,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchNativeTypeCustomTypeParamNestedCustomSerializer() {
-        @Serializable
-        class TestClass<T : CustomSerializerClass>(val arg: Int)
+        @Serializable class TestClass<T : CustomSerializerClass>(val arg: Int)
 
         val descriptor = serializer<List<TestClass<CustomSerializerClass>>>().descriptor
         val kType = typeOf<List<TestClass<CustomSerializerClass>>>()
@@ -458,8 +454,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomType() {
-        @Serializable
-        class TestClass(val arg: Int, val arg2: String)
+        @Serializable class TestClass(val arg: Int, val arg2: String)
 
         val descriptor = serializer<TestClass>().descriptor
         val kType = typeOf<TestClass>()
@@ -482,8 +477,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeNativeTypeParam() {
-        @Serializable
-        class TestClass<T : SerialDescriptor>
+        @Serializable class TestClass<T : SerialDescriptor>
 
         val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
         val kType = typeOf<TestClass<SerialDescriptor>>()
@@ -492,8 +486,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeArgNativeTypeParam() {
-        @Serializable
-        class TestClass<T : SerialDescriptor>(val arg: Int)
+        @Serializable class TestClass<T : SerialDescriptor>(val arg: Int)
 
         val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
         val kType = typeOf<TestClass<SerialDescriptor>>()
@@ -502,11 +495,9 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeCustomArgNativeTypeParam() {
-        @Serializable
-        class MyArg(val name: String)
+        @Serializable class MyArg(val name: String)
 
-        @Serializable
-        class TestClass<T : SerialDescriptor>(val arg: MyArg)
+        @Serializable class TestClass<T : SerialDescriptor>(val arg: MyArg)
 
         val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
         val kType = typeOf<TestClass<SerialDescriptor>>()
@@ -515,11 +506,9 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeMultiArgNativeTypeParam() {
-        @Serializable
-        class MyArg(val name: String)
+        @Serializable class MyArg(val name: String)
 
-        @Serializable
-        class TestClass<T : SerialDescriptor>(val arg: Int, val arg2: MyArg)
+        @Serializable class TestClass<T : SerialDescriptor>(val arg: Int, val arg2: MyArg)
 
         val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
         val kType = typeOf<TestClass<SerialDescriptor>>()
@@ -528,8 +517,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeNativeTypeParamMismatch() {
-        @Serializable
-        class TestClass<T : Any>
+        @Serializable class TestClass<T : Any>
 
         val descriptor = serializer<TestClass<Int>>().descriptor
         val kType = typeOf<TestClass<String>>()
@@ -540,11 +528,9 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeCustomTypeParam() {
-        @Serializable
-        open class Param
+        @Serializable open class Param
 
-        @Serializable
-        class TestClass<T : Param>
+        @Serializable class TestClass<T : Param>
 
         val descriptor = serializer<TestClass<Param>>().descriptor
         val kType = typeOf<TestClass<Param>>()
@@ -555,8 +541,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeCustomTypeParamCustomSerializer() {
-        @Serializable
-        class TestClass<T : CustomSerializerClass>
+        @Serializable class TestClass<T : CustomSerializerClass>
 
         val descriptor = serializer<TestClass<CustomSerializerClass>>().descriptor
         val kType = typeOf<TestClass<CustomSerializerClass>>()
@@ -567,14 +552,11 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeMultiCustomTypeParam() {
-        @Serializable
-        open class ParamTwo
+        @Serializable open class ParamTwo
 
-        @Serializable
-        open class Param
+        @Serializable open class Param
 
-        @Serializable
-        class TestClass<T : Param, K : ParamTwo>
+        @Serializable class TestClass<T : Param, K : ParamTwo>
 
         val descriptor = serializer<TestClass<Param, ParamTwo>>().descriptor
         val kType = typeOf<TestClass<Param, ParamTwo>>()
@@ -585,8 +567,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeCustomTypeParamNested() {
-        @Serializable
-        class TestClass<T : Param>
+        @Serializable class TestClass<T : Param>
 
         val descriptor = serializer<TestClass<ParamDerived>>().descriptor
         val kType = typeOf<TestClass<ParamDerived>>()
@@ -597,8 +578,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeMultiCustomTypeParamNested() {
-        @Serializable
-        class TestClass<T : Param, K : Param>
+        @Serializable class TestClass<T : Param, K : Param>
 
         val descriptor = serializer<TestClass<ParamDerived, ParamDerivedTwo>>().descriptor
         val kType = typeOf<TestClass<ParamDerived, ParamDerivedTwo>>()
@@ -609,8 +589,7 @@ class NavTypeConverterTest {
 
     @Test
     fun matchCustomTypeCustomTypeParamNestedMismatch() {
-        @Serializable
-        class TestClass<T : Param>
+        @Serializable class TestClass<T : Param>
 
         val descriptor = serializer<TestClass<ParamDerived>>().descriptor
         val kType = typeOf<TestClass<ParamDerivedTwo>>()
@@ -631,14 +610,11 @@ class NavTypeConverterTest {
 
     @Test
     fun matchChildOfAbstract() {
-        @Serializable
-        abstract class Abstract
+        @Serializable abstract class Abstract
 
-        @Serializable
-        class FirstChild : Abstract()
+        @Serializable class FirstChild : Abstract()
 
-        @Serializable
-        class SecondChild : Abstract()
+        @Serializable class SecondChild : Abstract()
 
         val firstChildDescriptor = serializer<FirstChild>().descriptor
         val kType = typeOf<FirstChild>()
@@ -724,8 +700,7 @@ class NavTypeConverterTest {
     fun getNavTypeUnsupportedArray() {
         assertThat(serializer<Array<Double>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
 
-        @Serializable
-        class TestClass
+        @Serializable class TestClass
         assertThat(serializer<Array<TestClass>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
 
         assertThat(serializer<Array<List<Double>>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
@@ -733,8 +708,7 @@ class NavTypeConverterTest {
 
     @Serializable
     class TestBaseClass(val arg: Int) {
-        @Serializable
-        class Nested
+        @Serializable class Nested
     }
 
     @Serializable
@@ -748,21 +722,18 @@ class NavTypeConverterTest {
         Second
     }
 
-    @Serializable
-    class ParamDerivedTwo : Param()
+    @Serializable class ParamDerivedTwo : Param()
 
-    @Serializable
-    class ParamDerived : Param()
+    @Serializable class ParamDerived : Param()
 
-    @Serializable
-    open class Param
+    @Serializable open class Param
 
     @Serializable
     class TestParcelable(val arg: Int, val arg2: String) : Parcelable {
         override fun describeContents() = 0
-        override fun writeToParcel(dest: Parcel, flags: Int) { }
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {}
     }
 
-    @Serializable
-    class TestSerializable(val arg: Int, val arg2: String) : java.io.Serializable
+    @Serializable class TestSerializable(val arg: Int, val arg2: String) : java.io.Serializable
 }

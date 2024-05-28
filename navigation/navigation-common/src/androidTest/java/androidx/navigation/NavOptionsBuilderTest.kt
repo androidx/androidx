@@ -28,16 +28,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavOptionsTest {
 
-    @Serializable
-    class TestClass
+    @Serializable class TestClass
 
     private val TEST_CLASS_ROUTE = "androidx.navigation.NavControllerRouteTest.TestClass"
 
     @Test
     fun launchSingleTop() {
-        val navOptions = navOptions {
-            launchSingleTop = true
-        }
+        val navOptions = navOptions { launchSingleTop = true }
         assertWithMessage("NavOptions should have launchSingleTop set")
             .that(navOptions.shouldLaunchSingleTop())
             .isTrue()
@@ -45,9 +42,7 @@ class NavOptionsTest {
 
     @Test
     fun restoreState() {
-        val navOptions = navOptions {
-            restoreState = true
-        }
+        val navOptions = navOptions { restoreState = true }
         assertWithMessage("NavOptions should have restoreState set")
             .that(navOptions.shouldRestoreState())
             .isTrue()
@@ -55,9 +50,7 @@ class NavOptionsTest {
 
     @Test
     fun popUpTo() {
-        val navOptions = navOptions {
-            popUpTo(DESTINATION_ID)
-        }
+        val navOptions = navOptions { popUpTo(DESTINATION_ID) }
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
             .isEqualTo(DESTINATION_ID)
@@ -71,9 +64,7 @@ class NavOptionsTest {
 
     @Test
     fun popUpToRoute() {
-        val navOptions = navOptions {
-            popUpTo(DESTINATION_ROUTE)
-        }
+        val navOptions = navOptions { popUpTo(DESTINATION_ROUTE) }
         assertWithMessage("NavOptions should have popUpTo destination route set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(DESTINATION_ROUTE)
@@ -84,9 +75,7 @@ class NavOptionsTest {
 
     @Test
     fun popUpToKClass() {
-        val navOptions = navOptions {
-            popUpTo<TestClass>()
-        }
+        val navOptions = navOptions { popUpTo<TestClass>() }
         assertWithMessage("NavOptions should have popUpTo destination route set")
             .that(navOptions.popUpToRouteClass)
             .isEqualTo(TestClass::class)
@@ -104,9 +93,7 @@ class NavOptionsTest {
     @Test
     fun popUpToObject() {
         val popObj = TestClass()
-        val navOptions = navOptions {
-            popUpTo(popObj)
-        }
+        val navOptions = navOptions { popUpTo(popObj) }
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToId)
             .isEqualTo(serializer<TestClass>().hashCode())
@@ -187,11 +174,7 @@ class NavOptionsTest {
 
     @Test
     fun popUpToRouteInclusive() {
-        val navOptions = navOptions {
-            popUpTo(DESTINATION_ROUTE) {
-                inclusive = true
-            }
-        }
+        val navOptions = navOptions { popUpTo(DESTINATION_ROUTE) { inclusive = true } }
         assertWithMessage("NavOptions should have popUpTo destination id set")
             .that(navOptions.popUpToRoute)
             .isEqualTo(DESTINATION_ROUTE)

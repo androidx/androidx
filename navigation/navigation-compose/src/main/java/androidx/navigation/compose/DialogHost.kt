@@ -73,8 +73,10 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
     // entries that were composed, unless they were disposed of already.
     LaunchedEffect(transitionInProgress, dialogsToDispose) {
         transitionInProgress.forEach { entry ->
-            if (!dialogNavigator.backStack.value.contains(entry) &&
-                !dialogsToDispose.contains(entry)) {
+            if (
+                !dialogNavigator.backStack.value.contains(entry) &&
+                    !dialogsToDispose.contains(entry)
+            ) {
                 dialogNavigator.onTransitionComplete(entry)
             }
         }
@@ -107,9 +109,7 @@ internal fun MutableList<NavBackStackEntry>.PopulateVisibleList(
                 }
             }
             entry.lifecycle.addObserver(observer)
-            onDispose {
-                entry.lifecycle.removeObserver(observer)
-            }
+            onDispose { entry.lifecycle.removeObserver(observer) }
         }
     }
 }

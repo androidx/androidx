@@ -47,7 +47,8 @@ class DefaultProgressFragmentTest {
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
                 fragment = DynamicNavHostFragment()
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(testR.id.nav_host, fragment)
                     .commitNow()
 
@@ -61,9 +62,9 @@ class DefaultProgressFragmentTest {
                 defaultProgressFragment =
                     fragment.childFragmentManager.primaryNavigationFragment
                         as DefaultProgressFragment
-                val viewModel = ViewModelProvider(
-                    defaultProgressFragment, InstallViewModel.FACTORY
-                )[InstallViewModel::class.java]
+                val viewModel =
+                    ViewModelProvider(defaultProgressFragment, InstallViewModel.FACTORY)[
+                        InstallViewModel::class.java]
                 // On devices that have play store installed, instead of the split install failing
                 // synchronously without a connection, the connection succeeds and we end up failing
                 // asynchronously since there are no play accounts to install. In this case, we need
@@ -71,14 +72,15 @@ class DefaultProgressFragmentTest {
                 // we observe the livedata of the DefaultProgressFragment's viewModel, and wait for
                 // it to fail before we check for test failure.
                 val liveData = viewModel.installMonitor!!.status
-                val observer = object : Observer<SplitInstallSessionState> {
-                    override fun onChanged(value: SplitInstallSessionState) {
-                        if (value.status() == SplitInstallSessionStatus.FAILED) {
-                            liveData.removeObserver(this)
-                            failureCountdownLatch.countDown()
+                val observer =
+                    object : Observer<SplitInstallSessionState> {
+                        override fun onChanged(value: SplitInstallSessionState) {
+                            if (value.status() == SplitInstallSessionStatus.FAILED) {
+                                liveData.removeObserver(this)
+                                failureCountdownLatch.countDown()
+                            }
                         }
                     }
-                }
                 liveData.observe(defaultProgressFragment, observer)
             }
 
@@ -87,8 +89,8 @@ class DefaultProgressFragmentTest {
             // check that we are now on the installation failed screen
             withActivity {
                 val title = findViewById<TextView>(mainR.id.progress_title)
-                val installationFailedText = fragment.requireContext().resources
-                    .getText(mainR.string.installation_failed)
+                val installationFailedText =
+                    fragment.requireContext().resources.getText(mainR.string.installation_failed)
                 assertThat(title.text).isEqualTo(installationFailedText)
             }
         }

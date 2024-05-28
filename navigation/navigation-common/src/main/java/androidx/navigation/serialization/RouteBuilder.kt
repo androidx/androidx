@@ -23,37 +23,30 @@ import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 
-/**
- * Builds navigation routes from a destination class or instance.
- */
+/** Builds navigation routes from a destination class or instance. */
 internal sealed class RouteBuilder<T> private constructor() {
-    /**
-     * DSL to construct a route pattern
-     */
-     class Pattern<T> : RouteBuilder<T> {
+    /** DSL to construct a route pattern */
+    class Pattern<T> : RouteBuilder<T> {
 
         private val builder: Builder<T>
 
         /**
          * Create a builder that builds a route pattern
          *
-         * @param serializer The serializer for destination type T (class, object etc.)
-         * to build the route for.
+         * @param serializer The serializer for destination type T (class, object etc.) to build the
+         *   route for.
          * @param typeMap map of destination arguments' name to its respective [NavType]
          */
-         constructor(
-             serializer: KSerializer<T>,
-             typeMap: Map<String, NavType<Any?>>
-         ) : super() {
-             builder = Builder(serializer, typeMap)
-         }
+        constructor(serializer: KSerializer<T>, typeMap: Map<String, NavType<Any?>>) : super() {
+            builder = Builder(serializer, typeMap)
+        }
 
         /**
          * Create a builder that builds a route pattern
          *
          * @param path The base uri path to which arguments are appended
-         * @param serializer The serializer for destination type T (class, object etc.)
-         * to build the route for.
+         * @param serializer The serializer for destination type T (class, object etc.) to build the
+         *   route for.
          * @param typeMap map of destination arguments' name to its respective [NavType]
          */
         constructor(
@@ -79,40 +72,34 @@ internal sealed class RouteBuilder<T> private constructor() {
     /**
      * Builds a route filled with argument values
      *
-     * @param serializer The serializer for destination instance that you
-     * need to build the route for.
-     *
-     * @param typeMap A map of argument name to the NavArgument of all serializable fields
-     * in this destination instance
+     * @param serializer The serializer for destination instance that you need to build the route
+     *   for.
+     * @param typeMap A map of argument name to the NavArgument of all serializable fields in this
+     *   destination instance
      */
-    class Filled<T>(
-        serializer: KSerializer<T>,
-        private val typeMap: Map<String, NavType<Any?>>
-    ) : RouteBuilder<T>() {
+    class Filled<T>(serializer: KSerializer<T>, private val typeMap: Map<String, NavType<Any?>>) :
+        RouteBuilder<T>() {
 
         private val builder = Builder(serializer, typeMap)
         private var elementIndex = -1
 
-        /**
-         * Set index of the argument that is currently getting encoded
-         */
+        /** Set index of the argument that is currently getting encoded */
         fun setElementIndex(idx: Int) {
             elementIndex = idx
         }
 
-        /**
-         * Adds argument value to the url
-         */
+        /** Adds argument value to the url */
         fun addArg(value: Any?) {
             require(!(value == null || value == "null")) {
                 "Expected non-null value but got $value"
             }
             builder.apply(elementIndex) { name, type, paramType ->
-                val parsedValue = if (type is CollectionNavType) {
-                    type.serializeAsValues(value)
-                } else {
-                    listOf(type.serializeAsValue(value))
-                }
+                val parsedValue =
+                    if (type is CollectionNavType) {
+                        type.serializeAsValues(value)
+                    } else {
+                        listOf(type.serializeAsValue(value))
+                    }
                 when (paramType) {
                     ParamType.PATH -> {
                         // path arguments should be a single string value of primitive types
@@ -127,13 +114,9 @@ internal sealed class RouteBuilder<T> private constructor() {
             }
         }
 
-        /**
-         * Adds null value to the url
-         */
+        /** Adds null value to the url */
         fun addNull(value: Any?) {
-            require(value == null || value == "null") {
-               "Expected null value but got $value"
-            }
+            require(value == null || value == "null") { "Expected null value but got $value" }
             builder.apply(elementIndex) { name, _, paramType ->
                 when (paramType) {
                     ParamType.PATH -> addPath("null")
@@ -150,9 +133,7 @@ internal sealed class RouteBuilder<T> private constructor() {
         QUERY
     }
 
-    /**
-     * Internal builder that generates the final url output
-     */
+    /** Internal builder that generates the final url output */
     private class Builder<T> {
         private val serializer: KSerializer<T>
         private val typeMap: Map<String, NavType<Any?>>
@@ -160,40 +141,27 @@ internal sealed class RouteBuilder<T> private constructor() {
         private var pathArgs = ""
         private var queryArgs = ""
 
-        constructor(
-            serializer: KSerializer<T>,
-            typeMap: Map<String, NavType<Any?>>
-        ) {
+        constructor(serializer: KSerializer<T>, typeMap: Map<String, NavType<Any?>>) {
             this.serializer = serializer
             this.typeMap = typeMap
             path = serializer.descriptor.serialName
         }
 
-        constructor(
-            path: String,
-            serializer: KSerializer<T>,
-            typeMap: Map<String, NavType<Any?>>
-        ) {
+        constructor(path: String, serializer: KSerializer<T>, typeMap: Map<String, NavType<Any?>>) {
             this.serializer = serializer
             this.typeMap = typeMap
             this.path = path
         }
 
-        /**
-         * Returns final route
-         */
+        /** Returns final route */
         fun build() = path + pathArgs + queryArgs
 
-        /**
-         * Append string to the route's (url) path
-         */
+        /** Append string to the route's (url) path */
         fun addPath(path: String) {
             pathArgs += "/$path"
         }
 
-        /**
-         * Append string to the route's (url) query parameter
-         */
+        /** Append string to the route's (url) query parameter */
         fun addQuery(name: String, value: String) {
             val symbol = if (queryArgs.isEmpty()) "?" else "&"
             queryArgs += "$symbol$name=$value"
@@ -215,8 +183,8 @@ internal sealed class RouteBuilder<T> private constructor() {
         }
 
         /**
-         * Given the descriptor of [T], computes the [ParamType] of the element (argument)
-         * at [index].
+         * Given the descriptor of [T], computes the [ParamType] of the element (argument) at
+         * [index].
          *
          * Query args if either conditions met:
          * 1. has default value

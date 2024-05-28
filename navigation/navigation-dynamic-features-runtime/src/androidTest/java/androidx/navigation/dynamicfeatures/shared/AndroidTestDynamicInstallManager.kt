@@ -21,9 +21,7 @@ import androidx.navigation.dynamicfeatures.DynamicInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import org.mockito.Mockito.mock
 
-/**
- * A dynamic install manager used for testing.
- */
+/** A dynamic install manager used for testing. */
 public class AndroidTestDynamicInstallManager(
     context: Context,
     public val splitInstallManager: SplitInstallManager = mock(SplitInstallManager::class.java)

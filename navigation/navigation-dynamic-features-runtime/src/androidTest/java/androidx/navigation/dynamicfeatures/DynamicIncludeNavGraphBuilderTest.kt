@@ -37,22 +37,27 @@ import org.junit.runner.RunWith
 public class DynamicIncludeNavGraphBuilderTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val navController = NavController(context).apply {
-        navigatorProvider += DynamicIncludeGraphNavigator(
-            context, navigatorProvider, navInflater,
-            AndroidTestDynamicInstallManager(context)
-        )
-        navigatorProvider += NoOpNavigator()
-    }
+    private val navController =
+        NavController(context).apply {
+            navigatorProvider +=
+                DynamicIncludeGraphNavigator(
+                    context,
+                    navigatorProvider,
+                    navInflater,
+                    AndroidTestDynamicInstallManager(context)
+                )
+            navigatorProvider += NoOpNavigator()
+        }
 
     @Suppress("DEPRECATION")
     @Test
     public fun includeDynamic() {
-        val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
-            includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                graphPackage = GRAPH_PACKAGE
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
+                includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME) {
+                    graphPackage = GRAPH_PACKAGE
+                }
             }
-        }
         val includeDynamic = graph[GRAPH_ID] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
         assertWithMessage("Module should be set in the graph")
             .that(includeDynamic.moduleName)
@@ -83,13 +88,15 @@ public class DynamicIncludeNavGraphBuilderTest {
     @Suppress("DEPRECATION")
     @Test
     public fun includeDynamic_graphPackage_null() {
-        val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
-            includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME)
-        }
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
+                includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME)
+            }
         val includeDynamic = graph[GRAPH_ID] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
 
         assertWithMessage("graphPackage should be filled in from package name and module name")
-            .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
+            .that(includeDynamic.graphPackage)
+            .isEqualTo("${context.packageName}.$MODULE_NAME")
     }
 
     @Suppress("DEPRECATION")
@@ -97,9 +104,7 @@ public class DynamicIncludeNavGraphBuilderTest {
     public fun includeDynamic_graphPackage_empty() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ID) {
             try {
-                includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                    graphPackage = ""
-                }
+                includeDynamic(GRAPH_ID, MODULE_NAME, GRAPH_RESOURCE_NAME) { graphPackage = "" }
                 fail("includeDynamic should fail with an empty graph package")
             } catch (e: IllegalStateException) {
                 assertThat(e).hasMessageThat().isEqualTo("Graph package name cannot be empty")
@@ -122,13 +127,14 @@ public class DynamicIncludeNavGraphBuilderTest {
 
     @Test
     public fun includeDynamicRoute() {
-        val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
-            includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                graphPackage = GRAPH_PACKAGE
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
+                includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME) {
+                    graphPackage = GRAPH_PACKAGE
+                }
             }
-        }
-        val includeDynamic = graph[GRAPH_ROUTE]
-            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+        val includeDynamic =
+            graph[GRAPH_ROUTE] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
         assertWithMessage("Module should be set in the graph")
             .that(includeDynamic.moduleName)
             .isEqualTo(MODULE_NAME)
@@ -156,23 +162,23 @@ public class DynamicIncludeNavGraphBuilderTest {
 
     @Test
     public fun includeDynamic_graphPackage_nullRoute() {
-        val graph = navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
-            includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME)
-        }
-        val includeDynamic = graph[GRAPH_ROUTE]
-            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
+                includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME)
+            }
+        val includeDynamic =
+            graph[GRAPH_ROUTE] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
 
         assertWithMessage("graphPackage should be filled in from package name and module name")
-            .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
+            .that(includeDynamic.graphPackage)
+            .isEqualTo("${context.packageName}.$MODULE_NAME")
     }
 
     @Test
     public fun includeDynamic_graphPackage_emptyRoute() {
         navController.navigatorProvider.navigation(startDestination = GRAPH_ROUTE) {
             try {
-                includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                    graphPackage = ""
-                }
+                includeDynamic(GRAPH_ROUTE, MODULE_NAME, GRAPH_RESOURCE_NAME) { graphPackage = "" }
                 fail("includeDynamic should fail with an empty graph package")
             } catch (e: IllegalStateException) {
                 assertThat(e).hasMessageThat().isEqualTo("Graph package name cannot be empty")
@@ -194,15 +200,14 @@ public class DynamicIncludeNavGraphBuilderTest {
 
     @Test
     public fun includeDynamicKClass() {
-        val graph = navController.navigatorProvider.navigation(
-            startDestination = TestClass::class
-        ) {
-            includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                graphPackage = GRAPH_PACKAGE
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = TestClass::class) {
+                includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) {
+                    graphPackage = GRAPH_PACKAGE
+                }
             }
-        }
-        val includeDynamic = graph[TestClass::class]
-            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+        val includeDynamic =
+            graph[TestClass::class] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
         assertWithMessage("Module should be set in the graph")
             .that(includeDynamic.moduleName)
             .isEqualTo(MODULE_NAME)
@@ -230,25 +235,23 @@ public class DynamicIncludeNavGraphBuilderTest {
 
     @Test
     public fun includeDynamic_graphPackage_nullKClass() {
-        val graph = navController.navigatorProvider.navigation(
-            startDestination = TestClass::class
-        ) {
-            includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME)
-        }
-        val includeDynamic = graph[TestClass::class]
-            as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
+        val graph =
+            navController.navigatorProvider.navigation(startDestination = TestClass::class) {
+                includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME)
+            }
+        val includeDynamic =
+            graph[TestClass::class] as DynamicIncludeGraphNavigator.DynamicIncludeNavGraph
 
         assertWithMessage("graphPackage should be filled in from package name and module name")
-            .that(includeDynamic.graphPackage).isEqualTo("${context.packageName}.$MODULE_NAME")
+            .that(includeDynamic.graphPackage)
+            .isEqualTo("${context.packageName}.$MODULE_NAME")
     }
 
     @Test
     public fun includeDynamic_graphPackage_emptyKClass() {
         try {
             navController.navigatorProvider.navigation(startDestination = TestClass::class) {
-                includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) {
-                    graphPackage = ""
-                }
+                includeDynamic<TestClass>(MODULE_NAME, GRAPH_RESOURCE_NAME) { graphPackage = "" }
             }
             fail("includeDynamic should fail with an empty graph package")
         } catch (e: IllegalStateException) {
@@ -275,5 +278,4 @@ private const val MODULE_NAME = "myModule"
 private const val GRAPH_PACKAGE = "com.example.mypackage"
 private const val GRAPH_RESOURCE_NAME = "graphName"
 
-@Serializable
-class TestClass
+@Serializable class TestClass

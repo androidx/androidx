@@ -33,129 +33,137 @@ class NavParserTest {
     @Test
     fun testNaiveGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val navGraph = NavParser.parseNavigationFile(
-            testData("naive_test.xml"),
-            "a.b", "foo.app", Context()
-        )
+        val navGraph =
+            NavParser.parseNavigationFile(testData("naive_test.xml"), "a.b", "foo.app", Context())
 
         val nameFirst = ClassName.get("androidx.navigation.testapp", "MainFragment")
         val nameNext = ClassName.get("foo.app", "NextFragment")
-        val expectedFirst = Destination(
-            id("first_screen"), nameFirst, "fragment",
-            listOf(Argument("myarg1", StringType, StringValue("one"))),
-            listOf(
-                Action(
-                    id("next"), id("next_fragment"),
-                    listOf(
-                        Argument("myarg2", StringType),
-                        Argument("randomArgument", StringType),
-                        Argument("intArgument", IntType, IntValue("261")),
-                        Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
-                        Argument(
-                            "activityInfo",
-                            ObjectType("android.content.pm.ActivityInfo")
-                        ),
-                        Argument(
-                            "activityInfoNull",
-                            ObjectType("android.content.pm.ActivityInfo"),
-                            NullValue,
-                            true
-                        ),
-                        Argument("intArrayArg", IntArrayType),
-                        Argument("stringArrayArg", StringArrayType),
-                        Argument(
-                            "objectArrayArg",
-                            ObjectArrayType(
-                                "android.content.pm.ActivityInfo"
-                            )
-                        ),
-                        Argument("booleanArrayArg", BoolArrayType, NullValue, true),
-                        Argument(
-                            "enumArg",
-                            ObjectType("java.nio.file.AccessMode"),
-                            EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
-                            false
-                        ),
-                        Argument(
-                            "objectRelativeArg",
-                            ObjectType("a.b.pkg.ClassName")
-                        ),
-                        Argument(
-                            "objectRelativeArg2",
-                            ObjectType("a.b.ClassName")
-                        ),
-                        Argument(
-                            "objectRelativeArg3",
-                            ObjectType("a.b.OuterClass\$InnerClass")
-                        ),
-                        Argument("implicitNullString", StringType, NullValue, true),
-                        Argument("explicitNullString", StringType, NullValue, true)
+        val expectedFirst =
+            Destination(
+                id("first_screen"),
+                nameFirst,
+                "fragment",
+                listOf(Argument("myarg1", StringType, StringValue("one"))),
+                listOf(
+                    Action(
+                        id("next"),
+                        id("next_fragment"),
+                        listOf(
+                            Argument("myarg2", StringType),
+                            Argument("randomArgument", StringType),
+                            Argument("intArgument", IntType, IntValue("261")),
+                            Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
+                            Argument("activityInfo", ObjectType("android.content.pm.ActivityInfo")),
+                            Argument(
+                                "activityInfoNull",
+                                ObjectType("android.content.pm.ActivityInfo"),
+                                NullValue,
+                                true
+                            ),
+                            Argument("intArrayArg", IntArrayType),
+                            Argument("stringArrayArg", StringArrayType),
+                            Argument(
+                                "objectArrayArg",
+                                ObjectArrayType("android.content.pm.ActivityInfo")
+                            ),
+                            Argument("booleanArrayArg", BoolArrayType, NullValue, true),
+                            Argument(
+                                "enumArg",
+                                ObjectType("java.nio.file.AccessMode"),
+                                EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
+                                false
+                            ),
+                            Argument("objectRelativeArg", ObjectType("a.b.pkg.ClassName")),
+                            Argument("objectRelativeArg2", ObjectType("a.b.ClassName")),
+                            Argument(
+                                "objectRelativeArg3",
+                                ObjectType("a.b.OuterClass\$InnerClass")
+                            ),
+                            Argument("implicitNullString", StringType, NullValue, true),
+                            Argument("explicitNullString", StringType, NullValue, true)
+                        )
                     )
                 )
             )
-        )
 
-        val expectedNext = Destination(
-            id("next_fragment"), nameNext, "fragment",
-            listOf(Argument("myarg2", StringType)),
-            listOf(
-                Action(id("next"), id("first_screen")),
-                Action(id("finish"), null)
+        val expectedNext =
+            Destination(
+                id("next_fragment"),
+                nameNext,
+                "fragment",
+                listOf(Argument("myarg2", StringType)),
+                listOf(Action(id("next"), id("first_screen")), Action(id("finish"), null))
             )
-        )
 
-        val expectedGraph = Destination(
-            null, null, "navigation", emptyList(), emptyList(),
-            listOf(expectedFirst, expectedNext)
-        )
+        val expectedGraph =
+            Destination(
+                null,
+                null,
+                "navigation",
+                emptyList(),
+                emptyList(),
+                listOf(expectedFirst, expectedNext)
+            )
         assertThat(navGraph).isEqualTo(expectedGraph)
     }
 
     @Test
     fun testNestedGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val navGraph = NavParser.parseNavigationFile(
-            testData("nested_login_test.xml"),
-            "a.b", "foo.app", Context()
-        )
+        val navGraph =
+            NavParser.parseNavigationFile(
+                testData("nested_login_test.xml"),
+                "a.b",
+                "foo.app",
+                Context()
+            )
 
-        val expectedMainFragment = Destination(
-            id = id("main_fragment"),
-            name = ClassName.get("foo.app", "MainFragment"),
-            type = "fragment",
-            args = emptyList(),
-            actions = listOf(Action(id("start_login"), id("login")))
-        )
+        val expectedMainFragment =
+            Destination(
+                id = id("main_fragment"),
+                name = ClassName.get("foo.app", "MainFragment"),
+                type = "fragment",
+                args = emptyList(),
+                actions = listOf(Action(id("start_login"), id("login")))
+            )
 
-        val expectedNestedFragment1 = Destination(
-            id = id("login_fragment"),
-            name = ClassName.get("foo.app.account", "LoginFragment"),
-            type = "fragment",
-            args = emptyList(),
-            actions = listOf(Action(id("register"), id("register_fragment")))
-        )
+        val expectedNestedFragment1 =
+            Destination(
+                id = id("login_fragment"),
+                name = ClassName.get("foo.app.account", "LoginFragment"),
+                type = "fragment",
+                args = emptyList(),
+                actions = listOf(Action(id("register"), id("register_fragment")))
+            )
 
-        val expectedNestedFragment2 = Destination(
-            id = id("register_fragment"),
-            name = ClassName.get("foo.app.account", "RegisterFragment"),
-            type = "fragment",
-            args = emptyList(),
-            actions = emptyList()
-        )
+        val expectedNestedFragment2 =
+            Destination(
+                id = id("register_fragment"),
+                name = ClassName.get("foo.app.account", "RegisterFragment"),
+                type = "fragment",
+                args = emptyList(),
+                actions = emptyList()
+            )
 
-        val expectedNestedGraph = Destination(
-            id = id("login"),
-            name = ClassName.get("a.b", "Login"),
-            type = "navigation",
-            args = emptyList(),
-            actions = listOf(Action(id("action_done"), null)),
-            nested = listOf(expectedNestedFragment1, expectedNestedFragment2)
-        )
+        val expectedNestedGraph =
+            Destination(
+                id = id("login"),
+                name = ClassName.get("a.b", "Login"),
+                type = "navigation",
+                args = emptyList(),
+                actions = listOf(Action(id("action_done"), null)),
+                nested = listOf(expectedNestedFragment1, expectedNestedFragment2)
+            )
 
-        val expectedGraph = Destination(
-            null, null, "navigation", emptyList(), emptyList(),
-            listOf(expectedMainFragment, expectedNestedGraph)
-        )
+        val expectedGraph =
+            Destination(
+                null,
+                null,
+                "navigation",
+                emptyList(),
+                emptyList(),
+                listOf(expectedMainFragment, expectedNestedGraph)
+            )
 
         assertThat(navGraph).isEqualTo(expectedGraph)
     }
@@ -163,39 +171,44 @@ class NavParserTest {
     @Test
     fun testNestedIncludedGraph() {
         val id: (String) -> ResReference = { id -> ResReference("a.b", "id", id) }
-        val nestedIncludeNavGraph = NavParser.parseNavigationFile(
-            testData("nested_include_login_test.xml"), "a.b", "foo.app", Context()
-        )
-
-        val expectedMainFragment = Destination(
-            id = id("main_fragment"),
-            name = ClassName.get("foo.app", "MainFragment"),
-            type = "fragment",
-            args = emptyList(),
-            actions = listOf(Action(id("start_login"), id("login")))
-        )
-
-        val expectedIncluded = IncludedDestination(
-            ResReference(
-                "a.b", "navigation",
-                "to_include_login_test"
+        val nestedIncludeNavGraph =
+            NavParser.parseNavigationFile(
+                testData("nested_include_login_test.xml"),
+                "a.b",
+                "foo.app",
+                Context()
             )
-        )
 
-        val expectedGraph = Destination(
-            null, null, "navigation", emptyList(), emptyList(),
-            listOf(expectedMainFragment), listOf(expectedIncluded)
-        )
+        val expectedMainFragment =
+            Destination(
+                id = id("main_fragment"),
+                name = ClassName.get("foo.app", "MainFragment"),
+                type = "fragment",
+                args = emptyList(),
+                actions = listOf(Action(id("start_login"), id("login")))
+            )
+
+        val expectedIncluded =
+            IncludedDestination(ResReference("a.b", "navigation", "to_include_login_test"))
+
+        val expectedGraph =
+            Destination(
+                null,
+                null,
+                "navigation",
+                emptyList(),
+                emptyList(),
+                listOf(expectedMainFragment),
+                listOf(expectedIncluded)
+            )
 
         assertThat(nestedIncludeNavGraph).isEqualTo(expectedGraph)
     }
 
     @Test
     fun testReferenceParsing() {
-        assertThat(parseReference("@+id/next", "a.b"))
-            .isEqualTo(ResReference("a.b", "id", "next"))
-        assertThat(parseReference("@+id/next", "a.b"))
-            .isEqualTo(ResReference("a.b", "id", "next"))
+        assertThat(parseReference("@+id/next", "a.b")).isEqualTo(ResReference("a.b", "id", "next"))
+        assertThat(parseReference("@+id/next", "a.b")).isEqualTo(ResReference("a.b", "id", "next"))
         assertThat(parseReference("@android:string/text", "a.b"))
             .isEqualTo(ResReference("android", "string", "text"))
         assertThat(parseReference("@android:id/text", "a.b"))
@@ -276,10 +289,8 @@ class NavParserTest {
 
     @Test
     fun testArgSanitizedName() {
-        assertThat("camelCaseName")
-            .isEqualTo(Argument("camelCaseName", IntType).sanitizedName)
-        assertThat("ALLCAPSNAME")
-            .isEqualTo(Argument("ALLCAPSNAME", IntType).sanitizedName)
+        assertThat("camelCaseName").isEqualTo(Argument("camelCaseName", IntType).sanitizedName)
+        assertThat("ALLCAPSNAME").isEqualTo(Argument("ALLCAPSNAME", IntType).sanitizedName)
         assertThat("alllowercasename")
             .isEqualTo(Argument("alllowercasename", IntType).sanitizedName)
         assertThat("nameWithUnderscore")
@@ -288,14 +299,11 @@ class NavParserTest {
             .isEqualTo(Argument("Name_With_Underscore", IntType).sanitizedName)
         assertThat("NAMEWITHUNDERSCORE")
             .isEqualTo(Argument("NAME_WITH_UNDERSCORE", IntType).sanitizedName)
-        assertThat("nameWithSpaces")
-            .isEqualTo(Argument("name with spaces", IntType).sanitizedName)
-        assertThat("nameWithDot")
-            .isEqualTo(Argument("name.with.dot", IntType).sanitizedName)
+        assertThat("nameWithSpaces").isEqualTo(Argument("name with spaces", IntType).sanitizedName)
+        assertThat("nameWithDot").isEqualTo(Argument("name.with.dot", IntType).sanitizedName)
         assertThat("nameWithDollars")
             .isEqualTo(Argument("name\$with\$dollars", IntType).sanitizedName)
-        assertThat("nameWithBangs")
-            .isEqualTo(Argument("name!with!bangs", IntType).sanitizedName)
+        assertThat("nameWithBangs").isEqualTo(Argument("name!with!bangs", IntType).sanitizedName)
         assertThat("nameWithHyphens")
             .isEqualTo(Argument("name-with-hyphens", IntType).sanitizedName)
     }

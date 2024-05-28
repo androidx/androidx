@@ -31,9 +31,7 @@ import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 
-/**
- * Fragment used to show how to deep link to a destination
- */
+/** Fragment used to show how to deep link to a destination */
 class AndroidFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,31 +49,32 @@ class AndroidFragment : Fragment() {
         val b = view.findViewById<Button>(R.id.send_notification)
         b.setOnClickListener {
             val editArgs = view.findViewById<EditText>(R.id.edit_args)
-            val args = Bundle().apply {
-                putString("myarg", editArgs.text.toString())
-            }
-            val deeplink = findNavController().createDeepLink()
-                .setDestination(R.id.android)
-                .setArguments(args)
-                .createPendingIntent()
-            val notificationManager = requireContext().getSystemService(
-                Context.NOTIFICATION_SERVICE
-            ) as NotificationManager
+            val args = Bundle().apply { putString("myarg", editArgs.text.toString()) }
+            val deeplink =
+                findNavController()
+                    .createDeepLink()
+                    .setDestination(R.id.android)
+                    .setArguments(args)
+                    .createPendingIntent()
+            val notificationManager =
+                requireContext().getSystemService(Context.NOTIFICATION_SERVICE)
+                    as NotificationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 notificationManager.createNotificationChannel(
                     NotificationChannel(
-                        "deeplink", "Deep Links", NotificationManager.IMPORTANCE_HIGH
+                        "deeplink",
+                        "Deep Links",
+                        NotificationManager.IMPORTANCE_HIGH
                     )
                 )
             }
-            val builder = NotificationCompat.Builder(
-                requireContext(), "deeplink"
-            )
-                .setContentTitle("Navigation")
-                .setContentText("Deep link to Android")
-                .setSmallIcon(R.drawable.ic_android)
-                .setContentIntent(deeplink)
-                .setAutoCancel(true)
+            val builder =
+                NotificationCompat.Builder(requireContext(), "deeplink")
+                    .setContentTitle("Navigation")
+                    .setContentText("Deep link to Android")
+                    .setSmallIcon(R.drawable.ic_android)
+                    .setContentIntent(deeplink)
+                    .setAutoCancel(true)
             notificationManager.notify(0, builder.build())
         }
     }

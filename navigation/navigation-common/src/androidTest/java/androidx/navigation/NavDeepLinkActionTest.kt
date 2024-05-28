@@ -36,12 +36,7 @@ class NavDeepLinkActionTest {
 
         assertWithMessage("The actions should not have matched")
             .that(
-                deepLink.matches(
-                    NavDeepLinkRequest(
-                        Uri.parse(DEEP_LINK_EXACT_HTTPS),
-                        null, null
-                    )
-                )
+                deepLink.matches(NavDeepLinkRequest(Uri.parse(DEEP_LINK_EXACT_HTTPS), null, null))
             )
             .isFalse()
     }
@@ -53,10 +48,7 @@ class NavDeepLinkActionTest {
         assertWithMessage("The actions should have matched")
             .that(
                 deepLink.matches(
-                    NavDeepLinkRequest(
-                        Uri.parse(DEEP_LINK_EXACT_HTTPS),
-                        DEEP_LINK_ACTION, null
-                    )
+                    NavDeepLinkRequest(Uri.parse(DEEP_LINK_EXACT_HTTPS), DEEP_LINK_ACTION, null)
                 )
             )
             .isTrue()
@@ -85,10 +77,7 @@ class NavDeepLinkActionTest {
         try {
             NavDeepLink.Builder.fromAction("").build()
         } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "The NavDeepLink cannot have an empty action."
-                )
+            assertThat(e).hasMessageThat().contains("The NavDeepLink cannot have an empty action.")
         }
     }
 
@@ -97,10 +86,7 @@ class NavDeepLinkActionTest {
         try {
             NavDeepLink.Builder.fromUriPattern(DEEP_LINK_EXACT_HTTPS).setAction("").build()
         } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "The NavDeepLink cannot have an empty action."
-                )
+            assertThat(e).hasMessageThat().contains("The NavDeepLink cannot have an empty action.")
         }
     }
 }

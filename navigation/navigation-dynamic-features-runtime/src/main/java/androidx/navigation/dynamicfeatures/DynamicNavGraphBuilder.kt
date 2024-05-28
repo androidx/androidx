@@ -47,11 +47,7 @@ public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit
-): NavGraph = DynamicNavGraphBuilder(
-    this,
-    id,
-    startDestination
-).apply(builder).build()
+): NavGraph = DynamicNavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
  * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
@@ -72,13 +68,7 @@ public inline fun DynamicNavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
     builder: DynamicNavGraphBuilder.() -> Unit
-): Unit = destination(
-    DynamicNavGraphBuilder(
-        provider,
-        id,
-        startDestination
-    ).apply(builder)
-)
+): Unit = destination(DynamicNavGraphBuilder(provider, id, startDestination).apply(builder))
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
@@ -91,11 +81,7 @@ public inline fun NavigatorProvider.navigation(
     startDestination: String,
     route: String? = null,
     builder: DynamicNavGraphBuilder.() -> Unit
-): NavGraph = DynamicNavGraphBuilder(
-    this,
-    startDestination,
-    route
-).apply(builder).build()
+): NavGraph = DynamicNavGraphBuilder(this, startDestination, route).apply(builder).build()
 
 /**
  * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
@@ -108,22 +94,16 @@ public inline fun DynamicNavGraphBuilder.navigation(
     startDestination: String,
     route: String,
     builder: DynamicNavGraphBuilder.() -> Unit
-): Unit = destination(
-    DynamicNavGraphBuilder(
-        provider,
-        startDestination,
-        route
-    ).apply(builder)
-)
+): Unit = destination(DynamicNavGraphBuilder(provider, startDestination, route).apply(builder))
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
  *
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
- * respective NavDestination must be added with route from a [KClass] in order to match.
+ *   respective NavDestination must be added with route from a [KClass] in order to match.
  * @param route the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
- * [route] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
+ *   does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
 public inline fun NavigatorProvider.navigation(
@@ -131,21 +111,16 @@ public inline fun NavigatorProvider.navigation(
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicNavGraphBuilder.() -> Unit
-): NavGraph = DynamicNavGraphBuilder(
-    this,
-    startDestination,
-    route,
-    typeMap
-).apply(builder).build()
+): NavGraph = DynamicNavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
  * Construct a new [DynamicGraphNavigator.DynamicNavGraph]
  *
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
- * respective NavDestination must be added with route from a [KClass] in order to match.
+ *   respective NavDestination must be added with route from a [KClass] in order to match.
  * @param route the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
- * [route] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
+ *   does not use custom NavTypes.
  * @param builder Another builder for chaining.
  */
 public inline fun NavigatorProvider.navigation(
@@ -153,62 +128,47 @@ public inline fun NavigatorProvider.navigation(
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicNavGraphBuilder.() -> Unit
-): NavGraph = DynamicNavGraphBuilder(
-    this,
-    startDestination,
-    route,
-    typeMap
-).apply(builder).build()
+): NavGraph = DynamicNavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
  * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
  *
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
- * respective NavDestination must be added with route from a [KClass] in order to match.
+ *   respective NavDestination must be added with route from a [KClass] in order to match.
  * @param T the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
- * [T] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if [T] does not
+ *   use custom NavTypes.
  * @param builder Another builder for chaining.
  */
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicNavGraphBuilder.() -> Unit
-): Unit = destination(
-    DynamicNavGraphBuilder(
-        provider,
-        startDestination,
-        T::class,
-        typeMap
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        DynamicNavGraphBuilder(provider, startDestination, T::class, typeMap).apply(builder)
+    )
 
 /**
  * Construct a nested [DynamicGraphNavigator.DynamicNavGraph]
  *
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
- * respective NavDestination must be added with route from a [KClass] in order to match.
+ *   respective NavDestination must be added with route from a [KClass] in order to match.
  * @param T the graph's unique route as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if
- * [T] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [T]. May be empty if [T] does not
+ *   use custom NavTypes.
  * @param builder Another builder for chaining.
  */
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: DynamicNavGraphBuilder.() -> Unit
-): Unit = destination(
-    DynamicNavGraphBuilder(
-        provider,
-        startDestination,
-        T::class,
-        typeMap
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        DynamicNavGraphBuilder(provider, startDestination, T::class, typeMap).apply(builder)
+    )
 
-/**
- * DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph]
- */
+/** DSL for constructing a new [DynamicGraphNavigator.DynamicNavGraph] */
 @NavDestinationDsl
 public class DynamicNavGraphBuilder : NavGraphBuilder {
     @IdRes private var startDestinationId: Int = 0
@@ -243,11 +203,10 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
      *
      * @param provider navigator used to create the destination
      * @param startDestination the starting destination's route as a [KClass] for this NavGraph. The
-     * respective NavDestination must be added with route from a [KClass] in order to match.
+     *   respective NavDestination must be added with route from a [KClass] in order to match.
      * @param route the graph's unique route as a [KClass]
      * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
-     * [route] does not use custom NavTypes.
-     *
+     *   [route] does not use custom NavTypes.
      * @return the newly created NavGraph
      */
     public constructor(
@@ -262,11 +221,10 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
      *
      * @param provider navigator used to create the destination
      * @param startDestination the starting destination's route as an Object for this NavGraph. The
-     * respective NavDestination must be added with route from a [KClass] in order to match.
+     *   respective NavDestination must be added with route from a [KClass] in order to match.
      * @param route the graph's unique route as a [KClass]
-     * @param typeMap A mapping of KType to custom NavType<*> in the [route].  May be empty if
-     * [route] does not use custom NavTypes.
-     *
+     * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
+     *   [route] does not use custom NavTypes.
      * @return the newly created NavGraph
      */
     public constructor(
@@ -277,15 +235,15 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
     ) : super(provider, startDestination, route, typeMap)
 
     /**
-     * The module name of this [Destination]'s dynamic feature module. This has to be the
-     * same as defined in the dynamic feature module's AndroidManifest.xml file.
+     * The module name of this [Destination]'s dynamic feature module. This has to be the same as
+     * defined in the dynamic feature module's AndroidManifest.xml file.
      */
     public var moduleName: String? = null
 
     private var _progressDestination: Int = 0
     /**
-     * ID of the destination displayed during module installation. This generally does
-     * not need to be set, but is instead filled in by the NavHost via
+     * ID of the destination displayed during module installation. This generally does not need to
+     * be set, but is instead filled in by the NavHost via
      * [DynamicGraphNavigator.installDefaultProgressDestination].
      *
      * Setting this clears any previously set [progressDestinationRoute].
@@ -300,28 +258,27 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
         }
 
     /**
-     * Route of the destination displayed during module installation. This generally does
-     * not need to be set, but is instead filled in by the NavHost via
+     * Route of the destination displayed during module installation. This generally does not need
+     * to be set, but is instead filled in by the NavHost via
      * [DynamicGraphNavigator.installDefaultProgressDestination].
      *
      * Setting this overrides any previously set [progressDestination].
      */
     public var progressDestinationRoute: String? = null
         set(progDestRoute) {
-            _progressDestination = if (progDestRoute == null) {
-                0
-            } else {
-                require(progDestRoute.isNotBlank()) {
-                    "Cannot have an empty progress destination route"
+            _progressDestination =
+                if (progDestRoute == null) {
+                    0
+                } else {
+                    require(progDestRoute.isNotBlank()) {
+                        "Cannot have an empty progress destination route"
+                    }
+                    NavDestination.createRoute(progressDestinationRoute).hashCode()
                 }
-                NavDestination.createRoute(progressDestinationRoute).hashCode()
-            }
             field = progDestRoute
         }
 
-    /**
-     * @return The [DynamicGraphNavigator.DynamicNavGraph].
-     */
+    /** @return The [DynamicGraphNavigator.DynamicNavGraph]. */
     override fun build(): NavGraph =
         super.build().also { navGraph ->
             if (navGraph is DynamicGraphNavigator.DynamicNavGraph) {
@@ -335,8 +292,7 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
                 if (progressDestination == 0) {
                     val navGraphNavigator: DynamicGraphNavigator =
                         provider[DynamicGraphNavigator::class]
-                    navGraphNavigator.destinationsWithoutDefaultProgressDestination
-                        .add(navGraph)
+                    navGraphNavigator.destinationsWithoutDefaultProgressDestination.add(navGraph)
                 }
             }
         }

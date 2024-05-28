@@ -46,35 +46,41 @@ import kotlinx.serialization.serializer
 
 /**
  * Representation of an entry in the back stack of a [androidx.navigation.NavController]. The
- * [Lifecycle], [ViewModelStore], and [SavedStateRegistry] provided via
- * this object are valid for the lifetime of this destination on the back stack: when this
- * destination is popped off the back stack, the lifecycle will be destroyed, state
- * will no longer be saved, and ViewModels will be cleared.
+ * [Lifecycle], [ViewModelStore], and [SavedStateRegistry] provided via this object are valid for
+ * the lifetime of this destination on the back stack: when this destination is popped off the back
+ * stack, the lifecycle will be destroyed, state will no longer be saved, and ViewModels will be
+ * cleared.
  */
-public class NavBackStackEntry private constructor(
+public class NavBackStackEntry
+private constructor(
     private val context: Context?,
     /**
      * The destination associated with this entry
+     *
      * @return The destination that is currently visible to users
      */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var destination: NavDestination,
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public var destination: NavDestination,
     private val immutableArgs: Bundle? = null,
     private var hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
     private val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     /**
      * The unique ID that serves as the identity of this entry
+     *
      * @return the unique ID of this entry
      */
     public val id: String = UUID.randomUUID().toString(),
     private val savedState: Bundle? = null
-) : LifecycleOwner,
+) :
+    LifecycleOwner,
     ViewModelStoreOwner,
     HasDefaultViewModelProviderFactory,
     SavedStateRegistryOwner {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(entry: NavBackStackEntry, arguments: Bundle? = entry.arguments) : this(
+    constructor(
+        entry: NavBackStackEntry,
+        arguments: Bundle? = entry.arguments
+    ) : this(
         entry.context,
         entry.destination,
         arguments,
@@ -97,10 +103,16 @@ public class NavBackStackEntry private constructor(
             viewModelStoreProvider: NavViewModelStoreProvider? = null,
             id: String = UUID.randomUUID().toString(),
             savedState: Bundle? = null
-        ): NavBackStackEntry = NavBackStackEntry(
-            context, destination, arguments,
-            hostLifecycleState, viewModelStoreProvider, id, savedState
-        )
+        ): NavBackStackEntry =
+            NavBackStackEntry(
+                context,
+                destination,
+                arguments,
+                hostLifecycleState,
+                viewModelStoreProvider,
+                id,
+                savedState
+            )
     }
 
     private var _lifecycle = LifecycleRegistry(this)
@@ -111,23 +123,21 @@ public class NavBackStackEntry private constructor(
     }
 
     /**
-     * The arguments used for this entry. Note that the arguments of
-     * a NavBackStackEntry are immutable and defined when you `navigate()`
-     * to the destination - changes you make to this Bundle will not be
-     * reflected in future calls to this property.
+     * The arguments used for this entry. Note that the arguments of a NavBackStackEntry are
+     * immutable and defined when you `navigate()` to the destination - changes you make to this
+     * Bundle will not be reflected in future calls to this property.
      *
      * @return The arguments used when this entry was created
      */
     public val arguments: Bundle?
-        get() = if (immutableArgs == null) {
-            null
-        } else {
-            Bundle(immutableArgs)
-        }
+        get() =
+            if (immutableArgs == null) {
+                null
+            } else {
+                Bundle(immutableArgs)
+            }
 
-    /**
-     * The [SavedStateHandle] for this entry.
-     */
+    /** The [SavedStateHandle] for this entry. */
     @get:MainThread
     public val savedStateHandle: SavedStateHandle by lazy {
         check(savedStateRegistryAttached) {
@@ -139,17 +149,17 @@ public class NavBackStackEntry private constructor(
             "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
                 "NavBackStackEntry is destroyed."
         }
-        ViewModelProvider(
-            this, NavResultSavedStateFactory(this)
-        ).get(SavedStateViewModel::class.java).handle
+        ViewModelProvider(this, NavResultSavedStateFactory(this))
+            .get(SavedStateViewModel::class.java)
+            .handle
     }
 
     /**
      * {@inheritDoc}
      *
      * If the [androidx.navigation.NavHost] has not called
-     * [androidx.navigation.NavHostController.setLifecycleOwner], the
-     * Lifecycle will be capped at [Lifecycle.State.CREATED].
+     * [androidx.navigation.NavHostController.setLifecycleOwner], the Lifecycle will be capped at
+     * [Lifecycle.State.CREATED].
      */
     override val lifecycle: Lifecycle
         get() = _lifecycle
@@ -168,9 +178,7 @@ public class NavBackStackEntry private constructor(
         updateState()
     }
 
-    /**
-     * Update the state to be the lower of the two constraints:
-     */
+    /** Update the state to be the lower of the two constraints: */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState() {
         if (!savedStateRegistryAttached) {
@@ -195,8 +203,8 @@ public class NavBackStackEntry private constructor(
          * {@inheritDoc}
          *
          * @throws IllegalStateException if called before the [lifecycle] has moved to
-         * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
-         * [androidx.navigation.NavHostController.setViewModelStore].
+         *   [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+         *   [androidx.navigation.NavHostController.setViewModelStore].
          */
         get() {
             check(savedStateRegistryAttached) {
@@ -225,9 +233,7 @@ public class NavBackStackEntry private constructor(
             }
             extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
             extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-            arguments?.let { args ->
-                extras[DEFAULT_ARGS_KEY] = args
-            }
+            arguments?.let { args -> extras[DEFAULT_ARGS_KEY] = args }
             return extras
         }
 
@@ -242,23 +248,21 @@ public class NavBackStackEntry private constructor(
     @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is NavBackStackEntry) return false
-        return id == other.id && destination == other.destination &&
+        return id == other.id &&
+            destination == other.destination &&
             lifecycle == other.lifecycle &&
             savedStateRegistry == other.savedStateRegistry &&
-            (
-                immutableArgs == other.immutableArgs ||
-                    immutableArgs?.keySet()
-                    ?.all { immutableArgs.get(it) == other.immutableArgs?.get(it) } == true
-                )
+            (immutableArgs == other.immutableArgs ||
+                immutableArgs?.keySet()?.all {
+                    immutableArgs.get(it) == other.immutableArgs?.get(it)
+                } == true)
     }
 
     @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + destination.hashCode()
-        immutableArgs?.keySet()?.forEach {
-            result = 31 * result + immutableArgs.get(it).hashCode()
-        }
+        immutableArgs?.keySet()?.forEach { result = 31 * result + immutableArgs.get(it).hashCode() }
         result = 31 * result + lifecycle.hashCode()
         result = 31 * result + savedStateRegistry.hashCode()
         return result
@@ -273,12 +277,9 @@ public class NavBackStackEntry private constructor(
         return sb.toString()
     }
 
-    /**
-     * Used to create the {SavedStateViewModel}
-     */
-    private class NavResultSavedStateFactory(
-        owner: SavedStateRegistryOwner
-    ) : AbstractSavedStateViewModelFactory(owner, null) {
+    /** Used to create the {SavedStateViewModel} */
+    private class NavResultSavedStateFactory(owner: SavedStateRegistryOwner) :
+        AbstractSavedStateViewModelFactory(owner, null) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(
             key: String,
@@ -298,13 +299,10 @@ public class NavBackStackEntry private constructor(
  * Extrapolates arguments from [NavBackStackEntry.arguments] and recreates object [T]
  *
  * @param [T] the entry's [NavDestination.route] as a [KClass]
- *
  * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
  */
 public inline fun <reified T> NavBackStackEntry.toRoute(): T {
     val bundle = arguments ?: Bundle()
-    val typeMap = destination.arguments.mapValues {
-        it.value.type
-    }
+    val typeMap = destination.arguments.mapValues { it.value.type }
     return serializer<T>().decodeArguments(bundle, typeMap)
 }

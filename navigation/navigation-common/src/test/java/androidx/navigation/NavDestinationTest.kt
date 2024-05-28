@@ -31,21 +31,16 @@ import org.mockito.Mockito.`when`
 class NavDestinationTest {
 
     companion object {
-        @IdRes
-        private const val INVALID_ACTION_ID = 0
-        @IdRes
-        private const val ACTION_ID = 1
-        @IdRes
-        private const val DESTINATION_ID = 1
+        @IdRes private const val INVALID_ACTION_ID = 0
+        @IdRes private const val ACTION_ID = 1
+        @IdRes private const val DESTINATION_ID = 1
     }
 
     @Test
     fun parseClassFromNameAbsolute() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromNameInternal(
-            context,
-            "java.lang.String", Any::class.java
-        )
+        val clazz =
+            NavDestination.parseClassFromNameInternal(context, "java.lang.String", Any::class.java)
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -56,7 +51,8 @@ class NavDestinationTest {
         try {
             NavDestination.parseClassFromNameInternal(
                 context,
-                "definitely.not.found", Any::class.java
+                "definitely.not.found",
+                Any::class.java
             )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
@@ -67,10 +63,12 @@ class NavDestinationTest {
     @Test
     fun parseClassFromNameAbsoluteWithType() {
         val context = mock(Context::class.java)
-        val clazz = NavDestination.parseClassFromNameInternal(
-            context,
-            "java.lang.String", String::class.java
-        )
+        val clazz =
+            NavDestination.parseClassFromNameInternal(
+                context,
+                "java.lang.String",
+                String::class.java
+            )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -79,10 +77,7 @@ class NavDestinationTest {
     fun parseClassFromNameAbsoluteWithIncorrectType() {
         val context = mock(Context::class.java)
         try {
-            NavDestination.parseClassFromNameInternal(
-                context,
-                "java.lang.String", List::class.java
-            )
+            NavDestination.parseClassFromNameInternal(context, "java.lang.String", List::class.java)
             fail("Incorrect type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected
@@ -93,10 +88,7 @@ class NavDestinationTest {
     fun parseClassFromNameRelative() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromNameInternal(
-            context,
-            ".String", Any::class.java
-        )
+        val clazz = NavDestination.parseClassFromNameInternal(context, ".String", Any::class.java)
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -108,7 +100,8 @@ class NavDestinationTest {
         try {
             NavDestination.parseClassFromNameInternal(
                 context,
-                ".definitely.not.found", Any::class.java
+                ".definitely.not.found",
+                Any::class.java
             )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
@@ -120,10 +113,8 @@ class NavDestinationTest {
     fun parseClassFromNameRelativeWithType() {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
-        val clazz = NavDestination.parseClassFromNameInternal(
-            context,
-            ".String", String::class.java
-        )
+        val clazz =
+            NavDestination.parseClassFromNameInternal(context, ".String", String::class.java)
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
@@ -133,10 +124,7 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         `when`(context.packageName).thenReturn("java.lang")
         try {
-            NavDestination.parseClassFromNameInternal(
-                context,
-                ".String", List::class.java
-            )
+            NavDestination.parseClassFromNameInternal(context, ".String", List::class.java)
             fail("Incorrect type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             // Expected
@@ -149,10 +137,11 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-            setStartDestination(DESTINATION_ID)
-        }
+        val parent =
+            navGraphNavigator.createDestination().apply {
+                id = parentId
+                setStartDestination(DESTINATION_ID)
+            }
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(1)
@@ -165,9 +154,7 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-        }
+        val parent = navGraphNavigator.createDestination().apply { id = parentId }
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(2)
@@ -181,9 +168,7 @@ class NavDestinationTest {
         val navGraphId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
 
-        val navGraph = navGraphNavigator.createDestination().apply {
-            id = navGraphId
-        }
+        val navGraph = navGraphNavigator.createDestination().apply { id = navGraphId }
 
         startDest.parent = navGraph
         val deepLinkIds = navGraph.buildDeepLinkIds(navGraph)
@@ -197,9 +182,7 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-        }
+        val parent = navGraphNavigator.createDestination().apply { id = parentId }
 
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds(parent)
@@ -214,10 +197,11 @@ class NavDestinationTest {
 
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-            setStartDestination(DESTINATION_ID)
-        }
+        val parent =
+            navGraphNavigator.createDestination().apply {
+                id = parentId
+                setStartDestination(DESTINATION_ID)
+            }
 
         destination.parent = parent
 
@@ -233,11 +217,12 @@ class NavDestinationTest {
 
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-            setStartDestination(DESTINATION_ID)
-            addDestination(destination)
-        }
+        val parent =
+            navGraphNavigator.createDestination().apply {
+                id = parentId
+                setStartDestination(DESTINATION_ID)
+                addDestination(destination)
+            }
 
         destination.parent = parent
 
@@ -252,16 +237,18 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-            setStartDestination(DESTINATION_ID)
-        }
+        val parent =
+            navGraphNavigator.createDestination().apply {
+                id = parentId
+                setStartDestination(DESTINATION_ID)
+            }
         destination.parent = parent
         val grandparentId = 3
-        val grandparent = navGraphNavigator.createDestination().apply {
-            id = grandparentId
-            setStartDestination(parentId)
-        }
+        val grandparent =
+            navGraphNavigator.createDestination().apply {
+                id = grandparentId
+                setStartDestination(parentId)
+            }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(1)
@@ -274,15 +261,14 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-        }
+        val parent = navGraphNavigator.createDestination().apply { id = parentId }
         destination.parent = parent
         val grandparentId = 3
-        val grandparent = navGraphNavigator.createDestination().apply {
-            id = grandparentId
-            setStartDestination(parentId)
-        }
+        val grandparent =
+            navGraphNavigator.createDestination().apply {
+                id = grandparentId
+                setStartDestination(parentId)
+            }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(2)
@@ -295,15 +281,14 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-        }
+        val parent = navGraphNavigator.createDestination().apply { id = parentId }
         destination.parent = parent
         val grandparentId = 3
-        val grandparent = navGraphNavigator.createDestination().apply {
-            id = grandparentId
-            setStartDestination(parentId)
-        }
+        val grandparent =
+            navGraphNavigator.createDestination().apply {
+                id = grandparentId
+                setStartDestination(parentId)
+            }
         parent.parent = grandparent
         val deepLinkIds = destination.buildDeepLinkIds()
         assertThat(deepLinkIds.size).isEqualTo(2)
@@ -351,9 +336,7 @@ class NavDestinationTest {
     @Test
     fun addArgument() {
         val destination = NoOpNavigator().createDestination()
-        val stringArgument = NavArgument.Builder()
-            .setType(NavType.StringType)
-            .build()
+        val stringArgument = NavArgument.Builder().setType(NavType.StringType).build()
         destination.addArgument("stringArg", stringArgument)
         assertThat(destination.arguments.size).isEqualTo(1)
         assertThat(destination.arguments["stringArg"]).isEqualTo(stringArgument)
@@ -362,9 +345,7 @@ class NavDestinationTest {
     @Test
     fun removeArgument() {
         val destination = NoOpNavigator().createDestination()
-        val stringArgument = NavArgument.Builder()
-            .setType(NavType.StringType)
-            .build()
+        val stringArgument = NavArgument.Builder().setType(NavType.StringType).build()
         destination.addArgument("stringArg", stringArgument)
         assertThat(destination.arguments.size).isEqualTo(1)
         assertThat(destination.arguments["stringArg"]).isEqualTo(stringArgument)
@@ -380,10 +361,11 @@ class NavDestinationTest {
         destination.id = DESTINATION_ID
         val parentId = 2
         val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
-        val parent = navGraphNavigator.createDestination().apply {
-            id = parentId
-            setStartDestination(DESTINATION_ID)
-        }
+        val parent =
+            navGraphNavigator.createDestination().apply {
+                id = parentId
+                setStartDestination(DESTINATION_ID)
+            }
         destination.parent = parent
 
         val found = destination.hierarchy.any { it.id == 2 }

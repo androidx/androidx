@@ -31,31 +31,30 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /**
- * An implementation of [NavigatorState] that allows testing a
- * [androidx.navigation.Navigator] in isolation (i.e., without requiring a
- * [androidx.navigation.NavController]).
+ * An implementation of [NavigatorState] that allows testing a [androidx.navigation.Navigator] in
+ * isolation (i.e., without requiring a [androidx.navigation.NavController]).
  *
  * An optional [context] can be provided to allow for the usages of
- * [androidx.lifecycle.AndroidViewModel] within the created [NavBackStackEntry]
- * instances.
+ * [androidx.lifecycle.AndroidViewModel] within the created [NavBackStackEntry] instances.
  *
- * The [Lifecycle] of all [NavBackStackEntry] instances added to this TestNavigatorState
- * will be updated as they are added and removed from the state. This work is kicked off
- * on the [coroutineDispatcher].
+ * The [Lifecycle] of all [NavBackStackEntry] instances added to this TestNavigatorState will be
+ * updated as they are added and removed from the state. This work is kicked off on the
+ * [coroutineDispatcher].
  */
-public class TestNavigatorState @JvmOverloads constructor(
+public class TestNavigatorState
+@JvmOverloads
+constructor(
     private val context: Context? = null,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : NavigatorState() {
 
-    private val viewModelStoreProvider = object : NavViewModelStoreProvider {
-        private val viewModelStores = mutableMapOf<String, ViewModelStore>()
-        override fun getViewModelStore(
-            backStackEntryId: String
-        ) = viewModelStores.getOrPut(backStackEntryId) {
-            ViewModelStore()
+    private val viewModelStoreProvider =
+        object : NavViewModelStoreProvider {
+            private val viewModelStores = mutableMapOf<String, ViewModelStore>()
+
+            override fun getViewModelStore(backStackEntryId: String) =
+                viewModelStores.getOrPut(backStackEntryId) { ViewModelStore() }
         }
-    }
 
     private val savedStates = mutableMapOf<String, Bundle>()
     private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
@@ -63,24 +62,33 @@ public class TestNavigatorState @JvmOverloads constructor(
     override fun createBackStackEntry(
         destination: NavDestination,
         arguments: Bundle?
-    ): NavBackStackEntry = NavBackStackEntry.create(
-        context, destination, arguments, Lifecycle.State.RESUMED, viewModelStoreProvider
-    )
+    ): NavBackStackEntry =
+        NavBackStackEntry.create(
+            context,
+            destination,
+            arguments,
+            Lifecycle.State.RESUMED,
+            viewModelStoreProvider
+        )
 
     /**
-     * Restore a previously saved [NavBackStackEntry]. You must have previously called
-     * [pop] with [previouslySavedEntry] and `true`.
+     * Restore a previously saved [NavBackStackEntry]. You must have previously called [pop] with
+     * [previouslySavedEntry] and `true`.
      */
     public fun restoreBackStackEntry(previouslySavedEntry: NavBackStackEntry): NavBackStackEntry {
-        val savedState = checkNotNull(savedStates[previouslySavedEntry.id]) {
-            "restoreBackStackEntry(previouslySavedEntry) must be passed a NavBackStackEntry " +
-                "that was previously popped with popBackStack(previouslySavedEntry, true)"
-        }
+        val savedState =
+            checkNotNull(savedStates[previouslySavedEntry.id]) {
+                "restoreBackStackEntry(previouslySavedEntry) must be passed a NavBackStackEntry " +
+                    "that was previously popped with popBackStack(previouslySavedEntry, true)"
+            }
         return NavBackStackEntry.create(
             context,
-            previouslySavedEntry.destination, previouslySavedEntry.arguments,
-            Lifecycle.State.RESUMED, viewModelStoreProvider,
-            previouslySavedEntry.id, savedState
+            previouslySavedEntry.destination,
+            previouslySavedEntry.arguments,
+            Lifecycle.State.RESUMED,
+            viewModelStoreProvider,
+            previouslySavedEntry.id,
+            savedState
         )
     }
 
@@ -118,9 +126,7 @@ public class TestNavigatorState @JvmOverloads constructor(
             // NavBackStackEntry Lifecycles must be updated on the main thread
             // as per the contract within Lifecycle, so we explicitly swap to the main thread
             // no matter what CoroutineDispatcher was passed to us.
-            withContext(Dispatchers.Main.immediate) {
-                entry.maxLifecycle = Lifecycle.State.STARTED
-            }
+            withContext(Dispatchers.Main.immediate) { entry.maxLifecycle = Lifecycle.State.STARTED }
         }
     }
 
@@ -136,8 +142,7 @@ public class TestNavigatorState @JvmOverloads constructor(
                 // Mark all removed NavBackStackEntries as DESTROYED
                 for (entry in poppedList.reversed()) {
                     if (
-                        saveState &&
-                        entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                        saveState && entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
                     ) {
                         // Move the NavBackStackEntry to the stopped state, then save its state
                         entry.maxLifecycle = Lifecycle.State.CREATED
@@ -161,16 +166,17 @@ public class TestNavigatorState @JvmOverloads constructor(
                 var previousEntry: NavBackStackEntry? = null
                 for (entry in currentList.reversed()) {
                     val transitioning = transitionsInProgress.value.contains(entry)
-                    entry.maxLifecycle = when {
-                        previousEntry == null ->
-                            if (!transitioning) {
-                                Lifecycle.State.RESUMED
-                            } else {
-                                Lifecycle.State.STARTED
-                            }
-                        previousEntry.destination is FloatingWindow -> Lifecycle.State.STARTED
-                        else -> Lifecycle.State.CREATED
-                    }
+                    entry.maxLifecycle =
+                        when {
+                            previousEntry == null ->
+                                if (!transitioning) {
+                                    Lifecycle.State.RESUMED
+                                } else {
+                                    Lifecycle.State.STARTED
+                                }
+                            previousEntry.destination is FloatingWindow -> Lifecycle.State.STARTED
+                            else -> Lifecycle.State.CREATED
+                        }
                     previousEntry = entry
                 }
             }

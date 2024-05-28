@@ -33,9 +33,8 @@ import org.junit.runner.RunWith
 class DynamicIncludeGraphRecreateTest {
 
     @get:Rule
-    public val rule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
-        NavigationActivity::class.java
-    )
+    public val rule: ActivityScenarioRule<NavigationActivity> =
+        ActivityScenarioRule(NavigationActivity::class.java)
 
     @Test
     public fun recreateTest() {
@@ -43,16 +42,15 @@ class DynamicIncludeGraphRecreateTest {
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
                 fragment = TestDynamicNavHostFragment()
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(R.id.nav_host, fragment, null)
                     .setPrimaryNavigationFragment(fragment)
                     .commitNow()
             }
 
             val navController = fragment.findNavController()
-            withActivity {
-                navController.setGraph(R.navigation.include_dynamic_nav_graph)
-            }
+            withActivity { navController.setGraph(R.navigation.include_dynamic_nav_graph) }
 
             recreate()
 

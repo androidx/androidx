@@ -27,30 +27,32 @@ import androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener
 import java.util.HashSet
 
 /**
- * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * Configuration options for [NavigationUI] methods that interact with implementations of the app
+ * bar pattern such as [androidx.appcompat.widget.Toolbar],
  * [com.google.android.material.appbar.CollapsingToolbarLayout], and
  * [androidx.appcompat.app.ActionBar].
  */
-public class AppBarConfiguration private constructor(
+public class AppBarConfiguration
+private constructor(
     /**
-     * The set of destinations by id considered at the top level of your information hierarchy.
-     * The Up button will not be displayed when on these destinations.
+     * The set of destinations by id considered at the top level of your information hierarchy. The
+     * Up button will not be displayed when on these destinations.
      *
      * @return The set of top level destinations by id.
      */
     public val topLevelDestinations: Set<Int>,
     /**
-     * The [Openable] layout indicating that the Navigation button should be displayed as
-     * a drawer symbol when it is not being shown as an Up button.
+     * The [Openable] layout indicating that the Navigation button should be displayed as a drawer
+     * symbol when it is not being shown as an Up button.
+     *
      * @return The Openable layout that should be toggled from the Navigation button
      */
     public val openableLayout: Openable?,
     /**
      * The [OnNavigateUpListener] that should be invoked if
      * [androidx.navigation.NavController.navigateUp] returns `false`.
-     * @return a [OnNavigateUpListener] for providing custom up navigation logic,
-     * if one was set.
+     *
+     * @return a [OnNavigateUpListener] for providing custom up navigation logic, if one was set.
      */
     public val fallbackOnNavigateUpListener: OnNavigateUpListener?
 ) {
@@ -71,71 +73,71 @@ public class AppBarConfiguration private constructor(
     }
 
     /**
-     * The [DrawerLayout] indicating that the Navigation button should be displayed as
-     * a drawer symbol when it is not being shown as an Up button.
+     * The [DrawerLayout] indicating that the Navigation button should be displayed as a drawer
+     * symbol when it is not being shown as an Up button.
+     *
      * @return The DrawerLayout that should be toggled from the Navigation button
      */
     @get:Deprecated("Use {@link #getOpenableLayout()}.")
     public val drawerLayout: DrawerLayout?
-        get() = if (openableLayout is DrawerLayout) {
-            openableLayout
-        } else null
+        get() =
+            if (openableLayout is DrawerLayout) {
+                openableLayout
+            } else null
 
     /**
      * Determines whether a [NavDestination] is a top level destination in [AppBarConfiguration].
      *
      * Returns true if the [NavDestination] was added directly as a top level destination via
      * [AppBarConfiguration.Builder] constructors such as
-     * `AppBarConfiguration.Builder(topLevelDestinationIds: Set<Int>)`.
-     * If destination was added with a [AppBarConfiguration.Builder] that could take in a graph,
-     * i.e. `AppBarConfiguration.Builder(NavGraph)` or`AppBarConfiguration.Builder(Menu)`, this
-     * helper will return true if the destination is the start destination of a graph
-     * (including nested graphs i.e. [MenuItem] that are also [NavGraph]), or an individual
-     * [MenuItem] within the [Menu].
+     * `AppBarConfiguration.Builder(topLevelDestinationIds: Set<Int>)`. If destination was added
+     * with a [AppBarConfiguration.Builder] that could take in a graph, i.e.
+     * `AppBarConfiguration.Builder(NavGraph)` or`AppBarConfiguration.Builder(Menu)`, this helper
+     * will return true if the destination is the start destination of a graph (including nested
+     * graphs i.e. [MenuItem] that are also [NavGraph]), or an individual [MenuItem] within the
+     * [Menu].
      *
      * @param destination the [NavDestination] to check whether it is a topLevelDestination
      */
     public fun isTopLevelDestination(destination: NavDestination): Boolean {
         return destination.hierarchy.any { parent ->
             when (parent.id in topLevelDestinations) {
-                true -> if (parent is NavGraph) {
-                            destination.id == parent.findStartDestination().id
-                        } else true
+                true ->
+                    if (parent is NavGraph) {
+                        destination.id == parent.findStartDestination().id
+                    } else true
                 else -> false
             }
         }
     }
 
-    /**
-     * The Builder class for constructing new [AppBarConfiguration] instances.
-     */
+    /** The Builder class for constructing new [AppBarConfiguration] instances. */
     public class Builder {
         private val topLevelDestinations: MutableSet<Int> = HashSet()
         private var openableLayout: Openable? = null
         private var fallbackOnNavigateUpListener: OnNavigateUpListener? = null
 
         /**
-         * Create a new Builder whose only top level destination is the start destination
-         * of the given [NavGraph]. The Up button will not be displayed when on the
-         * start destination of the graph.
+         * Create a new Builder whose only top level destination is the start destination of the
+         * given [NavGraph]. The Up button will not be displayed when on the start destination of
+         * the graph.
          *
-         * @param navGraph The NavGraph whose start destination should be considered the only
-         * top level destination. The Up button will not be displayed when on the
-         * start destination of the graph.
+         * @param navGraph The NavGraph whose start destination should be considered the only top
+         *   level destination. The Up button will not be displayed when on the start destination of
+         *   the graph.
          */
         public constructor(navGraph: NavGraph) {
             topLevelDestinations.add(navGraph.findStartDestination().id)
         }
 
         /**
-         * Create a new Builder using a [Menu] containing all top level destinations. It is
-         * expected that the [menu item id][MenuItem.getItemId] of each item corresponds
-         * with a destination in your navigation graph. The Up button will not be displayed when
-         * on these destinations.
+         * Create a new Builder using a [Menu] containing all top level destinations. It is expected
+         * that the [menu item id][MenuItem.getItemId] of each item corresponds with a destination
+         * in your navigation graph. The Up button will not be displayed when on these destinations.
          *
          * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
-         * considered at the top level of your information hierarchy.
-         * The Up button will not be displayed when on these destinations.
+         *   considered at the top level of your information hierarchy. The Up button will not be
+         *   displayed when on these destinations.
          */
         public constructor(topLevelMenu: Menu) {
             val size = topLevelMenu.size()
@@ -150,8 +152,8 @@ public class AppBarConfiguration private constructor(
          * not be displayed when on these destinations.
          *
          * @param topLevelDestinationIds The set of destinations by id considered at the top level
-         * of your information hierarchy. The Up button will not be
-         * displayed when on these destinations.
+         *   of your information hierarchy. The Up button will not be displayed when on these
+         *   destinations.
          */
         public constructor(vararg topLevelDestinationIds: Int) {
             for (destinationId in topLevelDestinationIds) {
@@ -164,16 +166,17 @@ public class AppBarConfiguration private constructor(
          * not be displayed when on these destinations.
          *
          * @param topLevelDestinationIds The set of destinations by id considered at the top level
-         * of your information hierarchy. The Up button will not be
-         * displayed when on these destinations.
+         *   of your information hierarchy. The Up button will not be displayed when on these
+         *   destinations.
          */
         public constructor(topLevelDestinationIds: Set<Int>) {
             topLevelDestinations.addAll(topLevelDestinationIds)
         }
 
         /**
-         * Display the Navigation button as a drawer symbol when it is not being shown as an
-         * Up button.
+         * Display the Navigation button as a drawer symbol when it is not being shown as an Up
+         * button.
+         *
          * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
          * @return this [Builder]
          */
@@ -184,10 +187,11 @@ public class AppBarConfiguration private constructor(
         }
 
         /**
-         * Display the Navigation button as a drawer symbol when it is not being shown as an
-         * Up button.
+         * Display the Navigation button as a drawer symbol when it is not being shown as an Up
+         * button.
+         *
          * @param openableLayout The Openable layout that should be toggled from the Navigation
-         * button
+         *   button
          * @return this [Builder]
          */
         public fun setOpenableLayout(openableLayout: Openable?): Builder {
@@ -196,13 +200,11 @@ public class AppBarConfiguration private constructor(
         }
 
         /**
-         * Adds a [OnNavigateUpListener] that will be called as a fallback if the default
-         * behavior of [androidx.navigation.NavController.navigateUp]
-         * returns `false`.
+         * Adds a [OnNavigateUpListener] that will be called as a fallback if the default behavior
+         * of [androidx.navigation.NavController.navigateUp] returns `false`.
          *
          * @param fallbackOnNavigateUpListener Listener that will be invoked if
-         * [androidx.navigation.NavController.navigateUp]
-         * returns `false`.
+         *   [androidx.navigation.NavController.navigateUp] returns `false`.
          * @return this [Builder]
          */
         public fun setFallbackOnNavigateUpListener(
@@ -218,7 +220,7 @@ public class AppBarConfiguration private constructor(
          * @return a valid [AppBarConfiguration]
          */
         /* new AppBarConfiguration() must be private to avoid
-                                              conflicting with the public AppBarConfiguration.kt */
+        conflicting with the public AppBarConfiguration.kt */
         public fun build(): AppBarConfiguration {
             return AppBarConfiguration(
                 topLevelDestinations,
@@ -230,76 +232,74 @@ public class AppBarConfiguration private constructor(
 }
 
 /**
- * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * Configuration options for [NavigationUI] methods that interact with implementations of the app
+ * bar pattern such as [androidx.appcompat.widget.Toolbar],
  * [com.google.android.material.appbar.CollapsingToolbarLayout], and
  * [androidx.appcompat.app.ActionBar].
  *
- * @param navGraph The [NavGraph] whose start destination should be considered the only
- *                 top level destination. The Up button will not be displayed when on the
- *                 start destination of the graph.
+ * @param navGraph The [NavGraph] whose start destination should be considered the only top level
+ *   destination. The Up button will not be displayed when on the start destination of the graph.
  * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
- *                     the Navigation button will show a drawer symbol when it is not being shown
- *                     as an Up button.
+ *   the Navigation button will show a drawer symbol when it is not being shown as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
- * [androidx.navigation.NavController.navigateUp] returns `false`
+ *   [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName", "NOTHING_TO_INLINE") /* Acts like a constructor */
 public inline fun AppBarConfiguration(
     navGraph: NavGraph,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-): AppBarConfiguration = AppBarConfiguration.Builder(navGraph)
-    .setOpenableLayout(drawerLayout)
-    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
-    .build()
+): AppBarConfiguration =
+    AppBarConfiguration.Builder(navGraph)
+        .setOpenableLayout(drawerLayout)
+        .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
+        .build()
 
 /**
- * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * Configuration options for [NavigationUI] methods that interact with implementations of the app
+ * bar pattern such as [androidx.appcompat.widget.Toolbar],
  * [com.google.android.material.appbar.CollapsingToolbarLayout], and
  * [androidx.appcompat.app.ActionBar].
  *
- * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
- *                     considered at the top level of your information hierarchy.
- *                     The Up button will not be displayed when on these destinations.
+ * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations considered at
+ *   the top level of your information hierarchy. The Up button will not be displayed when on these
+ *   destinations.
  * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
- *                     the Navigation button will show a drawer symbol when it is not being shown
- *                     as an Up button.
+ *   the Navigation button will show a drawer symbol when it is not being shown as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
- * [androidx.navigation.NavController.navigateUp] returns `false`
+ *   [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName", "NOTHING_TO_INLINE") /* Acts like a constructor */
 public inline fun AppBarConfiguration(
     topLevelMenu: Menu,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-): AppBarConfiguration = AppBarConfiguration.Builder(topLevelMenu)
-    .setOpenableLayout(drawerLayout)
-    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
-    .build()
+): AppBarConfiguration =
+    AppBarConfiguration.Builder(topLevelMenu)
+        .setOpenableLayout(drawerLayout)
+        .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
+        .build()
 
 /**
- * Configuration options for [NavigationUI] methods that interact with implementations of the
- * app bar pattern such as [androidx.appcompat.widget.Toolbar],
+ * Configuration options for [NavigationUI] methods that interact with implementations of the app
+ * bar pattern such as [androidx.appcompat.widget.Toolbar],
  * [com.google.android.material.appbar.CollapsingToolbarLayout], and
  * [androidx.appcompat.app.ActionBar].
  *
- * @param topLevelDestinationIds The set of destinations by id considered at the top level
- *                               of your information hierarchy. The Up button will not be
- *                               displayed when on these destinations.
+ * @param topLevelDestinationIds The set of destinations by id considered at the top level of your
+ *   information hierarchy. The Up button will not be displayed when on these destinations.
  * @param drawerLayout The Openable layout that should be toggled from the Navigation button. The
- *                     the Navigation button will show a drawer symbol when it is not being shown
- *                     as an Up button.
+ *   the Navigation button will show a drawer symbol when it is not being shown as an Up button.
  * @param fallbackOnNavigateUpListener Lambda that will be invoked if
- * [androidx.navigation.NavController.navigateUp] returns `false`
+ *   [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName", "NOTHING_TO_INLINE") /* Acts like a constructor */
 public inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
     drawerLayout: Openable? = null,
     noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
-): AppBarConfiguration = AppBarConfiguration.Builder(topLevelDestinationIds)
-    .setOpenableLayout(drawerLayout)
-    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
-    .build()
+): AppBarConfiguration =
+    AppBarConfiguration.Builder(topLevelDestinationIds)
+        .setOpenableLayout(drawerLayout)
+        .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
+        .build()

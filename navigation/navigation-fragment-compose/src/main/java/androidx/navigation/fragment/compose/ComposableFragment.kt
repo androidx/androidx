@@ -30,20 +30,20 @@ import androidx.fragment.app.Fragment
 
 /**
  * This class provides a [Fragment] wrapper around a composable function that is loaded via
- * reflection. The composable function has access to this fragment instance via
- * [LocalFragment].
+ * reflection. The composable function has access to this fragment instance via [LocalFragment].
  *
- * This class is constructed via a factory method: make sure you add
- * `import androidx.navigation.fragment.compose.ComposableFragment.Companion.ComposableFragment`
+ * This class is constructed via a factory method: make sure you add `import
+ * androidx.navigation.fragment.compose.ComposableFragment.Companion.ComposableFragment`
  */
 class ComposableFragment internal constructor() : Fragment() {
 
     private val composableMethod by lazy {
         val arguments = requireArguments()
-        val fullyQualifiedName = checkNotNull(arguments.getString(FULLY_QUALIFIED_NAME)) {
-            "Instances of ComposableFragment must be created with the factory function " +
-                "ComposableFragment(fullyQualifiedName)"
-        }
+        val fullyQualifiedName =
+            checkNotNull(arguments.getString(FULLY_QUALIFIED_NAME)) {
+                "Instances of ComposableFragment must be created with the factory function " +
+                    "ComposableFragment(fullyQualifiedName)"
+            }
         val (className, methodName) = fullyQualifiedName.split("$")
         val clazz = Class.forName(className)
         clazz.getDeclaredComposableMethod(methodName)
@@ -70,12 +70,12 @@ class ComposableFragment internal constructor() : Fragment() {
             "androidx.navigation.fragment.compose.FULLY_QUALIFIED_NAME"
 
         /**
-         * Creates a new [ComposableFragment] instance that will wrap the Composable method
-         * loaded via reflection from [fullyQualifiedName].
+         * Creates a new [ComposableFragment] instance that will wrap the Composable method loaded
+         * via reflection from [fullyQualifiedName].
          *
-         * @param fullyQualifiedName the fully qualified name of the static, no argument
-         * Composable method that this fragment should display. It should be formatted in the
-         * format `com.example.NameOfFileKt/$MethodName`.
+         * @param fullyQualifiedName the fully qualified name of the static, no argument Composable
+         *   method that this fragment should display. It should be formatted in the format
+         *   `com.example.NameOfFileKt/$MethodName`.
          */
         @JvmStatic
         fun ComposableFragment(fullyQualifiedName: String): ComposableFragment {

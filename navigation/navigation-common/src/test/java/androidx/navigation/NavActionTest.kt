@@ -26,8 +26,7 @@ import org.junit.runners.JUnit4
 class NavActionTest {
 
     companion object {
-        @IdRes
-        private const val DESTINATION_ID = 1
+        @IdRes private const val DESTINATION_ID = 1
     }
 
     @Test

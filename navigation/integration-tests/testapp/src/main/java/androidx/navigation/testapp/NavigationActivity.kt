@@ -32,16 +32,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 
-/**
- * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
- */
+/** A simple activity demonstrating use of a NavHostFragment with a navigation drawer. */
 class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment)
-            as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -49,10 +47,7 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
         toolbar.setupWithNavController(
             navController,
             AppBarConfiguration(
-                setOf(
-                    R.id.main,
-                    R.id.android_main
-                ),
+                setOf(R.id.main, R.id.android_main),
                 drawerLayout,
                 ::onSupportNavigateUp
             )
@@ -69,17 +64,20 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
                 when (item.itemId) {
                     R.id.help_activity -> {
                         navController.navigate(
-                            R.id.help_activity, null, null,
+                            R.id.help_activity,
+                            null,
+                            null,
                             ActivityNavigatorExtras(
-                                ActivityOptionsCompat
-                                    .makeSceneTransitionAnimation(
-                                        this,
-                                        toolbar, "toolbar"
-                                    )
+                                ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                    this,
+                                    toolbar,
+                                    "toolbar"
+                                )
                             )
                         )
                         true
-                    } else -> NavigationUI.onNavDestinationSelected(item, navController)
+                    }
+                    else -> NavigationUI.onNavDestinationSelected(item, navController)
                 }
             }
         }
@@ -88,11 +86,12 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
         bottomNavView?.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            val dest: String = try {
-                resources.getResourceName(destination.id)
-            } catch (e: Resources.NotFoundException) {
-                Integer.toString(destination.id)
-            }
+            val dest: String =
+                try {
+                    resources.getResourceName(destination.id)
+                } catch (e: Resources.NotFoundException) {
+                    Integer.toString(destination.id)
+                }
 
             Toast.makeText(this, "Navigated to $dest", Toast.LENGTH_SHORT).show()
             Log.d("NavigationActivity", "Navigated to $dest")

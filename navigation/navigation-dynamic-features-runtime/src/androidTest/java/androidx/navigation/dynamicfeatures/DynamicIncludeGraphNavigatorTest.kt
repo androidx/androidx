@@ -52,26 +52,23 @@ public class DynamicIncludeGraphNavigatorTest {
 
     private fun setupInternal(navGraphId: Int = R.navigation.nav_graph) {
 
-        rule.withActivity {
-            context = this
-        }
+        rule.withActivity { context = this }
 
         val navController = NavController(context)
         val navigatorProvider = navController.navigatorProvider
-        val installManager = AndroidTestDynamicInstallManager(context).also {
-            `when`(it.splitInstallManager.installedModules)
-                .thenReturn(setOf("test"))
-        }
-        navigator = DynamicIncludeGraphNavigator(
-            context,
-            navigatorProvider,
-            navController.navInflater,
-            installManager
-        )
-        with(navController) {
-            navigatorProvider.addNavigator(
-                DynamicGraphNavigator(navigatorProvider, installManager)
+        val installManager =
+            AndroidTestDynamicInstallManager(context).also {
+                `when`(it.splitInstallManager.installedModules).thenReturn(setOf("test"))
+            }
+        navigator =
+            DynamicIncludeGraphNavigator(
+                context,
+                navigatorProvider,
+                navController.navInflater,
+                installManager
             )
+        with(navController) {
+            navigatorProvider.addNavigator(DynamicGraphNavigator(navigatorProvider, installManager))
             navigatorProvider.addNavigator(navigator)
             navigatorProvider.addNavigator(NoOpNavigator())
             setGraph(navGraphId)
@@ -86,28 +83,25 @@ public class DynamicIncludeGraphNavigatorTest {
     @Test
     public fun testReplacePackagePlaceholder() {
         val packageName = context.packageName
-        val dynamicNavGraph = navigator.createDestination().apply {
-            moduleName = FEATURE_NAME
-        }
+        val dynamicNavGraph = navigator.createDestination().apply { moduleName = FEATURE_NAME }
         assertThat(
-            dynamicNavGraph.getPackageOrDefault(
-                context,
-                "\${applicationId}.something" +
-                    ".$FEATURE_NAME"
+                dynamicNavGraph.getPackageOrDefault(
+                    context,
+                    "\${applicationId}.something" + ".$FEATURE_NAME"
+                )
             )
-        ).isEqualTo("$packageName.something.$FEATURE_NAME")
+            .isEqualTo("$packageName.something.$FEATURE_NAME")
 
         assertThat(
-            dynamicNavGraph.getPackageOrDefault(
-                context,
-                "something.\${applicationId}" +
-                    ".$FEATURE_NAME"
+                dynamicNavGraph.getPackageOrDefault(
+                    context,
+                    "something.\${applicationId}" + ".$FEATURE_NAME"
+                )
             )
-        ).isEqualTo("something.$packageName.$FEATURE_NAME")
+            .isEqualTo("something.$packageName.$FEATURE_NAME")
 
-        assertThat(
-            dynamicNavGraph.getPackageOrDefault(context, null)
-        ).isEqualTo("$packageName.$FEATURE_NAME")
+        assertThat(dynamicNavGraph.getPackageOrDefault(context, null))
+            .isEqualTo("$packageName.$FEATURE_NAME")
     }
 
     @Test
@@ -116,12 +110,14 @@ public class DynamicIncludeGraphNavigatorTest {
             setupInternal(R.navigation.nav_invalid_id)
             fail("Inflating nav_invalid_id should fail with an IllegalStateException")
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().containsMatch(
-                ".*" +
-                    "androidx.navigation.dynamicfeatures.test:id/featureFragmentNested" +
+            assertThat(e)
+                .hasMessageThat()
+                .containsMatch(
                     ".*" +
-                    "androidx.navigation.dynamicfeatures.test:id/dynamic_graph"
-            )
+                        "androidx.navigation.dynamicfeatures.test:id/featureFragmentNested" +
+                        ".*" +
+                        "androidx.navigation.dynamicfeatures.test:id/dynamic_graph"
+                )
         }
     }
 

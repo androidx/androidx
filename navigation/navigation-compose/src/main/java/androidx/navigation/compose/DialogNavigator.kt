@@ -27,26 +27,22 @@ import androidx.navigation.Navigator
 import androidx.navigation.compose.DialogNavigator.Destination
 
 /**
- * Navigator that navigates through [Composable]s that will be hosted within a
- * [Dialog]. Every destination using this Navigator must  set a valid [Composable] by setting it
- * directly on an instantiated [Destination] or calling [dialog].
+ * Navigator that navigates through [Composable]s that will be hosted within a [Dialog]. Every
+ * destination using this Navigator must set a valid [Composable] by setting it directly on an
+ * instantiated [Destination] or calling [dialog].
  */
 @Navigator.Name("dialog")
 public class DialogNavigator : Navigator<Destination>() {
 
-    /**
-     * Get the back stack from the [state].
-     */
-    internal val backStack get() = state.backStack
+    /** Get the back stack from the [state]. */
+    internal val backStack
+        get() = state.backStack
 
-    /**
-     * Get the transitioning dialogs from the [state].
-     */
-    internal val transitionInProgress get() = state.transitionsInProgress
+    /** Get the transitioning dialogs from the [state]. */
+    internal val transitionInProgress
+        get() = state.transitionsInProgress
 
-    /**
-     * Dismiss the dialog destination associated with the given [backStackEntry].
-     */
+    /** Dismiss the dialog destination associated with the given [backStackEntry]. */
     internal fun dismiss(backStackEntry: NavBackStackEntry) {
         popBackStack(backStackEntry, false)
     }
@@ -56,13 +52,11 @@ public class DialogNavigator : Navigator<Destination>() {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
-        entries.forEach { entry ->
-            state.push(entry)
-        }
+        entries.forEach { entry -> state.push(entry) }
     }
 
     override fun createDestination(): Destination {
-        return Destination(this) { }
+        return Destination(this) {}
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
@@ -80,9 +74,7 @@ public class DialogNavigator : Navigator<Destination>() {
         state.markTransitionComplete(entry)
     }
 
-    /**
-     * NavDestination specific to [DialogNavigator]
-     */
+    /** NavDestination specific to [DialogNavigator] */
     @NavDestination.ClassType(Composable::class)
     public class Destination(
         navigator: DialogNavigator,

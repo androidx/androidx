@@ -44,44 +44,31 @@ class RoutePatternTest {
 
     @Test
     fun basePath() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass
 
         assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
     fun pathArg() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: String)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: String)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun multiplePathArg() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: String, val arg2: Int)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: String, val arg2: Int)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}/{arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}/{arg2}")
     }
 
     @Test
     fun pathArgNullable() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: String?)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: String?)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
@@ -90,20 +77,15 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String?, val arg2: Int?)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}/{arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}/{arg2}")
     }
 
     @Test
     fun queryArg() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: String = "test")
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: String = "test")
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME?arg={arg}")
     }
 
     @Test
@@ -112,31 +94,22 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String = "test", val arg2: Int = 0)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}&arg2={arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME?arg={arg}&arg2={arg2}")
     }
 
     @Test
     fun queryArgNullable() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: String? = "test")
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: String? = "test")
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME?arg={arg}")
     }
 
     @Test
     fun queryArgWithNullDefaultValue() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: Int? = null)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: Int? = null)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME?arg={arg}")
     }
 
     @Test
@@ -145,9 +118,8 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String? = "test", val arg2: Int? = 0)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}&arg2={arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME?arg={arg}&arg2={arg2}")
     }
 
     @Test
@@ -156,9 +128,8 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val pathArg: String, val queryArg: Int = 0)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}")
     }
 
     @Test
@@ -167,9 +138,8 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val queryArg: Int = 0, val pathArg: String)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}")
     }
 
     @Test
@@ -178,31 +148,24 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val pathArg: String?, val queryArg: Int? = 0)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{pathArg}?queryArg={queryArg}")
     }
 
     @Test
     fun arrayType() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val array: IntArray)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val array: IntArray)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?array={array}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME?array={array}")
     }
 
     @Test
     fun optionalArrayType() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val array: IntArray?)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val array: IntArray?)
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?array={array}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME?array={array}")
     }
 
     @Test
@@ -214,23 +177,19 @@ class RoutePatternTest {
         }
 
         // only class members would show up on routePattern
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun withCompanionObject() {
-        assertThatRoutePatternFrom(serializer<ClassWithCompanionObject>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<ClassWithCompanionObject>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun withCompanionParameter() {
-        assertThatRoutePatternFrom(serializer<ClassWithCompanionParam>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<ClassWithCompanionParam>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
@@ -238,61 +197,60 @@ class RoutePatternTest {
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: String) {
-            fun testFun() { }
+            fun testFun() {}
         }
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun customParamType() {
-        @Serializable
-        class CustomType
+        @Serializable class CustomType
 
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val custom: CustomType)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val custom: CustomType)
 
-        val type = object : NavType<CustomType>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(bundle: Bundle, key: String, value: CustomType) { }
-            override fun get(bundle: Bundle, key: String): CustomType? = null
-            override fun parseValue(value: String): CustomType = CustomType()
-            override fun serializeAsValue(value: CustomType) = "customValue"
-        }
+        val type =
+            object : NavType<CustomType>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(bundle: Bundle, key: String, value: CustomType) {}
+
+                override fun get(bundle: Bundle, key: String): CustomType? = null
+
+                override fun parseValue(value: String): CustomType = CustomType()
+
+                override fun serializeAsValue(value: CustomType) = "customValue"
+            }
         val map = mapOf(typeOf<CustomType>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{custom}")
     }
 
     @Test
     fun nestedCustomParamType() {
-        @Serializable
-        class NestedCustomType
+        @Serializable class NestedCustomType
 
-        @Serializable
-        class CustomType(val nested: NestedCustomType)
+        @Serializable class CustomType(val nested: NestedCustomType)
 
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val custom: CustomType)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val custom: CustomType)
 
-        val type = object : NavType<CustomType>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(bundle: Bundle, key: String, value: CustomType) { }
-            override fun get(bundle: Bundle, key: String): CustomType? = null
-            override fun parseValue(value: String): CustomType = CustomType(NestedCustomType())
-            override fun serializeAsValue(value: CustomType) = "customValue"
-        }
+        val type =
+            object : NavType<CustomType>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(bundle: Bundle, key: String, value: CustomType) {}
+
+                override fun get(bundle: Bundle, key: String): CustomType? = null
+
+                override fun parseValue(value: String): CustomType = CustomType(NestedCustomType())
+
+                override fun serializeAsValue(value: CustomType) = "customValue"
+            }
         val map = mapOf(typeOf<CustomType>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{custom}")
     }
 
     @Test
@@ -301,76 +259,85 @@ class RoutePatternTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: Int, val arg2: CustomSerializerClass)
 
-        val type = object : NavType<CustomSerializerClass>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(bundle: Bundle, key: String, value: CustomSerializerClass) { }
-            override fun get(bundle: Bundle, key: String): CustomSerializerClass? = null
-            override fun parseValue(value: String): CustomSerializerClass =
-                CustomSerializerClass(1L)
-            override fun serializeAsValue(value: CustomSerializerClass) = "customValue"
-        }
+        val type =
+            object : NavType<CustomSerializerClass>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(bundle: Bundle, key: String, value: CustomSerializerClass) {}
+
+                override fun get(bundle: Bundle, key: String): CustomSerializerClass? = null
+
+                override fun parseValue(value: String): CustomSerializerClass =
+                    CustomSerializerClass(1L)
+
+                override fun serializeAsValue(value: CustomSerializerClass) = "customValue"
+            }
         val map = mapOf(typeOf<CustomSerializerClass>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}/{arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}/{arg2}")
     }
 
     @Test
     fun customTypeParam() {
-        @Serializable
-        open class TypeParam
-        @Serializable
-        class CustomType<T : TypeParam>
+        @Serializable open class TypeParam
+        @Serializable class CustomType<T : TypeParam>
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val custom: CustomType<TypeParam>)
 
-        val type = object : NavType<CustomType<TypeParam>>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(bundle: Bundle, key: String, value: CustomType<TypeParam>) { }
-            override fun get(bundle: Bundle, key: String): CustomType<TypeParam>? = null
-            override fun parseValue(value: String): CustomType<TypeParam> = CustomType()
-            override fun serializeAsValue(value: CustomType<TypeParam>) = "customValue"
-        }
+        val type =
+            object : NavType<CustomType<TypeParam>>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(bundle: Bundle, key: String, value: CustomType<TypeParam>) {}
+
+                override fun get(bundle: Bundle, key: String): CustomType<TypeParam>? = null
+
+                override fun parseValue(value: String): CustomType<TypeParam> = CustomType()
+
+                override fun serializeAsValue(value: CustomType<TypeParam>) = "customValue"
+            }
         val map = mapOf(typeOf<CustomType<TypeParam>>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{custom}")
     }
 
     @Test
     fun customTypeParamNested() {
-        @Serializable
-        open class TypeParamNested
-        @Serializable
-        open class TypeParam<K : TypeParamNested>
-        @Serializable
-        class CustomType<T : TypeParam<TypeParamNested>>
+        @Serializable open class TypeParamNested
+        @Serializable open class TypeParam<K : TypeParamNested>
+        @Serializable class CustomType<T : TypeParam<TypeParamNested>>
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val custom: CustomType<TypeParam<TypeParamNested>>)
 
-        val type = object : NavType<CustomType<TypeParam<TypeParamNested>>>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(
-                bundle: Bundle,
-                key: String,
-                value: CustomType<TypeParam<TypeParamNested>>
-            ) { }
-            override fun get(bundle: Bundle, key: String): CustomType<TypeParam<TypeParamNested>>? =
-                null
-            override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
-                CustomType()
-            override fun serializeAsValue(value: CustomType<TypeParam<TypeParamNested>>) =
-                "customValue"
-        }
+        val type =
+            object : NavType<CustomType<TypeParam<TypeParamNested>>>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(
+                    bundle: Bundle,
+                    key: String,
+                    value: CustomType<TypeParam<TypeParamNested>>
+                ) {}
+
+                override fun get(
+                    bundle: Bundle,
+                    key: String
+                ): CustomType<TypeParam<TypeParamNested>>? = null
+
+                override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
+                    CustomType()
+
+                override fun serializeAsValue(value: CustomType<TypeParam<TypeParamNested>>) =
+                    "customValue"
+            }
         val map = mapOf(typeOf<CustomType<TypeParam<TypeParamNested>>>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{custom}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{custom}")
     }
 
     @Test
@@ -383,9 +350,7 @@ class RoutePatternTest {
         }
 
         // only members with backing field should appear on routePattern
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            PATH_SERIAL_NAME
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -396,39 +361,39 @@ class RoutePatternTest {
             val arg: Int = 0
         }
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME?arg={arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME?arg={arg}")
     }
 
     @Test
     fun pathArgFromClassBody() {
-        @Serializable
-        class CustomType
+        @Serializable class CustomType
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
         class TestClass {
             lateinit var arg: CustomType
         }
 
-        val type = object : NavType<CustomType>(false) {
-            override val name: String
-                get() = "CustomType"
-            override fun put(bundle: Bundle, key: String, value: CustomType) { }
-            override fun get(bundle: Bundle, key: String): CustomType? = null
-            override fun parseValue(value: String): CustomType = CustomType()
-            override fun serializeAsValue(value: CustomType) = "customValue"
-        }
+        val type =
+            object : NavType<CustomType>(false) {
+                override val name: String
+                    get() = "CustomType"
+
+                override fun put(bundle: Bundle, key: String, value: CustomType) {}
+
+                override fun get(bundle: Bundle, key: String): CustomType? = null
+
+                override fun parseValue(value: String): CustomType = CustomType()
+
+                override fun serializeAsValue(value: CustomType) = "customValue"
+            }
         val map = mapOf(typeOf<CustomType>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun nonSerializableClassInvalid() {
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass
+        @SerialName(PATH_SERIAL_NAME) class TestClass
 
         assertFailsWith<SerializationException> {
             // the class must be serializable
@@ -438,102 +403,87 @@ class RoutePatternTest {
 
     @Test
     fun abstractClassInvalid() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        abstract class TestClass
+        @Serializable @SerialName(PATH_SERIAL_NAME) abstract class TestClass
 
-        val patternException = assertFailsWith<IllegalArgumentException> {
-            serializer<TestClass>().generateRoutePattern()
-        }
-        assertThat(patternException.message).isEqualTo(
-            "Cannot generate route pattern from polymorphic class TestClass. Routes " +
-                "can only be generated from concrete classes or objects."
-        )
+        val patternException =
+            assertFailsWith<IllegalArgumentException> {
+                serializer<TestClass>().generateRoutePattern()
+            }
+        assertThat(patternException.message)
+            .isEqualTo(
+                "Cannot generate route pattern from polymorphic class TestClass. Routes " +
+                    "can only be generated from concrete classes or objects."
+            )
     }
 
     @Test
     fun childClassOfAbstract() {
-        @Serializable
-        abstract class TestAbstractClass
+        @Serializable abstract class TestAbstractClass
 
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass : TestAbstractClass()
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass : TestAbstractClass()
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            PATH_SERIAL_NAME
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
     fun childClassOfAbstract_duplicateArgs() {
-        @Serializable
-        abstract class TestAbstractClass(val arg: Int)
+        @Serializable abstract class TestAbstractClass(val arg: Int)
 
         @Serializable
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg2: Int) : TestAbstractClass(0)
 
         // args will be duplicated
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}/{arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg}/{arg2}")
     }
 
     @Test
     fun childClassOfSealed_withArgs() {
         // child class overrides parent variable so only child variable shows up in route pattern
-        assertThatRoutePatternFrom(serializer<SealedClass.TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg2}"
-        )
+        assertThatRoutePatternFrom(serializer<SealedClass.TestClass>())
+            .isEqualTo("$PATH_SERIAL_NAME/{arg2}")
     }
 
     @Test
     fun childClassOfInterface() {
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val arg: Int) : TestInterface
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val arg: Int) : TestInterface
 
-        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo(
-            "$PATH_SERIAL_NAME/{arg}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>()).isEqualTo("$PATH_SERIAL_NAME/{arg}")
     }
 
     @Test
     fun routeFromPlainObject() {
-        assertThatRoutePatternFrom(serializer<TestObject>()).isEqualTo(
-            PATH_SERIAL_NAME
-        )
+        assertThatRoutePatternFrom(serializer<TestObject>()).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
     fun routeFromObject_argsNotSerialized() {
         // object variables are not serialized and does not show up on routePattern
-        assertThatRoutePatternFrom(serializer<TestObjectWithArg>()).isEqualTo(
-            PATH_SERIAL_NAME
-        )
+        assertThatRoutePatternFrom(serializer<TestObjectWithArg>()).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
     fun collectionNavType() {
-        @Serializable
-        class CustomType
+        @Serializable class CustomType
 
-        @Serializable
-        @SerialName(PATH_SERIAL_NAME)
-        class TestClass(val list: List<CustomType>)
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val list: List<CustomType>)
 
-        val type = object : CollectionNavType<List<CustomType>>(false) {
-            override fun put(bundle: Bundle, key: String, value: List<CustomType>) { }
-            override fun serializeAsValues(value: List<CustomType>): List<String> = emptyList()
-            override fun get(bundle: Bundle, key: String): List<CustomType>? = null
-            override fun parseValue(value: String): List<CustomType> = listOf()
-            override fun serializeAsValue(value: List<CustomType>) = "customValue"
-        }
+        val type =
+            object : CollectionNavType<List<CustomType>>(false) {
+                override fun put(bundle: Bundle, key: String, value: List<CustomType>) {}
+
+                override fun serializeAsValues(value: List<CustomType>): List<String> = emptyList()
+
+                override fun get(bundle: Bundle, key: String): List<CustomType>? = null
+
+                override fun parseValue(value: String): List<CustomType> = listOf()
+
+                override fun serializeAsValue(value: List<CustomType>) = "customValue"
+            }
         val map = mapOf(typeOf<List<CustomType>>() to type)
-        assertThatRoutePatternFrom(serializer<TestClass>(), map).isEqualTo(
-            "$PATH_SERIAL_NAME?list={list}"
-        )
+        assertThatRoutePatternFrom(serializer<TestClass>(), map)
+            .isEqualTo("$PATH_SERIAL_NAME?list={list}")
     }
 }
 
@@ -560,9 +510,7 @@ private class ClassWithCompanionParam(val arg: Int) {
     }
 }
 
-@Serializable
-@SerialName(PATH_SERIAL_NAME)
-internal object TestObject
+@Serializable @SerialName(PATH_SERIAL_NAME) internal object TestObject
 
 @Serializable
 @SerialName(PATH_SERIAL_NAME)
@@ -587,11 +535,12 @@ internal sealed class SealedClass {
 internal open class CustomSerializerClass(val longArg: Long)
 
 internal class CustomSerializer : KSerializer<CustomSerializerClass> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
-        "Date", PrimitiveKind.LONG
-    )
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
+
     override fun serialize(encoder: Encoder, value: CustomSerializerClass) =
         encoder.encodeLong(value.longArg)
+
     override fun deserialize(decoder: Decoder): CustomSerializerClass =
         CustomSerializerClass(decoder.decodeLong())
 }

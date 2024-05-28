@@ -27,37 +27,27 @@ class NavArgumentTest {
     @Suppress("DEPRECATION")
     fun putDefaultValue() {
         val bundle = Bundle()
-        val argument = NavArgument.Builder()
-            .setDefaultValue("abc")
-            .setType(NavType.StringType)
-            .build()
+        val argument =
+            NavArgument.Builder().setDefaultValue("abc").setType(NavType.StringType).build()
         argument.putDefaultValue("name", bundle)
-        assertThat(bundle.get("name"))
-            .isEqualTo("abc")
+        assertThat(bundle.get("name")).isEqualTo("abc")
     }
 
     @Test
     fun verify() {
-        val bundle = Bundle().apply {
-            putString("stringArg", "abc")
-            putInt("intArg", 123)
-            putIntArray("intArrayArg", null)
-        }
+        val bundle =
+            Bundle().apply {
+                putString("stringArg", "abc")
+                putInt("intArg", 123)
+                putIntArray("intArrayArg", null)
+            }
 
-        val stringArgument = NavArgument.Builder()
-            .setType(NavType.StringType)
-            .build()
-        val intArgument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .build()
-        val intArrArgument = NavArgument.Builder()
-            .setType(NavType.IntArrayType)
-            .setIsNullable(true)
-            .build()
-        val intArrNonNullArgument = NavArgument.Builder()
-            .setType(NavType.IntArrayType)
-            .setIsNullable(false)
-            .build()
+        val stringArgument = NavArgument.Builder().setType(NavType.StringType).build()
+        val intArgument = NavArgument.Builder().setType(NavType.IntType).build()
+        val intArrArgument =
+            NavArgument.Builder().setType(NavType.IntArrayType).setIsNullable(true).build()
+        val intArrNonNullArgument =
+            NavArgument.Builder().setType(NavType.IntArrayType).setIsNullable(false).build()
 
         assertThat(stringArgument.verify("stringArg", bundle)).isTrue()
         assertThat(intArgument.verify("intArg", bundle)).isTrue()
@@ -67,11 +57,12 @@ class NavArgumentTest {
 
     @Test
     fun setUnknownDefaultValuePresent() {
-        val argument = NavArgument.Builder()
-            .setType(NavType.IntType)
-            .setIsNullable(false)
-            .setUnknownDefaultValuePresent(true)
-            .build()
+        val argument =
+            NavArgument.Builder()
+                .setType(NavType.IntType)
+                .setIsNullable(false)
+                .setUnknownDefaultValuePresent(true)
+                .build()
 
         assertThat(argument.isDefaultValuePresent).isTrue()
         assertThat(argument.isDefaultValueUnknown).isTrue()

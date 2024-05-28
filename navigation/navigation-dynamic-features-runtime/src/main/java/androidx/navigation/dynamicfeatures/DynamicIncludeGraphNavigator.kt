@@ -49,9 +49,7 @@ public class DynamicIncludeGraphNavigator(
     private val createdDestinations = mutableListOf<DynamicIncludeNavGraph>()
 
     override fun createDestination(): DynamicIncludeNavGraph {
-        return DynamicIncludeNavGraph(this).also {
-            createdDestinations.add(it)
-        }
+        return DynamicIncludeNavGraph(this).also { createdDestinations.add(it) }
     }
 
     /**
@@ -60,11 +58,9 @@ public class DynamicIncludeGraphNavigator(
      * @param entries destination(s) to navigate to
      * @param navOptions additional options for navigation
      * @param navigatorExtras extras unique to your Navigator.
-     *
      * @throws Resources.NotFoundException if one of the [entries] does not have a valid
-     * `graphResourceName` and `graphPackage`.
+     *   `graphResourceName` and `graphPackage`.
      * @throws IllegalStateException if one of the [entries] does not have a parent.
-
      * @see Navigator.navigate
      */
     override fun navigate(
@@ -78,8 +74,8 @@ public class DynamicIncludeGraphNavigator(
     }
 
     /**
-     * @throws Resources.NotFoundException if the [entry] does not have a valid
-     * `graphResourceName` and `graphPackage`.
+     * @throws Resources.NotFoundException if the [entry] does not have a valid `graphResourceName`
+     *   and `graphPackage`.
      * @throws IllegalStateException if the [entry] does not have a parent.
      */
     private fun navigate(
@@ -108,10 +104,12 @@ public class DynamicIncludeGraphNavigator(
      * @return the newly inflated included navigation graph
      */
     private fun replaceWithIncludedNav(destination: DynamicIncludeNavGraph): NavGraph {
-        val graphId = context.resources.getIdentifier(
-            destination.graphResourceName, "navigation",
-            destination.graphPackage
-        )
+        val graphId =
+            context.resources.getIdentifier(
+                destination.graphResourceName,
+                "navigation",
+                destination.graphPackage
+            )
         if (graphId == 0) {
             throw Resources.NotFoundException(
                 "${destination.graphPackage}:navigation/${destination.graphResourceName}"
@@ -124,11 +122,12 @@ public class DynamicIncludeGraphNavigator(
                 "<navigation> id or make them match."
         }
         includedNav.id = destination.id
-        val outerNav = destination.parent
-            ?: throw IllegalStateException(
-                "The include-dynamic destination with id ${destination.displayName} " +
-                    "does not have a parent. Make sure it is attached to a NavGraph."
-            )
+        val outerNav =
+            destination.parent
+                ?: throw IllegalStateException(
+                    "The include-dynamic destination with id ${destination.displayName} " +
+                        "does not have a parent. Make sure it is attached to a NavGraph."
+                )
         outerNav.addDestination(includedNav)
         // Avoid calling replaceWithIncludedNav() on the same destination more than once
         createdDestinations.remove(destination)
@@ -165,26 +164,20 @@ public class DynamicIncludeGraphNavigator(
     /**
      * The graph for dynamic-include.
      *
-     * This class contains information to navigate to a DynamicNavGraph which is contained
-     * within a dynamic feature module.
+     * This class contains information to navigate to a DynamicNavGraph which is contained within a
+     * dynamic feature module.
      */
     public class DynamicIncludeNavGraph
     internal constructor(navGraphNavigator: Navigator<out NavDestination>) :
         NavDestination(navGraphNavigator) {
 
-        /**
-         * Resource name of the graph.
-         */
+        /** Resource name of the graph. */
         public var graphResourceName: String? = null
 
-        /**
-         * The graph's package.
-         */
+        /** The graph's package. */
         public var graphPackage: String? = null
 
-        /**
-         * Name of the module containing the included graph, if set.
-         */
+        /** Name of the module containing the included graph, if set. */
         public var moduleName: String? = null
 
         override fun onInflate(context: Context, attrs: AttributeSet) {
@@ -195,8 +188,8 @@ public class DynamicIncludeGraphNavigator(
                     "`moduleName` must be set for <include-dynamic>"
                 }
 
-                graphPackage = getString(R.styleable.DynamicIncludeGraphNavigator_graphPackage)
-                    .let {
+                graphPackage =
+                    getString(R.styleable.DynamicIncludeGraphNavigator_graphPackage).let {
                         if (it != null) {
                             require(it.isNotEmpty()) {
                                 "`graphPackage` cannot be empty for <include-dynamic>. You can " +
@@ -207,22 +200,16 @@ public class DynamicIncludeGraphNavigator(
                         getPackageOrDefault(context, it)
                     }
 
-                graphResourceName =
-                    getString(R.styleable.DynamicIncludeGraphNavigator_graphResName)
+                graphResourceName = getString(R.styleable.DynamicIncludeGraphNavigator_graphResName)
                 require(!graphResourceName.isNullOrEmpty()) {
                     "`graphResName` must be set for <include-dynamic>"
                 }
             }
         }
 
-        internal fun getPackageOrDefault(
-            context: Context,
-            graphPackage: String?
-        ): String {
-            return graphPackage?.replace(
-                APPLICATION_ID_PLACEHOLDER,
-                context.packageName
-            ) ?: "${context.packageName}.$moduleName"
+        internal fun getPackageOrDefault(context: Context, graphPackage: String?): String {
+            return graphPackage?.replace(APPLICATION_ID_PLACEHOLDER, context.packageName)
+                ?: "${context.packageName}.$moduleName"
         }
 
         override fun equals(other: Any?): Boolean {

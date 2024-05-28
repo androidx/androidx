@@ -35,10 +35,11 @@ class NavControllerSubjectTest {
     @UiThreadTest
     @Before
     fun setUp() {
-        navController = NavController(ApplicationProvider.getApplicationContext()).apply {
-            navigatorProvider += TestNavigator()
-            setGraph(R.navigation.test_graph)
-        }
+        navController =
+            NavController(ApplicationProvider.getApplicationContext()).apply {
+                navigatorProvider += TestNavigator()
+                setGraph(R.navigation.test_graph)
+            }
     }
 
     @Test
@@ -48,13 +49,8 @@ class NavControllerSubjectTest {
 
     @Test
     fun testIsCurrentDestinationFailure() {
-        with(
-            assertThrows {
-                assertThat(navController).isCurrentDestination(R.id.second_test)
-            }
-        ) {
-            factValue("expected id")
-                .isEqualTo("0x${R.id.second_test.toString(16)}")
+        with(assertThrows { assertThat(navController).isCurrentDestination(R.id.second_test) }) {
+            factValue("expected id").isEqualTo("0x${R.id.second_test.toString(16)}")
             factValue("but was")
                 .isEqualTo("0x${navController.currentDestination?.id?.toString(16)}")
             factValue("current destination is")
@@ -69,17 +65,10 @@ class NavControllerSubjectTest {
 
     @Test
     fun testIsGraphFailure() {
-        with(
-            assertThrows {
-                assertThat(navController).isGraph(R.id.second_test_graph)
-            }
-        ) {
-            factValue("expected id")
-                .isEqualTo("0x${R.id.second_test_graph.toString(16)}")
-            factValue("but was")
-                .isEqualTo("0x${navController.graph.id.toString(16)}")
-            factValue("current graph is")
-                .isEqualTo(navController.graph.toString())
+        with(assertThrows { assertThat(navController).isGraph(R.id.second_test_graph) }) {
+            factValue("expected id").isEqualTo("0x${R.id.second_test_graph.toString(16)}")
+            factValue("but was").isEqualTo("0x${navController.graph.id.toString(16)}")
+            factValue("current graph is").isEqualTo(navController.graph.toString())
         }
     }
 }

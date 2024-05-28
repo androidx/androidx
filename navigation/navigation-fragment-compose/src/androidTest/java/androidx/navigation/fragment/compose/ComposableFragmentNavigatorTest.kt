@@ -36,16 +36,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComposableFragmentNavigatorTest {
 
-    @get:Rule
-    val testRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val testRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun inflateGraph() {
         val navController = NavController(testRule.activity)
-        navController.navigatorProvider += FragmentNavigator(
-            testRule.activity,
-            testRule.activity.supportFragmentManager,
-            R.id.fragment_container)
+        navController.navigatorProvider +=
+            FragmentNavigator(
+                testRule.activity,
+                testRule.activity.supportFragmentManager,
+                R.id.fragment_container
+            )
         navController.navigatorProvider +=
             ComposableFragmentNavigator(navController.navigatorProvider)
 
