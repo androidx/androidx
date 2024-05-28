@@ -20,8 +20,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Spinner
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
@@ -35,11 +37,19 @@ class MainFragment : BaseFragment() {
     private lateinit var newAdButton: Button
     private lateinit var resizeButton: Button
     private lateinit var resizeSdkButton: Button
-    private lateinit var mediationSwitch: SwitchMaterial
     private lateinit var localWebViewToggle: SwitchMaterial
-    private lateinit var appOwnedMediateeToggleButton: SwitchMaterial
+    private lateinit var mediationDropDownMenu: Spinner
     private lateinit var inflatedView: View
     private lateinit var sdkApi: ISdkApi
+
+    // Mediation Option values.
+    // Please keep the order here the same as the order in which the options occur in the
+    // mediation_dropdown_menu_array.
+    enum class MediationOption {
+        NONE,
+        RUNTIME_RUNTIME,
+        RUNTIME_APP
+    }
 
     override fun handleDrawerStateChange(isDrawerOpen: Boolean) {
         webViewBannerView.orderProviderUiAboveClientUi(!isDrawerOpen)
@@ -65,9 +75,18 @@ class MainFragment : BaseFragment() {
         newAdButton = inflatedView.findViewById(R.id.new_ad_button)
         resizeButton = inflatedView.findViewById(R.id.resize_button)
         resizeSdkButton = inflatedView.findViewById(R.id.resize_sdk_button)
-        mediationSwitch = inflatedView.findViewById(R.id.mediation_switch)
         localWebViewToggle = inflatedView.findViewById(R.id.local_to_internet_switch)
-        appOwnedMediateeToggleButton = inflatedView.findViewById(R.id.app_owned_mediatee_switch)
+        mediationDropDownMenu = inflatedView.findViewById(R.id.mediation_dropdown_menu)
+
+        // Supply the mediation_option array to the mediationDropDownMenu spinner.
+        ArrayAdapter.createFromResource(
+            this.requireContext(),
+            R.array.mediation_dropdown_menu_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            mediationDropDownMenu.adapter = adapter
+        }
 
         loadWebViewBannerAd()
         loadBottomBannerAd()
@@ -118,15 +137,19 @@ class MainFragment : BaseFragment() {
         ))
 
         var count = 1
-        var loadMediateeFromApp = false
-        appOwnedMediateeToggleButton.setOnCheckedChangeListener { _, isChecked ->
-            loadMediateeFromApp = isChecked
-        }
         newAdButton.setOnClickListener {
-            if (mediationSwitch.isChecked) {
+            // Mediation is enabled if Runtime-Runtime Mediation option or Runtime-App Mediation
+            // option is selected.
+            val selectedMediationOptionId = mediationDropDownMenu.selectedItemId
+            val mediationEnabled =
+                selectedMediationOptionId == MediationOption.RUNTIME_RUNTIME.ordinal.toLong() ||
+                        selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
+            val appOwnedMediationEnabled =
+                selectedMediationOptionId == MediationOption.RUNTIME_APP.ordinal.toLong()
+            if (mediationEnabled) {
                 resizableBannerView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadMediatedTestAd(count, loadMediateeFromApp)
+                        sdkApi.loadMediatedTestAd(count, appOwnedMediationEnabled)
                     ))
             } else {
                 resizableBannerView.setAdapter(
