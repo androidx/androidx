@@ -94,10 +94,10 @@ fun getCameraXConfigSample() {
     }
 }
 
+// TODO(b/332277796): Change the samples to be more kotlin idiomatic.
 @Sampled
 fun configureAndGetInstanceSample() {
     fun getInstance(context: Context): ListenableFuture<ProcessCameraProvider> {
-        // TODO(b/332277796): Change the samples to be more kotlin idiomatic.
         synchronized(CameraProvider::class.java) {
             if (!configured) {
                 configured = true
