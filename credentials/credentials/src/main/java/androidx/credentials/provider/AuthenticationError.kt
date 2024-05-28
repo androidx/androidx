@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
 import android.hardware.biometrics.BiometricPrompt
@@ -36,25 +35,20 @@ import org.jetbrains.annotations.VisibleForTesting
  *   on a UI.
  * @see AuthenticationErrorTypes
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AuthenticationError
 @JvmOverloads
 constructor(
     val errorCode: @AuthenticationErrorTypes Int,
     val errorMsg: CharSequence? = null,
 ) {
-
-    companion object {
-
+    internal companion object {
         internal val TAG = "AuthenticationError"
-
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR = "BIOMETRIC_AUTH_ERROR"
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE = "EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE"
-
         // The majority of this is unexpected to be sent, or the values are equal,
         // but should it arrive for any reason, is handled properly. This way
         // providers can be confident the Jetpack codes alone are enough.

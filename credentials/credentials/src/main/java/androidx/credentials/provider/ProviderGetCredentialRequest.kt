@@ -16,8 +16,6 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
-import android.util.Log
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 
 /**
@@ -37,56 +35,20 @@ import androidx.credentials.CredentialOption
  *   [CredentialOption] when this request is retrieved from the [android.app.Activity] invoked by
  *   the [android.app.PendingIntent] set on a [RemoteEntry]
  * @property callingAppInfo information pertaining to the calling application
+ * @property biometricPromptResult the result of a Biometric Prompt authentication flow, that is
+ *   propagated to the provider if the provider requested for
+ *   [androidx.credentials.CredentialManager] to handle the authentication flow
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
 class ProviderGetCredentialRequest
-internal constructor(
+@JvmOverloads
+constructor(
     val credentialOptions: List<CredentialOption>,
     val callingAppInfo: CallingAppInfo,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val biometricPromptResult: BiometricPromptResult? = null,
-    // TODO: Remove when exposing this API
-    isInternal: Boolean = false
 ) {
-    init {
-        // TODO: Remove when exposing API
-        Log.i("ProvCrCredRequest", isInternal.toString())
-    }
-
-    /**
-     * Constructs an instance of this class
-     *
-     * @param credentialOptions the list of credential retrieval options containing the required
-     *   parameters, expected to contain a single [CredentialOption] when this request is retrieved
-     *   from the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
-     *   [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain multiple
-     *   [CredentialOption] when this request is retrieved from the [android.app.Activity] invoked
-     *   by the [android.app.PendingIntent] set on a [RemoteEntry]
-     * @param callingAppInfo information pertaining to the calling application
-     */
-    constructor(
-        credentialOptions: List<CredentialOption>,
-        callingAppInfo: CallingAppInfo,
-    ) : this(
-        credentialOptions = credentialOptions,
-        callingAppInfo = callingAppInfo,
-        isInternal = false
-    )
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    constructor(
-        credentialOptions: List<CredentialOption>,
-        callingAppInfo: CallingAppInfo,
-        biometricPromptResult: BiometricPromptResult?
-    ) : this(
-        credentialOptions = credentialOptions,
-        callingAppInfo = callingAppInfo,
-        biometricPromptResult = biometricPromptResult,
-        isInternal = false
-    )
-
     internal companion object {
         @JvmStatic
         internal fun createFrom(

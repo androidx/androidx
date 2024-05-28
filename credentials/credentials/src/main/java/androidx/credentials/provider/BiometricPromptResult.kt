@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
-import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /**
@@ -35,7 +33,6 @@ import java.util.Objects
  * @property authenticationError error information, non-null if the authentication flow has
  *   failured, meaning that [isSuccessful] will be false in this case
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class BiometricPromptResult
 internal constructor(
     val authenticationResult: AuthenticationResult? = null,
@@ -60,7 +57,7 @@ internal constructor(
      *   operation
      */
     constructor(
-        authenticationResult: AuthenticationResult?
+        authenticationResult: AuthenticationResult
     ) : this(authenticationResult = authenticationResult, authenticationError = null)
 
     override fun equals(other: Any?): Boolean {
