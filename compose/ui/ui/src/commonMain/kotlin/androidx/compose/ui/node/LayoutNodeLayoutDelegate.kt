@@ -498,6 +498,10 @@ internal class LayoutNodeLayoutDelegate(
         private fun markSubtreeAsNotPlaced() {
             if (isPlaced) {
                 isPlaced = false
+                layoutNode.forEachCoordinatorIncludingInner {
+                    // nodes are not placed with a layer anymore, so the layers should be released
+                    it.releaseLayer()
+                }
                 forEachChildDelegate {
                     it.markSubtreeAsNotPlaced()
                 }
