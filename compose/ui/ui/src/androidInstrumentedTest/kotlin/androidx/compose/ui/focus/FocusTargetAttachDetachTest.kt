@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +46,9 @@ import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +58,12 @@ import org.junit.runner.RunWith
 class FocusTargetAttachDetachTest {
     @get:Rule
     val rule = createComposeRule()
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
+        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+    }
 
     @Test
     fun reorderedFocusRequesterModifiers_onFocusChangedInSameModifierChain() {

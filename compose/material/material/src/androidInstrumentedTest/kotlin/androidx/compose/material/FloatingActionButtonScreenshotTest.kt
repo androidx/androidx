@@ -16,6 +16,7 @@
 package androidx.compose.material
 
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
@@ -40,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,6 +59,12 @@ class FloatingActionButtonScreenshotTest {
 
     @get:Rule
     val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+
+    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
+    @After
+    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
+        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+    }
 
     @Test
     fun icon() {
