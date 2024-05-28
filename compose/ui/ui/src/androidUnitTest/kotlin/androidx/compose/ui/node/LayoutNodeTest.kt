@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -77,6 +78,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
@@ -2748,6 +2750,8 @@ internal class MockOwner(
     override fun onLayoutChange(layoutNode: LayoutNode) {
         layoutChangeCount++
     }
+
+    @InternalComposeUiApi override fun onInteropViewLayoutChange(view: InteropView) {}
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
         TODO("Not yet implemented")
