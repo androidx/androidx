@@ -24,9 +24,10 @@ package androidx.room.concurrent
  * [ExclusiveLock] which guarantees in-process locking too.
  *
  * @param filename The path to the file to protect. Note that an actual lock is not grab on the file
- * itself but on a temporary file create with the same path but ending with `.lck`.
+ *   itself but on a temporary file create with the same path but ending with `.lck`.
  */
 internal expect class FileLock(filename: String) {
     fun lock()
+
     fun unlock()
 }

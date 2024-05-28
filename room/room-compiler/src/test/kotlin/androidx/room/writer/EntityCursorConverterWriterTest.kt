@@ -32,7 +32,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class EntityCursorConverterWriterTest : BaseEntityParserTest() {
     companion object {
-        val OUT_PREFIX = """
+        val OUT_PREFIX =
+            """
             package foo.bar;
             import android.database.Cursor;
             import androidx.annotation.NonNull;
@@ -42,14 +43,16 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             @Generated("androidx.room.RoomProcessor")
             @SuppressWarnings({"unchecked", "deprecation", "removal"})
             public final class MyContainerClass {
-        """.trimIndent()
+        """
+                .trimIndent()
         const val OUT_SUFFIX = "}"
     }
 
     @Test
     fun generateSimple() {
         generateAndMatch(
-            input = """
+            input =
+                """
                 @PrimaryKey
                 private int id;
                 String name;
@@ -57,7 +60,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 int age;
                 public int getId() { return id; }
                 public void setId(int id) { this.id = id; }
-                """.trimIndent(),
+                """
+                    .trimIndent(),
             output = {
                 fun stringAdapterCode(out: String, indexVar: String) =
                     """
@@ -66,7 +70,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                     } else {
                       $out = cursor.getString($indexVar);
                     }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 """
                 |private MyEntity __entityCursorConverter_fooBarMyEntity(@NonNull final Cursor cursor) {
                 |  final MyEntity _entity;
@@ -91,7 +96,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 |  }
                 |  return _entity;
                 |}
-                """.trimMargin()
+                """
+                    .trimMargin()
             }
         )
     }
@@ -112,24 +118,20 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
         }
     }
 
-    private fun generate(
-        input: String,
-        handler: (XTestInvocation) -> Unit
-    ) {
+    private fun generate(input: String, handler: (XTestInvocation) -> Unit) {
         singleEntity(input) { entity, invocation ->
             val className = XClassName.get("foo.bar", "MyContainerClass")
-            val writer = object : TypeWriter(
-                WriterContext(CodeLanguage.JAVA, setOf(Platform.JVM), true)
-            ) {
-                override fun createTypeSpecBuilder(): XTypeSpec.Builder {
-                    getOrCreateFunction(EntityCursorConverterWriter(entity))
-                    return XTypeSpec.classBuilder(codeLanguage, className)
-                        .apply(
-                            javaTypeBuilder = { addModifiers(Modifier.PUBLIC) },
-                            kotlinTypeBuilder = { }
-                        )
+            val writer =
+                object : TypeWriter(WriterContext(CodeLanguage.JAVA, setOf(Platform.JVM), true)) {
+                    override fun createTypeSpecBuilder(): XTypeSpec.Builder {
+                        getOrCreateFunction(EntityCursorConverterWriter(entity))
+                        return XTypeSpec.classBuilder(codeLanguage, className)
+                            .apply(
+                                javaTypeBuilder = { addModifiers(Modifier.PUBLIC) },
+                                kotlinTypeBuilder = {}
+                            )
+                    }
                 }
-            }
             writer.write(invocation.processingEnv)
             handler(invocation)
         }

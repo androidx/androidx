@@ -91,20 +91,22 @@ class CoroutineRoomCancellationTest {
             cancelledLatch.countDown()
         }
 
-        val job = GlobalScope.launch(Dispatchers.IO) {
-            @Suppress("DEPRECATION")
-            CoroutinesRoom.execute(
-                db = database,
-                inTransaction = false,
-                cancellationSignal = cancellationSignal,
-                callable = Callable {
-                    // we're triggering our fake query
-                    inQueryLatch.countDown()
-                    // fake a long query so we can cancel
-                    cancelledLatch.await()
-                }
-            )
-        }
+        val job =
+            GlobalScope.launch(Dispatchers.IO) {
+                @Suppress("DEPRECATION")
+                CoroutinesRoom.execute(
+                    db = database,
+                    inTransaction = false,
+                    cancellationSignal = cancellationSignal,
+                    callable =
+                        Callable {
+                            // we're triggering our fake query
+                            inQueryLatch.countDown()
+                            // fake a long query so we can cancel
+                            cancelledLatch.await()
+                        }
+                )
+            }
         inQueryLatch.await()
         // we're in the query so we can cancel
         job.cancelAndJoin()
@@ -125,21 +127,23 @@ class CoroutineRoomCancellationTest {
             cancelledLatch.countDown()
         }
 
-        val job = GlobalScope.launch(Dispatchers.IO) {
-            // Coroutine started so now we can cancel it
-            inCoroutineLatch.countDown()
+        val job =
+            GlobalScope.launch(Dispatchers.IO) {
+                // Coroutine started so now we can cancel it
+                inCoroutineLatch.countDown()
 
-            @Suppress("DEPRECATION")
-            CoroutinesRoom.execute(
-                db = database,
-                inTransaction = false,
-                cancellationSignal = cancellationSignal,
-                callable = Callable {
-                    // this should never execute
-                    fail("Blocking query triggered")
-                }
-            )
-        }
+                @Suppress("DEPRECATION")
+                CoroutinesRoom.execute(
+                    db = database,
+                    inTransaction = false,
+                    cancellationSignal = cancellationSignal,
+                    callable =
+                        Callable {
+                            // this should never execute
+                            fail("Blocking query triggered")
+                        }
+                )
+            }
         inCoroutineLatch.await()
         job.cancelAndJoin()
         testDispatcher.scheduler.runCurrent()
@@ -159,9 +163,7 @@ class CoroutineRoomCancellationTest {
                     db = database,
                     inTransaction = false,
                     cancellationSignal = cancellationSignal,
-                    callable = Callable {
-                        throw SQLiteException("stuff happened")
-                    }
+                    callable = Callable { throw SQLiteException("stuff happened") }
                 )
             } catch (exception: Throwable) {
                 assertThat(exception).isInstanceOf<SQLiteException>()
@@ -178,15 +180,16 @@ class CoroutineRoomCancellationTest {
 
         val cancellationSignal = CancellationSignal()
 
-        val job = testScope.launch {
-            @Suppress("DEPRECATION")
-            CoroutinesRoom.execute(
-                db = database,
-                inTransaction = false,
-                cancellationSignal = cancellationSignal,
-                callable = Callable { /* nothing to do */ }
-            )
-        }
+        val job =
+            testScope.launch {
+                @Suppress("DEPRECATION")
+                CoroutinesRoom.execute(
+                    db = database,
+                    inTransaction = false,
+                    cancellationSignal = cancellationSignal,
+                    callable = Callable { /* nothing to do */ }
+                )
+            }
         testScope.runCurrent()
         // wait for the job to be finished
         job.join()
@@ -199,13 +202,19 @@ class CoroutineRoomCancellationTest {
         override fun createOpenDelegate(): RoomOpenDelegate {
             return object : RoomOpenDelegate(1, "", "") {
                 override fun onCreate(connection: SQLiteConnection) {}
+
                 override fun onPreMigrate(connection: SQLiteConnection) {}
+
                 override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
                     return ValidationResult(true, null)
                 }
+
                 override fun onPostMigrate(connection: SQLiteConnection) {}
+
                 override fun onOpen(connection: SQLiteConnection) {}
+
                 override fun createAllTables(connection: SQLiteConnection) {}
+
                 override fun dropAllTables(connection: SQLiteConnection) {}
             }
         }
@@ -219,9 +228,8 @@ class CoroutineRoomCancellationTest {
         }
     }
 
-    private class TestInvalidationTracker(
-        db: RoomDatabase
-    ) : InvalidationTracker(db, emptyMap(), emptyMap(), "") {
+    private class TestInvalidationTracker(db: RoomDatabase) :
+        InvalidationTracker(db, emptyMap(), emptyMap(), "") {
         val observers = mutableListOf<Observer>()
 
         override fun addObserver(observer: Observer) {

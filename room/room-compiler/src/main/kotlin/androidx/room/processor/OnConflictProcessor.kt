@@ -18,9 +18,7 @@ package androidx.room.processor
 
 import androidx.room.OnConflictStrategy
 
-/**
- * Processes on conflict fields in annotations
- */
+/** Processes on conflict fields in annotations */
 object OnConflictProcessor {
     val INVALID_ON_CONFLICT = -1
 

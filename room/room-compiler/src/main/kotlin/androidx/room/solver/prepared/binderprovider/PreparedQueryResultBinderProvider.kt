@@ -26,13 +26,11 @@ import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
  */
 interface PreparedQueryResultBinderProvider {
     /**
-     * Check whether the [XType] can be handled by the [PreparedQueryResultBinder] provided
-     * by this provider.
+     * Check whether the [XType] can be handled by the [PreparedQueryResultBinder] provided by this
+     * provider.
      */
     fun matches(declared: XType): Boolean
 
-    /**
-     * Provides a [PreparedQueryResultBinder]
-     */
+    /** Provides a [PreparedQueryResultBinder] */
     fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder
 }

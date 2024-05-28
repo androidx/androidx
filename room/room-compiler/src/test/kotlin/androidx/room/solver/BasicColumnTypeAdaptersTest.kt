@@ -50,11 +50,7 @@ class BasicColumnTypeAdaptersTest(
         @JvmStatic
         fun params(): List<Array<Any>> {
             return listOf(
-                arrayOf(
-                    XTypeName.PRIMITIVE_INT,
-                    "st.bindLong(6, inp);",
-                    "out = crs.getInt(9);"
-                ),
+                arrayOf(XTypeName.PRIMITIVE_INT, "st.bindLong(6, inp);", "out = crs.getInt(9);"),
                 arrayOf(
                     XTypeName.PRIMITIVE_BYTE,
                     "st.bindLong(6, inp);",
@@ -65,11 +61,7 @@ class BasicColumnTypeAdaptersTest(
                     "st.bindLong(6, inp);",
                     "out = crs.getShort(9);"
                 ),
-                arrayOf(
-                    XTypeName.PRIMITIVE_LONG,
-                    "st.bindLong(6, inp);",
-                    "out = crs.getLong(9);"
-                ),
+                arrayOf(XTypeName.PRIMITIVE_LONG, "st.bindLong(6, inp);", "out = crs.getLong(9);"),
                 arrayOf(
                     XTypeName.PRIMITIVE_CHAR,
                     "st.bindLong(6, inp);",
@@ -104,26 +96,29 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val type = invocation.processingEnv.requireType(input)
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            )
-                .findColumnTypeAdapter(
-                    out = type,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )!!
-            val expected = if (invocation.isKsp || input.isPrimitive) {
-                bindCode
-            } else {
-                """
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(
+                        out = type,
+                        affinity = null,
+                        skipDefaultConverter = false
+                    )!!
+            val expected =
+                if (invocation.isKsp || input.isPrimitive) {
+                    bindCode
+                } else {
+                    """
                 if (inp == null) {
                   st.bindNull(6);
                 } else {
                   $bindCode
                 }
-                """.trimIndent()
-            }
+                """
+                        .trimIndent()
+                }
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
@@ -135,32 +130,31 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val boxedType = invocation.processingEnv.requireType(input).boxed()
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            ).findColumnTypeAdapter(
-                out = boxedType,
-                affinity = null,
-                skipDefaultConverter = false
-            )!!
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(
+                        out = boxedType,
+                        affinity = null,
+                        skipDefaultConverter = false
+                    )!!
             adapter.bindToStmt("st", "6", "inp", scope)
-            val expected = if (invocation.isKsp) {
-                bindCode
-            } else {
-                """
+            val expected =
+                if (invocation.isKsp) {
+                    bindCode
+                } else {
+                    """
                 if (inp == null) {
                   st.bindNull(6);
                 } else {
                   $bindCode
                 }
-                """.trimIndent()
-            }
-            assertThat(
-                scope.generate().toString().trim(),
-                `is`(
-                    expected
-                )
-            )
+                """
+                        .trimIndent()
+                }
+            assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, boxedType)
         }
     }
@@ -170,15 +164,16 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val nullableType = invocation.processingEnv.requireType(input).makeNullable()
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            )
-                .findColumnTypeAdapter(
-                    out = nullableType,
-                    affinity = null,
-                    skipDefaultConverter = false
-                )!!
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(
+                        out = nullableType,
+                        affinity = null,
+                        skipDefaultConverter = false
+                    )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
                 scope.generate().toString().trim(),
@@ -189,7 +184,8 @@ class BasicColumnTypeAdaptersTest(
                     } else {
                       $bindCode
                     }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             )
             generateCode(invocation, scope, nullableType)
@@ -202,51 +198,58 @@ class BasicColumnTypeAdaptersTest(
             return
         }
         XTypeSpec.classBuilder(
-            language = CodeLanguage.JAVA,
-            className = XClassName.get("foo.bar", "OuterClass")
-        ).apply {
-            addProperty(
-                XPropertySpec.builder(
-                    language = CodeLanguage.JAVA,
-                    name = "st",
-                    typeName = XClassName.get("android.database.sqlite", "SQLiteStatement"),
-                    visibility = VisibilityModifier.PUBLIC,
-                    isMutable = true
-                ).build()
+                language = CodeLanguage.JAVA,
+                className = XClassName.get("foo.bar", "OuterClass")
             )
-            addProperty(
-                XPropertySpec.builder(
-                    language = CodeLanguage.JAVA,
-                    name = "crs",
-                    typeName = AndroidTypeNames.CURSOR,
-                    visibility = VisibilityModifier.PUBLIC,
-                    isMutable = true
-                ).build()
-            )
-            addProperty(
-                XPropertySpec.builder(
-                    language = CodeLanguage.JAVA,
-                    name = "out",
-                    typeName = type.asTypeName(),
-                    visibility = VisibilityModifier.PUBLIC,
-                    isMutable = true
-                ).build()
-            )
-            addProperty(
-                XPropertySpec.builder(
-                    language = CodeLanguage.JAVA,
-                    name = "inp",
-                    typeName = type.asTypeName(),
-                    visibility = VisibilityModifier.PUBLIC,
-                    isMutable = true
-                ).build()
-            )
-            addFunction(
-                XFunSpec.builder(CodeLanguage.JAVA, "foo", VisibilityModifier.PUBLIC)
-                    .addCode(scope.generate())
-                    .build()
-            )
-        }.build().writeTo(invocation.processingEnv.filer)
+            .apply {
+                addProperty(
+                    XPropertySpec.builder(
+                            language = CodeLanguage.JAVA,
+                            name = "st",
+                            typeName = XClassName.get("android.database.sqlite", "SQLiteStatement"),
+                            visibility = VisibilityModifier.PUBLIC,
+                            isMutable = true
+                        )
+                        .build()
+                )
+                addProperty(
+                    XPropertySpec.builder(
+                            language = CodeLanguage.JAVA,
+                            name = "crs",
+                            typeName = AndroidTypeNames.CURSOR,
+                            visibility = VisibilityModifier.PUBLIC,
+                            isMutable = true
+                        )
+                        .build()
+                )
+                addProperty(
+                    XPropertySpec.builder(
+                            language = CodeLanguage.JAVA,
+                            name = "out",
+                            typeName = type.asTypeName(),
+                            visibility = VisibilityModifier.PUBLIC,
+                            isMutable = true
+                        )
+                        .build()
+                )
+                addProperty(
+                    XPropertySpec.builder(
+                            language = CodeLanguage.JAVA,
+                            name = "inp",
+                            typeName = type.asTypeName(),
+                            visibility = VisibilityModifier.PUBLIC,
+                            isMutable = true
+                        )
+                        .build()
+                )
+                addFunction(
+                    XFunSpec.builder(CodeLanguage.JAVA, "foo", VisibilityModifier.PUBLIC)
+                        .addCode(scope.generate())
+                        .build()
+                )
+            }
+            .build()
+            .writeTo(invocation.processingEnv.filer)
     }
 
     @Test
@@ -254,25 +257,29 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val type = invocation.processingEnv.requireType(input)
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            ).findColumnTypeAdapter(
-                out = type,
-                affinity = null,
-                skipDefaultConverter = false
-            )!!
-            val expected = if (invocation.isKsp || input.isPrimitive) {
-                cursorCode
-            } else {
-                """
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(
+                        out = type,
+                        affinity = null,
+                        skipDefaultConverter = false
+                    )!!
+            val expected =
+                if (invocation.isKsp || input.isPrimitive) {
+                    cursorCode
+                } else {
+                    """
                 if (crs.isNull(9)) {
                   out = null;
                 } else {
                   $cursorCode
                 }
-                """.trimIndent()
-            }
+                """
+                        .trimIndent()
+                }
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, type)
@@ -284,32 +291,31 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val boxedType = invocation.processingEnv.requireType(input).boxed()
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            ).findColumnTypeAdapter(
-                out = boxedType,
-                affinity = null,
-                skipDefaultConverter = false
-            )!!
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(
+                        out = boxedType,
+                        affinity = null,
+                        skipDefaultConverter = false
+                    )!!
             adapter.readFromCursor("out", "crs", "9", scope)
-            val expected = if (invocation.isKsp) {
-                cursorCode
-            } else {
-                """
+            val expected =
+                if (invocation.isKsp) {
+                    cursorCode
+                } else {
+                    """
                 if (crs.isNull(9)) {
                   out = null;
                 } else {
                   $cursorCode
                 }
-                """.trimIndent()
-            }
-            assertThat(
-                scope.generate().toString().trim(),
-                `is`(
-                    expected
-                )
-            )
+                """
+                        .trimIndent()
+                }
+            assertThat(scope.generate().toString().trim(), `is`(expected))
             generateCode(invocation, scope, boxedType)
         }
     }
@@ -319,10 +325,12 @@ class BasicColumnTypeAdaptersTest(
         runProcessorTest { invocation ->
             val scope = testCodeGenScope()
             val nullableType = invocation.processingEnv.requireType(input).makeNullable()
-            val adapter = TypeAdapterStore.create(
-                Context(invocation.processingEnv),
-                BuiltInConverterFlags.DEFAULT
-            ).findColumnTypeAdapter(nullableType, null, false)!!
+            val adapter =
+                TypeAdapterStore.create(
+                        Context(invocation.processingEnv),
+                        BuiltInConverterFlags.DEFAULT
+                    )
+                    .findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromCursor("out", "crs", "9", scope)
             assertThat(
                 scope.generate().toString().trim(),
@@ -333,7 +341,8 @@ class BasicColumnTypeAdaptersTest(
                     } else {
                       $cursorCode
                     }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             )
             generateCode(invocation, scope, nullableType)

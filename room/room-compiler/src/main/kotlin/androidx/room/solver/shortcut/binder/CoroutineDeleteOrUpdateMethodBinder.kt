@@ -30,9 +30,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Binder for suspending delete and update methods.
- */
+/** Binder for suspending delete and update methods. */
 class CoroutineDeleteOrUpdateMethodBinder(
     val typeArg: XType,
     adapter: DeleteOrUpdateMethodAdapter?,
@@ -49,28 +47,31 @@ class CoroutineDeleteOrUpdateMethodBinder(
             return
         }
         val connectionVar = scope.getTmpVar("_connection")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
-            continuationParamName = continuationParamName,
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = connectionVar,
-                returnTypeName = adapter.returnType.asTypeName().box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    adapter.generateMethodBody(
-                        scope = scope,
-                        parameters = parameters,
-                        adapters = adapters,
-                        connectionVar = connectionVar
-                    )
-                }
-            }
-        )
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
+                continuationParamName = continuationParamName,
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = adapter.returnType.asTypeName().box(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            adapter.generateMethodBody(
+                                scope = scope,
+                                parameters = parameters,
+                                adapters = adapters,
+                                connectionVar = connectionVar
+                            )
+                        }
+                    }
+            )
         scope.builder.add("return %L", performBlock)
     }
 

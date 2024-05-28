@@ -40,32 +40,28 @@ class KspReflectiveAnnotationBoxTest {
         val typeArrayProp: Array<KClass<*>> = [Int::class, String::class]
     )
 
-    annotation class TestAnnotation2(
-        val intProp: Int = 0
-    )
+    annotation class TestAnnotation2(val intProp: Int = 0)
 
     @Test
     @TestAnnotation // putting annotation here to read it back easily :)
     fun simple() {
         runKspTest(sources = emptyList()) { invocation ->
-            val box = KspReflectiveAnnotationBox(
-                env = invocation.processingEnv as KspProcessingEnv,
-                annotationClass = TestAnnotation::class.java,
-                annotation = getAnnotationOnMethod("simple")
-            )
+            val box =
+                KspReflectiveAnnotationBox(
+                    env = invocation.processingEnv as KspProcessingEnv,
+                    annotationClass = TestAnnotation::class.java,
+                    annotation = getAnnotationOnMethod("simple")
+                )
             assertThat(box.value.strProp).isEqualTo("abc")
             assertThat(box.value.intProp).isEqualTo(3)
             assertThat(box.value.enumProp).isEqualTo(TestEnum.VAL2)
-            assertThat(box.value.enumArrayProp).isEqualTo(
-                arrayOf(TestEnum.VAL1, TestEnum.VAL2, TestEnum.VAL1)
-            )
+            assertThat(box.value.enumArrayProp)
+                .isEqualTo(arrayOf(TestEnum.VAL1, TestEnum.VAL2, TestEnum.VAL1))
             box.getAsAnnotationBox<TestAnnotation2>("annProp").let {
                 assertThat(it.value.intProp).isEqualTo(3)
             }
             box.getAsAnnotationBoxArray<TestAnnotation2>("annArrayProp").let {
-                assertThat(
-                    it.map { it.value.intProp }
-                ).containsExactly(1, 5)
+                assertThat(it.map { it.value.intProp }).containsExactly(1, 5)
             }
             box.getAsType("typeProp")?.let {
                 assertThat(it is KspType).isTrue()
@@ -73,17 +69,15 @@ class KspReflectiveAnnotationBoxTest {
             }
             box.getAsTypeList("typeArrayProp").let {
                 assertThat(it.all { it is KspType }).isTrue()
-                assertThat(it.map { it.typeName }).containsExactly(
-                    TypeName.INT, ClassName.get(String::class.java)
-                )
+                assertThat(it.map { it.typeName })
+                    .containsExactly(TypeName.INT, ClassName.get(String::class.java))
             }
         }
     }
 
     private inline fun <reified T : Annotation> getAnnotationOnMethod(methodName: String): T {
-        return KspReflectiveAnnotationBoxTest::class.java.getMethod(methodName).annotations
-            .first {
-                it is TestAnnotation
-            } as T
+        return KspReflectiveAnnotationBoxTest::class.java.getMethod(methodName).annotations.first {
+            it is TestAnnotation
+        } as T
     }
 }

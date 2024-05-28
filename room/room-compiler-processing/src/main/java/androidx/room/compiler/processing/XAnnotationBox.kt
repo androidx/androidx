@@ -23,28 +23,18 @@ package androidx.room.compiler.processing
  * API needs to be provided but works well for Room's case.
  */
 interface XAnnotationBox<T> {
-    /**
-     * The value field of the annotation
-     */
+    /** The value field of the annotation */
     val value: T
 
-    /**
-     * Returns the value of the given [methodName] as a type reference.
-     */
+    /** Returns the value of the given [methodName] as a type reference. */
     fun getAsType(methodName: String): XType?
 
-    /**
-     * Returns the value of the given [methodName] as a list of type references.
-     */
+    /** Returns the value of the given [methodName] as a list of type references. */
     fun getAsTypeList(methodName: String): List<XType>
 
-    /**
-     * Returns the value of the given [methodName] as another boxed annotation.
-     */
+    /** Returns the value of the given [methodName] as another boxed annotation. */
     fun <T : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<T>
 
-    /**
-     * Returns the value of the given [methodName] as an array of boxed annotations.
-     */
+    /** Returns the value of the given [methodName] as an array of boxed annotations. */
     fun <T : Annotation> getAsAnnotationBoxArray(methodName: String): Array<XAnnotationBox<T>>
 }

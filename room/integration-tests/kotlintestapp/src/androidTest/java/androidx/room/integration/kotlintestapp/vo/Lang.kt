@@ -18,9 +18,7 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.TypeConverter
 
-/**
- * An enum class which gets saved as a bit set in the database.
- */
+/** An enum class which gets saved as a bit set in the database. */
 enum class Lang {
     TR,
     EN,
@@ -30,17 +28,13 @@ enum class Lang {
         @JvmStatic
         @TypeConverter
         fun toInt(langs: Set<Lang>): Int {
-            return langs.fold(0) { left, lang ->
-                left.or(1 shl lang.ordinal)
-            }
+            return langs.fold(0) { left, lang -> left.or(1 shl lang.ordinal) }
         }
 
         @JvmStatic
         @TypeConverter
         fun toSet(value: Int): Set<Lang> {
-            return Lang.values().filter {
-                (1 shl it.ordinal).and(value) != 0
-            }.toSet()
+            return Lang.values().filter { (1 shl it.ordinal).and(value) != 0 }.toSet()
         }
     }
 }

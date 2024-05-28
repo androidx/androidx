@@ -17,21 +17,17 @@
 package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted columns in the [AutoMigration.to] version of
- * an auto migration.
+ * Repeatable annotation declaring the deleted columns in the [AutoMigration.to] version of an auto
+ * migration.
  *
  * @see AutoMigration
  */
 @JvmRepeatable(DeleteColumn.Entries::class)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-actual annotation class DeleteColumn actual constructor(
-    actual val tableName: String,
-    actual val columnName: String
-) {
-    /**
-     * Container annotation for the repeatable annotation [DeleteColumn].
-     */
+actual annotation class DeleteColumn
+actual constructor(actual val tableName: String, actual val columnName: String) {
+    /** Container annotation for the repeatable annotation [DeleteColumn]. */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.BINARY)
     public annotation class Entries(vararg val value: DeleteColumn)

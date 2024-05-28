@@ -28,12 +28,14 @@ class XTypeParameterElementTest {
 
     @Test
     fun classTypeParameters() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo<T1, T2>
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
 
@@ -48,11 +50,12 @@ class XTypeParameterElementTest {
             assertThat(t2.typeVariableName.bounds).isEmpty()
 
             // Note: Javac and KSP have different default types when no bounds are provided.
-            val expectedBoundType = if (invocation.isKsp) {
-                invocation.processingEnv.requireType("kotlin.Any").makeNullable()
-            } else {
-                invocation.processingEnv.requireType("java.lang.Object")
-            }
+            val expectedBoundType =
+                if (invocation.isKsp) {
+                    invocation.processingEnv.requireType("kotlin.Any").makeNullable()
+                } else {
+                    invocation.processingEnv.requireType("java.lang.Object")
+                }
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
@@ -74,14 +77,16 @@ class XTypeParameterElementTest {
 
     @Test
     fun classTypeParametersWithBounds() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo<T1 : Bar, T2 : Baz?>
             open class Bar
             open class Baz
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
 
@@ -117,14 +122,16 @@ class XTypeParameterElementTest {
 
     @Test
     fun classTypeParametersWithInOut() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo<in T1 : Bar?, out T2 : Baz>
             open class Bar
             open class Baz
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
 
@@ -160,14 +167,16 @@ class XTypeParameterElementTest {
 
     @Test
     fun javaClassTypeParametersWithExtends() {
-        val src = Source.java(
-            "Foo",
-            """
+        val src =
+            Source.java(
+                "Foo",
+                """
             class Foo<T extends Bar & Baz> {}
             class Bar {}
             interface Baz {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
 
@@ -201,14 +210,16 @@ class XTypeParameterElementTest {
 
     @Test
     fun methodTypeParameters() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo {
               fun <T1, T2> someMethod(t1: T1, t2: T2) {}
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
             val methods = foo.getDeclaredMethods()
@@ -228,11 +239,12 @@ class XTypeParameterElementTest {
             assertThat(t2.typeVariableName.bounds).isEmpty()
 
             // Note: Javac and KSP have different default types when no bounds are provided.
-            val expectedBoundType = if (invocation.isKsp) {
-                invocation.processingEnv.requireType("kotlin.Any").makeNullable()
-            } else {
-                invocation.processingEnv.requireType("java.lang.Object")
-            }
+            val expectedBoundType =
+                if (invocation.isKsp) {
+                    invocation.processingEnv.requireType("kotlin.Any").makeNullable()
+                } else {
+                    invocation.processingEnv.requireType("java.lang.Object")
+                }
 
             assertThat(t1.bounds).hasSize(1)
             val t1Bound = t1.bounds[0]
@@ -254,16 +266,18 @@ class XTypeParameterElementTest {
 
     @Test
     fun methodTypeParametersWithBounds() {
-        val src = Source.kotlin(
-            "Foo.kt",
-            """
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
             class Foo {
               fun <T1 : Bar, T2 : Baz?> someMethod(t1: T1, t2: T2) {}
             }
             open class Bar
             open class Baz
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
             val methods = foo.getDeclaredMethods()
@@ -304,16 +318,18 @@ class XTypeParameterElementTest {
 
     @Test
     fun javaMethodTypeParametersWithExtends() {
-        val src = Source.java(
-            "Foo",
-            """
+        val src =
+            Source.java(
+                "Foo",
+                """
             class Foo {
               <T extends Bar & Baz> void someMethod(T t) {}
             }
             class Bar {}
             interface Baz {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
             val methods = foo.getDeclaredMethods()
@@ -353,16 +369,18 @@ class XTypeParameterElementTest {
     // Note: constructor type parameters are only allowed in Java sources.
     @Test
     fun javaConstructorTypeParametersWithExtends() {
-        val src = Source.java(
-            "Foo",
-            """
+        val src =
+            Source.java(
+                "Foo",
+                """
             class Foo {
               <T extends Bar & Baz> Foo(T t) {}
             }
             class Bar {}
             interface Baz {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
             val constructors = foo.getConstructors()

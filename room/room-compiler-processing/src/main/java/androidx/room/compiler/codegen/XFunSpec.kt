@@ -47,9 +47,7 @@ interface XFunSpec : TargetLanguage {
             annotations: List<XAnnotationSpec> = emptyList()
         ): Builder
 
-        fun addCode(
-            code: XCodeBlock
-        ): Builder
+        fun addCode(code: XCodeBlock): Builder
 
         fun callSuperConstructor(vararg args: XCodeBlock): Builder
 
@@ -58,9 +56,8 @@ interface XFunSpec : TargetLanguage {
         fun build(): XFunSpec
 
         companion object {
-            fun Builder.addStatement(format: String, vararg args: Any?) = addCode(
-                XCodeBlock.builder(language).addStatement(format, *args).build()
-            )
+            fun Builder.addStatement(format: String, vararg args: Any?) =
+                addCode(XCodeBlock.builder(language).addStatement(format, *args).build())
 
             fun Builder.apply(
                 javaMethodBuilder: MethodSpec.Builder.() -> Unit,
@@ -121,10 +118,7 @@ interface XFunSpec : TargetLanguage {
             }
         }
 
-        fun constructorBuilder(
-            language: CodeLanguage,
-            visibility: VisibilityModifier
-        ): Builder {
+        fun constructorBuilder(language: CodeLanguage, visibility: VisibilityModifier): Builder {
             val name = "<init>"
             return when (language) {
                 CodeLanguage.JAVA -> {
@@ -156,14 +150,16 @@ interface XFunSpec : TargetLanguage {
             owner: XType
         ): Builder {
             return when (language) {
-                CodeLanguage.JAVA -> JavaFunSpec.Builder(
-                    name = element.jvmName,
-                    actual = MethodSpecHelper.overridingWithFinalParams(element, owner)
-                )
-                CodeLanguage.KOTLIN -> KotlinFunSpec.Builder(
-                    name = element.name,
-                    actual = FunSpecHelper.overriding(element, owner)
-                )
+                CodeLanguage.JAVA ->
+                    JavaFunSpec.Builder(
+                        name = element.jvmName,
+                        actual = MethodSpecHelper.overridingWithFinalParams(element, owner)
+                    )
+                CodeLanguage.KOTLIN ->
+                    KotlinFunSpec.Builder(
+                        name = element.name,
+                        actual = FunSpecHelper.overriding(element, owner)
+                    )
             }
         }
     }

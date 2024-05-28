@@ -32,9 +32,7 @@ import androidx.room.ext.isNotVoidObject
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Class that knows how to generate a delete or update method body.
- */
+/** Class that knows how to generate a delete or update method body. */
 class DeleteOrUpdateMethodAdapter private constructor(val returnType: XType) {
     companion object {
         fun create(returnType: XType): DeleteOrUpdateMethodAdapter? {
@@ -59,14 +57,16 @@ class DeleteOrUpdateMethodAdapter private constructor(val returnType: XType) {
         connectionVar: String
     ) {
         scope.builder.apply {
-            val hasReturnValue = returnType.isNotVoid() &&
-                returnType.isNotVoidObject() &&
-                returnType.isNotKotlinUnit()
-            val resultVar = if (hasReturnValue) {
-                scope.getTmpVar("_result")
-            } else {
-                null
-            }
+            val hasReturnValue =
+                returnType.isNotVoid() &&
+                    returnType.isNotVoidObject() &&
+                    returnType.isNotKotlinUnit()
+            val resultVar =
+                if (hasReturnValue) {
+                    scope.getTmpVar("_result")
+                } else {
+                    null
+                }
             if (resultVar != null) {
                 addLocalVariable(
                     name = resultVar,
@@ -111,14 +111,16 @@ class DeleteOrUpdateMethodAdapter private constructor(val returnType: XType) {
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        val resultVar = if (returnType.isNotVoid() &&
-            returnType.isNotVoidObject() &&
-            returnType.isNotKotlinUnit()
+        val resultVar =
+            if (
+                returnType.isNotVoid() &&
+                    returnType.isNotVoidObject() &&
+                    returnType.isNotKotlinUnit()
             ) {
-            scope.getTmpVar("_total")
-        } else {
-            null
-        }
+                scope.getTmpVar("_total")
+            } else {
+                null
+            }
         scope.builder.apply {
             if (resultVar != null) {
                 addLocalVariable(
@@ -149,9 +151,7 @@ class DeleteOrUpdateMethodAdapter private constructor(val returnType: XType) {
                     addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
-            nextControlFlow("finally").apply {
-                addStatement("%N.endTransaction()", dbProperty)
-            }
+            nextControlFlow("finally").apply { addStatement("%N.endTransaction()", dbProperty) }
             endControlFlow()
         }
     }

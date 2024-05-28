@@ -22,6 +22,7 @@ import androidx.room.solver.CodeGenScope
 
 /**
  * Connects the query, db and the ResultAdapter.
+ *
  * <p>
  * The default implementation is InstantResultBinder. If the query is deferred rather than executed
  * directly, such alternative implementations can be implement using this interface (e.g. LiveData,
@@ -29,8 +30,8 @@ import androidx.room.solver.CodeGenScope
  */
 abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
     /**
-     * receives the sql, bind args and adapter and generates the code that runs the query
-     * and returns the result.
+     * receives the sql, bind args and adapter and generates the code that runs the query and
+     * returns the result.
      */
     abstract fun convertAndReturn(
         roomSQLiteQueryVar: String,
@@ -44,8 +45,8 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
     open fun isMigratedToDriver(): Boolean = false
 
     /**
-     * Receives the SQL and a function to bind args into a statement, it must then generate the
-     * code that steps on the query, reads its columns and returns the result.
+     * Receives the SQL and a function to bind args into a statement, it must then generate the code
+     * that steps on the query, reads its columns and returns the result.
      */
     open fun convertAndReturn(
         sqlQueryVar: String,

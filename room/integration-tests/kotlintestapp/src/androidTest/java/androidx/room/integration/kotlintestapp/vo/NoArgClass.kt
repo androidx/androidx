@@ -19,8 +19,5 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-/**
- * just here to ensure that we handle no-arg constructors fine from kotlin.
- */
-@Entity
-data class NoArgClass(@PrimaryKey var id: Long = 0, var class_name: String = "")
+/** just here to ensure that we handle no-arg constructors fine from kotlin. */
+@Entity data class NoArgClass(@PrimaryKey var id: Long = 0, var class_name: String = "")

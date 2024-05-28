@@ -29,10 +29,8 @@ import androidx.room.solver.CodeGenScope
  *
  * <p>The Future runs on the background thread Executor.
  */
-class GuavaListenableFutureQueryResultBinder(
-    val typeArg: XType,
-    adapter: QueryResultAdapter?
-) : BaseObservableQueryResultBinder(adapter) {
+class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryResultAdapter?) :
+    BaseObservableQueryResultBinder(adapter) {
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
@@ -46,28 +44,33 @@ class GuavaListenableFutureQueryResultBinder(
             addLocalVariable(
                 name = cancellationSignalVar,
                 typeName = AndroidTypeNames.CANCELLATION_SIGNAL,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    AndroidTypeNames.CANCELLATION_SIGNAL,
-                )
+                assignExpr =
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        AndroidTypeNames.CANCELLATION_SIGNAL,
+                    )
             )
         }
 
         // Callable<T> // Note that this callable does not release the query object.
-        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
-            addCode(
-                XCodeBlock.builder(language).apply {
-                    createRunQueryAndReturnStatements(
-                        builder = this,
-                        roomSQLiteQueryVar = roomSQLiteQueryVar,
-                        dbProperty = dbProperty,
-                        inTransaction = inTransaction,
-                        scope = scope,
-                        cancellationSignalVar = cancellationSignalVar
+        val callableImpl =
+            CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+                    addCode(
+                        XCodeBlock.builder(language)
+                            .apply {
+                                createRunQueryAndReturnStatements(
+                                    builder = this,
+                                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                                    dbProperty = dbProperty,
+                                    inTransaction = inTransaction,
+                                    scope = scope,
+                                    cancellationSignalVar = cancellationSignalVar
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.build()
+                }
+                .build()
 
         scope.builder.apply {
             addStatement(

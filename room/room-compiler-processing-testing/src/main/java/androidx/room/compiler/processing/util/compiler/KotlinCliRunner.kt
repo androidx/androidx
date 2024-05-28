@@ -28,16 +28,12 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.jetbrains.kotlin.config.JvmTarget
 
-/**
- * Utility object to run kotlin compiler via its CLI API.
- */
+/** Utility object to run kotlin compiler via its CLI API. */
 internal object KotlinCliRunner {
     private val compiler = K2JVMCompiler()
-    private fun List<SourceSet>.existingRootPaths() = this.asSequence()
-        .map { it.root }
-        .filter { it.exists() }
-        .map { it.canonicalPath }
-        .distinct()
+
+    private fun List<SourceSet>.existingRootPaths() =
+        this.asSequence().map { it.root }.filter { it.exists() }.map { it.canonicalPath }.distinct()
 
     private fun CompilationStepArguments.copyToCliArguments(cliArguments: K2JVMCompilerArguments) {
         // stdlib is in the classpath so no need to specify it here.
@@ -51,45 +47,30 @@ internal object KotlinCliRunner {
         cliArguments.jvmDefault = JvmDefaultMode.ALL_COMPATIBILITY.description
         cliArguments.allowNoSourceFiles = true
         cliArguments.javacArguments = javacArguments.toTypedArray()
-        val inherited = if (inheritClasspaths) {
-            inheritedClasspath
-        } else {
-            emptyList()
-        }
-        cliArguments.classpath = (additionalClasspaths + inherited)
-            .filter { it.exists() }
-            .distinct()
-            .joinToString(
-                separator = File.pathSeparator
-            ) {
-                it.canonicalPath
+        val inherited =
+            if (inheritClasspaths) {
+                inheritedClasspath
+            } else {
+                emptyList()
             }
-        cliArguments.javaSourceRoots = this.sourceSets.filter {
-            it.hasJavaSource
-        }.existingRootPaths()
-            .toList()
-            .toTypedArray()
-        cliArguments.freeArgs += this.sourceSets.filter {
-            it.hasKotlinSource
-        }.existingRootPaths()
+        cliArguments.classpath =
+            (additionalClasspaths + inherited)
+                .filter { it.exists() }
+                .distinct()
+                .joinToString(separator = File.pathSeparator) { it.canonicalPath }
+        cliArguments.javaSourceRoots =
+            this.sourceSets.filter { it.hasJavaSource }.existingRootPaths().toList().toTypedArray()
+        cliArguments.freeArgs += this.sourceSets.filter { it.hasKotlinSource }.existingRootPaths()
     }
 
-    /**
-     * Runs the kotlin cli API with the given arguments.
-     */
+    /** Runs the kotlin cli API with the given arguments. */
     @OptIn(ExperimentalCompilerApi::class)
     fun runKotlinCli(
-        /**
-         * Compilation arguments (sources, classpaths etc)
-         */
+        /** Compilation arguments (sources, classpaths etc) */
         arguments: CompilationStepArguments,
-        /**
-         * Destination directory where generated class files will be written to
-         */
+        /** Destination directory where generated class files will be written to */
         destinationDir: File,
-        /**
-         * List of component registrars for the compilation.
-         */
+        /** List of component registrars for the compilation. */
         @Suppress("DEPRECATION")
         pluginRegistrars: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>
     ): KotlinCliResult {
@@ -100,12 +81,13 @@ internal object KotlinCliRunner {
         compiler.parseArguments(arguments.kotlincArguments.toTypedArray(), cliArguments)
 
         val diagnosticsMessageCollector = DiagnosticsMessageCollector("kotlinc")
-        val exitCode = DelegatingTestRegistrar.runCompilation(
-            compiler = compiler,
-            messageCollector = diagnosticsMessageCollector,
-            arguments = cliArguments,
-            pluginRegistrars = pluginRegistrars
-        )
+        val exitCode =
+            DelegatingTestRegistrar.runCompilation(
+                compiler = compiler,
+                messageCollector = diagnosticsMessageCollector,
+                arguments = cliArguments,
+                pluginRegistrars = pluginRegistrars
+            )
 
         return KotlinCliResult(
             exitCode = exitCode,
@@ -115,31 +97,22 @@ internal object KotlinCliRunner {
         )
     }
 
-    /**
-     * Result of a kotlin compilation request
-     */
+    /** Result of a kotlin compilation request */
     internal class KotlinCliResult(
-        /**
-         * The exit code reported by the compiler
-         */
+        /** The exit code reported by the compiler */
         val exitCode: ExitCode,
-        /**
-         * List of diagnostic messages reported by the compiler
-         */
+        /** List of diagnostic messages reported by the compiler */
         val diagnostics: List<RawDiagnosticMessage>,
-        /**
-         * The output classpath for the compiled files.
-         */
+        /** The output classpath for the compiled files. */
         val compiledClasspath: File,
-        /**
-         * Compiler arguments that were passed into Kotlin CLI
-         */
+        /** Compiler arguments that were passed into Kotlin CLI */
         val kotlinCliArguments: K2JVMCompilerArguments
     )
 
-    private val inheritedClasspath by lazy(LazyThreadSafetyMode.NONE) {
-        getClasspathFromClassloader(KotlinCliRunner::class.java.classLoader)
-    }
+    private val inheritedClasspath by
+        lazy(LazyThreadSafetyMode.NONE) {
+            getClasspathFromClassloader(KotlinCliRunner::class.java.classLoader)
+        }
 
     // ported from https://github.com/google/compile-testing/blob/master/src/main/java/com
     // /google/testing/compile/Compiler.java#L231
@@ -162,14 +135,16 @@ internal object KotlinCliRunner {
             check(currentClassloader is URLClassLoader) {
                 """Classpath for compilation could not be extracted
                 since $currentClassloader is not an instance of URLClassloader
-                """.trimIndent()
+                """
+                    .trimIndent()
             }
             // We only know how to extract classpaths from URLClassloaders.
             currentClassloader.urLs.forEach { url ->
                 check(url.protocol == "file") {
                     """Given classloader consists of classpaths which are unsupported for
                     compilation.
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 }
                 classpaths.add(url.path)
             }

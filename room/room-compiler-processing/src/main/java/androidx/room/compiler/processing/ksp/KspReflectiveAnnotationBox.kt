@@ -20,11 +20,11 @@ import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
 
 /**
- * KSP sometimes cannot read default values in annotations. This reflective implementation
- * handles those cases.
- * see: https://github.com/google/ksp/issues/53
+ * KSP sometimes cannot read default values in annotations. This reflective implementation handles
+ * those cases. see: https://github.com/google/ksp/issues/53
  */
-internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
+internal class KspReflectiveAnnotationBox<T : Annotation>
+constructor(
     private val env: KspProcessingEnv,
     private val annotationClass: Class<T>,
     private val annotation: T
@@ -38,9 +38,8 @@ internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
 
     override fun getAsTypeList(methodName: String): List<XType> {
         val values = getFieldValue<Array<*>>(methodName)
-        return values?.filterIsInstance<Class<*>>()?.mapNotNull {
-            env.findType(it.kotlin)
-        } ?: emptyList()
+        return values?.filterIsInstance<Class<*>>()?.mapNotNull { env.findType(it.kotlin) }
+            ?: emptyList()
     }
 
     override fun <T : Annotation> getAsAnnotationBox(methodName: String): XAnnotationBox<T> {
@@ -55,24 +54,26 @@ internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
     override fun <T : Annotation> getAsAnnotationBoxArray(
         methodName: String
     ): Array<XAnnotationBox<T>> {
-        val method = annotationClass.methods.firstOrNull {
-            it.name == methodName
-        } ?: error("$annotationClass does not contain $methodName")
+        val method =
+            annotationClass.methods.firstOrNull { it.name == methodName }
+                ?: error("$annotationClass does not contain $methodName")
         val values = method.invoke(annotation) as? Array<T> ?: return emptyArray()
-        return values.map {
-            KspReflectiveAnnotationBox(
-                env = env,
-                annotationClass = method.returnType.componentType as Class<T>,
-                annotation = it
-            )
-        }.toTypedArray()
+        return values
+            .map {
+                KspReflectiveAnnotationBox(
+                    env = env,
+                    annotationClass = method.returnType.componentType as Class<T>,
+                    annotation = it
+                )
+            }
+            .toTypedArray()
     }
 
     @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
     private fun <R : Any> getFieldValue(methodName: String): R? {
-        val value = annotationClass.methods.firstOrNull {
-            it.name == methodName
-        }?.invoke(annotation) ?: return null
+        val value =
+            annotationClass.methods.firstOrNull { it.name == methodName }?.invoke(annotation)
+                ?: return null
         return value as R?
     }
 
@@ -83,11 +84,14 @@ internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
             annotationClass: Class<*>,
             methodName: String
         ): KspReflectiveAnnotationBox<R> {
-            val method = annotationClass.methods.firstOrNull {
-                it.name == methodName
-            } ?: error("$annotationClass does not contain $methodName")
-            val defaultValue = method.defaultValue
-                ?: error("$annotationClass.$method does not have a default value and is not set")
+            val method =
+                annotationClass.methods.firstOrNull { it.name == methodName }
+                    ?: error("$annotationClass does not contain $methodName")
+            val defaultValue =
+                method.defaultValue
+                    ?: error(
+                        "$annotationClass.$method does not have a default value and is not set"
+                    )
             return KspReflectiveAnnotationBox(
                 env = env,
                 annotationClass = method.returnType as Class<R>,
@@ -101,22 +105,27 @@ internal class KspReflectiveAnnotationBox<T : Annotation> constructor(
             annotationClass: Class<*>,
             methodName: String
         ): Array<XAnnotationBox<R>> {
-            val method = annotationClass.methods.firstOrNull {
-                it.name == methodName
-            } ?: error("$annotationClass does not contain $methodName")
+            val method =
+                annotationClass.methods.firstOrNull { it.name == methodName }
+                    ?: error("$annotationClass does not contain $methodName")
             check(method.returnType.isArray) {
                 "expected ${method.returnType} to be an array. $method"
             }
-            val defaultValue = method.defaultValue
-                ?: error("$annotationClass.$method does not have a default value and is not set")
+            val defaultValue =
+                method.defaultValue
+                    ?: error(
+                        "$annotationClass.$method does not have a default value and is not set"
+                    )
             val values: Array<R> = defaultValue as Array<R>
-            return values.map {
-                KspReflectiveAnnotationBox(
-                    env = env,
-                    annotationClass = method.returnType.componentType as Class<R>,
-                    annotation = it
-                )
-            }.toTypedArray()
+            return values
+                .map {
+                    KspReflectiveAnnotationBox(
+                        env = env,
+                        annotationClass = method.returnType.componentType as Class<R>,
+                        annotation = it
+                    )
+                }
+                .toTypedArray()
         }
     }
 }

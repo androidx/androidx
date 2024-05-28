@@ -29,13 +29,14 @@ fun ListenableFuturePagingSourceQueryResultBinderProvider(
         RoomPagingGuavaTypeNames.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE
 
     return MultiTypedPagingSourceQueryResultBinderProvider(
-        context = context,
-        roomPagingClassName = limitOffsetListenableFuturePagingSource,
-        pagingSourceTypeName = PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE
-    ).requireArtifact(
-        context = context,
-        // TODO: Needs to be migrated to take in XTypeName instead of JTypeName
-        requiredType = limitOffsetListenableFuturePagingSource,
-        missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT
-    )
+            context = context,
+            roomPagingClassName = limitOffsetListenableFuturePagingSource,
+            pagingSourceTypeName = PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE
+        )
+        .requireArtifact(
+            context = context,
+            // TODO: Needs to be migrated to take in XTypeName instead of JTypeName
+            requiredType = limitOffsetListenableFuturePagingSource,
+            missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT
+        )
 }

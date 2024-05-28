@@ -17,8 +17,8 @@
 package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted tables in the [AutoMigration.to] version of
- * an auto migration.
+ * Repeatable annotation declaring the deleted tables in the [AutoMigration.to] version of an auto
+ * migration.
  *
  * @see AutoMigration
  */

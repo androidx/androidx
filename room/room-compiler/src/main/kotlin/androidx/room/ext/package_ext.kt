@@ -19,10 +19,10 @@ package androidx.room.ext
 import androidx.room.RoomProcessor
 
 /**
- * Map of dejetified packages names. Useful for letting Room know which packages names to use
- * when generating code in a dejetified environment. To use this map add a resource file named
- * 'dejetifier.config' containing one key-value pair per line separated by '=' where the key is
- * the androidx package name to dejetify and the value is the dejetified package name.
+ * Map of dejetified packages names. Useful for letting Room know which packages names to use when
+ * generating code in a dejetified environment. To use this map add a resource file named
+ * 'dejetifier.config' containing one key-value pair per line separated by '=' where the key is the
+ * androidx package name to dejetify and the value is the dejetified package name.
  *
  * Example of a typical config:
  * ```

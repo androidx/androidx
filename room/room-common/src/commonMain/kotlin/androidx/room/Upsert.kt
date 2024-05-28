@@ -21,15 +21,14 @@ import kotlin.reflect.KClass
 /**
  * Marks a method in a [Dao] annotated class as an upsert (insert or update) method.
  *
- * The implementation of the method will insert its parameters into the database
- * if it does not already exists (checked by primary key). If it already exists,
- * it will update its parameters in the database.
+ * The implementation of the method will insert its parameters into the database if it does not
+ * already exists (checked by primary key). If it already exists, it will update its parameters in
+ * the database.
  *
- * All of the parameters of the upsert method must either be classes annotated with [Entity]
- * or collections/array of it.
+ * All of the parameters of the upsert method must either be classes annotated with [Entity] or
+ * collections/array of it.
  *
  * Example:
- *
  * ```
  * @Dao
  * interface MusicDao {
@@ -44,9 +43,8 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary
- * POJO types that will be interpreted as partial entities. For example:
- *
+ * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
+ * that will be interpreted as partial entities. For example:
  * ```
  * @Entity
  * data class Playlist (
@@ -91,16 +89,15 @@ public annotation class Upsert(
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain all of the non-null fields without default values of the target entity.
      *
-     * If the target entity contains a [PrimaryKey] that is auto generated, then the POJO
-     * class doesn't need an equal primary key field, otherwise primary keys must also be present
-     * in the POJO. If the primary key already exists, only the columns represented by the partial
-     * entity fields will be updated
+     * If the target entity contains a [PrimaryKey] that is auto generated, then the POJO class
+     * doesn't need an equal primary key field, otherwise primary keys must also be present in the
+     * POJO. If the primary key already exists, only the columns represented by the partial entity
+     * fields will be updated
      *
      * By default the target entity is interpreted by the method parameters.
      *
-     * @return the target entity of the upsert method or none if the method should use the
-     *         parameter type entities.
+     * @return the target entity of the upsert method or none if the method should use the parameter
+     *   type entities.
      */
     val entity: KClass<*> = Any::class,
-
-    )
+)

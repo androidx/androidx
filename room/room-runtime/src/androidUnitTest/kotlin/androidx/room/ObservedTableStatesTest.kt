@@ -33,11 +33,8 @@ class ObservedTableStatesTest {
     @Test
     fun basicAdd() = runTest {
         tableStates.onObserverAdded(intArrayOf(2, 3))
-        assertThat(tableStates.getTablesToSync()).isEqualTo(
-            createSyncResult(
-                mapOf(2 to ObserveOp.ADD, 3 to ObserveOp.ADD)
-            )
-        )
+        assertThat(tableStates.getTablesToSync())
+            .isEqualTo(createSyncResult(mapOf(2 to ObserveOp.ADD, 3 to ObserveOp.ADD)))
     }
 
     @Test
@@ -46,11 +43,8 @@ class ObservedTableStatesTest {
         tableStates.getTablesToSync()
 
         tableStates.onObserverRemoved(intArrayOf(3))
-        assertThat(tableStates.getTablesToSync()).isEqualTo(
-            createSyncResult(
-                mapOf(3 to ObserveOp.REMOVE)
-            )
-        )
+        assertThat(tableStates.getTablesToSync())
+            .isEqualTo(createSyncResult(mapOf(3 to ObserveOp.REMOVE)))
     }
 
     @Test
@@ -81,25 +75,24 @@ class ObservedTableStatesTest {
 
         tableStates.onObserverAdded(intArrayOf(1, 3))
         tableStates.onObserverRemoved(intArrayOf(2, 4))
-        assertThat(tableStates.getTablesToSync()).isEqualTo(
-            createSyncResult(
-                mapOf(
-                    1 to ObserveOp.ADD,
-                    2 to ObserveOp.REMOVE,
-                    3 to ObserveOp.ADD,
-                    4 to ObserveOp.REMOVE
+        assertThat(tableStates.getTablesToSync())
+            .isEqualTo(
+                createSyncResult(
+                    mapOf(
+                        1 to ObserveOp.ADD,
+                        2 to ObserveOp.REMOVE,
+                        3 to ObserveOp.ADD,
+                        4 to ObserveOp.REMOVE
+                    )
                 )
             )
-        )
     }
 
     companion object {
         private const val TABLE_COUNT = 5
 
         private fun createSyncResult(tuples: Map<Int, ObserveOp>): Array<ObserveOp> {
-            return Array(TABLE_COUNT) { i ->
-                tuples[i] ?: ObserveOp.NO_OP
-            }
+            return Array(TABLE_COUNT) { i -> tuples[i] ?: ObserveOp.NO_OP }
         }
     }
 }

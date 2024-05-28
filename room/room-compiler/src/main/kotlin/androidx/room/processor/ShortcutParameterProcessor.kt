@@ -22,23 +22,23 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
-/**
- * Processes parameters of methods that are annotated with Insert, Update or Delete.
- */
+/** Processes parameters of methods that are annotated with Insert, Update or Delete. */
 class ShortcutParameterProcessor(
     baseContext: Context,
     val containing: XType,
     val element: XExecutableParameterElement
 ) {
     val context = baseContext.fork(element)
+
     fun process(): ShortcutQueryParameter {
         val asMember = element.asMemberOf(containing)
         if (isParamNullable(asMember)) {
             context.logger.e(
                 element = element,
-                msg = ProcessorErrors.nullableParamInShortcutMethod(
-                    asMember.asTypeName().toString(context.codeLanguage)
-                )
+                msg =
+                    ProcessorErrors.nullableParamInShortcutMethod(
+                        asMember.asTypeName().toString(context.codeLanguage)
+                    )
             )
         }
 
@@ -93,17 +93,13 @@ class ShortcutParameterProcessor(
         fun extractPojoTypeFromIterator(iterableType: XType): XType {
             iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.jvmName == "iterator") {
-                    return it.asMemberOf(iterableType)
-                        .returnType
-                        .typeArguments
-                        .first()
+                    return it.asMemberOf(iterableType).returnType.typeArguments.first()
                 }
             }
             throw IllegalArgumentException("iterator() not found in Iterable $iterableType")
         }
 
-        val iterableType = processingEnv
-            .requireType("java.lang.Iterable").rawType
+        val iterableType = processingEnv.requireType("java.lang.Iterable").rawType
         if (iterableType.isAssignableFrom(typeMirror)) {
             val pojo = extractPojoTypeFromIterator(typeMirror)
             return verifyAndPair(pojo, true)

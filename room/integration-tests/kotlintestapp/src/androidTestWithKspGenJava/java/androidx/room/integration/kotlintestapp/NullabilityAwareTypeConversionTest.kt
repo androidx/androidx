@@ -50,122 +50,85 @@ class NullabilityAwareTypeConversionTest {
 
     @Before
     fun init() {
-        dao = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            NullAwareConverterDatabase::class.java
-        ).addTypeConverter(nullableConvertors).build().userDao
+        dao =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    NullAwareConverterDatabase::class.java
+                )
+                .addTypeConverter(nullableConvertors)
+                .build()
+                .userDao
     }
 
     private fun assertNullableConverterIsNotUsed() {
         assertWithMessage(
-            "should've not used nullable conversion since it is not available in this scope"
-        ).that(nullableConvertors.toStringInvocations).isEmpty()
+                "should've not used nullable conversion since it is not available in this scope"
+            )
+            .that(nullableConvertors.toStringInvocations)
+            .isEmpty()
         assertWithMessage(
-            "should've not used nullable conversion since it is not available in this scope"
-        ).that(nullableConvertors.fromStringInvocations).isEmpty()
+                "should've not used nullable conversion since it is not available in this scope"
+            )
+            .that(nullableConvertors.fromStringInvocations)
+            .isEmpty()
     }
 
     @Test
     fun insert() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = Country.UNITED_KINGDOM
-        )
+        val user =
+            User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = Country.UNITED_KINGDOM)
         dao.insert(user)
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-FR-UK")
+        assertThat(dao.getRawData()).isEqualTo("1-FR-UK")
         assertNullableConverterIsNotUsed()
     }
 
     @Test
     fun setNonNullColumn() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-FR-null")
+        assertThat(dao.getRawData()).isEqualTo("1-FR-null")
         dao.setNonNullCountry(id = 1, nonNullCountry = Country.UNITED_KINGDOM)
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-UK-null")
+        assertThat(dao.getRawData()).isEqualTo("1-UK-null")
         assertNullableConverterIsNotUsed()
     }
 
     @Test
     fun setNullableColumn() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = Country.UNITED_KINGDOM
-        )
+        val user =
+            User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = Country.UNITED_KINGDOM)
         dao.insert(user)
         dao.setNullableCountry(id = 1, nullableCountry = null)
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-FR-null")
+        assertThat(dao.getRawData()).isEqualTo("1-FR-null")
         dao.setNullableCountry(id = 1, nullableCountry = Country.UNITED_KINGDOM)
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-FR-UK")
+        assertThat(dao.getRawData()).isEqualTo("1-FR-UK")
         assertNullableConverterIsNotUsed()
     }
 
     @Test
     fun load() {
-        val user1 = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = Country.UNITED_KINGDOM
-        )
+        val user1 =
+            User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = Country.UNITED_KINGDOM)
         dao.insert(user1)
-        assertThat(
-            dao.getById(1)
-        ).isEqualTo(user1)
-        val user2 = User(
-            id = 2,
-            nonNullCountry = Country.UNITED_KINGDOM,
-            nullableCountry = null
-        )
+        assertThat(dao.getById(1)).isEqualTo(user1)
+        val user2 = User(id = 2, nonNullCountry = Country.UNITED_KINGDOM, nullableCountry = null)
         dao.insert(user2)
-        assertThat(
-            dao.getById(2)
-        ).isEqualTo(user2)
+        assertThat(dao.getById(2)).isEqualTo(user2)
         assertNullableConverterIsNotUsed()
     }
 
     @Test
     fun useNullableConverter() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = Country.UNITED_KINGDOM
-        )
+        val user =
+            User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = Country.UNITED_KINGDOM)
         dao.insert(user)
-        dao.setNullableCountryWithNullableTypeConverter(
-            id = 1,
-            nullableCountry = null
-        )
-        assertThat(
-            dao.getRawData()
-        ).isEqualTo("1-FR-null")
-        assertThat(
-            nullableConvertors.toStringInvocations
-        ).containsExactly(null)
+        dao.setNullableCountryWithNullableTypeConverter(id = 1, nullableCountry = null)
+        assertThat(dao.getRawData()).isEqualTo("1-FR-null")
+        assertThat(nullableConvertors.toStringInvocations).containsExactly(null)
     }
 
     @Test
     fun loadNonNullColumn() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
         val country = dao.getNonNullCountry(id = 1)
         assertThat(country).isEqualTo(Country.FRANCE)
@@ -174,11 +137,7 @@ class NullabilityAwareTypeConversionTest {
 
     @Test
     fun loadNullableColumn() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
         val country = dao.getNullableCountry(id = 1)
         assertThat(country).isNull()
@@ -187,11 +146,7 @@ class NullabilityAwareTypeConversionTest {
 
     @Test
     fun loadNonNullColumn_withNullableConverter() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
         val country = dao.getNonNullCountryWithNullableTypeConverter(id = 1)
         assertThat(country).isEqualTo(Country.FRANCE)
@@ -202,11 +157,7 @@ class NullabilityAwareTypeConversionTest {
 
     @Test
     fun loadNonNullColumn_asNullable_withNullableConverter() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
         val country = dao.getNonNullCountryAsNullableWithNullableTypeConverter(id = 1)
         assertThat(country).isEqualTo(Country.FRANCE)
@@ -215,31 +166,24 @@ class NullabilityAwareTypeConversionTest {
         // if one day Room understands it and this test fails, feel free to update it.
         // We still want this test because right now Room does not know column is non-null hence
         // it should prefer the nullable converter.
-        assertThat(
-            nullableConvertors.fromStringInvocations
-        ).containsExactly("FR")
+        assertThat(nullableConvertors.fromStringInvocations).containsExactly("FR")
     }
 
     @Test
     fun loadNullableColumn_withNullableConverter() {
-        val user = User(
-            id = 1,
-            nonNullCountry = Country.FRANCE,
-            nullableCountry = null
-        )
+        val user = User(id = 1, nonNullCountry = Country.FRANCE, nullableCountry = null)
         dao.insert(user)
         val country = dao.getNullableCountryWithNullableTypeConverter(id = 1)
         assertThat(country).isNull()
-        assertThat(
-            nullableConvertors.fromStringInvocations
-        ).containsExactly(null)
+        assertThat(nullableConvertors.fromStringInvocations).containsExactly(null)
     }
 
     @Database(
         version = 1,
-        entities = [
-            User::class,
-        ],
+        entities =
+            [
+                User::class,
+            ],
         exportSchema = false
     )
     @TypeConverters(NonNullTypeConverters::class)
@@ -250,8 +194,7 @@ class NullabilityAwareTypeConversionTest {
     @Dao
     abstract class UserDao {
 
-        @Insert
-        abstract fun insert(user: User): Long
+        @Insert abstract fun insert(user: User): Long
 
         @Query("UPDATE user SET nonNullCountry = :nonNullCountry WHERE id = :id")
         abstract fun setNonNullCountry(id: Long, nonNullCountry: Country)
@@ -259,8 +202,7 @@ class NullabilityAwareTypeConversionTest {
         @Query("UPDATE user SET nullableCountry = :nullableCountry WHERE id = :id")
         abstract fun setNullableCountry(id: Long, nullableCountry: Country?)
 
-        @Query("SELECT * FROM user WHERE id = :id")
-        abstract fun getById(id: Long): User?
+        @Query("SELECT * FROM user WHERE id = :id") abstract fun getById(id: Long): User?
 
         @Query("UPDATE user SET nullableCountry = :nullableCountry WHERE id = :id")
         @TypeConverters(NullableTypeConverters::class)
@@ -287,12 +229,11 @@ class NullabilityAwareTypeConversionTest {
         @TypeConverters(NullableTypeConverters::class)
         abstract fun getNonNullCountryAsNullableWithNullableTypeConverter(id: Long): Country?
 
-        @Query("SELECT * FROM User ORDER BY id")
-        protected abstract fun getUsers(): Cursor
+        @Query("SELECT * FROM User ORDER BY id") protected abstract fun getUsers(): Cursor
 
         /**
-         * Return raw data in the database so that we can assert what is in the database
-         * without room's converters
+         * Return raw data in the database so that we can assert what is in the database without
+         * room's converters
          */
         fun getRawData(): String {
             return buildString {
@@ -311,8 +252,7 @@ class NullabilityAwareTypeConversionTest {
 
     @Entity(tableName = "user")
     data class User(
-        @PrimaryKey
-        val id: Long,
+        @PrimaryKey val id: Long,
         val nonNullCountry: Country,
         val nullableCountry: Country?,
     )
@@ -339,6 +279,7 @@ class NullabilityAwareTypeConversionTest {
     class NullableTypeConverters {
         val toStringInvocations = mutableListOf<Country?>()
         val fromStringInvocations = mutableListOf<String?>()
+
         @TypeConverter
         fun toString(country: Country?): String? {
             toStringInvocations.add(country)

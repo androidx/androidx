@@ -48,34 +48,39 @@ import org.junit.Test
 
 class XConvertersTest {
 
-    val kotlinSrc = Source.kotlin(
-        "KotlinClass.kt",
-        """
+    val kotlinSrc =
+        Source.kotlin(
+            "KotlinClass.kt",
+            """
         @androidx.room.compiler.processing.testcode.TestSuppressWarnings("warning1")
         class KotlinClass {
           var field = 1
           fun foo(param: Int) {
           }
         }
-        """.trimIndent()
-    )
-    val javaSrc = Source.java(
-        "JavaClass",
         """
+                .trimIndent()
+        )
+    val javaSrc =
+        Source.java(
+            "JavaClass",
+            """
         @androidx.room.compiler.processing.testcode.TestSuppressWarnings("warning1")
         public class JavaClass {
           public int field = 1;
           public void foo(int param) {
           }
         }
-        """.trimIndent()
-    )
+        """
+                .trimIndent()
+        )
 
     @Test
     fun typeMirror() {
-        val kotlinSrc = Source.kotlin(
-            "KotlinClass.kt",
-            """
+        val kotlinSrc =
+            Source.kotlin(
+                "KotlinClass.kt",
+                """
             class KotlinClass {
               class FooImpl<T: String>: Foo<T> {
                 override fun foo(param: T) {}
@@ -84,11 +89,13 @@ class XConvertersTest {
                 fun foo(param: T)
               }
             }
-            """.trimIndent()
-        )
-        val javaSrc = Source.java(
-            "JavaClass",
             """
+                    .trimIndent()
+            )
+        val javaSrc =
+            Source.java(
+                "JavaClass",
+                """
             public class JavaClass {
               static class FooImpl<T extends String> implements Foo<T> {
                 @Override public void foo(T param) {}
@@ -97,11 +104,10 @@ class XConvertersTest {
                 void foo(T param);
               }
             }
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             // Test toXProcessing returns an equivalent XType
             fun assertEqualTypes(t: XType?, tFromXConverters: XType?) {
                 if (t == tFromXConverters) {
@@ -144,10 +150,8 @@ class XConvertersTest {
                 val kotlinClass = invocation.getKspTypeElement("KotlinClass.FooImpl")
                 val javaClass = invocation.getKspTypeElement("JavaClass.FooImpl")
 
-                assertThat(xKotlinClass.type.toKS())
-                    .isEqualTo(kotlinClass.asType(emptyList()))
-                assertThat(xJavaClass.type.toKS())
-                    .isEqualTo(javaClass.asType(emptyList()))
+                assertThat(xKotlinClass.type.toKS()).isEqualTo(kotlinClass.asType(emptyList()))
+                assertThat(xJavaClass.type.toKS()).isEqualTo(javaClass.asType(emptyList()))
 
                 assertEqualTypes(
                     xKotlinClass.type,
@@ -181,26 +185,27 @@ class XConvertersTest {
 
     @Test
     fun typeElement() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 assertThat(kotlinClass.toKS())
                     .isEqualTo(invocation.getKspTypeElement("KotlinClass"))
-                assertThat(javaClass.toKS())
-                    .isEqualTo(invocation.getKspTypeElement("JavaClass"))
+                assertThat(javaClass.toKS()).isEqualTo(invocation.getKspTypeElement("JavaClass"))
 
                 assertThat(
-                    invocation.getKspTypeElement("KotlinClass")
-                        .toXProcessing(invocation.processingEnv)
-                ).isEqualTo(kotlinClass)
+                        invocation
+                            .getKspTypeElement("KotlinClass")
+                            .toXProcessing(invocation.processingEnv)
+                    )
+                    .isEqualTo(kotlinClass)
                 assertThat(
-                    invocation.getKspTypeElement("JavaClass")
-                        .toXProcessing(invocation.processingEnv)
-                ).isEqualTo(javaClass)
+                        invocation
+                            .getKspTypeElement("JavaClass")
+                            .toXProcessing(invocation.processingEnv)
+                    )
+                    .isEqualTo(javaClass)
             } else {
                 assertThat(kotlinClass.toJavac())
                     .isEqualTo(invocation.getJavacTypeElement("KotlinClass"))
@@ -208,72 +213,84 @@ class XConvertersTest {
                     .isEqualTo(invocation.getJavacTypeElement("JavaClass"))
 
                 assertThat(
-                    invocation.getJavacTypeElement("KotlinClass")
-                        .toXProcessing(invocation.processingEnv)
-                ).isEqualTo(kotlinClass)
+                        invocation
+                            .getJavacTypeElement("KotlinClass")
+                            .toXProcessing(invocation.processingEnv)
+                    )
+                    .isEqualTo(kotlinClass)
                 assertThat(
-                    invocation.getJavacTypeElement("JavaClass")
-                        .toXProcessing(invocation.processingEnv)
-                ).isEqualTo(javaClass)
+                        invocation
+                            .getJavacTypeElement("JavaClass")
+                            .toXProcessing(invocation.processingEnv)
+                    )
+                    .isEqualTo(javaClass)
             }
         }
     }
 
     @Test
     fun executableElement() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 assertThat(
-                    (kotlinClass.getConstructors() + kotlinClass.getDeclaredMethods())
-                        .filterNot { it is KspSyntheticPropertyMethodElement }
-                        .map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("KotlinClass").getDeclaredFunctions().toList()
-                )
+                        (kotlinClass.getConstructors() + kotlinClass.getDeclaredMethods())
+                            .filterNot { it is KspSyntheticPropertyMethodElement }
+                            .map { it.toKS() }
+                    )
+                    .containsExactlyElementsIn(
+                        invocation.getKspTypeElement("KotlinClass").getDeclaredFunctions().toList()
+                    )
 
                 assertThat(
-                    (javaClass.getConstructors() + javaClass.getDeclaredMethods()).map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("JavaClass").getDeclaredFunctions().toList()
-                )
+                        (javaClass.getConstructors() + javaClass.getDeclaredMethods()).map {
+                            it.toKS()
+                        }
+                    )
+                    .containsExactlyElementsIn(
+                        invocation.getKspTypeElement("JavaClass").getDeclaredFunctions().toList()
+                    )
 
-                val kotlinFoo = invocation.getKspTypeElement("KotlinClass").getDeclaredFunctions()
-                    .first { it.simpleName.asString() == "foo" }
+                val kotlinFoo =
+                    invocation.getKspTypeElement("KotlinClass").getDeclaredFunctions().first {
+                        it.simpleName.asString() == "foo"
+                    }
                 assertThat(kotlinFoo.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo"))
-                val javaFoo = invocation.getKspTypeElement("JavaClass").getDeclaredFunctions()
-                    .first { it.simpleName.asString() == "foo" }
+                val javaFoo =
+                    invocation.getKspTypeElement("JavaClass").getDeclaredFunctions().first {
+                        it.simpleName.asString() == "foo"
+                    }
                 assertThat(javaFoo.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo"))
             } else {
-                assertThat(
-                    kotlinClass.getDeclaredMethods().map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.methodsIn(
-                        invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                assertThat(kotlinClass.getDeclaredMethods().map { it.toJavac() })
+                    .containsExactlyElementsIn(
+                        ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                        )
                     )
-                )
-                assertThat(
-                    javaClass.getDeclaredMethods().map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.methodsIn(
-                        invocation.getJavacTypeElement("JavaClass").enclosedElements
+                assertThat(javaClass.getDeclaredMethods().map { it.toJavac() })
+                    .containsExactlyElementsIn(
+                        ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("JavaClass").enclosedElements
+                        )
                     )
-                )
 
-                val kotlinFoo = ElementFilter.methodsIn(
-                    invocation.getJavacTypeElement("KotlinClass").enclosedElements
-                ).first { it.simpleName.toString() == "foo" }
+                val kotlinFoo =
+                    ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "foo" }
                 assertThat(kotlinFoo.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo"))
-                val javaFoo = ElementFilter.methodsIn(
-                    invocation.getJavacTypeElement("JavaClass").enclosedElements
-                ).first { it.simpleName.toString() == "foo" }
+                val javaFoo =
+                    ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("JavaClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "foo" }
                 assertThat(javaFoo.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo"))
             }
@@ -282,56 +299,58 @@ class XConvertersTest {
 
     @Test
     fun variableElement_field() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
-                assertThat(
-                    kotlinClass.getDeclaredFields().map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("KotlinClass").getAllProperties().toList()
-                )
-                assertThat(
-                    javaClass.getDeclaredFields().map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("JavaClass").getAllProperties().toList()
-                )
+                assertThat(kotlinClass.getDeclaredFields().map { it.toKS() })
+                    .containsExactlyElementsIn(
+                        invocation.getKspTypeElement("KotlinClass").getAllProperties().toList()
+                    )
+                assertThat(javaClass.getDeclaredFields().map { it.toKS() })
+                    .containsExactlyElementsIn(
+                        invocation.getKspTypeElement("JavaClass").getAllProperties().toList()
+                    )
 
-                val kotlinField = invocation.getKspTypeElement("KotlinClass").getAllProperties()
-                    .first { it.simpleName.asString() == "field" }
+                val kotlinField =
+                    invocation.getKspTypeElement("KotlinClass").getAllProperties().first {
+                        it.simpleName.asString() == "field"
+                    }
                 assertThat(kotlinField.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredField("field"))
-                val javaField = invocation.getKspTypeElement("JavaClass").getAllProperties()
-                    .first { it.simpleName.asString() == "field" }
+                val javaField =
+                    invocation.getKspTypeElement("JavaClass").getAllProperties().first {
+                        it.simpleName.asString() == "field"
+                    }
                 assertThat(javaField.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredField("field"))
             } else {
-                assertThat(
-                    kotlinClass.getDeclaredFields().map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.fieldsIn(
-                        invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                assertThat(kotlinClass.getDeclaredFields().map { it.toJavac() })
+                    .containsExactlyElementsIn(
+                        ElementFilter.fieldsIn(
+                            invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                        )
                     )
-                )
-                assertThat(
-                    javaClass.getDeclaredFields().map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.fieldsIn(
-                        invocation.getJavacTypeElement("JavaClass").enclosedElements
+                assertThat(javaClass.getDeclaredFields().map { it.toJavac() })
+                    .containsExactlyElementsIn(
+                        ElementFilter.fieldsIn(
+                            invocation.getJavacTypeElement("JavaClass").enclosedElements
+                        )
                     )
-                )
 
-                val kotlinField = ElementFilter.fieldsIn(
-                    invocation.getJavacTypeElement("KotlinClass").enclosedElements
-                ).first { it.simpleName.toString() == "field" }
+                val kotlinField =
+                    ElementFilter.fieldsIn(
+                            invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "field" }
                 assertThat(kotlinField.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredField("field"))
-                val javaField = ElementFilter.fieldsIn(
-                    invocation.getJavacTypeElement("JavaClass").enclosedElements
-                ).first { it.simpleName.toString() == "field" }
+                val javaField =
+                    ElementFilter.fieldsIn(
+                            invocation.getJavacTypeElement("JavaClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "field" }
                 assertThat(javaField.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredField("field"))
             }
@@ -340,58 +359,88 @@ class XConvertersTest {
 
     @Test
     fun variableElement_parameter() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 assertThat(
-                    kotlinClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("KotlinClass").getAllFunctions()
-                        .first { it.simpleName.asString() == "foo" }.parameters
-                )
-                assertThat(
-                    javaClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toKS() }
-                ).containsExactlyElementsIn(
-                    invocation.getKspTypeElement("JavaClass").getAllFunctions()
-                        .first { it.simpleName.asString() == "foo" }.parameters
-                )
+                        kotlinClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toKS() }
+                    )
+                    .containsExactlyElementsIn(
+                        invocation
+                            .getKspTypeElement("KotlinClass")
+                            .getAllFunctions()
+                            .first { it.simpleName.asString() == "foo" }
+                            .parameters
+                    )
+                assertThat(javaClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toKS() })
+                    .containsExactlyElementsIn(
+                        invocation
+                            .getKspTypeElement("JavaClass")
+                            .getAllFunctions()
+                            .first { it.simpleName.asString() == "foo" }
+                            .parameters
+                    )
 
-                val kotlinParam = invocation.getKspTypeElement("KotlinClass").getAllFunctions()
-                    .first { it.simpleName.asString() == "foo" }.parameters.first()
+                val kotlinParam =
+                    invocation
+                        .getKspTypeElement("KotlinClass")
+                        .getAllFunctions()
+                        .first { it.simpleName.asString() == "foo" }
+                        .parameters
+                        .first()
                 assertThat(kotlinParam.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo").parameters.first())
-                val javaParam = invocation.getKspTypeElement("JavaClass").getAllFunctions()
-                    .first { it.simpleName.asString() == "foo" }.parameters.first()
+                val javaParam =
+                    invocation
+                        .getKspTypeElement("JavaClass")
+                        .getAllFunctions()
+                        .first { it.simpleName.asString() == "foo" }
+                        .parameters
+                        .first()
                 assertThat(javaParam.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo").parameters.first())
             } else {
                 assertThat(
-                    kotlinClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.methodsIn(
-                        invocation.getJavacTypeElement("KotlinClass").enclosedElements
-                    ).first { it.simpleName.toString() == "foo" }.parameters
-                )
+                        kotlinClass.getDeclaredMethodByJvmName("foo").parameters.map {
+                            it.toJavac()
+                        }
+                    )
+                    .containsExactlyElementsIn(
+                        ElementFilter.methodsIn(
+                                invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                            )
+                            .first { it.simpleName.toString() == "foo" }
+                            .parameters
+                    )
                 assertThat(
-                    javaClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toJavac() }
-                ).containsExactlyElementsIn(
-                    ElementFilter.methodsIn(
-                        invocation.getJavacTypeElement("JavaClass").enclosedElements
-                    ).first { it.simpleName.toString() == "foo" }.parameters
-                )
+                        javaClass.getDeclaredMethodByJvmName("foo").parameters.map { it.toJavac() }
+                    )
+                    .containsExactlyElementsIn(
+                        ElementFilter.methodsIn(
+                                invocation.getJavacTypeElement("JavaClass").enclosedElements
+                            )
+                            .first { it.simpleName.toString() == "foo" }
+                            .parameters
+                    )
 
-                val kotlinParam = ElementFilter.methodsIn(
-                    invocation.getJavacTypeElement("KotlinClass").enclosedElements
-                ).first { it.simpleName.toString() == "foo" }.parameters.first()
+                val kotlinParam =
+                    ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("KotlinClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "foo" }
+                        .parameters
+                        .first()
                 assertThat(kotlinParam.toXProcessing(invocation.processingEnv))
                     .isEqualTo(kotlinClass.getDeclaredMethodByJvmName("foo").parameters.first())
-                val javaParam = ElementFilter.methodsIn(
-                    invocation.getJavacTypeElement("JavaClass").enclosedElements
-                ).first { it.simpleName.toString() == "foo" }.parameters.first()
+                val javaParam =
+                    ElementFilter.methodsIn(
+                            invocation.getJavacTypeElement("JavaClass").enclosedElements
+                        )
+                        .first { it.simpleName.toString() == "foo" }
+                        .parameters
+                        .first()
                 assertThat(javaParam.toXProcessing(invocation.processingEnv))
                     .isEqualTo(javaClass.getDeclaredMethodByJvmName("foo").parameters.first())
             }
@@ -401,172 +450,266 @@ class XConvertersTest {
     @Suppress("UnstableApiUsage")
     @Test
     fun annotation() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .toKS()
-                ).isEqualTo(
-                    invocation.getKspTypeElement("KotlinClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .toKS()
+                    )
+                    .isEqualTo(
+                        invocation.getKspTypeElement("KotlinClass").annotations.first {
+                            it.shortName.asString() == "TestSuppressWarnings"
+                        }
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .toKS()
-                ).isEqualTo(
-                    invocation.getKspTypeElement("JavaClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .toKS()
+                    )
+                    .isEqualTo(
+                        invocation.getKspTypeElement("JavaClass").annotations.first {
+                            it.shortName.asString() == "TestSuppressWarnings"
+                        }
+                    )
 
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .qualifiedName
-                ).isEqualTo(
-                    invocation.getKspTypeElement("KotlinClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.toXProcessing(invocation.processingEnv).qualifiedName
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .qualifiedName
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("KotlinClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .toXProcessing(invocation.processingEnv)
+                            .qualifiedName
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .qualifiedName
-                ).isEqualTo(
-                    invocation.getKspTypeElement("JavaClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.toXProcessing(invocation.processingEnv).qualifiedName
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .qualifiedName
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("JavaClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .toXProcessing(invocation.processingEnv)
+                            .qualifiedName
+                    )
             } else {
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .toJavac()
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("KotlinClass"),
-                        TestSuppressWarnings::class.java
-                    ).get()
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .toJavac()
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("KotlinClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .toJavac()
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("JavaClass"),
-                        TestSuppressWarnings::class.java
-                    ).get()
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .toJavac()
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("JavaClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                    )
 
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .qualifiedName
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("KotlinClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().toXProcessing(invocation.processingEnv).qualifiedName
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .qualifiedName
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("KotlinClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .toXProcessing(invocation.processingEnv)
+                            .qualifiedName
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .qualifiedName
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("JavaClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().toXProcessing(invocation.processingEnv).qualifiedName
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .qualifiedName
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("JavaClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .toXProcessing(invocation.processingEnv)
+                            .qualifiedName
+                    )
             }
         }
     }
 
     @Test
     fun annotationValues() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().toKS()
-                ).isEqualTo(
-                    invocation.getKspTypeElement("KotlinClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.arguments.first()
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .toKS()
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("KotlinClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .arguments
+                            .first()
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().toKS()
-                ).isEqualTo(
-                    invocation.getKspTypeElement("JavaClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.arguments.first()
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .toKS()
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("JavaClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .arguments
+                            .first()
+                    )
 
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().name
-                ).isEqualTo(
-                    invocation.getKspTypeElement("KotlinClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.arguments.first().toXProcessing(invocation.processingEnv).name
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .name
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("KotlinClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .arguments
+                            .first()
+                            .toXProcessing(invocation.processingEnv)
+                            .name
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().name
-                ).isEqualTo(
-                    invocation.getKspTypeElement("JavaClass").annotations.first {
-                        it.shortName.asString() == "TestSuppressWarnings"
-                    }.arguments.first().toXProcessing(invocation.processingEnv).name
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .name
+                    )
+                    .isEqualTo(
+                        invocation
+                            .getKspTypeElement("JavaClass")
+                            .annotations
+                            .first { it.shortName.asString() == "TestSuppressWarnings" }
+                            .arguments
+                            .first()
+                            .toXProcessing(invocation.processingEnv)
+                            .name
+                    )
             } else {
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().toJavac()
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("KotlinClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().elementValues.toList().first().second
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .toJavac()
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("KotlinClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .elementValues
+                            .toList()
+                            .first()
+                            .second
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().toJavac()
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("JavaClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().elementValues.toList().first().second
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .toJavac()
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("JavaClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .elementValues
+                            .toList()
+                            .first()
+                            .second
+                    )
 
                 assertThat(
-                    kotlinClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().name
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("KotlinClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().elementValues.toList().first().let {
-                        it.second.toXProcessing(it.first, invocation.processingEnv).name
-                    }
-                )
+                        kotlinClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .name
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("KotlinClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .elementValues
+                            .toList()
+                            .first()
+                            .let {
+                                it.second.toXProcessing(it.first, invocation.processingEnv).name
+                            }
+                    )
                 assertThat(
-                    javaClass.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
-                        .annotationValues.first().name
-                ).isEqualTo(
-                    MoreElements.getAnnotationMirror(
-                        invocation.getJavacTypeElement("JavaClass"),
-                        TestSuppressWarnings::class.java
-                    ).get().elementValues.toList().first().let {
-                        it.second.toXProcessing(it.first, invocation.processingEnv).name
-                    }
-                )
+                        javaClass
+                            .requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+                            .annotationValues
+                            .first()
+                            .name
+                    )
+                    .isEqualTo(
+                        MoreElements.getAnnotationMirror(
+                                invocation.getJavacTypeElement("JavaClass"),
+                                TestSuppressWarnings::class.java
+                            )
+                            .get()
+                            .elementValues
+                            .toList()
+                            .first()
+                            .let {
+                                it.second.toXProcessing(it.first, invocation.processingEnv).name
+                            }
+                    )
             }
         }
     }
@@ -575,9 +718,7 @@ class XConvertersTest {
     @Test
     fun customFiler() {
         var runCount = 0
-        runKaptTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runKaptTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val className = ClassName.get("foo.bar", "ToBeGenerated")
             if (invocation.processingEnv.findTypeElement(className) == null) {
                 // Assert that this is only run only on the first round
@@ -601,19 +742,21 @@ class XConvertersTest {
     @Suppress("UnstableApiUsage")
     @Test
     fun customMessager() {
-        runKaptTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runKaptTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             // Check that we can create a custom messager and toJavac() returns it
-            val customMessager = object : Messager by invocation.processingEnv.messager.toJavac() {
-                override fun printMessage(kind: Diagnostic.Kind?, msg: CharSequence?) {
-                    // We have to use the XMessager from XProcessingEnv here so that it runs the
-                    // hooks that are attached to the testing infrastructure. Otherwise, the error
-                    // is produced by not recorded. We may want to add a method to XMessager to copy
-                    // the watchers from another messager, e.g. XMessager#copyWatchers(XMessager)
-                    invocation.processingEnv.messager.printMessage(kind!!, "Custom: $msg")
+            val customMessager =
+                object : Messager by invocation.processingEnv.messager.toJavac() {
+                    override fun printMessage(kind: Diagnostic.Kind?, msg: CharSequence?) {
+                        // We have to use the XMessager from XProcessingEnv here so that it runs the
+                        // hooks that are attached to the testing infrastructure. Otherwise, the
+                        // error
+                        // is produced by not recorded. We may want to add a method to XMessager to
+                        // copy
+                        // the watchers from another messager, e.g.
+                        // XMessager#copyWatchers(XMessager)
+                        invocation.processingEnv.messager.printMessage(kind!!, "Custom: $msg")
+                    }
                 }
-            }
             val customXMessager = customMessager.toXProcessing()
             assertThat(customXMessager.toJavac()).isEqualTo(customMessager)
 
@@ -632,18 +775,20 @@ class XConvertersTest {
     @Test
     fun getProcessingEnvTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.kotlin(
-                    "Foo.kt",
-                    """
+            sources =
+                listOf(
+                    Source.kotlin(
+                        "Foo.kt",
+                        """
                     annotation class FooAnnotation(val value: String)
                     @FooAnnotation("someValue")
                     interface Foo {
                         fun method()
                     }
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) { invocation ->
             val foo = invocation.processingEnv.requireTypeElement("Foo")
             assertThat(foo.getProcessingEnv()).isEqualTo(invocation.processingEnv)
@@ -664,46 +809,46 @@ class XConvertersTest {
 
     @Test
     fun xTypeName() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc)
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
             if (invocation.isKsp) {
                 val kotlinElement = invocation.getKspTypeElement("KotlinClass")
                 val javaElement = invocation.getKspTypeElement("JavaClass")
+                assertThat(kotlinElement.toXProcessing(invocation.processingEnv).asClassName())
+                    .isEqualTo(kotlinClass.asClassName())
+                assertThat(javaElement.toXProcessing(invocation.processingEnv).asClassName())
+                    .isEqualTo(javaClass.asClassName())
                 assertThat(
-                    kotlinElement.toXProcessing(invocation.processingEnv).asClassName()
-                ).isEqualTo(kotlinClass.asClassName())
+                        kotlinElement
+                            .asType(emptyList())
+                            .toXProcessing(invocation.processingEnv)
+                            .asTypeName()
+                    )
+                    .isEqualTo(kotlinClass.asClassName())
                 assertThat(
-                    javaElement.toXProcessing(invocation.processingEnv).asClassName()
-                ).isEqualTo(javaClass.asClassName())
-                assertThat(
-                    kotlinElement.asType(emptyList())
-                        .toXProcessing(invocation.processingEnv)
-                        .asTypeName()
-                ).isEqualTo(kotlinClass.asClassName())
-                assertThat(
-                    javaElement.asType(emptyList())
-                        .toXProcessing(invocation.processingEnv)
-                        .asTypeName()
-                ).isEqualTo(javaClass.asClassName())
+                        javaElement
+                            .asType(emptyList())
+                            .toXProcessing(invocation.processingEnv)
+                            .asTypeName()
+                    )
+                    .isEqualTo(javaClass.asClassName())
             } else {
                 val kotlinElement = invocation.getJavacTypeElement("KotlinClass")
                 val javaElement = invocation.getJavacTypeElement("JavaClass")
+                assertThat(kotlinElement.toXProcessing(invocation.processingEnv).asClassName())
+                    .isEqualTo(kotlinClass.asClassName())
+                assertThat(javaElement.toXProcessing(invocation.processingEnv).asClassName())
+                    .isEqualTo(javaClass.asClassName())
                 assertThat(
-                    kotlinElement.toXProcessing(invocation.processingEnv).asClassName()
-                ).isEqualTo(kotlinClass.asClassName())
+                        kotlinElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
+                    )
+                    .isEqualTo(kotlinClass.asClassName())
                 assertThat(
-                    javaElement.toXProcessing(invocation.processingEnv).asClassName()
-                ).isEqualTo(javaClass.asClassName())
-                assertThat(
-                    kotlinElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
-                ).isEqualTo(kotlinClass.asClassName())
-                assertThat(
-                    javaElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
-                ).isEqualTo(javaClass.asClassName())
+                        javaElement.asType().toXProcessing(invocation.processingEnv).asTypeName()
+                    )
+                    .isEqualTo(javaClass.asClassName())
             }
         }
     }
@@ -712,6 +857,7 @@ class XConvertersTest {
         (this.processingEnv as JavacProcessingEnv).delegate.elementUtils.getTypeElement(fqn)
 
     private fun XTestInvocation.getKspTypeElement(fqn: String) =
-        (this.processingEnv as KspProcessingEnv).resolver.getClassDeclarationByName(
-            KSNameImpl.getCached(fqn))!!
+        (this.processingEnv as KspProcessingEnv)
+            .resolver
+            .getClassDeclarationByName(KSNameImpl.getCached(fqn))!!
 }

@@ -38,6 +38,7 @@ import kotlinx.coroutines.test.runTest
 
 abstract class BaseAutoMigrationTest {
     abstract fun getTestHelper(): MigrationTestHelper
+
     abstract fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase>
 
     @Test
@@ -62,9 +63,7 @@ abstract class BaseAutoMigrationTest {
         connection.close()
 
         // Auto migrate to latest
-        val dbVersion3 = getDatabaseBuilder()
-            .addAutoMigrationSpec(ProvidedSpecFrom2To3())
-            .build()
+        val dbVersion3 = getDatabaseBuilder().addAutoMigrationSpec(ProvidedSpecFrom2To3()).build()
         val dao = dbVersion3.dao()
         assertThat(dao.getSingleItem().pk).isEqualTo(1)
         assertThat(dao.getSingleItem().data).isEqualTo(0)
@@ -96,51 +95,49 @@ abstract class BaseAutoMigrationTest {
 
     @Test
     fun missingProvidedAutoMigrationSpec() {
-        assertThrows<IllegalArgumentException> {
-            getDatabaseBuilder().build()
-        }.hasMessageThat().contains(
-            "A required auto migration spec (${ProvidedSpecFrom2To3::class.qualifiedName}) is " +
-                "missing in the database configuration."
-        )
+        assertThrows<IllegalArgumentException> { getDatabaseBuilder().build() }
+            .hasMessageThat()
+            .contains(
+                "A required auto migration spec (${ProvidedSpecFrom2To3::class.qualifiedName}) is " +
+                    "missing in the database configuration."
+            )
     }
 
     @Test
     fun extraProvidedAutoMigrationSpec() {
         assertThrows<IllegalArgumentException> {
-            getDatabaseBuilder()
-                .addAutoMigrationSpec(ProvidedSpecFrom2To3())
-                .addAutoMigrationSpec(ExtraProvidedSpec())
-                .build()
-        }.hasMessageThat().contains("Unexpected auto migration specs found.")
+                getDatabaseBuilder()
+                    .addAutoMigrationSpec(ProvidedSpecFrom2To3())
+                    .addAutoMigrationSpec(ExtraProvidedSpec())
+                    .build()
+            }
+            .hasMessageThat()
+            .contains("Unexpected auto migration specs found.")
     }
 
     @Entity
     data class AutoMigrationEntity(
-        @PrimaryKey
-        val pk: Long,
-        @ColumnInfo(defaultValue = "0")
-        val data: Long,
-        @ColumnInfo(defaultValue = "")
-        val moreData: String
+        @PrimaryKey val pk: Long,
+        @ColumnInfo(defaultValue = "0") val data: Long,
+        @ColumnInfo(defaultValue = "") val moreData: String
     )
 
     @Dao
     interface AutoMigrationDao {
-        @Insert
-        suspend fun insert(entity: AutoMigrationEntity)
+        @Insert suspend fun insert(entity: AutoMigrationEntity)
 
-        @Query("SELECT * FROM AutoMigrationEntity")
-        suspend fun getSingleItem(): AutoMigrationEntity
+        @Query("SELECT * FROM AutoMigrationEntity") suspend fun getSingleItem(): AutoMigrationEntity
     }
 
     @Database(
         entities = [AutoMigrationEntity::class],
         version = 3,
         exportSchema = true,
-        autoMigrations = [
-            AutoMigration(from = 1, to = 2),
-            AutoMigration(from = 2, to = 3, spec = ProvidedSpecFrom2To3::class)
-        ]
+        autoMigrations =
+            [
+                AutoMigration(from = 1, to = 2),
+                AutoMigration(from = 2, to = 3, spec = ProvidedSpecFrom2To3::class)
+            ]
     )
     abstract class AutoMigrationDatabase : RoomDatabase() {
         abstract fun dao(): AutoMigrationDao

@@ -26,15 +26,14 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 
 /**
- * AutoCloser is responsible for automatically opening (using
- * delegateOpenHelper) and closing (on a timer started when there are no remaining references) a
- * SupportSqliteDatabase.
+ * AutoCloser is responsible for automatically opening (using delegateOpenHelper) and closing (on a
+ * timer started when there are no remaining references) a SupportSqliteDatabase.
  *
  * It is important to ensure that the ref count is incremented when using a returned database.
  *
  * @param autoCloseTimeoutAmount time for auto close timer
- * @param autoCloseTimeUnit      time unit for autoCloseTimeoutAmount
- * @param autoCloseExecutor      the executor on which the auto close operation will happen
+ * @param autoCloseTimeUnit time unit for autoCloseTimeoutAmount
+ * @param autoCloseExecutor the executor on which the auto close operation will happen
  */
 internal class AutoCloser(
     autoCloseTimeoutAmount: Long,
@@ -52,15 +51,12 @@ internal class AutoCloser(
 
     private val executor: Executor = autoCloseExecutor
 
-    @GuardedBy("lock")
-    internal var refCount = 0
+    @GuardedBy("lock") internal var refCount = 0
 
-    @GuardedBy("lock")
-    internal var lastDecrementRefCountTimeStamp = SystemClock.uptimeMillis()
+    @GuardedBy("lock") internal var lastDecrementRefCountTimeStamp = SystemClock.uptimeMillis()
 
     // The unwrapped SupportSqliteDatabase
-    @GuardedBy("lock")
-    internal var delegateDatabase: SupportSQLiteDatabase? = null
+    @GuardedBy("lock") internal var delegateDatabase: SupportSQLiteDatabase? = null
 
     private var manuallyClosed = false
 
@@ -68,8 +64,8 @@ internal class AutoCloser(
 
     private val autoCloser = Runnable {
         synchronized(lock) {
-            if (SystemClock.uptimeMillis() - lastDecrementRefCountTimeStamp
-                < autoCloseTimeoutInMs
+            if (
+                SystemClock.uptimeMillis() - lastDecrementRefCountTimeStamp < autoCloseTimeoutInMs
             ) {
                 // An increment + decrement beat us to closing the db. We
                 // will not close the database, and there should be at least
@@ -82,11 +78,12 @@ internal class AutoCloser(
                 // count is decremented.
                 return@Runnable
             }
-            onAutoCloseCallback?.run() ?: error(
-                "onAutoCloseCallback is null but it should" +
-                    " have been set before use. Please file a bug " +
-                    "against Room at: $autoCloseBug"
-            )
+            onAutoCloseCallback?.run()
+                ?: error(
+                    "onAutoCloseCallback is null but it should" +
+                        " have been set before use. Please file a bug " +
+                        "against Room at: $autoCloseBug"
+                )
 
             delegateDatabase?.let {
                 if (it.isOpen) {
@@ -101,8 +98,7 @@ internal class AutoCloser(
      * Since we need to construct the AutoCloser in the RoomDatabase.Builder, we need to set the
      * delegateOpenHelper after construction.
      *
-     * @param delegateOpenHelper the open helper that is used to create
-     * new SupportSqliteDatabases
+     * @param delegateOpenHelper the open helper that is used to create new SupportSqliteDatabases
      */
     fun init(delegateOpenHelper: SupportSQLiteOpenHelper) {
         this.delegateOpenHelper = delegateOpenHelper
@@ -122,10 +118,10 @@ internal class AutoCloser(
         }
 
     /**
-     * Confirms that autoCloser is no longer running and confirms that delegateDatabase is set
-     * and open. delegateDatabase will not be auto closed until
-     * decrementRefCountAndScheduleClose is called. decrementRefCountAndScheduleClose must be
-     * called once for each call to incrementCountAndEnsureDbIsOpen.
+     * Confirms that autoCloser is no longer running and confirms that delegateDatabase is set and
+     * open. delegateDatabase will not be auto closed until decrementRefCountAndScheduleClose is
+     * called. decrementRefCountAndScheduleClose must be called once for each call to
+     * incrementCountAndEnsureDbIsOpen.
      *
      * If this throws an exception, decrementCountAndScheduleClose must still be called!
      *
@@ -157,9 +153,7 @@ internal class AutoCloser(
     fun decrementCountAndScheduleClose() {
         // TODO(rohitsat): avoid synchronized(lock) when possible
         synchronized(lock) {
-            check(refCount > 0) {
-                "ref count is 0 or lower but we're supposed to decrement"
-            }
+            check(refCount > 0) { "ref count is 0 or lower but we're supposed to decrement" }
             // decrement refCount
             refCount--
 
@@ -189,9 +183,8 @@ internal class AutoCloser(
     }
 
     /**
-     * The auto closer is still active if the database has not been closed. This means that
-     * whether or not the underlying database is closed, when active we will re-open it on the
-     * next access.
+     * The auto closer is still active if the database has not been closed. This means that whether
+     * or not the underlying database is closed, when active we will re-open it on the next access.
      *
      * @return a boolean indicating whether the auto closer is still active
      */
@@ -205,12 +198,14 @@ internal class AutoCloser(
      */
     internal val refCountForTest: Int
         get() {
-            synchronized(lock) { return refCount }
+            synchronized(lock) {
+                return refCount
+            }
         }
 
     /**
-     * Sets a callback that will be run every time the database is auto-closed. This callback
-     * needs to be lightweight since it is run while holding a lock.
+     * Sets a callback that will be run every time the database is auto-closed. This callback needs
+     * to be lightweight since it is run while holding a lock.
      *
      * @param onAutoClose the callback to run
      */
@@ -219,7 +214,7 @@ internal class AutoCloser(
     }
 
     companion object {
-        const val autoCloseBug = "https://issuetracker.google.com/issues/new?component=" +
-            "413107&template=1096568"
+        const val autoCloseBug =
+            "https://issuetracker.google.com/issues/new?component=" + "413107&template=1096568"
     }
 }

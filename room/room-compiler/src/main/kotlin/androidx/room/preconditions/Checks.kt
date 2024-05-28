@@ -26,6 +26,7 @@ import kotlin.reflect.KClass
 /**
  * Similar to preconditions but element bound and just logs the error instead of throwing an
  * exception.
+ *
  * <p>
  * It is important for processing to continue when some errors happen so that we can generate as
  * much code as possible, leaving only the errors in javac output.
@@ -60,12 +61,7 @@ class Checks(private val logger: RLog) {
         }
     }
 
-    fun notUnbound(
-        type: XType,
-        element: XElement,
-        errorMsg: String,
-        vararg args: Any
-    ): Boolean {
+    fun notUnbound(type: XType, element: XElement, errorMsg: String, vararg args: Any): Boolean {
         // TODO support bounds cases like <T extends Foo> T bar()
         val failed = check(!type.isTypeVariable(), element, errorMsg, args)
         if (type.typeArguments.isNotEmpty()) {
@@ -87,9 +83,7 @@ class Checks(private val logger: RLog) {
  * @param T the expect type
  */
 internal inline fun <reified T> checkTypeOrNull(obj: Any): T? {
-    contract {
-        returns() implies (obj is T)
-    }
+    contract { returns() implies (obj is T) }
     return if (obj is T) {
         obj
     } else {

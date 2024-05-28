@@ -27,19 +27,12 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-internal class DiagnosticMessageCollectorTest(
-    private val params: TestParams
-) {
+internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
     @Test
     fun parseDiagnosticMessage() {
         val collector = DiagnosticsMessageCollector("test")
-        collector.report(
-            severity = params.severity,
-            message = params.message
-        )
-        assertThat(
-            collector.getDiagnostics().firstOrNull()
-        ).isEqualTo(params.expected)
+        collector.report(severity = params.severity, message = params.message)
+        assertThat(collector.getDiagnostics().firstOrNull()).isEqualTo(params.expected)
     }
 
     internal class TestParams(
@@ -51,155 +44,155 @@ internal class DiagnosticMessageCollectorTest(
             return message
         }
     }
+
     companion object {
         @get:JvmStatic
         @get:Parameterized.Parameters(name = "{0}")
-        internal val testCases = listOf(
-            // ksp kotlin
-            TestParams(
-                message = "[ksp] /foo/bar/Subject.kt:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "the real message",
-                    location = Location(
-                        path = "/foo/bar/Subject.kt",
-                        line = 3
-                    )
-                )
-            ),
-            // ksp java
-            TestParams(
-                message = "[ksp] /foo/bar/Subject.java:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "the real message",
-                    location = Location(
-                        path = "/foo/bar/Subject.java",
-                        line = 3
-                    )
-                )
-            ),
-            // ksp not a kotlin file - bad extension
-            TestParams(
-                message = "[ksp] /foo/bar/Subject.ktn:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "/foo/bar/Subject.ktn:3: the real message",
-                    location = null
-                )
-            ),
-            // ksp not a kotlin file - no dot
-            TestParams(
-                message = "[ksp] /foo/bar/Subjectkt:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "/foo/bar/Subjectkt:3: the real message",
-                    location = null
-                )
-            ),
-            // ksp not a java file - bad extension
-            TestParams(
-                message = "[ksp] /foo/bar/Subject.javax:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "/foo/bar/Subject.javax:3: the real message",
-                    location = null
-                )
-            ),
-            // ksp not a java file - no dot
-            TestParams(
-                message = "[ksp] /foo/bar/Subjectjava:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "/foo/bar/Subjectjava:3: the real message",
-                    location = null
-                )
-            ),
-            // kapt kotlin
-            TestParams(
-                message = "/foo/bar/Subject.kt:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
-                    message = "the real message",
-                    location = Location(
-                        path = "/foo/bar/Subject.kt",
-                        line = 2
-                    )
-                )
-            ),
-            // kapt java
-            TestParams(
-                message = "/foo/bar/Subject.java:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
-                    message = "the real message",
-                    location = Location(
-                        path = "/foo/bar/Subject.java",
-                        line = 2
-                    )
-                )
-            ),
-            // kapt not a kotlin file - bad extension
-            TestParams(
-                message = "/foo/bar/Subject.ktn:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
+        internal val testCases =
+            listOf(
+                // ksp kotlin
+                TestParams(
+                    message = "[ksp] /foo/bar/Subject.kt:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "the real message",
+                            location = Location(path = "/foo/bar/Subject.kt", line = 3)
+                        )
+                ),
+                // ksp java
+                TestParams(
+                    message = "[ksp] /foo/bar/Subject.java:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "the real message",
+                            location = Location(path = "/foo/bar/Subject.java", line = 3)
+                        )
+                ),
+                // ksp not a kotlin file - bad extension
+                TestParams(
+                    message = "[ksp] /foo/bar/Subject.ktn:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "/foo/bar/Subject.ktn:3: the real message",
+                            location = null
+                        )
+                ),
+                // ksp not a kotlin file - no dot
+                TestParams(
+                    message = "[ksp] /foo/bar/Subjectkt:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "/foo/bar/Subjectkt:3: the real message",
+                            location = null
+                        )
+                ),
+                // ksp not a java file - bad extension
+                TestParams(
+                    message = "[ksp] /foo/bar/Subject.javax:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "/foo/bar/Subject.javax:3: the real message",
+                            location = null
+                        )
+                ),
+                // ksp not a java file - no dot
+                TestParams(
+                    message = "[ksp] /foo/bar/Subjectjava:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "/foo/bar/Subjectjava:3: the real message",
+                            location = null
+                        )
+                ),
+                // kapt kotlin
+                TestParams(
+                    message = "/foo/bar/Subject.kt:2: warning: the real message",
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "the real message",
+                            location = Location(path = "/foo/bar/Subject.kt", line = 2)
+                        )
+                ),
+                // kapt java
+                TestParams(
+                    message = "/foo/bar/Subject.java:2: warning: the real message",
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "the real message",
+                            location = Location(path = "/foo/bar/Subject.java", line = 2)
+                        )
+                ),
+                // kapt not a kotlin file - bad extension
+                TestParams(
                     message = "/foo/bar/Subject.ktn:2: warning: the real message",
-                    location = null
-                )
-            ),
-            // kapt not a kotlin file - no dot
-            TestParams(
-                message = "/foo/bar/Subjectkt:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "/foo/bar/Subject.ktn:2: warning: the real message",
+                            location = null
+                        )
+                ),
+                // kapt not a kotlin file - no dot
+                TestParams(
                     message = "/foo/bar/Subjectkt:2: warning: the real message",
-                    location = null
-                )
-            ),
-            // kapt not a java file - bad extension
-            TestParams(
-                message = "/foo/bar/Subject.javan:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "/foo/bar/Subjectkt:2: warning: the real message",
+                            location = null
+                        )
+                ),
+                // kapt not a java file - bad extension
+                TestParams(
                     message = "/foo/bar/Subject.javan:2: warning: the real message",
-                    location = null
-                )
-            ),
-            // kapt not a java file - no dot
-            TestParams(
-                message = "/foo/bar/Subjectjava:2: warning: the real message",
-                severity = CompilerMessageSeverity.WARNING,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.WARNING,
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "/foo/bar/Subject.javan:2: warning: the real message",
+                            location = null
+                        )
+                ),
+                // kapt not a java file - no dot
+                TestParams(
                     message = "/foo/bar/Subjectjava:2: warning: the real message",
-                    location = null
-                )
-            ),
-            // ksp kotlin on Windows
-            TestParams(
-                message = "[ksp] C:\\foo\\bar\\Subject.kt:3: the real message",
-                severity = CompilerMessageSeverity.ERROR,
-                expected = RawDiagnosticMessage(
-                    kind = Diagnostic.Kind.ERROR,
-                    message = "the real message",
-                    location = Location(
-                        path = "C:\\foo\\bar\\Subject.kt",
-                        line = 3
-                    )
-                )
-            ),
-        )
+                    severity = CompilerMessageSeverity.WARNING,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.WARNING,
+                            message = "/foo/bar/Subjectjava:2: warning: the real message",
+                            location = null
+                        )
+                ),
+                // ksp kotlin on Windows
+                TestParams(
+                    message = "[ksp] C:\\foo\\bar\\Subject.kt:3: the real message",
+                    severity = CompilerMessageSeverity.ERROR,
+                    expected =
+                        RawDiagnosticMessage(
+                            kind = Diagnostic.Kind.ERROR,
+                            message = "the real message",
+                            location = Location(path = "C:\\foo\\bar\\Subject.kt", line = 3)
+                        )
+                ),
+            )
     }
 }

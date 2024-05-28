@@ -25,31 +25,21 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RawTypeCreationScenarioTest {
-    @get:Rule
-    val profileRule = ProfileRule()
+    @get:Rule val profileRule = ProfileRule()
 
     @Test
     fun profile() {
         val classCount = 1000
         val contents = buildString {
-            (0 until classCount).forEach { cnt ->
-                appendLine("class Sample$cnt")
-            }
+            (0 until classCount).forEach { cnt -> appendLine("class Sample$cnt") }
         }
         val sources = Source.kotlin("Sample.kt", contents)
         val classNames = (0 until classCount).map { "Sample$it" }
-        profileRule.runRepeated(
-            warmUps = 10,
-            repeat = 20
-        ) { profileScope ->
-            runKspTest(
-                sources = listOf(sources)
-            ) { invocation ->
+        profileRule.runRepeated(warmUps = 10, repeat = 20) { profileScope ->
+            runKspTest(sources = listOf(sources)) { invocation ->
                 profileScope.trace {
                     classNames.forEach { className ->
-                        invocation.processingEnv.requireTypeElement(
-                            className
-                        ).type.rawType
+                        invocation.processingEnv.requireTypeElement(className).type.rawType
                     }
                 }
             }

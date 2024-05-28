@@ -35,13 +35,14 @@ interface XMemberContainer : XElement {
      *
      * For top level members of a Kotlin file, you can use this [ClassName] for code generation.
      */
-     @Deprecated(
-         message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-         replaceWith = ReplaceWith(
-             expression = "asClassName().toJavaPoet()",
-             imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-         )
-     )
+    @Deprecated(
+        message = "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
+        replaceWith =
+            ReplaceWith(
+                expression = "asClassName().toJavaPoet()",
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
+            )
+    )
     val className: ClassName
 
     /**
@@ -57,13 +58,9 @@ interface XMemberContainer : XElement {
      */
     val type: XType?
 
-    /**
-     * Returns true if this member container's origin is Java source or class
-     */
+    /** Returns true if this member container's origin is Java source or class */
     fun isFromJava(): Boolean
 
-    /**
-     * Returns true if this member container's origin is Kotlin source or class
-     */
+    /** Returns true if this member container's origin is Kotlin source or class */
     fun isFromKotlin(): Boolean
 }

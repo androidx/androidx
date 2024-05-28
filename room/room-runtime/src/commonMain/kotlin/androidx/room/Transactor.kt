@@ -41,21 +41,17 @@ interface PooledConnection {
     suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R
 }
 
-/**
- * Executes a single SQL statement that returns no values.
- */
+/** Executes a single SQL statement that returns no values. */
 suspend fun PooledConnection.execSQL(sql: String) {
     usePrepared(sql) { it.step() }
 }
 
-/**
- * A [PooledConnection] that can perform transactions.
- */
+/** A [PooledConnection] that can perform transactions. */
 interface Transactor : PooledConnection {
 
     /**
-     * Begins a transaction and runs the [block] within the transaction. If [block] fails
-     * to complete normally i.e., an exception is thrown, or [TransactionScope.rollback] is invoked
+     * Begins a transaction and runs the [block] within the transaction. If [block] fails to
+     * complete normally i.e., an exception is thrown, or [TransactionScope.rollback] is invoked
      * then the transaction will be rollback, otherwise it is committed.
      *
      * If [inTransaction] returns `true` and this function is invoked it is the equivalent of
@@ -73,9 +69,7 @@ interface Transactor : PooledConnection {
         block: suspend TransactionScope<R>.() -> R
     ): R
 
-    /**
-     * Returns true if this connection has an active transaction, otherwise false.
-     */
+    /** Returns true if this connection has an active transaction, otherwise false. */
     suspend fun inTransaction(): Boolean
 
     /**
@@ -89,13 +83,11 @@ interface Transactor : PooledConnection {
          * accessed, may it be a read or a write.
          */
         DEFERRED,
-        /**
-         * The transaction mode that immediately starts a write transaction.
-         */
+        /** The transaction mode that immediately starts a write transaction. */
         IMMEDIATE,
         /**
-         * The transaction mode that immediately starts a write transaction and locks the
-         * database preventing others from accessing it.
+         * The transaction mode that immediately starts a write transaction and locks the database
+         * preventing others from accessing it.
          */
         EXCLUSIVE,
     }
@@ -109,9 +101,9 @@ interface Transactor : PooledConnection {
 interface TransactionScope<T> : PooledConnection {
 
     /**
-     * Begins a nested transaction and runs the [block] within the transaction. If [block] fails
-     * to complete normally i.e., an exception is thrown, or [rollback] is invoked
-     * then the transaction will be rollback, otherwise it is committed.
+     * Begins a nested transaction and runs the [block] within the transaction. If [block] fails to
+     * complete normally i.e., an exception is thrown, or [rollback] is invoked then the transaction
+     * will be rollback, otherwise it is committed.
      *
      * Note that a nested transaction is still governed by its parent transaction and it too must
      * complete successfully for all its children transactions to be committed.
@@ -131,23 +123,14 @@ interface TransactionScope<T> : PooledConnection {
     suspend fun rollback(result: T): Nothing
 }
 
-/**
- * Performs a [SQLiteTransactionType.DEFERRED] within the [block].
- */
-suspend fun <R> Transactor.deferredTransaction(
-    block: suspend TransactionScope<R>.() -> R
-): R = withTransaction(SQLiteTransactionType.DEFERRED, block)
+/** Performs a [SQLiteTransactionType.DEFERRED] within the [block]. */
+suspend fun <R> Transactor.deferredTransaction(block: suspend TransactionScope<R>.() -> R): R =
+    withTransaction(SQLiteTransactionType.DEFERRED, block)
 
-/**
- * Performs a [SQLiteTransactionType.IMMEDIATE] within the [block].
- */
-suspend fun <R> Transactor.immediateTransaction(
-    block: suspend TransactionScope<R>.() -> R
-): R = withTransaction(SQLiteTransactionType.IMMEDIATE, block)
+/** Performs a [SQLiteTransactionType.IMMEDIATE] within the [block]. */
+suspend fun <R> Transactor.immediateTransaction(block: suspend TransactionScope<R>.() -> R): R =
+    withTransaction(SQLiteTransactionType.IMMEDIATE, block)
 
-/**
- * Performs a [SQLiteTransactionType.EXCLUSIVE] within the [block].
- */
-suspend fun <R> Transactor.exclusiveTransaction(
-    block: suspend TransactionScope<R>.() -> R
-): R = withTransaction(SQLiteTransactionType.EXCLUSIVE, block)
+/** Performs a [SQLiteTransactionType.EXCLUSIVE] within the [block]. */
+suspend fun <R> Transactor.exclusiveTransaction(block: suspend TransactionScope<R>.() -> R): R =
+    withTransaction(SQLiteTransactionType.EXCLUSIVE, block)

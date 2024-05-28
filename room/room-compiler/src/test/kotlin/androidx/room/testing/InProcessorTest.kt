@@ -25,54 +25,55 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class InProcessorTest(
-    private val kotlinCode: Boolean
-) {
+class InProcessorTest(private val kotlinCode: Boolean) {
     @Test
     fun testInProcessorTestRuns() {
-        val source = if (kotlinCode) {
-            Source.kotlin(
-                filePath = "MyClass.kt",
-                code = """
+        val source =
+            if (kotlinCode) {
+                Source.kotlin(
+                    filePath = "MyClass.kt",
+                    code =
+                        """
                 package foo.bar
                 abstract class MyClass {
                 @androidx.room.Query("foo")
                 abstract fun setFoo(foo: String):Unit
                 }
-                """.trimIndent()
-            )
-        } else {
-            Source.java(
-                qName = "foo.bar.MyClass",
-                code = """
+                """
+                            .trimIndent()
+                )
+            } else {
+                Source.java(
+                    qName = "foo.bar.MyClass",
+                    code =
+                        """
                 package foo.bar;
                 abstract public class MyClass {
                 @androidx.room.Query("foo")
                 abstract public void setFoo(String foo);
                 }
-                """.trimIndent()
-            )
-        }
+                """
+                            .trimIndent()
+                )
+            }
 
         var runCount = 0
         runProcessorTest(sources = listOf(source)) {
-            assertThat(
-                it.processingEnv.findTypeElement("foo.bar.MyClass")
-            ).isNotNull()
+            assertThat(it.processingEnv.findTypeElement("foo.bar.MyClass")).isNotNull()
             runCount++
         }
         // run 1 or 2 times
         // +1 if KSP is enabled
         // 1 for javac or kapt depending on whether source is in kotlin or java
-        assertThat(
-            runCount
-        ).isEqualTo(
-            1 + if (CompilationTestCapabilities.canTestWithKsp) {
-                1
-            } else {
-                0
-            }
-        )
+        assertThat(runCount)
+            .isEqualTo(
+                1 +
+                    if (CompilationTestCapabilities.canTestWithKsp) {
+                        1
+                    } else {
+                        0
+                    }
+            )
     }
 
     companion object {

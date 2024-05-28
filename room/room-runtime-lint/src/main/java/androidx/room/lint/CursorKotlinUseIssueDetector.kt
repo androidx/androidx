@@ -34,20 +34,21 @@ import org.jetbrains.uast.UCallExpression
 class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val DESCRIPTION = "Usage of `kotlin.io.use()` with Cursor requires API 16."
-        val ISSUE = Issue.create(
-            id = "CursorKotlinUse",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "CursorKotlinUse",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 The use of `kotlin.io.use()` with `android.database.Cursor` is not safe when min
                 API level is less than 16 since Cursor does not implement Closeable.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                CursorKotlinUseIssueDetector::class.java, Scope.JAVA_FILE_SCOPE
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(CursorKotlinUseIssueDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 
     override fun getApplicableMethodNames(): List<String> = listOf("use")
@@ -64,7 +65,7 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
         // If the call is within an SDK_INT check, then its OK
         if (
             VersionChecks.isWithinVersionCheckConditional(context, node, ApiConstraint.get(16)) ||
-            VersionChecks.isPrecededByVersionCheckExit(context, node, ApiConstraint.get(16))
+                VersionChecks.isPrecededByVersionCheckExit(context, node, ApiConstraint.get(16))
         ) {
             return
         }

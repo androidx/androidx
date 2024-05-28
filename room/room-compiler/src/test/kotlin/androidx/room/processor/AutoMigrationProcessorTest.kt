@@ -31,26 +31,27 @@ import org.junit.Test
 class AutoMigrationProcessorTest {
     @Test
     fun testElementHasNoArgConstructor() {
-        val source = Source.java(
-            "foo.bar.MyAutoMigration",
-            """
+        val source =
+            Source.java(
+                "foo.bar.MyAutoMigration",
+                """
             package foo.bar;
             import androidx.room.migration.AutoMigrationSpec;
             public class MyAutoMigration {
                 public MyAutoMigration (int x) {}
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                context = invocation.context,
-                spec = invocation.processingEnv.requireType(
-                    "foo.bar.MyAutoMigration"
-                ),
-                fromSchemaBundle = fromSchemaBundle.database,
-                toSchemaBundle = toSchemaBundle.database
-            ).process()
+                    context = invocation.context,
+                    spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
+                    fromSchemaBundle = fromSchemaBundle.database,
+                    toSchemaBundle = toSchemaBundle.database
+                )
+                .process()
             invocation.assertCompilationResult {
                 hasErrorContaining(AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR)
             }
@@ -59,22 +60,25 @@ class AutoMigrationProcessorTest {
 
     @Test
     fun testElementIsClass() {
-        val source = Source.java(
-            "foo.bar.MyAutoMigration",
-            """
+        val source =
+            Source.java(
+                "foo.bar.MyAutoMigration",
+                """
             package foo.bar;
             import androidx.room.migration.AutoMigrationSpec;
             public interface MyAutoMigration extends AutoMigrationSpec {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                context = invocation.context,
-                spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                fromSchemaBundle = fromSchemaBundle.database,
-                toSchemaBundle = toSchemaBundle.database
-            ).process()
+                    context = invocation.context,
+                    spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
+                    fromSchemaBundle = fromSchemaBundle.database,
+                    toSchemaBundle = toSchemaBundle.database
+                )
+                .process()
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS)
             }
@@ -83,26 +87,30 @@ class AutoMigrationProcessorTest {
 
     @Test
     fun testInnerClassMustBeStatic() {
-        val source = Source.java(
-            "foo.bar.MyAutoMigrationDb",
-            """
+        val source =
+            Source.java(
+                "foo.bar.MyAutoMigrationDb",
+                """
             package foo.bar;
             import androidx.room.migration.AutoMigrationSpec;
             public class MyAutoMigrationDb {
                 class MyAutoMigration implements AutoMigrationSpec {}
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                context = invocation.context,
-                spec = invocation.processingEnv.requireType(
-                    "foo.bar.MyAutoMigrationDb.MyAutoMigration"
-                ),
-                fromSchemaBundle = fromSchemaBundle.database,
-                toSchemaBundle = toSchemaBundle.database
-            ).process()
+                    context = invocation.context,
+                    spec =
+                        invocation.processingEnv.requireType(
+                            "foo.bar.MyAutoMigrationDb.MyAutoMigration"
+                        ),
+                    fromSchemaBundle = fromSchemaBundle.database,
+                    toSchemaBundle = toSchemaBundle.database
+                )
+                .process()
             invocation.assertCompilationResult {
                 hasErrorContaining(INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC)
             }
@@ -111,24 +119,27 @@ class AutoMigrationProcessorTest {
 
     @Test
     fun testClassImplementsAutoMigrationSpec() {
-        val source = Source.java(
-            "foo.bar.MyAutoMigration",
-            """
+        val source =
+            Source.java(
+                "foo.bar.MyAutoMigration",
+                """
             package foo.bar;
             import androidx.room.migration.AutoMigrationSpec;
             import androidx.room.AutoMigration;
             import androidx.sqlite.db.SupportSQLiteDatabase;
             public class MyAutoMigration {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
-                context = invocation.context,
-                spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
-                fromSchemaBundle = fromSchemaBundle.database,
-                toSchemaBundle = toSchemaBundle.database
-            ).process()
+                    context = invocation.context,
+                    spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
+                    fromSchemaBundle = fromSchemaBundle.database,
+                    toSchemaBundle = toSchemaBundle.database
+                )
+                .process()
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.autoMigrationElementMustImplementSpec("foo.bar.MyAutoMigration")
@@ -137,98 +148,56 @@ class AutoMigrationProcessorTest {
         }
     }
 
-    /**
-     * Schemas for processor testing.
-     */
-    val fromSchemaBundle = SchemaBundle(
-        1,
-        DatabaseBundle(
+    /** Schemas for processor testing. */
+    val fromSchemaBundle =
+        SchemaBundle(
             1,
-            "",
-            mutableListOf(
-                EntityBundle(
-                    "Song",
-                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
-                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
-                    listOf(
-                        FieldBundle(
-                            "id",
-                            "id",
-                            "INTEGER",
-                            true,
-                            "1"
+            DatabaseBundle(
+                1,
+                "",
+                mutableListOf(
+                    EntityBundle(
+                        "Song",
+                        "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                            "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        listOf(
+                            FieldBundle("id", "id", "INTEGER", true, "1"),
+                            FieldBundle("title", "title", "TEXT", true, ""),
+                            FieldBundle("length", "length", "INTEGER", true, "1")
                         ),
-                        FieldBundle(
-                            "title",
-                            "title",
-                            "TEXT",
-                            true,
-                            ""
-                        ),
-                        FieldBundle(
-                            "length",
-                            "length",
-                            "INTEGER",
-                            true,
-                            "1"
-                        )
-                    ),
-                    PrimaryKeyBundle(
-                        false,
-                        mutableListOf("id")
-                    ),
-                    mutableListOf(),
-                    mutableListOf()
-                )
-            ),
-            mutableListOf(),
-            mutableListOf()
+                        PrimaryKeyBundle(false, mutableListOf("id")),
+                        mutableListOf(),
+                        mutableListOf()
+                    )
+                ),
+                mutableListOf(),
+                mutableListOf()
+            )
         )
-    )
 
-    val toSchemaBundle = SchemaBundle(
-        2,
-        DatabaseBundle(
+    val toSchemaBundle =
+        SchemaBundle(
             2,
-            "",
-            mutableListOf(
-                EntityBundle(
-                    "Song",
-                    "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
-                        "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
-                    listOf(
-                        FieldBundle(
-                            "id",
-                            "id",
-                            "INTEGER",
-                            true,
-                            "1"
+            DatabaseBundle(
+                2,
+                "",
+                mutableListOf(
+                    EntityBundle(
+                        "Song",
+                        "CREATE TABLE IF NOT EXISTS `Song` (`id` INTEGER NOT NULL, " +
+                            "`title` TEXT NOT NULL, `length` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+                        listOf(
+                            FieldBundle("id", "id", "INTEGER", true, "1"),
+                            FieldBundle("title", "title", "TEXT", true, ""),
+                            FieldBundle("length", "length", "INTEGER", true, "1")
                         ),
-                        FieldBundle(
-                            "title",
-                            "title",
-                            "TEXT",
-                            true,
-                            ""
-                        ),
-                        FieldBundle(
-                            "length",
-                            "length",
-                            "INTEGER",
-                            true,
-                            "1"
-                        )
-                    ),
-                    PrimaryKeyBundle(
-                        false,
-                        mutableListOf("id")
-                    ),
-                    mutableListOf(),
-                    mutableListOf()
-                )
-            ),
-            mutableListOf(),
-            mutableListOf()
+                        PrimaryKeyBundle(false, mutableListOf("id")),
+                        mutableListOf(),
+                        mutableListOf()
+                    )
+                ),
+                mutableListOf(),
+                mutableListOf()
+            )
         )
-    )
 }

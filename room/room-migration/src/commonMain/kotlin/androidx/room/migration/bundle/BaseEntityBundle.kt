@@ -20,24 +20,16 @@ import androidx.annotation.RestrictTo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Base class that holds common schema information about an entity.
- */
+/** Base class that holds common schema information about an entity. */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 sealed class BaseEntityBundle {
-    @SerialName("tableName")
-    abstract val tableName: String
-    @SerialName("createSql")
-    abstract val createSql: String
-    @SerialName("fields")
-    abstract val fields: List<FieldBundle>
-    @SerialName("primaryKey")
-    abstract val primaryKey: PrimaryKeyBundle
-    @SerialName("indices")
-    abstract val indices: List<IndexBundle>
-    @SerialName("foreignKeys")
-    abstract val foreignKeys: List<ForeignKeyBundle>
+    @SerialName("tableName") abstract val tableName: String
+    @SerialName("createSql") abstract val createSql: String
+    @SerialName("fields") abstract val fields: List<FieldBundle>
+    @SerialName("primaryKey") abstract val primaryKey: PrimaryKeyBundle
+    @SerialName("indices") abstract val indices: List<IndexBundle>
+    @SerialName("foreignKeys") abstract val foreignKeys: List<ForeignKeyBundle>
 
     companion object {
         const val NEW_TABLE_PREFIX: String = "_new_"
@@ -52,29 +44,21 @@ sealed class BaseEntityBundle {
         fields.associateBy { it.columnName }
     }
 
-    /**
-     * CREATE TABLE SQL query that uses the actual table name.
-     */
+    /** CREATE TABLE SQL query that uses the actual table name. */
     fun createTable(): String {
         return replaceTableName(createSql, tableName)
     }
 
-    /**
-     * CREATE TABLE SQL query that uses the table name with "new" prefix.
-     */
+    /** CREATE TABLE SQL query that uses the table name with "new" prefix. */
     fun createNewTable(): String {
         return replaceTableName(createSql, newTableName)
     }
 
-    /**
-     * Renames the table with [newTableName] to [tableName].
-     */
+    /** Renames the table with [newTableName] to [tableName]. */
     fun renameToOriginal(): String {
         return "ALTER TABLE $newTableName RENAME TO $tableName"
     }
 
-    /**
-     * Creates the list of SQL queries that are necessary to create this entity.
-     */
+    /** Creates the list of SQL queries that are necessary to create this entity. */
     abstract fun buildCreateQueries(): List<String>
 }

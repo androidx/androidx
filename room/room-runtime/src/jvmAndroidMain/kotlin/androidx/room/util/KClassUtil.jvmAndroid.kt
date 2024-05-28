@@ -44,18 +44,20 @@ fun <T, C> findAndInstantiateDatabaseImpl(klass: Class<C>, suffix: String = "_Im
         if (fullPackage.isEmpty()) name else name.substring(fullPackage.length + 1)
     val implName = postPackageName.replace('.', '_') + suffix
     return try {
-        val fullClassName = if (fullPackage.isEmpty()) {
-            implName
-        } else {
-            "$fullPackage.$implName"
-        }
+        val fullClassName =
+            if (fullPackage.isEmpty()) {
+                implName
+            } else {
+                "$fullPackage.$implName"
+            }
         @Suppress("UNCHECKED_CAST")
         val aClass = Class.forName(fullClassName, true, klass.classLoader) as Class<T>
         aClass.getDeclaredConstructor().newInstance()
     } catch (e: ClassNotFoundException) {
         throw RuntimeException(
             "Cannot find implementation for ${klass.canonicalName}. $implName does not " +
-                "exist. Is Room annotation processor correctly configured?", e
+                "exist. Is Room annotation processor correctly configured?",
+            e
         )
     } catch (e: IllegalAccessException) {
         throw RuntimeException("Cannot access the constructor ${klass.canonicalName}", e)

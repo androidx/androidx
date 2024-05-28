@@ -43,8 +43,7 @@ import org.junit.Test
 @MediumTest
 @OptIn(ExperimentalRoomApi::class)
 class AutoClosingDatabaseTest {
-    @get:Rule
-    val executorRule = CountingTaskExecutorRule()
+    @get:Rule val executorRule = CountingTaskExecutorRule()
 
     private lateinit var db: TestDatabase
     private lateinit var userDao: TestUserDao
@@ -53,9 +52,10 @@ class AutoClosingDatabaseTest {
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.deleteDatabase("testDb")
-        db = Room.databaseBuilder(context, TestDatabase::class.java, "testDb")
-            .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
-            .build()
+        db =
+            Room.databaseBuilder(context, TestDatabase::class.java, "testDb")
+                .setAutoCloseTimeout(10, TimeUnit.MILLISECONDS)
+                .build()
         userDao = db.getUserDao()
     }
 
@@ -108,13 +108,10 @@ class AutoClosingDatabaseTest {
 
     @Dao
     interface TestUserDao {
-        @Insert
-        fun insert(user: TestUser)
+        @Insert fun insert(user: TestUser)
 
-        @Query("SELECT * FROM user WHERE id = :id")
-        fun get(id: Long): TestUser
+        @Query("SELECT * FROM user WHERE id = :id") fun get(id: Long): TestUser
     }
 
-    @Entity(tableName = "user")
-    data class TestUser(@PrimaryKey val id: Long, val data: String)
+    @Entity(tableName = "user") data class TestUser(@PrimaryKey val id: Long, val data: String)
 }

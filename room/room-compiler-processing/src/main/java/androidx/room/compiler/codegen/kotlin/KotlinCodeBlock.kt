@@ -27,9 +27,7 @@ import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 
-internal class KotlinCodeBlock(
-    internal val actual: KCodeBlock
-) : KotlinLang(), XCodeBlock {
+internal class KotlinCodeBlock(internal val actual: KCodeBlock) : KotlinLang(), XCodeBlock {
 
     override fun toString() = actual.toString()
 
@@ -90,17 +88,11 @@ internal class KotlinCodeBlock(
             actual.nextControlFlow(processedControlFlow, *processedArgs)
         }
 
-        override fun endControlFlow() = apply {
-            actual.endControlFlow()
-        }
+        override fun endControlFlow() = apply { actual.endControlFlow() }
 
-        override fun indent() = apply {
-            actual.indent()
-        }
+        override fun indent() = apply { actual.indent() }
 
-        override fun unindent() = apply {
-            actual.unindent()
-        }
+        override fun unindent() = apply { actual.unindent() }
 
         override fun build(): XCodeBlock {
             return KotlinCodeBlock(actual.build())

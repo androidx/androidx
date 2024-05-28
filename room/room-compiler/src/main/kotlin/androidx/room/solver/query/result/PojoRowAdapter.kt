@@ -54,16 +54,17 @@ class PojoRowAdapter(
         val unusedColumns = arrayListOf<String>()
         val matchedFields: List<Field>
         if (info != null) {
-            matchedFields = info.columns.mapNotNull { column ->
-                val field = remainingFields.firstOrNull { it.columnName == column.name }
-                if (field == null) {
-                    unusedColumns.add(column.name)
-                    null
-                } else {
-                    remainingFields.remove(field)
-                    field
+            matchedFields =
+                info.columns.mapNotNull { column ->
+                    val field = remainingFields.firstOrNull { it.columnName == column.name }
+                    if (field == null) {
+                        unusedColumns.add(column.name)
+                        null
+                    } else {
+                        remainingFields.remove(field)
+                        field
+                    }
                 }
-            }
             val nonNulls = remainingFields.filter { it.nonNull }
             if (nonNulls.isNotEmpty()) {
                 context.logger.e(
@@ -87,25 +88,28 @@ class PojoRowAdapter(
         }
         relationCollectors = RelationCollector.createCollectors(context, pojo.relations)
 
-        mapping = PojoMapping(
-            pojo = pojo,
-            matchedFields = matchedFields,
-            unusedColumns = unusedColumns,
-            unusedFields = remainingFields
-        )
+        mapping =
+            PojoMapping(
+                pojo = pojo,
+                matchedFields = matchedFields,
+                unusedColumns = unusedColumns,
+                unusedFields = remainingFields
+            )
 
         indexAdapter = PojoIndexAdapter(mapping, info, query)
     }
 
     fun relationTableNames(): List<String> {
-        return relationCollectors.flatMap {
-            val queryTableNames = it.loadAllQuery.tables.map { it.name }
-            if (it.rowAdapter is PojoRowAdapter) {
-                it.rowAdapter.relationTableNames() + queryTableNames
-            } else {
-                queryTableNames
+        return relationCollectors
+            .flatMap {
+                val queryTableNames = it.loadAllQuery.tables.map { it.name }
+                if (it.rowAdapter is PojoRowAdapter) {
+                    it.rowAdapter.relationTableNames() + queryTableNames
+                } else {
+                    queryTableNames
+                }
             }
-        }.distinct()
+            .distinct()
     }
 
     override fun onCursorReady(
@@ -113,10 +117,11 @@ class PojoRowAdapter(
         scope: CodeGenScope,
         indices: List<ColumnIndexVar>
     ) {
-        fieldsWithIndices = indices.map { (column, indexVar) ->
-            val field = mapping.matchedFields.first { it.columnName == column }
-            FieldWithIndex(field = field, indexVar = indexVar, alwaysExists = info != null)
-        }
+        fieldsWithIndices =
+            indices.map { (column, indexVar) ->
+                val field = mapping.matchedFields.first { it.columnName == column }
+                FieldWithIndex(field = field, indexVar = indexVar, alwaysExists = info != null)
+            }
         emitRelationCollectorsReady(cursorVarName, scope)
     }
 

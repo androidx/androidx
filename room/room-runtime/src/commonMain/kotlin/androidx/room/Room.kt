@@ -16,12 +16,8 @@
 
 package androidx.room
 
-/**
- * Entry point for building and initializing a [RoomDatabase].
- */
+/** Entry point for building and initializing a [RoomDatabase]. */
 expect object Room {
-    /**
-     * The master table name where Room keeps its metadata information.
-     */
+    /** The master table name where Room keeps its metadata information. */
     val MASTER_TABLE_NAME: String
 }

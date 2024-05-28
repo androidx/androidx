@@ -127,9 +127,7 @@ class AmbiguousColumnResolverTest {
         // Verifies the 'value columns null check' also use the resolved column indices.
         val user3 = User(3, "Tom")
         dao.insertUser(user3)
-        dao.getLeftJoinUserCommentMap().let { result ->
-            assertThat(result[user3]).isEmpty()
-        }
+        dao.getLeftJoinUserCommentMap().let { result -> assertThat(result[user3]).isEmpty() }
     }
 
     @Test
@@ -143,11 +141,12 @@ class AmbiguousColumnResolverTest {
     @Test
     fun embeddedAliased() {
         val result = dao.getUserCommentEmbeddedAliased()
-        assertThat(result).containsExactly(
-            UserAndCommentAliased(user1.id, user1.name, comment1.id, comment1.text),
-            UserAndCommentAliased(user2.id, user2.name, comment2.id, comment2.text),
-            UserAndCommentAliased(user2.id, user2.name, comment3.id, comment3.text),
-        )
+        assertThat(result)
+            .containsExactly(
+                UserAndCommentAliased(user1.id, user1.name, comment1.id, comment1.text),
+                UserAndCommentAliased(user2.id, user2.name, comment2.id, comment2.text),
+                UserAndCommentAliased(user2.id, user2.name, comment3.id, comment3.text),
+            )
     }
 
     @Database(
@@ -161,14 +160,11 @@ class AmbiguousColumnResolverTest {
 
     @Dao
     interface TestDao {
-        @Insert
-        fun insertUser(user: User)
+        @Insert fun insertUser(user: User)
 
-        @Insert
-        fun insertComment(comment: Comment)
+        @Insert fun insertComment(comment: Comment)
 
-        @Insert
-        fun insertAvatar(avatar: Avatar)
+        @Insert fun insertAvatar(avatar: Avatar)
 
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
         fun getUserCommentMap(): Map<User, List<Comment>>
@@ -187,10 +183,12 @@ class AmbiguousColumnResolverTest {
         @Query("SELECT * FROM Comment JOIN Avatar ON Comment.userId = Avatar.userId")
         fun getCommentAvatarMapWithoutQueryVerification(): Map<Comment, Avatar>
 
-        @Query("""
+        @Query(
+            """
             SELECT User.id, name, Comment.id, userId, text
             FROM User JOIN Comment ON User.id = Comment.userId
-            """)
+            """
+        )
         fun getUserCommentMapWithoutStarProjection(): Map<User, List<Comment>>
 
         // This works because star projections are ordered from queried tables, but if the JOIN
@@ -205,22 +203,25 @@ class AmbiguousColumnResolverTest {
         // it would return bad results, hence the AMBIGUOUS_COLUMN_IN_RESULT.
         @Suppress(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)
         @Query("SELECT User.id, Comment.* FROM User JOIN Comment ON User.id = Comment.userId")
-        fun getUserIdAndCommentsTableOrderSwapped():
-            Map<@MapColumn("id") Int, List<Comment>>
+        fun getUserIdAndCommentsTableOrderSwapped(): Map<@MapColumn("id") Int, List<Comment>>
 
         // Aliasing the single ambiguous column is good.
-        @Query("""
+        @Query(
+            """
             SELECT Comment.*, User.id as user_id
             FROM User JOIN Comment ON User.id = Comment.userId
-            """)
+            """
+        )
         fun getUserIdAliasedAndCommentsTableOrderSwapped():
-            Map<@MapColumn("user_id")Int, List<Comment>>
+            Map<@MapColumn("user_id") Int, List<Comment>>
 
-        @Query("""
+        @Query(
+            """
             SELECT User.id, count(*) AS commentsCount
             FROM User JOIN Comment ON User.id = Comment.userId
             GROUP BY User.id
-            """)
+            """
+        )
         fun getUserIdAndAmountOfComments():
             Map<@MapColumn("id") Int, @MapColumn("commentsCount") Int>
 
@@ -237,10 +238,12 @@ class AmbiguousColumnResolverTest {
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
         fun getUserAndAvatarCommentMap(): Map<UserAndAvatar, List<Comment>>
 
-        @Query("""
+        @Query(
+            """
             SELECT User.id AS user_id, name, Comment.id AS comment_id, text
             FROM User JOIN Comment ON User.id = Comment.userId
-            """)
+            """
+        )
         fun getUserCommentEmbeddedAliased(): List<UserAndCommentAliased>
     }
 
@@ -269,10 +272,7 @@ class AmbiguousColumnResolverTest {
         @Relation(parentColumn = "id", entityColumn = "userId") val avatar: Avatar?,
     )
 
-    data class UserAndComment(
-        @Embedded val user: User,
-        @Embedded val comment: Comment
-    )
+    data class UserAndComment(@Embedded val user: User, @Embedded val comment: Comment)
 
     data class UserAndCommentAliased(
         @ColumnInfo(name = "user_id") val userId: Int,

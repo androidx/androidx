@@ -29,19 +29,18 @@ class XMessagerTest {
     @Test
     fun errorLogTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "Foo",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "Foo",
+                        """
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
-            it.processingEnv.messager.printMessage(
-                Diagnostic.Kind.ERROR,
-                "intentional failure"
-            )
+            it.processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, "intentional failure")
             it.assertCompilationResult {
                 compilationDidFail()
                 hasErrorCount(1)
@@ -54,19 +53,18 @@ class XMessagerTest {
     @Test
     fun warningLogTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "Foo",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "Foo",
+                        """
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
-            it.processingEnv.messager.printMessage(
-                Diagnostic.Kind.WARNING,
-                "intentional warning"
-            )
+            it.processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "intentional warning")
             it.assertCompilationResult {
                 hasErrorCount(0)
                 hasWarningCount(1)
@@ -78,19 +76,18 @@ class XMessagerTest {
     @Test
     fun noteLogTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "Foo",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "Foo",
+                        """
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
-            it.processingEnv.messager.printMessage(
-                Diagnostic.Kind.NOTE,
-                "intentional note"
-            )
+            it.processingEnv.messager.printMessage(Diagnostic.Kind.NOTE, "intentional note")
             it.assertCompilationResult {
                 hasErrorCount(0)
                 hasWarningCount(0)
@@ -102,14 +99,16 @@ class XMessagerTest {
     @Test
     fun errorOnElementTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "Foo",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "Foo",
+                        """
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("Foo")
             it.processingEnv.messager.printMessage(
@@ -121,8 +120,7 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasErrorContaining("intentional failure")
-                    .onLineContaining("class Foo")
+                hasErrorContaining("intentional failure").onLineContaining("class Foo")
             }
         }
     }
@@ -130,28 +128,30 @@ class XMessagerTest {
     @Test
     fun errorOnAnnotationTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "test.FooAnnotation",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "test.FooAnnotation",
+                        """
                     package test;
                     @interface FooAnnotation {}
-                    """.trimIndent()
-                ),
-                Source.java(
-                    "test.Foo",
                     """
+                            .trimIndent()
+                    ),
+                    Source.java(
+                        "test.Foo",
+                        """
                     package test;
                     @FooAnnotation
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("test.Foo")
-            val fooAnnotations = fooElement.getAllAnnotations().filter {
-                it.qualifiedName == "test.FooAnnotation"
-            }
+            val fooAnnotations =
+                fooElement.getAllAnnotations().filter { it.qualifiedName == "test.FooAnnotation" }
             assertThat(fooAnnotations).hasSize(1)
             val fooAnnotation = fooAnnotations.get(0)
             it.processingEnv.messager.printMessage(
@@ -164,8 +164,7 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasErrorContaining("intentional failure")
-                    .onLineContaining("@FooAnnotation")
+                hasErrorContaining("intentional failure").onLineContaining("@FooAnnotation")
             }
         }
     }
@@ -173,35 +172,35 @@ class XMessagerTest {
     @Test
     fun errorOnAnnotationValueTest() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "test.FooAnnotation",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "test.FooAnnotation",
+                        """
                     package test;
                     @interface FooAnnotation {
                       String value();
                     }
-                    """.trimIndent()
-                ),
-                Source.java(
-                    "test.Foo",
                     """
+                            .trimIndent()
+                    ),
+                    Source.java(
+                        "test.Foo",
+                        """
                     package test;
                     @FooAnnotation("fooValue")
                     class Foo {}
-                    """.trimIndent()
+                    """
+                            .trimIndent()
+                    )
                 )
-            )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("test.Foo")
-            val fooAnnotations = fooElement.getAllAnnotations().filter {
-                it.qualifiedName == "test.FooAnnotation"
-            }
+            val fooAnnotations =
+                fooElement.getAllAnnotations().filter { it.qualifiedName == "test.FooAnnotation" }
             assertThat(fooAnnotations).hasSize(1)
             val fooAnnotation = fooAnnotations.get(0)
-            val fooAnnotationValue = fooAnnotation.annotationValues.first {
-                it.name == "value"
-            }
+            val fooAnnotationValue = fooAnnotation.annotationValues.first { it.name == "value" }
             assertThat(fooAnnotationValue).isNotNull()
             it.processingEnv.messager.printMessage(
                 Diagnostic.Kind.ERROR,
@@ -214,8 +213,7 @@ class XMessagerTest {
                 compilationDidFail()
                 hasErrorCount(1)
                 hasWarningCount(0)
-                hasErrorContaining("intentional failure")
-                    .onLineContaining("@FooAnnotation")
+                hasErrorContaining("intentional failure").onLineContaining("@FooAnnotation")
             }
         }
     }

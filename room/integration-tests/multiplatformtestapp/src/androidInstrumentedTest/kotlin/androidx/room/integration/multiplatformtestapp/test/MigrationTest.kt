@@ -38,20 +38,22 @@ class MigrationTest : BaseMigrationTest() {
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     @get:Rule
-    val migrationTestHelper = MigrationTestHelper(
-        instrumentation = instrumentation,
-        driver = driver,
-        databaseClass = MigrationDatabase::class,
-        file = file
-    )
+    val migrationTestHelper =
+        MigrationTestHelper(
+            instrumentation = instrumentation,
+            driver = driver,
+            databaseClass = MigrationDatabase::class,
+            file = file
+        )
 
     override fun getTestHelper() = migrationTestHelper
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
         return Room.databaseBuilder<MigrationDatabase>(
-            context = instrumentation.targetContext,
-            name = file.path
-        ).setDriver(driver)
+                context = instrumentation.targetContext,
+                name = file.path
+            )
+            .setDriver(driver)
     }
 
     @Test
@@ -61,22 +63,26 @@ class MigrationTest : BaseMigrationTest() {
         connection.close()
 
         // Create database with a migration overriding the wrong function
-        val v2Db = Room.databaseBuilder<MigrationDatabase>(
-            context = instrumentation.targetContext,
-            name = file.path
-        ).setDriver(driver).addMigrations(
-            object : Migration(1, 2) {
-                override fun migrate(db: SupportSQLiteDatabase) {}
-            }
-        ).build()
+        val v2Db =
+            Room.databaseBuilder<MigrationDatabase>(
+                    context = instrumentation.targetContext,
+                    name = file.path
+                )
+                .setDriver(driver)
+                .addMigrations(
+                    object : Migration(1, 2) {
+                        override fun migrate(db: SupportSQLiteDatabase) {}
+                    }
+                )
+                .build()
         // Expect failure due to database being configured with driver but migration object is
         // overriding SupportSQLite* version.
-        assertThrows<NotImplementedError> {
-            v2Db.dao().getSingleItem(1)
-        }.hasMessageThat().isEqualTo(
-            "Migration functionality with a provided SQLiteDriver requires overriding the " +
-                "migrate(SQLiteConnection) function."
-        )
+        assertThrows<NotImplementedError> { v2Db.dao().getSingleItem(1) }
+            .hasMessageThat()
+            .isEqualTo(
+                "Migration functionality with a provided SQLiteDriver requires overriding the " +
+                    "migrate(SQLiteConnection) function."
+            )
         v2Db.close()
     }
 

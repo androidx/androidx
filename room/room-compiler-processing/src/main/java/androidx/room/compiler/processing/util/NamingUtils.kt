@@ -19,18 +19,15 @@ package androidx.room.compiler.processing.util
 import javax.lang.model.SourceVersion
 
 /**
- * Kotlin might generate names that are not valid in Java source code (but valid in binary).
- * This helper method is used to sanitize them for method parameters.
+ * Kotlin might generate names that are not valid in Java source code (but valid in binary). This
+ * helper method is used to sanitize them for method parameters.
  */
-internal fun String?.sanitizeAsJavaParameterName(
-    argIndex: Int
-): String = if (this != null && SourceVersion.isName(this)) {
-    this
-} else {
-    "p$argIndex"
-}
+internal fun String?.sanitizeAsJavaParameterName(argIndex: Int): String =
+    if (this != null && SourceVersion.isName(this)) {
+        this
+    } else {
+        "p$argIndex"
+    }
 
-/**
- * Returns true if the given name can be used in generated java sources.
- */
+/** Returns true if the given name can be used in generated java sources. */
 internal fun String.isValidJavaSourceName() = SourceVersion.isName(this)

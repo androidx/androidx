@@ -29,9 +29,7 @@ import org.junit.Before
 import org.junit.Rule
 
 abstract class TestDatabaseTest {
-    @Rule
-    @JvmField
-    val countingTaskExecutorRule = CountingTaskExecutorRule()
+    @Rule @JvmField val countingTaskExecutorRule = CountingTaskExecutorRule()
     protected lateinit var database: TestDatabase
     protected lateinit var booksDao: BooksDao
     protected lateinit var usersDao: UsersDao
@@ -39,11 +37,12 @@ abstract class TestDatabaseTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            TestDatabase::class.java
-        )
-            .build()
+        database =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    TestDatabase::class.java
+                )
+                .build()
 
         booksDao = database.booksDao()
         usersDao = database.usersDao()

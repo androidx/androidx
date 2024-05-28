@@ -43,18 +43,18 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
         val typeArg = declared.typeArguments[1]
-        val adapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
-            ListQueryResultAdapter(typeArg, it)
-        }
+        val adapter =
+            context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
+                ListQueryResultAdapter(typeArg, it)
+            }
 
-        val tableNames = (
-            (adapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }
-            ).toSet()
-        val countedBinder = PositionalDataSourceQueryResultBinder(
-            listAdapter = adapter,
-            tableNames = tableNames,
-        )
+        val tableNames =
+            ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()
+        val countedBinder =
+            PositionalDataSourceQueryResultBinder(
+                listAdapter = adapter,
+                tableNames = tableNames,
+            )
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 

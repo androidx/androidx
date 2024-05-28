@@ -47,13 +47,12 @@ data class FtsOptions(
 
     fun databaseDefinition(includeTokenizer: Boolean = true): List<String> {
         return mutableListOf<String>().apply {
-            if (includeTokenizer && (
-                tokenizer != androidx.room.FtsOptions.TOKENIZER_SIMPLE ||
-                    tokenizerArgs.isNotEmpty()
-                )
+            if (
+                includeTokenizer &&
+                    (tokenizer != androidx.room.FtsOptions.TOKENIZER_SIMPLE ||
+                        tokenizerArgs.isNotEmpty())
             ) {
-                val tokenizeAndArgs = listOf("tokenize=$tokenizer") +
-                    tokenizerArgs.map { "`$it`" }
+                val tokenizeAndArgs = listOf("tokenize=$tokenizer") + tokenizerArgs.map { "`$it`" }
                 add(tokenizeAndArgs.joinToString(separator = " "))
             }
 
@@ -69,9 +68,7 @@ data class FtsOptions(
                 add("matchinfo=${matchInfo.name.lowercase(Locale.US)}")
             }
 
-            notIndexedColumns.forEach {
-                add("notindexed=`$it`")
-            }
+            notIndexedColumns.forEach { add("notindexed=`$it`") }
 
             if (prefixSizes.isNotEmpty()) {
                 add("prefix=`${prefixSizes.joinToString(separator = ",") { it.toString() }}`")
@@ -83,26 +80,29 @@ data class FtsOptions(
         }
     }
 
-    fun toBundle() = FtsOptionsBundle(
-        tokenizer,
-        tokenizerArgs,
-        contentEntity?.tableName ?: "",
-        languageIdColumnName,
-        matchInfo.name,
-        notIndexedColumns,
-        prefixSizes,
-        preferredOrder.name
-    )
+    fun toBundle() =
+        FtsOptionsBundle(
+            tokenizer,
+            tokenizerArgs,
+            contentEntity?.tableName ?: "",
+            languageIdColumnName,
+            matchInfo.name,
+            notIndexedColumns,
+            prefixSizes,
+            preferredOrder.name
+        )
 
     companion object {
-        val defaultTokenizers = listOf(
-            androidx.room.FtsOptions.TOKENIZER_SIMPLE,
-            androidx.room.FtsOptions.TOKENIZER_PORTER,
-            // Even though ICU is one of the default tokenizer in Room's API and in Android, the
-            // SQLite JDBC library is not compiled with ICU turned ON and Room will fail to create
-            // the table, therefore treat it as a custom tokenizer. b/201753224
-            // androidx.room.FtsOptions.TOKENIZER_ICU,
-            androidx.room.FtsOptions.TOKENIZER_UNICODE61
-        )
+        val defaultTokenizers =
+            listOf(
+                androidx.room.FtsOptions.TOKENIZER_SIMPLE,
+                androidx.room.FtsOptions.TOKENIZER_PORTER,
+                // Even though ICU is one of the default tokenizer in Room's API and in Android, the
+                // SQLite JDBC library is not compiled with ICU turned ON and Room will fail to
+                // create
+                // the table, therefore treat it as a custom tokenizer. b/201753224
+                // androidx.room.FtsOptions.TOKENIZER_ICU,
+                androidx.room.FtsOptions.TOKENIZER_UNICODE61
+            )
     }
 }

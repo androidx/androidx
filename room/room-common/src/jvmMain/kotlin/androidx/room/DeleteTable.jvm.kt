@@ -17,8 +17,8 @@
 package androidx.room
 
 /**
- * Repeatable annotation declaring the deleted tables in the [AutoMigration.to] version of
- * an auto migration.
+ * Repeatable annotation declaring the deleted tables in the [AutoMigration.to] version of an auto
+ * migration.
  *
  * @see AutoMigration
  */
@@ -33,12 +33,8 @@ public actual annotation class DeleteTable(
      */
     actual val tableName: String
 ) {
-    /**
-     * Container annotation for the repeatable annotation [DeleteTable].
-     */
+    /** Container annotation for the repeatable annotation [DeleteTable]. */
     @Target(AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.BINARY)
-    public annotation class Entries(
-        vararg val value: DeleteTable
-    )
+    public annotation class Entries(vararg val value: DeleteTable)
 }

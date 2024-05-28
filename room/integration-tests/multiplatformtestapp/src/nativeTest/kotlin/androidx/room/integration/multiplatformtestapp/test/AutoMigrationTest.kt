@@ -32,20 +32,20 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
 
     private val dbFactory = { AutoMigrationDatabase::class.instantiateImpl() }
 
-    private val migrationTestHelper = MigrationTestHelper(
-        schemaDirectoryPath = getSchemaDirectoryPath(),
-        fileName = filename,
-        driver = driver,
-        databaseClass = AutoMigrationDatabase::class,
-        databaseFactory = dbFactory,
-        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
-    )
+    private val migrationTestHelper =
+        MigrationTestHelper(
+            schemaDirectoryPath = getSchemaDirectoryPath(),
+            fileName = filename,
+            driver = driver,
+            databaseClass = AutoMigrationDatabase::class,
+            databaseFactory = dbFactory,
+            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+        )
 
     override fun getTestHelper() = migrationTestHelper
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
-        return Room.databaseBuilder<AutoMigrationDatabase>(filename, dbFactory)
-            .setDriver(driver)
+        return Room.databaseBuilder<AutoMigrationDatabase>(filename, dbFactory).setDriver(driver)
     }
 
     @BeforeTest

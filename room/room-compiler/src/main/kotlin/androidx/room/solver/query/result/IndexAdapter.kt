@@ -27,9 +27,7 @@ import androidx.room.vo.ColumnIndexVar
  */
 interface IndexAdapter {
 
-    /**
-     * Called when the cursor variable is ready.
-     */
+    /** Called when the cursor variable is ready. */
     fun onCursorReady(cursorVarName: String, scope: CodeGenScope)
 
     fun getIndexVars(): List<ColumnIndexVar>

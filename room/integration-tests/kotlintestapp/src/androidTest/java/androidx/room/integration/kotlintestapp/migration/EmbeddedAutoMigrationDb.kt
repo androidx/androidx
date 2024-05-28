@@ -29,35 +29,31 @@ import java.io.Serializable
 
 @Database(
     version = EmbeddedAutoMigrationDb.LATEST_VERSION,
-    entities = [
-        EmbeddedAutoMigrationDb.Entity1::class,
-        EmbeddedAutoMigrationDb.EmbeddedEntity1::class,
-        EmbeddedAutoMigrationDb.EmbeddedEntity2::class],
+    entities =
+        [
+            EmbeddedAutoMigrationDb.Entity1::class,
+            EmbeddedAutoMigrationDb.EmbeddedEntity1::class,
+            EmbeddedAutoMigrationDb.EmbeddedEntity2::class
+        ],
     autoMigrations = [AutoMigration(from = 1, to = 2)],
     exportSchema = true
 )
 abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
     @Dao
     internal interface EmbeddedAutoMigrationDao {
-        @Query("SELECT * from Entity1 ORDER BY id ASC")
-        fun allEntity1s(): List<Entity1>
+        @Query("SELECT * from Entity1 ORDER BY id ASC") fun allEntity1s(): List<Entity1>
     }
 
     internal abstract fun dao(): EmbeddedAutoMigrationDao
 
-    /**
-     * No change between versions.
-     */
+    /** No change between versions. */
     @Entity
     @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
     data class Entity1(
-        @PrimaryKey
-        val id: Int,
+        @PrimaryKey val id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1")
-        var addedInV1: Int,
-        @Embedded
-        var embeddedEntity1: EmbeddedEntity1?
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
+        @Embedded var embeddedEntity1: EmbeddedEntity1?
     ) : Serializable {
         companion object {
             const val TABLE_NAME = "Entity1"
@@ -67,13 +63,9 @@ abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
     @Entity
     @SuppressWarnings(RoomWarnings.PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED)
     data class EmbeddedEntity1(
-        @PrimaryKey
-        val embeddedId1: Int,
-
-        @ColumnInfo(defaultValue = "1")
-        var addedInV2: Int,
-        @Embedded
-        var embeddedEntity2: EmbeddedEntity2?
+        @PrimaryKey val embeddedId1: Int,
+        @ColumnInfo(defaultValue = "1") var addedInV2: Int,
+        @Embedded var embeddedEntity2: EmbeddedEntity2?
     ) : Serializable {
         companion object {
             const val TABLE_NAME = "EmbeddedEntity1"
@@ -87,6 +79,7 @@ abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
             const val TABLE_NAME = "EmbeddedEntity2"
         }
     }
+
     companion object {
         const val LATEST_VERSION = 2
     }

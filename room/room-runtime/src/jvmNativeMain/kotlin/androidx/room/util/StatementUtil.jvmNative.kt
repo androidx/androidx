@@ -23,7 +23,5 @@ import androidx.sqlite.SQLiteStatement
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
-/**
- * Returns the zero-based index for the given column name, or -1 if the column doesn't exist.
- */
+/** Returns the zero-based index for the given column name, or -1 if the column doesn't exist. */
 internal actual fun SQLiteStatement.columnIndexOf(name: String): Int = columnIndexOfCommon(name)

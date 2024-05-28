@@ -33,12 +33,11 @@ import kotlin.reflect.KClass
  * parent table is modified. If a suitable index on the child table is missing, Room will print
  * [RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD] warning.
  *
- * A foreign key constraint can be deferred until the transaction is complete. This is useful if
- * you are doing bulk inserts into the database in a single transaction. By default, foreign key
- * constraints are immediate but you can change this value by setting [deferred] to
- * `true`. You can also use
- * [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys) to defer them
- * depending on your transaction.
+ * A foreign key constraint can be deferred until the transaction is complete. This is useful if you
+ * are doing bulk inserts into the database in a single transaction. By default, foreign key
+ * constraints are immediate but you can change this value by setting [deferred] to `true`. You can
+ * also use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys) to defer
+ * them depending on your transaction.
  *
  * Please refer to the SQLite [foreign keys](https://sqlite.org/foreignkeys.html) documentation for
  * details.
@@ -47,8 +46,8 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 public annotation class ForeignKey(
     /**
-     * The parent Entity to reference. It must be a class annotated with [Entity] and
-     * referenced in the same database.
+     * The parent Entity to reference. It must be a class annotated with [Entity] and referenced in
+     * the same database.
      *
      * @return The parent Entity.
      */
@@ -80,8 +79,7 @@ public annotation class ForeignKey(
      *
      * @return The action to take when the referenced entity is deleted from the database.
      */
-    @get:Action
-    val onDelete: Int = NO_ACTION,
+    @get:Action val onDelete: Int = NO_ACTION,
 
     /**
      * Action to take when the parent [Entity] is updated in the database.
@@ -90,19 +88,17 @@ public annotation class ForeignKey(
      *
      * @return The action to take when the referenced entity is updated in the database.
      */
-    @get:Action
-    val onUpdate: Int = NO_ACTION,
+    @get:Action val onUpdate: Int = NO_ACTION,
 
     /**
-     * A foreign key constraint can be deferred until the transaction is complete. This is useful
-     * if you are doing bulk inserts into the database in a single transaction. By default, foreign
-     * key constraints are immediate but you can change it by setting this field to `true`.
-     * You can also use
-     * [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys)
-     * PRAGMA to defer them depending on your transaction.
+     * A foreign key constraint can be deferred until the transaction is complete. This is useful if
+     * you are doing bulk inserts into the database in a single transaction. By default, foreign key
+     * constraints are immediate but you can change it by setting this field to `true`. You can also
+     * use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys) PRAGMA to
+     * defer them depending on your transaction.
      *
      * @return Whether the foreign key constraint should be deferred until the transaction is
-     * complete. Defaults to `false`.
+     *   complete. Defaults to `false`.
      */
     val deferred: Boolean = false
 ) {
@@ -119,26 +115,26 @@ public annotation class ForeignKey(
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * The RESTRICT action means that the application is prohibited from deleting
-         * (for [onDelete]) or modifying (for [onUpdate]) a parent key when there
-         * exists one or more child keys mapped to it. The difference between the effect of a RESTRICT
-         * action and normal foreign key constraint enforcement is that the RESTRICT action processing
-         * happens as soon as the field is updated - not at the end of the current statement as it would
+         * The RESTRICT action means that the application is prohibited from deleting (for
+         * [onDelete]) or modifying (for [onUpdate]) a parent key when there exists one or more
+         * child keys mapped to it. The difference between the effect of a RESTRICT action and
+         * normal foreign key constraint enforcement is that the RESTRICT action processing happens
+         * as soon as the field is updated - not at the end of the current statement as it would
          * with an immediate constraint, or at the end of the current transaction as it would with a
          * [deferred] constraint.
          *
          * Even if the foreign key constraint it is attached to is [deferred], configuring a
-         * RESTRICT action causes SQLite to return an error immediately if a parent key with dependent
-         * child keys is deleted or modified.
+         * RESTRICT action causes SQLite to return an error immediately if a parent key with
+         * dependent child keys is deleted or modified.
          */
         public const val RESTRICT: Int = 2
 
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * If the configured action is "SET NULL", then when a parent key is deleted
-         * (for [onDelete]) or modified (for [onUpdate]), the child key columns of all
-         * rows in the child table that mapped to the parent key are set to contain `NULL` values.
+         * If the configured action is "SET NULL", then when a parent key is deleted (for
+         * [onDelete]) or modified (for [onUpdate]), the child key columns of all rows in the child
+         * table that mapped to the parent key are set to contain `NULL` values.
          */
         public const val SET_NULL: Int = 3
 
@@ -154,18 +150,15 @@ public annotation class ForeignKey(
          * Possible value for [onDelete] or [onUpdate].
          *
          * A "CASCADE" action propagates the delete or update operation on the parent key to each
-         * dependent child key. For [onDelete] action, this means that each row in the child
-         * entity that was associated with the deleted parent row is also deleted. For an
-         * [onUpdate] action, it means that the values stored in each dependent child key are
-         * modified to match the new parent key values.
+         * dependent child key. For [onDelete] action, this means that each row in the child entity
+         * that was associated with the deleted parent row is also deleted. For an [onUpdate]
+         * action, it means that the values stored in each dependent child key are modified to match
+         * the new parent key values.
          */
         public const val CASCADE: Int = 5
     }
 
-    /**
-     * Constants definition for values that can be used in [onDelete] and
-     * [onUpdate].
-     */
+    /** Constants definition for values that can be used in [onDelete] and [onUpdate]. */
     @IntDef(NO_ACTION, RESTRICT, SET_NULL, SET_DEFAULT, CASCADE)
     @Retention(AnnotationRetention.BINARY)
     public annotation class Action

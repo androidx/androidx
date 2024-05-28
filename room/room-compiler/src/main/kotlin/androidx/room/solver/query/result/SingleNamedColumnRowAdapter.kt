@@ -28,46 +28,45 @@ import androidx.room.solver.types.CursorValueReader
 import androidx.room.vo.ColumnIndexVar
 import java.util.Locale
 
-/**
- * Wraps a row adapter for a single item from a known column result.
- */
+/** Wraps a row adapter for a single item from a known column result. */
 class SingleNamedColumnRowAdapter(
     val reader: CursorValueReader,
     val columnName: String,
 ) : QueryMappedRowAdapter(reader.typeMirror()) {
     override val mapping = SingleNamedColumnRowMapping(columnName)
+
     override fun isMigratedToDriver(): Boolean = true
 
-    private val indexAdapter = object : IndexAdapter {
+    private val indexAdapter =
+        object : IndexAdapter {
 
-        private val indexVarNamePrefix =
-            "_columnIndexOf${columnName.stripNonJava().capitalize(Locale.US)}"
+            private val indexVarNamePrefix =
+                "_columnIndexOf${columnName.stripNonJava().capitalize(Locale.US)}"
 
-        private lateinit var indexVarName: String
+            private lateinit var indexVarName: String
 
-        override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
-            indexVarName = scope.getTmpVar(indexVarNamePrefix)
-            scope.builder.addLocalVariable(
-                name = indexVarName,
-                typeName = XTypeName.PRIMITIVE_INT,
-                assignExpr = XCodeBlock.of(
-                    scope.language,
-                    "%M(%L, %S)",
-                    if (scope.useDriverApi) {
-                        RoomTypeNames.STATEMENT_UTIL.packageMember("getColumnIndexOrThrow")
-                    } else {
-                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW
-                    },
-                    cursorVarName,
-                    columnName
+            override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
+                indexVarName = scope.getTmpVar(indexVarNamePrefix)
+                scope.builder.addLocalVariable(
+                    name = indexVarName,
+                    typeName = XTypeName.PRIMITIVE_INT,
+                    assignExpr =
+                        XCodeBlock.of(
+                            scope.language,
+                            "%M(%L, %S)",
+                            if (scope.useDriverApi) {
+                                RoomTypeNames.STATEMENT_UTIL.packageMember("getColumnIndexOrThrow")
+                            } else {
+                                RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX_OR_THROW
+                            },
+                            cursorVarName,
+                            columnName
+                        )
                 )
-            )
-        }
+            }
 
-        override fun getIndexVars() = listOf(
-            ColumnIndexVar(columnName, indexVarName)
-        )
-    }
+            override fun getIndexVars() = listOf(ColumnIndexVar(columnName, indexVarName))
+        }
 
     private lateinit var columnIndexVar: ColumnIndexVar
 
@@ -76,8 +75,9 @@ class SingleNamedColumnRowAdapter(
         scope: CodeGenScope,
         indices: List<ColumnIndexVar>
     ) {
-        columnIndexVar = indices.singleOrNull()
-            ?: error("Expected a single resolved index var but got ${indices.size}")
+        columnIndexVar =
+            indices.singleOrNull()
+                ?: error("Expected a single resolved index var but got ${indices.size}")
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {

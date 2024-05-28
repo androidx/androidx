@@ -20,9 +20,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.util.concurrent.Executor
 
-/**
- * Implements [SupportSQLiteOpenHelper.Factory] to wrap [QueryInterceptorOpenHelper].
- */
+/** Implements [SupportSQLiteOpenHelper.Factory] to wrap [QueryInterceptorOpenHelper]. */
 internal class QueryInterceptorOpenHelperFactory(
     private val delegate: SupportSQLiteOpenHelper.Factory,
     private val queryCallbackExecutor: Executor,

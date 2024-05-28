@@ -30,17 +30,17 @@ class MigrationTest : BaseMigrationTest() {
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     @get:Rule
-    val migrationTestHelper = MigrationTestHelper(
-        schemaDirectoryPath = Path("schemas-ksp"),
-        databasePath = tempFilePath,
-        driver = driver,
-        databaseClass = MigrationDatabase::class
-    )
+    val migrationTestHelper =
+        MigrationTestHelper(
+            schemaDirectoryPath = Path("schemas-ksp"),
+            databasePath = tempFilePath,
+            driver = driver,
+            databaseClass = MigrationDatabase::class
+        )
 
     override fun getTestHelper() = migrationTestHelper
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
-        return Room.databaseBuilder<MigrationDatabase>(tempFilePath.toString())
-            .setDriver(driver)
+        return Room.databaseBuilder<MigrationDatabase>(tempFilePath.toString()).setDriver(driver)
     }
 }

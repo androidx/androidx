@@ -36,13 +36,14 @@ internal class KspValueClassArgumentType(
     originalKSAnnotations: Sequence<KSAnnotation>,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
-) : KspType(
-    env = env,
-    ksType = typeArg.requireType(),
-    originalKSAnnotations = originalKSAnnotations,
-    scope = scope,
-    typeAlias = typeAlias,
-) {
+) :
+    KspType(
+        env = env,
+        ksType = typeArg.requireType(),
+        originalKSAnnotations = originalKSAnnotations,
+        scope = scope,
+        typeAlias = typeAlias,
+    ) {
     override fun resolveJTypeName(): JTypeName {
         return typeArg.asJTypeName(env.resolver)
     }
@@ -61,13 +62,14 @@ internal class KspValueClassArgumentType(
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
         typeAlias: KSType?
-    ) = KspValueClassArgumentType(
-        env = env,
-        typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
-        originalKSAnnotations = originalKSAnnotations,
-        scope = scope,
-        typeAlias = typeAlias
-    )
+    ) =
+        KspValueClassArgumentType(
+            env = env,
+            typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
+            originalKSAnnotations = originalKSAnnotations,
+            scope = scope,
+            typeAlias = typeAlias
+        )
 
     private class DelegatingTypeArg(
         val original: KSTypeArgument,

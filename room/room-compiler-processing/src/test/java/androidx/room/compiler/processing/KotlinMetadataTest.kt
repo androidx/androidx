@@ -28,15 +28,15 @@ import org.junit.Test
 class KotlinMetadataTest {
     @Test
     fun readWithMetadata() {
-        val source = Source.kotlin(
-            "Dummy.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Dummy.kt",
+                """
             class Dummy
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(source)
-        ) {
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(source)) {
             val element = it.processingEnv.requireTypeElement(KotlinTestClass::class)
             element.getMethodByJvmName("mySuspendMethod").apply {
                 assertThat(parameters).hasSize(2)

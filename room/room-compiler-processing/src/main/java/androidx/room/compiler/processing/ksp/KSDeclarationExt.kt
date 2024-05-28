@@ -27,8 +27,9 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.Modifier
 
 /**
- * Finds the class that contains this declaration and throws [IllegalStateException] if it cannot
- * be found.
+ * Finds the class that contains this declaration and throws [IllegalStateException] if it cannot be
+ * found.
+ *
  * @see [findEnclosingAncestorClassDeclaration]
  */
 internal fun KSDeclaration.requireEnclosingMemberContainer(
@@ -42,28 +43,27 @@ internal fun KSDeclaration.requireEnclosingMemberContainer(
 /**
  * Find the class that contains this declaration.
  *
- * Node that this is not necessarily the parent declaration. e.g. when a property is declared in
- * a constructor, its containing type is actual two levels up.
+ * Node that this is not necessarily the parent declaration. e.g. when a property is declared in a
+ * constructor, its containing type is actual two levels up.
  */
 @OptIn(KspExperimental::class)
 internal fun KSDeclaration.findEnclosingMemberContainer(
     env: KspProcessingEnv
 ): KspMemberContainer? {
-    val memberContainer = findEnclosingAncestorClassDeclaration()?.let {
-        env.wrapClassDeclaration(it)
-    } ?: this.containingFile?.let {
-        env.wrapKSFile(it)
-    }
+    val memberContainer =
+        findEnclosingAncestorClassDeclaration()?.let { env.wrapClassDeclaration(it) }
+            ?: this.containingFile?.let { env.wrapKSFile(it) }
     memberContainer?.let {
         return it
     }
     // in compiled files, we may not find it. Try using the binary name
 
-    val ownerJvmClassName = when (this) {
-        is KSPropertyDeclaration -> env.resolver.getOwnerJvmClassName(this)
-        is KSFunctionDeclaration -> env.resolver.getOwnerJvmClassName(this)
-        else -> null
-    } ?: return null
+    val ownerJvmClassName =
+        when (this) {
+            is KSPropertyDeclaration -> env.resolver.getOwnerJvmClassName(this)
+            is KSFunctionDeclaration -> env.resolver.getOwnerJvmClassName(this)
+            else -> null
+        } ?: return null
     // Binary name of a top level type is its canonical name. So we just load it directly by
     // that value
     env.findTypeElement(ownerJvmClassName)?.let {
@@ -83,7 +83,8 @@ private fun KSDeclaration.findEnclosingAncestorClassDeclaration(): KSClassDeclar
 }
 
 internal fun KSDeclaration.isStatic(): Boolean {
-    return modifiers.contains(Modifier.JAVA_STATIC) || hasJvmStaticAnnotation() ||
+    return modifiers.contains(Modifier.JAVA_STATIC) ||
+        hasJvmStaticAnnotation() ||
         // declarations in the companion object move into the enclosing class as statics.
         // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
         this.findEnclosingAncestorClassDeclaration()?.isCompanionObject == true ||
@@ -102,7 +103,7 @@ internal fun KSDeclaration.isTransient(): Boolean {
 // The inline modifier for inline classes is deprecated in Kotlin but we still include it
 // in this check.
 internal fun KSDeclaration.isValueClass(): Boolean =
-  this is KSClassDeclaration && modifiers.any { it == Modifier.VALUE || it == Modifier.INLINE }
+    this is KSClassDeclaration && modifiers.any { it == Modifier.VALUE || it == Modifier.INLINE }
 
 internal fun KSDeclaration.replaceTypeAliases(): KSDeclaration {
     return if (this is KSTypeAlias) {

@@ -33,21 +33,23 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
     @get:Rule
-    val migrationTestHelper = MigrationTestHelper(
-        instrumentation = instrumentation,
-        driver = driver,
-        databaseClass = AutoMigrationDatabase::class,
-        file = file,
-        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
-    )
+    val migrationTestHelper =
+        MigrationTestHelper(
+            instrumentation = instrumentation,
+            driver = driver,
+            databaseClass = AutoMigrationDatabase::class,
+            file = file,
+            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+        )
 
     override fun getTestHelper() = migrationTestHelper
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
         return Room.databaseBuilder<AutoMigrationDatabase>(
-            context = instrumentation.targetContext,
-            name = file.path
-        ).setDriver(driver)
+                context = instrumentation.targetContext,
+                name = file.path
+            )
+            .setDriver(driver)
     }
 
     @BeforeTest

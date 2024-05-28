@@ -33,9 +33,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class KspJvmDescriptorUtilsTest(
-    private val isPreCompiled: Boolean
-) {
+class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     private val describeAnnotation =
         Source.java(
             "androidx.room.test.Describe",
@@ -47,7 +45,8 @@ class KspJvmDescriptorUtilsTest(
 
             @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
             public @interface Describe { }
-            """)
+            """
+        )
 
     @Test
     fun descriptor_method_simple() {
@@ -65,7 +64,8 @@ class KspJvmDescriptorUtilsTest(
                 public class DummyClass {
                     @Describe public void emptyMethod() {}
                 }
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -75,7 +75,8 @@ class KspJvmDescriptorUtilsTest(
                 class DummyClass {
                     @Describe fun emptyMethod() {}
                 }
-                """)
+                """
+            )
         )
     }
 
@@ -83,12 +84,13 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_field() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "field1:I",
-                    "field2:Ljava/lang/String;",
-                    "field3:Ljava/lang/Object;",
-                    "field4:Ljava/util/List;"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "field1:I",
+                        "field2:Ljava/lang/String;",
+                        "field3:Ljava/lang/Object;",
+                        "field4:Ljava/util/List;"
+                    )
             }
         }
         checkSources(
@@ -105,7 +107,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe T field3;
                     @Describe List<String> field4;
                 }
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -118,7 +121,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe val field3: T = TODO()
                     @Describe val field4: List<String> = TODO()
                 }
-                """)
+                """
+            )
         )
     }
 
@@ -126,19 +130,20 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_erasured() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsAtLeast(
-                    "method1(Landroidx/room/test/Foo;)V",
-                    "method2()Landroidx/room/test/Foo;",
-                    "method3()Ljava/util/List;",
-                    "method4()Ljava/util/Map;",
-                    "method5()Ljava/util/ArrayList;",
-                    "method6(Ljava/lang/Object;)Landroidx/room/test/Foo;",
-                    "method7(Ljava/lang/Object;)Ljava/lang/Object;",
-                    "method8(Ljava/lang/Object;)Ljava/lang/String;",
-                    "method9(Landroidx/room/test/Foo;)Landroidx/room/test/Foo;",
-                    "method10()Ljava/util/Collection;",
-                    "method11()Landroidx/room/test/Foo;",
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsAtLeast(
+                        "method1(Landroidx/room/test/Foo;)V",
+                        "method2()Landroidx/room/test/Foo;",
+                        "method3()Ljava/util/List;",
+                        "method4()Ljava/util/Map;",
+                        "method5()Ljava/util/ArrayList;",
+                        "method6(Ljava/lang/Object;)Landroidx/room/test/Foo;",
+                        "method7(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "method8(Ljava/lang/Object;)Ljava/lang/String;",
+                        "method9(Landroidx/room/test/Foo;)Landroidx/room/test/Foo;",
+                        "method10()Ljava/util/Collection;",
+                        "method11()Landroidx/room/test/Foo;",
+                    )
             }
         }
         checkSources(
@@ -167,7 +172,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe static <P extends Foo & Collection<?>> P method11() { return null; }
                 }
                 interface Foo {}
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -190,7 +196,8 @@ class KspJvmDescriptorUtilsTest(
                     }
                 }
                 interface Foo
-                """)
+                """
+            )
         )
     }
 
@@ -198,14 +205,15 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_class_erasured() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1(Ljava/lang/Object;)Ljava/lang/Object;",
-                    "method2(Ljava/lang/Object;)Ljava/lang/String;",
-                    "method3(Ljava/lang/Object;)Ljava/lang/String;",
-                    "method4(Ljava/lang/Object;)Ljava/lang/Object;",
-                    "method5(Landroidx/room/test/Outer\$Foo;)Landroidx/room/test/Outer\$Foo;",
-                    "method6(Landroidx/room/test/Outer\$Bar;)Landroidx/room/test/Outer\$Bar;",
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "method1(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "method2(Ljava/lang/Object;)Ljava/lang/String;",
+                        "method3(Ljava/lang/Object;)Ljava/lang/String;",
+                        "method4(Ljava/lang/Object;)Ljava/lang/Object;",
+                        "method5(Landroidx/room/test/Outer\$Foo;)Landroidx/room/test/Outer\$Foo;",
+                        "method6(Landroidx/room/test/Outer\$Bar;)Landroidx/room/test/Outer\$Bar;",
+                    )
             }
         }
         checkSources(
@@ -231,7 +239,8 @@ class KspJvmDescriptorUtilsTest(
                     class Foo {}
                     class Bar {}
                 }
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -260,7 +269,8 @@ class KspJvmDescriptorUtilsTest(
                     class Foo
                     class Bar
                 }
-                """)
+                """
+            )
         )
     }
 
@@ -268,12 +278,8 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_primitiveParams() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1(ZI)V",
-                    "method2(C)B",
-                    "method3(DF)V",
-                    "method4(JS)V"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly("method1(ZI)V", "method2(C)B", "method3(DF)V", "method4(JS)V")
             }
         }
         checkSources(
@@ -287,7 +293,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe void method3(double realNumber1, float realNumber2) { }
                     @Describe void method4(long bigNumber, short littlerNumber) { }
                 }
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -300,7 +307,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe fun method3(realNumber1: Double, realNumber2: Float) {}
                     @Describe fun method4(bigNumber: Long, littlerNumber: Short) {}
                 }
-                """)
+                """
+            )
         )
     }
 
@@ -308,12 +316,13 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_classParam_javaTypes() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1(Ljava/lang/Object;)V",
-                    "method2()Ljava/lang/Object;",
-                    "method3(Ljava/util/ArrayList;)Ljava/util/List;",
-                    "method4()Ljava/util/Map;"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "method1(Ljava/lang/Object;)V",
+                        "method2()Ljava/lang/Object;",
+                        "method3(Ljava/util/ArrayList;)Ljava/util/List;",
+                        "method4()Ljava/util/Map;"
+                    )
             }
         }
         checkSources(
@@ -332,7 +341,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe List<String> method3(ArrayList<Integer> list) { return null; }
                     @Describe Map<String, Object> method4() { return null; }
                 }
-                """)
+                """
+            )
         )
         checkSources(
             Source.kotlin(
@@ -345,7 +355,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe fun method3(list: ArrayList<Integer>): List<String> = TODO()
                     @Describe fun method4(): Map<String, Object> = TODO()
                 }
-                """)
+                """
+            )
         )
     }
 
@@ -353,10 +364,11 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_classParam_testClass() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1(Landroidx/room/test/DataClass;)V",
-                    "method2()Landroidx/room/test/DataClass;"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "method1(Landroidx/room/test/DataClass;)V",
+                        "method2()Landroidx/room/test/DataClass;"
+                    )
             }
         }
         checkSources(
@@ -365,7 +377,8 @@ class KspJvmDescriptorUtilsTest(
                 """
                 package androidx.room.test;
                 class DataClass {}
-                """),
+                """
+            ),
             Source.java(
                 "androidx.room.test.DummyClass",
                 """
@@ -374,7 +387,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe void method1(DataClass data) { }
                     @Describe DataClass method2() { return null; }
                 }
-                """),
+                """
+            ),
         )
         checkSources(
             Source.kotlin(
@@ -386,7 +400,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe fun method2(): DataClass = TODO()
                 }
                 class DataClass
-                """),
+                """
+            ),
         )
     }
 
@@ -394,12 +409,13 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_classParam_innerTestClass() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1(Landroidx/room/test/DataClass\$MemberInnerData;)V",
-                    "method2(Landroidx/room/test/DataClass\$StaticInnerData;)V",
-                    "method3(Landroidx/room/test/DataClass\$EnumData;)V",
-                    "method4()Landroidx/room/test/DataClass\$StaticInnerData;"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "method1(Landroidx/room/test/DataClass\$MemberInnerData;)V",
+                        "method2(Landroidx/room/test/DataClass\$StaticInnerData;)V",
+                        "method3(Landroidx/room/test/DataClass\$EnumData;)V",
+                        "method4()Landroidx/room/test/DataClass\$StaticInnerData;"
+                    )
             }
         }
         checkSources(
@@ -424,7 +440,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe void method3(DataClass.EnumData enumData) { }
                     @Describe DataClass.StaticInnerData method4() { return null; }
                 }
-                """),
+                """
+            ),
         )
         checkSources(
             Source.kotlin(
@@ -442,7 +459,8 @@ class KspJvmDescriptorUtilsTest(
                     class StaticInnerData
                     enum class EnumData { VALUE1, VALUE2 }
                 }
-                """),
+                """
+            ),
         )
     }
 
@@ -450,12 +468,13 @@ class KspJvmDescriptorUtilsTest(
     fun descriptor_method_arrayParams() {
         fun checkSources(vararg sources: Source) {
             runTest(sources = sources) { invocation ->
-                assertThat(invocation.annotatedElements().map(this::descriptor)).containsExactly(
-                    "method1([Landroidx/room/test/DataClass;)V",
-                    "method2()[Landroidx/room/test/DataClass;",
-                    "method3([I)V",
-                    "method4([I)V"
-                )
+                assertThat(invocation.annotatedElements().map(this::descriptor))
+                    .containsExactly(
+                        "method1([Landroidx/room/test/DataClass;)V",
+                        "method2()[Landroidx/room/test/DataClass;",
+                        "method3([I)V",
+                        "method4([I)V"
+                    )
             }
         }
         checkSources(
@@ -464,7 +483,8 @@ class KspJvmDescriptorUtilsTest(
                 """
                 package androidx.room.test;
                 class DataClass {}
-                """),
+                """
+            ),
             Source.java(
                 "androidx.room.test.DummyClass",
                 """
@@ -475,7 +495,8 @@ class KspJvmDescriptorUtilsTest(
                     @Describe void method3(int[] array) { }
                     @Describe void method4(int... array) { }
                 }
-                """),
+                """
+            ),
         )
         checkSources(
             Source.kotlin(
@@ -489,41 +510,27 @@ class KspJvmDescriptorUtilsTest(
                     @Describe fun method4(vararg array: Int) {}
                 }
                 class DataClass
-                """),
+                """
+            ),
         )
     }
 
-    private fun runTest(
-        vararg sources: Source,
-        handler: (XTestInvocation) -> Unit
-    ) {
+    private fun runTest(vararg sources: Source, handler: (XTestInvocation) -> Unit) {
         if (isPreCompiled) {
             val compiled = compileFiles(listOf(*sources) + describeAnnotation)
-            val hasKotlinSources = sources.any {
-                it is Source.KotlinSource
-            }
-            val kotlinSources = if (hasKotlinSources) {
-                listOf(
-                    Source.kotlin("placeholder.kt", "class PlaceholderKotlin")
-                )
-            } else {
-                emptyList()
-            }
-            val newSources = kotlinSources + Source.java(
-                "PlaceholderJava",
-                "public class " +
-                    "PlaceholderJava {}"
-            )
-            runProcessorTest(
-                sources = newSources,
-                handler = handler,
-                classpath = compiled
-            )
+            val hasKotlinSources = sources.any { it is Source.KotlinSource }
+            val kotlinSources =
+                if (hasKotlinSources) {
+                    listOf(Source.kotlin("placeholder.kt", "class PlaceholderKotlin"))
+                } else {
+                    emptyList()
+                }
+            val newSources =
+                kotlinSources +
+                    Source.java("PlaceholderJava", "public class " + "PlaceholderJava {}")
+            runProcessorTest(sources = newSources, handler = handler, classpath = compiled)
         } else {
-            runProcessorTest(
-                sources = listOf(*sources) + describeAnnotation,
-                handler = handler
-            )
+            runProcessorTest(sources = listOf(*sources) + describeAnnotation, handler = handler)
         }
     }
 
@@ -533,9 +540,9 @@ class KspJvmDescriptorUtilsTest(
         val typeElements = processingEnv.getTypeElementsFromPackage("androidx.room.test")
         return typeElements
             .flatMap {
-                it.getElementsAnnotatedWith(ClassName.get(
-                "androidx.room.test", "Describe"))
-            }.toSet()
+                it.getElementsAnnotatedWith(ClassName.get("androidx.room.test", "Describe"))
+            }
+            .toSet()
     }
 
     private fun XTypeElement.getElementsAnnotatedWith(annotation: ClassName): Set<XElement> {

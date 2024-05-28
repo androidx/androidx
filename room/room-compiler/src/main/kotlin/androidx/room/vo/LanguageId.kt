@@ -18,9 +18,7 @@ package androidx.room.vo
 
 import androidx.room.compiler.processing.XElement
 
-/**
- * Represents the 'languageid' column of an FTS entity.
- */
+/** Represents the 'languageid' column of an FTS entity. */
 data class LanguageId(val declaredIn: XElement?, val field: Field?) {
 
     companion object {

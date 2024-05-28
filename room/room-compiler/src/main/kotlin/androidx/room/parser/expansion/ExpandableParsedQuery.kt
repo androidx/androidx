@@ -23,12 +23,11 @@ import androidx.room.verifier.QueryResultInfo
 
 /**
  * ExpandableSqlParser parses the query in more detail such that we know when an ALL projection is
- * used (select *). This is information is only ever used if `room.expandProjection` is set to
- * true and that feature will be deprecated.
+ * used (select *). This is information is only ever used if `room.expandProjection` is set to true
+ * and that feature will be deprecated.
  *
  * This file stays for backwards compatibility purposes.
  */
-
 sealed class ExpandableSection {
 
     abstract val text: String
@@ -55,10 +54,7 @@ sealed class ExpandableSection {
                 get() = "*"
         }
 
-        data class Table(
-            val tableAlias: String,
-            override val text: String
-        ) : Projection()
+        data class Table(val tableAlias: String, override val text: String) : Projection()
     }
 }
 
@@ -72,11 +68,7 @@ data class Position(val line: Int, val charInLine: Int) : Comparable<Position> {
     }
 }
 
-data class SectionInfo(
-    val start: Position,
-    val end: Position,
-    val section: ExpandableSection
-)
+data class SectionInfo(val start: Position, val end: Position, val section: ExpandableSection)
 
 data class ExpandableParsedQuery(
     // original query as written by user, code writers should use transformed query that has been
@@ -92,28 +84,27 @@ data class ExpandableParsedQuery(
 ) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
-        val MISSING = ExpandableParsedQuery(
-            original = "missing query",
-            type = QueryType.UNKNOWN,
-            projections = emptyList(),
-            explicitColumns = emptyList(),
-            inputs = emptyList(),
-            tables = emptySet(),
-            syntaxErrors = emptyList(),
-            runtimeQueryPlaceholder = false
-        )
+        val MISSING =
+            ExpandableParsedQuery(
+                original = "missing query",
+                type = QueryType.UNKNOWN,
+                projections = emptyList(),
+                explicitColumns = emptyList(),
+                inputs = emptyList(),
+                tables = emptySet(),
+                syntaxErrors = emptyList(),
+                runtimeQueryPlaceholder = false
+            )
     }
 
     /**
      * Optional data that might be assigned when the query is parsed inside an annotation processor.
-     * User may turn this off or it might be disabled for any reason so generated code should
-     * always handle not having it.
+     * User may turn this off or it might be disabled for any reason so generated code should always
+     * handle not having it.
      */
     var resultInfo: QueryResultInfo? = null
 
-    /**
-     * The transformed query when it is interpreted and rewritten by QueryInterpreter.
-     */
+    /** The transformed query when it is interpreted and rewritten by QueryInterpreter. */
     var transformed: String = original
         private set
 
@@ -133,12 +124,7 @@ data class ExpandableParsedQuery(
                 .forEach { (start, end, section) ->
                     if (charInLine < start.charInLine) {
                         sections.add(
-                            ExpandableSection.Text(
-                                line.substring(
-                                    charInLine,
-                                    start.charInLine
-                                )
-                            )
+                            ExpandableSection.Text(line.substring(charInLine, start.charInLine))
                         )
                     }
                     sections.add(section)
@@ -166,16 +152,16 @@ data class ExpandableParsedQuery(
     val bindSections by lazy { sections.filterIsInstance<ExpandableSection.BindVar>() }
 
     private fun unnamedVariableErrors(): List<String> {
-        val anonymousBindError = if (inputs.any { it.section.text == "?" }) {
-            arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
-        } else {
-            emptyList<String>()
-        }
-        return anonymousBindError + inputs.filter {
-            it.section.text.matches(STARTS_WITH_NUMBER)
-        }.map {
-            ParserErrors.cannotUseVariableIndices(it.section.text, it.start.charInLine)
-        }
+        val anonymousBindError =
+            if (inputs.any { it.section.text == "?" }) {
+                arrayListOf(ParserErrors.ANONYMOUS_BIND_ARGUMENT)
+            } else {
+                emptyList<String>()
+            }
+        return anonymousBindError +
+            inputs
+                .filter { it.section.text.matches(STARTS_WITH_NUMBER) }
+                .map { ParserErrors.cannotUseVariableIndices(it.section.text, it.start.charInLine) }
     }
 
     private fun unknownQueryTypeErrors(): List<String> {

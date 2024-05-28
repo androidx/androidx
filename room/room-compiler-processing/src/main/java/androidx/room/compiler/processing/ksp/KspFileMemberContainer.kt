@@ -28,13 +28,12 @@ import com.google.devtools.ksp.validate
 import com.squareup.javapoet.ClassName
 import com.squareup.kotlinpoet.javapoet.toKClassName
 
-/**
- * [XMemberContainer] implementation for KSFiles.
- */
+/** [XMemberContainer] implementation for KSFiles. */
 internal class KspFileMemberContainer(
     internal val env: KspProcessingEnv,
     internal val ksFile: KSFile
-) : KspMemberContainer,
+) :
+    KspMemberContainer,
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = ksFile,
@@ -42,31 +41,27 @@ internal class KspFileMemberContainer(
     ) {
     override val type: KspType?
         get() = null
+
     override val declaration: KSDeclaration?
         get() = null
 
     @Deprecated(
         "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-        replaceWith = ReplaceWith(
-            "asClassName().toJavaPoet()",
-            "androidx.room.compiler.codegen.toJavaPoet"
-        )
+        replaceWith =
+            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet")
     )
-    override val className: ClassName by lazy {
-        xClassName.java
-    }
+    override val className: ClassName by lazy { xClassName.java }
 
     private val xClassName: XClassName by lazy {
-        val pkgName = ksFile.packageName.asString().let {
-            if (it == "<root>") {
-                ""
-            } else {
-                it
+        val pkgName =
+            ksFile.packageName.asString().let {
+                if (it == "<root>") {
+                    ""
+                } else {
+                    it
+                }
             }
-        }
-        val java = ClassName.get(
-            pkgName, ksFile.findClassName()
-        )
+        val java = ClassName.get(pkgName, ksFile.findClassName())
         val kotlin = java.toKClassName()
         XClassName(java, kotlin, XNullability.NONNULL)
     }
@@ -94,13 +89,16 @@ internal class KspFileMemberContainer(
 
     companion object {
         private fun KSFile.findClassName(): String {
-            return annotations.firstOrNull {
-                it.useSiteTarget == AnnotationUseSiteTarget.FILE &&
-                    it.annotationType.resolve().declaration.qualifiedName?.asString() ==
-                    JvmName::class.qualifiedName
-            }?.arguments?.firstOrNull {
-                it.name?.asString() == "name"
-            }?.value?.toString() ?: fileName.replace(".kt", "Kt")
+            return annotations
+                .firstOrNull {
+                    it.useSiteTarget == AnnotationUseSiteTarget.FILE &&
+                        it.annotationType.resolve().declaration.qualifiedName?.asString() ==
+                            JvmName::class.qualifiedName
+                }
+                ?.arguments
+                ?.firstOrNull { it.name?.asString() == "name" }
+                ?.value
+                ?.toString() ?: fileName.replace(".kt", "Kt")
         }
     }
 

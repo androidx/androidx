@@ -22,9 +22,11 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeReference
 
-internal fun KSFunctionDeclaration.hasOverloads() = this.annotations.any {
-    it.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmOverloads"
-}
+internal fun KSFunctionDeclaration.hasOverloads() =
+    this.annotations.any {
+        it.annotationType.resolve().declaration.qualifiedName?.asString() ==
+            "kotlin.jvm.JvmOverloads"
+    }
 
 /**
  * A custom ReturnType that return an [XType] while also resolving boxing if necessary (might happen
@@ -53,11 +55,13 @@ private fun KSFunctionDeclaration.getOriginatingReference(): KSTypeReference? {
             overridee.type
         }
         null -> null
-        else -> error(
-            """
+        else ->
+            error(
+                """
             Unexpected overridee type for $this ($overridee).
             Please file a bug at $ISSUE_TRACKER_LINK.
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     } ?: returnType
 }

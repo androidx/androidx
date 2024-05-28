@@ -22,11 +22,8 @@ import org.junit.Test
 class LoadFromDefaultEnvironmentConfigurationProviderTest {
     @Test
     fun test() {
-        runProcessorTest {
-        }
-        assertThat(TestDefaultEnvironmentConfigProvider.initialized)
-            .isTrue()
-        assertThat(TestDefaultEnvironmentConfigProvider.invoked)
-            .isTrue()
+        runProcessorTest {}
+        assertThat(TestDefaultEnvironmentConfigProvider.initialized).isTrue()
+        assertThat(TestDefaultEnvironmentConfigProvider.invoked).isTrue()
     }
 }

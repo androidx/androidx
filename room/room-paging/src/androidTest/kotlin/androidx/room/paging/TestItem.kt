@@ -19,8 +19,4 @@ package androidx.room.paging
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
-data class TestItem(
-    @PrimaryKey val id: Int,
-    val value: String = "item $id"
-)
+@Entity data class TestItem(@PrimaryKey val id: Int, val value: String = "item $id")

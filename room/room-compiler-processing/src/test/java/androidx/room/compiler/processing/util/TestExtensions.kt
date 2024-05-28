@@ -20,29 +20,24 @@ import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 
-fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
-    it.name
-}.toList()
+fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map { it.name }.toList()
 
-fun XTypeElement.getDeclaredField(name: String) = getDeclaredFields().first {
-    it.name == name
-}
+fun XTypeElement.getDeclaredField(name: String) = getDeclaredFields().first { it.name == name }
 
-fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().first {
-    it.name == name
-}
+fun XTypeElement.getField(name: String) =
+    getAllFieldsIncludingPrivateSupers().first { it.name == name }
 
-fun XTypeElement.getDeclaredMethodByJvmName(jvmName: String) = getDeclaredMethods().firstOrNull {
-    it.jvmName == jvmName
-} ?: throw AssertionError("cannot find method with name $jvmName")
+fun XTypeElement.getDeclaredMethodByJvmName(jvmName: String) =
+    getDeclaredMethods().firstOrNull { it.jvmName == jvmName }
+        ?: throw AssertionError("cannot find method with name $jvmName")
 
-fun XTypeElement.getMethodByJvmName(jvmName: String) = getAllMethods().firstOrNull {
-    it.jvmName == jvmName
-} ?: throw AssertionError("cannot find method with jvmName $jvmName")
+fun XTypeElement.getMethodByJvmName(jvmName: String) =
+    getAllMethods().firstOrNull { it.jvmName == jvmName }
+        ?: throw AssertionError("cannot find method with jvmName $jvmName")
 
-fun XExecutableElement.getParameter(name: String) = parameters.firstOrNull {
-    it.name == name
-} ?: throw AssertionError("cannot find parameter with name $name")
+fun XExecutableElement.getParameter(name: String) =
+    parameters.firstOrNull { it.name == name }
+        ?: throw AssertionError("cannot find parameter with name $name")
 
 fun XType.isCollection(): Boolean {
     return isTypeOf(List::class) || isTypeOf(Set::class)

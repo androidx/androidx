@@ -24,8 +24,8 @@ import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.vo.KotlinDefaultMethodDelegate
 
 /**
- * Method binder that delegates to concrete DAO function in a Kotlin interface, specifically to
- * a function where the implementation is in the DefaultImpl Kotlin generated class.
+ * Method binder that delegates to concrete DAO function in a Kotlin interface, specifically to a
+ * function where the implementation is in the DefaultImpl Kotlin generated class.
  *
  * @see [KotlinDefaultMethodDelegate]
  */

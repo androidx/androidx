@@ -39,12 +39,13 @@ class RoomIncrementalAnnotationProcessingTest(
 
         @Parameterized.Parameters(name = "incrementalRoom={0}_useKsp={1}")
         @JvmStatic
-        fun parameters() = listOf(
-            arrayOf(true, false),
-            arrayOf(true, true),
-            arrayOf(false, false),
-            // we don't let users turn off incremental compilation in KSP.
-        )
+        fun parameters() =
+            listOf(
+                arrayOf(true, false),
+                arrayOf(true, true),
+                arrayOf(false, false),
+                // we don't let users turn off incremental compilation in KSP.
+            )
 
         private const val SRC_DIR = "src/main/java"
         private const val GEN_RES_DIR = "schemas"
@@ -55,17 +56,16 @@ class RoomIncrementalAnnotationProcessingTest(
         private const val COMPILE_TASK = ":$COMPILE_TASK_NAME"
     }
 
-    @get:Rule
-    val projectSetup = ProjectSetupRule()
+    @get:Rule val projectSetup = ProjectSetupRule()
 
-    @get:Rule
-    val expect: Expect = Expect.create()
+    @get:Rule val expect: Expect = Expect.create()
 
-    private val genSrcDir = if (useKsp) {
-        "build/generated/ksp/debug/java"
-    } else {
-        "build/generated/ap_generated_sources/debug/out/"
-    }
+    private val genSrcDir =
+        if (useKsp) {
+            "build/generated/ksp/debug/java"
+        } else {
+            "build/generated/ap_generated_sources/debug/out/"
+        }
 
     // Original source files
     private lateinit var srcDatabase1: File
@@ -103,9 +103,8 @@ class RoomIncrementalAnnotationProcessingTest(
     private lateinit var deletedFiles: Set<File>
 
     /**
-     * Find the Room version from local repo.
-     * Using + instead of an explicit version might cause gradle to find a newer version from
-     * prebuilts (SNAPSHOT).
+     * Find the Room version from local repo. Using + instead of an explicit version might cause
+     * gradle to find a newer version from prebuilts (SNAPSHOT).
      */
     private val roomVersion by lazy {
         projectSetup.getLibraryLatestVersionInLocalRepo("androidx/room/room-compiler")
@@ -122,7 +121,8 @@ class RoomIncrementalAnnotationProcessingTest(
                     maven {
                         url "$it"
                     }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             }
             appendLine("}")
@@ -141,35 +141,40 @@ class RoomIncrementalAnnotationProcessingTest(
             projectRoot.resolve("src/main/java/placeholer.kt").writeText("")
         }
 
-        val kspPluginBlock = if (useKsp) {
-            """
+        val kspPluginBlock =
+            if (useKsp) {
+                """
                 apply plugin: "kotlin-android"
                 apply plugin: "com.google.devtools.ksp"
             """
-        } else {
-            """
+            } else {
+                """
                 apply plugin: "kotlin-android"
             """
-        }
-        val processorConfiguration = if (useKsp) {
-            "ksp"
-        } else {
-            "annotationProcessor"
-        }
-        val kspArgumentsBlock = if (useKsp) {
-            """
+            }
+        val processorConfiguration =
+            if (useKsp) {
+                "ksp"
+            } else {
+                "annotationProcessor"
+            }
+        val kspArgumentsBlock =
+            if (useKsp) {
+                """
             ksp {
                 arg('room.incremental', '$withIncrementalRoom')
                 arg('room.schemaLocation', '${projectRoot.resolve(GEN_RES_DIR).canonicalPath}')
                 arg('room.generateKotlin', 'false')
             }
-            """.trimIndent()
-        } else {
-            ""
-        }
-        // set up build file
-        File(projectRoot, "build.gradle").writeText(
             """
+                    .trimIndent()
+            } else {
+                ""
+            }
+        // set up build file
+        File(projectRoot, "build.gradle")
+            .writeText(
+                """
             buildscript {
                 ${repositoriesBlock.prependIndent("    ")}
                 dependencies {
@@ -233,11 +238,11 @@ class RoomIncrementalAnnotationProcessingTest(
             }
             $kspArgumentsBlock
         """
-                .trimIndent()
-                // doing format instead of "$projectSetup.androidProject" on purpose,
-                // because otherwise trimIndent will mess with formatting
-                .format(projectSetup.androidProject)
-        )
+                    .trimIndent()
+                    // doing format instead of "$projectSetup.androidProject" on purpose,
+                    // because otherwise trimIndent will mess with formatting
+                    .format(projectSetup.androidProject)
+            )
 
         // Compute file paths
         srcDatabase1 = File(projectRoot, "$SRC_DIR/room/testapp/Database1.java")
@@ -263,13 +268,16 @@ class RoomIncrementalAnnotationProcessingTest(
         classGenDatabase2 = File(projectRoot, "$CLASS_DIR/room/testapp/Database2_Impl.class")
         classGenDao2 = File(projectRoot, "$CLASS_DIR/room/testapp/Dao2_Impl.class")
 
-        projectRoot.resolve("gradle.properties").writeText(
-            """
+        projectRoot
+            .resolve("gradle.properties")
+            .writeText(
+                """
             ksp.incremental=true
             ksp.incremental.log=true
             android.useAndroidX=true
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     private fun runGradleTasks(vararg args: String): BuildResult {
@@ -293,24 +301,25 @@ class RoomIncrementalAnnotationProcessingTest(
     }
 
     private fun recordTimestamps() {
-        val files = listOf(
-            genDatabase1,
-            genDao1,
-            genDatabase2,
-            genDao2,
-            genSchema1,
-            genSchema2,
-            classSrcDatabase1,
-            classSrcDao1,
-            classSrcEntity1,
-            classSrcDatabase2,
-            classSrcDao2,
-            classSrcEntity2,
-            classGenDatabase1,
-            classGenDao1,
-            classGenDatabase2,
-            classGenDao2
-        )
+        val files =
+            listOf(
+                genDatabase1,
+                genDao1,
+                genDatabase2,
+                genDao2,
+                genSchema1,
+                genSchema2,
+                classSrcDatabase1,
+                classSrcDao1,
+                classSrcEntity1,
+                classSrcDatabase2,
+                classSrcDao2,
+                classSrcEntity2,
+                classGenDatabase1,
+                classGenDao1,
+                classGenDatabase2,
+                classGenDao2
+            )
 
         val map = mutableMapOf<File, Long>()
         for (file in files) {
@@ -320,19 +329,27 @@ class RoomIncrementalAnnotationProcessingTest(
     }
 
     private fun recordFileChanges() {
-        changedFiles = fileToTimestampMap.filter { (file, previousTimestamp) ->
-            file.exists() && file.lastModified() != previousTimestamp
-        }.keys
+        changedFiles =
+            fileToTimestampMap
+                .filter { (file, previousTimestamp) ->
+                    file.exists() && file.lastModified() != previousTimestamp
+                }
+                .keys
 
-        unchangedFiles = fileToTimestampMap.filter { (file, previousTimestamp) ->
-            file.exists() && file.lastModified() == previousTimestamp
-        }.keys
+        unchangedFiles =
+            fileToTimestampMap
+                .filter { (file, previousTimestamp) ->
+                    file.exists() && file.lastModified() == previousTimestamp
+                }
+                .keys
 
         deletedFiles = fileToTimestampMap.filter { (file, _) -> !file.exists() }.keys
     }
 
     private fun assertFilesExist(vararg files: File) {
-        expect.withMessage("Existing files").that(files.filter { it.exists() })
+        expect
+            .withMessage("Existing files")
+            .that(files.filter { it.exists() })
             .containsExactlyElementsIn(files)
     }
 
@@ -360,14 +377,7 @@ class RoomIncrementalAnnotationProcessingTest(
         expect.that(result.task(COMPILE_TASK)!!.outcome).isEqualTo(TaskOutcome.SUCCESS)
 
         // Check annotation processing outputs
-        assertFilesExist(
-            genDatabase1,
-            genDao1,
-            genDatabase2,
-            genDao2,
-            genSchema1,
-            genSchema2
-        )
+        assertFilesExist(genDatabase1, genDao1, genDatabase2, genDao2, genSchema1, genSchema2)
 
         // Check compilation outputs
         assertFilesExist(
@@ -403,7 +413,8 @@ class RoomIncrementalAnnotationProcessingTest(
             public void setName(String name) {
                 mName = name;
             }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
 
         val result = runIncrementalBuild()
@@ -413,24 +424,10 @@ class RoomIncrementalAnnotationProcessingTest(
         //   - Relevant files should be re-generated
         //   - Irrelevant files should not be re-generated (if Room is incremental)
         if (withIncrementalRoom) {
-            assertChangedFiles(
-                genDatabase1,
-                genDao1,
-                genSchema1
-            )
-            assertUnchangedFiles(
-                genDatabase2,
-                genDao2,
-                genSchema2
-            )
+            assertChangedFiles(genDatabase1, genDao1, genSchema1)
+            assertUnchangedFiles(genDatabase2, genDao2, genSchema2)
         } else {
-            assertChangedFiles(
-                genDatabase1,
-                genDao1,
-                genSchema1,
-                genDatabase2,
-                genDao2
-            )
+            assertChangedFiles(genDatabase1, genDao1, genSchema1, genDatabase2, genDao2)
             // Room is able to avoid re-generating schema file 2 as its contents have not changed
             assertUnchangedFiles(genSchema2)
         }
@@ -490,10 +487,7 @@ class RoomIncrementalAnnotationProcessingTest(
         //   - Relevant files should be re-generated (or deleted)
         //   - Irrelevant files should not be re-generated (if Room is incremental)
         if (withIncrementalRoom) {
-            assertDeletedFiles(
-                genDatabase1,
-                genDao1
-            )
+            assertDeletedFiles(genDatabase1, genDao1)
             assertUnchangedFiles(
                 // EXPECTATION-NOT-MET: Schema file 1 should be deleted but is not
                 // (https://issuetracker.google.com/134472065).
@@ -503,17 +497,11 @@ class RoomIncrementalAnnotationProcessingTest(
                 genSchema2
             )
         } else {
-            assertDeletedFiles(
-                genDatabase1,
-                genDao1
-            )
+            assertDeletedFiles(genDatabase1, genDao1)
             // EXPECTATION-NOT-MET: Schema file 1 should be deleted but is not
             // (https://github.com/gradle/gradle/issues/9401).
             assertUnchangedFiles(genSchema1)
-            assertChangedFiles(
-                genDatabase2,
-                genDao2
-            )
+            assertChangedFiles(genDatabase2, genDao2)
             // Room is able to avoid re-generating schema file 2 as its contents have not changed
             assertUnchangedFiles(genSchema2)
         }

@@ -26,8 +26,7 @@ import java.util.Date
 @Entity
 @TypeConverters(TestDatabase.Converters::class)
 class PetUser {
-    @PrimaryKey
-    var mId = 0
+    @PrimaryKey var mId = 0
     var mName: String? = null
     var mLastName: String? = null
     var mAge = 0
@@ -35,8 +34,7 @@ class PetUser {
     var mWeight = 0f
     var mBirthday: Date? = null
 
-    @ColumnInfo(name = "custommm", collate = ColumnInfo.NOCASE)
-    var mCustomField: String? = null
+    @ColumnInfo(name = "custommm", collate = ColumnInfo.NOCASE) var mCustomField: String? = null
 
     // bit flags
     lateinit var mWorkDays: Set<Day>
@@ -56,8 +54,10 @@ class PetUser {
         if (if (mBirthday != null) mBirthday != user.mBirthday else user.mBirthday != null) {
             return false
         }
-        if (if (mCustomField != null) mCustomField != user.mCustomField else
-            user.mCustomField != null) {
+        if (
+            if (mCustomField != null) mCustomField != user.mCustomField
+            else user.mCustomField != null
+        ) {
             return false
         }
         return mWorkDays == user.mWorkDays
@@ -78,15 +78,27 @@ class PetUser {
 
     override fun toString(): String {
         return ("User{" +
-            "mId=" + mId +
-            ", mName='" + mName + '\'' +
-            ", mLastName='" + mLastName + '\'' +
-            ", mAge=" + mAge +
-            ", mAdmin=" + mAdmin +
-            ", mWeight=" + mWeight +
-            ", mBirthday=" + mBirthday +
-            ", mCustomField='" + mCustomField + '\'' +
-            ", mWorkDays=" + mWorkDays +
+            "mId=" +
+            mId +
+            ", mName='" +
+            mName +
+            '\'' +
+            ", mLastName='" +
+            mLastName +
+            '\'' +
+            ", mAge=" +
+            mAge +
+            ", mAdmin=" +
+            mAdmin +
+            ", mWeight=" +
+            mWeight +
+            ", mBirthday=" +
+            mBirthday +
+            ", mCustomField='" +
+            mCustomField +
+            '\'' +
+            ", mWorkDays=" +
+            mWorkDays +
             '}')
     }
 }

@@ -41,9 +41,10 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
     return try {
         // The contract of a repeatable annotation requires that the container annotation have a
         // single "default" method that returns an array typed with the repeatable annotation type.
-        if (annotationValues.size != 1 ||
-            annotationValues[0].name != "value" ||
-            !annotationValues[0].hasAnnotationListValue()
+        if (
+            annotationValues.size != 1 ||
+                annotationValues[0].name != "value" ||
+                !annotationValues[0].hasAnnotationListValue()
         ) {
             return null
         }
@@ -54,15 +55,19 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
         // the value of Repeatable is not present so the best we can do is check that all the nested
         // members are annotated with repeatable.
         // https://github.com/google/ksp/issues/358
-        val isRepeatable = nestedAnnotations.isNotEmpty() && nestedAnnotations.all {
-            // The java and kotlin versions of Repeatable are not interchangeable.
-            // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
-            // should convert them, but it may not be possible because there are differences
-            // to how they work (eg different parameters).
-            it.type.typeElement?.hasAnyAnnotation(
-                Repeatable::class, kotlin.annotation.Repeatable::class
-            ) == true
-        }
+        val isRepeatable =
+            nestedAnnotations.isNotEmpty() &&
+                nestedAnnotations.all {
+                    // The java and kotlin versions of Repeatable are not interchangeable.
+                    // https://github.com/google/ksp/issues/459 asks whether the built in type
+                    // mapper
+                    // should convert them, but it may not be possible because there are differences
+                    // to how they work (eg different parameters).
+                    it.type.typeElement?.hasAnyAnnotation(
+                        Repeatable::class,
+                        kotlin.annotation.Repeatable::class
+                    ) == true
+                }
 
         return if (isRepeatable) nestedAnnotations else null
     } catch (e: Throwable) {

@@ -28,103 +28,50 @@ class XTypeNameTest {
 
     @Test
     fun equality() {
-        assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
-            )
-        ).isEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
-            )
-        )
+        assertThat(XTypeName(java = JClassName.INT.box(), kotlin = INT))
+            .isEqualTo(XTypeName(java = JClassName.INT.box(), kotlin = INT))
 
-        assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
-            )
-        ).isNotEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = SHORT
-            )
-        )
+        assertThat(XTypeName(java = JClassName.INT.box(), kotlin = INT))
+            .isNotEqualTo(XTypeName(java = JClassName.INT.box(), kotlin = SHORT))
 
-        assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = SHORT
-            )
-        ).isNotEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
-            )
-        )
+        assertThat(XTypeName(java = JClassName.INT.box(), kotlin = SHORT))
+            .isNotEqualTo(XTypeName(java = JClassName.INT.box(), kotlin = INT))
     }
 
     @Test
     fun equality_kotlinUnavailable() {
-        assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
+        assertThat(XTypeName(java = JClassName.INT.box(), kotlin = INT))
+            .isEqualTo(
+                XTypeName(java = JClassName.INT.box(), kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME)
             )
-        ).isEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
-            )
-        )
 
         assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
+                XTypeName(java = JClassName.INT.box(), kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME)
             )
-        ).isEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = INT
+            .isEqualTo(XTypeName(java = JClassName.INT.box(), kotlin = INT))
+
+        assertThat(XTypeName(java = JClassName.SHORT.box(), kotlin = SHORT))
+            .isNotEqualTo(
+                XTypeName(java = JClassName.INT.box(), kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME)
             )
-        )
 
         assertThat(
-            XTypeName(
-                java = JClassName.SHORT.box(),
-                kotlin = SHORT
+                XTypeName(java = JClassName.INT.box(), kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME)
             )
-        ).isNotEqualTo(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
-            )
-        )
-
-        assertThat(
-            XTypeName(
-                java = JClassName.INT.box(),
-                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
-            )
-        ).isNotEqualTo(
-            XTypeName(
-                java = JClassName.SHORT.box(),
-                kotlin = SHORT
-            )
-        )
+            .isNotEqualTo(XTypeName(java = JClassName.SHORT.box(), kotlin = SHORT))
     }
 
     @Test
     fun hashCode_kotlinUnavailable() {
         val expectedClass = XClassName.get("foo", "Bar")
         assertThat(
-            XTypeName(
-                java = JClassName.get("foo", "Bar"),
-                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
-            ).hashCode()
-        ).isEqualTo(expectedClass.hashCode())
+                XTypeName(
+                        java = JClassName.get("foo", "Bar"),
+                        kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME
+                    )
+                    .hashCode()
+            )
+            .isEqualTo(expectedClass.hashCode())
     }
 
     @Test
@@ -137,33 +84,32 @@ class XTypeNameTest {
     @Test
     fun equalsIgnoreNullability() {
         assertThat(
-            XTypeName.BOXED_INT.copy(nullable = false).equalsIgnoreNullability(
-                XTypeName.BOXED_INT.copy(nullable = true)
+                XTypeName.BOXED_INT.copy(nullable = false)
+                    .equalsIgnoreNullability(XTypeName.BOXED_INT.copy(nullable = true))
             )
-        ).isTrue()
+            .isTrue()
 
         assertThat(
-            XTypeName.BOXED_INT.copy(nullable = false).equalsIgnoreNullability(
-                XTypeName.BOXED_LONG.copy(nullable = true)
+                XTypeName.BOXED_INT.copy(nullable = false)
+                    .equalsIgnoreNullability(XTypeName.BOXED_LONG.copy(nullable = true))
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun toString_codeLanguage() {
-        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.JAVA))
-            .isEqualTo("java.lang.Object")
-        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.KOTLIN))
-            .isEqualTo("kotlin.Any")
+        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.JAVA)).isEqualTo("java.lang.Object")
+        assertThat(XTypeName.ANY_OBJECT.toString(CodeLanguage.KOTLIN)).isEqualTo("kotlin.Any")
     }
 
     @Test
     fun mutations_kotlinUnavailable() {
-        val typeName = XClassName(
-            java = JClassName.get("test", "Foo"),
-            kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME,
-            nullability = XNullability.UNKNOWN
-        )
+        val typeName =
+            XClassName(
+                java = JClassName.get("test", "Foo"),
+                kotlin = XTypeName.UNAVAILABLE_KTYPE_NAME,
+                nullability = XNullability.UNKNOWN
+            )
         assertThat(typeName.copy(nullable = true).kotlin)
             .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
         assertThat(typeName.copy(nullable = false).kotlin)
@@ -181,21 +127,21 @@ class XTypeNameTest {
     @Test
     fun arrays() {
         XTypeName.getArrayName(Number::class.asClassName()).let {
-            assertThat(it.toString(CodeLanguage.JAVA))
-                .isEqualTo("java.lang.Number[]")
-            assertThat(it.toString(CodeLanguage.KOTLIN))
-                .isEqualTo("kotlin.Array<kotlin.Number>")
+            assertThat(it.toString(CodeLanguage.JAVA)).isEqualTo("java.lang.Number[]")
+            assertThat(it.toString(CodeLanguage.KOTLIN)).isEqualTo("kotlin.Array<kotlin.Number>")
         }
-        XTypeName.getArrayName(
-            XTypeName.getProducerExtendsName(Number::class.asClassName())).let {
-            assertThat(it.toString(CodeLanguage.JAVA))
-                .isEqualTo("java.lang.Number[]")
+        XTypeName.getArrayName(XTypeName.getProducerExtendsName(Number::class.asClassName())).let {
+            assertThat(it.toString(CodeLanguage.JAVA)).isEqualTo("java.lang.Number[]")
             assertThat(it.toString(CodeLanguage.KOTLIN))
                 .isEqualTo("kotlin.Array<out kotlin.Number>")
         }
         assertThrows<IllegalArgumentException> {
-            XTypeName.getArrayName(XTypeName.getConsumerSuperName(Number::class.asClassName()))
-        }.hasMessageThat().isEqualTo("Can't have contra-variant component types in Java " +
-            "arrays. Found '? super java.lang.Number'.")
+                XTypeName.getArrayName(XTypeName.getConsumerSuperName(Number::class.asClassName()))
+            }
+            .hasMessageThat()
+            .isEqualTo(
+                "Can't have contra-variant component types in Java " +
+                    "arrays. Found '? super java.lang.Number'."
+            )
     }
 }

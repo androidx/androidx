@@ -51,8 +51,10 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public void setRowId(int id) { this.rowId = rowId; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.asTypeName().toString(CodeLanguage.JAVA),
-                `is`("foo.bar.MyEntity"))
+            assertThat(
+                entity.type.asTypeName().toString(CodeLanguage.JAVA),
+                `is`("foo.bar.MyEntity")
+            )
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
             val intType = invocation.processingEnv.requireType(XTypeName.PRIMITIVE_INT)
@@ -68,10 +70,14 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     )
                 )
             )
-            assertThat(field.setter,
-                `is`(FieldSetter("rowId", "setRowId", intType, CallType.METHOD)))
-            assertThat(field.getter,
-                `is`(FieldGetter("rowId", "getRowId", intType, CallType.METHOD)))
+            assertThat(
+                field.setter,
+                `is`(FieldSetter("rowId", "setRowId", intType, CallType.METHOD))
+            )
+            assertThat(
+                field.getter,
+                `is`(FieldGetter("rowId", "getRowId", intType, CallType.METHOD))
+            )
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
             assertThat(entity.shadowTableName, `is`("MyEntity_content"))
             assertThat(entity.ftsVersion, `is`(FtsVersion.FTS4))
@@ -81,10 +87,11 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
     @Test
     fun missingEntityAnnotation() {
         runProcessorTest(
-            sources = listOf(
-                Source.java(
-                    "foo.bar.MyEntity",
-                    """
+            sources =
+                listOf(
+                    Source.java(
+                        "foo.bar.MyEntity",
+                        """
                 package foo.bar;
                 import androidx.room.*;
                 @Fts4
@@ -92,18 +99,13 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     public String content;
                 }
                 """
+                    )
                 )
-            )
         ) { invocation ->
-            val entity = invocation.processingEnv.requireTypeElement(
-                "foo.bar.MyEntity"
-            )
-            FtsTableEntityProcessor(invocation.context, entity)
-                .process()
+            val entity = invocation.processingEnv.requireTypeElement("foo.bar.MyEntity")
+            FtsTableEntityProcessor(invocation.context, entity).process()
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
             }
         }
     }
@@ -120,18 +122,17 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             entityAttributes = mapOf("indices" to "{@Index(\"content\")}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INDICES_IN_FTS_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.INDICES_IN_FTS_ENTITY)
             }
         }
     }
 
     @Test
     fun notAllowedForeignKeys() {
-        val foreignEntity = Source.java(
-            "foo.bar.FKEntity",
-            """
+        val foreignEntity =
+            Source.java(
+                "foo.bar.FKEntity",
+                """
                 package foo.bar;
                 import androidx.room.*;
                 @Entity
@@ -140,7 +141,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     public long id;
                 }
                 """
-        )
+            )
         singleEntity(
             """
                 @PrimaryKey
@@ -148,16 +149,16 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int rowId;
                 public String content;
                 """,
-            entityAttributes = mapOf(
-                "foreignKeys" to "{@ForeignKey(entity=FKEntity.class, " +
-                    "parentColumns=\"id\", childColumns=\"rowid\")}"
-            ),
+            entityAttributes =
+                mapOf(
+                    "foreignKeys" to
+                        "{@ForeignKey(entity=FKEntity.class, " +
+                            "parentColumns=\"id\", childColumns=\"rowid\")}"
+                ),
             sources = listOf(foreignEntity)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.FOREIGN_KEYS_IN_FTS_ENTITY)
             }
         }
     }
@@ -170,7 +171,8 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String getContent() { return content; }
                 public void setContent(String content) { this.content = content; }
             """
-        ) { _, _ -> }
+        ) { _, _ ->
+        }
     }
 
     @Test
@@ -182,7 +184,8 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public String content;
                 """,
             entityAttributes = mapOf("primaryKeys" to "\"rowid\"")
-        ) { _, _ -> }
+        ) { _, _ ->
+        }
     }
 
     @Test
@@ -196,9 +199,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID
-                )
+                hasErrorContaining(ProcessorErrors.MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID)
             }
         }
     }
@@ -214,9 +215,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_NAME)
             }
         }
     }
@@ -233,9 +232,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY)
             }
         }
     }
@@ -251,9 +248,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
             }
         }
     }
@@ -268,9 +263,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             entityAttributes = mapOf("primaryKeys" to "{\"oneId\",\"twoId\"}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY
-                )
+                hasErrorContaining(ProcessorErrors.TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY)
             }
         }
     }
@@ -309,9 +302,10 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
 
     @Test
     fun badExternalContentEntity_notAnEntity() {
-        val contentSrc = Source.java(
-            "foo.bar.Content",
-            """
+        val contentSrc =
+            Source.java(
+                "foo.bar.Content",
+                """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -319,7 +313,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     String text;
                 }
                 """
-        )
+            )
         singleEntity(
             """
                 @PrimaryKey
@@ -331,18 +325,17 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             sources = listOf(contentSrc)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.externalContentNotAnEntity("foo.bar.Content")
-                )
+                hasErrorContaining(ProcessorErrors.externalContentNotAnEntity("foo.bar.Content"))
             }
         }
     }
 
     @Test
     fun badExternalContentEntity_missingFields() {
-        val contentSrc = Source.java(
-            "foo.bar.Content",
-            """
+        val contentSrc =
+            Source.java(
+                "foo.bar.Content",
+                """
                 package foo.bar;
                 import androidx.room.*;
 
@@ -353,7 +346,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     String text;
                 }
                 """
-        )
+            )
         singleEntity(
             """
                 @PrimaryKey
@@ -368,7 +361,8 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 hasErrorContaining(
                     ProcessorErrors.missingFtsContentField(
                         "foo.bar.MyEntity",
-                        "extraData", "foo.bar.Content"
+                        "extraData",
+                        "foo.bar.Content"
                     )
                 )
             }
@@ -387,9 +381,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("languageId" to "\"lid\"")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.missingLanguageIdField("lid")
-                )
+                hasErrorContaining(ProcessorErrors.missingLanguageIdField("lid"))
             }
         }
     }
@@ -407,9 +399,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("languageId" to "\"lid\"")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY)
             }
         }
     }
@@ -425,9 +415,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("notIndexed" to "{\"body\"}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.missingNotIndexedField(listOf("body"))
-                )
+                hasErrorContaining(ProcessorErrors.missingNotIndexedField(listOf("body")))
             }
         }
     }
@@ -444,9 +432,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("prefix" to "{0,2}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
             }
         }
     }
@@ -463,9 +449,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
             ftsAttributes = hashMapOf("prefix" to "{-2,2}")
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES
-                )
+                hasErrorContaining(ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
             }
         }
     }

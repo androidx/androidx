@@ -18,15 +18,11 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.processing.XType
 
-/**
- * A row adapter containing mapping information of the query and its result usage.
- */
+/** A row adapter containing mapping information of the query and its result usage. */
 abstract class QueryMappedRowAdapter(out: XType) : RowAdapter(out) {
     abstract val mapping: Mapping
 
-    /**
-     * Base class of an adapter mapping declaring the used columns by the adapter.
-     */
+    /** Base class of an adapter mapping declaring the used columns by the adapter. */
     abstract class Mapping {
         abstract val usedColumns: List<String>
     }

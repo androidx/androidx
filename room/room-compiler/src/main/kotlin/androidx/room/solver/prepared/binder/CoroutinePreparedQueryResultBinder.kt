@@ -29,9 +29,7 @@ import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 
-/**
- * Binder of prepared queries of a Kotlin coroutine suspend function.
- */
+/** Binder of prepared queries of a Kotlin coroutine suspend function. */
 class CoroutinePreparedQueryResultBinder(
     adapter: PreparedQueryResultAdapter?,
     private val continuationParamName: String,
@@ -56,36 +54,39 @@ class CoroutinePreparedQueryResultBinder(
         scope: CodeGenScope
     ) {
         val connectionVar = scope.getTmpVar("_connection")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
-            continuationParamName = continuationParamName,
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = connectionVar,
-                returnTypeName = returnTypeName.box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val statementVar = scope.getTmpVar("_stmt")
-                    addLocalVal(
-                        statementVar,
-                        SQLiteDriverTypeNames.STATEMENT,
-                        "%L.prepare(%L)",
-                        connectionVar,
-                        sqlQueryVar
-                    )
-                    beginControlFlow("try")
-                    bindStatement(scope, statementVar)
-                    adapter?.executeAndReturn(connectionVar, statementVar, scope)
-                    nextControlFlow("finally")
-                    addStatement("%L.close()", statementVar)
-                    endControlFlow()
-                }
-            }
-        )
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
+                continuationParamName = continuationParamName,
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = returnTypeName.box(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val statementVar = scope.getTmpVar("_stmt")
+                            addLocalVal(
+                                statementVar,
+                                SQLiteDriverTypeNames.STATEMENT,
+                                "%L.prepare(%L)",
+                                connectionVar,
+                                sqlQueryVar
+                            )
+                            beginControlFlow("try")
+                            bindStatement(scope, statementVar)
+                            adapter?.executeAndReturn(connectionVar, statementVar, scope)
+                            nextControlFlow("finally")
+                            addStatement("%L.close()", statementVar)
+                            endControlFlow()
+                        }
+                    }
+            )
         scope.builder.add("return %L", performBlock)
     }
 }

@@ -25,9 +25,7 @@ import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
 @OptIn(ExperimentalProcessingApi::class)
-class DiagnosticsTest internal constructor(
-    private val runTest: TestRunner
-) : MultiBackendTest() {
+class DiagnosticsTest internal constructor(private val runTest: TestRunner) : MultiBackendTest() {
 
     @Test
     fun diagnosticsMessagesWithoutSource() {
@@ -79,33 +77,15 @@ class DiagnosticsTest internal constructor(
                 assertThat(shouldSucceed).isFalse()
 
                 // these should fail:
-                assertThat(
-                    runCatching { hasNote("note") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasWarning("warn") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasError("error") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasNoteContaining("error") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasWarningContaining("note") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasErrorContaining("warning") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasNoteContainingMatch("error %d") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasWarningContainingMatch("note %d") }.isFailure
-                ).isTrue()
-                assertThat(
-                    runCatching { hasErrorContainingMatch("warning %d") }.isFailure
-                ).isTrue()
+                assertThat(runCatching { hasNote("note") }.isFailure).isTrue()
+                assertThat(runCatching { hasWarning("warn") }.isFailure).isTrue()
+                assertThat(runCatching { hasError("error") }.isFailure).isTrue()
+                assertThat(runCatching { hasNoteContaining("error") }.isFailure).isTrue()
+                assertThat(runCatching { hasWarningContaining("note") }.isFailure).isTrue()
+                assertThat(runCatching { hasErrorContaining("warning") }.isFailure).isTrue()
+                assertThat(runCatching { hasNoteContainingMatch("error %d") }.isFailure).isTrue()
+                assertThat(runCatching { hasWarningContainingMatch("note %d") }.isFailure).isTrue()
+                assertThat(runCatching { hasErrorContainingMatch("warning %d") }.isFailure).isTrue()
             }
         }
     }
@@ -113,123 +93,133 @@ class DiagnosticsTest internal constructor(
     @Test
     fun diagnoticMessageOnKotlinSource() {
         runTest.assumeCanCompileKotlin()
-        val source = Source.kotlin(
-            "Subject.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Subject.kt",
+                """
             package foo.bar
             class Subject {
                 val field: String = "foo"
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(listOf(source)) { invocation ->
-            val field = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
-                .getDeclaredFields().first()
+            val field =
+                invocation.processingEnv
+                    .requireTypeElement("foo.bar.Subject")
+                    .getDeclaredFields()
+                    .first()
             invocation.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.WARNING,
                 msg = "warning on field",
                 element = field
             )
             invocation.assertCompilationResult {
-                hasWarningContaining("on field")
-                    .onLine(3)
-                    .onSource(source)
+                hasWarningContaining("on field").onLine(3).onSource(source)
             }
         }
     }
 
     @Test
     fun diagnoticMessageOnJavaSource() {
-        val source = Source.java(
-            "foo.bar.Subject",
-            """
+        val source =
+            Source.java(
+                "foo.bar.Subject",
+                """
             package foo.bar;
             public class Subject {
                 String field = "";
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         runTest(listOf(source)) { invocation ->
-            val field = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
-                .getDeclaredFields().first()
+            val field =
+                invocation.processingEnv
+                    .requireTypeElement("foo.bar.Subject")
+                    .getDeclaredFields()
+                    .first()
             invocation.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.WARNING,
                 msg = "warning on field",
                 element = field
             )
             invocation.assertCompilationResult {
-                hasWarningContaining("on field")
-                    .onLine(3)
-                    .onSource(source)
+                hasWarningContaining("on field").onLine(3).onSource(source)
             }
         }
     }
 
     @Test
     fun cleanJavaCompilationHasNoWarnings() {
-        val javaSource = Source.java(
-            "foo.bar.Subject",
-            """
+        val javaSource =
+            Source.java(
+                "foo.bar.Subject",
+                """
             package foo.bar;
             public class Subject {
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         cleanCompilationHasNoWarnings(javaSource)
-        cleanCompilationHasNoWarnings(
-            options = mapOf("foo" to "bar"),
-            javaSource
-        )
+        cleanCompilationHasNoWarnings(options = mapOf("foo" to "bar"), javaSource)
     }
 
     @Test
     fun cleanKotlinCompilationHasNoWarnings() {
-        val kotlinSource = Source.kotlin(
-            "Subject.kt",
-            """
+        val kotlinSource =
+            Source.kotlin(
+                "Subject.kt",
+                """
             package foo.bar
             class Subject {
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         cleanCompilationHasNoWarnings(kotlinSource)
-        cleanCompilationHasNoWarnings(
-            options = mapOf("foo" to "bar"),
-            kotlinSource
-        )
+        cleanCompilationHasNoWarnings(options = mapOf("foo" to "bar"), kotlinSource)
     }
 
     @Test
     fun cleanJavaCompilationWithSomeAnnotationsHasNoWarnings() {
-        val annotation = Source.java(
-            "foo.bar.MyAnnotation",
-            """
+        val annotation =
+            Source.java(
+                "foo.bar.MyAnnotation",
+                """
             package foo.bar;
             public @interface MyAnnotation {}
-            """.trimIndent()
-        )
-        val source = Source.java(
-            "foo.bar.Subject",
             """
+                    .trimIndent()
+            )
+        val source =
+            Source.java(
+                "foo.bar.Subject",
+                """
             package foo.bar;
             @MyAnnotation
             public class Subject {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         cleanCompilationHasNoWarnings(annotation, source)
     }
 
     @Test
     fun cleanKotlinCompilationWithSomeAnnotationsHasNoWarnings() {
-        val source = Source.kotlin(
-            "Foo.kt",
-            """
+        val source =
+            Source.kotlin(
+                "Foo.kt",
+                """
             annotation class MyAnnotation
 
             @MyAnnotation
             class Subject {}
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         cleanCompilationHasNoWarnings(source)
     }
 
@@ -237,42 +227,47 @@ class DiagnosticsTest internal constructor(
     fun diagnoticMessageCompareTrimmedLines() {
         runTest { invocation ->
             invocation.processingEnv.messager.run {
-                printMessage(Diagnostic.Kind.ERROR, "error: This is the first line\n" +
-                    "    This is the second line\n" +
-                    "    This is the third line")
+                printMessage(
+                    Diagnostic.Kind.ERROR,
+                    "error: This is the first line\n" +
+                        "    This is the second line\n" +
+                        "    This is the third line"
+                )
             }
             invocation.assertCompilationResult {
-                hasError("error: This is the first line\n" +
-                    "      This is the second line\n" +
-                    "      This is the third line")
+                hasError(
+                    "error: This is the first line\n" +
+                        "      This is the second line\n" +
+                        "      This is the third line"
+                )
 
                 hasErrorContaining("   This is the second line  \n This is the third  ")
 
                 assertThat(
-                    runCatching { hasError("error: This is the \nfirst line" +
-                        "This is the \nsecond line" +
-                        "This is the third line") }.isFailure
-                ).isTrue()
+                        runCatching {
+                                hasError(
+                                    "error: This is the \nfirst line" +
+                                        "This is the \nsecond line" +
+                                        "This is the third line"
+                                )
+                            }
+                            .isFailure
+                    )
+                    .isTrue()
             }
         }
     }
 
-    private fun cleanCompilationHasNoWarnings(
-        vararg source: Source
-    ) = cleanCompilationHasNoWarnings(options = emptyMap(), source = source)
+    private fun cleanCompilationHasNoWarnings(vararg source: Source) =
+        cleanCompilationHasNoWarnings(options = emptyMap(), source = source)
 
-    private fun cleanCompilationHasNoWarnings(
-        options: Map<String, String>,
-        vararg source: Source
-    ) {
+    private fun cleanCompilationHasNoWarnings(options: Map<String, String>, vararg source: Source) {
         if (source.any { it is Source.KotlinSource }) {
             runTest.assumeCanCompileKotlin()
         }
         runTest(options = options, sources = source.toList()) {
             // no report
-            it.assertCompilationResult {
-                hasNoWarnings()
-            }
+            it.assertCompilationResult { hasNoWarnings() }
         }
     }
 }

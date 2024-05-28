@@ -30,8 +30,8 @@ import com.squareup.javapoet.TypeName
 import org.junit.Test
 
 /**
- * This test generates a brute force of method signatures and ensures they match what we generate
- * in KAPT.
+ * This test generates a brute force of method signatures and ensures they match what we generate in
+ * KAPT.
  */
 class KspTypeNamesGoldenTest {
 
@@ -48,18 +48,21 @@ class KspTypeNamesGoldenTest {
             output: MutableMap<String, List<TypeName>>
         ) {
             // collect all methods in the Object class to exclude them from matching
-            val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
-                .getAllMethods().map { it.jvmName }.toSet()
+            val objectMethodNames =
+                invocation.processingEnv
+                    .requireTypeElement(Any::class)
+                    .getAllMethods()
+                    .map { it.jvmName }
+                    .toSet()
 
-            fun XExecutableElement.createNewUniqueKey(
-                owner: String
-            ): String {
+            fun XExecutableElement.createNewUniqueKey(owner: String): String {
                 val prefix = this.closestMemberContainer.asClassName().canonicalName
-                val jvmName = if (this is XMethodElement) {
-                    jvmName
-                } else {
-                    "<init>"
-                }
+                val jvmName =
+                    if (this is XMethodElement) {
+                        jvmName
+                    } else {
+                        "<init>"
+                    }
                 val key = "$owner.$prefix.$jvmName"
                 check(!output.containsKey(key)) {
                     "test expects unique method names. $key is here: ${output[key]}"
@@ -71,18 +74,14 @@ class KspTypeNamesGoldenTest {
 
                 klass.getConstructors().singleOrNull()?.let { constructor ->
                     val testKey = constructor.createNewUniqueKey(klass.qualifiedName)
-                    output[testKey] = constructor.parameters.map {
-                        it.type.typeName
-                    }
+                    output[testKey] = constructor.parameters.map { it.type.typeName }
                 }
                 // KAPT might duplicate overridden methods. ignore them for test purposes
                 // see b/205911014
-                val declaredMethodNames = klass.getDeclaredMethods().map {
-                    it.jvmName
-                }.toSet()
-                val methods = klass.getDeclaredMethods() + klass.getAllMethods().filterNot {
-                    it.jvmName in declaredMethodNames
-                }
+                val declaredMethodNames = klass.getDeclaredMethods().map { it.jvmName }.toSet()
+                val methods =
+                    klass.getDeclaredMethods() +
+                        klass.getAllMethods().filterNot { it.jvmName in declaredMethodNames }
 
                 methods
                     .filterNot {
@@ -93,66 +92,52 @@ class KspTypeNamesGoldenTest {
                     .forEach { method ->
                         val testKey = method.createNewUniqueKey(klass.qualifiedName)
                         val methodType = method.asMemberOf(klass.type)
-                        val types = listOf(
-                            methodType.returnType
-                        ) + methodType.parameterTypes
-                        output[testKey] = types.map {
-                            it.typeName
-                        }
+                        val types = listOf(methodType.returnType) + methodType.parameterTypes
+                        output[testKey] = types.map { it.typeName }
                     }
             }
         }
         // classQName.methodName -> returnType, ...paramTypes
         val golden = mutableMapOf<String, List<TypeName>>()
-        runKaptTest(
-            sources = sources, classpath = classpath
-        ) { invocation ->
+        runKaptTest(sources = sources, classpath = classpath) { invocation ->
             collectSignaturesInto(invocation, golden)
         }
         val ksp = mutableMapOf<String, List<TypeName>>()
-        runKspTest(
-            sources = sources, classpath = classpath
-        ) { invocation ->
+        runKspTest(sources = sources, classpath = classpath) { invocation ->
             collectSignaturesInto(invocation, ksp)
         }
 
         // make sure we grabbed some values to ensure test is working
         assertThat(golden).isNotEmpty()
         subjects.forEach { subject ->
-            assertWithMessage("there are no methods from $subject").that(
-                golden.keys.any {
-                    it.startsWith(subject)
-                }
-            ).isTrue()
-            assertWithMessage("there are no methods from $subject").that(
-                golden.keys.any {
-                    it.startsWith(subject)
-                }
-            ).isTrue()
+            assertWithMessage("there are no methods from $subject")
+                .that(golden.keys.any { it.startsWith(subject) })
+                .isTrue()
+            assertWithMessage("there are no methods from $subject")
+                .that(golden.keys.any { it.startsWith(subject) })
+                .isTrue()
         }
         // turn them into string, provides better failure reports
         fun Map<String, List<TypeName>>.signatures(): List<Pair<String, String>> {
-            return this.entries.map {
-                it.key to it.value.joinToString(" ") {
-                    // javapoet doesn't always read enclosing class property from classpath
-                    // we don't care about it here.
-                    it.toString().replace('$', '.')
+            return this.entries
+                .map {
+                    it.key to
+                        it.value.joinToString(" ") {
+                            // javapoet doesn't always read enclosing class property from classpath
+                            // we don't care about it here.
+                            it.toString().replace('$', '.')
+                        }
                 }
-            }.sortedBy {
-                it.first
-            }
+                .sortedBy { it.first }
         }
-        assertThat(ksp.signatures())
-            .containsExactlyElementsIn(golden.signatures())
-            .inOrder()
+        assertThat(ksp.signatures()).containsExactlyElementsIn(golden.signatures()).inOrder()
     }
 
-    private fun createSubjects(
-        pkg: String
-    ): TestInput {
-        val declarations = Source.kotlin(
-            "declarations.kt",
-            """
+    private fun createSubjects(pkg: String): TestInput {
+        val declarations =
+            Source.kotlin(
+                "declarations.kt",
+                """
                 package $pkg
                 class MyType
                 class MyGeneric<T>
@@ -199,40 +184,41 @@ class KspTypeNamesGoldenTest {
                         class Child2: Parent2()
                     }
                 }
-                """.trimIndent()
-        )
-        return listOf(
-            createBasicSubject(pkg),
-            createVarianceSubject(
-                pkg = pkg,
-                className = "VarianceSubject",
-                suppressWildcards = false
-            ),
-            createVarianceSubject(
-                pkg,
-                className = "VarianceSubjectSuppressed",
-                suppressWildcards = true
-            ),
-            createOverrideSubjects(pkg),
-            createSelfReferencingType(pkg),
-            createOverridesWithGenericArguments(pkg),
-            createKotlinOverridesJavaSubjects(pkg),
-            createKotlinOverridesJavaSubjectsWithGenerics(pkg),
-            createOverrideSubjectsWithDifferentSuppressLevels(pkg),
-            createMultiLevelInheritanceSubjects(pkg),
-            createJavaOverridesKotlinSubjects(pkg),
-            createOverrideWithBoundsSubjects(pkg),
-            createOverrideWithMultipleBoundsSubjects(pkg)
-        ).fold(TestInput(declarations, emptyList())) { acc, next ->
-            acc + next.copy(
-                subjects = next.subjects.map { "$pkg.$it" } // add package
+                """
+                    .trimIndent()
             )
-        }
+        return listOf(
+                createBasicSubject(pkg),
+                createVarianceSubject(
+                    pkg = pkg,
+                    className = "VarianceSubject",
+                    suppressWildcards = false
+                ),
+                createVarianceSubject(
+                    pkg,
+                    className = "VarianceSubjectSuppressed",
+                    suppressWildcards = true
+                ),
+                createOverrideSubjects(pkg),
+                createSelfReferencingType(pkg),
+                createOverridesWithGenericArguments(pkg),
+                createKotlinOverridesJavaSubjects(pkg),
+                createKotlinOverridesJavaSubjectsWithGenerics(pkg),
+                createOverrideSubjectsWithDifferentSuppressLevels(pkg),
+                createMultiLevelInheritanceSubjects(pkg),
+                createJavaOverridesKotlinSubjects(pkg),
+                createOverrideWithBoundsSubjects(pkg),
+                createOverrideWithMultipleBoundsSubjects(pkg)
+            )
+            .fold(TestInput(declarations, emptyList())) { acc, next ->
+                acc +
+                    next.copy(
+                        subjects = next.subjects.map { "$pkg.$it" } // add package
+                    )
+            }
     }
 
-    /**
-     * Simple class, no overrides etc
-     */
+    /** Simple class, no overrides etc */
     private fun createBasicSubject(pkg: String): TestInput {
         return TestInput(
             Source.kotlin(
@@ -394,52 +380,70 @@ class KspTypeNamesGoldenTest {
                             param: MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>>
                         ): MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>> = TODO()
                     }
-                """.trimIndent()
-            ), listOf("Subject")
+                """
+                    .trimIndent()
+            ),
+            listOf("Subject")
         )
     }
 
     private fun createSelfReferencingType(pkg: String): TestInput {
         return TestInput(
-            sources = listOf(
-                Source.java("$pkg.SelfReferencingJava", """
+            sources =
+                listOf(
+                    Source.java(
+                        "$pkg.SelfReferencingJava",
+                        """
                     package $pkg;
                     public interface SelfReferencingJava<T extends SelfReferencingJava<T>> {
                         void method1(SelfReferencingJava sr);
                         void method2(SelfReferencingJava<?> sr);
                     }
-                """.trimIndent()),
-                Source.java("$pkg.SubSelfReferencingJava", """
+                """
+                            .trimIndent()
+                    ),
+                    Source.java(
+                        "$pkg.SubSelfReferencingJava",
+                        """
                     package $pkg;
                     public interface SubSelfReferencingJava extends SelfReferencingJava<SubSelfReferencingJava> {}
-                """.trimIndent()),
-                Source.kotlin("SelfReferencing.kt",
-                    """
+                """
+                            .trimIndent()
+                    ),
+                    Source.kotlin(
+                        "SelfReferencing.kt",
+                        """
                     package $pkg
                     interface SelfReferencingKotlin<T : SelfReferencingKotlin<T>> {
                         fun method1(sr: SelfReferencingKotlin<*>)
                     }
                     interface SubSelfReferencingKotlin : SelfReferencingKotlin<SubSelfReferencingKotlin>
-                    """.trimIndent()),
-            ),
-            subjects = listOf("SubSelfReferencingJava", "SelfReferencingJava",
-                "SelfReferencingKotlin", "SubSelfReferencingKotlin")
+                    """
+                            .trimIndent()
+                    ),
+                ),
+            subjects =
+                listOf(
+                    "SubSelfReferencingJava",
+                    "SelfReferencingJava",
+                    "SelfReferencingKotlin",
+                    "SubSelfReferencingKotlin"
+                )
         )
     }
 
-    /**
-     * Subjects with variance and star projections.
-     */
+    /** Subjects with variance and star projections. */
     private fun createVarianceSubject(
         pkg: String,
         className: String,
         suppressWildcards: Boolean
     ): TestInput {
-        val annotation = if (suppressWildcards) {
-            "@JvmSuppressWildcards"
-        } else {
-            ""
-        }
+        val annotation =
+            if (suppressWildcards) {
+                "@JvmSuppressWildcards"
+            } else {
+                ""
+            }
         return TestInput(
             Source.kotlin(
                 "$className.kt",
@@ -607,18 +611,19 @@ class KspTypeNamesGoldenTest {
                     fun mapTypeAlias11(param: MyGeneric<MyMapAliasWithJSW<MyGeneric<R>>>): MyGeneric<MyMapAliasWithJSW<MyGeneric<R>>> = TODO()
                     fun mapTypeAlias12(param: MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>>): MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>> = TODO()
                 }
-                """.trimIndent()
-            ), listOf(className)
+                """
+                    .trimIndent()
+            ),
+            listOf(className)
         )
     }
 
-    /**
-     * Create test cases where inheritance and wildcards annotations are involved
-     */
+    /** Create test cases where inheritance and wildcards annotations are involved */
     private fun createOverrideSubjectsWithDifferentSuppressLevels(pkg: String): TestInput {
-        val source = Source.kotlin(
-            "OverridesWithSuppress.kt",
-            """
+        val source =
+            Source.kotlin(
+                "OverridesWithSuppress.kt",
+                """
             package $pkg
             interface NormalBase<T> {
                 fun receiveReturnListT(t : List<T>): List<T>
@@ -653,10 +658,12 @@ class KspTypeNamesGoldenTest {
             interface OverrideWildcardMethodSuppressed: NormalBase<Number> {
                 override fun receiveReturnListTWithWildcard(t : List<Number>): List<Number>
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         return TestInput(
-            source, listOf(
+            source,
+            listOf(
                 "NoOverrideNormal",
                 "NoOverrideSuppressedBase",
                 "NoOverrideSuppressedInMethodBase",
@@ -668,11 +675,10 @@ class KspTypeNamesGoldenTest {
         )
     }
 
-    /**
-     * Create test cases where interfaces are overridden by other interfaces
-     */
+    /** Create test cases where interfaces are overridden by other interfaces */
     private fun createOverrideSubjects(pkg: String): TestInput {
-        val base = """
+        val base =
+            """
             interface BaseInterface<T> {
                 var tProp: T
                 var tListProp: List<T>
@@ -694,39 +700,42 @@ class KspTypeNamesGoldenTest {
                 suspend fun suspendDefinedTypesFinal2(objList: List<List<Long>>): List<List<Long>>
                 suspend fun suspendDefinedTypesOpen2(objList: List<List<Number>>): List<List<Number>>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: BaseInterface<$typeArg> {
                 override fun receiveReturnTOverridden(t: $typeArg): $typeArg
                 override suspend fun suspendReceiveReturnTOverridden(t:$typeArg):$typeArg
                 override fun receiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
                 override suspend fun suspendReceiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val code = listOf(
-            "package $pkg",
-            base,
-            buildInterface("SubInterface<R>", "R"),
-            buildInterface("SubInterfaceOpen", "Number"),
-            buildInterface("SubInterfaceEnum", "MyEnum"),
-            buildInterface("SubInterfaceFinal", "String"),
-            buildInterface("SubInterfacePrimitive", "Int"),
-            buildInterface("SubInterfacePrimitiveNullable", "Int?"),
-        ).joinToString("\n")
-        val classNames = listOf(
-            "BaseInterface",
-            "SubInterface",
-            "SubInterfaceOpen",
-            "SubInterfaceEnum",
-            "SubInterfaceFinal",
-            "SubInterfacePrimitive",
-            "SubInterfacePrimitiveNullable",
-        )
+        val code =
+            listOf(
+                    "package $pkg",
+                    base,
+                    buildInterface("SubInterface<R>", "R"),
+                    buildInterface("SubInterfaceOpen", "Number"),
+                    buildInterface("SubInterfaceEnum", "MyEnum"),
+                    buildInterface("SubInterfaceFinal", "String"),
+                    buildInterface("SubInterfacePrimitive", "Int"),
+                    buildInterface("SubInterfacePrimitiveNullable", "Int?"),
+                )
+                .joinToString("\n")
+        val classNames =
+            listOf(
+                "BaseInterface",
+                "SubInterface",
+                "SubInterfaceOpen",
+                "SubInterfaceEnum",
+                "SubInterfaceFinal",
+                "SubInterfacePrimitive",
+                "SubInterfacePrimitiveNullable",
+            )
         return TestInput(Source.kotlin("Overrides.kt", code), classNames)
     }
 
@@ -734,13 +743,12 @@ class KspTypeNamesGoldenTest {
      * Create test cases where interfaces are overridden by other interfaces and the type argument
      * has a generic type
      */
-    private fun createOverridesWithGenericArguments(
-        pkg: String
-    ): TestInput {
+    private fun createOverridesWithGenericArguments(pkg: String): TestInput {
         // this is not included in buildOverrides case because we don't yet properly handle
         // return type getting variance. see:
         // see: https://issuetracker.google.com/issues/204415667#comment10
-        val base = """
+        val base =
+            """
             interface GenericBaseInterface<T>  {
                 fun receiveT(t:T): Unit
                 suspend fun suspendReceiveT(t:T): Unit
@@ -755,12 +763,11 @@ class KspTypeNamesGoldenTest {
                 fun receiveTArrayOverridden(t: Array<T>): Unit
                 suspend fun suspendReceiveTArrayOverridden(t: Array<T>): Unit
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: GenericBaseInterface<$typeArg> {
                 override fun receiveTOverridden(t:$typeArg): Unit
                 override suspend fun suspendTOverridden(t:$typeArg): Unit
@@ -769,43 +776,44 @@ class KspTypeNamesGoldenTest {
                 override fun receiveTArrayOverridden(t: Array<$typeArg>): Unit
                 override suspend fun suspendReceiveTArrayOverridden(t: Array<$typeArg>): Unit
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val code = listOf(
-            "package $pkg",
-            base,
-            buildInterface("SubInterfaceWithGenericR<R>", "List<R>"),
-            buildInterface("SubInterfaceWithGenericOpen", "List<Number>"),
-            buildInterface("SubInterfaceWithGenericEnum", "List<MyEnum>"),
-            buildInterface("SubInterfaceWithGenericFinal", "List<String>"),
-            buildInterface("SubInterfaceWithGenericPrimitive", "List<Int>"),
-            buildInterface("SubInterfaceWithGenericPrimitiveNullable", "List<Int?>"),
-            buildInterface("SubInterfaceWithGenericArray", "Array<Number>"),
-            buildInterface("SubInterfaceWithGenericArrayPrimitive", "Array<IntArray>"),
-        ).joinToString("\n")
-        val classNames = listOf(
-            "GenericBaseInterface",
-            "SubInterfaceWithGenericR",
-            "SubInterfaceWithGenericOpen",
-            "SubInterfaceWithGenericEnum",
-            "SubInterfaceWithGenericFinal",
-            "SubInterfaceWithGenericPrimitive",
-            "SubInterfaceWithGenericPrimitiveNullable",
-            "SubInterfaceWithGenericArray",
-            "SubInterfaceWithGenericArrayPrimitive"
-        )
+        val code =
+            listOf(
+                    "package $pkg",
+                    base,
+                    buildInterface("SubInterfaceWithGenericR<R>", "List<R>"),
+                    buildInterface("SubInterfaceWithGenericOpen", "List<Number>"),
+                    buildInterface("SubInterfaceWithGenericEnum", "List<MyEnum>"),
+                    buildInterface("SubInterfaceWithGenericFinal", "List<String>"),
+                    buildInterface("SubInterfaceWithGenericPrimitive", "List<Int>"),
+                    buildInterface("SubInterfaceWithGenericPrimitiveNullable", "List<Int?>"),
+                    buildInterface("SubInterfaceWithGenericArray", "Array<Number>"),
+                    buildInterface("SubInterfaceWithGenericArrayPrimitive", "Array<IntArray>"),
+                )
+                .joinToString("\n")
+        val classNames =
+            listOf(
+                "GenericBaseInterface",
+                "SubInterfaceWithGenericR",
+                "SubInterfaceWithGenericOpen",
+                "SubInterfaceWithGenericEnum",
+                "SubInterfaceWithGenericFinal",
+                "SubInterfaceWithGenericPrimitive",
+                "SubInterfaceWithGenericPrimitiveNullable",
+                "SubInterfaceWithGenericArray",
+                "SubInterfaceWithGenericArrayPrimitive"
+            )
         return TestInput(Source.kotlin("OverridesWithGenerics.kt", code), classNames)
     }
 
-    /**
-     * Create test cases where kotlin overrides a java interface
-     */
-    private fun createKotlinOverridesJavaSubjects(
-        pkg: String
-    ): TestInput {
-        val javaBase = Source.java(
-            "$pkg.BaseJavaInterface",
-            """
+    /** Create test cases where kotlin overrides a java interface */
+    private fun createKotlinOverridesJavaSubjects(pkg: String): TestInput {
+        val javaBase =
+            Source.java(
+                "$pkg.BaseJavaInterface",
+                """
             package $pkg;
             import java.util.List;
             public interface BaseJavaInterface<T> {
@@ -815,33 +823,32 @@ class KspTypeNamesGoldenTest {
                 List<T> receiveReturnTListOverridden(List<T> t);
             }
             """
-        )
+            )
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             public interface $name: BaseJavaInterface<$typeArg> {
                 override fun receiveReturnTOverridden(t: $typeArg): $typeArg
                 override fun receiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val subInterfaces = listOf(
-            "package $pkg",
-            buildInterface("SubInterfaceOverridingJava<R>", "R"),
-            buildInterface("SubInterfaceOverridingJavaOpen", "Number"),
-            buildInterface("SubInterfaceOverridingJavaEnum", "MyEnum"),
-            buildInterface("SubInterfaceOverridingJavaFinal", "String"),
-            buildInterface("SubInterfaceOverridingJavaPrimitive", "Int"),
-            buildInterface("SubInterfaceOverridingJavaPrimitiveNullable", "Int?"),
-        ).joinToString("\n")
-        val sources = listOf(
-            javaBase,
-            Source.kotlin("kotlinOverridingJava.kt", subInterfaces)
-        )
+        val subInterfaces =
+            listOf(
+                    "package $pkg",
+                    buildInterface("SubInterfaceOverridingJava<R>", "R"),
+                    buildInterface("SubInterfaceOverridingJavaOpen", "Number"),
+                    buildInterface("SubInterfaceOverridingJavaEnum", "MyEnum"),
+                    buildInterface("SubInterfaceOverridingJavaFinal", "String"),
+                    buildInterface("SubInterfaceOverridingJavaPrimitive", "Int"),
+                    buildInterface("SubInterfaceOverridingJavaPrimitiveNullable", "Int?"),
+                )
+                .joinToString("\n")
+        val sources = listOf(javaBase, Source.kotlin("kotlinOverridingJava.kt", subInterfaces))
         return TestInput(
-            sources, listOf(
+            sources,
+            listOf(
                 "BaseJavaInterface",
                 "SubInterfaceOverridingJavaOpen",
                 "SubInterfaceOverridingJavaEnum",
@@ -856,12 +863,11 @@ class KspTypeNamesGoldenTest {
      * Create test cases where Kotlin overrides a java interface and the type argument includes
      * another generic.
      */
-    private fun createKotlinOverridesJavaSubjectsWithGenerics(
-        pkg: String
-    ): TestInput {
-        val javaBase = Source.java(
-            "$pkg.BaseGenericJavaInterface",
-            """
+    private fun createKotlinOverridesJavaSubjectsWithGenerics(pkg: String): TestInput {
+        val javaBase =
+            Source.java(
+                "$pkg.BaseGenericJavaInterface",
+                """
             package $pkg;
             import java.util.List;
             public interface BaseGenericJavaInterface<T> {
@@ -871,36 +877,39 @@ class KspTypeNamesGoldenTest {
                 void receiveTListOverridden(List<T> t);
             }
             """
-        )
+            )
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: BaseGenericJavaInterface<$typeArg> {
                 override fun receiveTOverridden(t:$typeArg): Unit
                 override fun receiveTListOverridden(t:List<$typeArg>): Unit
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val subInterfaces = listOf(
-            "package $pkg",
-            buildInterface("SubInterfaceOverridingJavaWithGenericR<R>", "List<R>"),
-            buildInterface("SubInterfaceOverridingJavaWithGenericOpen", "List<Number>"),
-            buildInterface("SubInterfaceOverridingJavaWithGenericEnum", "List<MyEnum>"),
-            buildInterface("SubInterfaceOverridingJavaWithGenericFinal", "List<String>"),
-            buildInterface("SubInterfaceOverridingJavaWithGenericPrimitive", "List<Number>"),
-            buildInterface(
-                "SubInterfaceOverridingJavaWithGenericPrimitiveNullable",
-                "List<Number?>"
-            )
-        ).joinToString("\n")
-        val sources = listOf(
-            javaBase,
-            Source.kotlin("kotlinOverridingJavaWithGenerics.kt", subInterfaces)
-        )
+        val subInterfaces =
+            listOf(
+                    "package $pkg",
+                    buildInterface("SubInterfaceOverridingJavaWithGenericR<R>", "List<R>"),
+                    buildInterface("SubInterfaceOverridingJavaWithGenericOpen", "List<Number>"),
+                    buildInterface("SubInterfaceOverridingJavaWithGenericEnum", "List<MyEnum>"),
+                    buildInterface("SubInterfaceOverridingJavaWithGenericFinal", "List<String>"),
+                    buildInterface(
+                        "SubInterfaceOverridingJavaWithGenericPrimitive",
+                        "List<Number>"
+                    ),
+                    buildInterface(
+                        "SubInterfaceOverridingJavaWithGenericPrimitiveNullable",
+                        "List<Number?>"
+                    )
+                )
+                .joinToString("\n")
+        val sources =
+            listOf(javaBase, Source.kotlin("kotlinOverridingJavaWithGenerics.kt", subInterfaces))
         return TestInput(
-            sources, listOf(
+            sources,
+            listOf(
                 "SubInterfaceOverridingJavaWithGenericR",
                 "SubInterfaceOverridingJavaWithGenericOpen",
                 "SubInterfaceOverridingJavaWithGenericEnum",
@@ -912,7 +921,8 @@ class KspTypeNamesGoldenTest {
     }
 
     private fun createMultiLevelInheritanceSubjects(pkg: String): TestInput {
-        val base = """
+        val base =
+            """
             interface MultiLevelBaseInterface<T> {
                 fun receiveReturnT(t : T): T
                 suspend fun suspendReceiveReturnT(t : T): T
@@ -931,32 +941,35 @@ class KspTypeNamesGoldenTest {
                 fun subReceiveReturnRListOverridden(r : List<R>): List<R>
                 suspend fun subSuspendReceiveReturnRListOverridden(r : List<R>): List<R>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: MultiLevelSubInterface<$typeArg> {
                 override fun subReceiveReturnROverridden(r : $typeArg): $typeArg
                 override suspend fun subSuspendReceiveReturnROverridden(r : $typeArg): $typeArg
                 override fun subReceiveReturnRListOverridden(r : List<$typeArg>): List<$typeArg>
                 override suspend fun subSuspendReceiveReturnRListOverridden(r : List<$typeArg>): List<$typeArg>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val subInterfaces = listOf(
-            "package $pkg",
-            base,
-            buildInterface("MultiSubInterfaceOpen", "Number"),
-            buildInterface("MultiSubInterfaceEnum", "MyEnum"),
-            buildInterface("MultiSubInterfaceFinal", "String"),
-            buildInterface("MultiSubInterfacePrimitive", "Int"),
-            buildInterface("MultiSubInterfacePrimitiveNullable", "Int?"),
-        ).joinToString("\n")
+        val subInterfaces =
+            listOf(
+                    "package $pkg",
+                    base,
+                    buildInterface("MultiSubInterfaceOpen", "Number"),
+                    buildInterface("MultiSubInterfaceEnum", "MyEnum"),
+                    buildInterface("MultiSubInterfaceFinal", "String"),
+                    buildInterface("MultiSubInterfacePrimitive", "Int"),
+                    buildInterface("MultiSubInterfacePrimitiveNullable", "Int?"),
+                )
+                .joinToString("\n")
 
         return TestInput(
-            Source.kotlin("MultiLevel.kt", subInterfaces), listOf(
+            Source.kotlin("MultiLevel.kt", subInterfaces),
+            listOf(
                 "MultiSubInterfaceOpen",
                 "MultiSubInterfaceEnum",
                 "MultiSubInterfaceFinal",
@@ -967,44 +980,45 @@ class KspTypeNamesGoldenTest {
     }
 
     private fun createJavaOverridesKotlinSubjects(pkg: String): TestInput {
-        val base = Source.kotlin(
-            "javaOverridesKotlin.kt",
-            """
+        val base =
+            Source.kotlin(
+                "javaOverridesKotlin.kt",
+                """
             package $pkg
             interface BaseKotlinOverriddenByJava<T> {
                 fun receiveReturnT(t: T): T
                 fun receiveReturnTList(t: List<T>): List<T>
             }
-        """.trimIndent()
-        )
+        """
+                    .trimIndent()
+            )
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = Source.java(
-            "$pkg.$name",
-            """
+        fun buildInterface(name: String, typeArg: String) =
+            Source.java(
+                "$pkg.$name",
+                """
             package $pkg;
             import java.util.List;
             public interface $name extends BaseKotlinOverriddenByJava<$typeArg> {
             }
-        """.trimIndent()
-        )
+        """
+                    .trimIndent()
+            )
         return TestInput(
-            sources = listOf(
-                base,
-                buildInterface("JavaOverridesKotlinOpen", "Number"),
-                buildInterface("JavaOverridesKotlinFinal", "String"),
-            ),
+            sources =
+                listOf(
+                    base,
+                    buildInterface("JavaOverridesKotlinOpen", "Number"),
+                    buildInterface("JavaOverridesKotlinFinal", "String"),
+                ),
             subjects = listOf("JavaOverridesKotlinOpen", "JavaOverridesKotlinFinal")
         )
     }
 
-    /**
-     * Create test cases where bounded generics are overridden
-     */
+    /** Create test cases where bounded generics are overridden */
     private fun createOverrideWithBoundsSubjects(pkg: String): TestInput {
-        val base = """
+        val base =
+            """
             interface BaseInterfaceWithCloseableBounds<T : Closeable> {
                 var tProp: T
                 var tListProp: List<T>
@@ -1026,48 +1040,50 @@ class KspTypeNamesGoldenTest {
             class FinalCloseable(): Closeable {
                 override open fun close() { TODO() }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: BaseInterfaceWithCloseableBounds<$typeArg> {
                 override fun receiveReturnTOverridden(t: $typeArg): $typeArg
                 override suspend fun suspendReceiveReturnTOverridden(t:$typeArg):$typeArg
                 override fun receiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
                 override suspend fun suspendReceiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val code = listOf(
-            "package $pkg",
-            "import java.io.*",
-            base,
-            buildInterface("SubInterfaceCloseable<R : Closeable>", "R"),
-            buildInterface("SubInterfaceMyCloseable<R : MyCloseable>", "R"),
-            buildInterface("SubInterfaceOpenCloseable", "OpenCloseable"),
-            buildInterface("SubInterfaceFinalCloseable", "Closeable"),
-            buildInterface("SubInterfaceByteArrayInputStream", "ByteArrayInputStream"),
-            buildInterface("SubInterfaceFileInputStream", "FileInputStream"),
-        ).joinToString("\n")
-        val classNames = listOf(
-            "BaseInterfaceWithCloseableBounds",
-            "SubInterfaceCloseable",
-            "SubInterfaceMyCloseable",
-            "SubInterfaceOpenCloseable",
-            "SubInterfaceFinalCloseable",
-            "SubInterfaceByteArrayInputStream",
-            "SubInterfaceFileInputStream",
-        )
+        val code =
+            listOf(
+                    "package $pkg",
+                    "import java.io.*",
+                    base,
+                    buildInterface("SubInterfaceCloseable<R : Closeable>", "R"),
+                    buildInterface("SubInterfaceMyCloseable<R : MyCloseable>", "R"),
+                    buildInterface("SubInterfaceOpenCloseable", "OpenCloseable"),
+                    buildInterface("SubInterfaceFinalCloseable", "Closeable"),
+                    buildInterface("SubInterfaceByteArrayInputStream", "ByteArrayInputStream"),
+                    buildInterface("SubInterfaceFileInputStream", "FileInputStream"),
+                )
+                .joinToString("\n")
+        val classNames =
+            listOf(
+                "BaseInterfaceWithCloseableBounds",
+                "SubInterfaceCloseable",
+                "SubInterfaceMyCloseable",
+                "SubInterfaceOpenCloseable",
+                "SubInterfaceFinalCloseable",
+                "SubInterfaceByteArrayInputStream",
+                "SubInterfaceFileInputStream",
+            )
         return TestInput(Source.kotlin("BoundedOverrides.kt", code), classNames)
     }
 
-    /**
-     * Create test cases where generics with multiple upper bounds are overridden
-     */
+    /** Create test cases where generics with multiple upper bounds are overridden */
     private fun createOverrideWithMultipleBoundsSubjects(pkg: String): TestInput {
-        val base = """
+        val base =
+            """
             interface BaseInterfaceWithMultipleBounds<T> where T:FirstBound, T:SecondBound {
                 var tProp: T
                 var tListProp: List<T>
@@ -1097,46 +1113,44 @@ class KspTypeNamesGoldenTest {
                 override fun foo() { TODO() }
                 override fun bar() { TODO() }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        fun buildInterface(
-            name: String,
-            typeArg: String
-        ) = """
+        fun buildInterface(name: String, typeArg: String) =
+            """
             interface $name: BaseInterfaceWithMultipleBounds<$typeArg> {
                 override fun receiveReturnTOverridden(t: $typeArg): $typeArg
                 override suspend fun suspendReceiveReturnTOverridden(t:$typeArg):$typeArg
                 override fun receiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
                 override suspend fun suspendReceiveReturnTListOverridden(t:List<$typeArg>): List<$typeArg>
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val code = listOf(
-            "package $pkg",
-            "import java.io.*",
-            base,
-            buildInterface("SubInterfaceMergedBounds<R : MergedBounds>", "R"),
-            buildInterface("SubInterfaceOpenImpl", "OpenImpl"),
-            buildInterface("SubInterfaceFinalImpl", "FinalImpl"),
-        ).joinToString("\n")
-        val classNames = listOf(
-            "BaseInterfaceWithMultipleBounds",
-            "SubInterfaceMergedBounds",
-            "SubInterfaceOpenImpl",
-            "SubInterfaceFinalImpl"
-        )
+        val code =
+            listOf(
+                    "package $pkg",
+                    "import java.io.*",
+                    base,
+                    buildInterface("SubInterfaceMergedBounds<R : MergedBounds>", "R"),
+                    buildInterface("SubInterfaceOpenImpl", "OpenImpl"),
+                    buildInterface("SubInterfaceFinalImpl", "FinalImpl"),
+                )
+                .joinToString("\n")
+        val classNames =
+            listOf(
+                "BaseInterfaceWithMultipleBounds",
+                "SubInterfaceMergedBounds",
+                "SubInterfaceOpenImpl",
+                "SubInterfaceFinalImpl"
+            )
         return TestInput(Source.kotlin("MultipleBoundsOverrides.kt", code), classNames)
     }
 
-    private data class TestInput(
-        val sources: List<Source>,
-        val subjects: List<String>
-    ) {
+    private data class TestInput(val sources: List<Source>, val subjects: List<String>) {
         constructor(source: Source, subjects: List<String>) : this(listOf(source), subjects)
 
-        operator fun plus(other: TestInput) = TestInput(
-            sources = sources + other.sources,
-            subjects = subjects + other.subjects
-        )
+        operator fun plus(other: TestInput) =
+            TestInput(sources = sources + other.sources, subjects = subjects + other.subjects)
     }
 }

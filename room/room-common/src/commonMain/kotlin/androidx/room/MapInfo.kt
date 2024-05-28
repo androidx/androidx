@@ -17,8 +17,8 @@
 package androidx.room
 
 /**
- * Declares which column(s) are used to build a map or multimap return value in a [Dao]
- * query method.
+ * Declares which column(s) are used to build a map or multimap return value in a [Dao] query
+ * method.
  *
  * This annotation is required when the key or value of the Map is a single column of one of the
  * built in types (primitives, boxed primitives, enum, String, byte[], ByteBuffer) or a type with a
@@ -28,7 +28,6 @@ package androidx.room
  * information required by the return type.
  *
  * Example:
- *
  * ```
  *   @MapInfo(keyColumn = "artistName", valueColumn = "songName")
  *   @Query("SELECT * FROM Artist JOIN Song ON Artist.artistName = Song.artist")
@@ -40,9 +39,9 @@ package androidx.room
  *   fun getArtistAndSongCounts(): Map<Artist, Integer>
  * ```
  *
- * To use the @MapInfo annotation, you must provide either the key column name, value column
- * name, or both, based on the [Dao]'s method return type. Column(s) specified in the
- * provided @MapInfo annotation must be present in the query result.
+ * To use the @MapInfo annotation, you must provide either the key column name, value column name,
+ * or both, based on the [Dao]'s method return type. Column(s) specified in the provided @MapInfo
+ * annotation must be present in the query result.
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
@@ -59,9 +58,8 @@ public annotation class MapInfo(
      * The name of the table or alias to be used for the map's keys.
      *
      * Providing this value is optional. Useful for disambiguating between duplicate column names.
-     * For example, consider the following query:
-     * `SELECT * FROM Artist AS a JOIN Song AS s ON a.id == s.artistId`, then the `@MapInfo`
-     * for a return type `Map<String, List<Song>>` would be
+     * For example, consider the following query: `SELECT * FROM Artist AS a JOIN Song AS s ON a.id
+     * == s.artistId`, then the `@MapInfo` for a return type `Map<String, List<Song>>` would be
      * `@MapInfo(keyColumn = "id", keyTable ="a")`.
      *
      * @return The key table name.
@@ -79,9 +77,8 @@ public annotation class MapInfo(
      * The name of the table or alias to be used for the map's values.
      *
      * Providing this value is optional. Useful for disambiguating between duplicate column names.
-     * For example, consider the following query:
-     * `SELECT * FROM Song AS s JOIN Artist AS a ON s.artistId == a.id`, then the `@MapInfo`
-     * for a return type `Map<Song, String>` would be
+     * For example, consider the following query: `SELECT * FROM Song AS s JOIN Artist AS a ON
+     * s.artistId == a.id`, then the `@MapInfo` for a return type `Map<Song, String>` would be
      * `@MapInfo(valueColumn = "id", valueTable ="a")`.
      *
      * @return The key table name.

@@ -40,8 +40,8 @@ import kotlin.reflect.safeCast
  * A class that can help test and verify database creation and migration at different versions with
  * different schemas.
  *
- * Common usage of this helper is to create a database at an older version first and then
- * attempt a migration and validation:
+ * Common usage of this helper is to create a database at an older version first and then attempt a
+ * migration and validation:
  * ```
  * @Test
  * fun migrationTest() {
@@ -64,13 +64,14 @@ import kotlin.reflect.safeCast
  * }
  * ```
  *
- * The helper relies on exported schemas so [androidx.room.Database.exportSchema] should
- * be enabled. Schema location should be configured via Room's Gradle Plugin (id 'androidx.room'):
+ * The helper relies on exported schemas so [androidx.room.Database.exportSchema] should be enabled.
+ * Schema location should be configured via Room's Gradle Plugin (id 'androidx.room'):
  * ```
  * room {
  *   schemaDirectory("$projectDir/schemas")
  * }
  * ```
+ *
  * The helper is then instantiated to use the same schema location where they are exported to. See
  * platform-specific documentation for further configuration.
  */
@@ -90,11 +91,10 @@ expect class MigrationTestHelper {
      * Runs the given set of migrations on the existing database once created via [createDatabase].
      *
      * This function uses the same algorithm that Room performs to choose migrations such that the
-     * [migrations] instances provided must be sufficient to bring the database from current
-     * version to the desired version. If the database contains
-     * [androidx.room.AutoMigration]s, then those are already included in the list of migrations
-     * to execute if necessary. Note that provided manual migrations take precedence over
-     * auto migrations if they overlap in migration paths.
+     * [migrations] instances provided must be sufficient to bring the database from current version
+     * to the desired version. If the database contains [androidx.room.AutoMigration]s, then those
+     * are already included in the list of migrations to execute if necessary. Note that provided
+     * manual migrations take precedence over auto migrations if they overlap in migration paths.
      *
      * Once migrations are done, this functions validates the database schema to ensure the
      * migration performed resulted in the expected schema.
@@ -111,14 +111,11 @@ expect class MigrationTestHelper {
 }
 
 internal typealias ConnectionManagerFactory =
-        (DatabaseConfiguration, RoomOpenDelegate) -> TestConnectionManager
+    (DatabaseConfiguration, RoomOpenDelegate) -> TestConnectionManager
 
-internal typealias ConfigurationFactory =
-        (RoomDatabase.MigrationContainer) -> DatabaseConfiguration
+internal typealias ConfigurationFactory = (RoomDatabase.MigrationContainer) -> DatabaseConfiguration
 
-/**
- * Common logic for [MigrationTestHelper.createDatabase]
- */
+/** Common logic for [MigrationTestHelper.createDatabase] */
 internal fun createDatabaseCommon(
     schema: DatabaseBundle,
     configurationFactory: ConfigurationFactory,
@@ -128,15 +125,12 @@ internal fun createDatabaseCommon(
 ): SQLiteConnection {
     val emptyContainer = RoomDatabase.MigrationContainer()
     val configuration = configurationFactory.invoke(emptyContainer)
-    val testConnectionManager = connectionManagerFactory.invoke(
-        configuration, CreateOpenDelegate(schema)
-    )
+    val testConnectionManager =
+        connectionManagerFactory.invoke(configuration, CreateOpenDelegate(schema))
     return testConnectionManager.openConnection()
 }
 
-/**
- * Common logic for [MigrationTestHelper.runMigrationsAndValidate]
- */
+/** Common logic for [MigrationTestHelper.runMigrationsAndValidate] */
 internal fun runMigrationsAndValidateCommon(
     databaseInstance: RoomDatabase,
     schema: DatabaseBundle,
@@ -152,18 +146,18 @@ internal fun runMigrationsAndValidateCommon(
     container.addMigrations(migrations)
     val autoMigrations = getAutoMigrations(databaseInstance, autoMigrationSpecs)
     autoMigrations.forEach { autoMigration ->
-        val migrationExists = container.contains(
-            autoMigration.startVersion,
-            autoMigration.endVersion
-        )
+        val migrationExists =
+            container.contains(autoMigration.startVersion, autoMigration.endVersion)
         if (!migrationExists) {
             container.addMigration(autoMigration)
         }
     }
     val configuration = configurationFactory.invoke(container)
-    val testConnectionManager = connectionManagerFactory.invoke(
-        configuration, MigrateOpenDelegate(schema, validateUnknownTables)
-    )
+    val testConnectionManager =
+        connectionManagerFactory.invoke(
+            configuration,
+            MigrateOpenDelegate(schema, validateUnknownTables)
+        )
     return testConnectionManager.openConnection()
 }
 
@@ -188,9 +182,7 @@ private fun createAutoMigrationSpecMap(
     }
     return buildMap {
         requiredAutoMigrationSpecs.forEach { spec ->
-            val match = providedSpecs.firstOrNull { provided ->
-                spec.safeCast(provided) != null
-            }
+            val match = providedSpecs.firstOrNull { provided -> spec.safeCast(provided) != null }
             requireNotNull(match) {
                 "A required auto migration spec (${spec.qualifiedName}) has not been provided."
             }
@@ -222,16 +214,18 @@ private class DefaultTestConnectionManager(
     override fun openConnection() = driverWrapper.open(configuration.name ?: ":memory:")
 }
 
-private sealed class TestOpenDelegate(
-    databaseBundle: DatabaseBundle
-) : RoomOpenDelegate(
-    version = databaseBundle.version,
-    identityHash = databaseBundle.identityHash,
-    legacyIdentityHash = databaseBundle.identityHash
-) {
+private sealed class TestOpenDelegate(databaseBundle: DatabaseBundle) :
+    RoomOpenDelegate(
+        version = databaseBundle.version,
+        identityHash = databaseBundle.identityHash,
+        legacyIdentityHash = databaseBundle.identityHash
+    ) {
     override fun onCreate(connection: SQLiteConnection) {}
+
     override fun onPreMigrate(connection: SQLiteConnection) {}
+
     override fun onPostMigrate(connection: SQLiteConnection) {}
+
     override fun onOpen(connection: SQLiteConnection) {}
 
     override fun dropAllTables(connection: SQLiteConnection) {
@@ -239,9 +233,8 @@ private sealed class TestOpenDelegate(
     }
 }
 
-private class CreateOpenDelegate(
-    val databaseBundle: DatabaseBundle
-) : TestOpenDelegate(databaseBundle) {
+private class CreateOpenDelegate(val databaseBundle: DatabaseBundle) :
+    TestOpenDelegate(databaseBundle) {
     private var createAllTables = false
 
     override fun onOpen(connection: SQLiteConnection) {
@@ -256,9 +249,7 @@ private class CreateOpenDelegate(
     }
 
     override fun createAllTables(connection: SQLiteConnection) {
-        databaseBundle.buildCreateQueries().forEach { createSql ->
-            connection.execSQL(createSql)
-        }
+        databaseBundle.buildCreateQueries().forEach { createSql -> connection.execSQL(createSql) }
         createAllTables = true
     }
 }
@@ -287,7 +278,8 @@ private class MigrateOpenDelegate(
                                 |Found:
                                 |
                                 |$found
-                                """.trimMargin()
+                                """
+                                    .trimMargin()
                         )
                     }
                 }
@@ -307,7 +299,8 @@ private class MigrateOpenDelegate(
                                 |Found:
                                 |
                                 |$found
-                                """.trimMargin()
+                                """
+                                    .trimMargin()
                         )
                     }
                 }
@@ -325,7 +318,8 @@ private class MigrateOpenDelegate(
                         |Expected: $expected
                         |
                         |Found: $found
-                        """.trimMargin()
+                        """
+                            .trimMargin()
                 )
             }
         }
@@ -338,25 +332,28 @@ private class MigrateOpenDelegate(
                     }
                 }
             }
-            connection.prepare(
-                """
+            connection
+                .prepare(
+                    """
                 SELECT name FROM sqlite_master
                 WHERE type = 'table' AND name NOT IN (?, ?, ?)
-                """.trimIndent()
-            ).use { statement ->
-                statement.bindText(1, Room.MASTER_TABLE_NAME)
-                statement.bindText(2, "sqlite_sequence")
-                statement.bindText(3, "android_metadata")
-                while (statement.step()) {
-                    val tableName = statement.getText(0)
-                    if (!expectedTables.contains(tableName)) {
-                        return ValidationResult(
-                            isValid = false,
-                            expectedFoundMsg = "Unexpected table $tableName"
-                        )
+                """
+                        .trimIndent()
+                )
+                .use { statement ->
+                    statement.bindText(1, Room.MASTER_TABLE_NAME)
+                    statement.bindText(2, "sqlite_sequence")
+                    statement.bindText(3, "android_metadata")
+                    while (statement.step()) {
+                        val tableName = statement.getText(0)
+                        if (!expectedTables.contains(tableName)) {
+                            return ValidationResult(
+                                isValid = false,
+                                expectedFoundMsg = "Unexpected table $tableName"
+                            )
+                        }
                     }
                 }
-            }
         }
         return ValidationResult(true, null)
     }

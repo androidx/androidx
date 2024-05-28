@@ -24,79 +24,60 @@ import org.junit.Rule
 import org.junit.Test
 
 class GetMethodsScenarioTest {
-    @get:Rule
-    val profileRule = ProfileRule()
+    @get:Rule val profileRule = ProfileRule()
 
     @Test
     fun allMethods_keepInline() {
         profileAllMethods(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = false
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
         )
     }
 
     @Test
     fun allMethods_filterOutInline() {
         profileAllMethods(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = true
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = true)
         )
     }
 
     @Test
     fun declaredMethods_keepInline() {
         profileDeclaredMethods(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = false
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
         )
     }
 
     @Test
     fun declaredMethods_filterOutInline() {
         profileDeclaredMethods(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = true
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = true)
         )
     }
 
     @Test
     fun enclosedElements_keepInline() {
         profileEnclosedElements(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = false
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
         )
     }
 
     @Test
     fun enclosedElements_filterOutInline() {
         profileEnclosedElements(
-            XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = true
-            )
+            XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = true)
         )
     }
 
     private fun profileAllMethods(processingConfig: XProcessingEnvConfig) {
-        profile(processingConfig) {
-            getAllMethods().toList()
-        }
+        profile(processingConfig) { getAllMethods().toList() }
     }
 
     private fun profileDeclaredMethods(processingConfig: XProcessingEnvConfig) {
-        profile(processingConfig) {
-            getDeclaredMethods().toList()
-        }
+        profile(processingConfig) { getDeclaredMethods().toList() }
     }
 
     private fun profileEnclosedElements(processingConfig: XProcessingEnvConfig) {
-        profile(processingConfig) {
-            getEnclosedElements().toList()
-        }
+        profile(processingConfig) { getEnclosedElements().toList() }
     }
 
     fun profile(processingConfig: XProcessingEnvConfig, block: XTypeElement.() -> Unit) {
@@ -109,20 +90,10 @@ class GetMethodsScenarioTest {
             appendLine("}")
         }
         val sources = Source.kotlin("Subject.kt", contents)
-        profileRule.runRepeated(
-            warmUps = 5,
-            repeat = 10
-        ) { profileScope ->
-            runKspTest(
-                sources = listOf(sources),
-                config = processingConfig
-            ) { invocation ->
-                val subject = invocation.processingEnv.requireTypeElement(
-                    "Subject"
-                )
-                profileScope.trace {
-                    subject.block()
-                }
+        profileRule.runRepeated(warmUps = 5, repeat = 10) { profileScope ->
+            runKspTest(sources = listOf(sources), config = processingConfig) { invocation ->
+                val subject = invocation.processingEnv.requireTypeElement("Subject")
+                profileScope.trace { subject.block() }
             }
         }
     }

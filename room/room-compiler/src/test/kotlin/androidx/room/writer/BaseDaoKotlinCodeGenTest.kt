@@ -36,7 +36,7 @@ abstract class BaseDaoKotlinCodeGenTest {
         expectedFilePath: String,
         compiledFiles: List<File> = emptyList(),
         jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DEFAULT,
-        handler: (XTestInvocation) -> Unit = { }
+        handler: (XTestInvocation) -> Unit = {}
     ) {
         runKspTest(
             sources = sources,
@@ -45,16 +45,14 @@ abstract class BaseDaoKotlinCodeGenTest {
             kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
         ) {
             val databaseFqn = "androidx.room.Database"
-            DatabaseProcessingStep().process(
-                it.processingEnv,
-                mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                it.roundEnv.isProcessingOver
-            )
-            it.assertCompilationResult {
-                val expectedSrc = loadTestSource(
-                    expectedFilePath,
-                    "MyDao_Impl"
+            DatabaseProcessingStep()
+                .process(
+                    it.processingEnv,
+                    mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
+                    it.roundEnv.isProcessingOver
                 )
+            it.assertCompilationResult {
+                val expectedSrc = loadTestSource(expectedFilePath, "MyDao_Impl")
                 // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
                 // handy for big sweeping code gen changes. ;)
                 if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {

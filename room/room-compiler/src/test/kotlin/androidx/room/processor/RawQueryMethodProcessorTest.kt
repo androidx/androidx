@@ -125,9 +125,7 @@ class RawQueryMethodProcessorTest {
             )
             assertThat(query.observedTableNames, `is`(emptySet()))
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
-                )
+                hasErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
             }
         }
     }
@@ -141,9 +139,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
-                )
+                hasErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
             }
         }
     }
@@ -157,9 +153,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE
-                )
+                hasErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
             }
         }
     }
@@ -215,16 +209,13 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
-                )
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE)
             }
         }
     }
 
     interface RawQuerySuspendUnitDao {
-        @RawQuery
-        suspend fun foo(query: SupportSQLiteQuery)
+        @RawQuery suspend fun foo(query: SupportSQLiteQuery)
     }
 
     @Test
@@ -234,10 +225,11 @@ class RawQueryMethodProcessorTest {
                 invocation.processingEnv.requireTypeElement(RawQuerySuspendUnitDao::class)
             val daoFunctionElement = daoElement.getDeclaredMethods().first()
             RawQueryMethodProcessor(
-                baseContext = invocation.context,
-                containing = daoElement.type,
-                executableElement = daoFunctionElement
-            ).process()
+                    baseContext = invocation.context,
+                    containing = daoElement.type,
+                    executableElement = daoFunctionElement
+                )
+                .process()
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE)
             }
@@ -253,9 +245,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
-                )
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_PARAMS)
             }
         }
     }
@@ -284,9 +274,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
-                )
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_PARAMS)
             }
         }
     }
@@ -300,9 +288,7 @@ class RawQueryMethodProcessorTest {
                 """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.RAW_QUERY_BAD_PARAMS
-                )
+                hasErrorContaining(ProcessorErrors.RAW_QUERY_BAD_PARAMS)
             }
         }
     }
@@ -317,9 +303,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.parameterCannotBeNullable(
-                        parameterName = "query"
-                    )
+                    ProcessorErrors.parameterCannotBeNullable(parameterName = "query")
                 )
             }
         }
@@ -405,9 +389,7 @@ class RawQueryMethodProcessorTest {
             invocation.assertCompilationResult {
                 hasWarningCount(1)
                 hasWarningContaining(
-                    ProcessorErrors.classMustImplementEqualsAndHashCode(
-                        "foo.bar.User"
-                    )
+                    ProcessorErrors.classMustImplementEqualsAndHashCode("foo.bar.User")
                 )
             }
         }
@@ -423,9 +405,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn(
-                        CommonTypeNames.STRING.canonicalName
-                    )
+                    ProcessorErrors.mayNeedMapColumn(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -441,9 +421,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn(
-                        CommonTypeNames.STRING.canonicalName
-                    )
+                    ProcessorErrors.mayNeedMapColumn(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -459,9 +437,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn(
-                        CommonTypeNames.STRING.canonicalName
-                    )
+                    ProcessorErrors.mayNeedMapColumn(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -525,9 +501,7 @@ class RawQueryMethodProcessorTest {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn("java.util.Date")
-                )
+                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("java.util.Date"))
             }
         }
     }
@@ -542,9 +516,7 @@ class RawQueryMethodProcessorTest {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn("java.util.Date")
-                )
+                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("java.util.Date"))
             }
         }
     }
@@ -560,9 +532,7 @@ class RawQueryMethodProcessorTest {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    ProcessorErrors.mayNeedMapColumn(
-                        CommonTypeNames.STRING.canonicalName
-                    )
+                    ProcessorErrors.mayNeedMapColumn(CommonTypeNames.STRING.canonicalName)
                 )
             }
         }
@@ -581,9 +551,7 @@ class RawQueryMethodProcessorTest {
                 );
             """
         ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasNoWarnings()
-            }
+            invocation.assertCompilationResult { hasNoWarnings() }
         }
     }
 
@@ -612,35 +580,37 @@ class RawQueryMethodProcessorTest {
     @Test
     fun suspendReturnsDeferredType() {
         listOf(
-            "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
-            "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
-            "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
-            "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
-            "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
-            "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
-            "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
-            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
-            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
-            "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
-            "${KotlinTypeNames.FLOW.canonicalName}<Int>"
-        ).forEach { type ->
-            singleQueryMethodKotlin(
-                """
+                "${RxJava2TypeNames.FLOWABLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.OBSERVABLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.MAYBE.canonicalName}<Int>",
+                "${RxJava2TypeNames.SINGLE.canonicalName}<Int>",
+                "${RxJava2TypeNames.COMPLETABLE.canonicalName}",
+                "${RxJava3TypeNames.FLOWABLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.OBSERVABLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.MAYBE.canonicalName}<Int>",
+                "${RxJava3TypeNames.SINGLE.canonicalName}<Int>",
+                "${RxJava3TypeNames.COMPLETABLE.canonicalName}",
+                "${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Int>",
+                "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName}<Int>",
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName}<Int>",
+                "${ReactiveStreamsTypeNames.PUBLISHER.canonicalName}<Int>",
+                "${KotlinTypeNames.FLOW.canonicalName}<Int>"
+            )
+            .forEach { type ->
+                singleQueryMethodKotlin(
+                    """
                 @RawQuery
                 abstract suspend fun foo(query: SupportSQLiteQuery): $type
                 """
-            ) { _, invocation ->
-                invocation.assertCompilationResult {
-                    val rawTypeName = type.substringBefore("<")
-                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                ) { _, invocation ->
+                    invocation.assertCompilationResult {
+                        val rawTypeName = type.substringBefore("<")
+                        hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                    }
                 }
             }
-        }
     }
+
     @Test
     fun nonNullVoidGuava() {
         singleQueryMethodKotlin(
@@ -649,9 +619,7 @@ class RawQueryMethodProcessorTest {
                 abstract fun foo(query: SupportSQLiteQuery): ListenableFuture<Void>
                 """
         ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.NONNULL_VOID)
-            }
+            invocation.assertCompilationResult { hasErrorContaining(ProcessorErrors.NONNULL_VOID) }
         }
     }
 
@@ -659,38 +627,44 @@ class RawQueryMethodProcessorTest {
         vararg input: String,
         handler: (RawQueryMethod, XTestInvocation) -> Unit
     ) {
-        val inputSource = Source.java(
-            "foo.bar.MyClass",
-            DAO_PREFIX +
-                input.joinToString("\n") +
-                DAO_SUFFIX
-        )
-        val commonSources = listOf(
-            COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
-            COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
-            COMMON.NOT_AN_ENTITY, COMMON.BOOK, COMMON.ARTIST, COMMON.SONG, COMMON.IMAGE,
-            COMMON.IMAGE_FORMAT, COMMON.CONVERTER
-        )
+        val inputSource =
+            Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)
+        val commonSources =
+            listOf(
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.USER,
+                COMMON.DATA_SOURCE_FACTORY,
+                COMMON.POSITIONAL_DATA_SOURCE,
+                COMMON.NOT_AN_ENTITY,
+                COMMON.BOOK,
+                COMMON.ARTIST,
+                COMMON.SONG,
+                COMMON.IMAGE,
+                COMMON.IMAGE_FORMAT,
+                COMMON.CONVERTER
+            )
         runProcessorTest(
             sources = commonSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(RawQuery::class)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val parser = RawQueryMethodProcessor(
-                baseContext = invocation.context,
-                containing = owner.type,
-                executableElement = methods.first()
-            )
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods().filter { it.hasAnnotation(RawQuery::class) }.toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val parser =
+                RawQueryMethodProcessor(
+                    baseContext = invocation.context,
+                    containing = owner.type,
+                    executableElement = methods.first()
+                )
             val parsedQuery = parser.process()
             handler(parsedQuery, invocation)
         }
@@ -700,45 +674,56 @@ class RawQueryMethodProcessorTest {
         vararg input: String,
         handler: (RawQueryMethod, XTestInvocation) -> Unit
     ) {
-        val inputSource = Source.kotlin(
-            "MyClass.kt",
-            DAO_PREFIX_KT +
-                input.joinToString("\n") +
-                DAO_SUFFIX
-        )
-        val commonSources = listOf(
-            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
-            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
-            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
-            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
-            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
-        )
-        runProcessorTest(
-            sources = commonSources + inputSource
-        ) { invocation ->
-            val (owner, methods) = invocation.roundEnv
-                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
-                .filterIsInstance<XTypeElement>()
-                .map {
-                    Pair(
-                        it,
-                        it.getAllMethods().filter {
-                            it.hasAnnotation(RawQuery::class)
-                        }.toList()
-                    )
-                }.first { it.second.isNotEmpty() }
-            val parser = RawQueryMethodProcessor(
-                baseContext = invocation.context,
-                containing = owner.type,
-                executableElement = methods.first()
+        val inputSource =
+            Source.kotlin("MyClass.kt", DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX)
+        val commonSources =
+            listOf(
+                COMMON.USER,
+                COMMON.BOOK,
+                COMMON.NOT_AN_ENTITY,
+                COMMON.RX2_COMPLETABLE,
+                COMMON.RX2_MAYBE,
+                COMMON.RX2_SINGLE,
+                COMMON.RX2_FLOWABLE,
+                COMMON.RX2_OBSERVABLE,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.RX3_MAYBE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.PUBLISHER,
+                COMMON.FLOW,
+                COMMON.GUAVA_ROOM
             )
+        runProcessorTest(sources = commonSources + inputSource) { invocation ->
+            val (owner, methods) =
+                invocation.roundEnv
+                    .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                    .filterIsInstance<XTypeElement>()
+                    .map {
+                        Pair(
+                            it,
+                            it.getAllMethods().filter { it.hasAnnotation(RawQuery::class) }.toList()
+                        )
+                    }
+                    .first { it.second.isNotEmpty() }
+            val parser =
+                RawQueryMethodProcessor(
+                    baseContext = invocation.context,
+                    containing = owner.type,
+                    executableElement = methods.first()
+                )
             val parsedQuery = parser.process()
             handler(parsedQuery, invocation)
         }
     }
 
     companion object {
-        private const val DAO_PREFIX = """
+        private const val DAO_PREFIX =
+            """
                 package foo.bar;
                 import androidx.annotation.NonNull;
                 import androidx.room.*;
@@ -749,7 +734,8 @@ class RawQueryMethodProcessorTest {
                 @Dao
                 abstract class MyClass {
                 """
-        const val DAO_PREFIX_KT = """
+        const val DAO_PREFIX_KT =
+            """
                 package foo.bar
                 import androidx.room.*
                 import java.util.*

@@ -16,7 +16,5 @@
 
 package androidx.room.integration.multiplatformtestapp.test
 
-/**
- * Gets the schema directory path for tests with [androidx.room.testing.MigrationTestHelper]
- */
+/** Gets the schema directory path for tests with [androidx.room.testing.MigrationTestHelper] */
 internal expect fun getSchemaDirectoryPath(): String

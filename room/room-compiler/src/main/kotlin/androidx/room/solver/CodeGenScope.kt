@@ -36,8 +36,7 @@ class CodeGenScope(
         const val TMP_VAR_DEFAULT_PREFIX = "_tmp"
         const val CLASS_PROPERTY_PREFIX = "__"
 
-        internal fun getTmpVarString(index: Int) =
-            getTmpVarString(TMP_VAR_DEFAULT_PREFIX, index)
+        internal fun getTmpVarString(index: Int) = getTmpVarString(TMP_VAR_DEFAULT_PREFIX, index)
 
         private fun getTmpVarString(prefix: String, index: Int) =
             "$prefix${if (index == 0) "" else "_$index"}"
@@ -60,9 +59,7 @@ class CodeGenScope(
 
     fun generate(): XCodeBlock = builder.build()
 
-    /**
-     * Copies all variable indices but excludes generated code.
-     */
+    /** Copies all variable indices but excludes generated code. */
     fun fork(): CodeGenScope {
         val forked = CodeGenScope(writer, useDriverApi)
         forked.tmpVarIndices.putAll(tmpVarIndices)

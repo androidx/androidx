@@ -22,9 +22,7 @@ import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.migration.bundle.TABLE_NAME_PLACEHOLDER
 import androidx.room.parser.FtsVersion
 
-/**
- * An Entity with a mapping FTS table.
- */
+/** An Entity with a mapping FTS table. */
 class FtsEntity(
     element: XTypeElement,
     tableName: String,
@@ -36,14 +34,21 @@ class FtsEntity(
     shadowTableName: String?,
     val ftsVersion: FtsVersion,
     val ftsOptions: FtsOptions
-) : Entity(
-    element, tableName, type, fields, embeddedFields, primaryKey, emptyList(), emptyList(),
-    constructor, shadowTableName
-) {
+) :
+    Entity(
+        element,
+        tableName,
+        type,
+        fields,
+        embeddedFields,
+        primaryKey,
+        emptyList(),
+        emptyList(),
+        constructor,
+        shadowTableName
+    ) {
 
-    override val createTableQuery by lazy {
-        createTableQuery(tableName)
-    }
+    override val createTableQuery by lazy { createTableQuery(tableName) }
 
     val nonHiddenFields by lazy {
         fields.filterNot {
@@ -57,9 +62,10 @@ class FtsEntity(
         if (ftsOptions.contentEntity != null) {
             arrayOf("UPDATE", "DELETE").map { operation ->
                 createTriggerName(tableName, "BEFORE_$operation")
-            } + arrayOf("UPDATE", "INSERT").map { operation ->
-                createTriggerName(tableName, "AFTER_$operation")
-            }
+            } +
+                arrayOf("UPDATE", "INSERT").map { operation ->
+                    createTriggerName(tableName, "AFTER_$operation")
+                }
         } else {
             emptyList()
         }
@@ -87,8 +93,9 @@ class FtsEntity(
     fun getCreateTableQueryWithoutTokenizer() = createTableQuery(tableName, false)
 
     private fun createTableQuery(tableName: String, includeTokenizer: Boolean = true): String {
-        val definitions = nonHiddenFields.map { it.databaseDefinition(false) } +
-            ftsOptions.databaseDefinition(includeTokenizer)
+        val definitions =
+            nonHiddenFields.map { it.databaseDefinition(false) } +
+                ftsOptions.databaseDefinition(includeTokenizer)
         return "CREATE VIRTUAL TABLE IF NOT EXISTS `$tableName` " +
             "USING ${ftsVersion.name}(${definitions.joinToString(", ")})"
     }
@@ -97,46 +104,52 @@ class FtsEntity(
         val contentColumnNames = nonHiddenFields.map { it.columnName }
         return arrayOf("UPDATE", "DELETE").map { operation ->
             createBeforeTrigger(operation, tableName, contentTable)
-        } + arrayOf("UPDATE", "INSERT").map { operation ->
-            createAfterTrigger(operation, tableName, contentTable, contentColumnNames)
-        }
+        } +
+            arrayOf("UPDATE", "INSERT").map { operation ->
+                createAfterTrigger(operation, tableName, contentTable, contentColumnNames)
+            }
     }
 
     private fun createBeforeTrigger(
         triggerOp: String,
         tableName: String,
         contentTableName: String
-    ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "BEFORE_$triggerOp")} " +
-        "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
-        "DELETE FROM `$tableName` WHERE `docid`=OLD.`rowid`; " +
-        "END"
+    ) =
+        "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "BEFORE_$triggerOp")} " +
+            "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
+            "DELETE FROM `$tableName` WHERE `docid`=OLD.`rowid`; " +
+            "END"
 
     private fun createAfterTrigger(
         triggerOp: String,
         tableName: String,
         contentTableName: String,
         columnNames: List<String>
-    ) = "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "AFTER_$triggerOp")} " +
-        "AFTER $triggerOp ON `$contentTableName` BEGIN " +
-        "INSERT INTO `$tableName`(" +
-        (listOf("docid") + columnNames).joinToString(separator = ", ") { "`$it`" } + ") " +
-        "VALUES (" +
-        (listOf("rowid") + columnNames).joinToString(separator = ", ") { "NEW.`$it`" } + "); " +
-        "END"
+    ) =
+        "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "AFTER_$triggerOp")} " +
+            "AFTER $triggerOp ON `$contentTableName` BEGIN " +
+            "INSERT INTO `$tableName`(" +
+            (listOf("docid") + columnNames).joinToString(separator = ", ") { "`$it`" } +
+            ") " +
+            "VALUES (" +
+            (listOf("rowid") + columnNames).joinToString(separator = ", ") { "NEW.`$it`" } +
+            "); " +
+            "END"
 
     // If trigger name prefix is changed be sure to update DBUtil#dropFtsSyncTriggers
     private fun createTriggerName(tableName: String, triggerOp: String) =
         "room_fts_content_sync_${tableName}_$triggerOp"
 
-    override fun toBundle() = FtsEntityBundle(
-        tableName,
-        createTableQuery(TABLE_NAME_PLACEHOLDER),
-        nonHiddenFields.map { it.toBundle() },
-        primaryKey.toBundle(),
-        emptyList(),
-        emptyList(),
-        ftsVersion.name,
-        ftsOptions.toBundle(),
-        contentSyncTriggerCreateQueries
-    )
+    override fun toBundle() =
+        FtsEntityBundle(
+            tableName,
+            createTableQuery(TABLE_NAME_PLACEHOLDER),
+            nonHiddenFields.map { it.toBundle() },
+            primaryKey.toBundle(),
+            emptyList(),
+            emptyList(),
+            ftsVersion.name,
+            ftsOptions.toBundle(),
+            contentSyncTriggerCreateQueries
+        )
 }

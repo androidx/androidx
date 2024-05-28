@@ -25,9 +25,7 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 
-/**
- * Binds the result as an RxJava2 Flowable, Publisher and Observable.
- */
+/** Binds the result as an RxJava2 Flowable, Publisher and Observable. */
 internal class RxQueryResultBinder(
     private val rxType: RxType,
     val typeArg: XType,
@@ -41,30 +39,35 @@ internal class RxQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
-            addCode(
-                XCodeBlock.builder(language).apply {
-                    createRunQueryAndReturnStatements(
-                        builder = this,
-                        roomSQLiteQueryVar = roomSQLiteQueryVar,
-                        inTransaction = inTransaction,
-                        dbProperty = dbProperty,
-                        scope = scope,
-                        cancellationSignalVar = "null"
+        val callableImpl =
+            CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
+                    addCode(
+                        XCodeBlock.builder(language)
+                            .apply {
+                                createRunQueryAndReturnStatements(
+                                    builder = this,
+                                    roomSQLiteQueryVar = roomSQLiteQueryVar,
+                                    inTransaction = inTransaction,
+                                    dbProperty = dbProperty,
+                                    scope = scope,
+                                    cancellationSignalVar = "null"
+                                )
+                            }
+                            .build()
                     )
-                }.build()
-            )
-        }.apply {
-            if (canReleaseQuery) {
-                createFinalizeMethod(roomSQLiteQueryVar)
-            }
-        }
+                }
+                .apply {
+                    if (canReleaseQuery) {
+                        createFinalizeMethod(roomSQLiteQueryVar)
+                    }
+                }
         scope.builder.apply {
-            val arrayOfTableNamesLiteral = ArrayLiteral(
-                scope.language,
-                CommonTypeNames.STRING,
-                *queryTableNames.toTypedArray()
-            )
+            val arrayOfTableNamesLiteral =
+                ArrayLiteral(
+                    scope.language,
+                    CommonTypeNames.STRING,
+                    *queryTableNames.toTypedArray()
+                )
             addStatement(
                 "return %T.%N(%N, %L, %L, %L)",
                 rxType.version.rxRoomClassName,

@@ -21,6 +21,4 @@ package androidx.room.compiler.processing
  *
  * Make sure to jarjar them if you are using these APIs in your own processor.
  */
-@RequiresOptIn
-@Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalProcessingApi
+@RequiresOptIn @Retention(AnnotationRetention.BINARY) annotation class ExperimentalProcessingApi

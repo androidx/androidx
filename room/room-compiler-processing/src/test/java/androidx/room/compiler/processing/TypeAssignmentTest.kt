@@ -28,9 +28,10 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TypeAssignmentTest {
     companion object {
-        private val TEST_OBJECT = Source.java(
-            "foo.bar.MyObject",
-            """
+        private val TEST_OBJECT =
+            Source.java(
+                "foo.bar.MyObject",
+                """
             package foo.bar;
             import java.util.Set;
             import java.util.HashSet;
@@ -44,8 +45,9 @@ class TypeAssignmentTest {
                 Map<String, ?> mUnboundedMap;
                 Map<String, String> mStringMap;
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
@@ -54,9 +56,7 @@ class TypeAssignmentTest {
             val testObject = processingEnv.requireTypeElement("foo.bar.MyObject")
             val string = testObject.getField("mString")
             val integer = testObject.getField("mInteger")
-            assertThat(
-                integer.type.isAssignableFromWithoutVariance(string.type)
-            ).isFalse()
+            assertThat(integer.type.isAssignableFromWithoutVariance(string.type)).isFalse()
         }
     }
 
@@ -74,10 +74,8 @@ class TypeAssignmentTest {
     @Test
     fun variance() {
         /**
-         *  Set<User> userSet = null;
-         *  Set<? extends User> userSet2 = null;
-         *  userSet = userSet2;  // NOT OK for java but kotlin data classes hit this so we want
-         *                       // to accept it
+         * Set<User> userSet = null; Set<? extends User> userSet2 = null; userSet = userSet2; // NOT
+         * OK for java but kotlin data classes hit this so we want // to accept it
          */
         runTest {
             val testObject = processingEnv.requireTypeElement("foo.bar.MyObject")
@@ -85,9 +83,7 @@ class TypeAssignmentTest {
             val varianceSet = testObject.getField("mVarianceSet").type
             assertThat(varianceSet.isAssignableFromWithoutVariance(set)).isTrue()
             assertThat(set.isAssignableFromWithoutVariance(varianceSet)).isTrue()
-            assertThat(
-                varianceSet.extendsBound()
-            ).isNull()
+            assertThat(varianceSet.extendsBound()).isNull()
         }
     }
 
@@ -103,9 +99,6 @@ class TypeAssignmentTest {
     }
 
     private fun runTest(handler: XTestInvocation.() -> Unit) {
-        runProcessorTest(
-            sources = listOf(TEST_OBJECT),
-            handler = handler
-        )
+        runProcessorTest(sources = listOf(TEST_OBJECT), handler = handler)
     }
 }

@@ -19,9 +19,10 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class PublisherWithBookSales @JvmOverloads constructor(
-    @Embedded
-    val publisher: Publisher,
+data class PublisherWithBookSales
+@JvmOverloads
+constructor(
+    @Embedded val publisher: Publisher,
     @Relation(
         parentColumn = "publisherId", // publisher.publisherId
         entityColumn = "bookPublisherId", // book.bookPublisherId

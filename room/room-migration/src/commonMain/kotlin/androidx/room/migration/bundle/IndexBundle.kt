@@ -21,23 +21,15 @@ import androidx.room.Index
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * Data class that holds the schema information about a table [androidx.room.Index]
- */
+/** Data class that holds the schema information about a table [androidx.room.Index] */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IndexBundle(
-    @SerialName("name")
-    val name: String,
-    @SerialName("unique")
-    val isUnique: Boolean,
-    @SerialName("columnNames")
-    val columnNames: List<String>? = null,
-    @SerialName("orders")
-    val orders: List<String>? = null,
-    @SerialName("createSql")
-    val createSql: String
-
+    @SerialName("name") val name: String,
+    @SerialName("unique") val isUnique: Boolean,
+    @SerialName("columnNames") val columnNames: List<String>? = null,
+    @SerialName("orders") val orders: List<String>? = null,
+    @SerialName("createSql") val createSql: String
 ) : SchemaEquality<IndexBundle> {
     companion object {
         // should match Index.kt
@@ -48,9 +40,7 @@ class IndexBundle(
         return replaceTableName(createSql, tableName)
     }
 
-    /**
-     * Gets the CREATE INDEX SQL query that uses the given table name.
-     */
+    /** Gets the CREATE INDEX SQL query that uses the given table name. */
     fun getCreateSql(tableName: String): String {
         return replaceTableName(createSql, tableName)
     }
@@ -75,11 +65,12 @@ class IndexBundle(
         // order matters and null orders is considered equal to all ASC orders, to be backward
         // compatible with schemas where orders are not present in the schema file
         val columnsSize = columnNames?.size ?: 0
-        val orders = if (orders.isNullOrEmpty()) {
-            List(columnsSize) { Index.Order.ASC.name }
-        } else {
-            orders
-        }
+        val orders =
+            if (orders.isNullOrEmpty()) {
+                List(columnsSize) { Index.Order.ASC.name }
+            } else {
+                orders
+            }
         val otherOrders =
             if (other.orders.isNullOrEmpty()) {
                 List(columnsSize) { Index.Order.ASC.name }

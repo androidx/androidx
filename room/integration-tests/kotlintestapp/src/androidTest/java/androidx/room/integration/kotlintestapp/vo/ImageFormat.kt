@@ -16,5 +16,7 @@
 package androidx.room.integration.kotlintestapp.vo
 
 enum class ImageFormat {
-    JPG, GIF, MPEG
+    JPG,
+    GIF,
+    MPEG
 }

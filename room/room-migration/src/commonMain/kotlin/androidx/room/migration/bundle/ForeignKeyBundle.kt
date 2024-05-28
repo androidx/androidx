@@ -27,16 +27,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ForeignKeyBundle(
-    @SerialName("table")
-    val table: String,
-    @SerialName("onDelete")
-    val onDelete: String,
-    @SerialName("onUpdate")
-    val onUpdate: String,
-    @SerialName("columns")
-    val columns: List<String>,
-    @SerialName("referencedColumns")
-    val referencedColumns: List<String>
+    @SerialName("table") val table: String,
+    @SerialName("onDelete") val onDelete: String,
+    @SerialName("onUpdate") val onUpdate: String,
+    @SerialName("columns") val columns: List<String>,
+    @SerialName("referencedColumns") val referencedColumns: List<String>
 ) : SchemaEquality<ForeignKeyBundle> {
 
     override fun isSchemaEqual(other: ForeignKeyBundle): Boolean {

@@ -23,7 +23,9 @@ import kotlin.collections.MutableList
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "RestrictedApiAndroidX"])
+@Suppress(
+    names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "RestrictedApiAndroidX"]
+)
 public class PreKmpDatabase_TheDao_Impl(
     __db: RoomDatabase,
 ) : PreKmpDatabase.TheDao {
@@ -37,19 +39,21 @@ public class PreKmpDatabase_TheDao_Impl(
 
     init {
         this.__db = __db
-        this.__insertionAdapterOfTheEntity = object :
-            EntityInsertionAdapter<PreKmpDatabase.TheEntity>(__db) {
-            protected override fun createQuery(): String =
-                "INSERT OR ABORT INTO `TheEntity` (`id`,`text`,`custom`) VALUES (?,?,?)"
+        this.__insertionAdapterOfTheEntity =
+            object : EntityInsertionAdapter<PreKmpDatabase.TheEntity>(__db) {
+                protected override fun createQuery(): String =
+                    "INSERT OR ABORT INTO `TheEntity` (`id`,`text`,`custom`) VALUES (?,?,?)"
 
-            protected override fun bind(statement: SupportSQLiteStatement,
-                entity: PreKmpDatabase.TheEntity) {
-                statement.bindLong(1, entity.id)
-                statement.bindString(2, entity.text)
-                val _tmp: ByteArray = __theConverter().fromCustomData(entity.custom)
-                statement.bindBlob(3, _tmp)
+                protected override fun bind(
+                    statement: SupportSQLiteStatement,
+                    entity: PreKmpDatabase.TheEntity
+                ) {
+                    statement.bindLong(1, entity.id)
+                    statement.bindString(2, entity.text)
+                    val _tmp: ByteArray = __theConverter().fromCustomData(entity.custom)
+                    statement.bindBlob(3, _tmp)
+                }
             }
-        }
     }
 
     public override fun insert(it: PreKmpDatabase.TheEntity) {
@@ -84,7 +88,7 @@ public class PreKmpDatabase_TheDao_Impl(
                 val _tmp: ByteArray
                 _tmp = _cursor.getBlob(_cursorIndexOfCustom)
                 _tmpCustom = __theConverter().toCustomData(_tmp)
-                _item = PreKmpDatabase.TheEntity(_tmpId,_tmpText,_tmpCustom)
+                _item = PreKmpDatabase.TheEntity(_tmpId, _tmpText, _tmpCustom)
                 _result.add(_item)
             }
             return _result

@@ -18,14 +18,10 @@ package androidx.room
 
 import androidx.room.util.findAndInstantiateDatabaseImpl
 
-/**
- * Entry point for building and initializing a [RoomDatabase].
- */
+/** Entry point for building and initializing a [RoomDatabase]. */
 actual object Room {
 
-    /**
-     * The master table name where Room keeps its metadata information.
-     */
+    /** The master table name where Room keeps its metadata information. */
     actual const val MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME
 
     /**
@@ -35,8 +31,8 @@ actual object Room {
      *
      * @param T The type of the database class.
      * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     * returns the generated database implementation. If not provided then reflection is used to
-     * find and instantiate the database implementation class.
+     *   returns the generated database implementation. If not provided then reflection is used to
+     *   find and instantiate the database implementation class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
     inline fun <reified T : RoomDatabase> inMemoryDatabaseBuilder(
@@ -49,11 +45,11 @@ actual object Room {
      * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
      * should keep a reference to it and re-use it.
      *
-     * @param T     The type of the database class.
-     * @param name    The name of the database file.
+     * @param T The type of the database class.
+     * @param name The name of the database file.
      * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     * returns the generated database implementation. If not provided then reflection is used to
-     * find and instantiate the database implementation class.
+     *   returns the generated database implementation. If not provided then reflection is used to
+     *   find and instantiate the database implementation class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
     inline fun <reified T : RoomDatabase> databaseBuilder(

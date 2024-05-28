@@ -24,15 +24,21 @@ import kotlin.reflect.KClass
 internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
     override fun createOpenDelegate(): RoomOpenDelegateMarker {
         return object : RoomOpenDelegate(0, "", "") {
-            override fun onCreate(connection: SQLiteConnection) { }
-            override fun onPreMigrate(connection: SQLiteConnection) { }
+            override fun onCreate(connection: SQLiteConnection) {}
+
+            override fun onPreMigrate(connection: SQLiteConnection) {}
+
             override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
                 return ValidationResult(true, null)
             }
-            override fun onPostMigrate(connection: SQLiteConnection) { }
-            override fun onOpen(connection: SQLiteConnection) { }
-            override fun createAllTables(connection: SQLiteConnection) { }
-            override fun dropAllTables(connection: SQLiteConnection) { }
+
+            override fun onPostMigrate(connection: SQLiteConnection) {}
+
+            override fun onOpen(connection: SQLiteConnection) {}
+
+            override fun createAllTables(connection: SQLiteConnection) {}
+
+            override fun dropAllTables(connection: SQLiteConnection) {}
         }
     }
 

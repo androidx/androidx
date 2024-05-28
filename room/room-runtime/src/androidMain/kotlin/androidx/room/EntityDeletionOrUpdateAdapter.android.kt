@@ -23,15 +23,13 @@ import androidx.sqlite.db.SupportSQLiteStatement
  *
  * This is an internal library class and all of its implementations are auto-generated.
  *
- * @constructor Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the
- * given database.
- *
  * @param T The type parameter of the entity to be deleted
-*/
+ * @constructor Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the
+ *   given database.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-abstract class EntityDeletionOrUpdateAdapter<T> (
-    database: RoomDatabase
-) : SharedSQLiteStatement(database) {
+abstract class EntityDeletionOrUpdateAdapter<T>(database: RoomDatabase) :
+    SharedSQLiteStatement(database) {
     /**
      * Create the deletion or update query
      *
@@ -42,9 +40,8 @@ abstract class EntityDeletionOrUpdateAdapter<T> (
     /**
      * Binds the entity into the given statement.
      *
-     * @param statement The SQLite statement that prepared for the query returned from
-     * createQuery.
-     * @param entity    The entity of type T.
+     * @param statement The SQLite statement that prepared for the query returned from createQuery.
+     * @param entity The entity of type T.
      */
     protected abstract fun bind(statement: SupportSQLiteStatement, entity: T)
 

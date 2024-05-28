@@ -30,7 +30,9 @@ import org.gradle.api.Task
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.model.ObjectFactory
 
-class RoomGradlePlugin @Inject constructor(
+class RoomGradlePlugin
+@Inject
+constructor(
     projectLayout: ProjectLayout,
     objectFactory: ObjectFactory,
 ) : Plugin<Project> {
@@ -46,16 +48,18 @@ class RoomGradlePlugin @Inject constructor(
     }
 
     companion object {
-        internal fun String.capitalize(): String = this.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-        }
+        internal fun String.capitalize(): String =
+            this.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
+            }
 
-        internal fun Task.isKspTask(): Boolean = try {
-            val kspTaskClass = Class.forName("com.google.devtools.ksp.gradle.KspTask")
-            kspTaskClass.isAssignableFrom(this::class.java)
-        } catch (ex: ClassNotFoundException) {
-            false
-        }
+        internal fun Task.isKspTask(): Boolean =
+            try {
+                val kspTaskClass = Class.forName("com.google.devtools.ksp.gradle.KspTask")
+                kspTaskClass.isAssignableFrom(this::class.java)
+            } catch (ex: ClassNotFoundException) {
+                false
+            }
 
         @OptIn(ExperimentalContracts::class)
         internal fun Project.check(
@@ -63,9 +67,7 @@ class RoomGradlePlugin @Inject constructor(
             isFatal: Boolean = false,
             lazyMessage: () -> String
         ) {
-            contract {
-                returns() implies value
-            }
+            contract { returns() implies value }
             if (isGradleSyncRunning() && !isFatal) return
             if (!value) {
                 throw GradleException(lazyMessage())
@@ -73,12 +75,12 @@ class RoomGradlePlugin @Inject constructor(
         }
 
         internal fun <V> Map<RoomExtension.MatchName, V>.findPair(key: String) =
-            RoomExtension.MatchName(key)
-                .let { if (containsKey(it)) it to getValue(it) else null }
+            RoomExtension.MatchName(key).let { if (containsKey(it)) it to getValue(it) else null }
 
-        private fun Project.isGradleSyncRunning() = gradleSyncProps.any {
-            it in this.properties && this.properties[it].toString().toBoolean()
-        }
+        private fun Project.isGradleSyncRunning() =
+            gradleSyncProps.any {
+                it in this.properties && this.properties[it].toString().toBoolean()
+            }
 
         private val gradleSyncProps by lazy {
             listOf(

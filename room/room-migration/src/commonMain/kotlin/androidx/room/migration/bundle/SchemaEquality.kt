@@ -19,8 +19,8 @@ package androidx.room.migration.bundle
 import androidx.annotation.RestrictTo
 
 /**
- * A loose equals check which checks schema equality instead of 100% equality (e.g. order of
- * columns in an entity does not have to match)
+ * A loose equals check which checks schema equality instead of 100% equality (e.g. order of columns
+ * in an entity does not have to match)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SchemaEquality<T> {

@@ -40,9 +40,7 @@ fun getColumnIndexOrThrow(stmt: SQLiteStatement, name: String): Int {
     )
 }
 
-/**
- * Returns the zero-based index for the given column name, or -1 if the column doesn't exist.
- */
+/** Returns the zero-based index for the given column name, or -1 if the column doesn't exist. */
 internal expect fun SQLiteStatement.columnIndexOf(name: String): Int
 
 // TODO(b/322183292): Consider optimizing by creating a String->Int map, similar to Android
@@ -54,9 +52,7 @@ internal fun SQLiteStatement.columnIndexOfCommon(name: String): Int {
     return -1
 }
 
-/**
- * Returns the zero-based index for the given column name, or -1 if the column doesn't exist.
- */
+/** Returns the zero-based index for the given column name, or -1 if the column doesn't exist. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun getColumnIndex(stmt: SQLiteStatement, name: String): Int {
     return stmt.columnIndexOf(name)

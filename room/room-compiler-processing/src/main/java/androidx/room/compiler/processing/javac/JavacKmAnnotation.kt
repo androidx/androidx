@@ -54,16 +54,13 @@ internal class JavacKmAnnotation(
     }
 
     private val methodToDeclaredAnnotationValues:
-            Map<JavacMethodElement, XAnnotationValue?> by lazy {
+        Map<JavacMethodElement, XAnnotationValue?> by lazy {
         val methods = typeElement.getDeclaredMethods()
         val kmAnnotationArguments = kmAnnotation.getArguments(env)
         methods.associateWith { method ->
             // KmAnnotation doesn't include arguments with default values
             kmAnnotationArguments[method.jvmName]?.let {
-                JavacKmAnnotationValue(
-                    method = method,
-                    kmAnnotationArgumentContainer = it
-                )
+                JavacKmAnnotationValue(method = method, kmAnnotationArgumentContainer = it)
             }
         }
     }

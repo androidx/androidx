@@ -26,13 +26,9 @@ internal abstract class KspExecutableType(
 ) : XExecutableType {
     override val parameterTypes: List<XType> by lazy {
         if (containing == null) {
-            origin.parameters.map {
-                it.type
-            }
+            origin.parameters.map { it.type }
         } else {
-            origin.parameters.map {
-                it.asMemberOf(containing)
-            }
+            origin.parameters.map { it.asMemberOf(containing) }
         }
     }
 

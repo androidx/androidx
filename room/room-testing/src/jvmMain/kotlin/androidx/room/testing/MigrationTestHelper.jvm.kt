@@ -35,8 +35,8 @@ import org.junit.runner.Description
  * A class that can help test and verify database creation and migration at different versions with
  * different schemas.
  *
- * Common usage of this helper is to create a database at an older version first and then
- * attempt a migration and validation:
+ * Common usage of this helper is to create a database at an older version first and then attempt a
+ * migration and validation:
  * ```
  * @get:Rule
  * val migrationTestHelper = MigrationTestHelper(
@@ -65,34 +65,34 @@ import org.junit.runner.Description
  * }
  * ```
  *
- * The helper relies on exported schemas so [androidx.room.Database.exportSchema] should
- * be enabled. Schema location should be configured via Room's Gradle Plugin (id 'androidx.room'):
+ * The helper relies on exported schemas so [androidx.room.Database.exportSchema] should be enabled.
+ * Schema location should be configured via Room's Gradle Plugin (id 'androidx.room'):
  * ```
  * room {
  *   schemaDirectory("$projectDir/schemas")
  * }
  * ```
+ *
  * The [schemaDirectoryPath] must match the exported schema location for this helper to properly
  * create and validate schemas.
  *
  * @param schemaDirectoryPath The schema directory where schema files are exported.
  * @param databasePath Name of the database.
  * @param driver A driver that opens connection to a file database. A driver that opens connections
- * to an in-memory database would be meaningless.
+ *   to an in-memory database would be meaningless.
  * @param databaseClass The [androidx.room.Database] annotated class.
  * @param databaseFactory An optional factory function to create an instance of the [databaseClass].
- * Should be the same factory used when building the database via [androidx.room.Room.databaseBuilder].
- * @param autoMigrationSpecs The list of [androidx.room.ProvidedAutoMigrationSpec] instances
- * for [androidx.room.AutoMigration]s that require them.
+ *   Should be the same factory used when building the database via
+ *   [androidx.room.Room.databaseBuilder].
+ * @param autoMigrationSpecs The list of [androidx.room.ProvidedAutoMigrationSpec] instances for
+ *   [androidx.room.AutoMigration]s that require them.
  */
 actual class MigrationTestHelper(
     private val schemaDirectoryPath: Path,
     private val databasePath: Path,
     private val driver: SQLiteDriver,
     private val databaseClass: KClass<out RoomDatabase>,
-    databaseFactory: () -> RoomDatabase = {
-        findAndInstantiateDatabaseImpl(databaseClass.java)
-    },
+    databaseFactory: () -> RoomDatabase = { findAndInstantiateDatabaseImpl(databaseClass.java) },
     private val autoMigrationSpecs: List<AutoMigrationSpec> = emptyList()
 ) : TestWatcher() {
 
@@ -110,10 +110,11 @@ actual class MigrationTestHelper(
      */
     actual fun createDatabase(version: Int): SQLiteConnection {
         val schemaBundle = loadSchema(version)
-        val connection = createDatabaseCommon(
-            schema = schemaBundle.database,
-            configurationFactory = ::createDatabaseConfiguration
-        )
+        val connection =
+            createDatabaseCommon(
+                schema = schemaBundle.database,
+                configurationFactory = ::createDatabaseConfiguration
+            )
         managedConnections.add(connection)
         return connection
     }
@@ -122,11 +123,10 @@ actual class MigrationTestHelper(
      * Runs the given set of migrations on the existing database once created via [createDatabase].
      *
      * This function uses the same algorithm that Room performs to choose migrations such that the
-     * [migrations] instances provided must be sufficient to bring the database from current
-     * version to the desired version. If the database contains
-     * [androidx.room.AutoMigration]s, then those are already included in the list of migrations
-     * to execute if necessary. Note that provided manual migrations take precedence over
-     * auto migrations if they overlap in migration paths.
+     * [migrations] instances provided must be sufficient to bring the database from current version
+     * to the desired version. If the database contains [androidx.room.AutoMigration]s, then those
+     * are already included in the list of migrations to execute if necessary. Note that provided
+     * manual migrations take precedence over auto migrations if they overlap in migration paths.
      *
      * Once migrations are done, this functions validates the database schema to ensure the
      * migration performed resulted in the expected schema.
@@ -140,14 +140,15 @@ actual class MigrationTestHelper(
         migrations: List<Migration>,
     ): SQLiteConnection {
         val schemaBundle = loadSchema(version)
-        val connection = runMigrationsAndValidateCommon(
-            databaseInstance = databaseInstance,
-            schema = schemaBundle.database,
-            migrations = migrations,
-            autoMigrationSpecs = autoMigrationSpecs,
-            validateUnknownTables = false,
-            configurationFactory = ::createDatabaseConfiguration
-        )
+        val connection =
+            runMigrationsAndValidateCommon(
+                databaseInstance = databaseInstance,
+                schema = schemaBundle.database,
+                migrations = migrations,
+                autoMigrationSpecs = autoMigrationSpecs,
+                validateUnknownTables = false,
+                configurationFactory = ::createDatabaseConfiguration
+            )
         managedConnections.add(connection)
         return connection
     }
@@ -165,18 +166,19 @@ actual class MigrationTestHelper(
 
     private fun createDatabaseConfiguration(
         container: RoomDatabase.MigrationContainer,
-    ) = DatabaseConfiguration(
-        name = databasePath.toString(),
-        migrationContainer = container,
-        callbacks = null,
-        journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
-        requireMigration = true,
-        allowDestructiveMigrationOnDowngrade = false,
-        migrationNotRequiredFrom = null,
-        typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList(),
-        allowDestructiveMigrationForAllTables = false,
-        sqliteDriver = driver,
-        queryCoroutineContext = null
-    )
+    ) =
+        DatabaseConfiguration(
+            name = databasePath.toString(),
+            migrationContainer = container,
+            callbacks = null,
+            journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
+            requireMigration = true,
+            allowDestructiveMigrationOnDowngrade = false,
+            migrationNotRequiredFrom = null,
+            typeConverters = emptyList(),
+            autoMigrationSpecs = emptyList(),
+            allowDestructiveMigrationForAllTables = false,
+            sqliteDriver = driver,
+            queryCoroutineContext = null
+        )
 }

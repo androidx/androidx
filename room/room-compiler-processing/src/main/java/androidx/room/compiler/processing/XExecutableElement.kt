@@ -23,19 +23,17 @@ package androidx.room.compiler.processing
  */
 interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
 
-    /**
-     * The descriptor of the method in JVM.
-     */
+    /** The descriptor of the method in JVM. */
     val jvmDescriptor: String
 
     /**
      * The element that declared this executable.
      *
      * For methods declared as top level functions in Kotlin:
-     *   * When running with KAPT, the value will be an [XTypeElement].
-     *   * When running with KSP, if this function is coming from the classpath, the value will
-     *   be an [XTypeElement].
-     *   * When running with KSP, if this function is in source, the value will **NOT** be an
+     * * When running with KAPT, the value will be an [XTypeElement].
+     * * When running with KSP, if this function is coming from the classpath, the value will be an
+     *   [XTypeElement].
+     * * When running with KSP, if this function is in source, the value will **NOT** be an
      *   [XTypeElement]. If you need the generated synthetic java class name, you can use
      *   [XMemberContainer.asClassName] property.
      */
@@ -48,19 +46,13 @@ interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
      */
     val parameters: List<XExecutableParameterElement>
 
-    /**
-     * The list of `Throwable`s that are declared in this executable's signature.
-     */
+    /** The list of `Throwable`s that are declared in this executable's signature. */
     val thrownTypes: List<XType>
 
-    /**
-     * Returns true if this method receives a vararg parameter.
-     */
+    /** Returns true if this method receives a vararg parameter. */
     fun isVarArgs(): Boolean
 
-    /**
-     * The type representation of the method where more type parameters might be resolved.
-     */
+    /** The type representation of the method where more type parameters might be resolved. */
     val executableType: XExecutableType
 
     /**

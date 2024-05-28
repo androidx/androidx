@@ -40,54 +40,58 @@ class AutoMigrationProcessor(
     val toSchemaBundle: DatabaseBundle
 ) {
     /**
-     * Retrieves two schemas of the same database provided in the @AutoMigration annotation,
-     * detects the schema changes that occurred between the two versions.
+     * Retrieves two schemas of the same database provided in the @AutoMigration annotation, detects
+     * the schema changes that occurred between the two versions.
      *
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigration? {
 
-        val (specElement, isSpecProvided) = if (spec != null && !spec.isTypeOf(Any::class)) {
-            val typeElement = spec.typeElement
-            if (typeElement == null) {
-                context.logger.e(AUTOMIGRATION_SPEC_MUST_BE_CLASS)
-                return null
-            }
-            if (typeElement.isInterface() || typeElement.isAbstract()) {
-                context.logger.e(typeElement, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
-                return null
-            }
+        val (specElement, isSpecProvided) =
+            if (spec != null && !spec.isTypeOf(Any::class)) {
+                val typeElement = spec.typeElement
+                if (typeElement == null) {
+                    context.logger.e(AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                    return null
+                }
+                if (typeElement.isInterface() || typeElement.isAbstract()) {
+                    context.logger.e(typeElement, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                    return null
+                }
 
-            val isSpecProvided = typeElement.hasAnnotation(ProvidedAutoMigrationSpec::class)
-            if (!isSpecProvided) {
-                val constructors = typeElement.getConstructors()
+                val isSpecProvided = typeElement.hasAnnotation(ProvidedAutoMigrationSpec::class)
+                if (!isSpecProvided) {
+                    val constructors = typeElement.getConstructors()
+                    context.checker.check(
+                        constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
+                        typeElement,
+                        ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
+                    )
+                }
+
                 context.checker.check(
-                    constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
+                    typeElement.enclosingTypeElement == null || typeElement.isStatic(),
                     typeElement,
-                    ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
+                    INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
                 )
-            }
 
-            context.checker.check(
-                typeElement.enclosingTypeElement == null || typeElement.isStatic(),
-                typeElement,
-                INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
-            )
-
-            val implementsMigrationSpec =
-                context.processingEnv.requireType(RoomTypeNames.AUTO_MIGRATION_SPEC)
-                    .isAssignableFrom(spec)
-            if (!implementsMigrationSpec) {
-                context.logger.e(
-                    typeElement,
-                    autoMigrationElementMustImplementSpec(typeElement.asClassName().canonicalName)
-                )
-                return null
+                val implementsMigrationSpec =
+                    context.processingEnv
+                        .requireType(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                        .isAssignableFrom(spec)
+                if (!implementsMigrationSpec) {
+                    context.logger.e(
+                        typeElement,
+                        autoMigrationElementMustImplementSpec(
+                            typeElement.asClassName().canonicalName
+                        )
+                    )
+                    return null
+                }
+                typeElement to isSpecProvided
+            } else {
+                null to false
             }
-            typeElement to isSpecProvided
-        } else {
-            null to false
-        }
 
         if (toSchemaBundle.version <= fromSchemaBundle.version) {
             context.logger.e(
@@ -100,56 +104,60 @@ class AutoMigrationProcessor(
         }
 
         val specClassName = specElement?.asClassName()?.simpleNames?.first()
-        val deleteColumnEntries = specElement?.let { element ->
-            element.getAnnotations(DeleteColumn::class).map {
-                AutoMigration.DeletedColumn(
-                    tableName = it.value.tableName,
-                    columnName = it.value.columnName
-                )
-            }
-        } ?: emptyList()
+        val deleteColumnEntries =
+            specElement?.let { element ->
+                element.getAnnotations(DeleteColumn::class).map {
+                    AutoMigration.DeletedColumn(
+                        tableName = it.value.tableName,
+                        columnName = it.value.columnName
+                    )
+                }
+            } ?: emptyList()
 
-        val deleteTableEntries = specElement?.let { element ->
-            element.getAnnotations(DeleteTable::class).map {
-                AutoMigration.DeletedTable(
-                    deletedTableName = it.value.tableName
-                )
-            }
-        } ?: emptyList()
+        val deleteTableEntries =
+            specElement?.let { element ->
+                element.getAnnotations(DeleteTable::class).map {
+                    AutoMigration.DeletedTable(deletedTableName = it.value.tableName)
+                }
+            } ?: emptyList()
 
-        val renameTableEntries = specElement?.let { element ->
-            element.getAnnotations(RenameTable::class).map {
-                AutoMigration.RenamedTable(
-                    originalTableName = it.value.fromTableName,
-                    newTableName = it.value.toTableName
-                )
-            }
-        } ?: emptyList()
+        val renameTableEntries =
+            specElement?.let { element ->
+                element.getAnnotations(RenameTable::class).map {
+                    AutoMigration.RenamedTable(
+                        originalTableName = it.value.fromTableName,
+                        newTableName = it.value.toTableName
+                    )
+                }
+            } ?: emptyList()
 
-        val renameColumnEntries = specElement?.let { element ->
-            element.getAnnotations(RenameColumn::class).map {
-                AutoMigration.RenamedColumn(
-                    tableName = it.value.tableName,
-                    originalColumnName = it.value.fromColumnName,
-                    newColumnName = it.value.toColumnName
-                )
-            }
-        } ?: emptyList()
+        val renameColumnEntries =
+            specElement?.let { element ->
+                element.getAnnotations(RenameColumn::class).map {
+                    AutoMigration.RenamedColumn(
+                        tableName = it.value.tableName,
+                        originalColumnName = it.value.fromColumnName,
+                        newColumnName = it.value.toColumnName
+                    )
+                }
+            } ?: emptyList()
 
-        val schemaDiff = try {
-            SchemaDiffer(
-                fromSchemaBundle = fromSchemaBundle,
-                toSchemaBundle = toSchemaBundle,
-                className = specClassName,
-                deleteColumnEntries = deleteColumnEntries,
-                deleteTableEntries = deleteTableEntries,
-                renameTableEntries = renameTableEntries,
-                renameColumnEntries = renameColumnEntries
-            ).diffSchemas()
-        } catch (ex: DiffException) {
-            context.logger.e(ex.errorMessage)
-            return null
-        }
+        val schemaDiff =
+            try {
+                SchemaDiffer(
+                        fromSchemaBundle = fromSchemaBundle,
+                        toSchemaBundle = toSchemaBundle,
+                        className = specClassName,
+                        deleteColumnEntries = deleteColumnEntries,
+                        deleteTableEntries = deleteTableEntries,
+                        renameTableEntries = renameTableEntries,
+                        renameColumnEntries = renameColumnEntries
+                    )
+                    .diffSchemas()
+            } catch (ex: DiffException) {
+                context.logger.e(ex.errorMessage)
+                return null
+            }
 
         return AutoMigration(
             from = fromSchemaBundle.version,

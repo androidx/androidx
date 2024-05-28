@@ -38,34 +38,41 @@ class FtsEntityTest {
         val bodyField = createField("body")
         val dontIndexMe1Field = createField("dontIndexMe1")
         val dontIndexMe2Field = createField("dontIndexMe2")
-        val entity = FtsEntity(
-            element = mock(XTypeElement::class.java),
-            tableName = "Mail",
-            type = mock(XType::class.java),
-            fields = listOf(
-                primaryKeyField, bodyField, languageIdField, dontIndexMe1Field,
-                dontIndexMe2Field
-            ),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(
-                declaredIn = mock(XElement::class.java),
-                fields = Fields(primaryKeyField),
-                autoGenerateId = true
-            ),
-            constructor = null,
-            shadowTableName = "Mail_context",
-            ftsVersion = FtsVersion.FTS4,
-            ftsOptions = FtsOptions(
-                tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
-                tokenizerArgs = emptyList(),
-                contentEntity = null,
-                languageIdColumnName = "lid",
-                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
-                notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
-                prefixSizes = listOf(2, 4),
-                preferredOrder = androidx.room.FtsOptions.Order.DESC
+        val entity =
+            FtsEntity(
+                element = mock(XTypeElement::class.java),
+                tableName = "Mail",
+                type = mock(XType::class.java),
+                fields =
+                    listOf(
+                        primaryKeyField,
+                        bodyField,
+                        languageIdField,
+                        dontIndexMe1Field,
+                        dontIndexMe2Field
+                    ),
+                embeddedFields = emptyList(),
+                primaryKey =
+                    PrimaryKey(
+                        declaredIn = mock(XElement::class.java),
+                        fields = Fields(primaryKeyField),
+                        autoGenerateId = true
+                    ),
+                constructor = null,
+                shadowTableName = "Mail_context",
+                ftsVersion = FtsVersion.FTS4,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
+                        tokenizerArgs = emptyList(),
+                        contentEntity = null,
+                        languageIdColumnName = "lid",
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
+                        notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
+                        prefixSizes = listOf(2, 4),
+                        preferredOrder = androidx.room.FtsOptions.Order.DESC
+                    )
             )
-        )
 
         assertThat(
             entity.createTableQuery,
@@ -90,31 +97,34 @@ class FtsEntityTest {
     fun createStatement_simpleTokenizer_withTokenizerArgs() {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
-        val entity = FtsEntity(
-            element = mock(XTypeElement::class.java),
-            tableName = "Mail",
-            type = mock(XType::class.java),
-            fields = listOf(primaryKeyField, bodyField),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(
-                declaredIn = mock(XElement::class.java),
-                fields = Fields(primaryKeyField),
-                autoGenerateId = true
-            ),
-            constructor = null,
-            shadowTableName = "Mail_context",
-            ftsVersion = FtsVersion.FTS4,
-            ftsOptions = FtsOptions(
-                tokenizer = androidx.room.FtsOptions.TOKENIZER_SIMPLE,
-                tokenizerArgs = listOf("tokenchars=.=", "separators=X"),
-                contentEntity = null,
-                languageIdColumnName = "",
-                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
-                notIndexedColumns = emptyList(),
-                prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC
+        val entity =
+            FtsEntity(
+                element = mock(XTypeElement::class.java),
+                tableName = "Mail",
+                type = mock(XType::class.java),
+                fields = listOf(primaryKeyField, bodyField),
+                embeddedFields = emptyList(),
+                primaryKey =
+                    PrimaryKey(
+                        declaredIn = mock(XElement::class.java),
+                        fields = Fields(primaryKeyField),
+                        autoGenerateId = true
+                    ),
+                constructor = null,
+                shadowTableName = "Mail_context",
+                ftsVersion = FtsVersion.FTS4,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_SIMPLE,
+                        tokenizerArgs = listOf("tokenchars=.=", "separators=X"),
+                        contentEntity = null,
+                        languageIdColumnName = "",
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
+                        notIndexedColumns = emptyList(),
+                        prefixSizes = emptyList(),
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC
+                    )
             )
-        )
 
         assertThat(
             entity.createTableQuery,
@@ -131,39 +141,38 @@ class FtsEntityTest {
     fun createStatement_simpleTokenizer_noTokenizerArgs() {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
-        val entity = FtsEntity(
-            element = mock(XTypeElement::class.java),
-            tableName = "Mail",
-            type = mock(XType::class.java),
-            fields = listOf(primaryKeyField, bodyField),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(
-                declaredIn = mock(XElement::class.java),
-                fields = Fields(primaryKeyField),
-                autoGenerateId = true
-            ),
-            constructor = null,
-            shadowTableName = "Mail_context",
-            ftsVersion = FtsVersion.FTS4,
-            ftsOptions = FtsOptions(
-                tokenizer = androidx.room.FtsOptions.TOKENIZER_SIMPLE,
-                tokenizerArgs = emptyList(),
-                contentEntity = null,
-                languageIdColumnName = "",
-                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
-                notIndexedColumns = emptyList(),
-                prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC
+        val entity =
+            FtsEntity(
+                element = mock(XTypeElement::class.java),
+                tableName = "Mail",
+                type = mock(XType::class.java),
+                fields = listOf(primaryKeyField, bodyField),
+                embeddedFields = emptyList(),
+                primaryKey =
+                    PrimaryKey(
+                        declaredIn = mock(XElement::class.java),
+                        fields = Fields(primaryKeyField),
+                        autoGenerateId = true
+                    ),
+                constructor = null,
+                shadowTableName = "Mail_context",
+                ftsVersion = FtsVersion.FTS4,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_SIMPLE,
+                        tokenizerArgs = emptyList(),
+                        contentEntity = null,
+                        languageIdColumnName = "",
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
+                        notIndexedColumns = emptyList(),
+                        prefixSizes = emptyList(),
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC
+                    )
             )
-        )
 
         assertThat(
             entity.createTableQuery,
-            `is`(
-                "CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" +
-                    "`body` TEXT" +
-                    ")"
-            )
+            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" + "`body` TEXT" + ")")
         )
     }
 
@@ -171,31 +180,34 @@ class FtsEntityTest {
     fun createStatement_nonSimpleTokenizer_withTokenizerArgs() {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
-        val entity = FtsEntity(
-            element = mock(XTypeElement::class.java),
-            tableName = "Mail",
-            type = mock(XType::class.java),
-            fields = listOf(primaryKeyField, bodyField),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(
-                declaredIn = mock(XElement::class.java),
-                fields = Fields(primaryKeyField),
-                autoGenerateId = true
-            ),
-            constructor = null,
-            shadowTableName = "Mail_context",
-            ftsVersion = FtsVersion.FTS4,
-            ftsOptions = FtsOptions(
-                tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
-                tokenizerArgs = listOf("tokenchars=.=", "separators=X"),
-                contentEntity = null,
-                languageIdColumnName = "",
-                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
-                notIndexedColumns = emptyList(),
-                prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC
+        val entity =
+            FtsEntity(
+                element = mock(XTypeElement::class.java),
+                tableName = "Mail",
+                type = mock(XType::class.java),
+                fields = listOf(primaryKeyField, bodyField),
+                embeddedFields = emptyList(),
+                primaryKey =
+                    PrimaryKey(
+                        declaredIn = mock(XElement::class.java),
+                        fields = Fields(primaryKeyField),
+                        autoGenerateId = true
+                    ),
+                constructor = null,
+                shadowTableName = "Mail_context",
+                ftsVersion = FtsVersion.FTS4,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
+                        tokenizerArgs = listOf("tokenchars=.=", "separators=X"),
+                        contentEntity = null,
+                        languageIdColumnName = "",
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
+                        notIndexedColumns = emptyList(),
+                        prefixSizes = emptyList(),
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC
+                    )
             )
-        )
 
         assertThat(
             entity.createTableQuery,
@@ -212,31 +224,34 @@ class FtsEntityTest {
     fun createStatement_nonSimpleTokenizer_noTokenizerArgs() {
         val primaryKeyField = createField("rowid")
         val bodyField = createField("body")
-        val entity = FtsEntity(
-            element = mock(XTypeElement::class.java),
-            tableName = "Mail",
-            type = mock(XType::class.java),
-            fields = listOf(primaryKeyField, bodyField),
-            embeddedFields = emptyList(),
-            primaryKey = PrimaryKey(
-                declaredIn = mock(XElement::class.java),
-                fields = Fields(primaryKeyField),
-                autoGenerateId = true
-            ),
-            constructor = null,
-            shadowTableName = "Mail_context",
-            ftsVersion = FtsVersion.FTS4,
-            ftsOptions = FtsOptions(
-                tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
-                tokenizerArgs = emptyList(),
-                contentEntity = null,
-                languageIdColumnName = "",
-                matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
-                notIndexedColumns = emptyList(),
-                prefixSizes = emptyList(),
-                preferredOrder = androidx.room.FtsOptions.Order.ASC
+        val entity =
+            FtsEntity(
+                element = mock(XTypeElement::class.java),
+                tableName = "Mail",
+                type = mock(XType::class.java),
+                fields = listOf(primaryKeyField, bodyField),
+                embeddedFields = emptyList(),
+                primaryKey =
+                    PrimaryKey(
+                        declaredIn = mock(XElement::class.java),
+                        fields = Fields(primaryKeyField),
+                        autoGenerateId = true
+                    ),
+                constructor = null,
+                shadowTableName = "Mail_context",
+                ftsVersion = FtsVersion.FTS4,
+                ftsOptions =
+                    FtsOptions(
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
+                        tokenizerArgs = emptyList(),
+                        contentEntity = null,
+                        languageIdColumnName = "",
+                        matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
+                        notIndexedColumns = emptyList(),
+                        prefixSizes = emptyList(),
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC
+                    )
             )
-        )
 
         assertThat(
             entity.createTableQuery,

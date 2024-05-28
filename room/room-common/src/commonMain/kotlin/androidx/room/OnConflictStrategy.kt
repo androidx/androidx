@@ -17,9 +17,7 @@ package androidx.room
 
 import androidx.annotation.IntDef
 
-/**
- * Set of conflict handling strategies for various {@link Dao} methods.
- */
+/** Set of conflict handling strategies for various {@link Dao} methods. */
 @Retention(AnnotationRetention.BINARY)
 @Suppress("DEPRECATION")
 @IntDef(
@@ -35,43 +33,39 @@ public annotation class OnConflictStrategy {
         /**
          * OnConflict strategy constant used by default when no other strategy is set. Using it
          * prevents Room from generating ON CONFLICT clause. It may be useful when there is a need
-         * to use ON CONFLICT clause within a trigger. The runtime behavior is the same as
-         * when [ABORT] strategy is applied. *The transaction is rolled back.*
+         * to use ON CONFLICT clause within a trigger. The runtime behavior is the same as when
+         * [ABORT] strategy is applied. *The transaction is rolled back.*
          */
         public const val NONE: Int = 0
         /**
          * OnConflict strategy constant to replace the old data and continue the transaction.
          *
-         * An [Insert] DAO method that returns the inserted rows ids will never return -1 since
-         * this strategy will always insert a row even if there is a conflict.
+         * An [Insert] DAO method that returns the inserted rows ids will never return -1 since this
+         * strategy will always insert a row even if there is a conflict.
          */
         public const val REPLACE: Int = 1
         /**
          * OnConflict strategy constant to rollback the transaction.
          *
-         * @deprecated Does not work with Android's current SQLite bindings. Use [ABORT] to
-         * roll back the transaction.
+         * @deprecated Does not work with Android's current SQLite bindings. Use [ABORT] to roll
+         *   back the transaction.
          */
-        @Deprecated("Use ABORT instead.")
-        public const val ROLLBACK: Int = 2
+        @Deprecated("Use ABORT instead.") public const val ROLLBACK: Int = 2
         /**
-         * OnConflict strategy constant to abort the transaction. *The transaction is rolled
-         * back.*
+         * OnConflict strategy constant to abort the transaction. *The transaction is rolled back.*
          */
         public const val ABORT: Int = 3
         /**
          * OnConflict strategy constant to fail the transaction.
          *
-         * @deprecated Does not work as expected. The transaction is rolled back. Use
-         * [ABORT].
+         * @deprecated Does not work as expected. The transaction is rolled back. Use [ABORT].
          */
-        @Deprecated("Use ABORT instead.")
-        public const val FAIL: Int = 4
+        @Deprecated("Use ABORT instead.") public const val FAIL: Int = 4
         /**
          * OnConflict strategy constant to ignore the conflict.
          *
-         * An [Insert] DAO method that returns the inserted rows ids will return -1 for rows
-         * that are not inserted since this strategy will ignore the row if there is a conflict.
+         * An [Insert] DAO method that returns the inserted rows ids will return -1 for rows that
+         * are not inserted since this strategy will ignore the row if there is a conflict.
          */
         public const val IGNORE: Int = 5
     }

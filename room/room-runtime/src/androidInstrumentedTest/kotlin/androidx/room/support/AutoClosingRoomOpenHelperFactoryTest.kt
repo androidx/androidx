@@ -56,35 +56,40 @@ public class AutoClosingRoomOpenHelperFactoryTest {
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testCallbacksCalled() {
-        val autoClosingRoomOpenHelperFactory =
-            getAutoClosingRoomOpenHelperFactory()
+        val autoClosingRoomOpenHelperFactory = getAutoClosingRoomOpenHelperFactory()
 
         val callbackCount = AtomicInteger()
 
-        val countingCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                callbackCount.incrementAndGet()
+        val countingCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    callbackCount.incrementAndGet()
+                }
+
+                override fun onConfigure(db: SupportSQLiteDatabase) {
+                    callbackCount.incrementAndGet()
+                }
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    callbackCount.incrementAndGet()
+                }
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
             }
 
-            override fun onConfigure(db: SupportSQLiteDatabase) {
-                callbackCount.incrementAndGet()
-            }
-
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                callbackCount.incrementAndGet()
-            }
-
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            }
-        }
-
-        val autoClosingRoomOpenHelper = autoClosingRoomOpenHelperFactory.create(
-            SupportSQLiteOpenHelper.Configuration
-                .builder(ApplicationProvider.getApplicationContext())
-                .callback(countingCallback)
-                .name(DB_NAME)
-                .build()
-        )
+        val autoClosingRoomOpenHelper =
+            autoClosingRoomOpenHelperFactory.create(
+                SupportSQLiteOpenHelper.Configuration.builder(
+                        ApplicationProvider.getApplicationContext()
+                    )
+                    .callback(countingCallback)
+                    .name(DB_NAME)
+                    .build()
+            )
 
         autoClosingRoomOpenHelper.writableDatabase
 
@@ -103,39 +108,44 @@ public class AutoClosingRoomOpenHelperFactoryTest {
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     public fun testDatabaseIsOpenForSlowCallbacks() {
-        val autoClosingRoomOpenHelperFactory =
-            getAutoClosingRoomOpenHelperFactory()
+        val autoClosingRoomOpenHelperFactory = getAutoClosingRoomOpenHelperFactory()
 
-        val refCountCheckingCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            @SuppressLint("BanThreadSleep")
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                Thread.sleep(100)
-                db.execSQL("create table user (idk int)")
+        val refCountCheckingCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                @SuppressLint("BanThreadSleep")
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    Thread.sleep(100)
+                    db.execSQL("create table user (idk int)")
+                }
+
+                @SuppressLint("BanThreadSleep")
+                override fun onConfigure(db: SupportSQLiteDatabase) {
+                    Thread.sleep(100)
+                    db.setMaximumSize(100000)
+                }
+
+                @SuppressLint("BanThreadSleep")
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    Thread.sleep(100)
+                    db.execSQL("select * from user")
+                }
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
             }
 
-            @SuppressLint("BanThreadSleep")
-            override fun onConfigure(db: SupportSQLiteDatabase) {
-                Thread.sleep(100)
-                db.setMaximumSize(100000)
-            }
-
-            @SuppressLint("BanThreadSleep")
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                Thread.sleep(100)
-                db.execSQL("select * from user")
-            }
-
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            }
-        }
-
-        val autoClosingRoomOpenHelper = autoClosingRoomOpenHelperFactory.create(
-            SupportSQLiteOpenHelper.Configuration
-                .builder(ApplicationProvider.getApplicationContext())
-                .callback(refCountCheckingCallback)
-                .name(DB_NAME)
-                .build()
-        )
+        val autoClosingRoomOpenHelper =
+            autoClosingRoomOpenHelperFactory.create(
+                SupportSQLiteOpenHelper.Configuration.builder(
+                        ApplicationProvider.getApplicationContext()
+                    )
+                    .callback(refCountCheckingCallback)
+                    .name(DB_NAME)
+                    .build()
+            )
 
         val db = autoClosingRoomOpenHelper.writableDatabase
         assertTrue(db.isOpen)

@@ -32,51 +32,57 @@ class DatabaseViewProcessor(
 
     override fun process(): DatabaseView {
         context.checker.hasAnnotation(
-            element, androidx.room.DatabaseView::class,
+            element,
+            androidx.room.DatabaseView::class,
             ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
         )
         val annotationBox = element.getAnnotation(androidx.room.DatabaseView::class)
 
-        val viewName: String = if (annotationBox != null) {
-            extractViewName(element, annotationBox.value)
-        } else {
-            element.name
-        }
-        val query: ParsedQuery = if (annotationBox != null) {
-            SqlParser.parse(annotationBox.value.value).also {
-                context.checker.check(
-                    it.errors.isEmpty(), element,
-                    it.errors.joinToString("\n")
-                )
-                context.checker.check(
-                    it.type == QueryType.SELECT, element,
-                    ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT
-                )
-                context.checker.check(
-                    it.bindSections.isEmpty(), element,
-                    ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS
-                )
+        val viewName: String =
+            if (annotationBox != null) {
+                extractViewName(element, annotationBox.value)
+            } else {
+                element.name
             }
-        } else {
-            ParsedQuery.MISSING
-        }
+        val query: ParsedQuery =
+            if (annotationBox != null) {
+                SqlParser.parse(annotationBox.value.value).also {
+                    context.checker.check(
+                        it.errors.isEmpty(),
+                        element,
+                        it.errors.joinToString("\n")
+                    )
+                    context.checker.check(
+                        it.type == QueryType.SELECT,
+                        element,
+                        ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT
+                    )
+                    context.checker.check(
+                        it.bindSections.isEmpty(),
+                        element,
+                        ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS
+                    )
+                }
+            } else {
+                ParsedQuery.MISSING
+            }
 
-        context.checker.notBlank(
-            viewName, element,
-            ProcessorErrors.VIEW_NAME_CANNOT_BE_EMPTY
-        )
+        context.checker.notBlank(viewName, element, ProcessorErrors.VIEW_NAME_CANNOT_BE_EMPTY)
         context.checker.check(
-            !viewName.startsWith("sqlite_", true), element,
+            !viewName.startsWith("sqlite_", true),
+            element,
             ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE
         )
 
-        val pojo = PojoProcessor.createFor(
-            context = context,
-            element = element,
-            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-            parent = null,
-            referenceStack = referenceStack
-        ).process()
+        val pojo =
+            PojoProcessor.createFor(
+                    context = context,
+                    element = element,
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null,
+                    referenceStack = referenceStack
+                )
+                .process()
 
         return DatabaseView(
             element = element,
@@ -90,10 +96,7 @@ class DatabaseViewProcessor(
     }
 
     companion object {
-        fun extractViewName(
-            element: XTypeElement,
-            annotation: androidx.room.DatabaseView
-        ): String {
+        fun extractViewName(element: XTypeElement, annotation: androidx.room.DatabaseView): String {
             return if (annotation.viewName == "") {
                 element.name
             } else {

@@ -27,12 +27,13 @@ fun PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderPr
     val limitOffsetPagingSource = RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE
 
     return MultiTypedPagingSourceQueryResultBinderProvider(
-        context = context,
-        roomPagingClassName = limitOffsetPagingSource,
-        pagingSourceTypeName = PagingTypeNames.PAGING_SOURCE
-    ).requireArtifact(
-        context = context,
-        requiredType = limitOffsetPagingSource,
-        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT
-    )
+            context = context,
+            roomPagingClassName = limitOffsetPagingSource,
+            pagingSourceTypeName = PagingTypeNames.PAGING_SOURCE
+        )
+        .requireArtifact(
+            context = context,
+            requiredType = limitOffsetPagingSource,
+            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT
+        )
 }

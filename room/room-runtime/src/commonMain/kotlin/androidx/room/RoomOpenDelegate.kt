@@ -36,22 +36,22 @@ abstract class RoomOpenDelegate(
     val legacyIdentityHash: String
 ) : RoomOpenDelegateMarker {
     abstract fun onCreate(connection: SQLiteConnection)
+
     abstract fun onPreMigrate(connection: SQLiteConnection)
+
     abstract fun onValidateSchema(connection: SQLiteConnection): ValidationResult
+
     abstract fun onPostMigrate(connection: SQLiteConnection)
+
     abstract fun onOpen(connection: SQLiteConnection)
 
     abstract fun createAllTables(connection: SQLiteConnection)
+
     abstract fun dropAllTables(connection: SQLiteConnection)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    class ValidationResult(
-        @JvmField val isValid: Boolean,
-        @JvmField val expectedFoundMsg: String?
-    )
+    class ValidationResult(@JvmField val isValid: Boolean, @JvmField val expectedFoundMsg: String?)
 }
 
-/**
- * Marker interface for Room's code generated delegate.
- */
+/** Marker interface for Room's code generated delegate. */
 interface RoomOpenDelegateMarker

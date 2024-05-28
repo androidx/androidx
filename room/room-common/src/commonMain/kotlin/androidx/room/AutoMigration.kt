@@ -21,32 +21,29 @@ import kotlin.reflect.KClass
 /**
  * Declares an automatic migration on a Database.
  *
- * An automatic migration is a [androidx.room.migration.Migration] that is generated
- * via the use of database schema files at two versions of a [androidx.room.RoomDatabase].
- * Room automatically detects changes on the database between these two schemas,
- * and constructs a [androidx.room.migration.Migration] to migrate between the
- * two versions. In case of ambiguous scenarios (e.g. column/table rename/deletes), additional
- * information is required, and can be provided via the
- * [androidx.room.migration.AutoMigrationSpec] property.
+ * An automatic migration is a [androidx.room.migration.Migration] that is generated via the use of
+ * database schema files at two versions of a [androidx.room.RoomDatabase]. Room automatically
+ * detects changes on the database between these two schemas, and constructs a
+ * [androidx.room.migration.Migration] to migrate between the two versions. In case of ambiguous
+ * scenarios (e.g. column/table rename/deletes), additional information is required, and can be
+ * provided via the [androidx.room.migration.AutoMigrationSpec] property.
  *
  * An auto migration must define the 'from' and 'to' versions of the schema for which a migration
  * implementation will be generated. A class that implements AutoMigrationSpec can be declared in
- * the [androidx.room.migration.AutoMigrationSpec] property to either
- * provide more information for ambiguous scenarios or execute callbacks during the migration.
+ * the [androidx.room.migration.AutoMigrationSpec] property to either provide more information for
+ * ambiguous scenarios or execute callbacks during the migration.
  *
- * If there are any column/table renames/deletes between the two versions of the database
- * provided then it is said that there are ambiguous scenarios in the migration. In
- * such scenarios then an [androidx.room.migration.AutoMigrationSpec] is
- * required and the class provided must be annotated with the relevant change annotation(s):
- * [RenameColumn], [RenameTable], [DeleteColumn] or [DeleteTable]. When
- * no ambiguous scenario is present, then the [androidx.room.migration.AutoMigrationSpec]
- * property is optional.
+ * If there are any column/table renames/deletes between the two versions of the database provided
+ * then it is said that there are ambiguous scenarios in the migration. In such scenarios then an
+ * [androidx.room.migration.AutoMigrationSpec] is required and the class provided must be annotated
+ * with the relevant change annotation(s): [RenameColumn], [RenameTable], [DeleteColumn] or
+ * [DeleteTable]. When no ambiguous scenario is present, then the
+ * [androidx.room.migration.AutoMigrationSpec] property is optional.
  *
- * If an auto migration is defined for a database, then [androidx.room.Database.exportSchema]
- * must be set to true.
+ * If an auto migration is defined for a database, then [androidx.room.Database.exportSchema] must
+ * be set to true.
  *
  * Example:
- *
  * ```
  * @Database(
  *    version = MusicDatabase.LATEST_VERSION,
@@ -90,10 +87,8 @@ import kotlin.reflect.KClass
  * @see [androidx.room.RoomDatabase]
  * @see [androidx.room.migration.AutoMigrationSpec]
  */
-
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-
 public annotation class AutoMigration(
     /**
      * Version of the database schema to migrate from.

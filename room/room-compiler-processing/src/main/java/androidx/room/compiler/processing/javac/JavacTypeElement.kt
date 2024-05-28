@@ -41,54 +41,37 @@ import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.util.ElementFilter
 
-internal sealed class JavacTypeElement(
-    env: JavacProcessingEnv,
-    override val element: TypeElement
-) : JavacElement(env, element), XTypeElement {
+internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val element: TypeElement) :
+    JavacElement(env, element), XTypeElement {
 
     override val name: String
         get() = element.simpleName.toString()
 
-    override val packageName: String by lazy {
-        packageElement.qualifiedName
-    }
+    override val packageName: String by lazy { packageElement.qualifiedName }
 
     @Suppress("UnstableApiUsage")
     override val packageElement: JavacPackageElement by lazy {
         JavacPackageElement(env, MoreElements.getPackage(element))
     }
 
-    override val kotlinMetadata by lazy {
-        KmClassContainer.createFor(env, element)
-    }
+    override val kotlinMetadata by lazy { KmClassContainer.createFor(env, element) }
 
-    override val qualifiedName by lazy {
-        element.qualifiedName.toString()
-    }
+    override val qualifiedName by lazy { element.qualifiedName.toString() }
 
     @Deprecated(
         "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
-        replaceWith = ReplaceWith(
-            "asClassName().toJavaPoet()",
-            "androidx.room.compiler.codegen.toJavaPoet"
-        )
+        replaceWith =
+            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet")
     )
-    override val className: ClassName by lazy {
-        xClassName.java
-    }
+    override val className: ClassName by lazy { xClassName.java }
 
     private val xClassName: XClassName by lazy {
-        XClassName(
-            JClassName.get(element),
-            XTypeName.UNAVAILABLE_KTYPE_NAME,
-            XNullability.NONNULL
-        )
+        XClassName(JClassName.get(element), XTypeName.UNAVAILABLE_KTYPE_NAME, XNullability.NONNULL)
     }
+
     override fun asClassName() = xClassName
 
-    override val enclosingElement: XMemberContainer? by lazy {
-        enclosingTypeElement
-    }
+    override val enclosingElement: XMemberContainer? by lazy { enclosingTypeElement }
 
     override val typeParameters: List<XTypeParameterElement> by lazy {
         element.typeParameters.mapIndexed { index, typeParameter ->
@@ -100,9 +83,7 @@ internal sealed class JavacTypeElement(
     override val closestMemberContainer: JavacTypeElement
         get() = this
 
-    override val enclosingTypeElement: XTypeElement? by lazy {
-        element.enclosingType(env)
-    }
+    override val enclosingTypeElement: XTypeElement? by lazy { element.enclosingType(env) }
 
     private val _declaredFields by lazy {
         ElementFilter.fieldsIn(element.enclosedElements)
@@ -117,9 +98,7 @@ internal sealed class JavacTypeElement(
             .filterNot { it.kotlinMetadata?.isDelegated() == true }
     }
 
-    private val allMethods = MemoizedSequence {
-        collectAllMethods(this)
-    }
+    private val allMethods = MemoizedSequence { collectAllMethods(this) }
 
     private val allFieldsIncludingPrivateSupers = MemoizedSequence {
         collectFieldsIncludingPrivateSupers(this)
@@ -133,17 +112,21 @@ internal sealed class JavacTypeElement(
         return _declaredFields
     }
 
-    override fun isKotlinObject() = kotlinMetadata?.isObject() == true ||
-            kotlinMetadata?.isCompanionObject() == true
+    override fun isKotlinObject() =
+        kotlinMetadata?.isObject() == true || kotlinMetadata?.isCompanionObject() == true
+
     override fun isCompanionObject() = kotlinMetadata?.isCompanionObject() == true
+
     override fun isDataClass() = kotlinMetadata?.isDataClass() == true
+
     override fun isValueClass() = kotlinMetadata?.isValueClass() == true
+
     override fun isFunctionalInterface() = kotlinMetadata?.isFunctionalInterface() == true
+
     override fun isExpect() = kotlinMetadata?.isExpect() == true
 
     override fun isAnnotationClass(): Boolean {
-        return kotlinMetadata?.isAnnotationClass()
-            ?: (element.kind == ElementKind.ANNOTATION_TYPE)
+        return kotlinMetadata?.isAnnotationClass() ?: (element.kind == ElementKind.ANNOTATION_TYPE)
     }
 
     override fun isClass(): Boolean {
@@ -164,46 +147,39 @@ internal sealed class JavacTypeElement(
 
     override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.primaryConstructorSignature ?: return null
-        return getConstructors().firstOrNull {
-            primarySignature == it.jvmDescriptor
-        }
+        return getConstructors().firstOrNull { primarySignature == it.jvmDescriptor }
     }
 
     private val _declaredMethods by lazy {
-      val companionObjectMethodDescriptors =
-        getEnclosedTypeElements()
-          .firstOrNull {
-            it.isCompanionObject()
-          }?.getDeclaredMethods()
-          ?.map { it.jvmDescriptor } ?: emptyList()
+        val companionObjectMethodDescriptors =
+            getEnclosedTypeElements()
+                .firstOrNull { it.isCompanionObject() }
+                ?.getDeclaredMethods()
+                ?.map { it.jvmDescriptor } ?: emptyList()
 
-      val declaredMethods =
-        ElementFilter.methodsIn(element.enclosedElements)
-          .map {
-            JavacMethodElement(
-                env = env,
-                element = it
-            )
-        }.filterMethodsByConfig(env)
-      if (companionObjectMethodDescriptors.isEmpty()) {
-        declaredMethods
-      } else {
-        buildList {
-          addAll(
-            declaredMethods.filterNot { method ->
-              companionObjectMethodDescriptors.any { it == method.jvmDescriptor }
+        val declaredMethods =
+            ElementFilter.methodsIn(element.enclosedElements)
+                .map { JavacMethodElement(env = env, element = it) }
+                .filterMethodsByConfig(env)
+        if (companionObjectMethodDescriptors.isEmpty()) {
+            declaredMethods
+        } else {
+            buildList {
+                addAll(
+                    declaredMethods.filterNot { method ->
+                        companionObjectMethodDescriptors.any { it == method.jvmDescriptor }
+                    }
+                )
+                companionObjectMethodDescriptors.forEach {
+                    for (method in declaredMethods) {
+                        if (method.jvmDescriptor == it) {
+                            add(method)
+                            break
+                        }
+                    }
+                }
             }
-          )
-          companionObjectMethodDescriptors.forEach {
-            for (method in declaredMethods) {
-              if (method.jvmDescriptor == it) {
-                add(method)
-                break
-              }
-            }
-          }
         }
-      }
     }
 
     override fun getDeclaredMethods(): List<JavacMethodElement> {
@@ -220,23 +196,16 @@ internal sealed class JavacTypeElement(
 
     override fun getConstructors(): List<JavacConstructorElement> {
         return ElementFilter.constructorsIn(element.enclosedElements).map {
-            JavacConstructorElement(
-                env = env,
-                element = it
-            )
+            JavacConstructorElement(env = env, element = it)
         }
     }
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {
-        return element.interfaces.map {
-            env.wrapTypeElement(MoreTypes.asTypeElement(it))
-        }
+        return element.interfaces.map { env.wrapTypeElement(MoreTypes.asTypeElement(it)) }
     }
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
-        return ElementFilter.typesIn(element.enclosedElements).map {
-            env.wrapTypeElement(it)
-        }
+        return ElementFilter.typesIn(element.enclosedElements).map { env.wrapTypeElement(it) }
     }
 
     override val type: JavacDeclaredType by lazy {
@@ -266,8 +235,8 @@ internal sealed class JavacTypeElement(
     }
 
     override val superInterfaces by lazy {
-        val superTypesFromKotlinMetadata = kotlinMetadata?.superTypes
-            ?.associateBy { it.className } ?: emptyMap()
+        val superTypesFromKotlinMetadata =
+            kotlinMetadata?.superTypes?.associateBy { it.className } ?: emptyMap()
         element.interfaces.map {
             check(it is DeclaredType)
             val interfaceName = ClassName.get(MoreElements.asType(it.asElement()))
@@ -288,33 +257,24 @@ internal sealed class JavacTypeElement(
         return element.asType().kind != TypeKind.ERROR && hasAnnotation(Metadata::class)
     }
 
-    class DefaultJavacTypeElement(
-        env: JavacProcessingEnv,
-        element: TypeElement
-    ) : JavacTypeElement(env, element)
+    class DefaultJavacTypeElement(env: JavacProcessingEnv, element: TypeElement) :
+        JavacTypeElement(env, element)
 
-    class JavacEnumTypeElement(
-        env: JavacProcessingEnv,
-        element: TypeElement
-    ) : JavacTypeElement(env, element), XEnumTypeElement {
+    class JavacEnumTypeElement(env: JavacProcessingEnv, element: TypeElement) :
+        JavacTypeElement(env, element), XEnumTypeElement {
         init {
             check(element.kind == ElementKind.ENUM)
         }
 
         override val entries: Set<XEnumEntry> by lazy {
-            element.enclosedElements.filter {
-                it.kind == ElementKind.ENUM_CONSTANT
-            }.mapTo(mutableSetOf()) {
-                JavacEnumEntry(env, it, this)
-            }
+            element.enclosedElements
+                .filter { it.kind == ElementKind.ENUM_CONSTANT }
+                .mapTo(mutableSetOf()) { JavacEnumEntry(env, it, this) }
         }
     }
 
     companion object {
-        fun create(
-            env: JavacProcessingEnv,
-            typeElement: TypeElement
-        ): JavacTypeElement {
+        fun create(env: JavacProcessingEnv, typeElement: TypeElement): JavacTypeElement {
             return when (typeElement.kind) {
                 ElementKind.ENUM -> JavacEnumTypeElement(env, typeElement)
                 else -> DefaultJavacTypeElement(env, typeElement)

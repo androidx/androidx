@@ -41,18 +41,18 @@ abstract class BaseBuilderTest {
     fun createOpenCallback() = runTest {
         var onCreateInvoked = 0
         var onOpenInvoked = 0
-        val testCallback = object : RoomDatabase.Callback() {
-            override fun onCreate(connection: SQLiteConnection) {
-                onCreateInvoked++
+        val testCallback =
+            object : RoomDatabase.Callback() {
+                override fun onCreate(connection: SQLiteConnection) {
+                    onCreateInvoked++
+                }
+
+                override fun onOpen(connection: SQLiteConnection) {
+                    onOpenInvoked++
+                }
             }
 
-            override fun onOpen(connection: SQLiteConnection) {
-                onOpenInvoked++
-            }
-        }
-
-        val builder = getRoomDatabaseBuilder()
-            .addCallback(testCallback)
+        val builder = getRoomDatabaseBuilder().addCallback(testCallback)
 
         val db1 = builder.build()
 
@@ -84,28 +84,30 @@ abstract class BaseBuilderTest {
         var onOpenInvoked = 0
 
         val onOpenBlocker = CompletableDeferred<Unit>()
-        val database = getRoomDatabaseBuilder()
-            .addCallback(
-                object : RoomDatabase.Callback() {
-                    // This onOpen callback will block database initialization until the
-                    // onOpenLatch is released.
-                    override fun onOpen(connection: SQLiteConnection) {
-                        onOpenInvoked++
-                        runBlocking { onOpenBlocker.await() }
+        val database =
+            getRoomDatabaseBuilder()
+                .addCallback(
+                    object : RoomDatabase.Callback() {
+                        // This onOpen callback will block database initialization until the
+                        // onOpenLatch is released.
+                        override fun onOpen(connection: SQLiteConnection) {
+                            onOpenInvoked++
+                            runBlocking { onOpenBlocker.await() }
+                        }
                     }
-                }
-            )
-            .build()
+                )
+                .build()
 
         // Start 4 concurrent coroutines that try to open the database and use its connections,
         // initialization should be done exactly once
         val launchBlockers = List(4) { CompletableDeferred<Unit>() }
-        val jobs = List(4) { index ->
-            launch(Dispatchers.IO) {
-                launchBlockers[index].complete(Unit)
-                database.useReaderConnection { }
+        val jobs =
+            List(4) { index ->
+                launch(Dispatchers.IO) {
+                    launchBlockers[index].complete(Unit)
+                    database.useReaderConnection {}
+                }
             }
-        }
 
         // Wait all launch coroutines to start then release the latch
         launchBlockers.awaitAll()
@@ -122,22 +124,22 @@ abstract class BaseBuilderTest {
     @Test
     fun onOpenRecursive() = runTest {
         var database: SampleDatabase? = null
-        database = getRoomDatabaseBuilder()
-            .setQueryCoroutineContext(Dispatchers.Unconfined)
-            .addCallback(
-                object : RoomDatabase.Callback() {
-                    // Use a bad open callback that will recursively try to open the database
-                    // again, this is a user error.
-                    override fun onOpen(connection: SQLiteConnection) {
-                        runBlocking {
-                            checkNotNull(database).dao().getItemList()
+        database =
+            getRoomDatabaseBuilder()
+                .setQueryCoroutineContext(Dispatchers.Unconfined)
+                .addCallback(
+                    object : RoomDatabase.Callback() {
+                        // Use a bad open callback that will recursively try to open the database
+                        // again, this is a user error.
+                        override fun onOpen(connection: SQLiteConnection) {
+                            runBlocking { checkNotNull(database).dao().getItemList() }
                         }
                     }
-                }
-            ).build()
-        assertThrows<IllegalStateException> {
-            database.dao().getItemList()
-        }.hasMessageThat().contains("Recursive database initialization detected.")
+                )
+                .build()
+        assertThrows<IllegalStateException> { database.dao().getItemList() }
+            .hasMessageThat()
+            .contains("Recursive database initialization detected.")
         database.close()
     }
 
@@ -146,23 +148,25 @@ abstract class BaseBuilderTest {
         val database = getRoomDatabaseBuilder().build()
         // Validate that all connections are configured to be use by Room, in this case that they
         // all have foreign keys enables as that is a per-connection PRAGMA.
-        val jobs = List(4) {
-            launch(Dispatchers.IO) {
-                database.useReaderConnection { connection ->
-                    connection.usePrepared("PRAGMA foreign_keys") {
-                        assertThat(it.step()).isTrue() // SQLITE_ROW
-                        assertThat(it.getBoolean(0)).isTrue()
+        val jobs =
+            List(4) {
+                launch(Dispatchers.IO) {
+                    database.useReaderConnection { connection ->
+                        connection.usePrepared("PRAGMA foreign_keys") {
+                            assertThat(it.step()).isTrue() // SQLITE_ROW
+                            assertThat(it.getBoolean(0)).isTrue()
+                        }
                     }
                 }
-            }
-        } + launch(Dispatchers.IO) {
-            database.useWriterConnection { connection ->
-                connection.usePrepared("PRAGMA foreign_keys") {
-                    assertThat(it.step()).isTrue() // SQLITE_ROW
-                    assertThat(it.getBoolean(0)).isTrue()
+            } +
+                launch(Dispatchers.IO) {
+                    database.useWriterConnection { connection ->
+                        connection.usePrepared("PRAGMA foreign_keys") {
+                            assertThat(it.step()).isTrue() // SQLITE_ROW
+                            assertThat(it.getBoolean(0)).isTrue()
+                        }
+                    }
                 }
-            }
-        }
         jobs.joinAll()
         database.close()
     }
@@ -170,31 +174,35 @@ abstract class BaseBuilderTest {
     @Test
     fun setCoroutineContextWithoutDispatcher() {
         assertThrows<IllegalArgumentException> {
-            getRoomDatabaseBuilder().setQueryCoroutineContext(EmptyCoroutineContext)
-        }.hasMessageThat()
+                getRoomDatabaseBuilder().setQueryCoroutineContext(EmptyCoroutineContext)
+            }
+            .hasMessageThat()
             .contains("It is required that the coroutine context contain a dispatcher.")
     }
 
     @Test
     fun setJournalModeWal() = runTest {
-        val database = getRoomDatabaseBuilder()
-            .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-            .build()
+        val database =
+            getRoomDatabaseBuilder()
+                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+                .build()
 
-        val journalMode = database.useReaderConnection { connection ->
-            connection.usePrepared("PRAGMA journal_mode") {
-                it.step()
-                it.getText(0)
+        val journalMode =
+            database.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA journal_mode") {
+                    it.step()
+                    it.getText(0)
+                }
             }
-        }
         assertThat(journalMode).isEqualTo("wal")
 
-        val syncMode = database.useReaderConnection { connection ->
-            connection.usePrepared("PRAGMA synchronous") {
-                it.step()
-                it.getInt(0)
+        val syncMode =
+            database.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA synchronous") {
+                    it.step()
+                    it.getInt(0)
+                }
             }
-        }
         assertThat(syncMode).isEqualTo(1) // NORMAL mode
 
         database.close()
@@ -202,24 +210,25 @@ abstract class BaseBuilderTest {
 
     @Test
     fun setJournalModeTruncate() = runTest {
-        val database = getRoomDatabaseBuilder()
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .build()
+        val database =
+            getRoomDatabaseBuilder().setJournalMode(RoomDatabase.JournalMode.TRUNCATE).build()
 
-        val journalMode = database.useReaderConnection { connection ->
-            connection.usePrepared("PRAGMA journal_mode") {
-                it.step()
-                it.getText(0)
+        val journalMode =
+            database.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA journal_mode") {
+                    it.step()
+                    it.getText(0)
+                }
             }
-        }
         assertThat(journalMode).isEqualTo("truncate")
 
-        val syncMode = database.useReaderConnection { connection ->
-            connection.usePrepared("PRAGMA synchronous") {
-                it.step()
-                it.getInt(0)
+        val syncMode =
+            database.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA synchronous") {
+                    it.step()
+                    it.getInt(0)
+                }
             }
-        }
         assertThat(syncMode).isEqualTo(2) // FULL mode
 
         database.close()

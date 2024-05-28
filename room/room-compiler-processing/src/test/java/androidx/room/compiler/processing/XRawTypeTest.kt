@@ -27,44 +27,42 @@ import org.junit.Test
 class XRawTypeTest {
     @Test
     fun simple() {
-        val javaSrc = Source.java(
-            "foo.bar.JavaClass",
-            """
+        val javaSrc =
+            Source.java(
+                "foo.bar.JavaClass",
+                """
             package foo.bar;
             class JavaClass<T, R> {
             }
-            """.trimIndent()
-        )
-        val kotlinSrc = Source.kotlin(
-            "KotlinClass.kt",
             """
+                    .trimIndent()
+            )
+        val kotlinSrc =
+            Source.kotlin(
+                "KotlinClass.kt",
+                """
             package foo.bar
             class KotlinClass<T, R>
-            """.trimIndent()
-        )
-        runProcessorTest(
-            sources = listOf(javaSrc, kotlinSrc)
-        ) { invocation ->
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             val intType = invocation.processingEnv.requireType("java.lang.Integer")
             val stringType = invocation.processingEnv.requireType("java.lang.String")
             invocation.processingEnv.requireTypeElement("foo.bar.JavaClass").let { javaElm ->
-                assertThat(javaElm.type.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("foo.bar", "JavaClass"),
-                        TypeVariableName.get("T"),
-                        TypeVariableName.get("R")
+                assertThat(javaElm.type.typeName)
+                    .isEqualTo(
+                        ParameterizedTypeName.get(
+                            ClassName.get("foo.bar", "JavaClass"),
+                            TypeVariableName.get("T"),
+                            TypeVariableName.get("R")
+                        )
                     )
-                )
                 val rawType = javaElm.type.rawType
                 assertThat(rawType.toString()).isEqualTo("foo.bar.JavaClass")
-                assertThat(rawType.typeName).isEqualTo(
-                    ClassName.get("foo.bar", "JavaClass")
-                )
-                invocation.processingEnv.getDeclaredType(
-                    type = javaElm,
-                    intType,
-                    stringType
-                ).let { withTypes ->
+                assertThat(rawType.typeName).isEqualTo(ClassName.get("foo.bar", "JavaClass"))
+                invocation.processingEnv.getDeclaredType(type = javaElm, intType, stringType).let {
+                    withTypes ->
                     assertThat(rawType.isAssignableFrom(withTypes)).isTrue()
                     assertThat(rawType.isAssignableFrom(withTypes.makeNullable())).isTrue()
                     assertThat(rawType.isAssignableFrom(withTypes.makeNonNullable())).isTrue()
@@ -72,27 +70,24 @@ class XRawTypeTest {
             }
 
             invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass").let { kotlinElm ->
-                assertThat(kotlinElm.type.typeName).isEqualTo(
-                    ParameterizedTypeName.get(
-                        ClassName.get("foo.bar", "KotlinClass"),
-                        TypeVariableName.get("T"),
-                        TypeVariableName.get("R")
+                assertThat(kotlinElm.type.typeName)
+                    .isEqualTo(
+                        ParameterizedTypeName.get(
+                            ClassName.get("foo.bar", "KotlinClass"),
+                            TypeVariableName.get("T"),
+                            TypeVariableName.get("R")
+                        )
                     )
-                )
                 val rawType = kotlinElm.type.rawType
                 assertThat(rawType.toString()).isEqualTo("foo.bar.KotlinClass")
-                assertThat(rawType.typeName).isEqualTo(
-                    ClassName.get("foo.bar", "KotlinClass")
-                )
-                invocation.processingEnv.getDeclaredType(
-                    type = kotlinElm,
-                    intType,
-                    stringType
-                ).let { withTypes ->
-                    assertThat(rawType.isAssignableFrom(withTypes)).isTrue()
-                    assertThat(rawType.isAssignableFrom(withTypes.makeNullable())).isTrue()
-                    assertThat(rawType.isAssignableFrom(withTypes.makeNonNullable())).isTrue()
-                }
+                assertThat(rawType.typeName).isEqualTo(ClassName.get("foo.bar", "KotlinClass"))
+                invocation.processingEnv
+                    .getDeclaredType(type = kotlinElm, intType, stringType)
+                    .let { withTypes ->
+                        assertThat(rawType.isAssignableFrom(withTypes)).isTrue()
+                        assertThat(rawType.isAssignableFrom(withTypes.makeNullable())).isTrue()
+                        assertThat(rawType.isAssignableFrom(withTypes.makeNonNullable())).isTrue()
+                    }
             }
         }
     }
@@ -105,8 +100,8 @@ class XRawTypeTest {
             assertThat(iterable.rawType.isAssignableFrom(arrayList)).isTrue()
             if (invocation.isKsp) {
                 val kotlinList = invocation.processingEnv.requireType("kotlin.collections.List")
-                val kotlinMutableList = invocation.processingEnv
-                    .requireType("kotlin.collections.MutableList")
+                val kotlinMutableList =
+                    invocation.processingEnv.requireType("kotlin.collections.MutableList")
                 assertThat(iterable.rawType.isAssignableFrom(kotlinList)).isTrue()
                 assertThat(iterable.rawType.isAssignableFrom(kotlinMutableList)).isTrue()
             }

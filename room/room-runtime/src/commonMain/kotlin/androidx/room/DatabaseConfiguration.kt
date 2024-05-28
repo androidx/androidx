@@ -20,9 +20,7 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
 
-/**
- * Configuration class for a [RoomDatabase].
- */
+/** Configuration class for a [RoomDatabase]. */
 expect class DatabaseConfiguration {
     /* The name of the database file or null if it is an in-memory database. */
     val name: String?

@@ -52,36 +52,34 @@ fun KClass<*>.typeName() = JTypeName.get(this.java)
 fun KClass<*>.className() = JClassName.get(this.java)
 
 fun KClass<*>.asJTypeName() = JTypeName.get(this.java)
+
 fun KClass<*>.asJClassName() = JClassName.get(this.java)
 
 fun KClass<*>.asKTypeName() = this.asTypeName()
+
 fun KClass<*>.asKClassName() = this.asClassName()
 
 /**
- * Workaround for:
- * https://github.com/square/kotlinpoet/issues/279
+ * Workaround for: https://github.com/square/kotlinpoet/issues/279
  * https://youtrack.jetbrains.com/issue/KT-11754
  */
-fun KClass<*>.asMutableKClassName(): KClassName = when (this) {
-    Iterator::class -> MUTABLE_ITERABLE
-    Collection::class -> MUTABLE_COLLECTION
-    List::class -> MUTABLE_LIST
-    Set::class -> MUTABLE_SET
-    Map::class -> MUTABLE_MAP
-    Map.Entry::class -> MUTABLE_MAP_ENTRY
-    else -> this.asKClassName()
-}
+fun KClass<*>.asMutableKClassName(): KClassName =
+    when (this) {
+        Iterator::class -> MUTABLE_ITERABLE
+        Collection::class -> MUTABLE_COLLECTION
+        List::class -> MUTABLE_LIST
+        Set::class -> MUTABLE_SET
+        Map::class -> MUTABLE_MAP
+        Map.Entry::class -> MUTABLE_MAP_ENTRY
+        else -> this.asKClassName()
+    }
 
-/**
- * Dumps the typename with its bounds in a given depth, making tests more readable.
- */
+/** Dumps the typename with its bounds in a given depth, making tests more readable. */
 fun JTypeName.dumpToString(depth: Int): String {
     return dump(this, depth).toString()
 }
 
-/**
- * Dumps the typename with its bounds in a given depth, making tests more readable.
- */
+/** Dumps the typename with its bounds in a given depth, making tests more readable. */
 fun KTypeName.dumpToString(depth: Int): String {
     return dump(this, depth).toString()
 }
@@ -89,22 +87,26 @@ fun KTypeName.dumpToString(depth: Int): String {
 private fun dump(typeName: Any, depth: Int): TypeNameNode? {
     if (depth < 0) return null
     return when (typeName) {
-        is JParameterizedTypeName -> TypeNameNode(
-            text = typeName.toString(),
-            typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
-        )
-        is KParameterizedTypeName -> TypeNameNode(
-            text = typeName.toString(),
-            typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
-        )
-        is JTypeVariableName -> TypeNameNode(
-            text = typeName.toString(),
-            bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
-        )
-        is KTypeVariableName -> TypeNameNode(
-            text = typeName.toString(),
-            bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
-        )
+        is JParameterizedTypeName ->
+            TypeNameNode(
+                text = typeName.toString(),
+                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
+            )
+        is KParameterizedTypeName ->
+            TypeNameNode(
+                text = typeName.toString(),
+                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
+            )
+        is JTypeVariableName ->
+            TypeNameNode(
+                text = typeName.toString(),
+                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
+            )
+        is KTypeVariableName ->
+            TypeNameNode(
+                text = typeName.toString(),
+                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
+            )
         else -> TypeNameNode(text = typeName.toString())
     }
 }
@@ -116,13 +118,10 @@ private data class TypeNameNode(
 ) {
     override fun toString(): String {
         return buildString {
-            appendLine(text)
-            bounds.forEach {
-                appendLine(it.toString().prependIndent("> "))
+                appendLine(text)
+                bounds.forEach { appendLine(it.toString().prependIndent("> ")) }
+                typeArgs.forEach { appendLine(it.toString().prependIndent("| ")) }
             }
-            typeArgs.forEach {
-                appendLine(it.toString().prependIndent("| "))
-            }
-        }.trim()
+            .trim()
     }
 }

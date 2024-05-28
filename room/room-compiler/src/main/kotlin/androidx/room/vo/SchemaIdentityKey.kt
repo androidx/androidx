@@ -23,29 +23,28 @@ interface HasSchemaIdentity {
     fun getIdKey(): String
 }
 
-/**
- * A class that can be converted into a unique identifier for an object
- */
+/** A class that can be converted into a unique identifier for an object */
 class SchemaIdentityKey {
     companion object {
         private val SEPARATOR = "?:?"
-        private val ENGLISH_SORT = Comparator<String> { o1, o2 ->
-            o1.lowercase(Locale.ENGLISH).compareTo(o2.lowercase(Locale.ENGLISH))
-        }
+        private val ENGLISH_SORT =
+            Comparator<String> { o1, o2 ->
+                o1.lowercase(Locale.ENGLISH).compareTo(o2.lowercase(Locale.ENGLISH))
+            }
     }
 
     private val sb = StringBuilder()
+
     fun append(identity: HasSchemaIdentity) {
         append(identity.getIdKey())
     }
 
     fun appendSorted(identities: List<HasSchemaIdentity>) {
-        identities.map { it.getIdKey() }.sortedWith(ENGLISH_SORT).forEach {
-            append(it)
-        }
+        identities.map { it.getIdKey() }.sortedWith(ENGLISH_SORT).forEach { append(it) }
     }
 
     fun hash() = DigestUtils.md5Hex(sb.toString())
+
     fun append(identity: String) {
         sb.append(identity).append(SEPARATOR)
     }
