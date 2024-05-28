@@ -82,7 +82,7 @@ internal class JetpackConnectionService : ConnectionService() {
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     fun createConnectionRequest(
-        telecomManager: TelecomManagerAdapter,
+        telecomManager: TelecomManager,
         pendingConnectionRequest: PendingConnectionRequest,
     ) {
         Log.i(

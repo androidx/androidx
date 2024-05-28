@@ -30,12 +30,8 @@ import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.AddCallResult
-import androidx.core.telecom.internal.ConnectionServiceProduction
-import androidx.core.telecom.internal.TelecomManagerProduction
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.ConnectionServiceFailPlatformSide
-import androidx.core.telecom.test.utils.TelecomManagerFailPlatformSide
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -205,72 +201,6 @@ class CallsManagerTest : BaseTelecomTest() {
             val cd = CompletableDeferred<AddCallResult>()
             cd.complete(AddCallResult.SuccessCallSession())
             mCallsManager.pauseExecutionUntilCallIsReadyOrTimeout(cd)
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @SmallTest
-    @Test
-    fun testFailPlatformSide_Transactional() {
-        setUpV2Test()
-        val telecomManagerFailPlatformSide = TelecomManagerFailPlatformSide()
-        val expectedCallExceptionCode = CallException.CODE_CALL_NOT_PERMITTED_AT_PRESENT_TIME
-        telecomManagerFailPlatformSide.setCallException(expectedCallExceptionCode)
-        mCallsManager.setTelecomManagerAdapter(telecomManagerFailPlatformSide)
-        try {
-            runBlocking {
-                val waitForCallException =
-                    CompletableDeferred<androidx.core.telecom.CallException>()
-                try {
-                    mCallsManager.addCall(
-                        TestUtils.INCOMING_CALL_ATTRIBUTES,
-                        TestUtils.mOnAnswerLambda,
-                        TestUtils.mOnDisconnectLambda,
-                        TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda,
-                    ) {}
-                } catch (e: androidx.core.telecom.CallException) {
-                    waitForCallException.complete(e)
-                }
-                waitForCallException.await()
-                assertEquals(expectedCallExceptionCode, waitForCallException.getCompleted().code)
-            }
-        } finally {
-            mCallsManager.setTelecomManagerAdapter(TelecomManagerProduction(mContext))
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-    @SmallTest
-    @Test
-    fun testFailPlatformSide_BackwardsCompat() {
-        setUpBackwardsCompatTest()
-        mCallsManager.setTelecomManagerAdapter(TelecomManagerFailPlatformSide())
-        mCallsManager.setConnectionServiceAdapter(ConnectionServiceFailPlatformSide())
-        try {
-            runBlocking {
-                val waitForCallException =
-                    CompletableDeferred<androidx.core.telecom.CallException>()
-                try {
-                    mCallsManager.addCall(
-                        TestUtils.INCOMING_CALL_ATTRIBUTES,
-                        TestUtils.mOnAnswerLambda,
-                        TestUtils.mOnDisconnectLambda,
-                        TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda,
-                    ) {}
-                } catch (e: androidx.core.telecom.CallException) {
-                    waitForCallException.complete(e)
-                }
-                waitForCallException.await()
-                assertEquals(
-                    androidx.core.telecom.CallException.ERROR_UNKNOWN,
-                    waitForCallException.getCompleted().code
-                )
-            }
-        } finally {
-            mCallsManager.setTelecomManagerAdapter(TelecomManagerProduction(mContext))
-            mCallsManager.setConnectionServiceAdapter(ConnectionServiceProduction())
         }
     }
 
