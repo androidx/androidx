@@ -45,7 +45,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchHeightIsEqualTo
 import androidx.compose.ui.test.assertTouchWidthIsEqualTo
@@ -267,6 +269,13 @@ private fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
     }
     assertion.invoke(bounds)
     return this
+}
+
+internal fun SemanticsNodeInteraction.assertOnLongClickLabelMatches(expectedValue: String):
+    SemanticsNodeInteraction {
+    return assert(SemanticsMatcher("onLongClickLabel = '$expectedValue'") {
+        it.config.getOrElseNullable(SemanticsActions.OnLongClick) { null }?.label == expectedValue
+    })
 }
 
 private val SemanticsNode.unclippedBoundsInRoot: Rect
