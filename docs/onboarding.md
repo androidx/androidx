@@ -237,9 +237,11 @@ or sample to run or debug it, search through classes, and so on.
     be opened" message when running Studio, *do not* move the app to the Trash.
     Cancel out of the dialog and open macOS `System Settings > Gatekeeper`, look
     for `"Android Studio" was blocked`, and click `Open Anyway` to grant an
-    exception. Alternatively, you can navigate to the Studio `.app` file under
+    exception. (Alternatively, you can navigate to the Studio `.app` file under
     `frameworks/support/studio` and run it once using `Control+Click` and `Open`
-    to automatically grant an exception.
+    to automatically grant an exception.) Once Android Studio opens, immediately
+    quit out of it, then go back to the command line and re-launch it with
+    `studiow`.
 *   If you've updated to macOS Ventura and receive a "xcrun: error: invalid
     active developer path" message when running Studio, reinstall Xcode using
     `xcode-select --install`. If that does not work, you will need to download
