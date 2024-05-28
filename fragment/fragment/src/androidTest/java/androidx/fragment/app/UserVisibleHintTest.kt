@@ -38,8 +38,8 @@ class UserVisibleHintTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @UiThreadTest
     @Test
@@ -50,17 +50,11 @@ class UserVisibleHintTest {
                 firstStartedFragment = it
             }
         }
-        val deferredFragment = ReportStartFragment(callback).apply {
-            userVisibleHint = false
-        }
+        val deferredFragment = ReportStartFragment(callback).apply { userVisibleHint = false }
         val fragment = ReportStartFragment(callback)
         val fm = activityRule.activity.supportFragmentManager
-        fm.beginTransaction()
-            .add(deferredFragment, "deferred")
-            .commit()
-        fm.beginTransaction()
-            .add(fragment, "fragment")
-            .commit()
+        fm.beginTransaction().add(deferredFragment, "deferred").commit()
+        fm.beginTransaction().add(fragment, "fragment").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("userVisibleHint=false Fragments should start after other Fragments")
@@ -80,15 +74,11 @@ class UserVisibleHintTest {
         val fm = activityRule.activity.supportFragmentManager
 
         // Add the fragment, save its state, then remove it.
-        var deferredFragment = ReportStartFragment().apply {
-            userVisibleHint = false
-        }
+        var deferredFragment = ReportStartFragment().apply { userVisibleHint = false }
         fm.beginTransaction().add(deferredFragment, "tag").commit()
         activityRule.executePendingTransactions()
         var state: Fragment.SavedState? = null
-        activityRule.runOnUiThreadRethrow {
-            state = fm.saveFragmentInstanceState(deferredFragment)
-        }
+        activityRule.runOnUiThreadRethrow { state = fm.saveFragmentInstanceState(deferredFragment) }
         fm.beginTransaction().remove(deferredFragment).commit()
         activityRule.executePendingTransactions()
 
@@ -97,12 +87,8 @@ class UserVisibleHintTest {
         deferredFragment.setInitialSavedState(state)
 
         val fragment = ReportStartFragment(callback)
-        fm.beginTransaction()
-            .add(deferredFragment, "deferred")
-            .commit()
-        fm.beginTransaction()
-            .add(fragment, "fragment")
-            .commit()
+        fm.beginTransaction().add(deferredFragment, "deferred").commit()
+        fm.beginTransaction().add(fragment, "fragment").commit()
         activityRule.executePendingTransactions()
 
         assertWithMessage("userVisibleHint=false Fragments should start after other Fragments")
@@ -110,9 +96,8 @@ class UserVisibleHintTest {
             .isSameInstanceAs(fragment)
     }
 
-    class ReportStartFragment(
-        val callback: ((fragment: Fragment) -> Unit) = {}
-    ) : StrictFragment() {
+    class ReportStartFragment(val callback: ((fragment: Fragment) -> Unit) = {}) :
+        StrictFragment() {
         override fun onStart() {
             super.onStart()
             callback.invoke(this)

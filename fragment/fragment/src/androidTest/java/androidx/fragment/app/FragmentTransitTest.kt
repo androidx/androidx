@@ -34,9 +34,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
-/**
- * Tests for [FragmentTransaction.setTransition].
- */
+/** Tests for [FragmentTransaction.setTransition]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentTransitTest {
@@ -46,8 +44,8 @@ class FragmentTransitTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Before
     fun setupContainer() {

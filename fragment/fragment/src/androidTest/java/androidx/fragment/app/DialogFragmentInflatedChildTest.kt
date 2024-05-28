@@ -37,9 +37,12 @@ import org.junit.runners.Parameterized
 // the Layout used to inflate the view
 sealed class InflatedViewLayout {
     abstract fun getLayoutId(): Int
+
     abstract fun getChildFragment(f: Fragment): Fragment?
+
     override fun toString(): String = this.javaClass.simpleName
 }
+
 // When to inflate the view
 sealed class InflateViewLocation {
     override fun toString(): String = this.javaClass.simpleName
@@ -47,17 +50,20 @@ sealed class InflateViewLocation {
 
 object UseFragmentContainerView : InflatedViewLayout() {
     override fun getLayoutId() = R.layout.inflated_fragment_container_view
+
     override fun getChildFragment(f: Fragment) =
         f.childFragmentManager.findFragmentByTag("fragment1")
 }
 
 object UseFragmentTag : InflatedViewLayout() {
     override fun getLayoutId() = R.layout.nested_inflated_fragment_parent
+
     override fun getChildFragment(f: Fragment) =
         f.childFragmentManager.findFragmentById(R.id.child_fragment)
 }
 
 object OnCreateDialog : InflateViewLocation()
+
 object OnCreateView : InflateViewLocation()
 
 @LargeTest
@@ -70,36 +76,33 @@ class DialogFragmentInflatedChildTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "inflatedView={0}, inflateLocation={1}")
-        fun data() = mutableListOf<Array<Any>>().apply {
-            arrayOf(
-                UseFragmentContainerView,
-                UseFragmentTag
-            ).forEach { inflatedViewLayout ->
-                add(arrayOf(inflatedViewLayout, OnCreateDialog))
-                add(arrayOf(inflatedViewLayout, OnCreateView))
+        fun data() =
+            mutableListOf<Array<Any>>().apply {
+                arrayOf(UseFragmentContainerView, UseFragmentTag).forEach { inflatedViewLayout ->
+                    add(arrayOf(inflatedViewLayout, OnCreateDialog))
+                    add(arrayOf(inflatedViewLayout, OnCreateView))
+                }
             }
-        }
     }
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testInflatedChildDialogFragment() {
-       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
-            val dialogFragment = TestInflatedChildDialogFragment.newInstance(
-                false, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
-            )
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val dialogFragment =
+                TestInflatedChildDialogFragment.newInstance(
+                    false,
+                    inflatedView.getLayoutId(),
+                    inflateLocation is OnCreateDialog
+                )
 
             withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(dialogFragment, "dialog")
-                    .commitNow()
+                supportFragmentManager.beginTransaction().add(dialogFragment, "dialog").commitNow()
             }
 
             val child = inflatedView.getChildFragment(dialogFragment)
-            assertWithMessage("Inflated child fragment should not be null")
-                .that(child).isNotNull()
+            assertWithMessage("Inflated child fragment should not be null").that(child).isNotNull()
 
             recreate()
 
@@ -108,26 +111,27 @@ class DialogFragmentInflatedChildTest(
             }
             val recreatedChild = inflatedView.getChildFragment(recreatedDialogFragment)
             assertWithMessage("Inflated child fragment should not be null")
-                .that(recreatedChild).isNotNull()
+                .that(recreatedChild)
+                .isNotNull()
         }
     }
 
     @Test
     fun testInflatedChildAppCompatDialogFragment() {
-       withUse(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
-            val dialogFragment = TestInflatedChildDialogFragment.newInstance(
-                true, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
-            )
+        withUse(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
+            val dialogFragment =
+                TestInflatedChildDialogFragment.newInstance(
+                    true,
+                    inflatedView.getLayoutId(),
+                    inflateLocation is OnCreateDialog
+                )
 
             withActivity {
-                supportFragmentManager.beginTransaction()
-                    .add(dialogFragment, "dialog")
-                    .commitNow()
+                supportFragmentManager.beginTransaction().add(dialogFragment, "dialog").commitNow()
             }
 
             val child = inflatedView.getChildFragment(dialogFragment)
-            assertWithMessage("Inflated child fragment should not be null")
-                .that(child).isNotNull()
+            assertWithMessage("Inflated child fragment should not be null").that(child).isNotNull()
 
             recreate()
 
@@ -136,7 +140,8 @@ class DialogFragmentInflatedChildTest(
             }
             val recreatedChild = inflatedView.getChildFragment(recreatedDialogFragment)
             assertWithMessage("Inflated child fragment should not be null")
-                .that(recreatedChild).isNotNull()
+                .that(recreatedChild)
+                .isNotNull()
         }
     }
 }
@@ -151,22 +156,25 @@ class TestInflatedChildDialogFragment : DialogFragment() {
         private const val LAYOUT_ID_KEY = "LAYOUT_ID"
         private const val ON_CREATE_DIALOG_KEY = "ON_CREATE_DIALOG"
 
-        fun newInstance(
-            useAppCompat: Boolean,
-            layoutId: Int,
-            onCreateDialog: Boolean
-        ) = TestInflatedChildDialogFragment().apply {
-            arguments = Bundle().apply {
-                putBoolean(USE_APP_COMPAT_KEY, useAppCompat)
-                putInt(LAYOUT_ID_KEY, layoutId)
-                putBoolean(ON_CREATE_DIALOG_KEY, onCreateDialog)
+        fun newInstance(useAppCompat: Boolean, layoutId: Int, onCreateDialog: Boolean) =
+            TestInflatedChildDialogFragment().apply {
+                arguments =
+                    Bundle().apply {
+                        putBoolean(USE_APP_COMPAT_KEY, useAppCompat)
+                        putInt(LAYOUT_ID_KEY, layoutId)
+                        putBoolean(ON_CREATE_DIALOG_KEY, onCreateDialog)
+                    }
             }
-        }
     }
 
-    private val useAppCompat get() = requireArguments().getBoolean(USE_APP_COMPAT_KEY)
-    private val layoutId get() = requireArguments().getInt(LAYOUT_ID_KEY, 0)
-    private val onCreateDialog get() = requireArguments().getBoolean(ON_CREATE_DIALOG_KEY)
+    private val useAppCompat
+        get() = requireArguments().getBoolean(USE_APP_COMPAT_KEY)
+
+    private val layoutId
+        get() = requireArguments().getInt(LAYOUT_ID_KEY, 0)
+
+    private val onCreateDialog
+        get() = requireArguments().getBoolean(ON_CREATE_DIALOG_KEY)
 
     override fun onCreateView(
         inflater: LayoutInflater,

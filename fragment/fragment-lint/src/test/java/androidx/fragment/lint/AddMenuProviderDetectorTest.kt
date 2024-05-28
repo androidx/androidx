@@ -37,15 +37,14 @@ class AddMenuProviderDetectorTest : LintDetectorTest() {
         mutableListOf(UnsafeFragmentLifecycleObserverDetector.ADD_MENU_PROVIDER_ISSUE)
 
     private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *ADD_MENU_PROVIDER_STUBS)
-            .run()
+        return lint().files(*files, *ADD_MENU_PROVIDER_STUBS).run()
     }
 
     @Test
     fun pass() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -72,9 +71,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.activity.ComponentActivity
@@ -90,16 +89,16 @@ class Foo {
     fun menuProvider(fragment: Fragment) {}
 }
             """
+                )
             )
-        )
             .expectClean()
     }
 
     @Test
     fun inMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -111,8 +110,8 @@ class TestFragment : Fragment {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/TestFragment.kt:9: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentAddMenuProvider]
@@ -143,8 +142,8 @@ class TestFragment : Fragment {
     @Test
     fun helperMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -160,8 +159,8 @@ class TestFragment : Fragment {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/TestFragment.kt:13: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentAddMenuProvider]
@@ -196,8 +195,8 @@ class TestFragment : Fragment {
     @Test
     fun externalCallFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -215,9 +214,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.activity.ComponentActivity
@@ -230,8 +229,8 @@ class Foo {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/test/Foo.kt:9: Error: Unsafe call to addMenuProvider with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentAddMenuProvider]
@@ -248,8 +247,8 @@ src/com/example/test/Foo.kt:10: Error: Unsafe call to addMenuProvider with Fragm
     @Test
     fun externalHelperMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -267,9 +266,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.activity.ComponentActivity
@@ -289,8 +288,8 @@ class Foo {
     }
 }
             """
+                )
             )
-        )
             .expect(
                 """
 src/com/example/test/Foo.kt:16: Error: Unsafe call to addMenuProvider with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentAddMenuProvider]

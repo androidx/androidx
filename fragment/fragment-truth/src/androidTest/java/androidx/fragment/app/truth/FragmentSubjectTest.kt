@@ -47,13 +47,9 @@ class FragmentSubjectTest {
     @Test
     fun testIsAdded() {
         val fragment = Fragment()
-        activity.supportFragmentManager.commitNow {
-            add(fragment, "tag")
-        }
+        activity.supportFragmentManager.commitNow { add(fragment, "tag") }
         assertThat(fragment).isAdded()
-        assertThrows {
-            assertThat(fragment).isNotAdded()
-        }
+        assertThrows { assertThat(fragment).isNotAdded() }
     }
 
     @UiThreadTest
@@ -61,9 +57,7 @@ class FragmentSubjectTest {
     fun testIsNotAdded() {
         val fragment = Fragment()
         assertThat(fragment).isNotAdded()
-        assertThrows {
-            assertThat(fragment).isAdded()
-        }
+        assertThrows { assertThat(fragment).isAdded() }
     }
 }
 

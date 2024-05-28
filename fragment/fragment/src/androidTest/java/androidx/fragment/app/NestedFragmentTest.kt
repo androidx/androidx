@@ -43,8 +43,8 @@ class NestedFragmentTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     private fun setupParentFragment(parentFragment: ParentFragment) {
         val fragmentManager = activityRule.activity.supportFragmentManager
@@ -65,9 +65,12 @@ class NestedFragmentTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activityResult = Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
 
-        val activityMonitor = instrumentation.addMonitor(
-            IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */
-        )
+        val activityMonitor =
+            instrumentation.addMonitor(
+                IntentFilter(Intent.ACTION_CALL),
+                activityResult,
+                true /* block */
+            )
 
         // Verify that onActivityResult hasn't been called yet.
         assertThat(parentFragment.childFragment.onActivityResultCalled).isFalse()
@@ -98,9 +101,12 @@ class NestedFragmentTest {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activityResult = Instrumentation.ActivityResult(Activity.RESULT_OK, Intent())
 
-        val activityMonitor = instrumentation.addMonitor(
-            IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */
-        )
+        val activityMonitor =
+            instrumentation.addMonitor(
+                IntentFilter(Intent.ACTION_CALL),
+                activityResult,
+                true /* block */
+            )
 
         // Verify that onActivityResult hasn't been called yet.
         assertThat(parentFragment.childFragment.onActivityResultCalled).isFalse()

@@ -41,12 +41,14 @@ class ViewModelActivity : FragmentActivity() {
         setContentView(R.layout.activity_view_model)
         if (savedInstanceState == null) {
             val backStackFragment = ViewModelFragment()
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .add(R.id.fragment_container, ViewModelFragment(), FRAGMENT_TAG_1)
                 .add(ViewModelFragment(), FRAGMENT_TAG_2)
                 .add(backStackFragment, FRAGMENT_TAG_BACK_STACK)
                 .commit()
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .remove(backStackFragment)
                 .addToBackStack(FRAGMENT_TAG_BACK_STACK)
                 .commit()
@@ -67,15 +69,13 @@ class ViewModelActivity : FragmentActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val viewModelProvider = ViewModelProvider(this)
-            fragmentModel = viewModelProvider.get(
-                KEY_FRAGMENT_MODEL,
-                TestViewModel::class.java
-            )
+            fragmentModel = viewModelProvider.get(KEY_FRAGMENT_MODEL, TestViewModel::class.java)
             val activityViewModelProvider = ViewModelProvider(requireActivity())
-            activityModel = activityViewModelProvider.get(
-                ViewModelActivity.KEY_ACTIVITY_MODEL,
-                TestViewModel::class.java
-            )
+            activityModel =
+                activityViewModelProvider.get(
+                    ViewModelActivity.KEY_ACTIVITY_MODEL,
+                    TestViewModel::class.java
+                )
             defaultActivityModel = activityViewModelProvider.get(TestViewModel::class.java)
             androidModel = viewModelProvider.get(TestAndroidViewModel::class.java)
             savedStateModel = viewModelProvider.get(TestSavedStateViewModel::class.java)

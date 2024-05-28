@@ -38,8 +38,8 @@ class FragmentFactoryTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     @UiThreadTest
@@ -52,7 +52,8 @@ class FragmentFactoryTest {
         activity.setContentView(R.layout.activity_inflated_fragment)
         assertEquals(
             "FragmentFactory should be used for inflated Fragments",
-            1, fragmentFactory.instantiateCount
+            1,
+            fragmentFactory.instantiateCount
         )
     }
 
@@ -67,7 +68,8 @@ class FragmentFactoryTest {
         activity.setContentView(R.layout.inflated_fragment_container_view)
         assertEquals(
             "FragmentFactory should be used for inflated Fragments",
-            1, fragmentFactory.instantiateCount
+            1,
+            fragmentFactory.instantiateCount
         )
     }
 
@@ -80,12 +82,11 @@ class FragmentFactoryTest {
 
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
-        fragmentManager.beginTransaction()
-            .replace(R.id.content, ParentFragment())
-            .commitNow()
+        fragmentManager.beginTransaction().replace(R.id.content, ParentFragment()).commitNow()
         assertEquals(
             "FragmentFactory should be used for inflated child Fragments",
-            1, fragmentFactory.instantiateCount
+            1,
+            fragmentFactory.instantiateCount
         )
     }
 
@@ -98,12 +99,14 @@ class FragmentFactoryTest {
 
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
-        fragmentManager.beginTransaction()
+        fragmentManager
+            .beginTransaction()
             .replace(R.id.content, ParentFragmentContainerView())
             .commitNow()
         assertEquals(
             "FragmentFactory should be used for inflated child Fragments",
-            1, fragmentFactory.instantiateCount
+            1,
+            fragmentFactory.instantiateCount
         )
     }
 
@@ -117,22 +120,20 @@ class FragmentFactoryTest {
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         val childFragmentFactory = TestFragmentFactory()
-        fragmentManager.beginTransaction()
-            .replace(
-                R.id.content,
-                ParentFragment().apply {
-                    factory = childFragmentFactory
-                }
-            )
+        fragmentManager
+            .beginTransaction()
+            .replace(R.id.content, ParentFragment().apply { factory = childFragmentFactory })
             .commitNow()
         assertEquals(
             "FragmentFactory should not used for child Fragments when they " +
                 "have their own FragmentFactory",
-            0, fragmentFactory.instantiateCount
+            0,
+            fragmentFactory.instantiateCount
         )
         assertEquals(
             "Child FragmentFactory should be used for inflated child Fragments",
-            1, childFragmentFactory.instantiateCount
+            1,
+            childFragmentFactory.instantiateCount
         )
     }
 
@@ -146,22 +147,23 @@ class FragmentFactoryTest {
         fragmentManager.fragmentFactory = fragmentFactory
         activity.setContentView(R.layout.activity_content)
         val childFragmentFactory = TestFragmentFactory()
-        fragmentManager.beginTransaction()
+        fragmentManager
+            .beginTransaction()
             .replace(
                 R.id.content,
-                ParentFragmentContainerView().apply {
-                    factory = childFragmentFactory
-                }
+                ParentFragmentContainerView().apply { factory = childFragmentFactory }
             )
             .commitNow()
         assertEquals(
             "FragmentFactory should not used for child Fragments when they " +
                 "have their own FragmentFactory",
-            0, fragmentFactory.instantiateCount
+            0,
+            fragmentFactory.instantiateCount
         )
         assertEquals(
             "Child FragmentFactory should be used for inflated child Fragments",
-            1, childFragmentFactory.instantiateCount
+            1,
+            childFragmentFactory.instantiateCount
         )
     }
 }
@@ -171,9 +173,7 @@ class ParentFragment : Fragment(R.layout.nested_inflated_fragment_parent) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        factory?.let { factory ->
-            childFragmentManager.fragmentFactory = factory
-        }
+        factory?.let { factory -> childFragmentManager.fragmentFactory = factory }
     }
 }
 
@@ -182,9 +182,7 @@ class ParentFragmentContainerView : Fragment(R.layout.nested_inflated_fragment_c
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        factory?.let { factory ->
-            childFragmentManager.fragmentFactory = factory
-        }
+        factory?.let { factory -> childFragmentManager.fragmentFactory = factory }
     }
 }
 

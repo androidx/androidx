@@ -40,8 +40,8 @@ class BackStackRecordTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     @UiThreadTest
@@ -90,26 +90,18 @@ class BackStackRecordTest {
         val backStackRecord = BackStackRecord(fm)
         backStackRecord.replace(android.R.id.content, replacementFragment)
 
-        backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
-        }
+        backStackRecord.verifyOps { verify(FragmentTransaction.OP_REPLACE, replacementFragment) }
 
         backStackRecord.expandOps(ArrayList(fm.fragments), null)
 
         backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_ADD, replacementFragment) {
-                fromExpandedOp = true
-            }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) { fromExpandedOp = true }
         }
 
         backStackRecord.collapseOps()
 
-        backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
-        }
+        backStackRecord.verifyOps { verify(FragmentTransaction.OP_REPLACE, replacementFragment) }
     }
 
     @Test
@@ -139,15 +131,9 @@ class BackStackRecordTest {
             verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV, initialFragment) {
                 fromExpandedOp = true
             }
-            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_ADD, replacementFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) {
-                fromExpandedOp = true
-            }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) { fromExpandedOp = true }
             verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment) {
                 fromExpandedOp = true
             }
@@ -176,29 +162,19 @@ class BackStackRecordTest {
         val backStackRecord = BackStackRecord(fm)
         backStackRecord.replace(android.R.id.content, replacementFragment)
 
-        backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
-        }
+        backStackRecord.verifyOps { verify(FragmentTransaction.OP_REPLACE, replacementFragment) }
 
         backStackRecord.expandOps(ArrayList(fm.fragments), null)
 
         backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REMOVE, addedFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_ADD, replacementFragment) {
-                fromExpandedOp = true
-            }
+            verify(FragmentTransaction.OP_REMOVE, addedFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) { fromExpandedOp = true }
         }
 
         backStackRecord.collapseOps()
 
-        backStackRecord.verifyOps {
-            verify(FragmentTransaction.OP_REPLACE, replacementFragment)
-        }
+        backStackRecord.verifyOps { verify(FragmentTransaction.OP_REPLACE, replacementFragment) }
     }
 
     @Test
@@ -230,18 +206,10 @@ class BackStackRecordTest {
             verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV, addedFragment) {
                 fromExpandedOp = true
             }
-            verify(FragmentTransaction.OP_REMOVE, addedFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_REMOVE, initialFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_ADD, replacementFragment) {
-                fromExpandedOp = true
-            }
-            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) {
-                fromExpandedOp = true
-            }
+            verify(FragmentTransaction.OP_REMOVE, addedFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_REMOVE, initialFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_ADD, replacementFragment) { fromExpandedOp = true }
+            verify(FragmentTransaction.OP_UNSET_PRIMARY_NAV) { fromExpandedOp = true }
             verify(FragmentTransaction.OP_SET_PRIMARY_NAV, replacementFragment) {
                 fromExpandedOp = true
             }
@@ -277,9 +245,11 @@ class BackStackRecordTest {
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
+                .hasMessageThat()
+                .contains(
                     "Cannot hide Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        "a different FragmentManager. Fragment " +
+                        fragment1.toString() +
                         " is already attached to a FragmentManager."
                 )
         }
@@ -311,9 +281,11 @@ class BackStackRecordTest {
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
+                .hasMessageThat()
+                .contains(
                     "Cannot show Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        "a different FragmentManager. Fragment " +
+                        fragment1.toString() +
                         " is already attached to a FragmentManager."
                 )
         }
@@ -345,9 +317,11 @@ class BackStackRecordTest {
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
+                .hasMessageThat()
+                .contains(
                     "Cannot setPrimaryNavigation for Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        "a different FragmentManager. Fragment " +
+                        fragment1.toString() +
                         " is already attached to a FragmentManager."
                 )
         }
@@ -381,9 +355,11 @@ class BackStackRecordTest {
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
+                .hasMessageThat()
+                .contains(
                     "Cannot detach Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        "a different FragmentManager. Fragment " +
+                        fragment1.toString() +
                         " is already attached to a FragmentManager."
                 )
         }
@@ -417,9 +393,11 @@ class BackStackRecordTest {
             )
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
+                .hasMessageThat()
+                .contains(
                     "Cannot remove Fragment attached to " +
-                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        "a different FragmentManager. Fragment " +
+                        fragment1.toString() +
                         " is already attached to a FragmentManager."
                 )
         }
@@ -440,14 +418,10 @@ class BackStackRecordTest {
         val fm2 = fc2.supportFragmentManager
 
         val fragment = StrictViewFragment()
-        fm1.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm1.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         try {
-            fm2.beginTransaction()
-                .setMaxLifecycle(fragment, Lifecycle.State.STARTED)
-                .commitNow()
+            fm2.beginTransaction().setMaxLifecycle(fragment, Lifecycle.State.STARTED).commitNow()
             fail(
                 "setting maxLifecycle on fragment not attached to fragment manager should throw" +
                     " IllegalArgumentException"
@@ -456,8 +430,7 @@ class BackStackRecordTest {
             assertThat(e)
                 .hasMessageThat()
                 .contains(
-                    "Cannot setMaxLifecycle for Fragment not attached to" +
-                        " FragmentManager $fm2"
+                    "Cannot setMaxLifecycle for Fragment not attached to" + " FragmentManager $fm2"
                 )
         }
     }
@@ -499,9 +472,7 @@ class BackStackRecordTest {
             .commitNow()
 
         try {
-            fm.beginTransaction()
-                .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
-                .commitNow()
+            fm.beginTransaction().setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED).commitNow()
             fail(
                 "setting maxLifecycle state to state lower than created should throw" +
                     " IllegalArgumentException"
@@ -525,13 +496,12 @@ class BackStackRecordTest {
         val fragment = StrictViewFragment()
 
         try {
-            fc.supportFragmentManager.beginTransaction()
+            fc.supportFragmentManager
+                .beginTransaction()
                 .add(android.R.id.content, fragment)
                 .setMaxLifecycle(fragment, Lifecycle.State.DESTROYED)
                 .commitNow()
-            fail(
-                "setting maxLifecycle state to DESTROYED should throw IllegalArgumentException"
-            )
+            fail("setting maxLifecycle state to DESTROYED should throw IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat()
@@ -552,8 +522,10 @@ internal class BackStackRecordVerify(private val backStackRecord: BackStackRecor
         block: BackStackRecordOpInfo.() -> Unit = {}
     ) {
         assertWithMessage(
-            "Cannot verify op $currentOp as there is only ${backStackRecord.mOps.size} operations"
-        ).that(backStackRecord.mOps.size).isAtLeast(currentOp + 1)
+                "Cannot verify op $currentOp as there is only ${backStackRecord.mOps.size} operations"
+            )
+            .that(backStackRecord.mOps.size)
+            .isAtLeast(currentOp + 1)
         backStackRecord.mOps[currentOp].verify(currentOp, command, fragment, block)
         currentOp++
     }
@@ -566,9 +538,7 @@ internal fun BackStackRecord.verifyOps(block: BackStackRecordVerify.() -> Unit) 
         .isEqualTo(mOps.size)
 }
 
-internal data class BackStackRecordOpInfo(
-    var fromExpandedOp: Boolean = false
-)
+internal data class BackStackRecordOpInfo(var fromExpandedOp: Boolean = false)
 
 private fun FragmentTransaction.Op.verify(
     opIndex: Int,
@@ -578,15 +548,16 @@ private fun FragmentTransaction.Op.verify(
 ) {
     val (fromExpandedOp) = BackStackRecordOpInfo().apply { block() }
 
-    assertWithMessage("Operation $opIndex had the wrong command")
-        .that(mCmd)
-        .isEqualTo(command)
+    assertWithMessage("Operation $opIndex had the wrong command").that(mCmd).isEqualTo(command)
     assertWithMessage("Operation $opIndex had the wrong fragment")
         .that(mFragment)
         .isSameInstanceAs(fragment)
     assertWithMessage(
-        "Operation $opIndex " + (if (fromExpandedOp) "should" else "shouldn't") +
-            " be marked as from an expanded op"
-    ).that(mFromExpandedOp).isEqualTo(fromExpandedOp)
+            "Operation $opIndex " +
+                (if (fromExpandedOp) "should" else "shouldn't") +
+                " be marked as from an expanded op"
+        )
+        .that(mFromExpandedOp)
+        .isEqualTo(fromExpandedOp)
     assertThat(mFromExpandedOp).isEqualTo(fromExpandedOp)
 }

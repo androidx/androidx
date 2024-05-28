@@ -33,12 +33,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MenuVisibilityFragmentTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun setMenuVisibility() {
-       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val fragment = MenuVisibilityFragment()
@@ -47,21 +46,13 @@ class MenuVisibilityFragmentTest {
                 .that(fragment.isMenuVisible)
                 .isTrue()
 
-            withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment)
-                    .commitNow()
-            }
+            withActivity { fm.beginTransaction().add(R.id.fragmentContainer, fragment).commitNow() }
 
             assertWithMessage("Menu visibility should be true")
                 .that(fragment.isMenuVisible)
                 .isTrue()
 
-            withActivity {
-                fm.beginTransaction()
-                    .remove(fragment)
-                    .commitNow()
-            }
+            withActivity { fm.beginTransaction().remove(fragment).commitNow() }
 
             assertWithMessage("Menu visibility should be false")
                 .that(fragment.isMenuVisible)
@@ -71,27 +62,21 @@ class MenuVisibilityFragmentTest {
 
     @Test
     fun setChildMenuVisibilityTrue() {
-       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val parentFragment = ParentMenuVisibilityFragment()
             val childFragment = parentFragment.childFragment
 
             withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, parentFragment)
-                    .commitNow()
+                fm.beginTransaction().add(R.id.fragmentContainer, parentFragment).commitNow()
             }
 
             assertWithMessage("ChildFragment Menu Visibility should be true")
                 .that(childFragment.isMenuVisible)
                 .isTrue()
 
-            withActivity {
-                fm.beginTransaction()
-                    .remove(parentFragment)
-                    .commitNow()
-            }
+            withActivity { fm.beginTransaction().remove(parentFragment).commitNow() }
 
             assertWithMessage("ChildFragment Menu Visibility should be false")
                 .that(childFragment.isMenuVisible)
@@ -101,7 +86,7 @@ class MenuVisibilityFragmentTest {
 
     @Test
     fun setChildMenuVisibilityFalse() {
-       withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val fm = withActivity { supportFragmentManager }
 
             val parentFragment = MenuVisibilityFragment()
@@ -110,11 +95,10 @@ class MenuVisibilityFragmentTest {
             childFragment.setMenuVisibility(false)
 
             withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, parentFragment)
-                    .commitNow()
+                fm.beginTransaction().add(R.id.fragmentContainer, parentFragment).commitNow()
 
-                parentFragment.childFragmentManager.beginTransaction()
+                parentFragment.childFragmentManager
+                    .beginTransaction()
                     .add(childFragment, "childFragment")
                     .commitNow()
             }
@@ -127,11 +111,7 @@ class MenuVisibilityFragmentTest {
                 .that(childFragment.isMenuVisible)
                 .isFalse()
 
-            withActivity {
-                fm.beginTransaction()
-                    .remove(parentFragment)
-                    .commitNow()
-            }
+            withActivity { fm.beginTransaction().remove(parentFragment).commitNow() }
 
             assertWithMessage("ChildFragment Menu Visibility should be false")
                 .that(childFragment.isMenuVisible)
@@ -157,8 +137,6 @@ class ParentMenuVisibilityFragment : StrictFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        childFragmentManager.beginTransaction()
-            .add(childFragment, "childFragment")
-            .commitNow()
+        childFragmentManager.beginTransaction().add(childFragment, "childFragment").commitNow()
     }
 }

@@ -19,16 +19,13 @@ open class FragmentPagerActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pager = ViewPager(this).apply {
-            id = 2
-            adapter = MyAdapter(supportFragmentManager)
-        }
-
-        setContentView(
-            LinearLayout(this).apply {
-                addView(pager)
+        pager =
+            ViewPager(this).apply {
+                id = 2
+                adapter = MyAdapter(supportFragmentManager)
             }
-        )
+
+        setContentView(LinearLayout(this).apply { addView(pager) })
     }
 
     fun next() {

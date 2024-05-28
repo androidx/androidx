@@ -39,21 +39,18 @@ import org.junit.runner.RunWith
 @LargeTest
 class FragmentResultTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testReplaceResult() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             val fragment1 = ResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commit()
             executePendingTransactions()
 
             val fragment2 = StrictFragment()
@@ -70,13 +67,9 @@ class FragmentResultTest {
 
             fm.setFragmentResult("requestKey", resultBundle)
 
-            assertWithMessage("The result is not set")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result is not set").that(fragment1.actualResult).isNull()
 
-            withActivity {
-                fm.popBackStackImmediate()
-            }
+            withActivity { fm.popBackStackImmediate() }
 
             assertWithMessage("The result is incorrect")
                 .that(fragment1.actualResult)
@@ -86,16 +79,14 @@ class FragmentResultTest {
 
     @Test
     fun testClearResult() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             val fragment1 = ResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commit()
             executePendingTransactions()
 
             val fragment2 = StrictFragment()
@@ -113,52 +104,40 @@ class FragmentResultTest {
             fm.setFragmentResult("requestKey", resultBundle)
             fm.clearFragmentResult("requestKey")
 
-            assertWithMessage("The result should not be set")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result should not be set").that(fragment1.actualResult).isNull()
 
-            withActivity {
-                fm.popBackStackImmediate()
-            }
+            withActivity { fm.popBackStackImmediate() }
 
-            assertWithMessage("The result should not be set")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result should not be set").that(fragment1.actualResult).isNull()
         }
     }
 
     @Test
     fun testClearResultListener() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             val fragment1 = ResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commit()
             executePendingTransactions()
 
             val resultBundle = Bundle()
             val expectedResult = "resultGood"
             resultBundle.putString("bundleKey", expectedResult)
-            withActivity {
-                fm.clearFragmentResultListener("requestKey")
-            }
+            withActivity { fm.clearFragmentResultListener("requestKey") }
 
             fm.setFragmentResult("requestKey", resultBundle)
 
-            assertWithMessage("The result is incorrect")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result is incorrect").that(fragment1.actualResult).isNull()
         }
     }
 
     @Test
     fun testClearResultListenerInCallback() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -171,12 +150,11 @@ class FragmentResultTest {
 
             // adding the fragment is going to execute and clear its listener.
             withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment1)
-                    .commitNow()
+                fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commitNow()
                 // lets set another listener with the same key as the original
                 fm.setFragmentResultListener(
-                    "requestKey", fragment1,
+                    "requestKey",
+                    fragment1,
                     FragmentResultListener { _, _ -> }
                 )
             }
@@ -192,12 +170,11 @@ class FragmentResultTest {
             fm.setFragmentResult("requestKey", Bundle())
 
             // pop the back stack to execute the new listener
-            withActivity {
-                fm.popBackStackImmediate()
-            }
+            withActivity { fm.popBackStackImmediate() }
 
             assertWithMessage("the first listener should only be executed once")
-                .that(fragment1.callbackCount).isEqualTo(1)
+                .that(fragment1.callbackCount)
+                .isEqualTo(1)
         }
     }
 
@@ -216,9 +193,7 @@ class FragmentResultTest {
 
             // adding the fragment is going to execute and clear its listener.
             withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment1)
-                    .commitNow()
+                fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commitNow()
             }
 
             withActivity {
@@ -227,13 +202,14 @@ class FragmentResultTest {
             }
 
             assertWithMessage("the listener should only be executed once")
-                .that(fragment1.callbackCount).isEqualTo(1)
+                .that(fragment1.callbackCount)
+                .isEqualTo(1)
         }
     }
 
     @Test
     fun testResetResultListener() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -247,18 +223,16 @@ class FragmentResultTest {
             withActivity {
                 // set a listener
                 fm.setFragmentResultListener(
-                    "requestKey", fragment1,
-                    FragmentResultListener { _, _ ->
-                        firstListenerFired = true
-                    }
+                    "requestKey",
+                    fragment1,
+                    FragmentResultListener { _, _ -> firstListenerFired = true }
                 )
 
                 // lets set another listener before the first is fired
                 fm.setFragmentResultListener(
-                    "requestKey", fragment1,
-                    FragmentResultListener { _, _ ->
-                        secondListenerFired = true
-                    }
+                    "requestKey",
+                    fragment1,
+                    FragmentResultListener { _, _ -> secondListenerFired = true }
                 )
             }
 
@@ -267,37 +241,33 @@ class FragmentResultTest {
 
             // adding the fragment is going to execute the listener's callback
             withActivity {
-                fm.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment1)
-                    .commitNow()
+                fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commitNow()
             }
 
             assertWithMessage("the first listener should never be executed")
-                .that(firstListenerFired).isFalse()
+                .that(firstListenerFired)
+                .isFalse()
             assertWithMessage("the second listener should have be executed")
-                .that(secondListenerFired).isTrue()
+                .that(secondListenerFired)
+                .isTrue()
         }
     }
 
     @Test
     fun testSetResultWhileResumed() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             val fragment1 = ResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commit()
             executePendingTransactions()
 
             val fragment2 = StrictFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment2)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment2).commit()
             executePendingTransactions()
 
             val resultBundle = Bundle()
@@ -314,7 +284,7 @@ class FragmentResultTest {
 
     @Test
     fun testStoredSetResultWhileResumed() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
@@ -322,9 +292,7 @@ class FragmentResultTest {
             val fragment1 = StrictFragment()
             var actualResult: String? = null
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1).commit()
             executePendingTransactions()
 
             val resultBundle = Bundle()
@@ -335,9 +303,11 @@ class FragmentResultTest {
 
             withActivity {
                 fm.setFragmentResultListener(
-                    "requestKey", fragment1,
-                    FragmentResultListener
-                    { _, bundle -> actualResult = bundle.getString("bundleKey") }
+                    "requestKey",
+                    fragment1,
+                    FragmentResultListener { _, bundle ->
+                        actualResult = bundle.getString("bundleKey")
+                    }
                 )
             }
 
@@ -349,16 +319,14 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultSavedRestore() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             var fragment1 = ResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1, "fragment1")
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1, "fragment1").commit()
             executePendingTransactions()
 
             val fragment2 = StrictFragment()
@@ -375,17 +343,13 @@ class FragmentResultTest {
 
             fm.setFragmentResult("requestKey", resultBundle)
 
-            assertWithMessage("The result is not set")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result is not set").that(fragment1.actualResult).isNull()
 
             recreate()
 
             fm = withActivity { supportFragmentManager }
 
-            withActivity {
-                fm.popBackStackImmediate()
-            }
+            withActivity { fm.popBackStackImmediate() }
 
             fragment1 = fm.findFragmentByTag("fragment1") as ResultFragment
 
@@ -397,23 +361,19 @@ class FragmentResultTest {
 
     @Test
     fun testChildFragmentResult() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             val parent = ParentResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, parent)
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, parent).commit()
             executePendingTransactions()
 
             val child = ChildResultFragment()
 
-            parent.childFragmentManager.beginTransaction()
-                .add(child, "child")
-                .commit()
+            parent.childFragmentManager.beginTransaction().add(child, "child").commit()
             executePendingTransactions()
 
             assertWithMessage("The result is incorrect")
@@ -424,16 +384,14 @@ class FragmentResultTest {
 
     @Test
     fun testReplaceResultWithParcelableOnRecreation() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fm = withActivity {
                 setContentView(R.layout.simple_container)
                 supportFragmentManager
             }
             var fragment1 = ParcelableResultFragment()
 
-            fm.beginTransaction()
-                .add(R.id.fragmentContainer, fragment1, "fragment1")
-                .commit()
+            fm.beginTransaction().add(R.id.fragmentContainer, fragment1, "fragment1").commit()
             executePendingTransactions()
 
             val fragment2 = StrictFragment()
@@ -450,17 +408,13 @@ class FragmentResultTest {
 
             fm.setFragmentResult("requestKey", resultBundle)
 
-            assertWithMessage("The result is not set")
-                .that(fragment1.actualResult)
-                .isNull()
+            assertWithMessage("The result is not set").that(fragment1.actualResult).isNull()
 
             recreate()
 
             fm = withActivity { supportFragmentManager }
 
-            withActivity {
-                fm.popBackStackImmediate()
-            }
+            withActivity { fm.popBackStackImmediate() }
 
             fragment1 = fm.findFragmentByTag("fragment1") as ParcelableResultFragment
 
@@ -478,9 +432,9 @@ class ResultFragment : StrictFragment() {
         super.onCreate(savedInstanceState)
 
         parentFragmentManager.setFragmentResultListener(
-            "requestKey", this,
-            FragmentResultListener
-            { _, bundle -> actualResult = bundle.getString("bundleKey") }
+            "requestKey",
+            this,
+            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") }
         )
     }
 }
@@ -492,17 +446,20 @@ class ClearResultFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (Lifecycle.Event.upTo(setLifecycleInState) == event) {
-                parentFragmentManager.setFragmentResultListener(
-                    "requestKey", this,
-                    FragmentResultListener { _, _ ->
-                        callbackCount++
-                        parentFragmentManager.clearFragmentResultListener("requestKey")
-                    }
-                )
+        lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                if (Lifecycle.Event.upTo(setLifecycleInState) == event) {
+                    parentFragmentManager.setFragmentResultListener(
+                        "requestKey",
+                        this,
+                        FragmentResultListener { _, _ ->
+                            callbackCount++
+                            parentFragmentManager.clearFragmentResultListener("requestKey")
+                        }
+                    )
+                }
             }
-        })
+        )
     }
 }
 
@@ -513,9 +470,9 @@ class ParentResultFragment : StrictFragment() {
         super.onCreate(savedInstanceState)
 
         childFragmentManager.setFragmentResultListener(
-            "requestKey", this,
-            FragmentResultListener
-            { _, bundle -> actualResult = bundle.getString("bundleKey") }
+            "requestKey",
+            this,
+            FragmentResultListener { _, bundle -> actualResult = bundle.getString("bundleKey") }
         )
     }
 }
@@ -523,9 +480,7 @@ class ParentResultFragment : StrictFragment() {
 class ChildResultFragment : StrictFragment() {
     override fun onStart() {
         super.onStart()
-        val resultBundle = Bundle().apply {
-            putString("bundleKey", "resultGood")
-        }
+        val resultBundle = Bundle().apply { putString("bundleKey", "resultGood") }
         parentFragmentManager.setFragmentResult("requestKey", resultBundle)
     }
 }
@@ -538,9 +493,11 @@ class ParcelableResultFragment : StrictFragment() {
         super.onCreate(savedInstanceState)
 
         parentFragmentManager.setFragmentResultListener(
-            "requestKey", this,
-            FragmentResultListener
-            { _, bundle -> actualResult = bundle.getParcelable<ActivityResult>("bundleKey") }
+            "requestKey",
+            this,
+            FragmentResultListener { _, bundle ->
+                actualResult = bundle.getParcelable<ActivityResult>("bundleKey")
+            }
         )
     }
 }

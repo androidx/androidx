@@ -101,21 +101,11 @@ class PredictiveBackTest {
             val dispatcher = withActivity { onBackPressedDispatcher }
             withActivity {
                 dispatcher.dispatchOnBackStarted(
-                    BackEventCompat(
-                        0.1F,
-                        0.1F,
-                        0.1F,
-                        BackEvent.EDGE_LEFT
-                    )
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
                 )
                 dispatcher.onBackPressed()
                 dispatcher.dispatchOnBackStarted(
-                    BackEventCompat(
-                        0.1F,
-                        0.1F,
-                        0.1F,
-                        BackEvent.EDGE_LEFT
-                    )
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
                 )
                 dispatcher.onBackPressed()
             }

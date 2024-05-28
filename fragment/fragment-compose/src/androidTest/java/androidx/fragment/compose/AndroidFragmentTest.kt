@@ -46,14 +46,11 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AndroidFragmentTest {
-    @get:Rule
-    val testRule = createAndroidComposeRule<EmptyTestActivity>()
+    @get:Rule val testRule = createAndroidComposeRule<EmptyTestActivity>()
 
     @Test
     fun showContent() {
-        testRule.setContent {
-            AndroidFragment<FragmentForCompose>()
-        }
+        testRule.setContent { AndroidFragment<FragmentForCompose>() }
 
         testRule.waitForIdle()
 
@@ -64,9 +61,7 @@ class AndroidFragmentTest {
     fun ensureArguments() {
         val name = "Molly"
         val bundle = bundleOf("name" to name)
-        testRule.setContent {
-            AndroidFragment<FragmentForCompose>(arguments = bundle)
-        }
+        testRule.setContent { AndroidFragment<FragmentForCompose>(arguments = bundle) }
 
         testRule.waitForIdle()
 
@@ -90,16 +85,12 @@ class AndroidFragmentTest {
 
         onView(withText("My name is $name")).check(matches(isDisplayed()))
 
-        testRule.runOnIdle {
-            stateChanger = 1
-        }
+        testRule.runOnIdle { stateChanger = 1 }
 
         testRule.waitForIdle()
         testRule.onNodeWithText("No Fragment here").isDisplayed()
 
-        testRule.runOnIdle {
-            stateChanger = 2
-        }
+        testRule.runOnIdle { stateChanger = 2 }
 
         testRule.waitForIdle()
 
@@ -112,18 +103,14 @@ class AndroidFragmentTest {
         lateinit var number: MutableState<Int>
         testRule.setContent {
             number = remember { mutableStateOf(0) }
-            key(number.value) {
-                AndroidFragment<FragmentForCompose>()
-            }
+            key(number.value) { AndroidFragment<FragmentForCompose>() }
         }
 
         testRule.waitForIdle()
 
         onView(withText("Show me on Screen")).check(matches(isDisplayed()))
 
-        testRule.runOnIdle {
-            number.value++
-        }
+        testRule.runOnIdle { number.value++ }
 
         testRule.waitForIdle()
 

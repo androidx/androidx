@@ -29,15 +29,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.Fade
 
-/**
- * Displays a grid of pictures
- */
+/** Displays a grid of pictures */
 class GridFragment : Fragment(R.layout.kitten_fragment_grid) {
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<RecyclerView>(R.id.recyclerview).apply {
             adapter = KittenGridAdapter(callback)
             layoutManager = GridLayoutManager(context, 2)
@@ -46,9 +41,7 @@ class GridFragment : Fragment(R.layout.kitten_fragment_grid) {
         exitTransition = Fade()
         // View is created so postpone the transition
         postponeEnterTransition()
-        OneShotPreDrawListener.add(view.parent as ViewGroup) {
-            startPostponedEnterTransition()
-        }
+        OneShotPreDrawListener.add(view.parent as ViewGroup) { startPostponedEnterTransition() }
     }
 
     private val callback = { holder: KittenViewHolder, position: Int ->

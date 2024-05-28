@@ -43,9 +43,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
-/**
- * Tests usage of the [androidx.fragment.app.FragmentTransaction] class.
- */
+/** Tests usage of the [androidx.fragment.app.FragmentTransaction] class. */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FragmentTransactionTest {
@@ -55,8 +53,8 @@ class FragmentTransactionTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     private var onBackStackChangedTimes: Int = 0
     private lateinit var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener
@@ -83,7 +81,8 @@ class FragmentTransactionTest {
     fun testAddTransactionWithValidFragment() {
         val activity = activityRule.activity
         val fragment = CorrectFragment()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, fragment)
             .addToBackStack(null)
             .commit()
@@ -97,17 +96,16 @@ class FragmentTransactionTest {
     fun testAddTransactionByClassName() {
         val activity = activityRule.activity
         val args = Bundle()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, CorrectFragment::class.java, args)
             .addToBackStack(null)
             .commit()
         activity.supportFragmentManager.executePendingTransactions()
         assertThat(onBackStackChangedTimes).isEqualTo(1)
         val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
-        assertThat(fragment)
-            .isInstanceOf(CorrectFragment::class.java)
-        assertThat(fragment?.arguments)
-            .isSameInstanceAs(args)
+        assertThat(fragment).isInstanceOf(CorrectFragment::class.java)
+        assertThat(fragment?.arguments).isSameInstanceAs(args)
     }
 
     @Test
@@ -116,7 +114,8 @@ class FragmentTransactionTest {
         val activity = activityRule.activity
         val fragment = PrivateFragment()
         try {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
@@ -124,8 +123,10 @@ class FragmentTransactionTest {
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
-                    "Fragment " + fragment.javaClass.canonicalName +
+                .hasMessageThat()
+                .contains(
+                    "Fragment " +
+                        fragment.javaClass.canonicalName +
                         " must be a public static class to be  properly recreated from instance " +
                         "state."
                 )
@@ -140,18 +141,22 @@ class FragmentTransactionTest {
         val activity = activityRule.activity
         val fragment = OuterPackagePrivateFragment.PackagePrivateFragment()
         try {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains(
-                "Fragment " + fragment.javaClass.canonicalName +
-                    " must be a public static class to be  properly recreated from instance " +
-                    "state."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "Fragment " +
+                        fragment.javaClass.canonicalName +
+                        " must be a public static class to be  properly recreated from instance " +
+                        "state."
+                )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -163,17 +168,21 @@ class FragmentTransactionTest {
         val activity = activityRule.activity
         val fragment = object : Fragment() {}
         try {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains(
-                "Fragment " + fragment.javaClass.canonicalName +
-                    " must be a public static class to be  properly recreated from instance state."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "Fragment " +
+                        fragment.javaClass.canonicalName +
+                        " must be a public static class to be  properly recreated from instance state."
+                )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -185,7 +194,8 @@ class FragmentTransactionTest {
         val activity = activityRule.activity
         val fragment1 = OnGetLayoutInflaterFragment()
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(0)
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, fragment1)
             .addToBackStack(null)
             .commit()
@@ -198,7 +208,8 @@ class FragmentTransactionTest {
         var layoutInflater = fragment1.baseLayoutInflater
         // Replacing fragment1 won't detach it, so the value won't be cleared
         val fragment2 = OnGetLayoutInflaterFragment()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .replace(R.id.content, fragment2)
             .addToBackStack(null)
             .commit()
@@ -224,10 +235,12 @@ class FragmentTransactionTest {
             fragment1.layoutInflater
             fail("getLayoutInflater should throw when the Fragment is detached")
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains(
-                "onGetLayoutInflater() cannot be executed " +
-                    "until the Fragment is attached to the FragmentManager."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "onGetLayoutInflater() cannot be executed " +
+                        "until the Fragment is attached to the FragmentManager."
+                )
         }
 
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(3)
@@ -239,17 +252,21 @@ class FragmentTransactionTest {
         val activity = activityRule.activity
         val fragment = NonStaticFragment()
         try {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains(
-                "Fragment " + fragment.javaClass.canonicalName +
-                    " must be a public static class to be  properly recreated from instance state."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "Fragment " +
+                        fragment.javaClass.canonicalName +
+                        " must be a public static class to be  properly recreated from instance state."
+                )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -260,24 +277,24 @@ class FragmentTransactionTest {
     fun testReplaceTransactionByClassName() {
         val activity = activityRule.activity
         val firstFragment = StrictFragment()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, firstFragment)
             .commitNow()
         assertThat(activity.supportFragmentManager.findFragmentById(R.id.content))
             .isSameInstanceAs(firstFragment)
 
         val args = Bundle()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, CorrectFragment::class.java, args)
             .addToBackStack(null)
             .commit()
         activity.supportFragmentManager.executePendingTransactions()
         assertThat(onBackStackChangedTimes).isEqualTo(1)
         val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
-        assertThat(fragment)
-            .isInstanceOf(CorrectFragment::class.java)
-        assertThat(fragment?.arguments)
-            .isSameInstanceAs(args)
+        assertThat(fragment).isInstanceOf(CorrectFragment::class.java)
+        assertThat(fragment?.arguments).isSameInstanceAs(args)
     }
 
     @Test
@@ -295,10 +312,11 @@ class FragmentTransactionTest {
         try {
             fm.beginTransaction().runOnCommit { ran = true }.addToBackStack(null).commit()
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains(
-                "This FragmentTransaction is not allowed to" +
-                    " be added to the back stack."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .contains(
+                    "This FragmentTransaction is not allowed to" + " be added to the back stack."
+                )
         }
 
         fm.executePendingTransactions()
@@ -316,10 +334,7 @@ class FragmentTransactionTest {
 
         // Make sure that adding a fragment works
         val fragment = CorrectFragment()
-        fm.beginTransaction()
-            .add(R.id.content, fragment)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().add(R.id.content, fragment).addToBackStack(null).commit()
 
         activityRule.executePendingTransactions()
         var fragments: Collection<Fragment> = fm.fragments
@@ -327,28 +342,19 @@ class FragmentTransactionTest {
         assertThat(fragments.contains(fragment)).isTrue()
 
         // Removed fragments shouldn't show
-        fm.beginTransaction()
-            .remove(fragment)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().remove(fragment).addToBackStack(null).commit()
         activityRule.executePendingTransactions()
         assertThat(fm.fragments.isEmpty()).isTrue()
 
         // Now try detached fragments
         activityRule.popBackStackImmediate()
-        fm.beginTransaction()
-            .detach(fragment)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().detach(fragment).addToBackStack(null).commit()
         activityRule.executePendingTransactions()
         assertThat(fm.fragments.isEmpty()).isTrue()
 
         // Now try hidden fragments
         activityRule.popBackStackImmediate()
-        fm.beginTransaction()
-            .hide(fragment)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().hide(fragment).addToBackStack(null).commit()
         activityRule.executePendingTransactions()
         fragments = fm.fragments
         assertThat(fragments.size).isEqualTo(1)
@@ -378,10 +384,7 @@ class FragmentTransactionTest {
 
         for (i in 0 until transactionCount) {
             val fragment2 = CorrectFragment()
-            fm.beginTransaction()
-                .add(R.id.content, fragment2)
-                .addToBackStack(null)
-                .commit()
+            fm.beginTransaction().add(R.id.content, fragment2).addToBackStack(null).commit()
             getFragmentsUntilSize(1)
 
             fm.popBackStack()
@@ -396,23 +399,17 @@ class FragmentTransactionTest {
     }
 
     /**
-     * When a FragmentManager is detached, it should allow commitAllowingStateLoss()
-     * and commitNowAllowingStateLoss() by just dropping the transaction.
+     * When a FragmentManager is detached, it should allow commitAllowingStateLoss() and
+     * commitNowAllowingStateLoss() by just dropping the transaction.
      */
     @Test
     fun commitAllowStateLossDetached() {
         val activity = activityRule.activity
         val fragment1 = CorrectFragment()
-        activity.supportFragmentManager
-            .beginTransaction()
-            .add(fragment1, "1")
-            .commit()
+        activity.supportFragmentManager.beginTransaction().add(fragment1, "1").commit()
         activityRule.executePendingTransactions()
         val fm = fragment1.childFragmentManager
-        activity.supportFragmentManager
-            .beginTransaction()
-            .remove(fragment1)
-            .commit()
+        activity.supportFragmentManager.beginTransaction().remove(fragment1).commit()
         activityRule.executePendingTransactions()
         assertThat(activity.supportFragmentManager.fragments.size).isEqualTo(0)
         assertThat(fm.fragments.size).isEqualTo(0)
@@ -420,32 +417,28 @@ class FragmentTransactionTest {
         // Now the fragment1's fragment manager should allow commitAllowingStateLoss
         // by doing nothing since it has been detached.
         val fragment2 = CorrectFragment()
-        fm.beginTransaction()
-            .add(fragment2, "2")
-            .commitAllowingStateLoss()
+        fm.beginTransaction().add(fragment2, "2").commitAllowingStateLoss()
         activityRule.executePendingTransactions()
         assertThat(fm.fragments.size).isEqualTo(0)
 
         // It should also allow commitNowAllowingStateLoss by doing nothing
         activityRule.runOnUiThread {
             val fragment3 = CorrectFragment()
-            fm.beginTransaction()
-                .add(fragment3, "3")
-                .commitNowAllowingStateLoss()
+            fm.beginTransaction().add(fragment3, "3").commitNowAllowingStateLoss()
             assertThat(fm.fragments.size).isEqualTo(0)
         }
     }
 
     /**
-     * onNewIntent() should note that the state is not saved so that child fragment
-     * managers can execute transactions.
+     * onNewIntent() should note that the state is not saved so that child fragment managers can
+     * execute transactions.
      */
     @Test
     fun newIntentUnlocks() {
         val activity = activityRule.activity
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent1 = Intent(activity, NewIntentActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent1 =
+            Intent(activity, NewIntentActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val newIntentActivity = instrumentation.startActivitySync(intent1) as NewIntentActivity
         activityRule.waitForExecution()
 
@@ -454,8 +447,8 @@ class FragmentTransactionTest {
         instrumentation.startActivitySync(intent2)
         activityRule.waitForExecution()
 
-        val intent3 = Intent(activity, NewIntentActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent3 =
+            Intent(activity, NewIntentActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent3)
         assertThat(newIntentActivity.newIntent.await(1, TimeUnit.SECONDS)).isTrue()
         activityRule.waitForExecution()
@@ -467,17 +460,18 @@ class FragmentTransactionTest {
     }
 
     /**
-     * onNewIntent() should note that the state is not saved so that child fragment
-     * managers can execute transactions in an Consumer for OnNewIntent
+     * onNewIntent() should note that the state is not saved so that child fragment managers can
+     * execute transactions in a Consumer for OnNewIntent
      */
     @Test
     fun newIntentProviderUnlocks() {
         val activity = activityRule.activity
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent1 = Intent(activity, NewIntentProviderActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val newIntentActivity = instrumentation.startActivitySync(intent1)
-            as NewIntentProviderActivity
+        val intent1 =
+            Intent(activity, NewIntentProviderActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val newIntentActivity =
+            instrumentation.startActivitySync(intent1) as NewIntentProviderActivity
         activityRule.waitForExecution()
 
         val intent2 = Intent(activity, FragmentTestActivity::class.java)
@@ -485,8 +479,9 @@ class FragmentTransactionTest {
         instrumentation.startActivitySync(intent2)
         activityRule.waitForExecution()
 
-        val intent3 = Intent(activity, NewIntentProviderActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent3 =
+            Intent(activity, NewIntentProviderActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent3)
         assertThat(newIntentActivity.newIntent.await(1, TimeUnit.SECONDS)).isTrue()
         activityRule.waitForExecution()

@@ -37,18 +37,14 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentSharedElementTransitionTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testNestedSharedElementView() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.nested_transition_groups)
             withActivity {
-                supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.content, fragment)
-                    .commit()
+                supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commit()
             }
 
             val squareContainer = withActivity { findViewById(R.id.squareContainer) }
@@ -71,7 +67,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedSharedElementViewsMoreOutViews() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene5)
             withActivity {
                 supportFragmentManager
@@ -120,7 +116,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedSharedElementViewsMoreInViews() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene4)
             withActivity {
                 supportFragmentManager
@@ -163,7 +159,7 @@ class FragmentSharedElementTransitionTest {
 
     @Test
     fun testNestedTransitionGroupTrue() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = TransitionFragment(R.layout.scene7)
             withActivity {
                 supportFragmentManager

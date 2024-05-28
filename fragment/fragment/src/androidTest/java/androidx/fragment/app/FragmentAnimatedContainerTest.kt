@@ -40,8 +40,8 @@ class FragmentAnimatedContainerTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Before
     fun setupContainer() {
@@ -69,7 +69,8 @@ class FragmentAnimatedContainerTest {
             .commit()
 
         assertWithMessage("Fragment should be destroyed after container animation completes")
-            .that(fragment1.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            .that(fragment1.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
         assertThat(fragment1.onDetachLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
@@ -94,7 +95,8 @@ class FragmentAnimatedContainerTest {
             .commit()
 
         assertWithMessage("Fragment should be destroyed after container animation completes")
-            .that(fragment1.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            .that(fragment1.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
         assertThat(fragment1.onDetachLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 

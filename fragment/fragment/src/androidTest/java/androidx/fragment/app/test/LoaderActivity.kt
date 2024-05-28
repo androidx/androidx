@@ -28,8 +28,7 @@ import androidx.loader.content.Loader
 import androidx.testutils.RecreatedActivity
 
 class LoaderActivity :
-    RecreatedActivity(R.layout.activity_loader),
-    LoaderManager.LoaderCallbacks<String> {
+    RecreatedActivity(R.layout.activity_loader), LoaderManager.LoaderCallbacks<String> {
 
     lateinit var textView: TextView
     lateinit var textViewB: TextView
@@ -60,8 +59,7 @@ class LoaderActivity :
         textView.text = data
     }
 
-    override fun onLoaderReset(loader: Loader<String>) {
-    }
+    override fun onLoaderReset(loader: Loader<String>) {}
 
     internal class TextLoader(context: Context) : AsyncTaskLoader<String>(context) {
 
@@ -75,8 +73,7 @@ class LoaderActivity :
     }
 
     class TextLoaderFragment :
-        Fragment(R.layout.fragment_c),
-        LoaderManager.LoaderCallbacks<String> {
+        Fragment(R.layout.fragment_c), LoaderManager.LoaderCallbacks<String> {
         lateinit var textView: TextView
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +99,7 @@ class LoaderActivity :
     companion object {
         private const val TEXT_LOADER_ID = 14
 
-        val activity get() = RecreatedActivity.activity
+        val activity
+            get() = RecreatedActivity.activity
     }
 }

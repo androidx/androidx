@@ -17,9 +17,7 @@ package androidx.fragment.app.strictmode
 
 import androidx.fragment.app.Fragment
 
-/**
- * See #[FragmentStrictMode.Policy.Builder.detectRetainInstanceUsage].
- */
+/** See #[FragmentStrictMode.Policy.Builder.detectRetainInstanceUsage]. */
 class GetRetainInstanceUsageViolation internal constructor(fragment: Fragment) :
     RetainInstanceUsageViolation(
         fragment,

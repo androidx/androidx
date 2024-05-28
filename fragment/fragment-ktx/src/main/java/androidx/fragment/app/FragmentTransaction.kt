@@ -20,20 +20,16 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 
 /**
- * Add a fragment to the associated [FragmentManager], inflating
- * the Fragment's view into the container view specified by
- * [containerViewId], to later retrieve via
+ * Add a fragment to the associated [FragmentManager], inflating the Fragment's view into the
+ * container view specified by [containerViewId], to later retrieve via
  * [FragmentManager.findFragmentById].
  *
- * The new fragment to be added will be created via the
- * [FragmentFactory] of the [FragmentManager].
+ * The new fragment to be added will be created via the [FragmentFactory] of the [FragmentManager].
  *
- * @param containerViewId Identifier of the container this fragment is
- * to be placed in.
- * @param tag Optional tag name for the fragment, to later retrieve the
- * fragment with [FragmentManager.findFragmentByTag].
+ * @param containerViewId Identifier of the container this fragment is to be placed in.
+ * @param tag Optional tag name for the fragment, to later retrieve the fragment with
+ *   [FragmentManager.findFragmentByTag].
  * @param args Optional arguments to be set on the fragment.
- *
  * @return Returns the same [FragmentTransaction] instance.
  */
 public inline fun <reified F : Fragment> FragmentTransaction.add(
@@ -43,16 +39,14 @@ public inline fun <reified F : Fragment> FragmentTransaction.add(
 ): FragmentTransaction = add(containerViewId, F::class.java, args, tag)
 
 /**
- * Add a fragment to the associated [FragmentManager] without
- * adding the Fragment to any container view.
+ * Add a fragment to the associated [FragmentManager] without adding the Fragment to any container
+ * view.
  *
- * The new fragment to be added will be created via the
- * [FragmentFactory] of the [FragmentManager].
+ * The new fragment to be added will be created via the [FragmentFactory] of the [FragmentManager].
  *
- * @param tag Tag name for the fragment, to later retrieve the
- * fragment with [FragmentManager.findFragmentByTag].
+ * @param tag Tag name for the fragment, to later retrieve the fragment with
+ *   [FragmentManager.findFragmentByTag].
  * @param args Optional arguments to be set on the fragment.
- *
  * @return Returns the same [FragmentTransaction] instance.
  */
 public inline fun <reified F : Fragment> FragmentTransaction.add(
@@ -61,20 +55,17 @@ public inline fun <reified F : Fragment> FragmentTransaction.add(
 ): FragmentTransaction = add(F::class.java, args, tag)
 
 /**
- * Replace an existing fragment that was added to a container.  This is
- * essentially the same as calling [remove] for all
- * currently added fragments that were added with the same `containerViewId`
- * and then [add] with the same arguments given here.
+ * Replace an existing fragment that was added to a container. This is essentially the same as
+ * calling [remove] for all currently added fragments that were added with the same
+ * `containerViewId` and then [add] with the same arguments given here.
  *
- * The new fragment to place in the container will be created via the
- * [FragmentFactory] of the [FragmentManager].
+ * The new fragment to place in the container will be created via the [FragmentFactory] of the
+ * [FragmentManager].
  *
- * @param containerViewId Identifier of the container whose fragment(s) are
- * to be replaced.
- * @param tag Optional tag name for the fragment, to later retrieve the
- * fragment with [FragmentManager.findFragmentByTag].
+ * @param containerViewId Identifier of the container whose fragment(s) are to be replaced.
+ * @param tag Optional tag name for the fragment, to later retrieve the fragment with
+ *   [FragmentManager.findFragmentByTag].
  * @param args Optional arguments to be set on the fragment.
- *
  * @return Returns the same [FragmentTransaction] instance.
  */
 public inline fun <reified F : Fragment> FragmentTransaction.replace(

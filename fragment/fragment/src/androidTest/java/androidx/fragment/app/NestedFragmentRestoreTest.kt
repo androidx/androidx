@@ -38,20 +38,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NestedFragmentRestoreTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Suppress("DEPRECATION")
     @Test
     fun recreateActivity() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val activity = withActivity {
                 val parent = ParentFragment()
                 parent.retainChildInstance = true
 
-                supportFragmentManager.beginTransaction()
-                    .add(parent, "parent")
-                    .commitNow()
+                supportFragmentManager.beginTransaction().add(parent, "parent").commitNow()
 
                 this
             }
@@ -85,13 +82,11 @@ class NestedFragmentRestoreTest {
 
     @Test
     fun restoreViewStateTest() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             withActivity {
                 val parent = RestoreViewParentFragment()
 
-                supportFragmentManager.beginTransaction()
-                    .add(parent, "parent")
-                    .commitNow()
+                supportFragmentManager.beginTransaction().add(parent, "parent").commitNow()
             }
 
             recreate()
@@ -116,7 +111,8 @@ class RestoreViewParentFragment : Fragment(R.layout.fragment_a) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (childFragmentManager.findFragmentByTag("childFragment") == null) {
-            childFragmentManager.beginTransaction()
+            childFragmentManager
+                .beginTransaction()
                 .add(RestoreViewChildFragment(), "childFragment")
                 .commitNow()
         }
