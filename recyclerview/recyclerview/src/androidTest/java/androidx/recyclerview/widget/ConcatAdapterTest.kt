@@ -59,12 +59,11 @@ class ConcatAdapterTest {
     @Before
     fun init() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        recyclerView = RecyclerView(
-            context
-        ).also {
-            it.layoutManager = LinearLayoutManager(context)
-            it.itemAnimator = null
-        }
+        recyclerView =
+            RecyclerView(context).also {
+                it.layoutManager = LinearLayoutManager(context)
+                it.itemAnimator = null
+            }
     }
 
     @Test(expected = UnsupportedOperationException::class)
@@ -83,12 +82,7 @@ class ConcatAdapterTest {
     @Test
     fun attachAndDetachAll() {
         val concatenated = ConcatAdapter()
-        val adapter1 = NestedTestAdapter(
-            10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 3)
-            }
-        )
+        val adapter1 = NestedTestAdapter(10, getLayoutParams = { LayoutParams(MATCH_PARENT, 3) })
         concatenated.addAdapter(adapter1)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 50)
@@ -98,12 +92,7 @@ class ConcatAdapterTest {
         assertThat(recyclerView.childCount).isEqualTo(0)
         assertThat(adapter1.attachedViewHolders()).isEmpty()
 
-        val adapter2 = NestedTestAdapter(
-            5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 3)
-            }
-        )
+        val adapter2 = NestedTestAdapter(5, getLayoutParams = { LayoutParams(MATCH_PARENT, 3) })
         concatenated.addAdapter(adapter2)
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
@@ -172,14 +161,11 @@ class ConcatAdapterTest {
     fun failedToRecycleTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 200)
         val viewHolder = recyclerView.findViewHolderForAdapterPosition(12)
-        check(viewHolder != null) {
-            "should have that view holder for position 12"
-        }
+        check(viewHolder != null) { "should have that view holder for position 12" }
         assertThat(adapter2.attachedViewHolders()).contains(viewHolder)
         // give it transient state so that it won't be recycled
         viewHolder.itemView.setHasTransientState(true)
@@ -187,13 +173,14 @@ class ConcatAdapterTest {
         assertThat(recyclerView.isLayoutRequested).isTrue()
         measureAndLayout(100, 200)
         assertThat(adapter2.attachedViewHolders()).hasSize(3)
-        assertThat(adapter2.failedToRecycleEvents()).contains(
-            RecycledViewHolderEvent(
-                itemId = 12,
-                absoluteAdapterPosition = NO_POSITION,
-                bindingAdapterPosition = NO_POSITION
+        assertThat(adapter2.failedToRecycleEvents())
+            .contains(
+                RecycledViewHolderEvent(
+                    itemId = 12,
+                    absoluteAdapterPosition = NO_POSITION,
+                    bindingAdapterPosition = NO_POSITION
+                )
             )
-        )
         assertThat(adapter2.failedToRecycleEvents()).hasSize(1)
         assertThat(adapter2.attachedViewHolders()).doesNotContain(viewHolder)
     }
@@ -205,11 +192,7 @@ class ConcatAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(4)
         val adapter3 = NestedTestAdapter(8)
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(22)
@@ -245,14 +228,11 @@ class ConcatAdapterTest {
     fun localAdapterPositions_nested() {
         val adapter1_1 = NestedTestAdapter(10)
         val adapter1_2 = NestedTestAdapter(5)
-        val adapter1 =
-            ConcatAdapter(adapter1_1, adapter1_2)
+        val adapter1 = ConcatAdapter(adapter1_1, adapter1_2)
         val adapter2_1 = NestedTestAdapter(3)
         val adapter2_2 = NestedTestAdapter(6)
-        val adapter2 =
-            ConcatAdapter(adapter2_1, adapter2_2)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter2 = ConcatAdapter(adapter2_1, adapter2_2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(24)
@@ -313,8 +293,7 @@ class ConcatAdapterTest {
     fun attachDetachTest() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         assertThat(adapter1.attachedRecyclerViews()).containsExactly(recyclerView)
         assertThat(adapter2.attachedRecyclerViews()).containsExactly(recyclerView)
@@ -331,44 +310,26 @@ class ConcatAdapterTest {
     @UiThreadTest
     @Test
     public fun scrollView() {
-        val adapter1 = NestedTestAdapter(
-            count = 10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 40)
-            }
-        )
-        val adapter2 = NestedTestAdapter(
-            count = 5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 10)
-            }
-        )
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter1 =
+            NestedTestAdapter(count = 10, getLayoutParams = { LayoutParams(MATCH_PARENT, 40) })
+        val adapter2 =
+            NestedTestAdapter(count = 5, getLayoutParams = { LayoutParams(MATCH_PARENT, 10) })
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         recyclerView.scrollBy(0, 90)
         assertThat(adapter1.attachedViewHolders()).hasSize(3)
-        assertThat(
-            adapter1.attachedViewHolders().map { it.bindingAdapterPosition }
-        ).containsExactly(2, 3, 4)
+        assertThat(adapter1.attachedViewHolders().map { it.bindingAdapterPosition })
+            .containsExactly(2, 3, 4)
     }
 
     @UiThreadTest
     @Test
     public fun recycledViewPositions() {
-        val adapter1 = NestedTestAdapter(
-            count = 5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 40)
-            }
-        )
-        val adapter2 = NestedTestAdapter(
-            count = 10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 10)
-            }
-        )
+        val adapter1 =
+            NestedTestAdapter(count = 5, getLayoutParams = { LayoutParams(MATCH_PARENT, 40) })
+        val adapter2 =
+            NestedTestAdapter(count = 10, getLayoutParams = { LayoutParams(MATCH_PARENT, 10) })
         val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.setItemViewCacheSize(0)
         recyclerView.adapter = concatenated
@@ -376,82 +337,67 @@ class ConcatAdapterTest {
         // trigger recycle
         recyclerView.scrollBy(0, 90)
         // two views are recycled
-        assertThat(adapter1.recycleEvents()).containsExactly(
-            RecycledViewHolderEvent(
-                itemId = 0,
-                absoluteAdapterPosition = 0,
-                bindingAdapterPosition = 0
-            ),
-            RecycledViewHolderEvent(
-                itemId = 1,
-                absoluteAdapterPosition = 1,
-                bindingAdapterPosition = 1
+        assertThat(adapter1.recycleEvents())
+            .containsExactly(
+                RecycledViewHolderEvent(
+                    itemId = 0,
+                    absoluteAdapterPosition = 0,
+                    bindingAdapterPosition = 0
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 1,
+                    absoluteAdapterPosition = 1,
+                    bindingAdapterPosition = 1
+                )
             )
-        ).inOrder()
+            .inOrder()
     }
 
     @UiThreadTest
     @Test
     public fun recycledViewPositions_failedRecycle() {
-        val adapter1 = NestedTestAdapter(
-            count = 5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 40)
-            }
-        )
-        val adapter2 = NestedTestAdapter(
-            count = 10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 10)
-            }
-        )
+        val adapter1 =
+            NestedTestAdapter(count = 5, getLayoutParams = { LayoutParams(MATCH_PARENT, 40) })
+        val adapter2 =
+            NestedTestAdapter(count = 10, getLayoutParams = { LayoutParams(MATCH_PARENT, 10) })
         val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.setItemViewCacheSize(0)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         // give second view transient state
         val viewHolder = recyclerView.findViewHolderForAdapterPosition(1)
-        check(viewHolder != null) {
-            "should have that view holder for position 1"
-        }
+        check(viewHolder != null) { "should have that view holder for position 1" }
         // give it transient state so that it won't be recycled
         viewHolder.itemView.setHasTransientState(true)
         // trigger recycle
         recyclerView.scrollBy(0, 90)
         // two views are recycled but one of them fails to recycle
-        assertThat(adapter1.failedToRecycleEvents()).containsExactly(
-            RecycledViewHolderEvent(
-                itemId = 1,
-                absoluteAdapterPosition = 1,
-                bindingAdapterPosition = 1
+        assertThat(adapter1.failedToRecycleEvents())
+            .containsExactly(
+                RecycledViewHolderEvent(
+                    itemId = 1,
+                    absoluteAdapterPosition = 1,
+                    bindingAdapterPosition = 1
+                )
             )
-        )
-        assertThat(adapter1.recycleEvents()).containsExactly(
-            RecycledViewHolderEvent(
-                itemId = 0,
-                absoluteAdapterPosition = 0,
-                bindingAdapterPosition = 0
+        assertThat(adapter1.recycleEvents())
+            .containsExactly(
+                RecycledViewHolderEvent(
+                    itemId = 0,
+                    absoluteAdapterPosition = 0,
+                    bindingAdapterPosition = 0
+                )
             )
-        )
     }
 
     @UiThreadTest
     @Test
     public fun recycledViewPositions_withAdapterChanges() {
-        val adapter1 = NestedTestAdapter(
-            count = 5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 20)
-            }
-        )
-        val adapter2 = NestedTestAdapter(
-            count = 10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 10)
-            }
-        )
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter1 =
+            NestedTestAdapter(count = 5, getLayoutParams = { LayoutParams(MATCH_PARENT, 20) })
+        val adapter2 =
+            NestedTestAdapter(count = 10, getLayoutParams = { LayoutParams(MATCH_PARENT, 10) })
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.setItemViewCacheSize(0)
         recyclerView.adapter = concatenated
         val layoutManager = (recyclerView.layoutManager!! as LinearLayoutManager)
@@ -464,52 +410,44 @@ class ConcatAdapterTest {
         // 1
         layoutManager.scrollToPositionWithOffset(3, 0)
         measureAndLayout(100, 100)
-        assertThat(adapter1.recycleEvents()).containsExactly(
-            RecycledViewHolderEvent(
-                itemId = 0,
-                bindingAdapterPosition = 0,
-                absoluteAdapterPosition = 0
-            ),
-            RecycledViewHolderEvent(
-                itemId = 1,
-                bindingAdapterPosition = NO_POSITION,
-                absoluteAdapterPosition = NO_POSITION
-            ),
-            RecycledViewHolderEvent(
-                itemId = 2,
-                bindingAdapterPosition = 1,
-                absoluteAdapterPosition = 1
-            ),
-            RecycledViewHolderEvent(
-                itemId = 3,
-                bindingAdapterPosition = NO_POSITION,
-                absoluteAdapterPosition = NO_POSITION
-            ),
-            RecycledViewHolderEvent(
-                itemId = 4,
-                bindingAdapterPosition = 2,
-                absoluteAdapterPosition = 2
+        assertThat(adapter1.recycleEvents())
+            .containsExactly(
+                RecycledViewHolderEvent(
+                    itemId = 0,
+                    bindingAdapterPosition = 0,
+                    absoluteAdapterPosition = 0
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 1,
+                    bindingAdapterPosition = NO_POSITION,
+                    absoluteAdapterPosition = NO_POSITION
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 2,
+                    bindingAdapterPosition = 1,
+                    absoluteAdapterPosition = 1
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 3,
+                    bindingAdapterPosition = NO_POSITION,
+                    absoluteAdapterPosition = NO_POSITION
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 4,
+                    bindingAdapterPosition = 2,
+                    absoluteAdapterPosition = 2
+                )
             )
-        )
     }
 
     @UiThreadTest
     @Test
     public fun recycledViewPositions_withAdapterChanges_secondAdapter() {
-        val adapter1 = NestedTestAdapter(
-            count = 5,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 20)
-            }
-        )
-        val adapter2 = NestedTestAdapter(
-            count = 10,
-            getLayoutParams = {
-                LayoutParams(MATCH_PARENT, 10)
-            }
-        )
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter1 =
+            NestedTestAdapter(count = 5, getLayoutParams = { LayoutParams(MATCH_PARENT, 20) })
+        val adapter2 =
+            NestedTestAdapter(count = 10, getLayoutParams = { LayoutParams(MATCH_PARENT, 10) })
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.setItemViewCacheSize(0)
         val layoutManager = (recyclerView.layoutManager!! as LinearLayoutManager)
 
@@ -535,42 +473,43 @@ class ConcatAdapterTest {
         // nothing is recycled in adapter 1
         assertThat(adapter1.recycleEvents()).isEmpty()
         // all items but first two are recycled in adapter2
-        assertThat(adapter2.recycleEvents()).containsExactly(
-            // first two items, 5 and 6, are not recycled as they are still visible
-            // items 7 and 9 are recycled (removed)
-            // items 8, 10 are still visible
-            RecycledViewHolderEvent(
-                itemId = 7,
-                bindingAdapterPosition = NO_POSITION,
-                absoluteAdapterPosition = NO_POSITION
-            ),
-            // pos 4 (item id 9) is removed from adapter 2
-            RecycledViewHolderEvent(
-                itemId = 9,
-                bindingAdapterPosition = NO_POSITION,
-                absoluteAdapterPosition = NO_POSITION
-            ),
-            RecycledViewHolderEvent(
-                itemId = 11,
-                bindingAdapterPosition = 4,
-                absoluteAdapterPosition = 7
-            ),
-            RecycledViewHolderEvent(
-                itemId = 12,
-                bindingAdapterPosition = 5,
-                absoluteAdapterPosition = 8
-            ),
-            RecycledViewHolderEvent(
-                itemId = 13,
-                bindingAdapterPosition = 6,
-                absoluteAdapterPosition = 9
-            ),
-            RecycledViewHolderEvent(
-                itemId = 14,
-                bindingAdapterPosition = 7,
-                absoluteAdapterPosition = 10
-            ),
-        )
+        assertThat(adapter2.recycleEvents())
+            .containsExactly(
+                // first two items, 5 and 6, are not recycled as they are still visible
+                // items 7 and 9 are recycled (removed)
+                // items 8, 10 are still visible
+                RecycledViewHolderEvent(
+                    itemId = 7,
+                    bindingAdapterPosition = NO_POSITION,
+                    absoluteAdapterPosition = NO_POSITION
+                ),
+                // pos 4 (item id 9) is removed from adapter 2
+                RecycledViewHolderEvent(
+                    itemId = 9,
+                    bindingAdapterPosition = NO_POSITION,
+                    absoluteAdapterPosition = NO_POSITION
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 11,
+                    bindingAdapterPosition = 4,
+                    absoluteAdapterPosition = 7
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 12,
+                    bindingAdapterPosition = 5,
+                    absoluteAdapterPosition = 8
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 13,
+                    bindingAdapterPosition = 6,
+                    absoluteAdapterPosition = 9
+                ),
+                RecycledViewHolderEvent(
+                    itemId = 14,
+                    bindingAdapterPosition = 7,
+                    absoluteAdapterPosition = 10
+                ),
+            )
     }
 
     @UiThreadTest
@@ -579,8 +518,7 @@ class ConcatAdapterTest {
         val recyclerView2 = RecyclerView(ApplicationProvider.getApplicationContext())
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         recyclerView2.adapter = concatenated
         assertThat(adapter1.attachedRecyclerViews()).containsExactly(recyclerView, recyclerView2)
@@ -604,8 +542,7 @@ class ConcatAdapterTest {
     fun adapterRemoval() {
         val adapter1 = NestedTestAdapter(3)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(8)
@@ -623,40 +560,27 @@ class ConcatAdapterTest {
     fun boundAdapter() {
         val adapter1 = NestedTestAdapter(3)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         recyclerView.adapter = concatenated
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(8)
-        val adapter1ViewHolders = (0 until 3).map {
-            checkNotNull(recyclerView.findViewHolderForAdapterPosition(it))
-        }
-        val adapter2ViewHolders = (3 until 8).map {
-            checkNotNull(recyclerView.findViewHolderForAdapterPosition(it))
-        }
-        adapter1ViewHolders.forEach {
-            assertThat(it.bindingAdapter).isSameInstanceAs(adapter1)
-        }
-        adapter2ViewHolders.forEach {
-            assertThat(it.bindingAdapter).isSameInstanceAs(adapter2)
-        }
+        val adapter1ViewHolders =
+            (0 until 3).map { checkNotNull(recyclerView.findViewHolderForAdapterPosition(it)) }
+        val adapter2ViewHolders =
+            (3 until 8).map { checkNotNull(recyclerView.findViewHolderForAdapterPosition(it)) }
+        adapter1ViewHolders.forEach { assertThat(it.bindingAdapter).isSameInstanceAs(adapter1) }
+        adapter2ViewHolders.forEach { assertThat(it.bindingAdapter).isSameInstanceAs(adapter2) }
         assertThat(concatenated.removeAdapter(adapter1)).isTrue()
         // even when position is invalid, we should still be able to find the bound adapter
-        adapter1ViewHolders.forEach {
-            assertThat(it.bindingAdapter).isSameInstanceAs(adapter1)
-        }
+        adapter1ViewHolders.forEach { assertThat(it.bindingAdapter).isSameInstanceAs(adapter1) }
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(5)
-        adapter1ViewHolders.forEach {
-            assertThat(it.bindingAdapter).isNull()
-        }
+        adapter1ViewHolders.forEach { assertThat(it.bindingAdapter).isNull() }
         assertThat(concatenated.removeAdapter(adapter1)).isFalse()
         assertThat(concatenated.removeAdapter(adapter2)).isTrue()
         measureAndLayout(100, 100)
         assertThat(recyclerView.childCount).isEqualTo(0)
-        adapter2ViewHolders.forEach {
-            assertThat(it.bindingAdapter).isNull()
-        }
+        adapter2ViewHolders.forEach { assertThat(it.bindingAdapter).isNull() }
     }
 
     private fun measureAndLayout(@Suppress("SameParameterValue") width: Int, height: Int) {
@@ -678,19 +602,14 @@ class ConcatAdapterTest {
         val observer = LoggingAdapterObserver(concatenated)
         assertThat(concatenated).hasItemCount(0)
         concatenated.addAdapter(NestedTestAdapter(0))
-        observer.assertEventsAndClear(
-            "Empty adapter shouldn't cause notify"
-        )
+        observer.assertEventsAndClear("Empty adapter shouldn't cause notify")
 
         val adapter1 = NestedTestAdapter(3)
         concatenated.addAdapter(adapter1)
         assertThat(concatenated).hasItemCount(3)
         observer.assertEventsAndClear(
             "adapter with count should trigger notify",
-            Inserted(
-                positionStart = 0,
-                itemCount = 3
-            )
+            Inserted(positionStart = 0, itemCount = 3)
         )
 
         val adapter2 = NestedTestAdapter(5)
@@ -698,10 +617,7 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(8)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event",
-            Inserted(
-                positionStart = 3,
-                itemCount = 5
-            )
+            Inserted(positionStart = 3, itemCount = 5)
         )
 
         val adapter3 = NestedTestAdapter(2)
@@ -709,17 +625,12 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(10)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event in right index",
-            Inserted(
-                positionStart = 3,
-                itemCount = 2
-            )
+            Inserted(positionStart = 3, itemCount = 2)
         )
 
         concatenated.addAdapter(NestedTestAdapter(0))
         assertThat(concatenated).hasItemCount(10)
-        observer.assertEventsAndClear(
-            "empty new adapter shouldn't trigger events"
-        )
+        observer.assertEventsAndClear("empty new adapter shouldn't trigger events")
     }
 
     @Test
@@ -734,49 +645,34 @@ class ConcatAdapterTest {
         adapter1.addItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "non-empty adapter triggers an event",
-            Inserted(
-                positionStart = 0,
-                itemCount = 3
-            )
+            Inserted(positionStart = 0, itemCount = 3)
         )
         assertThat(concatenated).hasItemCount(3)
         adapter1.addItems(positionStart = 1, itemCount = 2)
         observer.assertEventsAndClear(
             "inner adapter change should trigger an event",
-            Inserted(
-                positionStart = 1,
-                itemCount = 2
-            )
+            Inserted(positionStart = 1, itemCount = 2)
         )
         assertThat(concatenated).hasItemCount(5)
         val adapter2 = NestedTestAdapter(2)
         concatenated.addAdapter(adapter2)
         observer.assertEventsAndClear(
             "added adapter should trigger an event",
-            Inserted(
-                positionStart = 5,
-                itemCount = 2
-            )
+            Inserted(positionStart = 5, itemCount = 2)
         )
         assertThat(concatenated).hasItemCount(7)
 
         adapter2.addItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "nested adapter prepends data",
-            Inserted(
-                positionStart = 5,
-                itemCount = 3
-            )
+            Inserted(positionStart = 5, itemCount = 3)
         )
         assertThat(concatenated).hasItemCount(10)
 
         adapter2.addItems(positionStart = 2, itemCount = 4)
         observer.assertEventsAndClear(
             "nested adapter adds items with inner offset",
-            Inserted(
-                positionStart = 7,
-                itemCount = 4
-            )
+            Inserted(positionStart = 7, itemCount = 4)
         )
         assertThat(concatenated).hasItemCount(14)
     }
@@ -787,95 +683,64 @@ class ConcatAdapterTest {
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
 
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         val observer = LoggingAdapterObserver(concatenated)
         assertThat(concatenated).hasItemCount(45)
 
         adapter1.removeItems(positionStart = 0, itemCount = 2)
         observer.assertEventsAndClear(
             "removal from first adapter top",
-            Removed(
-                positionStart = 0,
-                itemCount = 2
-            )
+            Removed(positionStart = 0, itemCount = 2)
         )
         assertThat(concatenated).hasItemCount(43)
         adapter1.removeItems(positionStart = 2, itemCount = 1)
         observer.assertEventsAndClear(
             "removal from first adapter inner",
-            Removed(
-                positionStart = 2,
-                itemCount = 1
-            )
+            Removed(positionStart = 2, itemCount = 1)
         )
         assertThat(concatenated).hasItemCount(42)
         // now first adapter has size 7
         adapter2.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "removal from second adapter should be offset",
-            Removed(
-                positionStart = adapter1.itemCount,
-                itemCount = 3
-            )
+            Removed(positionStart = adapter1.itemCount, itemCount = 3)
         )
         assertThat(concatenated).hasItemCount(39)
         adapter2.removeItems(positionStart = 6, itemCount = 4)
         observer.assertEventsAndClear(
             "inner item removal from middle adapter should be offset",
-            Removed(
-                positionStart = adapter1.itemCount + 6,
-                itemCount = 4
-            )
+            Removed(positionStart = adapter1.itemCount + 6, itemCount = 4)
         )
         assertThat(concatenated).hasItemCount(35)
 
         adapter3.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "removal from last adapter should be offset by adapter 1 and 2",
-            Removed(
-                positionStart = adapter1.itemCount + adapter2.itemCount,
-                itemCount = 3
-            )
+            Removed(positionStart = adapter1.itemCount + adapter2.itemCount, itemCount = 3)
         )
 
         adapter3.removeItems(positionStart = 2, itemCount = 5)
         observer.assertEventsAndClear(
             "removal from inner items from last adapter should be offset by adapter 1 & 2",
-            Removed(
-                positionStart = adapter1.itemCount + adapter2.itemCount + 2,
-                itemCount = 5
-            )
+            Removed(positionStart = adapter1.itemCount + adapter2.itemCount + 2, itemCount = 5)
         )
 
         concatenated.removeAdapter(adapter2)
         observer.assertEventsAndClear(
             "removing an adapter should trigger removal",
-            Removed(
-                positionStart = adapter1.itemCount,
-                itemCount = adapter2.itemCount
-            )
+            Removed(positionStart = adapter1.itemCount, itemCount = adapter2.itemCount)
         )
         assertThat(concatenated).hasItemCount(adapter1.itemCount + adapter3.itemCount)
         concatenated.removeAdapter(adapter1)
         observer.assertEventsAndClear(
             "removing first adapter should trigger removal",
-            Removed(
-                positionStart = 0,
-                itemCount = adapter1.itemCount
-            )
+            Removed(positionStart = 0, itemCount = adapter1.itemCount)
         )
         assertThat(concatenated).hasItemCount(adapter3.itemCount)
         concatenated.removeAdapter(adapter3)
         observer.assertEventsAndClear(
             "removing last adapter should trigger a removal",
-            Removed(
-                positionStart = 0,
-                itemCount = adapter3.itemCount
-            )
+            Removed(positionStart = 0, itemCount = adapter3.itemCount)
         )
         assertThat(concatenated).hasItemCount(0)
     }
@@ -885,28 +750,18 @@ class ConcatAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         val observer = LoggingAdapterObserver(concatenated)
         adapter1.moveItem(fromPosition = 3, toPosition = 5)
         observer.assertEventsAndClear(
             "move from first adapter should come as is",
-            Moved(
-                fromPosition = 3,
-                toPosition = 5
-            )
+            Moved(fromPosition = 3, toPosition = 5)
         )
         assertThat(concatenated).hasItemCount(45)
         adapter2.moveItem(fromPosition = 2, toPosition = 4)
         observer.assertEventsAndClear(
             "move in adapter 2 should be offset",
-            Moved(
-                fromPosition = adapter1.itemCount + 2,
-                toPosition = adapter1.itemCount + 4
-            )
+            Moved(fromPosition = adapter1.itemCount + 2, toPosition = adapter1.itemCount + 4)
         )
         adapter3.moveItem(fromPosition = 7, toPosition = 2)
         observer.assertEventsAndClear(
@@ -919,41 +774,27 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(45)
     }
 
-    @Test
-    fun nested_itemChange_withPayload() = nested_itemChange("payload")
+    @Test fun nested_itemChange_withPayload() = nested_itemChange("payload")
 
-    @Test
-    fun nested_itemChange_withoutPayload() = nested_itemChange(null)
+    @Test fun nested_itemChange_withoutPayload() = nested_itemChange(null)
 
     fun nested_itemChange(payload: Any? = null) {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         val observer = LoggingAdapterObserver(concatenated)
 
         adapter1.changeItems(positionStart = 3, itemCount = 5, payload = payload)
         observer.assertEventsAndClear(
             "change from first adapter should come as is",
-            Changed(
-                positionStart = 3,
-                itemCount = 5,
-                payload = payload
-            )
+            Changed(positionStart = 3, itemCount = 5, payload = payload)
         )
         assertThat(concatenated).hasItemCount(45)
         adapter2.changeItems(positionStart = 2, itemCount = 4, payload = payload)
         observer.assertEventsAndClear(
             "change in adapter 2 should be offset",
-            Changed(
-                positionStart = adapter1.itemCount + 2,
-                itemCount = 4,
-                payload = payload
-            )
+            Changed(positionStart = adapter1.itemCount + 2, itemCount = 4, payload = payload)
         )
         adapter3.changeItems(positionStart = 7, itemCount = 2, payload = payload)
         observer.assertEventsAndClear(
@@ -975,18 +816,11 @@ class ConcatAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(15)
         val adapter3 = NestedTestAdapter(20)
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         val observer = LoggingAdapterObserver(concatenated)
 
         adapter1.changeDataSet(3)
-        observer.assertEventsAndClear(
-            "data set change should come as is",
-            DataSetChanged
-        )
+        observer.assertEventsAndClear("data set change should come as is", DataSetChanged)
         assertThat(concatenated).hasItemCount(38)
         adapter2.changeDataSet(20)
         observer.assertEventsAndClear(
@@ -1000,7 +834,8 @@ class ConcatAdapterTest {
                 |rely on itemCount changing immediately. In theory we would but adapter might be
                 |faulty and not update its size immediately, which would work fine in RV because
                 |everything is delayed but not here if we immediately read the item count
-            """.trimMargin(),
+            """
+                .trimMargin(),
             DataSetChanged
         )
         assertThat(concatenated).hasItemCount(23)
@@ -1008,85 +843,63 @@ class ConcatAdapterTest {
 
     @Test
     fun viewTypeMapping_allViewsHaveDifferentTypes() {
-        val adapter1 = NestedTestAdapter(10) { _, position ->
-            position
-        }
+        val adapter1 = NestedTestAdapter(10) { _, position -> position }
         val concatenated = ConcatAdapter(adapter1)
-        val adapter1ViewTypes = (0 until 10).map {
-            concatenated.getItemViewType(it)
-        }.toSet()
+        val adapter1ViewTypes = (0 until 10).map { concatenated.getItemViewType(it) }.toSet()
 
-        assertWithMessage("all items have unique types")
-            .that(adapter1ViewTypes).hasSize(10)
+        assertWithMessage("all items have unique types").that(adapter1ViewTypes).hasSize(10)
         repeat(adapter1.itemCount) {
-            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
-                adapter = adapter1,
-                localPosition = it
-            )
+            assertThat(concatenated)
+                .bindView(recyclerView, it)
+                .verifyBoundTo(adapter = adapter1, localPosition = it)
         }
-        val adapter2 = NestedTestAdapter(5) { _, position ->
-            position
-        }
+        val adapter2 = NestedTestAdapter(5) { _, position -> position }
         concatenated.addAdapter(adapter2)
         repeat(adapter2.itemCount) {
-            assertThat(concatenated).bindView(recyclerView, adapter1.itemCount + it).verifyBoundTo(
-                adapter = adapter2,
-                localPosition = it
-            )
+            assertThat(concatenated)
+                .bindView(recyclerView, adapter1.itemCount + it)
+                .verifyBoundTo(adapter = adapter2, localPosition = it)
         }
 
         concatenated.removeAdapter(adapter1)
         repeat(adapter2.itemCount) {
-            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
-                adapter = adapter2,
-                localPosition = it
-            )
+            assertThat(concatenated)
+                .bindView(recyclerView, it)
+                .verifyBoundTo(adapter = adapter2, localPosition = it)
         }
     }
 
     @Test
     fun viewTypeMapping_shareTypesWithinAdapter() {
-        val adapter1 = NestedTestAdapter(10) { item, _ ->
-            item.id % 3
-        }
-        val adapter2 = NestedTestAdapter(20) { item, _ ->
-            item.id % 4
-        }
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
-        val adapter1Types = (0 until adapter1.itemCount).map {
-            concatenated.getItemViewType(it)
-        }.toSet()
+        val adapter1 = NestedTestAdapter(10) { item, _ -> item.id % 3 }
+        val adapter2 = NestedTestAdapter(20) { item, _ -> item.id % 4 }
+        val concatenated = ConcatAdapter(adapter1, adapter2)
+        val adapter1Types =
+            (0 until adapter1.itemCount).map { concatenated.getItemViewType(it) }.toSet()
         assertThat(adapter1Types).hasSize(3)
-        val adapter2Types = (adapter1.itemCount until adapter2.itemCount).map {
-            concatenated.getItemViewType(it)
-        }.toSet()
+        val adapter2Types =
+            (adapter1.itemCount until adapter2.itemCount)
+                .map { concatenated.getItemViewType(it) }
+                .toSet()
         assertThat(adapter2Types).hasSize(4)
-        adapter2Types.forEach {
-            assertThat(adapter1Types).doesNotContain(it)
-        }
+        adapter2Types.forEach { assertThat(adapter1Types).doesNotContain(it) }
         (0 until adapter1.itemCount).forEach {
-            assertThat(concatenated).bindView(recyclerView, it)
-                .verifyBoundTo(
-                    adapter = adapter1,
-                    localPosition = it
-                )
+            assertThat(concatenated)
+                .bindView(recyclerView, it)
+                .verifyBoundTo(adapter = adapter1, localPosition = it)
         }
 
         (0 until adapter2.itemCount).forEach {
-            assertThat(concatenated).bindView(recyclerView, adapter1.itemCount + it)
-                .verifyBoundTo(
-                    adapter = adapter2,
-                    localPosition = it
-                )
+            assertThat(concatenated)
+                .bindView(recyclerView, adapter1.itemCount + it)
+                .verifyBoundTo(adapter = adapter2, localPosition = it)
         }
 
         concatenated.removeAdapter(adapter1)
         repeat(adapter2.itemCount) {
-            assertThat(concatenated).bindView(recyclerView, it).verifyBoundTo(
-                adapter = adapter2,
-                localPosition = it
-            )
+            assertThat(concatenated)
+                .bindView(recyclerView, it)
+                .verifyBoundTo(adapter = adapter2, localPosition = it)
         }
     }
 
@@ -1098,14 +911,9 @@ class ConcatAdapterTest {
 
     @Test
     fun stateRestoration_subAdapterAllowsNonEmpty() {
-        val adapter1 = NestedTestAdapter(1).also {
-            it.stateRestorationPolicy = ALLOW
-        }
-        val adapter2 = NestedTestAdapter(0).also {
-            it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
-        }
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter1 = NestedTestAdapter(1).also { it.stateRestorationPolicy = ALLOW }
+        val adapter2 = NestedTestAdapter(0).also { it.stateRestorationPolicy = PREVENT_WHEN_EMPTY }
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         assertThat(concatenated).cannotRestoreState()
         adapter2.addItems(0, 1)
         assertThat(concatenated).canRestoreState()
@@ -1115,14 +923,9 @@ class ConcatAdapterTest {
 
     @Test
     fun stateRestoration_subAdapterAllowsNonEmpty_viaNotifyChange() {
-        val adapter1 = NestedTestAdapter(1).also {
-            it.stateRestorationPolicy = ALLOW
-        }
-        val adapter2 = NestedTestAdapter(0).also {
-            it.stateRestorationPolicy = PREVENT_WHEN_EMPTY
-        }
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val adapter1 = NestedTestAdapter(1).also { it.stateRestorationPolicy = ALLOW }
+        val adapter2 = NestedTestAdapter(0).also { it.stateRestorationPolicy = PREVENT_WHEN_EMPTY }
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         assertThat(concatenated).cannotRestoreState()
         adapter2.changeDataSet(1)
         assertThat(concatenated).canRestoreState()
@@ -1135,11 +938,7 @@ class ConcatAdapterTest {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
         val adapter3 = NestedTestAdapter(20)
-        val concatenated = ConcatAdapter(
-            adapter1,
-            adapter2,
-            adapter3
-        )
+        val concatenated = ConcatAdapter(adapter1, adapter2, adapter3)
         assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
         adapter2.stateRestorationPolicy = PREVENT
         assertThat(concatenated).hasStateRestorationPolicy(PREVENT)
@@ -1153,10 +952,11 @@ class ConcatAdapterTest {
         concatenated.removeAdapter(adapter3)
         assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
 
-        val adapter4 = NestedTestAdapter(3).also {
-            it.stateRestorationPolicy = PREVENT
-            concatenated.addAdapter(it)
-        }
+        val adapter4 =
+            NestedTestAdapter(3).also {
+                it.stateRestorationPolicy = PREVENT
+                concatenated.addAdapter(it)
+            }
         assertThat(concatenated).hasStateRestorationPolicy(PREVENT)
         adapter4.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         assertThat(concatenated).hasStateRestorationPolicy(ALLOW)
@@ -1170,8 +970,7 @@ class ConcatAdapterTest {
     fun disposal() {
         val adapter1 = NestedTestAdapter(10)
         val adapter2 = NestedTestAdapter(5)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         assertThat(adapter1.observerCount()).isEqualTo(1)
         assertThat(adapter2.observerCount()).isEqualTo(1)
         concatenated.removeAdapter(adapter1)
@@ -1181,9 +980,7 @@ class ConcatAdapterTest {
         val adapter3 = NestedTestAdapter(2)
         concatenated.addAdapter(adapter3)
         assertThat(adapter3.observerCount()).isEqualTo(1)
-        concatenated.adapters.forEach {
-            concatenated.removeAdapter(it)
-        }
+        concatenated.adapters.forEach { concatenated.removeAdapter(it) }
         listOf(adapter1, adapter2, adapter3).forEachIndexed { index, adapter ->
             assertWithMessage("adapter ${index + 1}").apply {
                 that(adapter.observerCount()).isEqualTo(0)
@@ -1193,52 +990,56 @@ class ConcatAdapterTest {
     }
 
     /**
-     * Running only on 26 due to the getParameters method call and this is not API version
-     * dependent test so it is fine to only run it on new devices.
+     * Running only on 26 due to the getParameters method call and this is not API version dependent
+     * test so it is fine to only run it on new devices.
      */
     @SdkSuppress(minSdkVersion = 26)
     @Test
     fun overrideTest() {
         // custom method instead of using toGenericString to avoid having class name
-        fun Method.describe() = """
+        fun Method.describe() =
+            """
             $name(${parameters.map {
             it.type.canonicalName
         }}) : ${returnType.canonicalName}
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val excludedMethods = setOf(
-            "registerAdapterDataObserver(" +
-                "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
-            "unregisterAdapterDataObserver(" +
-                "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
-            "canRestoreState([]) : boolean",
-            "onBindViewHolder([androidx.recyclerview.widget.RecyclerView.ViewHolder, int, " +
-                "java.util.List]) : void"
-        )
-        val adapterMethods = RecyclerView.Adapter::class.java.declaredMethods.filterNot {
-            Modifier.isPrivate(it.modifiers) || Modifier.isFinal(it.modifiers)
-        }.map {
-            it.describe()
-        }.filterNot {
-            excludedMethods.contains(it)
-        }
-        val concatenatedAdapterMethods = ConcatAdapter::class.java.declaredMethods.map {
-            it.describe()
-        }
+        val excludedMethods =
+            setOf(
+                "registerAdapterDataObserver(" +
+                    "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
+                "unregisterAdapterDataObserver(" +
+                    "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
+                "canRestoreState([]) : boolean",
+                "onBindViewHolder([androidx.recyclerview.widget.RecyclerView.ViewHolder, int, " +
+                    "java.util.List]) : void"
+            )
+        val adapterMethods =
+            RecyclerView.Adapter::class
+                .java
+                .declaredMethods
+                .filterNot { Modifier.isPrivate(it.modifiers) || Modifier.isFinal(it.modifiers) }
+                .map { it.describe() }
+                .filterNot { excludedMethods.contains(it) }
+        val concatenatedAdapterMethods =
+            ConcatAdapter::class.java.declaredMethods.map { it.describe() }
         assertWithMessage(
-            """
+                """
             ConcatAdapter should override all methods in RecyclerView.Adapter for future 
             compatibility. If you want to exclude a method, update the test.
-            """.trimIndent()
-        ).that(concatenatedAdapterMethods).containsAtLeastElementsIn(adapterMethods)
+            """
+                    .trimIndent()
+            )
+            .that(concatenatedAdapterMethods)
+            .containsAtLeastElementsIn(adapterMethods)
     }
 
     @Test
     fun getAdapters() {
         val adapter1 = NestedTestAdapter(1)
         val adapter2 = NestedTestAdapter(2)
-        val concatenated =
-            ConcatAdapter(adapter1, adapter2)
+        val concatenated = ConcatAdapter(adapter1, adapter2)
         assertThat(concatenated.adapters).isEqualTo(listOf(adapter1, adapter2))
         concatenated.removeAdapter(adapter1)
         assertThat(concatenated.adapters).isEqualTo(listOf(adapter2))
@@ -1246,22 +1047,12 @@ class ConcatAdapterTest {
 
     @Test
     fun sharedTypes() {
-        val adapter1 = NestedTestAdapter(3) { _, pos ->
-            pos % 2
-        }
-        val adapter2 = NestedTestAdapter(3) { _, pos ->
-            pos % 3
-        }
-        val concatenated = ConcatAdapter(
-            Builder()
-                .setIsolateViewTypes(false)
-                .build(),
-            adapter1, adapter2
-        )
-        assertThat(concatenated).bindView(recyclerView, 2)
-            .verifyBoundTo(adapter1, 2)
-        assertThat(concatenated).bindView(recyclerView, 3)
-            .verifyBoundTo(adapter2, 0)
+        val adapter1 = NestedTestAdapter(3) { _, pos -> pos % 2 }
+        val adapter2 = NestedTestAdapter(3) { _, pos -> pos % 3 }
+        val concatenated =
+            ConcatAdapter(Builder().setIsolateViewTypes(false).build(), adapter1, adapter2)
+        assertThat(concatenated).bindView(recyclerView, 2).verifyBoundTo(adapter1, 2)
+        assertThat(concatenated).bindView(recyclerView, 3).verifyBoundTo(adapter2, 0)
         assertThat(concatenated.getItemViewType(0)).isEqualTo(0)
         assertThat(concatenated.getItemViewType(1)).isEqualTo(1)
         assertThat(concatenated.getItemViewType(2)).isEqualTo(0)
@@ -1270,43 +1061,26 @@ class ConcatAdapterTest {
         assertThat(concatenated.getItemViewType(4)).isEqualTo(1)
         assertThat(concatenated.getItemViewType(5)).isEqualTo(2)
         // ensure we bind via the correct adapter when a type is limited to a specific adapter
-        assertThat(concatenated).bindView(recyclerView, 5)
-            .verifyBoundTo(adapter2, 2)
+        assertThat(concatenated).bindView(recyclerView, 5).verifyBoundTo(adapter2, 2)
     }
 
     @Test
     fun sharedTypes_allUnique() {
-        val adapter1 = NestedTestAdapter(3) { item, _ ->
-            item.id
-        }
-        val adapter2 = NestedTestAdapter(3) { item, _ ->
-            item.id
-        }
-        val concatenated = ConcatAdapter(
-            Builder()
-                .setIsolateViewTypes(false)
-                .build(),
-            adapter1, adapter2
-        )
-        assertThat(concatenated).bindView(recyclerView, 0)
-            .verifyBoundTo(adapter1, 0)
-        assertThat(concatenated).bindView(recyclerView, 1)
-            .verifyBoundTo(adapter1, 1)
-        assertThat(concatenated).bindView(recyclerView, 2)
-            .verifyBoundTo(adapter1, 2)
-        assertThat(concatenated).bindView(recyclerView, 3)
-            .verifyBoundTo(adapter2, 0)
-        assertThat(concatenated).bindView(recyclerView, 4)
-            .verifyBoundTo(adapter2, 1)
-        assertThat(concatenated).bindView(recyclerView, 5)
-            .verifyBoundTo(adapter2, 2)
+        val adapter1 = NestedTestAdapter(3) { item, _ -> item.id }
+        val adapter2 = NestedTestAdapter(3) { item, _ -> item.id }
+        val concatenated =
+            ConcatAdapter(Builder().setIsolateViewTypes(false).build(), adapter1, adapter2)
+        assertThat(concatenated).bindView(recyclerView, 0).verifyBoundTo(adapter1, 0)
+        assertThat(concatenated).bindView(recyclerView, 1).verifyBoundTo(adapter1, 1)
+        assertThat(concatenated).bindView(recyclerView, 2).verifyBoundTo(adapter1, 2)
+        assertThat(concatenated).bindView(recyclerView, 3).verifyBoundTo(adapter2, 0)
+        assertThat(concatenated).bindView(recyclerView, 4).verifyBoundTo(adapter2, 1)
+        assertThat(concatenated).bindView(recyclerView, 5).verifyBoundTo(adapter2, 2)
     }
 
     @Test
     fun stableIds_noStableId() {
-        val concatenatedAdapter = ConcatAdapter(
-            Builder().setStableIdMode(NO_STABLE_IDS).build()
-        )
+        val concatenatedAdapter = ConcatAdapter(Builder().setStableIdMode(NO_STABLE_IDS).build())
         assertThat(concatenatedAdapter).doesNotHaveStableIds()
         // accept adapters with stable ids
         assertThat(concatenatedAdapter.addAdapter(PositionAsIdsNestedTestAdapter(10))).isTrue()
@@ -1314,45 +1088,44 @@ class ConcatAdapterTest {
 
     @Test
     fun stableIds_isolated_addAdapterWithoutStableId() {
-        val concatenatedAdapter = ConcatAdapter(
-            Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
-        )
+        val concatenatedAdapter =
+            ConcatAdapter(Builder().setStableIdMode(ISOLATED_STABLE_IDS).build())
         assertThat(concatenatedAdapter).hasStableIds()
-        assertThat(concatenatedAdapter).throwsException {
-            it.addAdapter(
-                NestedTestAdapter(10).also { nested ->
-                    nested.setHasStableIds(false)
-                }
+        assertThat(concatenatedAdapter)
+            .throwsException {
+                it.addAdapter(
+                    NestedTestAdapter(10).also { nested -> nested.setHasStableIds(false) }
+                )
+            }
+            .hasMessageThat()
+            .contains(
+                "All sub adapters must have stable ids when stable id mode" +
+                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
             )
-        }.hasMessageThat().contains(
-            "All sub adapters must have stable ids when stable id mode" +
-                " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
-        )
     }
 
     @Test
     fun stableIds_shared_addAdapterWithoutStableId() {
-        val concatenatedAdapter = ConcatAdapter(
-            Builder().setStableIdMode(SHARED_STABLE_IDS).build()
-        )
+        val concatenatedAdapter =
+            ConcatAdapter(Builder().setStableIdMode(SHARED_STABLE_IDS).build())
         assertThat(concatenatedAdapter).hasStableIds()
-        assertThat(concatenatedAdapter).throwsException {
-            it.addAdapter(
-                NestedTestAdapter(10).also { nested ->
-                    nested.setHasStableIds(false)
-                }
+        assertThat(concatenatedAdapter)
+            .throwsException {
+                it.addAdapter(
+                    NestedTestAdapter(10).also { nested -> nested.setHasStableIds(false) }
+                )
+            }
+            .hasMessageThat()
+            .contains(
+                "All sub adapters must have stable ids when stable id mode" +
+                    " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
             )
-        }.hasMessageThat().contains(
-            "All sub adapters must have stable ids when stable id mode" +
-                " is ISOLATED_STABLE_IDS or SHARED_STABLE_IDS"
-        )
     }
 
     @Test
     fun stableIds_isolated() {
-        val concatenatedAdapter = ConcatAdapter(
-            Builder().setStableIdMode(ISOLATED_STABLE_IDS).build()
-        )
+        val concatenatedAdapter =
+            ConcatAdapter(Builder().setStableIdMode(ISOLATED_STABLE_IDS).build())
         assertThat(concatenatedAdapter).hasStableIds()
         val adapter1 = PositionAsIdsNestedTestAdapter(10)
         val adapter2 = PositionAsIdsNestedTestAdapter(10)
@@ -1371,16 +1144,13 @@ class ConcatAdapterTest {
         // add in between
         val adapter4 = PositionAsIdsNestedTestAdapter(5)
         concatenatedAdapter.addAdapter(1, adapter4)
-        assertThat(concatenatedAdapter).hasItemIds(
-            (10..19) + (25..29) + (20..24)
-        )
+        assertThat(concatenatedAdapter).hasItemIds((10..19) + (25..29) + (20..24))
     }
 
     @Test
     fun stableIds_shared() {
-        val concatenatedAdapter = ConcatAdapter(
-            Builder().setStableIdMode(SHARED_STABLE_IDS).build()
-        )
+        val concatenatedAdapter =
+            ConcatAdapter(Builder().setStableIdMode(SHARED_STABLE_IDS).build())
         assertThat(concatenatedAdapter).hasStableIds()
         val adapter1 = UniqueItemIdsNestedTestAdapter(10)
         val adapter2 = UniqueItemIdsNestedTestAdapter(10)
@@ -1399,20 +1169,16 @@ class ConcatAdapterTest {
         // add in between
         val adapter4 = UniqueItemIdsNestedTestAdapter(5)
         concatenatedAdapter.addAdapter(1, adapter4)
-        assertThat(concatenatedAdapter).hasItemIds(
-            adapter2.itemIds() + adapter4.itemIds() + adapter3.itemIds()
-        )
+        assertThat(concatenatedAdapter)
+            .hasItemIds(adapter2.itemIds() + adapter4.itemIds() + adapter3.itemIds())
     }
 
     @Test
     fun builderDefaults() {
         val defaultBuilder = Builder().build()
-        assertThat(defaultBuilder.isolateViewTypes).isEqualTo(
-            ConcatAdapter.Config.DEFAULT.isolateViewTypes
-        )
-        assertThat(defaultBuilder.stableIdMode).isEqualTo(
-            ConcatAdapter.Config.DEFAULT.stableIdMode
-        )
+        assertThat(defaultBuilder.isolateViewTypes)
+            .isEqualTo(ConcatAdapter.Config.DEFAULT.isolateViewTypes)
+        assertThat(defaultBuilder.stableIdMode).isEqualTo(ConcatAdapter.Config.DEFAULT.stableIdMode)
     }
 
     @Test
@@ -1441,9 +1207,8 @@ class ConcatAdapterTest {
     }
 
     private var itemCounter = 0
-    private fun produceItem(): TestItem = (itemCounter++).let {
-        TestItem(id = it, value = it)
-    }
+
+    private fun produceItem(): TestItem = (itemCounter++).let { TestItem(id = it, value = it) }
 
     internal open inner class PositionAsIdsNestedTestAdapter(count: Int) :
         NestedTestAdapter(count) {
@@ -1480,11 +1245,8 @@ class ConcatAdapterTest {
         private var attachedRecyclerViews = mutableListOf<RecyclerView>()
         private var observers = mutableListOf<RecyclerView.AdapterDataObserver>()
 
-        val items = mutableListOf<TestItem>().also { list ->
-            repeat(count) {
-                list.add(produceItem())
-            }
-        }
+        val items =
+            mutableListOf<TestItem>().also { list -> repeat(count) { list.add(produceItem()) } }
 
         fun attachedViewHolders(): List<ConcatAdapterViewHolder> = attachedViewHolders
 
@@ -1535,9 +1297,7 @@ class ConcatAdapterTest {
         fun addItems(positionStart: Int, itemCount: Int = 1) {
             require(itemCount > 0)
             require(positionStart >= 0 && positionStart <= items.size)
-            val newItems = (0 until itemCount).map {
-                produceItem()
-            }
+            val newItems = (0 until itemCount).map { produceItem() }
             items.addAll(positionStart, newItems)
             notifyItemRangeInserted(positionStart, itemCount)
         }
@@ -1546,9 +1306,7 @@ class ConcatAdapterTest {
             require(positionStart >= 0)
             require(positionStart + itemCount <= items.size)
             require(itemCount > 0)
-            repeat(itemCount) {
-                items.removeAt(positionStart)
-            }
+            repeat(itemCount) { items.removeAt(positionStart) }
             notifyItemRangeRemoved(positionStart, itemCount)
         }
 
@@ -1562,9 +1320,7 @@ class ConcatAdapterTest {
 
         fun changeDataSet(newSize: Int = items.size) {
             require(newSize >= 0)
-            val newItems = (0 until newSize).map {
-                produceItem()
-            }
+            val newItems = (0 until newSize).map { produceItem() }
             items.clear()
             items.addAll(newItems)
             notifyDataSetChanged()
@@ -1586,9 +1342,7 @@ class ConcatAdapterTest {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ConcatAdapterViewHolder {
             return ConcatAdapterViewHolder(parent.context, viewType).also { holder ->
-                getLayoutParams?.invoke(holder)?.let {
-                    holder.itemView.layoutParams = it
-                }
+                getLayoutParams?.invoke(holder)?.let { holder.itemView.layoutParams = it }
             }
         }
 
@@ -1610,17 +1364,18 @@ class ConcatAdapterTest {
         }
 
         fun getItemAt(localPosition: Int) = items[localPosition]
+
         fun recycleEvents(): List<RecycledViewHolderEvent> = recycledViewHolderEvents
+
         fun failedToRecycleEvents(): List<RecycledViewHolderEvent> = failedToRecycleEvents
     }
 
-    internal class ConcatAdapterViewHolder(
-        context: Context,
-        val localViewType: Int
-    ) : RecyclerView.ViewHolder(View(context)) {
+    internal class ConcatAdapterViewHolder(context: Context, val localViewType: Int) :
+        RecyclerView.ViewHolder(View(context)) {
         private var boundItem: TestItem? = null
         private var boundAdapter: RecyclerView.Adapter<*>? = null
         private var boundPosition: Int? = null
+
         fun bindTo(adapter: RecyclerView.Adapter<*>, item: TestItem, position: Int) {
             boundAdapter = adapter
             boundPosition = position
@@ -1628,11 +1383,15 @@ class ConcatAdapterTest {
         }
 
         fun boundItem() = boundItem
+
         fun boundLocalPosition() = boundPosition
+
         fun boundAdapter() = boundAdapter
+
         fun onDetached() {
             assertPosition()
         }
+
         fun onRecycled() {
             assertPosition()
             boundItem = null
@@ -1641,34 +1400,26 @@ class ConcatAdapterTest {
         }
 
         private fun assertPosition() {
-            val shouldHavePosition = !isRemoved() && isBound() &&
-                !isAdapterPositionUnknown() && !isInvalid()
-            assertWithMessage(
-                "binding adapter position $this"
-            ).that(shouldHavePosition).isEqualTo(
-                bindingAdapterPosition != NO_POSITION
-            )
-            assertWithMessage(
-                "binding adapter position $this"
-            ).that(shouldHavePosition).isEqualTo(
-                absoluteAdapterPosition != NO_POSITION
-            )
+            val shouldHavePosition =
+                !isRemoved() && isBound() && !isAdapterPositionUnknown() && !isInvalid()
+            assertWithMessage("binding adapter position $this")
+                .that(shouldHavePosition)
+                .isEqualTo(bindingAdapterPosition != NO_POSITION)
+            assertWithMessage("binding adapter position $this")
+                .that(shouldHavePosition)
+                .isEqualTo(absoluteAdapterPosition != NO_POSITION)
         }
     }
 
-    class LoggingAdapterObserver(
-        private val src: RecyclerView.Adapter<*>
-    ) : RecyclerView.AdapterDataObserver() {
+    class LoggingAdapterObserver(private val src: RecyclerView.Adapter<*>) :
+        RecyclerView.AdapterDataObserver() {
         init {
             src.registerAdapterDataObserver(this)
         }
 
         private val events = mutableListOf<Event>()
 
-        fun assertEventsAndClear(
-            message: String,
-            vararg expected: Event
-        ) {
+        fun assertEventsAndClear(message: String, vararg expected: Event) {
             assertWithMessage(message).that(events).isEqualTo(expected.toList())
             events.clear()
         }
@@ -1678,84 +1429,46 @@ class ConcatAdapterTest {
         }
 
         override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
-            events.add(
-                Changed(
-                    positionStart = positionStart,
-                    itemCount = itemCount
-                )
-            )
+            events.add(Changed(positionStart = positionStart, itemCount = itemCount))
         }
 
         override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
             events.add(
-                Changed(
-                    positionStart = positionStart,
-                    itemCount = itemCount,
-                    payload = payload
-                )
+                Changed(positionStart = positionStart, itemCount = itemCount, payload = payload)
             )
         }
 
         override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-            events.add(
-                Inserted(
-                    positionStart = positionStart,
-                    itemCount = itemCount
-                )
-            )
+            events.add(Inserted(positionStart = positionStart, itemCount = itemCount))
         }
 
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-            events.add(
-                Removed(
-                    positionStart = positionStart,
-                    itemCount = itemCount
-                )
-            )
+            events.add(Removed(positionStart = positionStart, itemCount = itemCount))
         }
 
         override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-            require(itemCount == 1) {
-                "RV does not support moving more than 1 item at a time"
-            }
-            events.add(
-                Moved(
-                    fromPosition = fromPosition,
-                    toPosition = toPosition
-                )
-            )
+            require(itemCount == 1) { "RV does not support moving more than 1 item at a time" }
+            events.add(Moved(fromPosition = fromPosition, toPosition = toPosition))
         }
 
         override fun onStateRestorationPolicyChanged() {
-            events.add(
-                StateRestorationPolicy(
-                    newValue = src.stateRestorationPolicy
-                )
-            )
+            events.add(StateRestorationPolicy(newValue = src.stateRestorationPolicy))
         }
 
         sealed class Event {
             object DataSetChanged : Event()
+
             data class Changed(
                 val positionStart: Int,
                 val itemCount: Int,
                 val payload: Any? = null
             ) : Event()
 
-            data class Inserted(
-                val positionStart: Int,
-                val itemCount: Int
-            ) : Event()
+            data class Inserted(val positionStart: Int, val itemCount: Int) : Event()
 
-            data class Removed(
-                val positionStart: Int,
-                val itemCount: Int
-            ) : Event()
+            data class Removed(val positionStart: Int, val itemCount: Int) : Event()
 
-            data class Moved(
-                val fromPosition: Int,
-                val toPosition: Int
-            ) : Event()
+            data class Moved(val fromPosition: Int, val toPosition: Int) : Event()
 
             data class StateRestorationPolicy(
                 val newValue: RecyclerView.Adapter.StateRestorationPolicy
@@ -1763,18 +1476,16 @@ class ConcatAdapterTest {
         }
     }
 
-    internal data class TestItem(
-        val id: Int,
-        val value: Int,
-        val viewType: Int = 0
-    )
+    internal data class TestItem(val id: Int, val value: Int, val viewType: Int = 0)
 
     internal data class RecycledViewHolderEvent(
         val itemId: Int?,
         val absoluteAdapterPosition: Int,
         val bindingAdapterPosition: Int,
     ) {
-        constructor(viewHolder: ConcatAdapterViewHolder) : this(
+        constructor(
+            viewHolder: ConcatAdapterViewHolder
+        ) : this(
             itemId = viewHolder.boundItem()?.id,
             absoluteAdapterPosition = viewHolder.absoluteAdapterPosition,
             bindingAdapterPosition = viewHolder.bindingAdapterPosition

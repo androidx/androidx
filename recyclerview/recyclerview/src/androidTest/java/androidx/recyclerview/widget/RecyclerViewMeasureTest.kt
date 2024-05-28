@@ -55,11 +55,12 @@ class RecyclerViewMeasureTest(
 
         @JvmStatic
         @Parameterized.Parameters(
-            name = "childWidth = {0}, childHeight = {1}, firstWidthMode = {2}, firstWidth = {3}, " +
-                "firstHeightMode = {4}, firstHeight = {5}, secondWidthMode = {6}, " +
-                "secondWidth = {7}, secondHeightMode = {8}, secondHeight = {9}, " +
-                "expectedWidthMode = {10}, expectedWidth = {11}, expectedHeightMode = {12}, " +
-                "expectedHeight = {13}"
+            name =
+                "childWidth = {0}, childHeight = {1}, firstWidthMode = {2}, firstWidth = {3}, " +
+                    "firstHeightMode = {4}, firstHeight = {5}, secondWidthMode = {6}, " +
+                    "secondWidth = {7}, secondHeightMode = {8}, secondHeight = {9}, " +
+                    "expectedWidthMode = {10}, expectedWidth = {11}, expectedHeightMode = {12}, " +
+                    "expectedHeight = {13}"
         )
         fun data(): List<Array<Any>> {
 
@@ -79,10 +80,20 @@ class RecyclerViewMeasureTest(
                         }
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            AT_MOST, 500, AT_MOST, 1000,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            expectedMode, 500, expectedMode, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            AT_MOST,
+                            500,
+                            AT_MOST,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            expectedMode,
+                            500,
+                            expectedMode,
+                            1000
                         )
                     )
                 }
@@ -98,10 +109,20 @@ class RecyclerViewMeasureTest(
                         }
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            AT_MOST, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            expectedMode, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            AT_MOST,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            expectedMode,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -117,10 +138,20 @@ class RecyclerViewMeasureTest(
                         }
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            EXACTLY, 500, AT_MOST, 1000,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, expectedMode, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            EXACTLY,
+                            500,
+                            AT_MOST,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            expectedMode,
+                            1000
                         )
                     )
                 }
@@ -139,10 +170,20 @@ class RecyclerViewMeasureTest(
                 listOf(999, 1000, 1001).forEach { resultingHeight ->
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            UNSPECIFIED, 0, UNSPECIFIED, 0,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            UNSPECIFIED,
+                            0,
+                            UNSPECIFIED,
+                            0,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -152,10 +193,20 @@ class RecyclerViewMeasureTest(
                 listOf(999, 1000, 1001).forEach { resultingHeight ->
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            UNSPECIFIED, 0, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            UNSPECIFIED,
+                            0,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -165,10 +216,20 @@ class RecyclerViewMeasureTest(
                 listOf(999, 1000, 1001).forEach { resultingHeight ->
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            EXACTLY, 500, UNSPECIFIED, 0,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            EXACTLY,
+                            500,
+                            UNSPECIFIED,
+                            0,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -185,10 +246,20 @@ class RecyclerViewMeasureTest(
                 listOf(999, 1000, 1001).forEach { resultingHeight ->
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            UNSPECIFIED, 0, AT_MOST, 1000,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            UNSPECIFIED,
+                            0,
+                            AT_MOST,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -205,10 +276,20 @@ class RecyclerViewMeasureTest(
                 listOf(999, 1000, 1001).forEach { resultingHeight ->
                     tests.add(
                         arrayOf(
-                            resultingWidth, resultingHeight,
-                            AT_MOST, 500, UNSPECIFIED, 0,
-                            EXACTLY, 500, EXACTLY, 1000,
-                            EXACTLY, 500, EXACTLY, 1000
+                            resultingWidth,
+                            resultingHeight,
+                            AT_MOST,
+                            500,
+                            UNSPECIFIED,
+                            0,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000,
+                            EXACTLY,
+                            500,
+                            EXACTLY,
+                            1000
                         )
                     )
                 }
@@ -230,18 +311,14 @@ class RecyclerViewMeasureTest(
     @Test
     fun autoMeasure_test() {
         mMockLayoutManager.measurementsToReport(childWidth, childHeight)
-        mRecyclerView.measure(
-            firstWidthMode or firstWidth,
-            firstHeightMode or firstHeight
-        )
-        mRecyclerView.measure(
-            secondWidthMode or secondWidth,
-            secondHeightMode or secondHeight
-        )
+        mRecyclerView.measure(firstWidthMode or firstWidth, firstHeightMode or firstHeight)
+        mRecyclerView.measure(secondWidthMode or secondWidth, secondHeightMode or secondHeight)
         mRecyclerView.layout(0, 0, secondWidth, secondHeight)
         verifyMeasureSpecsAtLastLayoutChildren(
-            expectedWidthMode, expectedWidth,
-            expectedHeightMode, expectedHeight
+            expectedWidthMode,
+            expectedWidth,
+            expectedHeightMode,
+            expectedHeight
         )
     }
 
@@ -255,10 +332,7 @@ class RecyclerViewMeasureTest(
             widthMeasureMode.toLong(),
             mMockLayoutManager.mWidthModeAtLastLayoutChildren.toLong()
         )
-        Assert.assertEquals(
-            width.toLong(),
-            mMockLayoutManager.mWidthAtLastLayoutChildren.toLong()
-        )
+        Assert.assertEquals(width.toLong(), mMockLayoutManager.mWidthAtLastLayoutChildren.toLong())
         Assert.assertEquals(
             heightMeasureMode.toLong(),
             mMockLayoutManager.mHeightModeAtLastLayoutChildren.toLong()
@@ -269,8 +343,7 @@ class RecyclerViewMeasureTest(
         )
     }
 
-    internal class MockLayoutManager :
-        RecyclerView.LayoutManager() {
+    internal class MockLayoutManager : RecyclerView.LayoutManager() {
         private var mTotalWidthOfAllChildrenToReport = 0
         private var mTotalHeightOfAllChildrenToReport = 0
         var mWidthAtLastLayoutChildren = 0
@@ -287,10 +360,7 @@ class RecyclerViewMeasureTest(
             return true
         }
 
-        override fun onLayoutChildren(
-            recycler: RecyclerView.Recycler,
-            state: RecyclerView.State
-        ) {
+        override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
             mWidthModeAtLastLayoutChildren = widthMode
             mWidthAtLastLayoutChildren = width
             mHeightModeAtLastLayoutChildren = heightMode
@@ -321,22 +391,11 @@ class RecyclerViewMeasureTest(
     }
 
     internal class MockAdapter : RecyclerView.Adapter<MockViewHolder>() {
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): MockViewHolder {
-            return MockViewHolder(
-                TextView(
-                    parent.context
-                )
-            )
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MockViewHolder {
+            return MockViewHolder(TextView(parent.context))
         }
 
-        override fun onBindViewHolder(
-            holder: MockViewHolder,
-            position: Int
-        ) {
-        }
+        override fun onBindViewHolder(holder: MockViewHolder, position: Int) {}
 
         override fun getItemCount(): Int {
             return 10

@@ -26,14 +26,15 @@ suspend fun RecyclerView.awaitScrollIdle() {
     val rv = this
     withContext(Dispatchers.Main) {
         suspendCancellableCoroutine<Unit> { continuation ->
-            val listener = object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        rv.removeOnScrollListener(this)
-                        continuation.resume(Unit)
+            val listener =
+                object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            rv.removeOnScrollListener(this)
+                            continuation.resume(Unit)
+                        }
                     }
                 }
-            }
 
             rv.addOnScrollListener(listener)
 
