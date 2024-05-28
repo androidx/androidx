@@ -29,10 +29,10 @@ class InspectorTest {
     @Test
     fun dummyTest() {
         val connection = object : Connection() {}
-        val value = object : Inspector(connection) {
-            override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
+        val value =
+            object : Inspector(connection) {
+                override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {}
             }
-        }
         assertThat(value).isNotNull()
     }
 }

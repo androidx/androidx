@@ -20,8 +20,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flow
 
 /**
- * Fake component for test purposes. It represents a library component that is used by "app"
- * and it is observed by our inspector
+ * Fake component for test purposes. It represents a library component that is used by "app" and it
+ * is observed by our inspector
  */
 object TickleManager {
     private val channel = Channel<Unit>(Channel.UNLIMITED)
