@@ -62,6 +62,9 @@ kotlin {
             }
         }
 
+        jvmMain.dependsOn(commonMain)
+        androidMain.dependsOn(jvmMain)
+
         androidInstrumentedTest {
             dependencies {
                 implementation project(":lifecycle:lifecycle-runtime")
@@ -75,12 +78,25 @@ kotlin {
         }
 
         jbMain.dependsOn(commonMain)
-        nativeMain.dependsOn(jbMain)
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(jbMain)
+        }
+        nonJvmMain.dependsOn(jbMain)
+        nativeMain.dependsOn(nonJvmMain)
+        webMain.dependsOn(nonJvmMain)
 
         targets.all { target ->
-            if (target.platformType !in [KotlinPlatformType.androidJvm, KotlinPlatformType.common]) {
+            if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(jbMain)
+                    dependsOn(nativeMain)
+                }
+            } else if (target.platformType in [
+                    KotlinPlatformType.js,
+                    KotlinPlatformType.wasm
+            ]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(webMain)
                 }
             }
         }
