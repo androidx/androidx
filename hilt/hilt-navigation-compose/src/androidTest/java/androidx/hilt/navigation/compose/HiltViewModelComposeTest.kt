@@ -61,11 +61,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HiltViewModelComposeTest {
 
-    @get:Rule
-    val testRule = HiltAndroidRule(this)
+    @get:Rule val testRule = HiltAndroidRule(this)
 
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun verifyCurrentNavGraphViewModel() {
@@ -74,9 +72,7 @@ class HiltViewModelComposeTest {
         composeTestRule.setContent {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "One") {
-                composable("One") {
-                    firstViewModel = hiltViewModel()
-                }
+                composable("One") { firstViewModel = hiltViewModel() }
             }
             secondViewModel = hiltViewModel()
         }
@@ -125,15 +121,11 @@ class HiltViewModelComposeTest {
             NavHost(navController, startDestination = "Main") {
                 navigation(startDestination = "One", route = "Main") {
                     composable("One") {
-                        firstViewModel = hiltViewModel(
-                            navController.getBackStackEntry("Main")
-                        )
+                        firstViewModel = hiltViewModel(navController.getBackStackEntry("Main"))
                         NavigateButton("Two") { navController.navigate("Two") }
                     }
                     composable("Two") {
-                        secondViewModel = hiltViewModel(
-                            navController.getBackStackEntry("Main")
-                        )
+                        secondViewModel = hiltViewModel(navController.getBackStackEntry("Main"))
                         NavigateButton("One") { navController.navigate("One") }
                     }
                 }
@@ -198,7 +190,8 @@ class HiltViewModelComposeTest {
             val view = FragmentContainerView(composeTestRule.activity)
             view.id = 100
             composeTestRule.activity.setContentView(view)
-            composeTestRule.activity.supportFragmentManager.beginTransaction()
+            composeTestRule.activity.supportFragmentManager
+                .beginTransaction()
                 .replace(100, fragment)
                 .commit()
         }
@@ -239,10 +232,12 @@ class HiltViewModelComposeTest {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "Main") {
                 composable("Main") { navBackStackEntry ->
-                    firstFactory = HiltViewModelFactory(LocalContext.current,
-                        navBackStackEntry)
-                    secondFactory = HiltViewModelFactory(LocalContext.current,
-                        navBackStackEntry.defaultViewModelProviderFactory)
+                    firstFactory = HiltViewModelFactory(LocalContext.current, navBackStackEntry)
+                    secondFactory =
+                        HiltViewModelFactory(
+                            LocalContext.current,
+                            navBackStackEntry.defaultViewModelProviderFactory
+                        )
                 }
             }
         }
@@ -260,11 +255,10 @@ class HiltViewModelComposeTest {
             val navController = rememberNavController()
             NavHost(navController, startDestination = "Main") {
                 composable("Main") {
-                    viewModel = hiltViewModel<
-                            SimpleAssistedViewModel,
-                            SimpleAssistedViewModel.Factory> {
-                        it.create(42)
-                    }
+                    viewModel =
+                        hiltViewModel<SimpleAssistedViewModel, SimpleAssistedViewModel.Factory> {
+                            it.create(42)
+                        }
                 }
             }
         }
@@ -275,17 +269,16 @@ class HiltViewModelComposeTest {
     }
 
     @Composable
-    private fun NavigateButton(text: String, listener: () -> Unit = { }) {
-        Button(onClick = listener) {
-            Text(text = "Navigate to $text")
-        }
+    private fun NavigateButton(text: String, listener: () -> Unit = {}) {
+        Button(onClick = listener) { Text(text = "Navigate to $text") }
     }
 
-    @AndroidEntryPoint
-    class TestActivity : FragmentActivity()
+    @AndroidEntryPoint class TestActivity : FragmentActivity()
 
     @HiltViewModel
-    class SimpleViewModel @Inject constructor(
+    class SimpleViewModel
+    @Inject
+    constructor(
         val handle: SavedStateHandle,
         val logger: MyLogger,
         // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is
@@ -294,7 +287,9 @@ class HiltViewModelComposeTest {
     ) : ViewModel()
 
     @HiltViewModel(assistedFactory = SimpleAssistedViewModel.Factory::class)
-    class SimpleAssistedViewModel @AssistedInject constructor(
+    class SimpleAssistedViewModel
+    @AssistedInject
+    constructor(
         val handle: SavedStateHandle,
         val logger: MyLogger,
         // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is

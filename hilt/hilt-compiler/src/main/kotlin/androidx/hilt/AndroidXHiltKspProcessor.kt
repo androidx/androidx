@@ -22,12 +22,11 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class AndroidXHiltKspProcessor(
-    environment: SymbolProcessorEnvironment
-) : KspBasicAnnotationProcessor(
-    symbolProcessorEnvironment = environment,
-    config = WorkerStep.ENV_CONFIG
-) {
+class AndroidXHiltKspProcessor(environment: SymbolProcessorEnvironment) :
+    KspBasicAnnotationProcessor(
+        symbolProcessorEnvironment = environment,
+        config = WorkerStep.ENV_CONFIG
+    ) {
     override fun processingSteps() = listOf(WorkerStep())
 
     class Provider : SymbolProcessorProvider {

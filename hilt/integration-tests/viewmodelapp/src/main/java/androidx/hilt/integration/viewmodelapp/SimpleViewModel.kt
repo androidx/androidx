@@ -25,10 +25,8 @@ import javax.inject.Inject
 
 @Suppress("UNUSED_PARAMETER")
 @HiltViewModel
-class SimpleViewModel @Inject constructor(
-    mngr: MyManager,
-    savedState: SavedStateHandle
-) : ViewModel() {
+class SimpleViewModel @Inject constructor(mngr: MyManager, savedState: SavedStateHandle) :
+    ViewModel() {
     fun hi() = "$this - hi"
 }
 
