@@ -51,7 +51,6 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
@@ -190,7 +189,15 @@ private fun Project.configureComponentPublishing(
             val addStubAar = isKmpAnchor && pomPlatform == PlatformIdentifier.ANDROID.id
             val buildDir = project.layout.buildDirectory
             if (addStubAar) {
-                val libraryExtension = project.extensions.getByType<LibraryExtension>()
+                val minSdk =
+                    project.extensions.findByType<LibraryExtension>()?.defaultConfig?.minSdk
+                        ?: extensions
+                            .findByType<AndroidXMultiplatformExtension>()
+                            ?.agpKmpExtension
+                            ?.minSdk
+                        ?: throw GradleException(
+                            "Couldn't find valid Android extension to read minSdk from"
+                        )
                 // create a unique namespace for this .aar, different from the android artifact
                 val stubNamespace =
                     project.group.toString().replace(':', '.') +
@@ -200,7 +207,7 @@ private fun Project.configureComponentPublishing(
                 val unpackedStubAarTask =
                     tasks.register("unpackedStubAar", UnpackedStubAarTask::class.java) { aarTask ->
                         aarTask.aarPackage.set(stubNamespace)
-                        aarTask.minSdkVersion.set(libraryExtension.defaultConfig.minSdk)
+                        aarTask.minSdkVersion.set(minSdk)
                         aarTask.outputDir.set(buildDir.dir("intermediates/stub-aar"))
                     }
                 val stubAarTask =
