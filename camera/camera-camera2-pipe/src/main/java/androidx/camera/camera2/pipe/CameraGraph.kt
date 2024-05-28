@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.core.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
@@ -437,7 +438,9 @@ interface CameraGraph : AutoCloseable {
         /**
          * Applies the given 3A parameters to the camera device.
          *
-         * @return earliest FrameNumber at which the parameters were successfully applied.
+         * @return A [Deferred] of [Result3A] value which will contain the frame number for which
+         *   these parameters were applied. It may be cancelled with a [CancellationException] if a
+         *   newer request is submitted before completion.
          */
         fun update3A(
             aeMode: AeMode? = null,
