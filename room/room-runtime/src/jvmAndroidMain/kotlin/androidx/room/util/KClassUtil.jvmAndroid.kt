@@ -38,7 +38,7 @@ internal actual fun KClass<*>.isAssignableFrom(other: KClass<*>): Boolean {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun <T, C> findAndInstantiateDatabaseImpl(klass: Class<C>, suffix: String = "_Impl"): T {
-    val fullPackage = klass.getPackage()!!.name
+    val fullPackage: String = klass.getPackage()?.name ?: ""
     val name: String = klass.canonicalName!!
     val postPackageName =
         if (fullPackage.isEmpty()) name else name.substring(fullPackage.length + 1)
