@@ -31,14 +31,11 @@ import kotlinx.coroutines.runBlocking
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
-    @JvmField
-    var onLoadSdkBinder: Binder? = null
+    @JvmField var onLoadSdkBinder: Binder? = null
 
-    @JvmField
-    var lastOnLoadSdkParams: Bundle? = null
+    @JvmField var lastOnLoadSdkParams: Bundle? = null
 
-    @JvmField
-    var isBeforeUnloadSdkCalled = false
+    @JvmField var isBeforeUnloadSdkCalled = false
 
     @Throws(LoadSdkCompatException::class)
     override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
@@ -56,18 +53,11 @@ class CompatProvider : SandboxedSdkProviderCompat() {
         isBeforeUnloadSdkCalled = true
     }
 
-    override fun getView(
-        windowContext: Context,
-        params: Bundle,
-        width: Int,
-        height: Int
-    ): View {
+    override fun getView(windowContext: Context, params: Bundle, width: Int, height: Int): View {
         return View(windowContext)
     }
 
-    internal class SdkImpl(
-        private val context: Context
-    ) : Binder() {
+    internal class SdkImpl(private val context: Context) : Binder() {
         fun getSandboxedSdks(): List<SandboxedSdkCompat> =
             SdkSandboxControllerCompat.from(context).getSandboxedSdks()
 
@@ -81,9 +71,8 @@ class CompatProvider : SandboxedSdkProviderCompat() {
             SdkSandboxControllerCompat.from(context).unregisterSdkSandboxActivityHandler(handler)
         }
 
-        fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkCompat =
-            runBlocking {
-                SdkSandboxControllerCompat.from(context).loadSdk(sdkName, sdkParams)
-            }
+        fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkCompat = runBlocking {
+            SdkSandboxControllerCompat.from(context).loadSdk(sdkName, sdkParams)
+        }
     }
 }

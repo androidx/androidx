@@ -28,6 +28,7 @@ import org.junit.runner.RunWith
 class LeaveCustomAudienceTest {
     private val adTechIdentifier: AdTechIdentifier = AdTechIdentifier("1234")
     private val name = "abc"
+
     @Test
     fun testToString() {
         val result = "LeaveCustomAudience: buyer=1234, name=abc"

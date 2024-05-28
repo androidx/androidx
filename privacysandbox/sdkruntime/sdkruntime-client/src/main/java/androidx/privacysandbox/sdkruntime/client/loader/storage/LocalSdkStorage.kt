@@ -18,9 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.loader.storage
 
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 
-/**
- * Provides interface for getting SDK related files.
- */
+/** Provides interface for getting SDK related files. */
 internal interface LocalSdkStorage {
     /**
      * Get [LocalSdkDexFiles] for bundled SDK.

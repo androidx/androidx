@@ -46,8 +46,9 @@ class PrivacySandboxKspCompiler(
         // by KSP between rounds or for incremental compilation. This means that at some point
         // KSP will always invoke this processor with no valid services, so we should just stop
         // processing.
-        if (resolver.getSymbolsWithAnnotation(
-                PrivacySandboxService::class.qualifiedName!!).none()) {
+        if (
+            resolver.getSymbolsWithAnnotation(PrivacySandboxService::class.qualifiedName!!).none()
+        ) {
             return emptyList()
         }
 
@@ -60,25 +61,27 @@ class PrivacySandboxKspCompiler(
         if (frameworkAidlPath == null) {
             logger.warn(
                 "KSP argument '$FRAMEWORK_AIDL_PATH_OPTIONS_KEY' was not set. This " +
-                "will become a required argument in the future."
+                    "will become a required argument in the future."
             )
         }
 
         val skipCompatLibrary =
             options[SKIP_SDK_RUNTIME_COMPAT_LIBRARY_OPTIONS_KEY]?.lowercase().toBoolean()
-        val target = if (skipCompatLibrary) {
-            SandboxApiVersion.API_33
-        } else SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY
+        val target =
+            if (skipCompatLibrary) {
+                SandboxApiVersion.API_33
+            } else SandboxApiVersion.SDK_RUNTIME_COMPAT_LIBRARY
 
         val parsedApi = ApiParser(resolver, logger).parseApi()
 
         SdkCodeGenerator(
-            codeGenerator,
-            parsedApi,
-            aidlCompilerPath,
-            frameworkAidlPath,
-            target,
-        ).generate()
+                codeGenerator,
+                parsedApi,
+                aidlCompilerPath,
+                frameworkAidlPath,
+                target,
+            )
+            .generate()
         return emptyList()
     }
 

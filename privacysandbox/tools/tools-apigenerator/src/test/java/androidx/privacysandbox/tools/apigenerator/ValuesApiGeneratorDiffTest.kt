@@ -22,20 +22,21 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ValuesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
     override val subdirectoryName = "values"
-    override val relativePathsToExpectedAidlClasses = listOf(
-        "com/sdkwithvalues/IMyInterface.java",
-        "com/sdkwithvalues/IMyUiInterface.java",
-        "com/sdkwithvalues/ISdkInterface.java",
-        "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
-        "com/sdkwithvalues/IListSdkResponseTransactionCallback.java",
-        "com/sdkwithvalues/IRequestFlagTransactionCallback.java",
-        "com/sdkwithvalues/ParcelableInnerSdkValue.java",
-        "com/sdkwithvalues/ParcelableSdkRequest.java",
-        "com/sdkwithvalues/ParcelableSdkResponse.java",
-        "com/sdkwithvalues/ParcelableRequestFlag.java",
-        "com/sdkwithvalues/ICancellationSignal.java",
-        "com/sdkwithvalues/ParcelableStackFrame.java",
-        "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",
-        "com/sdkwithvalues/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java"
-    )
+    override val relativePathsToExpectedAidlClasses =
+        listOf(
+            "com/sdkwithvalues/IMyInterface.java",
+            "com/sdkwithvalues/IMyUiInterface.java",
+            "com/sdkwithvalues/ISdkInterface.java",
+            "com/sdkwithvalues/ISdkResponseTransactionCallback.java",
+            "com/sdkwithvalues/IListSdkResponseTransactionCallback.java",
+            "com/sdkwithvalues/IRequestFlagTransactionCallback.java",
+            "com/sdkwithvalues/ParcelableInnerSdkValue.java",
+            "com/sdkwithvalues/ParcelableSdkRequest.java",
+            "com/sdkwithvalues/ParcelableSdkResponse.java",
+            "com/sdkwithvalues/ParcelableRequestFlag.java",
+            "com/sdkwithvalues/ICancellationSignal.java",
+            "com/sdkwithvalues/ParcelableStackFrame.java",
+            "com/sdkwithvalues/PrivacySandboxThrowableParcel.java",
+            "com/sdkwithvalues/IMyUiInterfaceCoreLibInfoAndBinderWrapper.java"
+        )
 }

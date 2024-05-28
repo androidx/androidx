@@ -70,8 +70,11 @@ class MainActivity : AppCompatActivity() {
                 initializeDrawer()
             } catch (e: LoadSdkCompatException) {
                 Log.i(
-                    TAG, "loadSdk failed with errorCode: " + e.loadSdkErrorCode +
-                        " and errorMsg: " + e.message
+                    TAG,
+                    "loadSdk failed with errorCode: " +
+                        e.loadSdkErrorCode +
+                        " and errorMsg: " +
+                        e.message
                 )
             }
         }
@@ -90,27 +93,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeDrawer() {
-        drawerLayout.addDrawerListener(object : DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-            }
+        drawerLayout.addDrawerListener(
+            object : DrawerListener {
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
-            override fun onDrawerOpened(drawerView: View) {
-                // we handle this in the button onClick instead
-            }
+                override fun onDrawerOpened(drawerView: View) {
+                    // we handle this in the button onClick instead
+                }
 
-            override fun onDrawerClosed(drawerView: View) {
-                currentFragment.handleDrawerStateChange(false)
-            }
+                override fun onDrawerClosed(drawerView: View) {
+                    currentFragment.handleDrawerStateChange(false)
+                }
 
-            override fun onDrawerStateChanged(newState: Int) {
+                override fun onDrawerStateChanged(newState: Int) {}
             }
-        })
+        )
         navigationView.setNavigationItemSelectedListener {
             val itemId = it.itemId
             when (itemId) {
                 R.id.item_main -> switchContentFragment(MainFragment(), it.title)
-                R.id.item_pooling_container -> switchContentFragment(PoolingContainerFragment(),
-                    it.title)
+                R.id.item_pooling_container ->
+                    switchContentFragment(PoolingContainerFragment(), it.title)
                 R.id.item_sandbox_death -> switchContentFragment(SandboxDeathFragment(), it.title)
                 else -> {
                     Log.e(TAG, "Invalid fragment option")
@@ -122,23 +125,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun switchContentFragment(fragment: BaseFragment, title: CharSequence?): Boolean {
         drawerLayout.closeDrawers()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.content_fragment_container, fragment).commit()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.content_fragment_container, fragment)
+            .commit()
         currentFragment = fragment
-        title?.let {
-            runOnUiThread {
-                setTitle(it)
-            }
-        }
+        title?.let { runOnUiThread { setTitle(it) } }
         return true
     }
 
     companion object {
         private const val TAG = "TestSandboxClient"
 
-        /**
-         * Name of the SDK to be loaded.
-         */
+        /** Name of the SDK to be loaded. */
         private const val SDK_NAME = "androidx.privacysandbox.ui.integration.testsdkprovider"
         private const val MEDIATEE_SDK_NAME =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"

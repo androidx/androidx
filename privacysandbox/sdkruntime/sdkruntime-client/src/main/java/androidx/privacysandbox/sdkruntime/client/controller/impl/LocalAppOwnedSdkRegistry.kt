@@ -19,28 +19,24 @@ package androidx.privacysandbox.sdkruntime.client.controller.impl
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
-/**
- * Local implementation for platform versions without AppOwnedSdkSandboxInterface support.
- */
+/** Local implementation for platform versions without AppOwnedSdkSandboxInterface support. */
 internal class LocalAppOwnedSdkRegistry : AppOwnedSdkRegistry {
 
     private val appOwnedInterfaces = HashMap<String, AppOwnedSdkSandboxInterfaceCompat>()
 
     override fun registerAppOwnedSdkSandboxInterface(
         appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat
-    ) = synchronized(appOwnedInterfaces) {
-        val interfaceName = appOwnedSdk.getName()
-        if (appOwnedInterfaces.containsKey(interfaceName)) {
-            throw IllegalStateException("Already registered interface of name $interfaceName")
+    ) =
+        synchronized(appOwnedInterfaces) {
+            val interfaceName = appOwnedSdk.getName()
+            if (appOwnedInterfaces.containsKey(interfaceName)) {
+                throw IllegalStateException("Already registered interface of name $interfaceName")
+            }
+            appOwnedInterfaces[interfaceName] = appOwnedSdk
         }
-        appOwnedInterfaces[interfaceName] = appOwnedSdk
-    }
 
-    override fun unregisterAppOwnedSdkSandboxInterface(
-        sdkName: String
-    ): Unit = synchronized(appOwnedInterfaces) {
-        appOwnedInterfaces.remove(sdkName)
-    }
+    override fun unregisterAppOwnedSdkSandboxInterface(sdkName: String): Unit =
+        synchronized(appOwnedInterfaces) { appOwnedInterfaces.remove(sdkName) }
 
     override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
         synchronized(appOwnedInterfaces) {

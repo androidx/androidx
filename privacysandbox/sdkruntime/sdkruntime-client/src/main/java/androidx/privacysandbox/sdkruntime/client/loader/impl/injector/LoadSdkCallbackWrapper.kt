@@ -26,7 +26,8 @@ import java.lang.reflect.Method
  * Creates reflection wrapper for implementation of [LoadSdkCallback] interface loaded by SDK
  * classloader.
  */
-internal class LoadSdkCallbackWrapper private constructor(
+internal class LoadSdkCallbackWrapper
+private constructor(
     private val callbackOnResultMethod: Method,
     private val callbackOnErrorMethod: Method,
     private val sandboxedSdkFactory: SandboxedSdkCompatProxyFactory,
@@ -65,33 +66,30 @@ internal class LoadSdkCallbackWrapper private constructor(
 
     companion object {
         fun createFor(classLoader: ClassLoader): LoadSdkCallbackWrapper {
-            val loadSdkCallbackClass = Class.forName(
-                LoadSdkCallback::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
-            val sandboxedSdkCompatClass = Class.forName(
-                SandboxedSdkCompat::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
-            val loadSdkCompatExceptionClass = Class.forName(
-                LoadSdkCompatException::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
+            val loadSdkCallbackClass =
+                Class.forName(
+                    LoadSdkCallback::class.java.name,
+                    /* initialize = */ false,
+                    classLoader
+                )
+            val sandboxedSdkCompatClass =
+                Class.forName(
+                    SandboxedSdkCompat::class.java.name,
+                    /* initialize = */ false,
+                    classLoader
+                )
+            val loadSdkCompatExceptionClass =
+                Class.forName(
+                    LoadSdkCompatException::class.java.name,
+                    /* initialize = */ false,
+                    classLoader
+                )
 
             val callbackOnResultMethod =
-                loadSdkCallbackClass.getMethod(
-                    "onResult",
-                    sandboxedSdkCompatClass
-                )
+                loadSdkCallbackClass.getMethod("onResult", sandboxedSdkCompatClass)
 
             val callbackOnErrorMethod =
-                loadSdkCallbackClass.getMethod(
-                    "onError",
-                    loadSdkCompatExceptionClass
-                )
+                loadSdkCallbackClass.getMethod("onError", loadSdkCompatExceptionClass)
 
             val sandboxedSdkFactory = SandboxedSdkCompatProxyFactory.createFor(classLoader)
             val loadSdkExceptionFactory = LoadSdkCompatExceptionProxyFactory.createFor(classLoader)

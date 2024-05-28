@@ -31,15 +31,14 @@ import androidx.annotation.RestrictTo
 class AdTechIdentifier public constructor(val identifier: String) {
 
     /**
-     * Compares this AdTechIdentifier to the specified object. The result is true if and only if
-     * the argument is not null and the identifier property of the two objects are equal.
-     * Note that this method will not perform any eTLD+1 normalization so two AdTechIdentifier
-     * objects with the same eTLD+1 could be not equal if the String representations of the objects
-     * was not equal.
+     * Compares this AdTechIdentifier to the specified object. The result is true if and only if the
+     * argument is not null and the identifier property of the two objects are equal. Note that this
+     * method will not perform any eTLD+1 normalization so two AdTechIdentifier objects with the
+     * same eTLD+1 could be not equal if the String representations of the objects was not equal.
      *
      * @param other The object to compare this AdTechIdentifier against
      * @return true if the given object represents an AdTechIdentifier equivalent to this
-     * AdTechIdentifier, false otherwise
+     *   AdTechIdentifier, false otherwise
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -49,8 +48,8 @@ class AdTechIdentifier public constructor(val identifier: String) {
 
     /**
      * Returns a hash code corresponding to the string representation of this class obtained by
-     * calling [.toString]. Note that this method will not perform any eTLD+1 normalization
-     * so two AdTechIdentifier objects with the same eTLD+1 could have different hash codes if the
+     * calling [.toString]. Note that this method will not perform any eTLD+1 normalization so two
+     * AdTechIdentifier objects with the same eTLD+1 could have different hash codes if the
      * underlying string representation was different.
      *
      * @return a hash code value for this object.
@@ -59,8 +58,7 @@ class AdTechIdentifier public constructor(val identifier: String) {
         return identifier.hashCode()
     }
 
-    /** @return The identifier in String form.
-     */
+    /** @return The identifier in String form. */
     override fun toString(): String {
         return "$identifier"
     }

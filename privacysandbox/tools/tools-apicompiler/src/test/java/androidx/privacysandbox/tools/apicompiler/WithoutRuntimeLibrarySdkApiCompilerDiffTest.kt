@@ -23,11 +23,12 @@ import org.junit.runners.JUnit4
 class WithoutRuntimeLibrarySdkApiCompilerDiffTest : AbstractApiCompilerDiffTest() {
     override val subdirectoryName = "withoutruntimelibrarysdk"
     override val extraProcessorOptions = mapOf("skip_sdk_runtime_compat_library" to "true")
-    override val relativePathsToExpectedAidlClasses = listOf(
-        "com/mysdk/ICancellationSignal.java",
-        "com/mysdk/IWithoutRuntimeLibrarySdk.java",
-        "com/mysdk/IStringTransactionCallback.java",
-        "com/mysdk/ParcelableStackFrame.java",
-        "com/mysdk/PrivacySandboxThrowableParcel.java",
-    )
+    override val relativePathsToExpectedAidlClasses =
+        listOf(
+            "com/mysdk/ICancellationSignal.java",
+            "com/mysdk/IWithoutRuntimeLibrarySdk.java",
+            "com/mysdk/IStringTransactionCallback.java",
+            "com/mysdk/ParcelableStackFrame.java",
+            "com/mysdk/PrivacySandboxThrowableParcel.java",
+        )
 }

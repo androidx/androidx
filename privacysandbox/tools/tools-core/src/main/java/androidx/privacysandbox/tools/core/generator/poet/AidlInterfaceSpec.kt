@@ -25,20 +25,21 @@ internal data class AidlInterfaceSpec(
     val methods: List<AidlMethodSpec>,
 ) : AidlFileSpec {
     companion object {
-        fun aidlInterface(
-            type: Type,
-            block: Builder.() -> Unit = {}
-        ): AidlInterfaceSpec {
+        fun aidlInterface(type: Type, block: Builder.() -> Unit = {}): AidlInterfaceSpec {
             return Builder(type).also(block).build()
         }
     }
 
     override val typesToImport: Set<Type>
         get() {
-            return methods.flatMap { method ->
-                method.parameters.map { it.type }
-                    .filter { it.requiresImport && it.innerType != type }.map { it.innerType }
-            }.toSet()
+            return methods
+                .flatMap { method ->
+                    method.parameters
+                        .map { it.type }
+                        .filter { it.requiresImport && it.innerType != type }
+                        .map { it.innerType }
+                }
+                .toSet()
         }
 
     override val innerContent: String
@@ -48,7 +49,8 @@ internal data class AidlInterfaceSpec(
                 |oneway interface ${type.simpleName} {
                 |    $body
                 |}
-            """.trimMargin()
+            """
+                .trimMargin()
         }
 
     class Builder(val type: Type) {

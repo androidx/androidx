@@ -70,7 +70,8 @@ class MeasurementManagerApi30Ext11Impl(context: Context) : MeasurementManager() 
             mMeasurementManager.registerTrigger(
                 trigger,
                 Runnable::run,
-                continuation.asAdServicesOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver()
+            )
         }
     }
 
@@ -81,16 +82,15 @@ class MeasurementManagerApi30Ext11Impl(context: Context) : MeasurementManager() 
             mMeasurementManager.registerWebSource(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asAdServicesOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver()
+            )
         }
     }
 
     @DoNotInline
     @ExperimentalFeatures.RegisterSourceOptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    override suspend fun registerSource(
-        request: SourceRegistrationRequest
-    ): Unit = coroutineScope {
+    override suspend fun registerSource(request: SourceRegistrationRequest): Unit = coroutineScope {
         request.registrationUris.forEach { uri ->
             launch {
                 suspendCancellableCoroutine<Any> { continuation ->
@@ -112,16 +112,18 @@ class MeasurementManagerApi30Ext11Impl(context: Context) : MeasurementManager() 
             mMeasurementManager.registerWebTrigger(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asAdServicesOutcomeReceiver())
+                continuation.asAdServicesOutcomeReceiver()
+            )
         }
     }
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    override suspend fun getMeasurementApiStatus(): Int = suspendCancellableCoroutine {
-            continuation ->
-        mMeasurementManager.getMeasurementApiStatus(
-            Runnable::run,
-            continuation.asAdServicesOutcomeReceiver())
-    }
+    override suspend fun getMeasurementApiStatus(): Int =
+        suspendCancellableCoroutine { continuation ->
+            mMeasurementManager.getMeasurementApiStatus(
+                Runnable::run,
+                continuation.asAdServicesOutcomeReceiver()
+            )
+        }
 }

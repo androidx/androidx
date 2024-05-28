@@ -40,20 +40,16 @@ fun Parameter.poetSpec(): ParameterSpec {
 /** [TypeName] equivalent to this type. */
 fun Type.poetTypeName(): TypeName {
     val typeName =
-        if (typeParameters.isEmpty())
-            poetClassName()
-        else
-            poetClassName().parameterizedBy(typeParameters.map { it.poetTypeName() })
-    if (isNullable)
-        return typeName.copy(nullable = true)
+        if (typeParameters.isEmpty()) poetClassName()
+        else poetClassName().parameterizedBy(typeParameters.map { it.poetTypeName() })
+    if (isNullable) return typeName.copy(nullable = true)
     return typeName
 }
 
 /** [ClassName] equivalent to this type. */
 fun Type.poetClassName() = ClassName(packageName, simpleName)
 
-fun AnnotatedValue.converterNameSpec() =
-    ClassName(type.packageName, "${type.simpleName}Converter")
+fun AnnotatedValue.converterNameSpec() = ClassName(type.packageName, "${type.simpleName}Converter")
 
 fun AnnotatedValue.parcelableNameSpec() =
     ClassName(type.packageName, "Parcelable${type.simpleName}")
@@ -76,11 +72,7 @@ fun TypeSpec.Builder.primaryConstructor(
     properties: List<PropertySpec>,
     vararg modifiers: KModifier,
 ) {
-    val propertiesWithInitializer =
-        properties.map {
-            it.toBuilder().initializer(it.name)
-                .build()
-        }
+    val propertiesWithInitializer = properties.map { it.toBuilder().initializer(it.name).build() }
     primaryConstructor(
         FunSpec.constructorBuilder().build {
             addParameters(propertiesWithInitializer.map { ParameterSpec(it.name, it.type) })

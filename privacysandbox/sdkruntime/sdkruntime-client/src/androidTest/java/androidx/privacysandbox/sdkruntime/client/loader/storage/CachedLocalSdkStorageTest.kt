@@ -49,17 +49,16 @@ class CachedLocalSdkStorageTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
 
-        storageUnderTest = CachedLocalSdkStorage.create(
-            context,
-            lowSpaceThreshold = disabledLowSpaceModeThreshold()
-        )
+        storageUnderTest =
+            CachedLocalSdkStorage.create(
+                context,
+                lowSpaceThreshold = disabledLowSpaceModeThreshold()
+            )
 
         testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
         assertThat(testSdkConfig.dexPaths.size).isEqualTo(2)
 
-        sdkFolder = LocalSdkFolderProvider
-            .create(context)
-            .dexFolderFor(testSdkConfig)
+        sdkFolder = LocalSdkFolderProvider.create(context).dexFolderFor(testSdkConfig)
 
         // Clean up between tests
         sdkFolder.deleteRecursively()
@@ -116,10 +115,11 @@ class CachedLocalSdkStorageTest {
 
     @Test
     fun dexFilesFor_whenLowSpaceAndNoExtractedFiles_returnNull() {
-        val storageWithLowSpaceEnabled = CachedLocalSdkStorage.create(
-            context,
-            lowSpaceThreshold = enabledLowSpaceModeThreshold()
-        )
+        val storageWithLowSpaceEnabled =
+            CachedLocalSdkStorage.create(
+                context,
+                lowSpaceThreshold = enabledLowSpaceModeThreshold()
+            )
         val result = storageWithLowSpaceEnabled.dexFilesFor(testSdkConfig)
         assertThat(result).isNull()
     }
@@ -129,33 +129,33 @@ class CachedLocalSdkStorageTest {
         val extractedFiles = storageUnderTest.dexFilesFor(testSdkConfig)
         assertThat(extractedFiles).isNotNull()
 
-        val storageWithLowSpaceEnabled = CachedLocalSdkStorage.create(
-            context,
-            lowSpaceThreshold = enabledLowSpaceModeThreshold()
-        )
+        val storageWithLowSpaceEnabled =
+            CachedLocalSdkStorage.create(
+                context,
+                lowSpaceThreshold = enabledLowSpaceModeThreshold()
+            )
         val result = storageWithLowSpaceEnabled.dexFilesFor(testSdkConfig)
         assertThat(result).isEqualTo(extractedFiles)
     }
 
     @Test
     fun dexFilesFor_whenFailedToExtract_deleteFolderAndThrowException() {
-        val invalidConfig = LocalSdkConfig(
-            packageName = "storage.test.invalid.dexPath",
-            dexPaths = listOf("NOT_EXISTS"),
-            entryPoint = "EntryPoint"
-        )
+        val invalidConfig =
+            LocalSdkConfig(
+                packageName = "storage.test.invalid.dexPath",
+                dexPaths = listOf("NOT_EXISTS"),
+                entryPoint = "EntryPoint"
+            )
 
-        val rootFolder = LocalSdkFolderProvider
-            .create(context)
-            .dexFolderFor(invalidConfig)
+        val rootFolder = LocalSdkFolderProvider.create(context).dexFolderFor(invalidConfig)
 
         val fileToDelete = File(rootFolder, "toDelete")
         fileToDelete.createNewFile()
         assertThat(fileToDelete.exists()).isTrue()
 
-        assertThrows<FileNotFoundException> {
-            storageUnderTest.dexFilesFor(invalidConfig)
-        }.hasMessageThat().contains("NOT_EXISTS")
+        assertThrows<FileNotFoundException> { storageUnderTest.dexFilesFor(invalidConfig) }
+            .hasMessageThat()
+            .contains("NOT_EXISTS")
 
         assertThat(fileToDelete.exists()).isFalse()
     }
@@ -170,11 +170,9 @@ class CachedLocalSdkStorageTest {
         assertThat(fileContent).isEqualTo(assetContent)
     }
 
-    private fun enabledLowSpaceModeThreshold(): Long =
-        availableBytes() + 10_000_000
+    private fun enabledLowSpaceModeThreshold(): Long = availableBytes() + 10_000_000
 
-    private fun disabledLowSpaceModeThreshold(): Long =
-        availableBytes() - 10_000_000
+    private fun disabledLowSpaceModeThreshold(): Long = availableBytes() - 10_000_000
 
     private fun availableBytes(): Long {
         val path = Environment.getDataDirectory()

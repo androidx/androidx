@@ -36,40 +36,30 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
 open class AdSelectionManagerImplCommon(
     protected val mAdSelectionManager: android.adservices.adselection.AdSelectionManager
-    ) : AdSelectionManager() {
+) : AdSelectionManager() {
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome {
-        return AdSelectionOutcome(
-            selectAdsInternal(
-                adSelectionConfig.convertToAdServices()
-            )
-        )
+        return AdSelectionOutcome(selectAdsInternal(adSelectionConfig.convertToAdServices()))
     }
 
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     private suspend fun selectAdsInternal(
         adSelectionConfig: android.adservices.adselection.AdSelectionConfig
-    ): android.adservices.adselection.AdSelectionOutcome = suspendCancellableCoroutine { cont
-        ->
-        mAdSelectionManager.selectAds(
-            adSelectionConfig,
-            Runnable::run,
-            cont.asOutcomeReceiver()
-        )
+    ): android.adservices.adselection.AdSelectionOutcome = suspendCancellableCoroutine { cont ->
+        mAdSelectionManager.selectAds(adSelectionConfig, Runnable::run, cont.asOutcomeReceiver())
     }
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    override suspend fun selectAds(adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig):
-        AdSelectionOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 ||
-            AdServicesInfo.extServicesVersionS() >= 10) {
-            return Ext10Impl.selectAds(
-                mAdSelectionManager,
-                adSelectionFromOutcomesConfig
-            )
+    override suspend fun selectAds(
+        adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+    ): AdSelectionOutcome {
+        if (
+            AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10
+        ) {
+            return Ext10Impl.selectAds(mAdSelectionManager, adSelectionFromOutcomesConfig)
         }
         throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
     }
@@ -90,13 +80,11 @@ open class AdSelectionManagerImplCommon(
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun reportEvent(reportEventRequest: ReportEventRequest) {
         if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersionS() >= 9) {
-            return Ext8Impl.reportEvent(
-                mAdSelectionManager,
-                reportEventRequest
-            )
+            return Ext8Impl.reportEvent(mAdSelectionManager, reportEventRequest)
         }
-        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
-            "API 31/32 ext 9")
+        throw UnsupportedOperationException(
+            "API is unsupported. Min version is API 33 ext 8 or " + "API 31/32 ext 9"
+        )
     }
 
     @DoNotInline
@@ -110,8 +98,9 @@ open class AdSelectionManagerImplCommon(
                 updateAdCounterHistogramRequest
             )
         }
-        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
-            "API 31/32 ext 9")
+        throw UnsupportedOperationException(
+            "API is unsupported. Min version is API 33 ext 8 or " + "API 31/32 ext 9"
+        )
     }
 
     @DoNotInline
@@ -119,12 +108,10 @@ open class AdSelectionManagerImplCommon(
     override suspend fun getAdSelectionData(
         getAdSelectionDataRequest: GetAdSelectionDataRequest
     ): GetAdSelectionDataOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 ||
-            AdServicesInfo.extServicesVersionS() >= 10) {
-            return Ext10Impl.getAdSelectionData(
-                mAdSelectionManager,
-                getAdSelectionDataRequest
-            )
+        if (
+            AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10
+        ) {
+            return Ext10Impl.getAdSelectionData(mAdSelectionManager, getAdSelectionDataRequest)
         }
         throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
     }
@@ -134,8 +121,9 @@ open class AdSelectionManagerImplCommon(
     override suspend fun persistAdSelectionResult(
         persistAdSelectionResultRequest: PersistAdSelectionResultRequest
     ): AdSelectionOutcome {
-        if (AdServicesInfo.adServicesVersion() >= 10 ||
-            AdServicesInfo.extServicesVersionS() >= 10) {
+        if (
+            AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersionS() >= 10
+        ) {
             return Ext10Impl.persistAdSelectionResult(
                 mAdSelectionManager,
                 persistAdSelectionResultRequest
@@ -154,14 +142,17 @@ open class AdSelectionManagerImplCommon(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
                 getAdSelectionDataRequest: GetAdSelectionDataRequest
             ): GetAdSelectionDataOutcome {
-                return GetAdSelectionDataOutcome(suspendCancellableCoroutine<
-                        android.adservices.adselection.GetAdSelectionDataOutcome> { continuation ->
-                    adSelectionManager.getAdSelectionData(
-                        getAdSelectionDataRequest.convertToAdServices(),
-                        Runnable::run,
-                        continuation.asOutcomeReceiver()
-                    )
-                })
+                return GetAdSelectionDataOutcome(
+                    suspendCancellableCoroutine<
+                        android.adservices.adselection.GetAdSelectionDataOutcome
+                    > { continuation ->
+                        adSelectionManager.getAdSelectionData(
+                            getAdSelectionDataRequest.convertToAdServices(),
+                            Runnable::run,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                )
             }
 
             @DoNotInline
@@ -170,13 +161,15 @@ open class AdSelectionManagerImplCommon(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
                 persistAdSelectionResultRequest: PersistAdSelectionResultRequest
             ): AdSelectionOutcome {
-                return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
-                    adSelectionManager.persistAdSelectionResult(
-                        persistAdSelectionResultRequest.convertToAdServices(),
-                        Runnable::run,
-                        continuation.asOutcomeReceiver()
-                    )
-                })
+                return AdSelectionOutcome(
+                    suspendCancellableCoroutine { continuation ->
+                        adSelectionManager.persistAdSelectionResult(
+                            persistAdSelectionResultRequest.convertToAdServices(),
+                            Runnable::run,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                )
             }
 
             @DoNotInline
@@ -185,13 +178,15 @@ open class AdSelectionManagerImplCommon(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
                 adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
             ): AdSelectionOutcome {
-                return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
-                    adSelectionManager.selectAds(
-                        adSelectionFromOutcomesConfig.convertToAdServices(),
-                        Runnable::run,
-                        continuation.asOutcomeReceiver()
-                    )
-                })
+                return AdSelectionOutcome(
+                    suspendCancellableCoroutine { continuation ->
+                        adSelectionManager.selectAds(
+                            adSelectionFromOutcomesConfig.convertToAdServices(),
+                            Runnable::run,
+                            continuation.asOutcomeReceiver()
+                        )
+                    }
+                )
             }
         }
     }

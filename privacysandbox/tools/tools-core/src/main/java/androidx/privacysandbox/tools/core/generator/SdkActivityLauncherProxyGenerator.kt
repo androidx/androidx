@@ -37,27 +37,27 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
     companion object {
         const val proxyClassName = "SdkActivityLauncherProxy"
         const val converterClassName = "SdkActivityLauncherConverter"
-        val iSdkActivityLauncher = ClassName(
-            "androidx.privacysandbox.activity.core",
-            "ISdkActivityLauncher"
-        )
+        val iSdkActivityLauncher =
+            ClassName("androidx.privacysandbox.activity.core", "ISdkActivityLauncher")
     }
 
     fun generate(): FileSpec {
-        val classSpec = TypeSpec.classBuilder(proxyClassName).build {
-            addSuperinterface(Types.sdkActivityLauncher.poetClassName())
-            addModifiers(KModifier.PUBLIC)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder("remote", iSdkActivityLauncher).build(),
-                    PropertySpec.builder(
-                        "launcherInfo",
-                        SpecNames.bundleClass,
-                    ).build(),
-                ),
-            )
-            addFunction(launchSdkActivityFunSpec())
-        }
+        val classSpec =
+            TypeSpec.classBuilder(proxyClassName).build {
+                addSuperinterface(Types.sdkActivityLauncher.poetClassName())
+                addModifiers(KModifier.PUBLIC)
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder("remote", iSdkActivityLauncher).build(),
+                        PropertySpec.builder(
+                                "launcherInfo",
+                                SpecNames.bundleClass,
+                            )
+                            .build(),
+                    ),
+                )
+                addFunction(launchSdkActivityFunSpec())
+            }
 
         return FileSpec.builder(basePackageName, proxyClassName).build {
             addCommonSettings()
@@ -66,84 +66,90 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
         }
     }
 
-    private fun launchSdkActivityFunSpec() = FunSpec.builder("launchSdkActivity").build {
-        val transactionCallbackName = ClassName(
-            "androidx.privacysandbox.activity.core",
-            "ISdkActivityLauncherCallback",
-            "Stub"
-        )
-        val tokenParameterName = "sdkActivityHandlerToken"
+    private fun launchSdkActivityFunSpec() =
+        FunSpec.builder("launchSdkActivity").build {
+            val transactionCallbackName =
+                ClassName(
+                    "androidx.privacysandbox.activity.core",
+                    "ISdkActivityLauncherCallback",
+                    "Stub"
+                )
+            val tokenParameterName = "sdkActivityHandlerToken"
 
-        addModifiers(KModifier.PUBLIC)
-        addModifiers(KModifier.OVERRIDE)
-        addModifiers(KModifier.SUSPEND)
-        addParameter(tokenParameterName, iBinderClass)
-        returns(Boolean::class)
-        addCode {
-            addControlFlow("return %M", suspendCancellableCoroutineMethod) {
-                addStatement("remote.launchSdkActivity(")
-                indent()
-                addStatement("%L,", tokenParameterName)
-                addControlFlow("object: %T()", transactionCallbackName) {
-                    addControlFlow(
-                        "override fun onLaunchAccepted(%L: %T?)",
-                        tokenParameterName,
-                        iBinderClass,
-                    ) {
-                        addStatement("it.%M(true)", resumeMethod)
+            addModifiers(KModifier.PUBLIC)
+            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.SUSPEND)
+            addParameter(tokenParameterName, iBinderClass)
+            returns(Boolean::class)
+            addCode {
+                addControlFlow("return %M", suspendCancellableCoroutineMethod) {
+                    addStatement("remote.launchSdkActivity(")
+                    indent()
+                    addStatement("%L,", tokenParameterName)
+                    addControlFlow("object: %T()", transactionCallbackName) {
+                        addControlFlow(
+                            "override fun onLaunchAccepted(%L: %T?)",
+                            tokenParameterName,
+                            iBinderClass,
+                        ) {
+                            addStatement("it.%M(true)", resumeMethod)
+                        }
+                        addControlFlow(
+                            "override fun onLaunchRejected(%L: %T?)",
+                            tokenParameterName,
+                            iBinderClass,
+                        ) {
+                            addStatement("it.%M(true)", resumeMethod)
+                        }
+                        addControlFlow("override fun onLaunchError(message: String?)") {
+                            addStatement(
+                                "it.%M(RuntimeException(message))",
+                                resumeWithExceptionMethod
+                            )
+                        }
                     }
-                    addControlFlow(
-                        "override fun onLaunchRejected(%L: %T?)",
-                        tokenParameterName,
-                        iBinderClass,
-                    ) {
-                        addStatement("it.%M(true)", resumeMethod)
-                    }
-                    addControlFlow("override fun onLaunchError(message: String?)") {
-                        addStatement("it.%M(RuntimeException(message))", resumeWithExceptionMethod)
-                    }
+                    unindent()
+                    addStatement(")")
                 }
-                unindent()
-                addStatement(")")
             }
         }
-    }
 
     private fun converterObjectSpec() =
         TypeSpec.objectBuilder("SdkActivityLauncherConverter").build {
             val proxyPoetClassName = ClassName(basePackageName, proxyClassName)
 
-            addFunction(FunSpec.builder("getLocalOrProxyLauncher").build {
-                addParameter("launcherInfo", SpecNames.bundleClass)
-                returns(Types.sdkActivityLauncher.poetTypeName())
-                addStatement(
-                    """val remote = launcherInfo.getBinder("sdkActivityLauncherBinderKey")"""
-                )
-                addStatement(
-                    """requireNotNull(remote) { "Invalid SdkActivityLauncher info bundle." }"""
-                )
-                addStatement(
-                    "val binder = %T.Stub.asInterface(remote)",
-                    iSdkActivityLauncher,
-                )
-                addStatement("return SdkActivityLauncherProxy(binder, launcherInfo)")
-            })
-
-            addFunction(FunSpec.builder("toBinder").build {
-                addParameter("launcher", Types.sdkActivityLauncher.poetClassName())
-                returns(SpecNames.bundleClass)
-                addCode {
-                    addControlFlow("if (launcher is %T)", proxyPoetClassName) {
-                        addStatement("return launcher.launcherInfo")
-                    }
-                }
-                addStatement(
-                    "return launcher.%M()",
-                    MemberName(
-                        "androidx.privacysandbox.activity.client",
-                        "toLauncherInfo"
+            addFunction(
+                FunSpec.builder("getLocalOrProxyLauncher").build {
+                    addParameter("launcherInfo", SpecNames.bundleClass)
+                    returns(Types.sdkActivityLauncher.poetTypeName())
+                    addStatement(
+                        """val remote = launcherInfo.getBinder("sdkActivityLauncherBinderKey")"""
                     )
-                )
-            })
+                    addStatement(
+                        """requireNotNull(remote) { "Invalid SdkActivityLauncher info bundle." }"""
+                    )
+                    addStatement(
+                        "val binder = %T.Stub.asInterface(remote)",
+                        iSdkActivityLauncher,
+                    )
+                    addStatement("return SdkActivityLauncherProxy(binder, launcherInfo)")
+                }
+            )
+
+            addFunction(
+                FunSpec.builder("toBinder").build {
+                    addParameter("launcher", Types.sdkActivityLauncher.poetClassName())
+                    returns(SpecNames.bundleClass)
+                    addCode {
+                        addControlFlow("if (launcher is %T)", proxyPoetClassName) {
+                            addStatement("return launcher.launcherInfo")
+                        }
+                    }
+                    addStatement(
+                        "return launcher.%M()",
+                        MemberName("androidx.privacysandbox.activity.client", "toLauncherInfo")
+                    )
+                }
+            )
         }
 }

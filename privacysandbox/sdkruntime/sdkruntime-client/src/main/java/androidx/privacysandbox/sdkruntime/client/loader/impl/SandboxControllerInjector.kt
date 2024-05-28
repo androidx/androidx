@@ -31,9 +31,9 @@ import java.lang.reflect.Proxy
 import java.util.concurrent.Executor
 
 /**
- * Injects local implementation of [SdkSandboxControllerCompat.SandboxControllerImpl]
- * to [SdkSandboxControllerCompat] loaded by SDK Classloader.
- * Using [Proxy] to allow interaction between classes loaded by different classloaders.
+ * Injects local implementation of [SdkSandboxControllerCompat.SandboxControllerImpl] to
+ * [SdkSandboxControllerCompat] loaded by SDK Classloader. Using [Proxy] to allow interaction
+ * between classes loaded by different classloaders.
  */
 internal object SandboxControllerInjector {
 
@@ -49,17 +49,15 @@ internal object SandboxControllerInjector {
         sdkVersion: Int,
         controller: SdkSandboxControllerCompat.SandboxControllerImpl
     ) {
-        val controllerClass = Class.forName(
-            SdkSandboxControllerCompat::class.java.name,
-            false,
-            sdkClassLoader
-        )
+        val controllerClass =
+            Class.forName(SdkSandboxControllerCompat::class.java.name, false, sdkClassLoader)
 
-        val controllerImplClass = Class.forName(
-            SdkSandboxControllerCompat.SandboxControllerImpl::class.java.name,
-            false,
-            sdkClassLoader
-        )
+        val controllerImplClass =
+            Class.forName(
+                SdkSandboxControllerCompat.SandboxControllerImpl::class.java.name,
+                false,
+                sdkClassLoader
+            )
 
         val injectMethod = controllerClass.getMethod("injectLocalImpl", controllerImplClass)
 
@@ -69,32 +67,30 @@ internal object SandboxControllerInjector {
         val sdkActivityHandlerWrapper =
             if (ClientFeature.SDK_ACTIVITY_HANDLER.isAvailable(sdkVersion))
                 SdkActivityHandlerWrapper.createFor(sdkClassLoader)
-            else
-                null
+            else null
 
         val appOwnedSdkInterfaceProxyFactory =
             if (ClientFeature.APP_OWNED_INTERFACES.isAvailable(sdkVersion))
                 AppOwnedSdkInterfaceProxyFactory.createFor(sdkClassLoader)
-            else
-                null
+            else null
 
         val loadSdkCallbackWrapper =
             if (ClientFeature.LOAD_SDK.isAvailable(sdkVersion))
                 LoadSdkCallbackWrapper.createFor(sdkClassLoader)
-            else
-                null
+            else null
 
-        val proxy = Proxy.newProxyInstance(
-            sdkClassLoader,
-            arrayOf(controllerImplClass),
-            Handler(
-                controller,
-                sandboxedSdkCompatProxyFactory,
-                appOwnedSdkInterfaceProxyFactory,
-                sdkActivityHandlerWrapper,
-                loadSdkCallbackWrapper
+        val proxy =
+            Proxy.newProxyInstance(
+                sdkClassLoader,
+                arrayOf(controllerImplClass),
+                Handler(
+                    controller,
+                    sandboxedSdkCompatProxyFactory,
+                    appOwnedSdkInterfaceProxyFactory,
+                    sdkActivityHandlerWrapper,
+                    loadSdkCallbackWrapper
+                )
             )
-        )
 
         injectMethod.invoke(null, proxy)
     }
@@ -107,29 +103,20 @@ internal object SandboxControllerInjector {
         private val loadSdkCallbackWrapper: LoadSdkCallbackWrapper?
     ) : InvocationHandler {
 
-        private val sdkToAppHandlerMap =
-            hashMapOf<Any, SdkSandboxActivityHandlerCompat>()
+        private val sdkToAppHandlerMap = hashMapOf<Any, SdkSandboxActivityHandlerCompat>()
 
         override fun invoke(proxy: Any, method: Method, args: Array<out Any?>?): Any {
             return when (method.name) {
                 "loadSdk" -> loadSdk(args!![0]!!, args[1]!!, args[2]!!, args[3]!!)
-
                 "getSandboxedSdks" -> getSandboxedSdks()
-
                 "getAppOwnedSdkSandboxInterfaces" -> getAppOwnedSdkSandboxInterfaces()
-
                 "registerSdkSandboxActivityHandler" ->
                     registerSdkSandboxActivityHandler(args!![0]!!)
-
                 "unregisterSdkSandboxActivityHandler" ->
                     unregisterSdkSandboxActivityHandler(args!![0]!!)
-
                 "equals" -> proxy === args?.get(0)
-
                 "hashCode" -> hashCode()
-
                 "toString" -> toString()
-
                 else -> {
                     throw UnsupportedOperationException(
                         "Unexpected method call object:$proxy, method: $method, args: $args"
@@ -138,27 +125,19 @@ internal object SandboxControllerInjector {
             }
         }
 
-        private fun loadSdk(
-            sdkName: Any,
-            params: Any,
-            executor: Any,
-            originalCallback: Any
-        ) {
+        private fun loadSdk(sdkName: Any, params: Any, executor: Any, originalCallback: Any) {
             if (loadSdkCallbackWrapper == null) {
-                throw IllegalStateException(
-                    "Unexpected call from SDK without LoadSdk support"
-                )
+                throw IllegalStateException("Unexpected call from SDK without LoadSdk support")
             }
 
             val callback = loadSdkCallbackWrapper.wrapLoadSdkCallback(originalCallback)
-            controller
-                .loadSdk(sdkName as String, params as Bundle, executor as Executor, callback)
+            controller.loadSdk(sdkName as String, params as Bundle, executor as Executor, callback)
         }
 
         private fun getSandboxedSdks(): List<Any> {
-            return controller
-                .getSandboxedSdks()
-                .map { sandboxedSdkCompatProxyFactory.createFrom(it) }
+            return controller.getSandboxedSdks().map {
+                sandboxedSdkCompatProxyFactory.createFrom(it)
+            }
         }
 
         private fun getAppOwnedSdkSandboxInterfaces(): List<Any> {
@@ -168,33 +147,28 @@ internal object SandboxControllerInjector {
                 )
             }
 
-            return controller
-                .getAppOwnedSdkSandboxInterfaces()
-                .map { appOwnedSdkInterfaceProxyFactory.createFrom(it) }
+            return controller.getAppOwnedSdkSandboxInterfaces().map {
+                appOwnedSdkInterfaceProxyFactory.createFrom(it)
+            }
         }
 
         private fun registerSdkSandboxActivityHandler(sdkSideHandler: Any): Any {
             val handlerToRegister = wrapSdkActivityHandler(sdkSideHandler)
-            return controller
-                .registerSdkSandboxActivityHandler(handlerToRegister)
+            return controller.registerSdkSandboxActivityHandler(handlerToRegister)
         }
 
         private fun unregisterSdkSandboxActivityHandler(sdkSideHandler: Any) {
-            val appSideHandler = synchronized(sdkToAppHandlerMap) {
-                sdkToAppHandlerMap.remove(sdkSideHandler)
-            }
+            val appSideHandler =
+                synchronized(sdkToAppHandlerMap) { sdkToAppHandlerMap.remove(sdkSideHandler) }
             if (appSideHandler != null) {
-                controller
-                    .unregisterSdkSandboxActivityHandler(appSideHandler)
+                controller.unregisterSdkSandboxActivityHandler(appSideHandler)
             }
         }
 
         private fun wrapSdkActivityHandler(sdkSideHandler: Any): SdkSandboxActivityHandlerCompat =
             synchronized(sdkToAppHandlerMap) {
                 if (sdkActivityHandlerWrapper == null) {
-                    throw IllegalStateException(
-                        "Unexpected call from SDK without Activity support"
-                    )
+                    throw IllegalStateException("Unexpected call from SDK without Activity support")
                 }
 
                 val existingAppSideHandler = sdkToAppHandlerMap[sdkSideHandler]

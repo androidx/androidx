@@ -37,82 +37,96 @@ import org.junit.runners.JUnit4
 class AidlValueGeneratorTest {
     @Test
     fun generate() {
-        val innerEnum = AnnotatedEnumClass(
-            Type(packageName = "com.mysdk", simpleName = "InnerEnum"),
-            listOf("ONE, TWO, THREE")
-        )
-        val innerValue = AnnotatedDataClass(
-            Type(packageName = "com.mysdk", simpleName = "InnerValue"),
-            listOf(
-                ValueProperty("intProperty", Types.int),
-                ValueProperty("booleanProperty", Types.boolean),
-                ValueProperty("longProperty", Types.long),
-                ValueProperty("maybeFloatProperty", Types.float.asNullable()),
-                ValueProperty("enumProperty", innerEnum.type),
-                ValueProperty("bundleProperty", Types.bundle),
-                ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
+        val innerEnum =
+            AnnotatedEnumClass(
+                Type(packageName = "com.mysdk", simpleName = "InnerEnum"),
+                listOf("ONE, TWO, THREE")
             )
-        )
-        val outerValue = AnnotatedDataClass(
-            Type(packageName = "com.mysdk", simpleName = "OuterValue"),
-            listOf(
-                ValueProperty("innerValue", innerValue.type),
-                ValueProperty("innerValueList", Types.list(innerValue.type)),
-                ValueProperty("maybeInnerValue", innerValue.type.asNullable()),
-            )
-        )
-
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    methods = listOf(
-                        Method(
-                            name = "suspendMethodThatReturnsValue",
-                            parameters = listOf(),
-                            returnType = outerValue.type,
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodReceivingValue",
-                            parameters = listOf(
-                                Parameter("inputValue", outerValue.type)
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodWithListsOfValues",
-                            parameters = listOf(
-                                Parameter("inputValues", Types.list(outerValue.type))
-                            ),
-                            returnType = Types.list(outerValue.type),
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "suspendMethodWithNullableValues",
-                            parameters = listOf(
-                                Parameter("maybeValue", outerValue.type.asNullable())
-                            ),
-                            returnType = outerValue.type.asNullable(),
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "methodReceivingValue",
-                            parameters = listOf(
-                                Parameter(
-                                    name = "value",
-                                    type = outerValue.type,
-                                ),
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        )
-                    )
+        val innerValue =
+            AnnotatedDataClass(
+                Type(packageName = "com.mysdk", simpleName = "InnerValue"),
+                listOf(
+                    ValueProperty("intProperty", Types.int),
+                    ValueProperty("booleanProperty", Types.boolean),
+                    ValueProperty("longProperty", Types.long),
+                    ValueProperty("maybeFloatProperty", Types.float.asNullable()),
+                    ValueProperty("enumProperty", innerEnum.type),
+                    ValueProperty("bundleProperty", Types.bundle),
+                    ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
                 )
-            ),
-            values = setOf(innerEnum, innerValue, outerValue)
-        )
+            )
+        val outerValue =
+            AnnotatedDataClass(
+                Type(packageName = "com.mysdk", simpleName = "OuterValue"),
+                listOf(
+                    ValueProperty("innerValue", innerValue.type),
+                    ValueProperty("innerValueList", Types.list(innerValue.type)),
+                    ValueProperty("maybeInnerValue", innerValue.type.asNullable()),
+                )
+            )
+
+        val api =
+            ParsedApi(
+                services =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                            methods =
+                                listOf(
+                                    Method(
+                                        name = "suspendMethodThatReturnsValue",
+                                        parameters = listOf(),
+                                        returnType = outerValue.type,
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodReceivingValue",
+                                        parameters =
+                                            listOf(Parameter("inputValue", outerValue.type)),
+                                        returnType = Types.unit,
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithListsOfValues",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    "inputValues",
+                                                    Types.list(outerValue.type)
+                                                )
+                                            ),
+                                        returnType = Types.list(outerValue.type),
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithNullableValues",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    "maybeValue",
+                                                    outerValue.type.asNullable()
+                                                )
+                                            ),
+                                        returnType = outerValue.type.asNullable(),
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "methodReceivingValue",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    name = "value",
+                                                    type = outerValue.type,
+                                                ),
+                                            ),
+                                        returnType = Types.unit,
+                                        isSuspend = false,
+                                    )
+                                )
+                        )
+                    ),
+                values = setOf(innerEnum, innerValue, outerValue)
+            )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })

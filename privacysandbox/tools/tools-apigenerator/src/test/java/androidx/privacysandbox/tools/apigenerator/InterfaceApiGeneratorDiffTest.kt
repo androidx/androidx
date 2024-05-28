@@ -22,16 +22,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class InterfaceApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
     override val subdirectoryName = "interfaces"
-    override val relativePathsToExpectedAidlClasses = listOf(
-        "com/sdk/IMySdk.java",
-        "com/sdk/IMyInterface.java",
-        "com/sdk/IMySecondInterface.java",
-        "com/sdk/IMyInterfaceTransactionCallback.java",
-        "com/sdk/IMySecondInterfaceTransactionCallback.java",
-        "com/sdk/IMySecondInterfaceCoreLibInfoAndBinderWrapper.java",
-        "com/sdk/IIntTransactionCallback.java",
-        "com/sdk/ICancellationSignal.java",
-        "com/sdk/ParcelableStackFrame.java",
-        "com/sdk/PrivacySandboxThrowableParcel.java",
-    )
+    override val relativePathsToExpectedAidlClasses =
+        listOf(
+            "com/sdk/IMySdk.java",
+            "com/sdk/IMyInterface.java",
+            "com/sdk/IMySecondInterface.java",
+            "com/sdk/IMyInterfaceTransactionCallback.java",
+            "com/sdk/IMySecondInterfaceTransactionCallback.java",
+            "com/sdk/IMySecondInterfaceCoreLibInfoAndBinderWrapper.java",
+            "com/sdk/IIntTransactionCallback.java",
+            "com/sdk/ICancellationSignal.java",
+            "com/sdk/ParcelableStackFrame.java",
+            "com/sdk/PrivacySandboxThrowableParcel.java",
+        )
 }

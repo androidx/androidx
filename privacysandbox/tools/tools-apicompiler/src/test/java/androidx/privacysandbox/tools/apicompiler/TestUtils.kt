@@ -24,8 +24,8 @@ import androidx.room.compiler.processing.util.compiler.TestCompilationResult
 /**
  * Compile the given sources using the PrivacySandboxKspCompiler.
  *
- * Default parameters will set required options like AIDL compiler path and use the latest
- * Android platform API stubs that support the Privacy Sandbox.
+ * Default parameters will set required options like AIDL compiler path and use the latest Android
+ * platform API stubs that support the Privacy Sandbox.
  */
 fun compileWithPrivacySandboxKspCompiler(
     sources: List<Source>,

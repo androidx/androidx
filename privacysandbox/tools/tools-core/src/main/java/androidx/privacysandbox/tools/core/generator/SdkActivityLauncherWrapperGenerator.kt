@@ -35,26 +35,33 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
     }
 
     fun generate(): FileSpec {
-        val classSpec = TypeSpec.classBuilder(className).build {
-            addSuperinterface(Types.sdkActivityLauncher.poetClassName(), CodeBlock.of("delegate"))
-            addModifiers(KModifier.PUBLIC)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "delegate",
-                        Types.sdkActivityLauncher.poetTypeName(),
-                    ).addModifiers(KModifier.PRIVATE).build(),
-                    PropertySpec.builder(
-                        "launcherInfo",
-                        SpecNames.bundleClass,
-                    ).build(),
-                ),
-                KModifier.PRIVATE,
-            )
+        val classSpec =
+            TypeSpec.classBuilder(className).build {
+                addSuperinterface(
+                    Types.sdkActivityLauncher.poetClassName(),
+                    CodeBlock.of("delegate")
+                )
+                addModifiers(KModifier.PUBLIC)
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder(
+                                "delegate",
+                                Types.sdkActivityLauncher.poetTypeName(),
+                            )
+                            .addModifiers(KModifier.PRIVATE)
+                            .build(),
+                        PropertySpec.builder(
+                                "launcherInfo",
+                                SpecNames.bundleClass,
+                            )
+                            .build(),
+                    ),
+                    KModifier.PRIVATE,
+                )
 
-            addFunction(fromLauncherInfo())
-            addType(companionObject())
-        }
+                addFunction(fromLauncherInfo())
+                addType(companionObject())
+            }
 
         return FileSpec.builder(basePackageName, className).build {
             addCommonSettings()
@@ -62,33 +69,38 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
         }
     }
 
-    private fun fromLauncherInfo() = FunSpec.constructorBuilder()
-        .addParameter("launcherInfo", SpecNames.bundleClass)
-        .callThisConstructor(
-            CodeBlock.of(
-                "%T.fromLauncherInfo(launcherInfo)",
-                ClassName(
-                    "androidx.privacysandbox.activity.provider",
-                    "SdkActivityLauncherFactory"
+    private fun fromLauncherInfo() =
+        FunSpec.constructorBuilder()
+            .addParameter("launcherInfo", SpecNames.bundleClass)
+            .callThisConstructor(
+                CodeBlock.of(
+                    "%T.fromLauncherInfo(launcherInfo)",
+                    ClassName(
+                        "androidx.privacysandbox.activity.provider",
+                        "SdkActivityLauncherFactory"
+                    ),
                 ),
-            ),
-            CodeBlock.of("launcherInfo"),
-        ).build()
+                CodeBlock.of("launcherInfo"),
+            )
+            .build()
 
-    private fun companionObject() = TypeSpec.companionObjectBuilder().addFunction(
-        FunSpec.builder("getLauncherInfo").build {
-            addParameter("launcher", Types.sdkActivityLauncher.poetClassName())
-            returns(SpecNames.bundleClass)
-            addCode {
-                addControlFlow("if (launcher is %N)", className) {
-                    addStatement("return launcher.launcherInfo")
+    private fun companionObject() =
+        TypeSpec.companionObjectBuilder()
+            .addFunction(
+                FunSpec.builder("getLauncherInfo").build {
+                    addParameter("launcher", Types.sdkActivityLauncher.poetClassName())
+                    returns(SpecNames.bundleClass)
+                    addCode {
+                        addControlFlow("if (launcher is %N)", className) {
+                            addStatement("return launcher.launcherInfo")
+                        }
+                        addStatement(
+                            "throw·IllegalStateException(%S)",
+                            "Invalid SdkActivityLauncher instance cannot be bundled. " +
+                                "SdkActivityLaunchers may only be created by apps."
+                        )
+                    }
                 }
-                addStatement(
-                    "throw·IllegalStateException(%S)",
-                    "Invalid SdkActivityLauncher instance cannot be bundled. " +
-                        "SdkActivityLaunchers may only be created by apps."
-                )
-            }
-        }
-    ).build()
+            )
+            .build()
 }

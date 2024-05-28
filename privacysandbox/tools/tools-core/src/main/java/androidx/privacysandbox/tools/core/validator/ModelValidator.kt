@@ -184,25 +184,42 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun isValidInterfaceParameterType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
-            isCallback(type) || isBundledType(type)
+        isValue(type) ||
+            isInterface(type) ||
+            isPrimitive(type) ||
+            isList(type) ||
+            isCallback(type) ||
+            isBundledType(type)
 
     private fun isValidInterfaceReturnType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+        isValue(type) ||
+            isInterface(type) ||
+            isPrimitive(type) ||
+            isList(type) ||
             isBundledType(type)
 
     private fun isValidValuePropertyType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+        isValue(type) ||
+            isInterface(type) ||
+            isPrimitive(type) ||
+            isList(type) ||
             isBundledType(type)
 
     private fun isValidCallbackParameterType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+        isValue(type) ||
+            isInterface(type) ||
+            isPrimitive(type) ||
+            isList(type) ||
             isBundledType(type)
 
     private fun isValue(type: Type) = values.contains(type.asNonNull())
+
     private fun isInterface(type: Type) = interfaces.contains(type.asNonNull())
+
     private fun isCallback(type: Type) = callbacks.contains(type.asNonNull())
+
     private fun isPrimitive(type: Type) = Types.primitiveTypes.contains(type.asNonNull())
+
     private fun isList(type: Type): Boolean {
         if (type.qualifiedName == "kotlin.collections.List") {
             require(type.typeParameters.size == 1) {

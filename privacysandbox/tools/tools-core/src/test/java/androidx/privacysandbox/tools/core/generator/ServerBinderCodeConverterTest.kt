@@ -28,51 +28,60 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ServerBinderCodeConverterTest {
-    private val converter = ServerBinderCodeConverter(
-        ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                )
-            ),
-            values = setOf(
-                AnnotatedDataClass(
-                    type = Type(packageName = "com.mysdk", simpleName = "Value"),
-                    properties = listOf()
-                )
-            ),
-            callbacks = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "Callback"),
-                )
-            ),
+    private val converter =
+        ServerBinderCodeConverter(
+            ParsedApi(
+                services =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                        )
+                    ),
+                values =
+                    setOf(
+                        AnnotatedDataClass(
+                            type = Type(packageName = "com.mysdk", simpleName = "Value"),
+                            properties = listOf()
+                        )
+                    ),
+                callbacks =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "Callback"),
+                        )
+                    ),
+            )
         )
-    )
 
     @Test
     fun convertToBinderCode_primitive() {
-        assertThat(
-            converter.convertToBinderCode(
-                Types.int, expression = "5"
-            ).toString()
-        ).isEqualTo("5")
+        assertThat(converter.convertToBinderCode(Types.int, expression = "5").toString())
+            .isEqualTo("5")
     }
 
     @Test
     fun convertToBinderCode_value() {
         assertThat(
-            converter.convertToBinderCode(
-                Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
-            ).toString()
-        ).isEqualTo("com.mysdk.ValueConverter(context).toParcelable(value)")
+                converter
+                    .convertToBinderCode(
+                        Type(packageName = "com.mysdk", simpleName = "Value"),
+                        expression = "value"
+                    )
+                    .toString()
+            )
+            .isEqualTo("com.mysdk.ValueConverter(context).toParcelable(value)")
     }
 
     @Test
     fun convertToBinderCode_callback() {
         assertThat(
-            converter.convertToBinderCode(
-                Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
-            ).toString()
-        ).isEqualTo("com.mysdk.CallbackStubDelegate(callback)")
+                converter
+                    .convertToBinderCode(
+                        Type(packageName = "com.mysdk", simpleName = "Callback"),
+                        expression = "callback"
+                    )
+                    .toString()
+            )
+            .isEqualTo("com.mysdk.CallbackStubDelegate(callback)")
     }
 }

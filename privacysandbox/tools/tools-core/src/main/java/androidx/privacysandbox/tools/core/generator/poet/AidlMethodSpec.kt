@@ -30,11 +30,10 @@ internal data class AidlMethodSpec(
     val parameters: List<AidlParameterSpec>,
     val transactionId: Int,
 ) {
-    constructor(name: String, parameters: List<AidlParameterSpec>) : this(
-        name,
-        parameters,
-        aidlTransactionId(name, parameters)
-    )
+    constructor(
+        name: String,
+        parameters: List<AidlParameterSpec>
+    ) : this(name, parameters, aidlTransactionId(name, parameters))
 
     override fun toString(): String {
         val params = parameters.joinToString(", ")
@@ -67,10 +66,14 @@ internal data class AidlMethodSpec(
 
 // This method must remain backwards-compatible to ensure SDK compatibility.
 internal fun aidlTransactionId(name: String, parameters: List<AidlParameterSpec>): Int {
-    val hash = Hashing.farmHashFingerprint64().hashString(
-        signature(name, parameters),
-        Charsets.UTF_8,
-    ).asLong().toULong()
+    val hash =
+        Hashing.farmHashFingerprint64()
+            .hashString(
+                signature(name, parameters),
+                Charsets.UTF_8,
+            )
+            .asLong()
+            .toULong()
     val maxValue = AIDL_MAX_TRANSACTION_ID - RESERVED_ID_COUNT - JAVA_MAX_METHOD_COUNT + 1UL
 
     // toInt is safe because $maxValue is well under 2^32 (in fact, under 2^24)
@@ -84,5 +87,4 @@ private fun signature(name: String, parameters: List<AidlParameterSpec>): String
 }
 
 // This method must remain backwards-compatible to ensure SDK compatibility.
-private fun AidlTypeSpec.signature(): String =
-    innerType.qualifiedName + (if (isList) "[]" else "")
+private fun AidlTypeSpec.signature(): String = innerType.qualifiedName + (if (isList) "[]" else "")

@@ -51,44 +51,49 @@ class StubDelegatesGenerator(
      *
      * This allows a server-side interface to be called by a remote ClientProxy.
      *
-     * If  [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
+     * If [target] is [GenerationTarget.SERVER] (ie. this will run on the SDK-side) includes a
      * Context that will be the SDK context.
      */
     fun generate(annotatedInterface: AnnotatedInterface, target: GenerationTarget): FileSpec {
         val className = annotatedInterface.stubDelegateNameSpec().simpleName
-        val aidlBaseClassName = ClassName(
-            annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub"
-        )
+        val aidlBaseClassName =
+            ClassName(annotatedInterface.type.packageName, annotatedInterface.aidlName(), "Stub")
 
-        val classSpec = TypeSpec.classBuilder(className).build {
-            superclass(aidlBaseClassName)
+        val classSpec =
+            TypeSpec.classBuilder(className).build {
+                superclass(aidlBaseClassName)
 
-            primaryConstructor(
-                buildList {
-                    add(
-                        PropertySpec.builder(
-                            "delegate",
-                            annotatedInterface.type.poetTypeName(),
-                        ).addModifiers(KModifier.PUBLIC).build()
-                    )
-                    if (target == SERVER) {
+                primaryConstructor(
+                    buildList {
                         add(
-                            PropertySpec.builder(contextPropertyName, contextClass)
-                                .addModifiers(KModifier.PUBLIC).build()
+                            PropertySpec.builder(
+                                    "delegate",
+                                    annotatedInterface.type.poetTypeName(),
+                                )
+                                .addModifiers(KModifier.PUBLIC)
+                                .build()
                         )
-                    }
-                },
-                KModifier.INTERNAL,
-            )
+                        if (target == SERVER) {
+                            add(
+                                PropertySpec.builder(contextPropertyName, contextClass)
+                                    .addModifiers(KModifier.PUBLIC)
+                                    .build()
+                            )
+                        }
+                    },
+                    KModifier.INTERNAL,
+                )
 
-            val coroutineProperty =
-                PropertySpec.builder(coroutineScopePropertyName, coroutineScopeClass)
-                    .addModifiers(KModifier.PRIVATE)
-                    .initializer(CodeBlock.of("%T(%T)", coroutineScopeClass, dispatchersMainClass))
-                    .build()
-            addProperty(coroutineProperty)
-            addFunctions(annotatedInterface.methods.map(::toFunSpec))
-        }
+                val coroutineProperty =
+                    PropertySpec.builder(coroutineScopePropertyName, coroutineScopeClass)
+                        .addModifiers(KModifier.PRIVATE)
+                        .initializer(
+                            CodeBlock.of("%T(%T)", coroutineScopeClass, dispatchersMainClass)
+                        )
+                        .build()
+                addProperty(coroutineProperty)
+                addFunctions(annotatedInterface.methods.map(::toFunSpec))
+            }
 
         return FileSpec.builder(annotatedInterface.type.packageName, className).build {
             addType(classSpec)
@@ -105,9 +110,7 @@ class StubDelegatesGenerator(
             addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameters(getParameters(method))
             addCode {
-                addControlFlow(
-                    "val job = %L.%M", coroutineScopePropertyName, launchMethod
-                ) {
+                addControlFlow("val job = %L.%M", coroutineScopePropertyName, launchMethod) {
                     addControlFlow("try") {
                         addStatement {
                             if (method.returnType != Types.unit) {
@@ -120,9 +123,7 @@ class StubDelegatesGenerator(
                         } else {
                             addStatement(
                                 "transactionCallback.onSuccess(%L)",
-                                binderCodeConverter.convertToBinderCode(
-                                    method.returnType, "result"
-                                )
+                                binderCodeConverter.convertToBinderCode(method.returnType, "result")
                             )
                         }
                     }
@@ -144,37 +145,48 @@ class StubDelegatesGenerator(
         }
     }
 
-    private fun toNonSuspendFunSpec(method: Method) = FunSpec.builder(method.name).build {
-        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-        addParameters(getParameters(method))
-        addCode(CodeBlock.builder().build {
-            addControlFlow("%L.%M", coroutineScopePropertyName, launchMethod) {
-                addStatement { add(getDelegateCallBlock(method)) }
-            }
-        })
-    }
+    private fun toNonSuspendFunSpec(method: Method) =
+        FunSpec.builder(method.name).build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameters(getParameters(method))
+            addCode(
+                CodeBlock.builder().build {
+                    addControlFlow("%L.%M", coroutineScopePropertyName, launchMethod) {
+                        addStatement { add(getDelegateCallBlock(method)) }
+                    }
+                }
+            )
+        }
 
     private fun getParameters(method: Method) = buildList {
-        addAll(method.parameters.map { parameter ->
-            ParameterSpec(
-                parameter.name,
-                binderCodeConverter.convertToBinderType(parameter.type)
-            )
-        })
-        if (method.isSuspend) add(
-            ParameterSpec(
-                "transactionCallback", ClassName(
-                    basePackageName,
-                    wrapWithListIfNeeded(method.returnType).transactionCallbackName()
+        addAll(
+            method.parameters.map { parameter ->
+                ParameterSpec(
+                    parameter.name,
+                    binderCodeConverter.convertToBinderType(parameter.type)
+                )
+            }
+        )
+        if (method.isSuspend)
+            add(
+                ParameterSpec(
+                    "transactionCallback",
+                    ClassName(
+                        basePackageName,
+                        wrapWithListIfNeeded(method.returnType).transactionCallbackName()
+                    )
                 )
             )
-        )
     }
 
-    private fun getDelegateCallBlock(method: Method) = CodeBlock.builder().build {
-        add("delegate.${method.name}(")
-        add(method.parameters.map { binderCodeConverter.convertToModelCode(it.type, it.name) }
-            .joinToCode())
-        add(")")
-    }
+    private fun getDelegateCallBlock(method: Method) =
+        CodeBlock.builder().build {
+            add("delegate.${method.name}(")
+            add(
+                method.parameters
+                    .map { binderCodeConverter.convertToModelCode(it.type, it.name) }
+                    .joinToCode()
+            )
+            add(")")
+        }
 }

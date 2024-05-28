@@ -26,19 +26,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @OptIn(ExperimentalCoroutinesApi::class)
 internal fun <T> Deferred<T>.asListenableFuture(
     tag: Any? = "Deferred.asListenableFuture"
-): ListenableFuture<T> = CallbackToFutureAdapter.getFuture { completer ->
-
-    this.invokeOnCompletion {
-        if (it != null) {
-            if (it is CancellationException) {
-                completer.setCancelled()
+): ListenableFuture<T> =
+    CallbackToFutureAdapter.getFuture { completer ->
+        this.invokeOnCompletion {
+            if (it != null) {
+                if (it is CancellationException) {
+                    completer.setCancelled()
+                } else {
+                    completer.setException(it)
+                }
             } else {
-                completer.setException(it)
+                // Ignore exceptions - This should never throw in this situation.
+                completer.set(this.getCompleted())
             }
-        } else {
-            // Ignore exceptions - This should never throw in this situation.
-            completer.set(this.getCompleted())
         }
+        tag
     }
-    tag
-}

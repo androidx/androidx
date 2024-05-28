@@ -36,41 +36,49 @@ class AdSelectionConfigTest {
     private val perBuyerSignals: Map<AdTechIdentifier, AdSelectionSignals> =
         mutableMapOf(Pair(seller, sellerSignals))
     private val trustedScoringSignalsUri: Uri = Uri.parse("www.xyz.com")
+
     @Test
     fun testToString() {
-        val result = "AdSelectionConfig: seller=$seller, decisionLogicUri='$decisionLogicUri', " +
-            "customAudienceBuyers=$customAudienceBuyers, adSelectionSignals=$adSelectionSignals, " +
-            "sellerSignals=$sellerSignals, perBuyerSignals=$perBuyerSignals, " +
-            "trustedScoringSignalsUri=$trustedScoringSignalsUri"
-        val request = AdSelectionConfig(
-            seller,
-            decisionLogicUri,
-            customAudienceBuyers,
-            adSelectionSignals,
-            sellerSignals,
-            perBuyerSignals,
-            trustedScoringSignalsUri)
+        val result =
+            "AdSelectionConfig: seller=$seller, decisionLogicUri='$decisionLogicUri', " +
+                "customAudienceBuyers=$customAudienceBuyers, adSelectionSignals=$adSelectionSignals, " +
+                "sellerSignals=$sellerSignals, perBuyerSignals=$perBuyerSignals, " +
+                "trustedScoringSignalsUri=$trustedScoringSignalsUri"
+        val request =
+            AdSelectionConfig(
+                seller,
+                decisionLogicUri,
+                customAudienceBuyers,
+                adSelectionSignals,
+                sellerSignals,
+                perBuyerSignals,
+                trustedScoringSignalsUri
+            )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adSelectionConfig = AdSelectionConfig(
-            seller,
-            decisionLogicUri,
-            customAudienceBuyers,
-            adSelectionSignals,
-            sellerSignals,
-            perBuyerSignals,
-            trustedScoringSignalsUri)
-        var adSelectionConfig2 = AdSelectionConfig(
-            AdTechIdentifier("1234"),
-            Uri.parse("www.abc.com"),
-            customAudienceBuyers,
-            adSelectionSignals,
-            sellerSignals,
-            perBuyerSignals,
-            trustedScoringSignalsUri)
+        val adSelectionConfig =
+            AdSelectionConfig(
+                seller,
+                decisionLogicUri,
+                customAudienceBuyers,
+                adSelectionSignals,
+                sellerSignals,
+                perBuyerSignals,
+                trustedScoringSignalsUri
+            )
+        var adSelectionConfig2 =
+            AdSelectionConfig(
+                AdTechIdentifier("1234"),
+                Uri.parse("www.abc.com"),
+                customAudienceBuyers,
+                adSelectionSignals,
+                sellerSignals,
+                perBuyerSignals,
+                trustedScoringSignalsUri
+            )
         Truth.assertThat(adSelectionConfig == adSelectionConfig2).isTrue()
     }
 }

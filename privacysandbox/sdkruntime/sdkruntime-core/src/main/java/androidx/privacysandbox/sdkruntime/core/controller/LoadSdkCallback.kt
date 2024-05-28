@@ -20,11 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 
-/**
- * Callback for [SdkSandboxControllerCompat.loadSdk]
- */
+/** Callback for [SdkSandboxControllerCompat.loadSdk] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface LoadSdkCallback {
     fun onResult(result: SandboxedSdkCompat)
+
     fun onError(error: LoadSdkCompatException)
 }

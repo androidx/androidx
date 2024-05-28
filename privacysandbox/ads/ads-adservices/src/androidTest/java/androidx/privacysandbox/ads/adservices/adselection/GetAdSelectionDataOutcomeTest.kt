@@ -29,10 +29,12 @@ import org.junit.runner.RunWith
 class GetAdSelectionDataOutcomeTest {
     private val adSelectionId = 1234L
     private val adSelectionData = byteArrayOf(0x01, 0x02, 0x03, 0x04)
+
     @Test
     fun testToString() {
-        val result = "GetAdSelectionDataOutcome: adSelectionId=$adSelectionId, " +
-            "adSelectionData=$adSelectionData"
+        val result =
+            "GetAdSelectionDataOutcome: adSelectionId=$adSelectionId, " +
+                "adSelectionData=$adSelectionData"
         val request = GetAdSelectionDataOutcome(adSelectionId, adSelectionData)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -40,10 +42,8 @@ class GetAdSelectionDataOutcomeTest {
     @Test
     fun testEquals() {
         val getAdSelectionDataOutcome = GetAdSelectionDataOutcome(adSelectionId, adSelectionData)
-        var getAdSelectionDataOutcome2 = GetAdSelectionDataOutcome(
-            adSelectionId,
-            byteArrayOf(0x01, 0x02, 0x03, 0x04)
-        )
+        var getAdSelectionDataOutcome2 =
+            GetAdSelectionDataOutcome(adSelectionId, byteArrayOf(0x01, 0x02, 0x03, 0x04))
         Truth.assertThat(getAdSelectionDataOutcome == getAdSelectionDataOutcome2).isTrue()
     }
 }

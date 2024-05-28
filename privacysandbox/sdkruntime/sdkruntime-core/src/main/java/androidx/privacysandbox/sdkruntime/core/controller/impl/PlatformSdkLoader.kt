@@ -33,35 +33,21 @@ import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import java.util.concurrent.Executor
 
 /**
- * Trying to load SDK using [SdkSandboxController].
- * Throws [LoadSdkCompatException] if loading SDK not supported in [SdkSandboxController].
+ * Trying to load SDK using [SdkSandboxController]. Throws [LoadSdkCompatException] if loading SDK
+ * not supported in [SdkSandboxController].
  */
 @RequiresApi(34)
-internal class PlatformSdkLoader private constructor(
-    private val loaderImpl: LoaderImpl
-) {
+internal class PlatformSdkLoader private constructor(private val loaderImpl: LoaderImpl) {
 
-    fun loadSdk(
-        sdkName: String,
-        params: Bundle,
-        executor: Executor,
-        receiver: LoadSdkCallback
-    ) {
+    fun loadSdk(sdkName: String, params: Bundle, executor: Executor, receiver: LoadSdkCallback) {
         loaderImpl.loadSdk(sdkName, params, executor, receiver)
     }
 
     private interface LoaderImpl {
-        fun loadSdk(
-            sdkName: String,
-            params: Bundle,
-            executor: Executor,
-            callback: LoadSdkCallback
-        )
+        fun loadSdk(sdkName: String, params: Bundle, executor: Executor, callback: LoadSdkCallback)
     }
 
-    /**
-     * Implementation for cases when API not supported by [SdkSandboxController]
-     */
+    /** Implementation for cases when API not supported by [SdkSandboxController] */
     private object FailImpl : LoaderImpl {
         override fun loadSdk(
             sdkName: String,
@@ -80,14 +66,10 @@ internal class PlatformSdkLoader private constructor(
         }
     }
 
-    /**
-     * Implementation for AdServices V10.
-     */
+    /** Implementation for AdServices V10. */
     @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
-    private class ApiAdServicesV10Impl(
-        private val controller: SdkSandboxController
-    ) : LoaderImpl {
+    private class ApiAdServicesV10Impl(private val controller: SdkSandboxController) : LoaderImpl {
         @DoNotInline
         override fun loadSdk(
             sdkName: String,

@@ -23,18 +23,24 @@ import java.io.File
 fun loadSourcesFromDirectory(directory: File): List<Source> {
     check(directory.exists()) { "${directory.path} doesn't exist." }
     check(directory.isDirectory) { "${directory.path} is not a directory." }
-    return directory.walk().filter { it.isFile }.map {
-        val relativePath = directory.toPath().relativize(it.toPath()).toString()
-        val qualifiedName = relativePath.removeSuffix(".${it.extension}").replace('/', '.')
-        Source.load(file = it, qName = qualifiedName, relativePath = relativePath)
-    }.toList()
+    return directory
+        .walk()
+        .filter { it.isFile }
+        .map {
+            val relativePath = directory.toPath().relativize(it.toPath()).toString()
+            val qualifiedName = relativePath.removeSuffix(".${it.extension}").replace('/', '.')
+            Source.load(file = it, qName = qualifiedName, relativePath = relativePath)
+        }
+        .toList()
 }
 
 /** Load files in the given directory as pairs <relative path, content>. */
 fun loadFilesFromDirectory(directory: File): List<Pair<String, String>> {
     check(directory.exists()) { "${directory.path} doesn't exist." }
     check(directory.isDirectory) { "${directory.path} is not a directory." }
-    return directory.walk().filter { it.isFile }.map {
-        directory.toPath().relativize(it.toPath()).toString() to it.readText()
-    }.toList()
+    return directory
+        .walk()
+        .filter { it.isFile }
+        .map { directory.toPath().relativize(it.toPath()).toString() to it.readText() }
+        .toList()
 }

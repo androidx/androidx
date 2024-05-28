@@ -31,16 +31,12 @@ import java.io.File
 /**
  * Create folders for Local SDKs in ([Context.getCodeCacheDir] / RuntimeEnabledSdk / <packageName>)
  * Store Application update time ([android.content.pm.PackageInfo.lastUpdateTime]) in
- * ([Context.getCodeCacheDir] / RuntimeEnabledSdk / Folder.version) file.
- * Remove SDK Folders if Application was updated after folders were created.
+ * ([Context.getCodeCacheDir] / RuntimeEnabledSdk / Folder.version) file. Remove SDK Folders if
+ * Application was updated after folders were created.
  */
-internal class LocalSdkFolderProvider private constructor(
-    private val sdkRootFolder: File
-) {
+internal class LocalSdkFolderProvider private constructor(private val sdkRootFolder: File) {
 
-    /**
-     * Return folder on storage that should be used for storing SDK DEX files.
-     */
+    /** Return folder on storage that should be used for storing SDK DEX files. */
     fun dexFolderFor(sdkConfig: LocalSdkConfig): File {
         val sdkDexFolder = File(sdkRootFolder, sdkConfig.packageName)
         if (!sdkDexFolder.exists()) {
@@ -58,8 +54,8 @@ internal class LocalSdkFolderProvider private constructor(
         /**
          * Create LocalSdkFolderProvider.
          *
-         * Check if current root folder created in same app installation
-         * and remove folder content if not.
+         * Check if current root folder created in same app installation and remove folder content
+         * if not.
          */
         fun create(context: Context): LocalSdkFolderProvider {
             val sdkRootFolder = createSdkRootFolder(context)
@@ -132,18 +128,15 @@ internal class LocalSdkFolderProvider private constructor(
 
     @RequiresApi(LOLLIPOP)
     private object Api21Impl {
-        @DoNotInline
-        fun codeCacheDir(context: Context): File =
-            context.codeCacheDir
+        @DoNotInline fun codeCacheDir(context: Context): File = context.codeCacheDir
     }
 
     @RequiresApi(TIRAMISU)
     private object Api33Impl {
         @DoNotInline
         fun getLastUpdateTime(context: Context): Long =
-            context.packageManager.getPackageInfo(
-                context.packageName,
-                PackageManager.PackageInfoFlags.of(0)
-            ).lastUpdateTime
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+                .lastUpdateTime
     }
 }

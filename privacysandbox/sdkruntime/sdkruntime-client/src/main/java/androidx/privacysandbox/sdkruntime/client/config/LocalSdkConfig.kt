@@ -15,10 +15,7 @@
  */
 package androidx.privacysandbox.sdkruntime.client.config
 
-/**
- * Information required for loading SDK bundled with App.
- *
- */
+/** Information required for loading SDK bundled with App. */
 internal data class LocalSdkConfig(
     val packageName: String,
     val versionMajor: Int? = null,
@@ -28,7 +25,4 @@ internal data class LocalSdkConfig(
     val resourceRemapping: ResourceRemappingConfig? = null
 )
 
-internal data class ResourceRemappingConfig(
-    val rPackageClassName: String,
-    val packageId: Int
-)
+internal data class ResourceRemappingConfig(val rPackageClassName: String, val packageId: Int)

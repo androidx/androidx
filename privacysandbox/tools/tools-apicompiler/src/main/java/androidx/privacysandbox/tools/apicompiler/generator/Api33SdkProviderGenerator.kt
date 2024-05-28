@@ -32,34 +32,31 @@ import com.squareup.kotlinpoet.KModifier
 internal class Api33SdkProviderGenerator(parsedApi: ParsedApi) :
     AbstractSdkProviderGenerator(parsedApi) {
     companion object {
-        private val sandboxedSdkClass =
-            ClassName("android.app.sdksandbox", "SandboxedSdk")
+        private val sandboxedSdkClass = ClassName("android.app.sdksandbox", "SandboxedSdk")
     }
 
-    override val superclassName =
-        ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
+    override val superclassName = ClassName("android.app.sdksandbox", "SandboxedSdkProvider")
 
-    override fun generateOnLoadSdkFunction() = FunSpec.builder("onLoadSdk").build {
-        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-        addParameter("params", bundleClass)
-        returns(sandboxedSdkClass)
+    override fun generateOnLoadSdkFunction() =
+        FunSpec.builder("onLoadSdk").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameter("params", bundleClass)
+            returns(sandboxedSdkClass)
 
-        addStatement("val ctx = %N", contextPropertyName)
-        addCode {
-            addControlFlow("if (ctx == null)") {
-                addStatement(
-                    "throw IllegalStateException(\"Context must not be null. " +
-                        "Do you need to call attachContext()?\")"
-                )
+            addStatement("val ctx = %N", contextPropertyName)
+            addCode {
+                addControlFlow("if (ctx == null)") {
+                    addStatement(
+                        "throw IllegalStateException(\"Context must not be null. " +
+                            "Do you need to call attachContext()?\")"
+                    )
+                }
             }
+            addStatement("val sdk = ${createServiceFunctionName(api.getOnlyService())}(ctx)")
+            addStatement(
+                "return %T(%T(sdk, ctx))",
+                sandboxedSdkClass,
+                api.getOnlyService().stubDelegateNameSpec(),
+            )
         }
-        addStatement(
-            "val sdk = ${createServiceFunctionName(api.getOnlyService())}(ctx)"
-        )
-        addStatement(
-            "return %T(%T(sdk, ctx))",
-            sandboxedSdkClass,
-            api.getOnlyService().stubDelegateNameSpec(),
-        )
-    }
 }

@@ -19,30 +19,26 @@ package androidx.privacysandbox.sdkruntime.client.loader
 import androidx.privacysandbox.sdkruntime.client.config.ResourceRemappingConfig
 
 /**
- * Update RPackage.packageId for supporting Android Resource remapping for SDK.
- * Each resource has id calculated as id = RPackage.packageId + index.
- * Id structure is (1 byte - packageId) (1 byte - type) (2 byte - index).
- * Updating packageId effectively shifting all SDK resource ids in resource table.
- * [ResourceRemappingConfig] contains a new packageId component (first byte) for SDK.
- * This value need to be shifted before updating RPackage.packageId.
- * IMPORTANT: ResourceRemapping should happen before ANY interactions with R.class
+ * Update RPackage.packageId for supporting Android Resource remapping for SDK. Each resource has id
+ * calculated as id = RPackage.packageId + index. Id structure is (1 byte - packageId) (1 byte -
+ * type) (2 byte - index). Updating packageId effectively shifting all SDK resource ids in resource
+ * table. [ResourceRemappingConfig] contains a new packageId component (first byte) for SDK. This
+ * value need to be shifted before updating RPackage.packageId. IMPORTANT: ResourceRemapping should
+ * happen before ANY interactions with R.class
  */
 internal object ResourceRemapping {
 
     private const val PACKAGE_ID_FIELD_NAME = "packageId"
 
-    fun apply(
-        sdkClassLoader: ClassLoader,
-        remappingConfig: ResourceRemappingConfig?
-    ) {
-        if (remappingConfig == null)
-            return
+    fun apply(sdkClassLoader: ClassLoader, remappingConfig: ResourceRemappingConfig?) {
+        if (remappingConfig == null) return
 
-        val rPackageClass = Class.forName(
-            remappingConfig.rPackageClassName,
-            /* initialize = */ false,
-            sdkClassLoader
-        )
+        val rPackageClass =
+            Class.forName(
+                remappingConfig.rPackageClassName,
+                /* initialize = */ false,
+                sdkClassLoader
+            )
 
         val field = rPackageClass.getDeclaredField(PACKAGE_ID_FIELD_NAME)
 

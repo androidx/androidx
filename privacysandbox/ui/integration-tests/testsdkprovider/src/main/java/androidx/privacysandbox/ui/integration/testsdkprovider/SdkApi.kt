@@ -52,16 +52,17 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         return MediatedBannerAd(mediateeBannerAdBundle).toCoreLibInfo(sdkContext)
     }
 
-    override fun requestResize(width: Int, height: Int) {
-    }
+    override fun requestResize(width: Int, height: Int) {}
 
     private inner class MediatedBannerAd(private val mediateeBannerAdBundle: Bundle?) :
         TestAdapters.BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
             if (mediateeBannerAdBundle == null) {
-                return testAdapters.TestBannerAdWithWaitInsideOnDraw(
-                    "Mediated SDK is not loaded, this is a mediator Ad!"
-                ).buildAdView(sdkContext)
+                return testAdapters
+                    .TestBannerAdWithWaitInsideOnDraw(
+                        "Mediated SDK is not loaded, this is a mediator Ad!"
+                    )
+                    .buildAdView(sdkContext)
             }
 
             val view = SandboxedSdkView(sdkContext)
@@ -71,31 +72,28 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private fun getMediateeBannerAdBundle(
-        count: Int,
-        isAppMediatee: Boolean
-    ): Bundle? {
-        val sdkSandboxControllerCompat = SdkSandboxControllerCompat
-            .from(testAdapters.sdkContext)
+    private fun getMediateeBannerAdBundle(count: Int, isAppMediatee: Boolean): Bundle? {
+        val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(testAdapters.sdkContext)
         if (isAppMediatee) {
-            val appOwnedSdkSandboxInterfaces = sdkSandboxControllerCompat
-                .getAppOwnedSdkSandboxInterfaces()
-            appOwnedSdkSandboxInterfaces.forEach {
-                    appOwnedSdkSandboxInterfaceCompat ->
+            val appOwnedSdkSandboxInterfaces =
+                sdkSandboxControllerCompat.getAppOwnedSdkSandboxInterfaces()
+            appOwnedSdkSandboxInterfaces.forEach { appOwnedSdkSandboxInterfaceCompat ->
                 if (appOwnedSdkSandboxInterfaceCompat.getName().equals(MEDIATEE_SDK)) {
-                    val appOwnedMediateeSdkApi = IAppOwnedMediateeSdkApi.Stub
-                        .asInterface(appOwnedSdkSandboxInterfaceCompat.getInterface())
-                    return appOwnedMediateeSdkApi
-                        .loadTestAdWithWaitInsideOnDraw("AppOwnedMediation #$count")
+                    val appOwnedMediateeSdkApi =
+                        IAppOwnedMediateeSdkApi.Stub.asInterface(
+                            appOwnedSdkSandboxInterfaceCompat.getInterface()
+                        )
+                    return appOwnedMediateeSdkApi.loadTestAdWithWaitInsideOnDraw(
+                        "AppOwnedMediation #$count"
+                    )
                 }
             }
         } else {
             val sandboxedSdks = sdkSandboxControllerCompat.getSandboxedSdks()
-            sandboxedSdks.forEach {
-                    sandboxedSdkCompat ->
+            sandboxedSdks.forEach { sandboxedSdkCompat ->
                 if (sandboxedSdkCompat.getSdkInfo()?.name.equals(MEDIATEE_SDK)) {
-                    val mediateeSdkApi = IMediateeSdkApi.Stub
-                        .asInterface(sandboxedSdkCompat.getInterface())
+                    val mediateeSdkApi =
+                        IMediateeSdkApi.Stub.asInterface(sandboxedSdkCompat.getInterface())
                     return mediateeSdkApi.loadTestAdWithWaitInsideOnDraw("Mediation #$count")
                 }
             }

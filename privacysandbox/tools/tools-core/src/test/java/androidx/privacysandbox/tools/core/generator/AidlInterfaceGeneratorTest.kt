@@ -33,58 +33,75 @@ import org.junit.runners.JUnit4
 class AidlInterfaceGeneratorTest {
     @Test
     fun generate() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    methods = listOf(
-                        Method(
-                            name = "methodWithInterfaceParam",
-                            parameters = listOf(
-                                Parameter("myInterface", Type("com.mysdk", "MyInterface"))
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        ),
-                        Method(
-                            name = "suspendMethodWithInterfaceReturn",
-                            parameters = listOf(),
-                            returnType = Type("com.mysdk", "MyInterface"),
-                            isSuspend = true,
+        val api =
+            ParsedApi(
+                services =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                            methods =
+                                listOf(
+                                    Method(
+                                        name = "methodWithInterfaceParam",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    "myInterface",
+                                                    Type("com.mysdk", "MyInterface")
+                                                )
+                                            ),
+                                        returnType = Types.unit,
+                                        isSuspend = false,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithInterfaceReturn",
+                                        parameters = listOf(),
+                                        returnType = Type("com.mysdk", "MyInterface"),
+                                        isSuspend = true,
+                                    )
+                                )
+                        )
+                    ),
+                interfaces =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
+                            methods =
+                                listOf(
+                                    Method(
+                                        name = "methodWithInterfaceParam",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    "myInterface",
+                                                    Type("com.mysdk", "MyInterface")
+                                                )
+                                            ),
+                                        returnType = Types.unit,
+                                        isSuspend = false,
+                                    ),
+                                    Method(
+                                        name = "suspendMethodWithInterfaceReturn",
+                                        parameters = listOf(),
+                                        returnType = Type("com.mysdk", "MyInterface"),
+                                        isSuspend = true,
+                                    ),
+                                    Method(
+                                        name = "methodWithActivityLauncherParam",
+                                        parameters =
+                                            listOf(
+                                                Parameter(
+                                                    "activityLauncher",
+                                                    Types.sdkActivityLauncher
+                                                )
+                                            ),
+                                        returnType = Types.unit,
+                                        isSuspend = false,
+                                    ),
+                                )
                         )
                     )
-                )
-            ),
-            interfaces = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MyInterface"),
-                    methods = listOf(
-                        Method(
-                            name = "methodWithInterfaceParam",
-                            parameters = listOf(
-                                Parameter("myInterface", Type("com.mysdk", "MyInterface"))
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        ),
-                        Method(
-                            name = "suspendMethodWithInterfaceReturn",
-                            parameters = listOf(),
-                            returnType = Type("com.mysdk", "MyInterface"),
-                            isSuspend = true,
-                        ),
-                        Method(
-                            name = "methodWithActivityLauncherParam",
-                            parameters = listOf(
-                                Parameter("activityLauncher", Types.sdkActivityLauncher)
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        ),
-                    )
-                )
             )
-        )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)
         assertThat(javaGeneratedSources.map { it.packageName to it.interfaceName })

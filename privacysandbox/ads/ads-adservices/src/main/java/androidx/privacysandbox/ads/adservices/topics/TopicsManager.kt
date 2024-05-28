@@ -33,20 +33,20 @@ abstract class TopicsManager internal constructor() {
      * Return the topics.
      *
      * @param request The GetTopicsRequest for obtaining Topics.
+     * @return GetTopicsResponse
      * @throws SecurityException if caller is not authorized to call this API.
      * @throws IllegalStateException if this API is not available.
      * @throws LimitExceededException if rate limit was reached.
-     * @return GetTopicsResponse
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse
 
     companion object {
         /**
-         *  Creates [TopicsManager].
+         * Creates [TopicsManager].
          *
-         *  @return TopicsManagerCompat object. If the device is running an incompatible
-         *  build, the value returned is null.
+         * @return TopicsManagerCompat object. If the device is running an incompatible build, the
+         *   value returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")

@@ -30,13 +30,11 @@ import java.io.FileOutputStream
 /**
  * Refers to the context of the SDK loaded locally.
  *
- * Supports Per-SDK storage by pointing storage related APIs to folders unique for each SDK.
- * Where possible maintains same folders hierarchy as for applications by creating folders
- * inside [getDataDir].
- * Folders with special permissions or additional logic (caches, etc) created as subfolders of same
- * application folders.
- * SDK Shared Preferences supported by adding prefix to name and delegating to Application
- * Shared Preferences.
+ * Supports Per-SDK storage by pointing storage related APIs to folders unique for each SDK. Where
+ * possible maintains same folders hierarchy as for applications by creating folders inside
+ * [getDataDir]. Folders with special permissions or additional logic (caches, etc) created as
+ * subfolders of same application folders. SDK Shared Preferences supported by adding prefix to name
+ * and delegating to Application Shared Preferences.
  *
  * SDK Folders hierarchy (from application [getDataDir]):
  * 1) /cache/RuntimeEnabledSdksData/<sdk_package_name> - cache
@@ -62,62 +60,43 @@ internal class SandboxedSdkContextCompat(
         )
     }
 
-    /**
-     *  Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name>
-     */
+    /** Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name> */
     override fun getDataDir(): File {
-        val sdksDataRoot = baseContext.getDir(
-            SDK_ROOT_FOLDER,
-            Context.MODE_PRIVATE
-        )
+        val sdksDataRoot = baseContext.getDir(SDK_ROOT_FOLDER, Context.MODE_PRIVATE)
         return ensureDirExists(sdksDataRoot, sdkPackageName)
     }
 
-    /**
-     *  Points to <app_data_dir>/cache/RuntimeEnabledSdksData/<sdk_package_name>
-     */
+    /** Points to <app_data_dir>/cache/RuntimeEnabledSdksData/<sdk_package_name> */
     override fun getCacheDir(): File {
         val sdksCacheRoot = ensureDirExists(baseContext.cacheDir, SDK_ROOT_FOLDER)
         return ensureDirExists(sdksCacheRoot, sdkPackageName)
     }
 
-    /**
-     *  Points to <app_data_dir>/code_cache/RuntimeEnabledSdksData/<sdk_package_name>
-     */
+    /** Points to <app_data_dir>/code_cache/RuntimeEnabledSdksData/<sdk_package_name> */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun getCodeCacheDir(): File {
-        val sdksCodeCacheRoot = ensureDirExists(
-            Api21.codeCacheDir(baseContext),
-            SDK_ROOT_FOLDER
-        )
+        val sdksCodeCacheRoot = ensureDirExists(Api21.codeCacheDir(baseContext), SDK_ROOT_FOLDER)
         return ensureDirExists(sdksCodeCacheRoot, sdkPackageName)
     }
 
-    /**
-     *  Points to <app_data_dir>/no_backup/RuntimeEnabledSdksData/<sdk_package_name>
-     */
+    /** Points to <app_data_dir>/no_backup/RuntimeEnabledSdksData/<sdk_package_name> */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun getNoBackupFilesDir(): File {
-        val sdksNoBackupRoot = ensureDirExists(
-            Api21.noBackupFilesDir(baseContext),
-            SDK_ROOT_FOLDER
-        )
+        val sdksNoBackupRoot = ensureDirExists(Api21.noBackupFilesDir(baseContext), SDK_ROOT_FOLDER)
         return ensureDirExists(sdksNoBackupRoot, sdkPackageName)
     }
 
     /**
-     *  Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name>/app_<folder_name>
-     *  Prefix required to maintain same hierarchy as for applications - when dir could be
-     *  accessed by both [getDir] and [getDir]/app_<folder_name>.
+     * Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name>/app_<folder_name>
+     * Prefix required to maintain same hierarchy as for applications - when dir could be accessed
+     * by both [getDir] and [getDir]/app_<folder_name>.
      */
     override fun getDir(name: String, mode: Int): File {
         val dirName = "app_$name"
         return ensureDirExists(dataDir, dirName)
     }
 
-    /**
-     *  Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name>/files
-     */
+    /** Points to <app_data_dir>/app_RuntimeEnabledSdksData/<sdk_package_name>/files */
     override fun getFilesDir(): File {
         return ensureDirExists(dataDir, "files")
     }
@@ -181,18 +160,12 @@ internal class SandboxedSdkContextCompat(
         synchronized(SandboxedSdkContextCompat::class.java) {
             val source = sourceContext.getDatabasePath(name)
             val target = getDatabasePath(name)
-            return MigrationUtils.moveFiles(
-                source.parentFile!!,
-                target.parentFile!!,
-                source.name
-            )
+            return MigrationUtils.moveFiles(source.parentFile!!, target.parentFile!!, source.name)
         }
     }
 
     override fun deleteDatabase(name: String): Boolean {
-        return baseContext.deleteDatabase(
-            getDatabasePath(name).absolutePath
-        )
+        return baseContext.deleteDatabase(getDatabasePath(name).absolutePath)
     }
 
     override fun databaseList(): Array<String> {
@@ -200,16 +173,12 @@ internal class SandboxedSdkContextCompat(
     }
 
     override fun getSharedPreferences(name: String, mode: Int): SharedPreferences {
-        return baseContext.getSharedPreferences(
-            getSdkSharedPreferenceName(name),
-            mode
-        )
+        return baseContext.getSharedPreferences(getSdkSharedPreferenceName(name), mode)
     }
 
     /**
-     * Only moving between instances of [SandboxedSdkContextCompat] supported.
-     * Supporting of other contexts not possible as prefixed name will not be found by
-     * internal context implementation.
+     * Only moving between instances of [SandboxedSdkContextCompat] supported. Supporting of other
+     * contexts not possible as prefixed name will not be found by internal context implementation.
      * SDK should work ONLY with SDK context.
      */
     @RequiresApi(Build.VERSION_CODES.N)
@@ -234,11 +203,12 @@ internal class SandboxedSdkContextCompat(
 
         synchronized(SandboxedSdkContextCompat::class.java) {
             val sdkSharedPreferencesName = getSdkSharedPreferenceName(name)
-            val moveResult = MigrationUtils.moveFiles(
-                sourceSharedPreferencesDir,
-                targetSharedPreferencesDir,
-                "$sdkSharedPreferencesName.xml"
-            )
+            val moveResult =
+                MigrationUtils.moveFiles(
+                    sourceSharedPreferencesDir,
+                    targetSharedPreferencesDir,
+                    "$sdkSharedPreferencesName.xml"
+                )
 
             if (moveResult) {
                 // clean cache in source context
@@ -251,18 +221,14 @@ internal class SandboxedSdkContextCompat(
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun deleteSharedPreferences(name: String): Boolean {
-        return Api24.deleteSharedPreferences(
-            baseContext,
-            getSdkSharedPreferenceName(name)
-        )
+        return Api24.deleteSharedPreferences(baseContext, getSdkSharedPreferenceName(name))
     }
 
     override fun getClassLoader(): ClassLoader? {
         return classLoader
     }
 
-    private fun getDatabasesDir(): File =
-        ensureDirExists(dataDir, "databases")
+    private fun getDatabasesDir(): File = ensureDirExists(dataDir, "databases")
 
     private fun getSdkSharedPreferenceName(originalName: String) =
         "${SDK_SHARED_PREFERENCES_PREFIX}_${sdkPackageName}_$originalName"
@@ -273,9 +239,7 @@ internal class SandboxedSdkContextCompat(
 
     private fun makeFilename(parent: File, name: String): File {
         if (name.indexOf(File.separatorChar) >= 0) {
-            throw IllegalArgumentException(
-                "File $name contains a path separator"
-            )
+            throw IllegalArgumentException("File $name contains a path separator")
         }
         return File(parent, name)
     }
@@ -290,11 +254,9 @@ internal class SandboxedSdkContextCompat(
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private object Api21 {
-        @DoNotInline
-        fun codeCacheDir(context: Context): File = context.codeCacheDir
+        @DoNotInline fun codeCacheDir(context: Context): File = context.codeCacheDir
 
-        @DoNotInline
-        fun noBackupFilesDir(context: Context): File = context.noBackupFilesDir
+        @DoNotInline fun noBackupFilesDir(context: Context): File = context.noBackupFilesDir
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -303,8 +265,7 @@ internal class SandboxedSdkContextCompat(
         fun createDeviceProtectedStorageContext(context: Context): Context =
             context.createDeviceProtectedStorageContext()
 
-        @DoNotInline
-        fun dataDir(context: Context): File = context.dataDir
+        @DoNotInline fun dataDir(context: Context): File = context.dataDir
 
         @DoNotInline
         fun deleteSharedPreferences(context: Context, name: String): Boolean =

@@ -28,51 +28,60 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ClientBinderCodeConverterTest {
-    private val converter = ClientBinderCodeConverter(
-        ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                )
-            ),
-            values = setOf(
-                AnnotatedDataClass(
-                    type = Type(packageName = "com.mysdk", simpleName = "Value"),
-                    properties = listOf()
-                )
-            ),
-            callbacks = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "Callback"),
-                )
-            ),
+    private val converter =
+        ClientBinderCodeConverter(
+            ParsedApi(
+                services =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                        )
+                    ),
+                values =
+                    setOf(
+                        AnnotatedDataClass(
+                            type = Type(packageName = "com.mysdk", simpleName = "Value"),
+                            properties = listOf()
+                        )
+                    ),
+                callbacks =
+                    setOf(
+                        AnnotatedInterface(
+                            type = Type(packageName = "com.mysdk", simpleName = "Callback"),
+                        )
+                    ),
+            )
         )
-    )
 
     @Test
     fun convertToModelCode_primitive() {
-        assertThat(
-            converter.convertToModelCode(
-                Types.int, expression = "5"
-            ).toString()
-        ).isEqualTo("5")
+        assertThat(converter.convertToModelCode(Types.int, expression = "5").toString())
+            .isEqualTo("5")
     }
 
     @Test
     fun convertToModelCode_value() {
         assertThat(
-            converter.convertToModelCode(
-                Type(packageName = "com.mysdk", simpleName = "Value"), expression = "value"
-            ).toString()
-        ).isEqualTo("com.mysdk.ValueConverter.fromParcelable(value)")
+                converter
+                    .convertToModelCode(
+                        Type(packageName = "com.mysdk", simpleName = "Value"),
+                        expression = "value"
+                    )
+                    .toString()
+            )
+            .isEqualTo("com.mysdk.ValueConverter.fromParcelable(value)")
     }
 
     @Test
     fun convertToModelCode_callback() {
         assertThat(
-            converter.convertToModelCode(
-                Type(packageName = "com.mysdk", simpleName = "Callback"), expression = "callback"
-            ).toString()
-        ).isEqualTo("com.mysdk.CallbackClientProxy(callback, context)")
+                converter
+                    .convertToModelCode(
+                        Type(packageName = "com.mysdk", simpleName = "Callback"),
+                        expression = "callback"
+                    )
+                    .toString()
+            )
+            .isEqualTo("com.mysdk.CallbackClientProxy(callback, context)")
     }
 }

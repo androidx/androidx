@@ -31,10 +31,7 @@ import org.junit.Test
  */
 abstract class AbstractApiGeneratorDiffTest : AbstractDiffTest() {
 
-    override fun generateSources(
-        inputSources: List<Source>,
-        outputDirectory: Path
-    ): List<Source> {
+    override fun generateSources(inputSources: List<Source>, outputDirectory: Path): List<Source> {
         val descriptors =
             compileIntoInterfaceDescriptorsJar(
                 inputSources,
@@ -43,7 +40,10 @@ abstract class AbstractApiGeneratorDiffTest : AbstractDiffTest() {
         val generator = PrivacySandboxApiGenerator()
         generator.generate(
             descriptors,
-            TestEnvironment.aidlCompilerPath, TestEnvironment.frameworkAidlPath, outputDirectory)
+            TestEnvironment.aidlCompilerPath,
+            TestEnvironment.frameworkAidlPath,
+            outputDirectory
+        )
         return loadSourcesFromDirectory(outputDirectory.toFile())
     }
 

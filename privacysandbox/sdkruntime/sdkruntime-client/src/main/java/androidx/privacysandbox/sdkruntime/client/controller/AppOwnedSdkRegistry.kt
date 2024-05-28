@@ -18,9 +18,7 @@ package androidx.privacysandbox.sdkruntime.client.controller
 
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
-/**
- * Register/Unregister/Fetches [AppOwnedSdkSandboxInterfaceCompat]
- */
+/** Register/Unregister/Fetches [AppOwnedSdkSandboxInterfaceCompat] */
 internal interface AppOwnedSdkRegistry {
 
     fun registerAppOwnedSdkSandboxInterface(appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat)

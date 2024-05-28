@@ -73,11 +73,10 @@ class SdkSandboxControllerCompatLocalTest {
         SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
-        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("SDK", Bundle())
+        val exception =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                runBlocking { controllerCompat.loadSdk("SDK", Bundle()) }
             }
-        }
 
         assertThat(exception.loadSdkErrorCode).isEqualTo(LoadSdkCompatException.LOAD_SDK_NOT_FOUND)
     }
@@ -87,17 +86,13 @@ class SdkSandboxControllerCompatLocalTest {
         clientHandShakeForVersionIncluding(ClientFeature.LOAD_SDK)
 
         val expectedResult = SandboxedSdkCompat(Binder())
-        val stubLocalImpl = TestStubImpl(
-            loadSdkResult = expectedResult
-        )
+        val stubLocalImpl = TestStubImpl(loadSdkResult = expectedResult)
         SdkSandboxControllerCompat.injectLocalImpl(stubLocalImpl)
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
         val sdkName = "SDK"
         val sdkParams = Bundle()
-        val result = runBlocking {
-            controllerCompat.loadSdk(sdkName, sdkParams)
-        }
+        val result = runBlocking { controllerCompat.loadSdk(sdkName, sdkParams) }
 
         assertThat(result).isSameInstanceAs(expectedResult)
         assertThat(stubLocalImpl.lastLoadSdkName).isEqualTo(sdkName)
@@ -109,18 +104,13 @@ class SdkSandboxControllerCompatLocalTest {
         clientHandShakeForVersionIncluding(ClientFeature.LOAD_SDK)
 
         val expectedError = LoadSdkCompatException(RuntimeException(), Bundle())
-        SdkSandboxControllerCompat.injectLocalImpl(
-            TestStubImpl(
-                loadSdkError = expectedError
-            )
-        )
+        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl(loadSdkError = expectedError))
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
-        val exception = Assert.assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                controllerCompat.loadSdk("SDK", Bundle())
+        val exception =
+            Assert.assertThrows(LoadSdkCompatException::class.java) {
+                runBlocking { controllerCompat.loadSdk("SDK", Bundle()) }
             }
-        }
 
         assertThat(exception).isSameInstanceAs(expectedError)
     }
@@ -128,11 +118,7 @@ class SdkSandboxControllerCompatLocalTest {
     @Test
     fun getSandboxedSdks_returnsListFromLocalImpl() {
         val expectedResult = listOf(SandboxedSdkCompat(Binder()))
-        SdkSandboxControllerCompat.injectLocalImpl(
-            TestStubImpl(
-                sandboxedSdks = expectedResult
-            )
-        )
+        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl(sandboxedSdks = expectedResult))
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val sandboxedSdks = controllerCompat.getSandboxedSdks()
@@ -143,13 +129,14 @@ class SdkSandboxControllerCompatLocalTest {
     fun getAppOwnedSdkSandboxInterfaces_whenNotAvailable_returnsEmptyList() {
         SdkSandboxControllerCompat.injectLocalImpl(
             TestStubImpl(
-                appOwnedSdks = listOf(
-                    AppOwnedSdkSandboxInterfaceCompat(
-                        name = "TestSdk",
-                        version = 42,
-                        binder = Binder(),
+                appOwnedSdks =
+                    listOf(
+                        AppOwnedSdkSandboxInterfaceCompat(
+                            name = "TestSdk",
+                            version = 42,
+                            binder = Binder(),
+                        )
                     )
-                )
             )
         )
 
@@ -162,18 +149,15 @@ class SdkSandboxControllerCompatLocalTest {
     fun getAppOwnedSdkSandboxInterfaces_returnsListFromLocalImpl() {
         clientHandShakeForVersionIncluding(ClientFeature.APP_OWNED_INTERFACES)
 
-        val expectedResult = listOf(
-            AppOwnedSdkSandboxInterfaceCompat(
-                name = "TestSdk",
-                version = 42,
-                binder = Binder(),
+        val expectedResult =
+            listOf(
+                AppOwnedSdkSandboxInterfaceCompat(
+                    name = "TestSdk",
+                    version = 42,
+                    binder = Binder(),
+                )
             )
-        )
-        SdkSandboxControllerCompat.injectLocalImpl(
-            TestStubImpl(
-                appOwnedSdks = expectedResult
-            )
-        )
+        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl(appOwnedSdks = expectedResult))
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
         val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
@@ -188,9 +172,10 @@ class SdkSandboxControllerCompatLocalTest {
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
-        val handlerCompat = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {}
-        }
+        val handlerCompat =
+            object : SdkSandboxActivityHandlerCompat {
+                override fun onActivityCreated(activityHolder: ActivityHolder) {}
+            }
         val token = controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
         assertThat(token).isEqualTo(localImpl.token)
     }
@@ -203,9 +188,10 @@ class SdkSandboxControllerCompatLocalTest {
         SdkSandboxControllerCompat.injectLocalImpl(localImpl)
 
         val controllerCompat = SdkSandboxControllerCompat.from(context)
-        val handlerCompat = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {}
-        }
+        val handlerCompat =
+            object : SdkSandboxActivityHandlerCompat {
+                override fun onActivityCreated(activityHolder: ActivityHolder) {}
+            }
         val token = controllerCompat.registerSdkSandboxActivityHandler(handlerCompat)
         assertThat(token).isEqualTo(localImpl.token)
 
@@ -256,9 +242,7 @@ class SdkSandboxControllerCompatLocalTest {
         clientHandShakeForVersionIncluding(ClientFeature.GET_CLIENT_PACKAGE_NAME)
 
         val expectedResult = "test.client.package.name"
-        val stubLocalImpl = TestStubImpl(
-            clientPackageName = expectedResult
-        )
+        val stubLocalImpl = TestStubImpl(clientPackageName = expectedResult)
         SdkSandboxControllerCompat.injectLocalImpl(stubLocalImpl)
         val controllerCompat = SdkSandboxControllerCompat.from(context)
 
@@ -268,16 +252,16 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     /**
-     * Call [Versions.handShake] to emulate loading via client lib.
-     * Using version where [clientFeature] available.
+     * Call [Versions.handShake] to emulate loading via client lib. Using version where
+     * [clientFeature] available.
      */
     private fun clientHandShakeForVersionIncluding(clientFeature: ClientFeature) {
         Versions.handShake(clientFeature.availableFrom.apiLevel)
     }
 
     /**
-     * Call [Versions.handShake] to emulate loading via client lib.
-     * Using [ClientApiVersion.MIN_SUPPORTED] - to check features available in all client versions.
+     * Call [Versions.handShake] to emulate loading via client lib. Using
+     * [ClientApiVersion.MIN_SUPPORTED] - to check features available in all client versions.
      */
     private fun clientHandShakeForMinSupportedVersion() {
         Versions.handShake(ClientApiVersion.MIN_SUPPORTED.apiLevel)
@@ -305,9 +289,7 @@ class SdkSandboxControllerCompatLocalTest {
             lastLoadSdkParams = params
 
             if (loadSdkResult != null) {
-                executor.execute {
-                    callback.onResult(loadSdkResult)
-                }
+                executor.execute { callback.onResult(loadSdkResult) }
             } else {
                 executor.execute {
                     callback.onError(
@@ -322,6 +304,7 @@ class SdkSandboxControllerCompatLocalTest {
         }
 
         override fun getSandboxedSdks() = sandboxedSdks
+
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
             appOwnedSdks
 
@@ -338,7 +321,6 @@ class SdkSandboxControllerCompatLocalTest {
             token = null
         }
 
-        override fun getClientPackageName(): String =
-            clientPackageName
+        override fun getClientPackageName(): String = clientPackageName
     }
 }

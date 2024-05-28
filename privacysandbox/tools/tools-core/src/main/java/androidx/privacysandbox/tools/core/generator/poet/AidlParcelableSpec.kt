@@ -24,17 +24,16 @@ internal data class AidlParcelableSpec(
     val properties: List<AidlPropertySpec>,
 ) : AidlFileSpec {
     companion object {
-        fun aidlParcelable(
-            type: Type,
-            block: Builder.() -> Unit = {}
-        ): AidlParcelableSpec {
+        fun aidlParcelable(type: Type, block: Builder.() -> Unit = {}): AidlParcelableSpec {
             return Builder(type).also(block).build()
         }
     }
 
     override val typesToImport: Set<Type>
         get() {
-            return properties.map { it.type }.filter { it.requiresImport && it.innerType != type }
+            return properties
+                .map { it.type }
+                .filter { it.requiresImport && it.innerType != type }
                 .map { it.innerType }
                 .toSet()
         }
@@ -46,7 +45,8 @@ internal data class AidlParcelableSpec(
                 |parcelable ${type.simpleName} {
                 |    $body
                 |}
-                """.trimMargin()
+                """
+                .trimMargin()
         }
 
     class Builder(val type: Type) {

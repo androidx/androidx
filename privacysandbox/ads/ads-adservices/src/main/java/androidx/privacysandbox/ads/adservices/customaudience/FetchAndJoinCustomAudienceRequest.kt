@@ -33,10 +33,11 @@ import java.time.Instant
  * @param activationTime The [Instant] by which joining the custom audience will be delayed.
  * @param expirationTime The [Instant] by when the membership to the custom audience will expire.
  * @param userBiddingSignals The [AdSelectionSignals] object representing the user bidding signals
- * for the custom audience.
+ *   for the custom audience.
  */
 @ExperimentalFeatures.Ext10OptIn
-class FetchAndJoinCustomAudienceRequest public constructor(
+class FetchAndJoinCustomAudienceRequest
+public constructor(
     val fetchUri: Uri,
     val name: String? = null,
     val activationTime: Instant? = null,
@@ -56,9 +57,7 @@ class FetchAndJoinCustomAudienceRequest public constructor(
             this.userBiddingSignals == other.userBiddingSignals
     }
 
-    /**
-     * Returns the hash of the [FetchAndJoinCustomAudienceRequest] object's data.
-     */
+    /** Returns the hash of the [FetchAndJoinCustomAudienceRequest] object's data. */
     override fun hashCode(): Int {
         var hash = fetchUri.hashCode()
         hash = 31 * hash + name.hashCode()
@@ -79,8 +78,7 @@ class FetchAndJoinCustomAudienceRequest public constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 10)
     internal fun convertToAdServices():
         android.adservices.customaudience.FetchAndJoinCustomAudienceRequest {
-        return android.adservices.customaudience.FetchAndJoinCustomAudienceRequest
-            .Builder(fetchUri)
+        return android.adservices.customaudience.FetchAndJoinCustomAudienceRequest.Builder(fetchUri)
             .setName(name)
             .setActivationTime(activationTime)
             .setExpirationTime(expirationTime)

@@ -21,10 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 
-/**
- * Singleton helper object to start [SdkActivity].
- * Creates [Intent] with token provided by SDK.
- */
+/** Singleton helper object to start [SdkActivity]. Creates [Intent] with token provided by SDK. */
 internal object LocalSdkActivityStarter {
 
     private const val EXTRA_ACTIVITY_TOKEN = "androidx.privacysandbox.sdkruntime.ACTIVITY_HANDLER"
@@ -32,13 +29,12 @@ internal object LocalSdkActivityStarter {
     /**
      * Trying to start [SdkActivity].
      *
-     * If [token] registered in [LocalSdkActivityHandlerRegistry] this method will create
-     * [Intent] for starting [SdkActivity] and call [Activity.startActivity]
+     * If [token] registered in [LocalSdkActivityHandlerRegistry] this method will create [Intent]
+     * for starting [SdkActivity] and call [Activity.startActivity]
      *
-     * @param fromActivity the [Activity] will be used to start the new [SdkActivity] by
-     * calling [Activity.startActivity] against it.
+     * @param fromActivity the [Activity] will be used to start the new [SdkActivity] by calling
+     *   [Activity.startActivity] against it.
      * @param token the identifier that is shared by the SDK which requests the [Activity].
-     *
      * @return true if Intent was created, false if not (token wasn't registered locally).
      */
     fun tryStart(fromActivity: Activity, token: IBinder): Boolean {

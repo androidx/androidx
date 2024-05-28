@@ -19,11 +19,15 @@ package androidx.privacysandbox.tools.testing
 import kotlin.io.path.Path
 
 object TestEnvironment {
-    val aidlCompilerPath = requireNotNull(System.getProperty("aidl_compiler_path")) {
-        "aidl_compiler_path flag not set"
-    }.let(::Path)
+    val aidlCompilerPath =
+        requireNotNull(System.getProperty("aidl_compiler_path")) {
+                "aidl_compiler_path flag not set"
+            }
+            .let(::Path)
 
-    val frameworkAidlPath = requireNotNull(System.getProperty("framework_aidl_path")) {
-        "framework_aidl_path flag not set."
-    }.let(::Path)
+    val frameworkAidlPath =
+        requireNotNull(System.getProperty("framework_aidl_path")) {
+                "framework_aidl_path flag not set."
+            }
+            .let(::Path)
 }

@@ -26,9 +26,10 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 11)
-class TopicsManagerApi33Ext11Impl(context: Context) : TopicsManagerImplCommon(
-    context.getSystemService(android.adservices.topics.TopicsManager::class.java)
-) {
+class TopicsManagerApi33Ext11Impl(context: Context) :
+    TopicsManagerImplCommon(
+        context.getSystemService(android.adservices.topics.TopicsManager::class.java)
+    ) {
 
     override fun convertRequest(
         request: GetTopicsRequest

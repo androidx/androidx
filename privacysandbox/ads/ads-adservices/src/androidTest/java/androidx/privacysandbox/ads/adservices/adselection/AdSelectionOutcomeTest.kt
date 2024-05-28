@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
 class AdSelectionOutcomeTest {
     private val adSelectionId = 1234L
     private val renderUri = Uri.parse("abc.com")
+
     @Test
     fun testToString() {
         val result = "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"

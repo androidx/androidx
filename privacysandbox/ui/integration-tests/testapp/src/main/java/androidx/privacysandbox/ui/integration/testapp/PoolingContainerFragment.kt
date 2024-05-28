@@ -68,14 +68,16 @@ class PoolingContainerFragment : BaseFragment() {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val sandboxedSdkView: SandboxedSdkView
+
             init {
                 sandboxedSdkView = view.findViewById(R.id.recyclerview_ad_view)
             }
         }
 
         override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(viewGroup.context)
-                .inflate(R.layout.recyclerview_row_item, viewGroup, false)
+            val view =
+                LayoutInflater.from(viewGroup.context)
+                    .inflate(R.layout.recyclerview_row_item, viewGroup, false)
             return ViewHolder(view)
         }
 
@@ -84,7 +86,7 @@ class PoolingContainerFragment : BaseFragment() {
             if (!sandboxedSdkViewSet.contains(childSandboxedSdkView)) {
                 childSandboxedSdkView.setAdapter(
                     SandboxedUiAdapterFactory.createFromCoreLibInfo(
-                        sdkApi.loadTestAd(/*text=*/ "PoolingContainer Ad #$position")
+                        sdkApi.loadTestAd(/* text= */ "PoolingContainer Ad #$position")
                     )
                 )
                 sandboxedSdkViewSet.add(childSandboxedSdkView)

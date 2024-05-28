@@ -26,10 +26,10 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /*
-  This file is a modified version OutcomeReceiver.kt in androidx.core.os, designed to provide the same
-  functionality with the AdServicesOutcomeReceiver, to keep the implementation of the backward compatible
-  classes as close to identical as possible.
- */
+ This file is a modified version OutcomeReceiver.kt in androidx.core.os, designed to provide the same
+ functionality with the AdServicesOutcomeReceiver, to keep the implementation of the backward compatible
+ classes as close to identical as possible.
+*/
 
 @RequiresExtension(extension = Build.VERSION_CODES.R, version = 11)
 fun <R, E : Throwable> Continuation<R>.asAdServicesOutcomeReceiver():
