@@ -29,6 +29,10 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.WindowInfoImpl
+import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.unit.Constraints
@@ -132,11 +136,29 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
 
     private val surface = Surface.makeRasterN32Premul(width, height)
 
+    private val imageSize = IntSize(width, height)
+
+    private val _windowInfo = WindowInfoImpl().apply {
+        isWindowFocused = true
+        containerSize = imageSize
+    }
+
+    private val _platformContext = object : PlatformContext by PlatformContext.Empty {
+        override val windowInfo: WindowInfo
+            get() = _windowInfo
+    }
+
+    private val _sceneContext = object : ComposeSceneContext {
+        override val platformContext: PlatformContext
+            get() = _platformContext
+    }
+
     private val scene = MultiLayerComposeScene(
         density = density,
         layoutDirection = layoutDirection,
-        size = IntSize(width, height),
+        size = imageSize,
         coroutineContext = coroutineContext,
+        composeSceneContext = _sceneContext
     ).also {
         it.setContent(content = content)
     }

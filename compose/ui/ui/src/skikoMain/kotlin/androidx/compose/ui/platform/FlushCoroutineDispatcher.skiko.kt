@@ -42,21 +42,22 @@ internal class FlushCoroutineDispatcher(
     // use this dispatcher won't be properly cancelled.
     // TODO replace it by scope.coroutineContext[CoroutineDispatcher] when it will be no longer experimental
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
-    private val tasks = mutableSetOf<Runnable>()
-    private val delayedTasks = mutableSetOf<Runnable>()
+    private var immediateTasks = ArrayDeque<Runnable>()
+    private val delayedTasks = ArrayDeque<Runnable>()
     private val tasksLock = createSynchronizedObject()
-    private val tasksCopy = mutableSetOf<Runnable>()
+    private var immediateTasksSwap = ArrayDeque<Runnable>()
     @Volatile
     private var isPerformingRun = false
     private val runLock = createSynchronizedObject()
+    
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(tasksLock) {
-            tasks.add(block)
+            immediateTasks.add(block)
         }
         scope.launch {
             performRun {
                 val isTaskAlive = synchronized(tasksLock) {
-                    tasks.remove(block)
+                    immediateTasks.remove(block)
                 }
                 if (isTaskAlive) {
                     block.run()
@@ -64,12 +65,13 @@ internal class FlushCoroutineDispatcher(
             }
         }
     }
+
     /**
-     * Does the dispatcher have any tasks scheduled or currently in progress
+     * Whether the dispatcher has any tasks scheduled or currently running.
      */
     fun hasTasks() = synchronized(tasksLock) {
-        tasks.isNotEmpty() || delayedTasks.isNotEmpty()
-    } && !isPerformingRun
+        immediateTasks.isNotEmpty() || delayedTasks.isNotEmpty()
+    } || isPerformingRun
 
     /**
      * Perform all scheduled tasks and wait for the tasks which are already
@@ -80,15 +82,16 @@ internal class FlushCoroutineDispatcher(
         // pending at the start
         while (true) {
             synchronized(tasksLock) {
-                if (tasks.isEmpty())
+                if (immediateTasks.isEmpty())
                     return@performRun
 
-                tasksCopy.addAll(tasks)
-                tasks.clear()
+                val tmp = immediateTasksSwap
+                immediateTasksSwap = immediateTasks
+                immediateTasks = tmp
             }
 
-            tasksCopy.forEach(Runnable::run)
-            tasksCopy.clear()
+            immediateTasksSwap.forEach(Runnable::run)
+            immediateTasksSwap.clear()
         }
     }
 
@@ -109,21 +112,21 @@ internal class FlushCoroutineDispatcher(
             delayedTasks.add(block)
         }
         val job = scope.launch {
-            try{
-                kotlinx.coroutines.delay(timeMillis)
-            } finally {
-                performRun {
-                    val isTaskAlive = synchronized(tasksLock) {
-                        delayedTasks.remove(block)
-                    }
-                    if (isTaskAlive) {
-                        block.run()
-                    }
+            kotlinx.coroutines.delay(timeMillis)
+            performRun {
+                val isTaskAlive = synchronized(tasksLock) {
+                    delayedTasks.remove(block)
+                }
+                if (isTaskAlive) {
+                    block.run()
                 }
             }
         }
         continuation.invokeOnCancellation {
             job.cancel()
+            synchronized(tasksLock) {
+                delayedTasks.remove(block)
+            }
         }
     }
 }

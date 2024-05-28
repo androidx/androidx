@@ -72,6 +72,8 @@ import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Constraints
@@ -141,6 +143,11 @@ internal class RootNodeOwner(
             platformContext.inputModeManager.requestInputMode(InputMode.Keyboard)
             // Consume the key event if we moved focus.
             focusOwner.moveFocus(focusDirection)
+        }
+        .semantics {
+            // This makes the reported role of the root node "PANEL", which is ignored by VoiceOver
+            // (which is what we want).
+            isTraversalGroup = true
         }
     val owner: Owner = OwnerImpl(layoutDirection, coroutineContext)
     val semanticsOwner = SemanticsOwner(owner.root, rootSemanticsNode)

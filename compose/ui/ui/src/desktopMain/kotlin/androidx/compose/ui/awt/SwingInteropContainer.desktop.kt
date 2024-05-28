@@ -25,7 +25,7 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.node.TrackInteropModifierElement
 import androidx.compose.ui.node.TrackInteropModifierNode
-import androidx.compose.ui.node.countInteropComponentsBefore
+import androidx.compose.ui.node.countInteropComponentsBelow
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.unit.IntRect
 import java.awt.Component
@@ -54,7 +54,7 @@ internal class SwingInteropContainer(
     private val placeInteropAbove: Boolean
 ): InteropContainer<InteropComponent> {
     /**
-     * @see SwingInteropContainer.addInteropView
+     * @see SwingInteropContainer.placeInteropView
      * @see SwingInteropContainer.removeInteropView
      */
     private var interopComponents = mutableMapOf<Component, InteropComponent>()
@@ -63,17 +63,46 @@ internal class SwingInteropContainer(
     override val interopViews: Set<InteropComponent>
         get() = interopComponents.values.toSet()
 
-    override fun addInteropView(nativeView: InteropComponent) {
+    /**
+     * Index of last interop component in [container].
+     *
+     * [ComposeSceneMediator] might keep extra components in the same container.
+     * So based on [placeInteropAbove] they should go below or under all interop views.
+     *
+     * @see ComposeSceneMediator.contentComponent
+     * @see ComposeSceneMediator.invisibleComponent
+     */
+    private val lastInteropIndex: Int
+        get() {
+            var lastInteropIndex = interopComponents.size - 1
+            if (!placeInteropAbove) {
+                val nonInteropComponents = container.componentCount - interopComponents.size
+                lastInteropIndex += nonInteropComponents
+            }
+            return lastInteropIndex
+        }
+
+    override fun placeInteropView(nativeView: InteropComponent) {
         val component = nativeView.container
-        val nonInteropComponents = container.componentCount - interopComponents.size
-        // AWT uses the reverse order for drawing and events, so index = size - count
-        val index = interopComponents.size - countInteropComponentsBefore(nativeView)
-        interopComponents[component] = nativeView
-        container.add(component, if (placeInteropAbove) {
-            index
+
+        // Add this component to [interopComponents] to track count and clip rects
+        val alreadyAdded = component in interopComponents
+        if (!alreadyAdded) {
+            interopComponents[component] = nativeView
+        }
+
+        // Iterate through a Compose layout tree in draw order and count interop view below this one
+        val countBelow = countInteropComponentsBelow(nativeView)
+
+        // AWT/Swing uses the **REVERSE ORDER** for drawing and events
+        val awtIndex = lastInteropIndex - countBelow
+
+        // Update AWT/Swing hierarchy
+        if (alreadyAdded) {
+            container.setComponentZOrder(component, awtIndex)
         } else {
-            index + nonInteropComponents
-        })
+            container.add(component, awtIndex)
+        }
 
         // Sometimes Swing displays the rest of interop views in incorrect order after adding,
         // so we need to force re-validate it.
@@ -88,6 +117,11 @@ internal class SwingInteropContainer(
 
         // Sometimes Swing displays the rest of interop views in incorrect order after removing,
         // so we need to force re-validate it.
+        container.validate()
+        container.repaint()
+    }
+
+    fun validateComponentsOrder() {
         container.validate()
         container.repaint()
     }
@@ -113,8 +147,10 @@ internal class SwingInteropContainer(
  * @param component The Swing component that matches the current node.
  */
 internal fun Modifier.trackSwingInterop(
+    container: SwingInteropContainer,
     component: InteropComponent
 ): Modifier = this then TrackInteropModifierElement(
+    container = container,
     nativeView = component
 )
 
@@ -126,7 +162,7 @@ internal fun Modifier.trackSwingInterop(
  */
 internal open class InteropComponent(
     val container: Container,
-    var clipBounds: IntRect? = null
+    protected var clipBounds: IntRect? = null
 ) : ClipRectangle {
     override val x: Float
         get() = (clipBounds?.left ?: container.x).toFloat()

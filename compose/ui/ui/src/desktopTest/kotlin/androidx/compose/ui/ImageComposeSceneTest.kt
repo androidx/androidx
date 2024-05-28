@@ -37,6 +37,7 @@ import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.junit4.DesktopScreenshotTestRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.runBlocking
@@ -92,6 +93,19 @@ class ImageComposeSceneTest {
             screenshotRule.write(scene.render(50.seconds), "frame3")
             screenshotRule.write(scene.render(100.seconds), "frame4")
         }
+    }
+
+    @Test
+    fun `run dialog in center`() {
+        val image = renderComposeScene(
+            width = 80,
+            height = 40,
+        ) {
+            Dialog(onDismissRequest = {}) {
+                Box(Modifier.size(20.dp).background(Color.Red))
+            }
+        }
+        screenshotRule.write(image)
     }
 
     @Test

@@ -98,7 +98,7 @@ private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
  */
 private fun Modifier.interopSemantics(enabled: Boolean, wrappingView: InteropWrappingView): Modifier =
     if (enabled) {
-        this then semantics {
+        this.semantics {
             interopView = wrappingView
         }
     } else {
@@ -182,7 +182,7 @@ fun <T : UIView> UIKitView(
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackUIKitInterop(embeddedInteropComponent.wrappingView).let {
+        }.trackUIKitInterop(interopContainer, embeddedInteropComponent.wrappingView).let {
             if (interactive) {
                 it.then(InteropViewCatchPointerModifier())
             } else {
@@ -301,7 +301,7 @@ fun <T : UIViewController> UIKitViewController(
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackUIKitInterop(embeddedInteropComponent.wrappingView).let {
+        }.trackUIKitInterop(interopContainer, embeddedInteropComponent.wrappingView).let {
             if (interactive) {
                 it.then(InteropViewCatchPointerModifier())
             } else {
@@ -359,7 +359,7 @@ private abstract class EmbeddedInteropComponent<T : Any>(
 
     protected fun addViewToHierarchy(view: UIView) {
         wrappingView.addSubview(view)
-        interopContainer.addInteropView(wrappingView)
+        // wrappingView will be added to the container from [onPlaced]
     }
 
     protected fun removeViewFromHierarchy(view: UIView) {

@@ -18,9 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OverlayLayout
-import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.CancelTraversal
-import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.ContinueTraversal
 
 /**
  * An interface for container that controls interop views/components.
@@ -31,7 +30,7 @@ internal interface InteropContainer<T> {
     var rootModifier: TrackInteropModifierNode<T>?
     val interopViews: Set<T>
 
-    fun addInteropView(nativeView: T)
+    fun placeInteropView(nativeView: T)
     fun removeInteropView(nativeView: T)
 }
 
@@ -41,18 +40,18 @@ internal interface InteropContainer<T> {
  * @param nativeView The native view to count interop components before.
  * @return The number of interop components before the given native view.
  */
-internal fun <T> InteropContainer<T>.countInteropComponentsBefore(nativeView: T): Int {
+internal fun <T> InteropContainer<T>.countInteropComponentsBelow(nativeView: T): Int {
     var componentsBefore = 0
-    rootModifier?.traverseDescendants {
+    rootModifier?.traverseDescendantsInDrawOrder {
         if (it.nativeView != nativeView) {
-            // It might be inside Compose tree before adding in InteropContainer in case
+            // It might be inside a Compose tree before adding in InteropContainer in case
             // if it was initiated out of scroll visible bounds for example.
             if (it.nativeView in interopViews) {
                 componentsBefore++
             }
-            ContinueTraversal
+            true
         } else {
-            CancelTraversal
+            false
         }
     }
     return componentsBefore
@@ -60,38 +59,56 @@ internal fun <T> InteropContainer<T>.countInteropComponentsBefore(nativeView: T)
 
 /**
  * Wrapper of Compose content that might contain interop views. It adds a helper modifier to root
- * that allows to traverse interop views in the tree with the right order.
+ * that allows traversing interop views in the tree with the right order.
  */
 @Composable
 internal fun <T> InteropContainer<T>.TrackInteropContainer(content: @Composable () -> Unit) {
     OverlayLayout(
-        modifier = TrackInteropModifierElement { rootModifier = it },
+        modifier = RootTrackInteropModifierElement { rootModifier = it },
         content = content
     )
+}
+
+/**
+ * A helper modifier element to track interop views inside a [LayoutNode] hierarchy.
+ *
+ * @property onModifierNodeCreated An optional block of code that to receive the reference to
+ * [TrackInteropModifierNode].
+ */
+private data class RootTrackInteropModifierElement<T>(
+    val onModifierNodeCreated: (TrackInteropModifierNode<T>) -> Unit
+) : ModifierNodeElement<TrackInteropModifierNode<T>>() {
+    override fun create() = TrackInteropModifierNode<T>(
+        container = null,
+        nativeView = null
+    ).also {
+        onModifierNodeCreated.invoke(it)
+    }
+
+    override fun update(node: TrackInteropModifierNode<T>) {
+    }
 }
 
 /**
  * A helper modifier element that tracks an interop view inside a [LayoutNode] hierarchy.
  *
  * @property nativeView The native view associated with this modifier element.
- * @property onModifierNodeCreated An optional block of code that to receive the reference to
- * [TrackInteropModifierNode].
  * @param T The type of the native view.
  *
  * @see TrackInteropModifierNode
  * @see ModifierNodeElement
  */
 internal data class TrackInteropModifierElement<T>(
-    var nativeView: T? = null,
-    val onModifierNodeCreated: ((TrackInteropModifierNode<T>) -> Unit)? = null
+    var container: InteropContainer<T>,
+    var nativeView: T,
 ) : ModifierNodeElement<TrackInteropModifierNode<T>>() {
     override fun create() = TrackInteropModifierNode(
+        container = container,
         nativeView = nativeView
-    ).also {
-        onModifierNodeCreated?.invoke(it)
-    }
+    )
 
     override fun update(node: TrackInteropModifierNode<T>) {
+        node.container = container
         node.nativeView = nativeView
     }
 }
@@ -108,7 +125,13 @@ private const val TRAVERSAL_NODE_KEY =
  * @see TraversableNode
  */
 internal class TrackInteropModifierNode<T>(
-    var nativeView: T?
-) : Modifier.Node(), TraversableNode {
+    var container: InteropContainer<T>?,
+    var nativeView: T?,
+) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode {
     override val traverseKey = TRAVERSAL_NODE_KEY
+
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        val nativeView = nativeView ?: return
+        container?.placeInteropView(nativeView)
+    }
 }

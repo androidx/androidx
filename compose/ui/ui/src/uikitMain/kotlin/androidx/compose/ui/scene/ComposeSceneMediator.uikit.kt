@@ -266,10 +266,15 @@ internal class ComposeSceneMediator(
      */
     private val rootView = ComposeSceneMediatorRootUIView()
 
+
+    private val interopContext = UIKitInteropContext(
+        requestRedraw = ::onComposeSceneInvalidate
+    )
+    
     /**
      * Container for UIKitView and UIKitViewController
      */
-    private val interopViewContainer = UIKitInteropContainer()
+    private val interopViewContainer = UIKitInteropContainer(interopContext)
 
     private val interactionBounds: IntRect get() {
         val boundsLayout = _layout as? SceneLayout.Bounds
@@ -290,12 +295,6 @@ internal class ComposeSceneMediator(
                 }
                 interactionBounds.contains(positionInContainer)
             }
-        )
-    }
-
-    private val interopContext: UIKitInteropContext by lazy {
-        UIKitInteropContext(
-            requestRedraw = ::onComposeSceneInvalidate
         )
     }
 

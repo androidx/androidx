@@ -55,7 +55,7 @@ internal class ComposeWindowPanel(
         window = window,
         useSwingGraphics = false,
         layerType = ComposeFeatureFlags.layerType.let {
-            // LayerType.OnComponent might be used only with rendering to Swing graphics,
+            // LayerType.OnComponent may can only be used with rendering via Swing graphics,
             // but it's always disabled here. Using fallback instead of [check] to support
             // opening separate windows from [ComposePanel] with such layer type.
             if (it == LayerType.OnComponent) LayerType.OnSameCanvas else it
