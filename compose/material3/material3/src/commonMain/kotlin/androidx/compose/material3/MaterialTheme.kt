@@ -149,7 +149,7 @@ internal fun MaterialExpressiveTheme(
     } else {
         CompositionLocalProvider(LocalUsingExpressiveTheme provides true) {
             MaterialTheme(
-                colorScheme = colorScheme ?: lightColorScheme(),
+                colorScheme = colorScheme ?: expressiveLightColorScheme(),
                 // TODO: replace with calls to Expressive shape default
                 shapes = shapes ?: Shapes(),
                 // TODO: replace with calls to Expressive typography default
