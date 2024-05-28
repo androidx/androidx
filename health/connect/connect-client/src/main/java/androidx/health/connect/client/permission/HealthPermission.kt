@@ -151,6 +151,7 @@ internal constructor(
          * An attempt to read data in background without this permission may result in an error.
          *
          * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
+         *
          * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY) // Hidden for now

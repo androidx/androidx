@@ -20,7 +20,8 @@ import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.AggregateDataPoint
 
 /** Base class to represent individual pieces of data of type [dataType]. */
-public abstract class DataPoint<T : Any> internal constructor(
+public abstract class DataPoint<T : Any>
+internal constructor(
     /** Type of data contained within this [DataPoint]. */
     public open val dataType: DataType<T, out DataPoint<T>>,
 ) {
@@ -32,6 +33,7 @@ public abstract class DataPoint<T : Any> internal constructor(
                 StatisticalDataPoint.fromProto(proto.statisticalDataPoint)
             }
         }
+
         internal fun fromProto(proto: DataProto.DataPoint): DataPoint<*> {
             return if (proto.dataType.timeType == DataProto.DataType.TimeType.TIME_TYPE_INTERVAL) {
                 IntervalDataPoint.fromProto(proto)

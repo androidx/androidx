@@ -17,8 +17,9 @@ class VersionApiServiceTest {
     fun setUp() {
         val intent = Intent(IpcConstants.VERSION_API_BIND_ACTION)
 
-        stub = Robolectric.buildService(VersionApiService::class.java).create().get()
-            .onBind(intent) as VersionApiService.VersionApiServiceStub
+        stub =
+            Robolectric.buildService(VersionApiService::class.java).create().get().onBind(intent)
+                as VersionApiService.VersionApiServiceStub
     }
 
     @Test

@@ -42,6 +42,7 @@ internal constructor(
     /** Converts a raw type [T] to a resulting type [R]. Internal for SDK use only. */
     internal sealed interface Converter<in T : Any, out R : Any> : (T) -> R {
         fun interface FromLong<out R : Any> : Converter<Long, R>
+
         fun interface FromDouble<out R : Any> : Converter<Double, R>
     }
 

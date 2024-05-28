@@ -22,21 +22,20 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlin.jvm.Throws
 
 /**
- * Extension function on ListenableFuture performs [ListenableFuture.await] operation and if
- * any exception thrown by the asynchronous API, converts [android.os.RemoteException] into
+ * Extension function on ListenableFuture performs [ListenableFuture.await] operation and if any
+ * exception thrown by the asynchronous API, converts [android.os.RemoteException] into
  * [HealthServicesException]
  *
  * @throws HealthServicesException if remote operation fails
  */
 @Throws(HealthServicesException::class)
 suspend fun <T> ListenableFuture<T>.awaitWithException(): T {
-    val t: T = try {
-        await()
-    } catch (e: RemoteException) {
-        if (e.message != null)
-            throw HealthServicesException(e.message!!)
-        else
-            throw HealthServicesException("An unknown error has occurred")
-    }
+    val t: T =
+        try {
+            await()
+        } catch (e: RemoteException) {
+            if (e.message != null) throw HealthServicesException(e.message!!)
+            else throw HealthServicesException("An unknown error has occurred")
+        }
     return t
 }

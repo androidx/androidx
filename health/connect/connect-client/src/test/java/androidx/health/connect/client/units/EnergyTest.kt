@@ -55,29 +55,21 @@ class EnergyTest {
 
     @Test
     fun calories_roundTrip() {
-        expect
-            .that(Energy.calories(1.0).inCalories)
-            .isEqualTo(1.0)
+        expect.that(Energy.calories(1.0).inCalories).isEqualTo(1.0)
     }
 
     @Test
     fun kilocalories_roundTrip() {
-        expect
-            .that(Energy.kilocalories(1.0).inKilocalories)
-            .isEqualTo(1.0)
+        expect.that(Energy.kilocalories(1.0).inKilocalories).isEqualTo(1.0)
     }
 
     @Test
     fun joules_roundTrip() {
-        expect
-            .that(Energy.joules(1.0).inJoules)
-            .isEqualTo(1.0)
+        expect.that(Energy.joules(1.0).inJoules).isEqualTo(1.0)
     }
 
     @Test
     fun kilojoules_roundTrip() {
-        expect
-            .that(Energy.kilojoules(1.0).inKilojoules)
-            .isEqualTo(1.0)
+        expect.that(Energy.kilojoules(1.0).inKilojoules).isEqualTo(1.0)
     }
 }

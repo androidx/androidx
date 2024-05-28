@@ -28,11 +28,10 @@ class RegisterForDataNotificationsRequest(
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<RegisterForDataNotificationsRequest> =
-            newCreator {
-                RegisterForDataNotificationsRequest(
-                    RequestProto.RegisterForDataNotificationsRequest.parseFrom(it)
-                )
-            }
+        val CREATOR: Parcelable.Creator<RegisterForDataNotificationsRequest> = newCreator {
+            RegisterForDataNotificationsRequest(
+                RequestProto.RegisterForDataNotificationsRequest.parseFrom(it)
+            )
+        }
     }
 }

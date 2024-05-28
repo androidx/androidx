@@ -22,10 +22,7 @@ import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
 
-/**
- * Request for updating batching mode of an exercise.
- *
- */
+/** Request for updating batching mode of an exercise. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BatchingModeConfigRequest(
     public val packageName: String,

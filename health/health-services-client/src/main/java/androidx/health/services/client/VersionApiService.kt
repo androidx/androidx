@@ -43,6 +43,7 @@ public class VersionApiService : Service() {
     internal class VersionApiServiceStub : IVersionApiService.Stub() {
         override fun getVersionApiServiceVersion(): Int =
             VersionApiService.VERSION_API_SERVICE_VERSION
+
         override fun getSdkVersion(): Int = VersionApiService.CANONICAL_SDK_VERSION
     }
 

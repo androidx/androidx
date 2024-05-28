@@ -30,8 +30,8 @@ import java.time.LocalDateTime
  * Time can be specified in one of the two ways:
  * - use [Instant] for a specific point in time such as "2021-01-03 at 10:00 UTC+1";
  * - use [LocalDateTime] for a user experienced time concept such as "2021-01-03 at 10 o'clock",
- * without knowing which time zone the user was at that time. [Record] without specifying zoneOffset
- * will assume the current system zone offset at query time.
+ *   without knowing which time zone the user was at that time. [Record] without specifying
+ *   zoneOffset will assume the current system zone offset at query time.
  */
 class TimeRangeFilter
 internal constructor(
@@ -52,7 +52,6 @@ internal constructor(
          * @param startTime start time of the filter.
          * @param endTime end time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see before for time range with open-ended [startTime].
          * @see after for time range with open-ended [endTime].
          */
@@ -69,7 +68,6 @@ internal constructor(
          * @param startTime start time of the filter.
          * @param endTime end time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see before for time range with open-ended [startTime].
          * @see after for time range with open-ended [endTime].
          */
@@ -89,7 +87,6 @@ internal constructor(
          *
          * @param endTime end time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see between for closed-ended time range.
          * @see after for time range with open-ended [endTime]
          */
@@ -101,7 +98,6 @@ internal constructor(
          *
          * @param endTime end time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see between for closed-ended time range.
          * @see after for time range with open-ended [endTime]
          */
@@ -119,7 +115,6 @@ internal constructor(
          *
          * @param startTime start time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see between for closed-ended time range.
          * @see after for time range with open-ended [startTime]
          */
@@ -130,7 +125,6 @@ internal constructor(
          *
          * @param startTime start time of the filter.
          * @return a [TimeRangeFilter] for filtering [Record]s.
-         *
          * @see between for closed-ended time range.
          * @see after for time range with open-ended [startTime]
          */

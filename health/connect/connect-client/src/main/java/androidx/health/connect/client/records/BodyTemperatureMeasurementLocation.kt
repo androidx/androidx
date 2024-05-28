@@ -65,9 +65,7 @@ public object BodyTemperatureMeasurementLocation {
     val MEASUREMENT_LOCATION_INT_TO_STRING_MAP = MEASUREMENT_LOCATION_STRING_TO_INT_MAP.reverse()
 }
 
-/**
- * Where on the user's body a temperature measurement was taken from.
- */
+/** Where on the user's body a temperature measurement was taken from. */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(

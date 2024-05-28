@@ -63,7 +63,7 @@ public interface ExerciseClient {
      *
      * @param configuration the [WarmUpConfig] containing the desired exercise and data types
      * @return a [ListenableFuture] that completes once Health Services starts preparing the sensors
-     * or fails due to missing permissions or the app owning another active exercise.
+     *   or fails due to missing permissions or the app owning another active exercise.
      */
     public fun prepareExerciseAsync(configuration: WarmUpConfig): ListenableFuture<Void>
 
@@ -93,8 +93,8 @@ public interface ExerciseClient {
      *
      * @param configuration the [ExerciseConfig] describing this exercise
      * @return a [ListenableFuture] that completes once the exercise has been started or fails due
-     * to the application missing the required permissions or requesting metrics which are not
-     * supported for the given [ExerciseType].
+     *   to the application missing the required permissions or requesting metrics which are not
+     *   supported for the given [ExerciseType].
      */
     public fun startExerciseAsync(configuration: ExerciseConfig): ListenableFuture<Void>
 
@@ -115,7 +115,7 @@ public interface ExerciseClient {
      * then the returned future will fail.
      *
      * @return a [ListenableFuture] that completes once the exercise has been paused or fails if the
-     * calling application does not own the active exercise.
+     *   calling application does not own the active exercise.
      */
     public fun pauseExerciseAsync(): ListenableFuture<Void>
 
@@ -128,7 +128,7 @@ public interface ExerciseClient {
      * the exercise has ended then the returned future will fail.
      *
      * @return a [ListenableFuture] that completes once the exercise has been resumed or fails if
-     * the calling application does not own the active exercise.
+     *   the calling application does not own the active exercise.
      */
     public fun resumeExerciseAsync(): ListenableFuture<Void>
 
@@ -144,7 +144,7 @@ public interface ExerciseClient {
      * about the exercise will be deleted after the summary has been sent back.
      *
      * @return a [ListenableFuture] that completes once the exercise has been ended or fails if the
-     * calling application does not own the active exercise.
+     *   calling application does not own the active exercise.
      */
     public fun endExerciseAsync(): ListenableFuture<Void>
 
@@ -153,7 +153,7 @@ public interface ExerciseClient {
      * subject to throttling by Health Services.
      *
      * @return a [ListenableFuture] that completes once the flush has been completed or fails if the
-     * calling application does not own the active exercise.
+     *   calling application does not own the active exercise.
      */
     public fun flushAsync(): ListenableFuture<Void>
 
@@ -170,7 +170,7 @@ public interface ExerciseClient {
      * future will fail.
      *
      * @return a [ListenableFuture] that completes once the lap has been marked successfully or
-     * fails if the calling application does not own the active exercise
+     *   fails if the calling application does not own the active exercise
      */
     public fun markLapAsync(): ListenableFuture<Void>
 
@@ -183,7 +183,7 @@ public interface ExerciseClient {
      * from where it left off.
      *
      * @return a [ListenableFuture] that contains information about the current exercise or fails if
-     * the calling application does not own the active exercise
+     *   the calling application does not own the active exercise
      */
     public fun getCurrentExerciseInfoAsync(): ListenableFuture<ExerciseInfo>
 
@@ -219,10 +219,7 @@ public interface ExerciseClient {
      * @param executor the [Executor] on which [callback] will be invoked
      * @param callback the [ExerciseUpdateCallback] that will receive updates from Health Services
      */
-    public fun setUpdateCallback(
-        executor: Executor,
-        callback: ExerciseUpdateCallback
-    )
+    public fun setUpdateCallback(executor: Executor, callback: ExerciseUpdateCallback)
 
     /**
      * Clears the callback set using [setUpdateCallback].
@@ -231,7 +228,7 @@ public interface ExerciseClient {
      *
      * @param callback the [ExerciseUpdateCallback] to clear
      * @return a [ListenableFuture] that completes once the callback has been cleared (or verified
-     * not to be set).
+     *   not to be set).
      */
     public fun clearUpdateCallbackAsync(callback: ExerciseUpdateCallback): ListenableFuture<Void>
 
@@ -243,7 +240,7 @@ public interface ExerciseClient {
      *
      * @param exerciseGoal the [ExerciseGoal] to add to this exercise
      * @return a [ListenableFuture] that completes once the exercise goal has been added. This
-     * returned [ListenableFuture] fails if the calling app does not own the active exercise.
+     *   returned [ListenableFuture] fails if the calling app does not own the active exercise.
      */
     public fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal<*>): ListenableFuture<Void>
 
@@ -256,8 +253,8 @@ public interface ExerciseClient {
      *
      * @param exerciseGoal the [ExerciseGoal] to remove from this exercise
      * @return a [ListenableFuture] that completes once the exercise goal has been removed. This
-     * returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
-     * [exerciseGoal] has not been added in the past.
+     *   returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
+     *   [exerciseGoal] has not been added in the past.
      */
     public fun removeGoalFromActiveExerciseAsync(
         exerciseGoal: ExerciseGoal<*>
@@ -268,7 +265,7 @@ public interface ExerciseClient {
      *
      * @param enabled a boolean to indicate if should be enabled or disabled
      * @return a [ListenableFuture] that completes once the override has completed. This returned
-     * [ListenableFuture] fails if an exercise is not active for this app.
+     *   [ListenableFuture] fails if an exercise is not active for this app.
      */
     public fun overrideAutoPauseAndResumeForActiveExerciseAsync(
         enabled: Boolean
@@ -278,9 +275,9 @@ public interface ExerciseClient {
      * Sets the batching mode for the current exercise.
      *
      * @param batchingModes [BatchingMode] overrides for exercise updates. Passing an empty set will
-     * clear all existing overrides.
+     *   clear all existing overrides.
      * @return a [ListenableFuture] that completes once the override has completed. This returned
-     * [ListenableFuture] fails if an exercise is not active for this app.
+     *   [ListenableFuture] fails if an exercise is not active for this app.
      */
     public fun overrideBatchingModesForActiveExerciseAsync(
         batchingModes: Set<BatchingMode>
@@ -305,7 +302,7 @@ public interface ExerciseClient {
      * in [ExerciseTypeConfig]. Minimum Exercise API version for this function is 3.
      *
      * @param exerciseTypeConfig a configuration containing the new values for the configurable
-     * attributes
+     *   attributes
      * @return a [ListenableFuture] that completes when the configuration has been updated.
      */
     public fun updateExerciseTypeConfigAsync(
@@ -321,18 +318,19 @@ public interface ExerciseClient {
      * [addGoalToActiveExerciseAsync].
      *
      * Before adding, [DebouncedGoal] should be checked for support against
-     * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is
-     * allowed per [DataType]+[ComparisonType] combination.
+     * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is allowed per
+     * [DataType]+[ComparisonType] combination.
      *
      * @param debouncedGoal the [DebouncedGoal] to add to this exercise
      * @return a [ListenableFuture] that completes when WHS received the request to add the
      *   [DebouncedGoal]. This [ListenableFuture] fails if any of the following occur:
-     *   1. the calling app does not own the active exercise
-     *   2. the [debouncedGoal] is not supported for the given [ExerciseType]
+     *     1. the calling app does not own the active exercise
+     *     2. the [debouncedGoal] is not supported for the given [ExerciseType]
+     *
      * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
-     * implemented this method. Developers should use
-     * [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
-     * implemented.
+     *   implemented this method. Developers should use
+     *   [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
+     *   implemented.
      * @see HealthServices.getClient(context).exerciseClient
      */
     public fun addDebouncedGoalToActiveExerciseAsync(
@@ -349,9 +347,9 @@ public interface ExerciseClient {
      *   returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
      *   [debouncedGoal] has not been added in the past.
      * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
-     * implemented this method. Developers should use
-     * [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
-     * implemented.
+     *   implemented this method. Developers should use
+     *   [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
+     *   implemented.
      * @see HealthServices.getClient(context).exerciseClient
      */
     public fun removeDebouncedGoalFromActiveExerciseAsync(

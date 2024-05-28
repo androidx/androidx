@@ -30,11 +30,12 @@ import java.time.Instant
 // away by proguard.
 internal object DataPoints {
     private const val TAG = "DataPoints"
+
     /**
      * Creates a new [IntervalDataPoint] of type [DataType.STEPS] with the given [steps].
      *
      * @param steps number of steps taken between [startDurationFromBoot] and [endDurationFromBoot],
-     * Range from 0 to 1000000.
+     *   Range from 0 to 1000000.
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -80,8 +81,8 @@ internal object DataPoints {
     /**
      * Creates a new [IntervalDataPoint] of type [DataType.DISTANCE] with the given [meters].
      *
-     * @param meters distance traveled between [startDurationFromBoot] and [endDurationFromBoot]
-     * , Range from 0.0 to 1000000.0
+     * @param meters distance traveled between [startDurationFromBoot] and [endDurationFromBoot] ,
+     *   Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -105,8 +106,8 @@ internal object DataPoints {
     /**
      * Creates a new [CumulativeDataPoint] for [DataType.DISTANCE_TOTAL] with the given [meters].
      *
-     * @param meters distance accumulated between [startTime] and [endTime], Range from
-     * 0.0 to 1000000.0
+     * @param meters distance accumulated between [startTime] and [endTime], Range from 0.0 to
+     *   1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
      */
@@ -130,8 +131,8 @@ internal object DataPoints {
     /**
      * Creates a new [IntervalDataPoint] of type [DataType.ELEVATION_GAIN] with the given [meters].
      *
-     * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot],
-     * Range from 0.0 to 1000000.0
+     * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot], Range
+     *   from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -155,8 +156,8 @@ internal object DataPoints {
     /**
      * Create a new [IntervalDataPoint] of type [DataType.ELEVATION_LOSS] with the given [meters].
      *
-     * @param meters meters lost between [startDurationFromBoot] and [endDurationFromBoot],
-     * Range from 0.0 to 1000000.0
+     * @param meters meters lost between [startDurationFromBoot] and [endDurationFromBoot], Range
+     *   from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -181,8 +182,8 @@ internal object DataPoints {
      * Creates a new [SampleDataPoint] of type [DataType.ABSOLUTE_ELEVATION] with the given
      * [meters].
      *
-     * @param meters absolute elevation in meters at [timeDurationFromBoot], Range
-     * from -1000000.0 to 1000000.0
+     * @param meters absolute elevation in meters at [timeDurationFromBoot], Range from -1000000.0
+     *   to 1000000.0
      * @param timeDurationFromBoot the point in time [stepsPerMinute] is accurate
      */
     @JvmStatic
@@ -204,12 +205,12 @@ internal object DataPoints {
      * Creates a new [StatisticalDataPoint] of type [DataType.ABSOLUTE_ELEVATION_STATS] with the
      * given elevations (in meters).
      *
-     * @param minAbsoluteElevationMeters lowest observed elevation in this interval,
-     * Range from -1000000.0 to 1000000.0
-     * @param maxAbsoluteElevationMeters highest observed elevation in this interval,
-     * Range from -1000000.0 to 1000000.0
-     * @param averageAbsoluteElevationMeters average observed elevation in this interval,
-     * Range from -1000000.0 to 1000000.0
+     * @param minAbsoluteElevationMeters lowest observed elevation in this interval, Range from
+     *   -1000000.0 to 1000000.0
+     * @param maxAbsoluteElevationMeters highest observed elevation in this interval, Range from
+     *   -1000000.0 to 1000000.0
+     * @param averageAbsoluteElevationMeters average observed elevation in this interval, Range from
+     *   -1000000.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
      */
@@ -223,16 +224,25 @@ internal object DataPoints {
     ): StatisticalDataPoint<Double> {
 
         if (minAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            Log.w(TAG, "absoluteElevationStats: minAbsoluteElevationMeters value " +
-                "$minAbsoluteElevationMeters is out of range")
+            Log.w(
+                TAG,
+                "absoluteElevationStats: minAbsoluteElevationMeters value " +
+                    "$minAbsoluteElevationMeters is out of range"
+            )
         }
         if (maxAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            Log.w(TAG, "absoluteElevationStats: maxAbsoluteElevationMeters value " +
-                "$maxAbsoluteElevationMeters is out of range")
+            Log.w(
+                TAG,
+                "absoluteElevationStats: maxAbsoluteElevationMeters value " +
+                    "$maxAbsoluteElevationMeters is out of range"
+            )
         }
         if (averageAbsoluteElevationMeters !in -1000000.0..1000000.0) {
-            Log.w(TAG, "absoluteElevationStats: averageAbsoluteElevationMeters value " +
-                "$averageAbsoluteElevationMeters is out of range")
+            Log.w(
+                TAG,
+                "absoluteElevationStats: averageAbsoluteElevationMeters value " +
+                    "$averageAbsoluteElevationMeters is out of range"
+            )
         }
         return StatisticalDataPoint(
             dataType = DataType.ABSOLUTE_ELEVATION_STATS,
@@ -248,7 +258,7 @@ internal object DataPoints {
      * Creates a new [IntervalDataPoint] of type [DataType.FLOORS] with the given [floors].
      *
      * @param floors floors ascended between [startDurationFromBoot] and [endDurationFromBoot],
-     * Range from 0.0 to 1000000.0
+     *   Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -273,7 +283,7 @@ internal object DataPoints {
      * Creates a new [IntervalDataPoint] of type [DataType.CALORIES] with the given [kilocalories].
      *
      * @param kilocalories total calories burned (BMR + Active) between [startDurationFromBoot] and
-     * [endDurationFromBoot], Range from 0.0 to 1000000.0
+     *   [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -298,8 +308,8 @@ internal object DataPoints {
      * Creates a new [CumulativeDataPoint] of type [DataType.CALORIES_TOTAL] with the given
      * [kilocalories] that represents an accumulation over a longer period of time.
      *
-     * @param kilocalories total calories burned (BMR + Active) between [startTime] and
-     * [endTime], Range from 0.0 to 1000000.0
+     * @param kilocalories total calories burned (BMR + Active) between [startTime] and [endTime],
+     *   Range from 0.0 to 1000000.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
      */
@@ -325,7 +335,7 @@ internal object DataPoints {
      * [strokes].
      *
      * @param strokes total swimming strokes between [startDurationFromBoot] and
-     * [endDurationFromBoot], Range from 0 to 1000000
+     *   [endDurationFromBoot], Range from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -349,8 +359,8 @@ internal object DataPoints {
     /**
      * Creates a new [IntervalDataPoint] of type [DataType.GOLF_SHOT_COUNT] with the given [shots].
      *
-     * @param shots golf shots made between [startDurationFromBoot] and [endDurationFromBoot],
-     * Range from 0 to 1000000
+     * @param shots golf shots made between [startDurationFromBoot] and [endDurationFromBoot], Range
+     *   from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -379,10 +389,10 @@ internal object DataPoints {
      * @param longitude longitude at [timeDurationFromBoot], Range from -180.0 to 180.0
      * @param timeDurationFromBoot the point in time this data was recorded
      * @param altitude optional altitude or [LocationData.ALTITUDE_UNAVAILABLE] at
-     * [timeDurationFromBoot]
+     *   [timeDurationFromBoot]
      * @param bearing optional bearing or [LocationData.BEARING_UNAVAILABLE] at
-     * [timeDurationFromBoot], Range from 0.0 (inclusive) to 360.0 (exclusive).
-     * Value [LocationData.ALTITUDE_UNAVAILABLE] represents altitude is not available
+     *   [timeDurationFromBoot], Range from 0.0 (inclusive) to 360.0 (exclusive). Value
+     *   [LocationData.ALTITUDE_UNAVAILABLE] represents altitude is not available
      * @param accuracy optional [LocationAccuracy] describing this data or `null`
      */
     @JvmStatic
@@ -415,8 +425,8 @@ internal object DataPoints {
     /**
      * Creates a new [SampleDataPoint] of type [DataType.SPEED] with the given [metersPerSecond].
      *
-     * @param metersPerSecond speed in meters per second at [timeDurationFromBoot],
-     * Range from 0.0 to 1000000.0
+     * @param metersPerSecond speed in meters per second at [timeDurationFromBoot], Range from 0.0
+     *   to 1000000.0
      * @param timeDurationFromBoot the point in time [metersPerSecond] was recorded
      */
     @JvmStatic
@@ -482,12 +492,12 @@ internal object DataPoints {
      * Creates a new [StatisticalDataPoint] of type [DataType.HEART_RATE_BPM] with the given
      * min/max/average beats per minute.
      *
-     * @param minBpm lowest observed heart rate given in beats per minute in this interval,
-     * Range from 0.0 to 300.0
-     * @param maxBpm highest observed heart rate given in beats per minute in this interval,
-     * Range from 0.0 to 300.0
+     * @param minBpm lowest observed heart rate given in beats per minute in this interval, Range
+     *   from 0.0 to 300.0
+     * @param maxBpm highest observed heart rate given in beats per minute in this interval, Range
+     *   from 0.0 to 300.0
      * @param averageBpm average observed heart rate given in beats per minute in this interval,
-     * Range from 0.0 to 300.0
+     *   Range from 0.0 to 300.0
      * @param startTime the point in time this data point begins
      * @param endTime the point in time this data point ends
      */
@@ -522,7 +532,7 @@ internal object DataPoints {
      * Creates a new [IntervalDataPoint] of type [DataType.STEPS_DAILY] with the given [dailySteps].
      *
      * @param dailySteps number of steps taken today, between [startDurationFromBoot] and
-     * [endDurationFromBoot], Range from 0 to 1000000
+     *   [endDurationFromBoot], Range from 0 to 1000000
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -547,7 +557,7 @@ internal object DataPoints {
      * Creates a new [IntervalDataPoint] of type [DataType.FLOORS_DAILY] with the given [floors].
      *
      * @param floors number of floors ascended today, between [startDurationFromBoot] and
-     * [endDurationFromBoot], Range from 0.0 to 1000000.0
+     *   [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -573,7 +583,7 @@ internal object DataPoints {
      * [calories].
      *
      * @param calories number of calories burned today including both active and passive / BMR,
-     * between [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
+     *   between [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -598,7 +608,7 @@ internal object DataPoints {
      * Creates a new [IntervalDataPoint] of type [DataType.DISTANCE_DAILY] with the given [meters].
      *
      * @param meters number of meters traveled today through active/passive exercise between
-     * [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
+     *   [startDurationFromBoot] and [endDurationFromBoot], Range from 0.0 to 1000000.0
      * @param startDurationFromBoot the point in time this data point begins
      * @param endDurationFromBoot the point in time this data point ends
      */
@@ -633,9 +643,9 @@ internal object DataPoints {
         @FloatRange(from = 0.0, to = 1000000.0) meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
-      ): IntervalDataPoint<Double> {
+    ): IntervalDataPoint<Double> {
         if (meters !in 0.0..1000000.0) {
-          Log.w(TAG, "meters value $meters is out of range")
+            Log.w(TAG, "meters value $meters is out of range")
         }
         return IntervalDataPoint(
             dataType = DataType.ELEVATION_GAIN_DAILY,

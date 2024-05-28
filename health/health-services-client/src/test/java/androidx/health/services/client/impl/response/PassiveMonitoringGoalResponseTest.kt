@@ -29,9 +29,11 @@ import org.robolectric.RobolectricTestRunner
 class PassiveMonitoringGoalResponseTest {
     @Test
     fun protoRoundTrip() {
-        val proto = PassiveMonitoringGoalResponse(
-            PassiveGoal(DataTypeCondition(STEPS_DAILY, 1000, ComparisonType.GREATER_THAN))
-        ).proto
+        val proto =
+            PassiveMonitoringGoalResponse(
+                    PassiveGoal(DataTypeCondition(STEPS_DAILY, 1000, ComparisonType.GREATER_THAN))
+                )
+                .proto
 
         val response = PassiveMonitoringGoalResponse(proto)
 

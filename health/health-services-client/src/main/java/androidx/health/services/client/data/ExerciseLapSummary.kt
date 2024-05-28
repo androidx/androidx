@@ -54,9 +54,7 @@ class ExerciseLapSummary(
         Instant.ofEpochMilli(proto.startTimeEpochMs),
         Instant.ofEpochMilli(proto.endTimeEpochMs),
         Duration.ofMillis(proto.activeDurationMs),
-        DataPointContainer(
-            proto.lapMetricsList.map { DataPoint.fromProto(it.aggregateDataPoint) }
-        )
+        DataPointContainer(proto.lapMetricsList.map { DataPoint.fromProto(it.aggregateDataPoint) })
     )
 
     internal val proto: DataProto.ExerciseLapSummary =

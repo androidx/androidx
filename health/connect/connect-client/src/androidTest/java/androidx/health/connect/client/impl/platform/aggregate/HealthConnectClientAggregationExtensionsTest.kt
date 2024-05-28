@@ -113,16 +113,17 @@ class HealthConnectClientAggregationExtensionsTest {
         val aggregationResult =
             healthConnectClient.aggregateFallback(
                 AggregateRequest(
-                    metrics = setOf(
-                        BloodPressureRecord.DIASTOLIC_AVG,
-                        BloodPressureRecord.DIASTOLIC_MAX,
-                        BloodPressureRecord.DIASTOLIC_MIN,
-                        BloodPressureRecord.SYSTOLIC_AVG,
-                        BloodPressureRecord.SYSTOLIC_MAX,
-                        BloodPressureRecord.SYSTOLIC_MIN,
-                        NutritionRecord.TRANS_FAT_TOTAL,
-                        NutritionRecord.CALCIUM_TOTAL
-                    ),
+                    metrics =
+                        setOf(
+                            BloodPressureRecord.DIASTOLIC_AVG,
+                            BloodPressureRecord.DIASTOLIC_MAX,
+                            BloodPressureRecord.DIASTOLIC_MIN,
+                            BloodPressureRecord.SYSTOLIC_AVG,
+                            BloodPressureRecord.SYSTOLIC_MAX,
+                            BloodPressureRecord.SYSTOLIC_MIN,
+                            NutritionRecord.TRANS_FAT_TOTAL,
+                            NutritionRecord.CALCIUM_TOTAL
+                        ),
                     timeRangeFilter = TimeRangeFilter.none()
                 )
             )
@@ -164,16 +165,17 @@ class HealthConnectClientAggregationExtensionsTest {
         val aggregationResult =
             healthConnectClient.aggregateFallback(
                 AggregateRequest(
-                    metrics = setOf(
-                        NutritionRecord.TRANS_FAT_TOTAL,
-                        NutritionRecord.CALCIUM_TOTAL,
-                        BloodPressureRecord.DIASTOLIC_AVG,
-                        BloodPressureRecord.DIASTOLIC_MAX,
-                        BloodPressureRecord.DIASTOLIC_MIN,
-                        BloodPressureRecord.SYSTOLIC_AVG,
-                        BloodPressureRecord.SYSTOLIC_MAX,
-                        BloodPressureRecord.SYSTOLIC_MIN,
-                    ),
+                    metrics =
+                        setOf(
+                            NutritionRecord.TRANS_FAT_TOTAL,
+                            NutritionRecord.CALCIUM_TOTAL,
+                            BloodPressureRecord.DIASTOLIC_AVG,
+                            BloodPressureRecord.DIASTOLIC_MAX,
+                            BloodPressureRecord.DIASTOLIC_MIN,
+                            BloodPressureRecord.SYSTOLIC_AVG,
+                            BloodPressureRecord.SYSTOLIC_MAX,
+                            BloodPressureRecord.SYSTOLIC_MIN,
+                        ),
                     timeRangeFilter = TimeRangeFilter.none()
                 )
             )
@@ -188,8 +190,7 @@ class HealthConnectClientAggregationExtensionsTest {
             aggregationResult[NutritionRecord.TRANS_FAT_TOTAL] to 0.3.grams,
             (NutritionRecord.CALCIUM_TOTAL in aggregationResult) to false,
         )
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -199,16 +200,17 @@ class HealthConnectClientAggregationExtensionsTest {
         val aggregationResult =
             healthConnectClient.aggregateFallback(
                 AggregateRequest(
-                    metrics = setOf(
-                        BloodPressureRecord.DIASTOLIC_AVG,
-                        BloodPressureRecord.DIASTOLIC_MAX,
-                        BloodPressureRecord.DIASTOLIC_MIN,
-                        BloodPressureRecord.SYSTOLIC_AVG,
-                        BloodPressureRecord.SYSTOLIC_MAX,
-                        BloodPressureRecord.SYSTOLIC_MIN,
-                        NutritionRecord.TRANS_FAT_TOTAL,
-                        NutritionRecord.CALCIUM_TOTAL
-                    ),
+                    metrics =
+                        setOf(
+                            BloodPressureRecord.DIASTOLIC_AVG,
+                            BloodPressureRecord.DIASTOLIC_MAX,
+                            BloodPressureRecord.DIASTOLIC_MIN,
+                            BloodPressureRecord.SYSTOLIC_AVG,
+                            BloodPressureRecord.SYSTOLIC_MAX,
+                            BloodPressureRecord.SYSTOLIC_MIN,
+                            NutritionRecord.TRANS_FAT_TOTAL,
+                            NutritionRecord.CALCIUM_TOTAL
+                        ),
                     timeRangeFilter = TimeRangeFilter.none()
                 )
             )
@@ -228,13 +230,10 @@ class HealthConnectClientAggregationExtensionsTest {
     fun readRecordsFlow_noFilters_readsAllInsertedRecords() = runTest {
         insertManyStepsRecords()
 
-        val count = healthConnectClient.readRecordsFlow(
-            StepsRecord::class,
-            TimeRangeFilter.none(),
-            emptySet()
-        ).fold(0) { currentCount, records ->
-            currentCount + records.size
-        }
+        val count =
+            healthConnectClient
+                .readRecordsFlow(StepsRecord::class, TimeRangeFilter.none(), emptySet())
+                .fold(0) { currentCount, records -> currentCount + records.size }
 
         assertThat(count).isEqualTo(10_000L)
     }
@@ -244,13 +243,17 @@ class HealthConnectClientAggregationExtensionsTest {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
         insertManyStepsRecords()
 
-        val count = healthConnectClient.readRecordsFlow(
-            StepsRecord::class,
-            TimeRangeFilter.between(START_TIME + 10_000.seconds, START_TIME + 90_000.seconds),
-            emptySet()
-        ).fold(0) { currentCount, records ->
-            currentCount + records.size
-        }
+        val count =
+            healthConnectClient
+                .readRecordsFlow(
+                    StepsRecord::class,
+                    TimeRangeFilter.between(
+                        START_TIME + 10_000.seconds,
+                        START_TIME + 90_000.seconds
+                    ),
+                    emptySet()
+                )
+                .fold(0) { currentCount, records -> currentCount + records.size }
 
         assertThat(count).isEqualTo(8_000L)
     }
@@ -260,13 +263,14 @@ class HealthConnectClientAggregationExtensionsTest {
     fun readRecordsFlow_insertedDataOriginFilter_readsAllInsertedRecords() = runTest {
         insertManyStepsRecords()
 
-        val count = healthConnectClient.readRecordsFlow(
-            StepsRecord::class,
-            TimeRangeFilter.none(),
-            setOf(DataOrigin(context.packageName))
-        ).fold(0) { currentCount, records ->
-            currentCount + records.size
-        }
+        val count =
+            healthConnectClient
+                .readRecordsFlow(
+                    StepsRecord::class,
+                    TimeRangeFilter.none(),
+                    setOf(DataOrigin(context.packageName))
+                )
+                .fold(0) { currentCount, records -> currentCount + records.size }
 
         assertThat(count).isEqualTo(10_000L)
     }
@@ -275,13 +279,14 @@ class HealthConnectClientAggregationExtensionsTest {
     fun readRecordsFlow_nonExistingDataOriginFilter_doesNotReadAnyRecord() = runTest {
         insertManyStepsRecords()
 
-        val count = healthConnectClient.readRecordsFlow(
-            StepsRecord::class,
-            TimeRangeFilter.none(),
-            setOf(DataOrigin("some random package name"))
-        ).fold(0) { currentCount, records ->
-            currentCount + records.size
-        }
+        val count =
+            healthConnectClient
+                .readRecordsFlow(
+                    StepsRecord::class,
+                    TimeRangeFilter.none(),
+                    setOf(DataOrigin("some random package name"))
+                )
+                .fold(0) { currentCount, records -> currentCount + records.size }
 
         assertThat(count).isEqualTo(0L)
     }
@@ -289,16 +294,18 @@ class HealthConnectClientAggregationExtensionsTest {
     private suspend fun insertManyStepsRecords() {
         // Insert a large number of step records, bigger than the default page size
         for (i in 0..9) {
-            healthConnectClient.insertRecords(List(1000) {
-                val startTime = START_TIME + (i * 10_000 + it * 10).seconds
-                StepsRecord(
-                    startTime = startTime,
-                    endTime = startTime + 5.seconds,
-                    count = 10L,
-                    startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC
-                )
-            })
+            healthConnectClient.insertRecords(
+                List(1000) {
+                    val startTime = START_TIME + (i * 10_000 + it * 10).seconds
+                    StepsRecord(
+                        startTime = startTime,
+                        endTime = startTime + 5.seconds,
+                        count = 10L,
+                        startZoneOffset = ZoneOffset.UTC,
+                        endZoneOffset = ZoneOffset.UTC
+                    )
+                }
+            )
         }
     }
 

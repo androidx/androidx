@@ -24,16 +24,16 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class ExerciseEventTest {
-  @Test
-  fun exerciseEventGolfShotRoundTrip() {
-    val originalGolfShotEvent =
-      GolfShotEvent(Duration.ofSeconds(1), GolfShotEvent.GolfShotSwingType.FULL)
+    @Test
+    fun exerciseEventGolfShotRoundTrip() {
+        val originalGolfShotEvent =
+            GolfShotEvent(Duration.ofSeconds(1), GolfShotEvent.GolfShotSwingType.FULL)
 
-    val proto = originalGolfShotEvent.toProto()
-    val event = ExerciseEvent.fromProto(proto) as GolfShotEvent
+        val proto = originalGolfShotEvent.toProto()
+        val event = ExerciseEvent.fromProto(proto) as GolfShotEvent
 
-    assertThat(event.durationSinceBoot).isEqualTo(Duration.ofSeconds(1))
-    assertThat(event.swingType).isEqualTo(GolfShotEvent.GolfShotSwingType.FULL)
-    assertThat(event).isEqualTo(originalGolfShotEvent)
-  }
+        assertThat(event.durationSinceBoot).isEqualTo(Duration.ofSeconds(1))
+        assertThat(event.swingType).isEqualTo(GolfShotEvent.GolfShotSwingType.FULL)
+        assertThat(event).isEqualTo(originalGolfShotEvent)
+    }
 }

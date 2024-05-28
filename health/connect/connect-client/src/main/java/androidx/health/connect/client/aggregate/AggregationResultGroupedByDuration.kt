@@ -25,9 +25,8 @@ import java.time.ZoneOffset
  * @property startTime start time of the slice.
  * @property endTime end time of the slice.
  * @property zoneOffset zoneOffset of underlying record within the slice. If underlying records have
- * mixed [ZoneOffset], the first one is returned. Use this to render result in user local time and
- * handle scenarios involving Day Light Savings, such as "hourly steps on a given date".
- *
+ *   mixed [ZoneOffset], the first one is returned. Use this to render result in user local time and
+ *   handle scenarios involving Day Light Savings, such as "hourly steps on a given date".
  * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByDuration]
  */
 class AggregationResultGroupedByDuration

@@ -30,18 +30,21 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>
 ): AggregationResult {
-    val readRecordsFlow = readRecordsFlow(
-        NutritionRecord::class,
-        timeRangeFilter.withBufferedStart(),
-        dataOriginFilter
-    )
+    val readRecordsFlow =
+        readRecordsFlow(
+            NutritionRecord::class,
+            timeRangeFilter.withBufferedStart(),
+            dataOriginFilter
+        )
 
-    val aggregatedData = readRecordsFlow
-        .fold(AggregatedData(0.0)) { currentAggregatedData, records ->
-            val filteredRecords = records.filter {
-                it.overlaps(timeRangeFilter) && it.transFat != null &&
-                    sliceFactor(it, timeRangeFilter) > 0
-            }
+    val aggregatedData =
+        readRecordsFlow.fold(AggregatedData(0.0)) { currentAggregatedData, records ->
+            val filteredRecords =
+                records.filter {
+                    it.overlaps(timeRangeFilter) &&
+                        it.transFat != null &&
+                        sliceFactor(it, timeRangeFilter) > 0
+                }
 
             filteredRecords.forEach {
                 currentAggregatedData.value +=

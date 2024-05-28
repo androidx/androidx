@@ -23,9 +23,8 @@ import androidx.health.connect.client.records.Record
  * @param T the record type
  * @property records a collection of records
  * @property pageToken an optional page token to use for
- * [androidx.health.connect.client.request.ReadRecordsRequest.pageToken] in the next request if more
- * records can be fetched; contains value `null` if no more pages.
- *
+ *   [androidx.health.connect.client.request.ReadRecordsRequest.pageToken] in the next request if
+ *   more records can be fetched; contains value `null` if no more pages.
  * @see androidx.health.connect.client.HealthConnectClient.readRecords
  */
 class ReadRecordsResponse<T : Record>

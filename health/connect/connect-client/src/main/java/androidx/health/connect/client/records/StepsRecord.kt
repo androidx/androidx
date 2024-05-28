@@ -36,8 +36,7 @@ public class StepsRecord(
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     /** Count. Required field. Valid range: 1-1000000. */
-    @IntRange(from = 1, to = 1000_000)
-    public val count: Long,
+    @IntRange(from = 1, to = 1000_000) public val count: Long,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
     init {
@@ -45,6 +44,7 @@ public class StepsRecord(
         count.requireNotMore(other = 1000_000, name = "count")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
     }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is StepsRecord) return false

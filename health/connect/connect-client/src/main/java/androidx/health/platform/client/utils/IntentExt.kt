@@ -30,21 +30,16 @@ fun Intent.putByteArraysExtra(name: String, byteArrays: Collection<ByteArray>): 
     putExtra(
         name,
         Bundle(byteArrays.size).apply {
-            byteArrays.forEachIndexed { index, bytes ->
-                putByteArray(index.toString(), bytes)
-            }
+            byteArrays.forEachIndexed { index, bytes -> putByteArray(index.toString(), bytes) }
         },
     )
 
 fun <T : AbstractMessageLite<*, *>> Intent.getProtoMessages(
     name: String,
     parser: (ByteArray) -> T,
-): List<T>? =
-    getByteArraysExtra(name = name)?.map(parser)
+): List<T>? = getByteArraysExtra(name = name)?.map(parser)
 
 fun Intent.getByteArraysExtra(name: String): List<ByteArray>? =
     getBundleExtra(name)?.let { bundle ->
-        List(bundle.size()) { index ->
-            requireNotNull(bundle.getByteArray(index.toString()))
-        }
+        List(bundle.size()) { index -> requireNotNull(bundle.getByteArray(index.toString())) }
     }

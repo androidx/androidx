@@ -32,7 +32,8 @@ import java.util.HashMap
 import java.util.concurrent.Executor
 
 /** A stub implementation for IExerciseUpdateListener. */
-internal class ExerciseUpdateListenerStub internal constructor(
+internal class ExerciseUpdateListenerStub
+internal constructor(
     private val listener: ExerciseUpdateCallback,
     private val executor: Executor,
     private val requestedDataTypesProvider: () -> Set<DataType<*, *>>
@@ -64,17 +65,17 @@ internal class ExerciseUpdateListenerStub internal constructor(
                 // not enough information to distinguish. For example, the developer might have
                 // requested ether or both of HEART_RATE_BPM / HEART_RATE_BPM_STATS. We should
                 // trigger onAvailabilityChanged for all matching data types.
-                val matchingDataTypes = requestedDataTypes.filter {
-                    it.name == proto.availabilityResponse.dataType.name
-                }
+                val matchingDataTypes =
+                    requestedDataTypes.filter {
+                        it.name == proto.availabilityResponse.dataType.name
+                    }
                 val availability = Availability.fromProto(proto.availabilityResponse.availability)
                 matchingDataTypes.forEach { listener.onAvailabilityChanged(it, availability) }
             }
             EventCase.EXERCISE_EVENT_RESPONSE ->
-                listener
-                    .onExerciseEventReceived(
-                        ExerciseEvent.fromProto(
-                            proto.exerciseEventResponse.exerciseEvent))
+                listener.onExerciseEventReceived(
+                    ExerciseEvent.fromProto(proto.exerciseEventResponse.exerciseEvent)
+                )
             null,
             EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
         }
@@ -102,8 +103,8 @@ internal class ExerciseUpdateListenerStub internal constructor(
                 // listener is being registered we should clear out the old stub.
                 // It's okay if we end up re-registering an equivalent stub.
                 listeners.clear()
-                val stub = ExerciseUpdateListenerStub(
-                    listener, executor, requestedDataTypesProvider)
+                val stub =
+                    ExerciseUpdateListenerStub(listener, executor, requestedDataTypesProvider)
                 listeners.put(listener, stub)
                 return stub
             }

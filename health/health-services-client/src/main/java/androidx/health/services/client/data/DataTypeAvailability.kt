@@ -22,10 +22,8 @@ import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvai
 import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability.DATA_TYPE_AVAILABILITY_UNKNOWN
 
 /** Availability of a [DataType]. */
-public class DataTypeAvailability private constructor(
-    public override val id: Int,
-    public val name: String
-) : Availability {
+public class DataTypeAvailability
+private constructor(public override val id: Int, public val name: String) : Availability {
 
     override fun toString(): String = name
 
@@ -52,16 +50,13 @@ public class DataTypeAvailability private constructor(
          * The availability is unknown, or is represented by a value too new for this library
          * version to parse.
          */
-        @JvmField
-        public val UNKNOWN: DataTypeAvailability = DataTypeAvailability(0, "UNKNOWN")
+        @JvmField public val UNKNOWN: DataTypeAvailability = DataTypeAvailability(0, "UNKNOWN")
 
         /** The [DataType] is fully initialized and available. */
-        @JvmField
-        public val AVAILABLE: DataTypeAvailability = DataTypeAvailability(1, "AVAILABLE")
+        @JvmField public val AVAILABLE: DataTypeAvailability = DataTypeAvailability(1, "AVAILABLE")
 
         /** The [DataType] is currently acquiring. */
-        @JvmField
-        public val ACQUIRING: DataTypeAvailability = DataTypeAvailability(2, "ACQUIRING")
+        @JvmField public val ACQUIRING: DataTypeAvailability = DataTypeAvailability(2, "ACQUIRING")
 
         /** The [DataType] is unavailable because health services cannot acquire it. */
         @JvmField

@@ -118,7 +118,8 @@ internal fun DataProto.DataPoint.SubTypeDataList.toStageList(): List<SleepSessio
         SleepSessionRecord.Stage(
             startTime = Instant.ofEpochMilli(it.startTimeMillis),
             endTime = Instant.ofEpochMilli(it.endTimeMillis),
-            stage = STAGE_TYPE_STRING_TO_INT_MAP[it.valuesMap["stage"]?.enumVal]
+            stage =
+                STAGE_TYPE_STRING_TO_INT_MAP[it.valuesMap["stage"]?.enumVal]
                     ?: SleepSessionRecord.STAGE_TYPE_UNKNOWN
         )
     }

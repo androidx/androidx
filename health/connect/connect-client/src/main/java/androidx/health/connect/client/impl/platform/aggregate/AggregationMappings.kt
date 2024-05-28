@@ -197,9 +197,7 @@ internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
         NutritionRecord.VITAMIN_K_TOTAL to PlatformNutritionRecord.VITAMIN_K_TOTAL,
         NutritionRecord.ZINC_TOTAL to PlatformNutritionRecord.ZINC_TOTAL,
         *if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
-            arrayOf(
-                NutritionRecord.TRANS_FAT_TOTAL to PlatformNutritionRecord.TRANS_FAT_TOTAL
-            )
+            arrayOf(NutritionRecord.TRANS_FAT_TOTAL to PlatformNutritionRecord.TRANS_FAT_TOTAL)
         } else {
             emptyArray()
         }
@@ -224,29 +222,31 @@ internal val POWER_AGGREGATION_METRIC_TYPE_MAP:
 internal val PRESSURE_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Pressure>, PlatformAggregateMetric<PlatformPressure>> =
     if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
-        arrayOf(
-            BloodPressureRecord.DIASTOLIC_AVG to PlatformBloodPressureRecord.DIASTOLIC_AVG,
-            BloodPressureRecord.DIASTOLIC_MAX to PlatformBloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN to PlatformBloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_AVG to PlatformBloodPressureRecord.SYSTOLIC_AVG,
-            BloodPressureRecord.SYSTOLIC_MAX to PlatformBloodPressureRecord.SYSTOLIC_MAX,
-            BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN
-        )
-    } else {
-        emptyArray()
-    }.toMap()
+            arrayOf(
+                BloodPressureRecord.DIASTOLIC_AVG to PlatformBloodPressureRecord.DIASTOLIC_AVG,
+                BloodPressureRecord.DIASTOLIC_MAX to PlatformBloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN to PlatformBloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_AVG to PlatformBloodPressureRecord.SYSTOLIC_AVG,
+                BloodPressureRecord.SYSTOLIC_MAX to PlatformBloodPressureRecord.SYSTOLIC_MAX,
+                BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN
+            )
+        } else {
+            emptyArray()
+        }
+        .toMap()
 
 internal val VELOCITY_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Velocity>, PlatformAggregateMetric<PlatformVelocity>> =
     if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
-        arrayOf(
-            SpeedRecord.SPEED_AVG to PlatformSpeedRecord.SPEED_AVG,
-            SpeedRecord.SPEED_MAX to PlatformSpeedRecord.SPEED_MAX,
-            SpeedRecord.SPEED_MIN to PlatformSpeedRecord.SPEED_MIN
-        )
-    } else {
-        emptyArray()
-    }.toMap()
+            arrayOf(
+                SpeedRecord.SPEED_AVG to PlatformSpeedRecord.SPEED_AVG,
+                SpeedRecord.SPEED_MAX to PlatformSpeedRecord.SPEED_MAX,
+                SpeedRecord.SPEED_MIN to PlatformSpeedRecord.SPEED_MIN
+            )
+        } else {
+            emptyArray()
+        }
+        .toMap()
 
 internal val VOLUME_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Volume>, PlatformAggregateMetric<PlatformVolume>> =

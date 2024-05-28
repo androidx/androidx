@@ -53,11 +53,15 @@ class PassiveGoalTest {
         // side for old clients. Using proto constructor because triggerFrequency constructor is
         // private.
         val goal1 = PassiveGoal(DataTypeCondition(STEPS_DAILY, 400, GREATER_THAN))
-        val goal2 = PassiveGoal(
-            goal1.proto.toBuilder()
-                .setTriggerFrequency(DataProto.PassiveGoal.TriggerFrequency.TRIGGER_FREQUENCY_ONCE)
-                .build()
-        )
+        val goal2 =
+            PassiveGoal(
+                goal1.proto
+                    .toBuilder()
+                    .setTriggerFrequency(
+                        DataProto.PassiveGoal.TriggerFrequency.TRIGGER_FREQUENCY_ONCE
+                    )
+                    .build()
+            )
 
         assertThat(goal1).isNotEqualTo(goal2)
     }

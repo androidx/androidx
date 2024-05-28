@@ -57,9 +57,9 @@ public class MilestoneMarkerSummary(
         Instant.ofEpochMilli(proto.endTimeEpochMs),
         Duration.ofMillis(proto.activeDurationMs),
         ExerciseGoal.fromProto(proto.achievedGoal.exerciseGoal),
-        DataPointContainer(proto.summaryMetricsList.map {
-                DataPoint.fromProto(it.aggregateDataPoint)
-        })
+        DataPointContainer(
+            proto.summaryMetricsList.map { DataPoint.fromProto(it.aggregateDataPoint) }
+        )
     )
 
     internal val proto: DataProto.MilestoneMarkerSummary =

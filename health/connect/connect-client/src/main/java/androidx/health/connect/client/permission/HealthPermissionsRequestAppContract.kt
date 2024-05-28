@@ -66,8 +66,7 @@ internal class HealthPermissionsRequestAppContract(
                 ?.getParcelableArrayListExtra<ParcelablePermission>(KEY_GRANTED_PERMISSIONS_STRING)
                 ?.asSequence()
                 ?.map { it.proto.permission }
-                ?.toSet()
-                ?: emptySet()
+                ?.toSet() ?: emptySet()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Granted ${grantedPermissions.size} permissions.")
         return grantedPermissions
     }

@@ -32,16 +32,18 @@ internal class SampleDataPointTest {
 
     @Test
     fun protoRoundTrip() {
-        val proto = SampleDataPoint(
-            HEART_RATE_BPM,
-            130.0,
-            20.duration(),
-            Bundle().apply {
-                putInt("int", 5)
-                putString("string", "value")
-            },
-            HeartRateAccuracy(ACCURACY_HIGH)
-        ).proto
+        val proto =
+            SampleDataPoint(
+                    HEART_RATE_BPM,
+                    130.0,
+                    20.duration(),
+                    Bundle().apply {
+                        putInt("int", 5)
+                        putString("string", "value")
+                    },
+                    HeartRateAccuracy(ACCURACY_HIGH)
+                )
+                .proto
 
         val dataPoint = SampleDataPoint.fromProto(proto)
 
@@ -55,13 +57,15 @@ internal class SampleDataPointTest {
 
     @Test
     fun protoRoundTrip_emptyBundleAndAccuracy() {
-        val proto = SampleDataPoint(
-            HEART_RATE_BPM,
-            130.0,
-            20.duration(),
-            accuracy = null,
-            metadata = Bundle()
-        ).proto
+        val proto =
+            SampleDataPoint(
+                    HEART_RATE_BPM,
+                    130.0,
+                    20.duration(),
+                    accuracy = null,
+                    metadata = Bundle()
+                )
+                .proto
 
         val dataPoint = SampleDataPoint.fromProto(proto)
 
@@ -74,20 +78,24 @@ internal class SampleDataPointTest {
 
     @Test
     fun protoRoundTripLocation() {
-        val proto = SampleDataPoint(
-            dataType = LOCATION,
-            value = LocationData(
-                latitude = 41.2,
-                longitude = 82.3,
-                altitude = 93.4,
-                bearing = 274.5
-            ),
-            timeDurationFromBoot = 20.duration(),
-            accuracy = LocationAccuracy(
-                horizontalPositionErrorMeters = 3.5,
-                verticalPositionErrorMeters = 4.7
-            )
-        ).proto
+        val proto =
+            SampleDataPoint(
+                    dataType = LOCATION,
+                    value =
+                        LocationData(
+                            latitude = 41.2,
+                            longitude = 82.3,
+                            altitude = 93.4,
+                            bearing = 274.5
+                        ),
+                    timeDurationFromBoot = 20.duration(),
+                    accuracy =
+                        LocationAccuracy(
+                            horizontalPositionErrorMeters = 3.5,
+                            verticalPositionErrorMeters = 4.7
+                        )
+                )
+                .proto
 
         val dataPoint = SampleDataPoint.fromProto(proto)
 
@@ -105,17 +113,21 @@ internal class SampleDataPointTest {
 
     @Test
     fun protoRoundTripLocation_defaultAltitudeAndBearing() {
-        val proto = SampleDataPoint(
-            dataType = LOCATION,
-            value = LocationData(
-                latitude = 41.2,
-                longitude = 82.3,
-            ),
-            timeDurationFromBoot = 20.duration(),
-            accuracy = LocationAccuracy(
-                horizontalPositionErrorMeters = 3.5,
-            )
-        ).proto
+        val proto =
+            SampleDataPoint(
+                    dataType = LOCATION,
+                    value =
+                        LocationData(
+                            latitude = 41.2,
+                            longitude = 82.3,
+                        ),
+                    timeDurationFromBoot = 20.duration(),
+                    accuracy =
+                        LocationAccuracy(
+                            horizontalPositionErrorMeters = 3.5,
+                        )
+                )
+                .proto
 
         val dataPoint = SampleDataPoint.fromProto(proto)
 

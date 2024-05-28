@@ -394,10 +394,7 @@ public class ExerciseSegment(
                 ExerciseSessionRecord.EXERCISE_TYPE_YOGA to setOf(EXERCISE_SEGMENT_TYPE_YOGA),
             )
 
-        /**
-         * List of supported segment types on Health Platform.
-         *
-         */
+        /** List of supported segment types on Health Platform. */
         @Retention(AnnotationRetention.SOURCE)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @IntDef(

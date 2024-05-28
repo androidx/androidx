@@ -23,32 +23,40 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class ExerciseStateInfoTest {
-  @Test
-  fun sportCheckExerciseEndReasonActiveState() {
-    assertThat(ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN))
-  }
+    @Test
+    fun sportCheckExerciseEndReasonActiveState() {
+        assertThat(ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(ExerciseStateInfo(ExerciseState.ACTIVE, ExerciseEndReason.UNKNOWN))
+    }
 
-  @Test
-  fun spotCheckSetsExerciseEndReason() {
-    assertThat(ExerciseStateInfo(ExerciseState.AUTO_ENDED, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(
-        ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_MISSING_LISTENER)
-      )
-    assertThat(ExerciseStateInfo(ExerciseState.USER_ENDED, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.USER_END))
-    assertThat(
-      ExerciseStateInfo(ExerciseState.AUTO_ENDED_PERMISSION_LOST, ExerciseEndReason.UNKNOWN)
-    )
-      .isEqualTo(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_PERMISSION_LOST))
-    assertThat(ExerciseStateInfo(ExerciseState.TERMINATED, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_SUPERSEDED))
-    assertThat(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(ExerciseStateInfo(ExerciseState.ENDED,
-                                   ExerciseEndReason.AUTO_END_PERMISSION_LOST))
-    assertThat(ExerciseStateInfo(ExerciseState.ENDING, ExerciseEndReason.UNKNOWN))
-      .isEqualTo(
-        ExerciseStateInfo(ExerciseState.ENDING, ExerciseEndReason.AUTO_END_PERMISSION_LOST)
-      )
-  }
+    @Test
+    fun spotCheckSetsExerciseEndReason() {
+        assertThat(ExerciseStateInfo(ExerciseState.AUTO_ENDED, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(
+                ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_MISSING_LISTENER)
+            )
+        assertThat(ExerciseStateInfo(ExerciseState.USER_ENDED, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.USER_END))
+        assertThat(
+                ExerciseStateInfo(
+                    ExerciseState.AUTO_ENDED_PERMISSION_LOST,
+                    ExerciseEndReason.UNKNOWN
+                )
+            )
+            .isEqualTo(
+                ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_PERMISSION_LOST)
+            )
+        assertThat(ExerciseStateInfo(ExerciseState.TERMINATED, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(
+                ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_SUPERSEDED)
+            )
+        assertThat(ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(
+                ExerciseStateInfo(ExerciseState.ENDED, ExerciseEndReason.AUTO_END_PERMISSION_LOST)
+            )
+        assertThat(ExerciseStateInfo(ExerciseState.ENDING, ExerciseEndReason.UNKNOWN))
+            .isEqualTo(
+                ExerciseStateInfo(ExerciseState.ENDING, ExerciseEndReason.AUTO_END_PERMISSION_LOST)
+            )
+    }
 }
