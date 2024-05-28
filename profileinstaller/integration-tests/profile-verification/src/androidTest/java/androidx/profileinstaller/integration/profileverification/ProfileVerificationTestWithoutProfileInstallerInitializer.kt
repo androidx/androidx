@@ -29,9 +29,9 @@ import org.junit.Test
 /**
  * This test uses the project
  * "profileinstaller:integration-tests:profile-verification-sample-no-initializer". The release
- * version of it has been embedded in the assets in 3 different versions with increasing
- * versionCode to allow updating the app through pm command. In this test the
- * ProfileInstallerInitializer has been disabled from the target app manifest.
+ * version of it has been embedded in the assets in 3 different versions with increasing versionCode
+ * to allow updating the app through pm command. In this test the ProfileInstallerInitializer has
+ * been disabled from the target app manifest.
  *
  * The SampleActivity invoked displays the status of the reference profile install on the UI after
  * the callback from {@link ProfileVerifier} returns. This test checks the status visualized to
@@ -40,114 +40,113 @@ import org.junit.Test
  * This test needs min sdk version `P` because it's first version to introduce support for dm file:
  * https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/base/+/3368431/
  */
-@SdkSuppress(
-    minSdkVersion = android.os.Build.VERSION_CODES.P
-)
+@SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.P)
 @LargeTest
 class ProfileVerificationTestWithoutProfileInstallerInitializer {
 
     @Before
-    fun setUp() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
-        // Note that this test fails on emulator api 30 (b/251540646)
-        assumeTrue(!isApi30)
-        uninstall()
-    }
+    fun setUp() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+            // Note that this test fails on emulator api 30 (b/251540646)
+            assumeTrue(!isApi30)
+            uninstall()
+        }
 
-    @After
-    fun tearDown() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
-        uninstall()
-    }
+    @After fun tearDown() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) { uninstall() }
 
     @Test
-    fun installNewAppWithoutReferenceProfile() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+    fun installNewAppWithoutReferenceProfile() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
-        // Install without reference profile
-        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
+            // Install without reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
         }
-    }
 
     @Test
-    fun installNewAppAndWaitForCompilation() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+    fun installNewAppAndWaitForCompilation() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
-        // Install without reference profile
-        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
+            // Install without reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
 
-        // Start once to check there is no profile
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
+            // Start once to check there is no profile
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
+            stop()
+
+            // Start again to check there is no profile
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                hasReferenceProfile(false)
+                hasCurrentProfile(false)
+            }
+            stop()
+
+            // Install profile through broadcast receiver
+            broadcastProfileInstallAction()
+
+            // Start again to check there it's now awaiting compilation
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
+            stop()
+
+            // Start again to check there it's now awaiting compilation
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
+            stop()
+
+            // Compile
+            compileCurrentProfile()
+
+            // Start again to check profile is compiled
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
+
+            // Start again to check profile is compiled
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
         }
-        stop()
-
-        // Start again to check there is no profile
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
-            hasReferenceProfile(false)
-            hasCurrentProfile(false)
-        }
-        stop()
-
-        // Install profile through broadcast receiver
-        broadcastProfileInstallAction()
-
-        // Start again to check there it's now awaiting compilation
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
-        }
-        stop()
-
-        // Start again to check there it's now awaiting compilation
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
-        }
-        stop()
-
-        // Compile
-        compileCurrentProfile()
-
-        // Start again to check profile is compiled
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-
-        // Start again to check profile is compiled
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-    }
 
     @Test
-    fun installAppWithReferenceProfile() = withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
+    fun installAppWithReferenceProfile() =
+        withPackageName(PACKAGE_NAME_WITHOUT_INITIALIZER) {
 
-        // Install with reference profile
-        install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = true)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
+            // Install with reference profile
+            install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = true)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
         }
-    }
 
     @Test
     fun updateFromNoReferenceProfileToReferenceProfile() =

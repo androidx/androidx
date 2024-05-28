@@ -38,94 +38,93 @@ import org.junit.Test
  * This test needs min sdk version `P` because it's first version to introduce support for dm file:
  * https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/base/+/3368431/
  */
-@SdkSuppress(
-    minSdkVersion = android.os.Build.VERSION_CODES.P
-)
+@SdkSuppress(minSdkVersion = android.os.Build.VERSION_CODES.P)
 @LargeTest
 class ProfileVerificationTestWithProfileInstallerInitializer {
 
     @Before
-    fun setUp() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
-        // Note that this test fails on emulator api 30 (b/251540646)
-        assumeTrue(!isApi30)
-        uninstall()
-    }
+    fun setUp() =
+        withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+            // Note that this test fails on emulator api 30 (b/251540646)
+            assumeTrue(!isApi30)
+            uninstall()
+        }
 
-    @After
-    fun tearDown() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
-        uninstall()
-    }
+    @After fun tearDown() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) { uninstall() }
 
     @Test
-    fun installNewApp() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
-        // Install without reference profile
-        install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
+    fun installNewApp() =
+        withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+            // Install without reference profile
+            install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
 
-        // Start
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
+            // Start
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
         }
-    }
 
     @Test
-    fun installNewAppAndWaitForCompilation() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+    fun installNewAppAndWaitForCompilation() =
+        withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
 
-        // Install without reference profile
-        install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
+            // Install without reference profile
+            install(apkName = APK_WITH_INITIALIZER_V1, withProfile = false)
 
-        // Start once to install profile
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
+            // Start once to install profile
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
+            stop()
+
+            // Start again, should still be awaiting compilation
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
+                hasReferenceProfile(false)
+                hasCurrentProfile(true)
+            }
+            stop()
+
+            // Compile
+            compileCurrentProfile()
+
+            // Start again to check profile is compiled
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
+
+            // Profile should still be compiled
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(false)
+            }
         }
-        stop()
-
-        // Start again, should still be awaiting compilation
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION)
-            hasReferenceProfile(false)
-            hasCurrentProfile(true)
-        }
-        stop()
-
-        // Compile
-        compileCurrentProfile()
-
-        // Start again to check profile is compiled
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-
-        // Profile should still be compiled
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(false)
-        }
-    }
 
     @Test
-    fun installAppWithReferenceProfile() = withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
+    fun installAppWithReferenceProfile() =
+        withPackageName(PACKAGE_NAME_WITH_INITIALIZER) {
 
-        // Install with reference profile.
-        install(apkName = APK_WITH_INITIALIZER_V1, withProfile = true)
-        start(ACTIVITY_NAME)
-        evaluateUI {
-            profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
-            hasReferenceProfile(true)
-            hasCurrentProfile(true)
+            // Install with reference profile.
+            install(apkName = APK_WITH_INITIALIZER_V1, withProfile = true)
+            start(ACTIVITY_NAME)
+            evaluateUI {
+                profileInstalled(RESULT_CODE_COMPILED_WITH_PROFILE)
+                hasReferenceProfile(true)
+                hasCurrentProfile(true)
+            }
         }
-    }
 
     @Test
     fun updateFromReferenceProfileToReferenceProfile() =
