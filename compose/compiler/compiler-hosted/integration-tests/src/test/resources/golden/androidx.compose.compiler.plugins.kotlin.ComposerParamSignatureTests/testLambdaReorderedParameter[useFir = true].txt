@@ -14,7 +14,7 @@
 public final class TestKt {
   public final static Foo(Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
   public final static Example(Landroidx/compose/runtime/Composer;I)V
-  final static INNERCLASS TestKt%Example%1 null null
+  final static INNERCLASS TestKt%Example%1%1 null null
   final static INNERCLASS TestKt%Example%2 null null
   final static INNERCLASS TestKt%Foo%1 null null
 }
@@ -28,14 +28,14 @@ final class TestKt%Foo%1 extends kotlin/jvm/internal/Lambda implements kotlin/jv
   OUTERCLASS TestKt Foo (Ljava/lang/String;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
   final static INNERCLASS TestKt%Foo%1 null null
 }
-final class TestKt%Example%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function0 {
+final class TestKt%Example%1%1 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function0 {
   <init>()V
   public final invoke()V
   public synthetic bridge invoke()Ljava/lang/Object;
   static <clinit>()V
-  public final static LTestKt%Example%1; INSTANCE
+  public final static LTestKt%Example%1%1; INSTANCE
   OUTERCLASS TestKt Example (Landroidx/compose/runtime/Composer;I)V
-  final static INNERCLASS TestKt%Example%1 null null
+  final static INNERCLASS TestKt%Example%1%1 null null
 }
 final class TestKt%Example%2 extends kotlin/jvm/internal/Lambda implements kotlin/jvm/functions/Function2 {
   <init>(I)V
