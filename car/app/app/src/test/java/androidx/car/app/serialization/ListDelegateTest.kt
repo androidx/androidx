@@ -28,9 +28,9 @@ import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class RemoteListDelegateTest {
+class ListDelegateTest {
     private val testList = (100..199).toList()
-    private val remoteListDelegate = RemoteListDelegateImpl(testList)
+    private val listDelegate = ListDelegateImpl(testList)
     private val onDoneCallback = mock<OnDoneCallback>()
     private val resultCaptor = argumentCaptor<Bundleable>()
 
@@ -59,7 +59,7 @@ class RemoteListDelegateTest {
     }
 
     private fun requestItemRange(startIndex: Int, endIndex: Int): List<Int> {
-        remoteListDelegate.requestItemRange(startIndex, endIndex, onDoneCallback)
+        listDelegate.requestItemRange(startIndex, endIndex, onDoneCallback)
 
         verify(onDoneCallback, atLeastOnce()).onSuccess(resultCaptor.capture())
 
