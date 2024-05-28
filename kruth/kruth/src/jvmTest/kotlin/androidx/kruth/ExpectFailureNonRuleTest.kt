@@ -38,15 +38,14 @@ class ExpectFailureNonRuleTest {
                 override fun testFailure(failure: Failure) {
                     reportedFailure.add(failure)
                 }
-            })
+            }
+        )
 
         val runner: Runner = JUnit4(ExpectFailureThrowInSubject::class.java)
         runner.run(runNotifier)
 
         assertThat(reportedFailure).hasSize(2)
-        assertThat(reportedFailure[0].exception)
-            .hasMessageThat()
-            .contains("Throw deliberately")
+        assertThat(reportedFailure[0].exception).hasMessageThat().contains("Throw deliberately")
         assertThat(reportedFailure[1].exception)
             .hasMessageThat()
             .contains("ExpectFailure.whenTesting() invoked, but no failure was caught.")
@@ -61,15 +60,14 @@ class ExpectFailureNonRuleTest {
                 override fun testFailure(failure: Failure) {
                     reportedFailure.add(failure)
                 }
-            })
+            }
+        )
 
         val runner: Runner = JUnit4(ExpectFailureThrowAfterSubject::class.java)
         runner.run(runNotifier)
 
         assertThat(reportedFailure).hasSize(2)
-        assertThat(reportedFailure[0].exception)
-            .hasMessageThat()
-            .contains("Throw deliberately")
+        assertThat(reportedFailure[0].exception).hasMessageThat().contains("Throw deliberately")
         assertThat(reportedFailure[1].exception)
             .hasMessageThat()
             .contains("ExpectFailure.whenTesting() invoked, but no failure was caught.")

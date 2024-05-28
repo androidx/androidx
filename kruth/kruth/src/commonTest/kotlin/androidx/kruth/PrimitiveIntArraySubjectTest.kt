@@ -45,16 +45,12 @@ class PrimitiveIntArraySubjectTest {
 
     @Test
     fun hasLengthFail() {
-        assertFailsWith<AssertionError> {
-            assertThat(intArrayOf(2, 5)).hasLength(1)
-        }
+        assertFailsWith<AssertionError> { assertThat(intArrayOf(2, 5)).hasLength(1) }
     }
 
     @Test
     fun hasLengthNegative() {
-        assertFailsWith<IllegalArgumentException> {
-            assertThat(intArrayOf(2, 5)).hasLength(-1)
-        }
+        assertFailsWith<IllegalArgumentException> { assertThat(intArrayOf(2, 5)).hasLength(-1) }
     }
 
     @Test
@@ -64,9 +60,7 @@ class PrimitiveIntArraySubjectTest {
 
     @Test
     fun isEmptyFail() {
-        assertFailsWith<AssertionError> {
-            assertThat(intArrayOf(2, 5)).isEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(intArrayOf(2, 5)).isEmpty() }
     }
 
     @Test
@@ -76,23 +70,17 @@ class PrimitiveIntArraySubjectTest {
 
     @Test
     fun isNotEmptyFail() {
-        assertFailsWith<AssertionError> {
-            assertThat(intArrayOf()).isNotEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(intArrayOf()).isNotEmpty() }
     }
 
     @Test
     fun isEqualTo_Fail_UnequalOrdering() {
-        assertFailsWith<AssertionError> {
-            assertThat(intArrayOf(2, 3)).isEqualTo(intArrayOf(3, 2))
-        }
+        assertFailsWith<AssertionError> { assertThat(intArrayOf(2, 3)).isEqualTo(intArrayOf(3, 2)) }
     }
 
     @Test
     fun isEqualTo_Fail_NotAnintArrayOf() {
-        assertFailsWith<AssertionError> {
-            assertThat(intArrayOf(2, 3, 4)).isEqualTo(Any())
-        }
+        assertFailsWith<AssertionError> { assertThat(intArrayOf(2, 3, 4)).isEqualTo(Any()) }
     }
 
     @Test
@@ -120,8 +108,6 @@ class PrimitiveIntArraySubjectTest {
     @Test
     fun isNotEqualTo_FailSame() {
         val same = intArrayOf(2, 3)
-        assertFailsWith<AssertionError> {
-            assertThat(same).isNotEqualTo(same)
-        }
+        assertFailsWith<AssertionError> { assertThat(same).isNotEqualTo(same) }
     }
 }

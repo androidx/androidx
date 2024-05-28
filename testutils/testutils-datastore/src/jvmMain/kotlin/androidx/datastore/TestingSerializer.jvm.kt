@@ -33,10 +33,7 @@ class TestingSerializer(
                 config.listOfFailReadWithCorruptionException.drop(1)
         }
         if (failReadWithCorruptionException) {
-            throw CorruptionException(
-                "CorruptionException",
-                IOException()
-            )
+            throw CorruptionException("CorruptionException", IOException())
         }
 
         if (config.failingRead) {

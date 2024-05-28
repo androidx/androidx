@@ -21,9 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
-/**
- * Supplemental tests to [SubjectTest].
- */
+/** Supplemental tests to [SubjectTest]. */
 class SubjectKruthTest {
 
     @Test
@@ -33,9 +31,7 @@ class SubjectKruthTest {
         assertThat(a).isEqualTo(b)
 
         val c = ByteArray(3) { it.toByte().inv() }
-        assertFailsWith<AssertionError> {
-            assertThat(a).isEqualTo(c)
-        }
+        assertFailsWith<AssertionError> { assertThat(a).isEqualTo(c) }
     }
 
     @Test
@@ -46,9 +42,7 @@ class SubjectKruthTest {
 
         // Truth does not do its clever primitive casting inside a typed Array.
         val c = Array(3) { it.toShort() }
-        assertFailsWith<AssertionError> {
-            assertThat(a).isEqualTo(c)
-        }
+        assertFailsWith<AssertionError> { assertThat(a).isEqualTo(c) }
     }
 
     @Test
@@ -58,9 +52,7 @@ class SubjectKruthTest {
 
     @Test
     fun isEqualTo_doublePositiveNegativeZero() {
-        assertFailsWith<AssertionError> {
-            assertThat(-0.0).isEqualTo(0.0)
-        }
+        assertFailsWith<AssertionError> { assertThat(-0.0).isEqualTo(0.0) }
     }
 
     @Test
@@ -77,9 +69,7 @@ class SubjectKruthTest {
 
     @Test
     fun isEqualTo_floatPositiveNegativeZero() {
-        assertFailsWith<AssertionError> {
-            assertThat(-0.0f).isEqualTo(0.0f)
-        }
+        assertFailsWith<AssertionError> { assertThat(-0.0f).isEqualTo(0.0f) }
     }
 
     @Test
@@ -97,9 +87,10 @@ class SubjectKruthTest {
 
     @Test
     fun isEqualTo_referentialEquality() {
-        val a = object {
-            override fun equals(other: Any?): Boolean = fail("Should never get here")
-        }
+        val a =
+            object {
+                override fun equals(other: Any?): Boolean = fail("Should never get here")
+            }
         val b = a
 
         assertThat(a).isEqualTo(b)

@@ -26,13 +26,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.atomic.AtomicBoolean
 import org.junit.Assume.assumeTrue
 
-/**
- * Helper utils to change the system font scale.
- */
+/** Helper utils to change the system font scale. */
 object AndroidFontScaleHelper {
-    /**
-     * Returns the current global font scale for all apps via the system Settings
-     */
+    /** Returns the current global font scale for all apps via the system Settings */
     fun getSystemFontScale(): Float {
         return Settings.System.getFloat(
             InstrumentationRegistry.getInstrumentation().context.contentResolver,
@@ -50,13 +46,10 @@ object AndroidFontScaleHelper {
      *
      * @param fontScale the desired font scale
      * @param activityScenario scenario that provides an Activity under test. The activity will be
-     *  continually polled until the font scale changes in that Activity's configuration. (Usually
-     *  you will pass in <code>rule.activityRule.scenario</code>).
+     *   continually polled until the font scale changes in that Activity's configuration. (Usually
+     *   you will pass in <code>rule.activityRule.scenario</code>).
      */
-    fun <A : Activity> setSystemFontScale(
-        fontScale: Float,
-        activityScenario: ActivityScenario<A>
-    ) {
+    fun <A : Activity> setSystemFontScale(fontScale: Float, activityScenario: ActivityScenario<A>) {
         if (Build.VERSION.SDK_INT >= 29) {
             Api29Impl.setSystemFontScale(fontScale, activityScenario)
         } else {
@@ -69,9 +62,7 @@ object AndroidFontScaleHelper {
      *
      * {@see #setSystemFontScale}
      */
-    fun <A : Activity> resetSystemFontScale(
-        activityScenario: ActivityScenario<A>
-    ) {
+    fun <A : Activity> resetSystemFontScale(activityScenario: ActivityScenario<A>) {
         // TODO(b/279083734): would use Settings.System.resetToDefaults() if it existed
         setSystemFontScale(1f, activityScenario)
     }
@@ -108,9 +99,7 @@ object AndroidFontScaleHelper {
             }
         }
 
-        /**
-         * Runs the given function as root, with all shell permissions granted.
-         */
+        /** Runs the given function as root, with all shell permissions granted. */
         @JvmStatic
         @DoNotInline
         private fun invokeWithShellPermissions(runnable: () -> Unit) {

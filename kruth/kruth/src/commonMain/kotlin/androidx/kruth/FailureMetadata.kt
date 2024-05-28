@@ -31,15 +31,15 @@ import kotlin.contracts.contract
  * methods directly. Instead, they should use the appropriate factory method:
  * * If you're writing a test: Truth#assertAbout(Subject.Factory)}`.that(...)`
  * * If you're creating a derived subject from within another subject:
- *     `check(...).about(...).that(...)`
- * * If you're testing your subject to verify that assertions fail when they should:
- *     [ExpectFailure]
+ *   `check(...).about(...).that(...)`
+ * * If you're testing your subject to verify that assertions fail when they should: [ExpectFailure]
  *
  * (One exception: Implementations of [CustomSubjectBuilder] do directly call constructors, using
  * their [CustomSubjectBuilder.metadata] method to get an instance to pass to the constructor.)
  */
 @OptIn(ExperimentalContracts::class)
-class FailureMetadata internal constructor(
+class FailureMetadata
+internal constructor(
     private val failureStrategy: FailureStrategy = FailureStrategy { failure -> throw failure },
     // TODO(dustinlam): In Google Truth, messages are lazily evaluated.
     private val messagesToPrepend: List<String> = emptyList(),
@@ -89,24 +89,27 @@ class FailureMetadata internal constructor(
     internal fun fail(facts: List<Fact> = emptyList()) {
         failureStrategy.fail(
             AssertionErrorWithFacts(
-                messagesToPrepend = messagesToPrepend,
-                // TODO(dustinlam): We should sometimes be calling into failEqualityCheck, which has
-                //  different formatting for ComparisonFailures.
-                facts = description() + facts + rootUnlessThrowable(),
-                cause = rootCause()
-            ).also(AssertionErrorWithFacts::cleanStackTrace)
+                    messagesToPrepend = messagesToPrepend,
+                    // TODO(dustinlam): We should sometimes be calling into failEqualityCheck, which
+                    // has
+                    //  different formatting for ComparisonFailures.
+                    facts = description() + facts + rootUnlessThrowable(),
+                    cause = rootCause()
+                )
+                .also(AssertionErrorWithFacts::cleanStackTrace)
         )
     }
 
     /**
      * @param message A message to append to a list of messages stored in this [FailureMetadata],
-     * which are prepended to the list of [Fact] when reporting a failure via [fail].
+     *   which are prepended to the list of [Fact] when reporting a failure via [fail].
      */
-    internal fun withMessage(message: String): FailureMetadata = FailureMetadata(
-        failureStrategy = failureStrategy,
-        messagesToPrepend = messagesToPrepend + message,
-        steps = steps
-    )
+    internal fun withMessage(message: String): FailureMetadata =
+        FailureMetadata(
+            failureStrategy = failureStrategy,
+            messagesToPrepend = messagesToPrepend + message,
+            steps = steps
+        )
 
     /**
      * Returns a description of the final actual value, if it appears "interesting" enough to show.
@@ -121,16 +124,16 @@ class FailureMetadata internal constructor(
      *
      * We also want to say: "value of getLogMessages(): expected not to be empty"
      *
-     * To support that, `descriptionIsInteresting` tracks whether we've been given context
-     * through `check` calls _that include names_ or, initially, whether we inferred a name
-     * for the root actual value from the bytecode.
+     * To support that, `descriptionIsInteresting` tracks whether we've been given context through
+     * `check` calls _that include names_ or, initially, whether we inferred a name for the root
+     * actual value from the bytecode.
      *
      * If we're missing a naming function halfway through, we have to reset: We don't want to claim
      * that the value is "foo.bar.baz" when it's "foo.bar.somethingelse.baz." We have to go back to
-     * "object.baz." (But note that [rootUnlessThrowable] will still provide the value of the
-     * root foo to the user as long as we had at least one naming function: We might not know the
-     * root's exact relationship to the final object, but we know it's some object "different
-     * enough" to be worth displaying.)
+     * "object.baz." (But note that [rootUnlessThrowable] will still provide the value of the root
+     * foo to the user as long as we had at least one naming function: We might not know the root's
+     * exact relationship to the final object, but we know it's some object "different enough" to be
+     * worth displaying.)
      */
     private fun description(): List<Fact> {
         var description: String? = null
@@ -168,9 +171,9 @@ class FailureMetadata internal constructor(
      *
      * We do want to say: "expected \[foo\] but was \[bar\]. myObject: MyObject\[string=bar, i=0\]"
      *
-     * To support that, `seenDerivation` tracks whether we've seen multiple actual values,
-     * which is equivalent to whether we've seen multiple Subject instances or, more informally,
-     * whether the user is making a chained assertion.
+     * To support that, `seenDerivation` tracks whether we've seen multiple actual values, which is
+     * equivalent to whether we've seen multiple Subject instances or, more informally, whether the
+     * user is making a chained assertion.
      *
      * There's one wrinkle: Sometimes chaining doesn't add information. This is often true with
      * "internal" chaining, like when StreamSubject internally creates an IterableSubject to
@@ -195,8 +198,9 @@ class FailureMetadata internal constructor(
                 // only if the old and new values are "different enough" to be worth both
                 // displaying.
                 seenDerivation =
-                    seenDerivation || (step.descriptionUpdate != null &&
-                        step.valuesAreSimilar == OldAndNewValuesAreSimilar.DIFFERENT)
+                    seenDerivation ||
+                        (step.descriptionUpdate != null &&
+                            step.valuesAreSimilar == OldAndNewValuesAreSimilar.DIFFERENT)
                 continue
             }
 
@@ -222,7 +226,8 @@ class FailureMetadata internal constructor(
             listOf(
                 fact(
                     // TODO(dustinlam): Value should be .actualCustomStringRepresentation()
-                    "${rootSubject.subject.typeDescription()} was", rootSubject.subject.actual
+                    "${rootSubject.subject.typeDescription()} was",
+                    rootSubject.subject.actual
                 )
             )
         } else {
@@ -315,25 +320,25 @@ class FailureMetadata internal constructor(
  * Whether the value of the original subject and the value of the derived subject are "similar
  * enough" that we don't need to display both. For example, if we're printing a message about the
  * value of optional.get(), there's no need to print the optional itself because it adds no
- * information. Similarly, if we're printing a message about the asList() view of an array,
- * there's no need to also print the array.
+ * information. Similarly, if we're printing a message about the asList() view of an array, there's
+ * no need to also print the array.
  */
 internal enum class OldAndNewValuesAreSimilar {
-    SIMILAR, DIFFERENT
+    SIMILAR,
+    DIFFERENT
 }
 
-/**
- * The data from a call to either (a) a [Subject] constructor or (b) [Subject.check].
- */
+/** The data from a call to either (a) a [Subject] constructor or (b) [Subject.check]. */
 internal sealed class Step {
 
     internal class SubjectStep(
         /**
          * We store Subject, rather than the actual value itself, so that we can call
          * actualCustomStringRepresentation(). Why not call actualCustomStringRepresentation()
-         * immediately? First, it might be expensive, and second, the Subject isn't initialized at the
-         * time we receive it. We *might* be able to make it safe to call if it looks only at actual(),
-         * but it might try to look at facts initialized by a subclass, which aren't ready yet.
+         * immediately? First, it might be expensive, and second, the Subject isn't initialized at
+         * the time we receive it. We *might* be able to make it safe to call if it looks only at
+         * actual(), but it might try to look at facts initialized by a subclass, which aren't ready
+         * yet.
          */
         val subject: Subject<*>
     ) : Step()

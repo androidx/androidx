@@ -16,10 +16,9 @@
 
 package androidx.kruth
 
-/**
- * Propositions for [Class] subjects.
- */
-class ClassSubject internal constructor(
+/** Propositions for [Class] subjects. */
+class ClassSubject
+internal constructor(
     actual: Class<*>?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<Class<*>>(actual, metadata = metadata, typeDescriptionOverride = null) {

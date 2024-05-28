@@ -22,7 +22,8 @@ import kotlinx.coroutines.Dispatchers
 class TestPagingDataPresenter<T : Any>(mainContext: CoroutineContext = Dispatchers.Main) :
     PagingDataPresenter<T>(mainContext) {
 
-    val currentList: List<T> get() = List(size) { i -> get(i)!! }
+    val currentList: List<T>
+        get() = List(size) { i -> get(i)!! }
 
-    override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) { }
+    override suspend fun presentPagingDataEvent(event: PagingDataEvent<T>) {}
 }

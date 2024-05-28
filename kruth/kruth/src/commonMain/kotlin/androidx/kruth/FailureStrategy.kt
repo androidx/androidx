@@ -24,12 +24,12 @@ package androidx.kruth
  *
  * For people extending Kruth
  *
- * Custom [FailureStrategy] implementations are unusual. If you think you need one,
- * consider these alternatives:
+ * Custom [FailureStrategy] implementations are unusual. If you think you need one, consider these
+ * alternatives:
  *
- *   To test a custom subject, use [ExpectFailure].
- *   To create subjects for other objects related to your actual value (for chained assertions),
- *   use [Subject.check], which preserves the existing [FailureStrategy] and other context.
+ * To test a custom subject, use [ExpectFailure]. To create subjects for other objects related to
+ * your actual value (for chained assertions), use [Subject.check], which preserves the existing
+ * [FailureStrategy] and other context.
  *
  * When you really do need to create your own strategy, rather than expose your [FailureStrategy]
  * instance to users, expose a [StandardSubjectBuilder] instance using
@@ -37,11 +37,10 @@ package androidx.kruth
  */
 fun interface FailureStrategy {
     /**
-     * Handles a failure. The parameter is an [AssertionError] or subclass thereof, and it
-     * contains information about the failure, which may include:
+     * Handles a failure. The parameter is an [AssertionError] or subclass thereof, and it contains
+     * information about the failure, which may include:
      *
-     *   message: [Throwable.message]
-     *   cause: [Throwable.cause]
+     * message: [Throwable.message] cause: [Throwable.cause]
      *
      * We encourage implementations to record as much of this information as practical in the
      * exceptions they may throw or the other records they may make.

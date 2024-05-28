@@ -25,15 +25,16 @@ class Fact private constructor(internal val key: String, internal val value: Str
     }
 
     /**
-     * Helper function to format fact messages with appropriate padding and indentations
-     * given the appearance of new line values.
+     * Helper function to format fact messages with appropriate padding and indentations given the
+     * appearance of new line values.
      */
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun toMessageString(padKeyToLength: Int, seenNewLineInValue: Boolean) = when {
-        value == null -> key
-        seenNewLineInValue -> "$key:\n${indent(value)}"
-        else -> "${key.padEnd(padKeyToLength)}: $value"
-    }
+    private inline fun toMessageString(padKeyToLength: Int, seenNewLineInValue: Boolean) =
+        when {
+            value == null -> key
+            seenNewLineInValue -> "$key:\n${indent(value)}"
+            else -> "${key.padEnd(padKeyToLength)}: $value"
+        }
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun indent(value: String): String {
@@ -62,9 +63,8 @@ class Fact private constructor(internal val key: String, internal val value: Str
          * for display. [simpleFact] is useful primarily for:
          * * messages from no-arg assertions. For example, `isNotEmpty()` would generate the fact
          *   "expected not to be empty"
-         * * prose that is part of a larger message. For example, `contains()` sometimes
-         *   displays facts like "expected to contain: ..." _"but did not"_ "though it did contain:
-         *   ..."
+         * * prose that is part of a larger message. For example, `contains()` sometimes displays
+         *   facts like "expected to contain: ..." _"but did not"_ "though it did contain: ..."
          */
         @JvmStatic
         fun simpleFact(key: String): Fact {
@@ -72,13 +72,13 @@ class Fact private constructor(internal val key: String, internal val value: Str
         }
 
         /**
-         * Formats the given messages and facts into a string for use as the message of a test failure. In
-         * particular, this method horizontally aligns the beginning of fact values.
+         * Formats the given messages and facts into a string for use as the message of a test
+         * failure. In particular, this method horizontally aligns the beginning of fact values.
          */
         @JvmStatic
         internal fun makeMessage(messages: List<String>, facts: List<Fact>): String {
-            val longestKeyLength = facts.filter { it.value != null }
-                .maxOfOrNull { it.key.length } ?: 0
+            val longestKeyLength =
+                facts.filter { it.value != null }.maxOfOrNull { it.key.length } ?: 0
             // TODO(cpovirk): Look for other kinds of newlines.
             val seenNewlineInValue = facts.any { it.value?.contains("\n") == true }
 

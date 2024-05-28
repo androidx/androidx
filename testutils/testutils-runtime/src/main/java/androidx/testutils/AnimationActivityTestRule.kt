@@ -26,13 +26,12 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * To solve the issue that androidx changes system settings to make animation duration to 0:
- * This ActivityTestRule subclass reads @AnimationTest annotation and change animation scale to 1
- * after activity is launched. The animation scale value is restored after test.
- * This applies both to statically created Activity (launchActivity = true) and dynamically created
- * Activity (launchActivity = false).
+ * To solve the issue that androidx changes system settings to make animation duration to 0: This
+ * ActivityTestRule subclass reads @AnimationTest annotation and change animation scale to 1 after
+ * activity is launched. The animation scale value is restored after test. This applies both to
+ * statically created Activity (launchActivity = true) and dynamically created Activity
+ * (launchActivity = false).
  */
-
 @Suppress("DEPRECATION")
 open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.ActivityTestRule<T> {
 
@@ -41,24 +40,18 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
         ANIMATION, // Test with @AnimationTest tag
     }
 
-    /**
-     * Reflect into the duration field and make it accessible.
-     */
+    /** Reflect into the duration field and make it accessible. */
     private val durationSetter =
         ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)
 
     @SuppressLint("DiscouragedPrivateApi")
-    val durationGetter: Method =
-        ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
+    val durationGetter: Method = ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
 
     private lateinit var testType: TestType
 
     constructor(activity: Class<T>) : super(activity)
 
-    constructor(
-        activity: Class<T>,
-        initialTouchMode: Boolean
-    ) : super(activity, initialTouchMode)
+    constructor(activity: Class<T>, initialTouchMode: Boolean) : super(activity, initialTouchMode)
 
     constructor(
         activity: Class<T>,
@@ -85,9 +78,9 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
 
     override fun apply(base: Statement, description: Description): Statement {
         testType = TestType.NORMAL
-        if (description.annotations.any { it.annotationClass == AnimationTest::class } ||
-            description.testClass.annotations.any
-            { it.annotationClass == AnimationTest::class }
+        if (
+            description.annotations.any { it.annotationClass == AnimationTest::class } ||
+                description.testClass.annotations.any { it.annotationClass == AnimationTest::class }
         ) {
             testType = TestType.ANIMATION
             val wrappedStatement = super.apply(base, description)

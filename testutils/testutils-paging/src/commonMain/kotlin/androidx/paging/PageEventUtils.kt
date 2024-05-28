@@ -22,12 +22,13 @@ fun <T> assertEvents(expected: List<T>, actual: List<T>) {
     try {
         assertEquals(expected, actual)
     } catch (e: Throwable) {
-        val msg = e.message!!
-            .replace("),", "),\n")
-            .replace("<[", "<[\n ")
-            .replace("actual", "\nactual")
-            .lines()
-            .toMutableList()
+        val msg =
+            e.message!!
+                .replace("),", "),\n")
+                .replace("<[", "<[\n ")
+                .replace("actual", "\nactual")
+                .lines()
+                .toMutableList()
 
         if (expected.count() != actual.count()) throw AssertionError(msg.joinToString("\n"))
 

@@ -45,9 +45,7 @@ class PrimitiveByteArraySubjectTest {
 
     @Test
     fun isEqualTo_Fail_NotAnArray() {
-        assertFailsWith<AssertionError> {
-            assertThat(byteArrayOf(0, 1)).isEqualTo(intArrayOf())
-        }
+        assertFailsWith<AssertionError> { assertThat(byteArrayOf(0, 1)).isEqualTo(intArrayOf()) }
     }
 
     @Test
@@ -75,8 +73,6 @@ class PrimitiveByteArraySubjectTest {
     @Test
     fun isNotEqualTo_FailSame() {
         val same = byteArrayOf(0, 1)
-        assertFailsWith<AssertionError> {
-            assertThat(same).isNotEqualTo(same)
-        }
+        assertFailsWith<AssertionError> { assertThat(same).isNotEqualTo(same) }
     }
 }

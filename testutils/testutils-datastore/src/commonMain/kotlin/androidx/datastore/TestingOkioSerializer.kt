@@ -24,9 +24,7 @@ import okio.EOFException
 import okio.IOException
 import okio.use
 
-class TestingOkioSerializer(
-    private val config: TestingSerializerConfig
-) : OkioSerializer<Byte> {
+class TestingOkioSerializer(private val config: TestingSerializerConfig) : OkioSerializer<Byte> {
 
     override suspend fun readFrom(source: BufferedSource): Byte {
         if (config.failReadWithCorruptionException) {
@@ -40,13 +38,12 @@ class TestingOkioSerializer(
             throw IOException("I was asked to fail on reads")
         }
 
-        val read = try {
-            source.use {
-                it.readInt()
+        val read =
+            try {
+                source.use { it.readInt() }
+            } catch (eof: EOFException) {
+                return 0
             }
-        } catch (eof: EOFException) {
-            return 0
-        }
         return read.toByte()
     }
 
@@ -55,9 +52,7 @@ class TestingOkioSerializer(
         if (config.failingWrite) {
             throw IOException("I was asked to fail on writes")
         }
-        sink.use {
-            it.writeInt(t.toInt())
-        }
+        sink.use { it.writeInt(t.toInt()) }
     }
 
     override val defaultValue: Byte

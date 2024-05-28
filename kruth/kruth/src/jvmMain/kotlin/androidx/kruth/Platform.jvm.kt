@@ -29,11 +29,11 @@ internal actual fun Throwable.clearStackTrace() {
 }
 
 /**
- *  Cleans the stack trace on the given [Throwable], replacing the original stack trace
- *  stored on the instance (see [Throwable.stackTrace]).
+ * Cleans the stack trace on the given [Throwable], replacing the original stack trace stored on the
+ * instance (see [Throwable.stackTrace]).
  *
- *  Removes Truth stack frames from the top and JUnit framework and reflective call frames from
- *  the bottom. Collapses the frames for various frameworks in the middle of the trace as well.
+ * Removes Truth stack frames from the top and JUnit framework and reflective call frames from the
+ * bottom. Collapses the frames for various frameworks in the middle of the trace as well.
  */
 internal actual fun Throwable.cleanStackTrace() {
     StackTraceCleaner(this).clean(Sets.newIdentityHashSet<Throwable>())
@@ -58,8 +58,7 @@ internal fun getSuppressed(throwable: Throwable): Array<Throwable> {
         throw newLinkageError(e)
     } catch (e: InvocationTargetException) {
         // Intentionally run into NPE if e.cause is null as this is Truth's behavior.
-        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-        throwIfUnchecked(e.cause)
+        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") throwIfUnchecked(e.cause)
         // getSuppressed has no `throws` clause.
         throw newLinkageError(e)
     }

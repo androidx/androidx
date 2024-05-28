@@ -28,13 +28,12 @@ import org.junit.runners.model.Statement
 
 @Suppress("unused")
 open class ActivityRecyclingAndroidJUnitRunner : AndroidJUnitRunner() {
-    override fun waitForActivitiesToComplete() {
-    }
+    override fun waitForActivitiesToComplete() {}
 }
 
 /**
- * Implement this interface on your Activity to allow HackyActivityScenarioRule to
- * launch once-per-test-class.
+ * Implement this interface on your Activity to allow HackyActivityScenarioRule to launch
+ * once-per-test-class.
  */
 interface Resettable {
     fun setFinishEnabled(finishEnabled: Boolean)
@@ -77,18 +76,15 @@ class ResettableActivityScenarioRule<A> : ExternalResource where A : Activity, A
         _scenario = scenarioSupplier.invoke()
         _activity = internalGetActivity()
         if (!finishEnabled) {
-//             TODO: Correct approach inside test lib would be removing activity from cleanup list
-            scenario.onActivity {
-                it.setFinishEnabled(false)
-            }
+            //             TODO: Correct approach inside test lib would be removing activity from
+            // cleanup list
+            scenario.onActivity { it.setFinishEnabled(false) }
         }
     }
 
     override fun after() {
         if (!finishEnabled) {
-            scenario.onActivity {
-                it.setFinishEnabled(true)
-            }
+            scenario.onActivity { it.setFinishEnabled(true) }
         }
         scenario.close()
         InstrumentationRegistry.getInstrumentation().setInTouchMode(initialTouchMode)
@@ -100,9 +96,7 @@ class ResettableActivityScenarioRule<A> : ExternalResource where A : Activity, A
         if (Looper.myLooper() == Looper.getMainLooper()) {
             runnable.run()
         } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                runnable.run()
-            }
+            InstrumentationRegistry.getInstrumentation().runOnMainSync { runnable.run() }
         }
     }
 
@@ -117,6 +111,7 @@ class ResettableActivityScenarioRule<A> : ExternalResource where A : Activity, A
     }
 
     private lateinit var _activity: A
+
     fun getActivity(): A {
         return _activity
     }

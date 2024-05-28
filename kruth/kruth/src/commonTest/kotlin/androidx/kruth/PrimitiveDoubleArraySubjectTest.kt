@@ -104,9 +104,7 @@ class PrimitiveDoubleArraySubjectTest {
     fun isNotEqualTo_WithoutToleranceParameter_NaN_plusZero_FailEquals() {
         val actual = doubleArrayOf(2.2, 5.4, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN, 0.0, -0.0)
         val expected = doubleArrayOf(2.2, 5.4, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN, 0.0, -0.0)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNotEqualTo(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNotEqualTo(expected) }
     }
 
     @Test

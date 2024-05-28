@@ -38,24 +38,21 @@ abstract class AnimationDurationScaleRule : TestWatcher() {
     companion object {
         /**
          * Creates a new [AnimationDurationScaleRule] rule that will apply to all tests in this
-         * class.
-         * If  the API level is less than 16, returns a no-op version.
+         * class. If the API level is less than 16, returns a no-op version.
          *
          * @param forcedAnimationDurationScale The new duration scale for all of the tests
          */
         @JvmStatic
-        fun createForAllTests(
-            forcedAnimationDurationScale: Float
-        ) = create(forcedAnimationDurationScale)
+        fun createForAllTests(forcedAnimationDurationScale: Float) =
+            create(forcedAnimationDurationScale)
 
         /**
          * Creates a new [AnimationDurationScaleRule] rule that will not apply to any tests unless
          * the test calls [AnimationDurationScaleRule.setAnimationDurationScale].
          *
-         * If  the API level is less than 16, returns a no-op version.
+         * If the API level is less than 16, returns a no-op version.
          */
-        @JvmStatic
-        fun create() = this.create(null)
+        @JvmStatic fun create() = this.create(null)
 
         internal fun create(
             forcedAnimationDurationScale: Float? = null
@@ -66,23 +63,16 @@ abstract class AnimationDurationScaleRule : TestWatcher() {
 }
 
 private class AnimationDurationScaleRuleImpl(
-    /**
-     * The new duration scale for the test
-     */
+    /** The new duration scale for the test */
     private val forcedAnimationDurationScale: Float?
 ) : AnimationDurationScaleRule() {
-    /**
-     * Reflect into the duration field and make it accessible.
-     */
+    /** Reflect into the duration field and make it accessible. */
     private val durationSetter =
         ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java)
     @SuppressLint("DiscouragedPrivateApi")
-    private val durationGetter =
-        ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
+    private val durationGetter = ValueAnimator::class.java.getDeclaredMethod("getDurationScale")
 
-    /**
-     * The duration scale at the beginning of the test so that we can re-use it later to reset.
-     */
+    /** The duration scale at the beginning of the test so that we can re-use it later to reset. */
     private val originalDurationScale = durationGetter.invoke(null) as Float
 
     override fun setAnimationDurationScale(animationDurationScale: Float) {
@@ -94,9 +84,7 @@ private class AnimationDurationScaleRuleImpl(
     }
 
     override fun starting(description: Description) {
-        forcedAnimationDurationScale?.let {
-            setAnimationDurationScale(it)
-        }
+        forcedAnimationDurationScale?.let { setAnimationDurationScale(it) }
     }
 
     override fun finished(description: Description) {

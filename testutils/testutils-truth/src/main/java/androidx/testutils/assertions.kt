@@ -49,10 +49,7 @@ fun fail(message: String? = null): Nothing = throw AssertionError(message)
 
 // The assertThrows above cannot be used from Java.
 @Suppress("UNCHECKED_CAST")
-fun <T : Throwable?> assertThrows(
-    expectedType: Class<T>,
-    runnable: Runnable
-): ThrowableSubject {
+fun <T : Throwable?> assertThrows(expectedType: Class<T>, runnable: Runnable): ThrowableSubject {
     try {
         runnable.run()
     } catch (t: Throwable) {
@@ -61,7 +58,5 @@ fun <T : Throwable?> assertThrows(
         }
         throw t
     }
-    throw AssertionError(
-        "Body completed successfully. Expected ${expectedType.simpleName}"
-    )
+    throw AssertionError("Body completed successfully. Expected ${expectedType.simpleName}")
 }

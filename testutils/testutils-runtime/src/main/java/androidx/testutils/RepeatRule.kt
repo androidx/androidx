@@ -21,8 +21,8 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A [TestRule] which can be used to run the same test multiple times. Useful when trying to
- * debug flaky tests.
+ * A [TestRule] which can be used to run the same test multiple times. Useful when trying to debug
+ * flaky tests.
  *
  * To use this [TestRule] do the following.
  *
@@ -42,15 +42,13 @@ import org.junit.runners.model.Statement
  *
  * }
  * ```
- *
  */
 class RepeatRule : TestRule {
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
     annotation class Repeat(val times: Int)
 
-    class RepeatStatement(private val times: Int, private val statement: Statement) :
-        Statement() {
+    class RepeatStatement(private val times: Int, private val statement: Statement) : Statement() {
 
         @Throws(Throwable::class)
         override fun evaluate() {
