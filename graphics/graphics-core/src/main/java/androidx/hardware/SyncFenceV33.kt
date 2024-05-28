@@ -25,36 +25,29 @@ import java.time.Duration
 internal class SyncFenceV33 internal constructor(syncFence: SyncFence) : SyncFenceImpl {
     internal val mSyncFence: SyncFence = syncFence
 
-    /**
-     * See [SyncFenceImpl.await]
-     */
+    /** See [SyncFenceImpl.await] */
     override fun await(timeoutNanos: Long): Boolean {
         return mSyncFence.await(Duration.ofNanos(timeoutNanos))
     }
 
-    /**
-     * See [SyncFenceImpl.awaitForever]
-     */
+    /** See [SyncFenceImpl.awaitForever] */
     override fun awaitForever(): Boolean {
         return mSyncFence.awaitForever()
     }
 
-    /**
-     * See [SyncFenceImpl.close]
-     */
+    /** See [SyncFenceImpl.close] */
     override fun close() {
         mSyncFence.close()
     }
 
-    /**
-     * See [SyncFenceImpl.getSignalTimeNanos]
-     */
+    /** See [SyncFenceImpl.getSignalTimeNanos] */
     override fun getSignalTimeNanos(): Long {
         return mSyncFence.signalTime
     }
 
     /**
      * Checks if the SyncFence object is valid.
+     *
      * @return `true` if it is valid, `false` otherwise
      */
     override fun isValid(): Boolean {

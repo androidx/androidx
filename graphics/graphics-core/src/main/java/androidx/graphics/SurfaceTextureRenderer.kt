@@ -25,34 +25,22 @@ import android.util.Log
 import android.view.Surface
 import androidx.annotation.RequiresApi
 
-/**
- * Class that handles drawing content of a RenderNode into a SurfaceTexture
- */
+/** Class that handles drawing content of a RenderNode into a SurfaceTexture */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class SurfaceTextureRenderer(
-    /**
-     * Target RenderNode of the content that is to be drawn
-     */
+    /** Target RenderNode of the content that is to be drawn */
     private val renderNode: RenderNode,
 
-    /**
-     * Width of the SurfaceTexture
-     */
+    /** Width of the SurfaceTexture */
     width: Int,
 
-    /**
-     * Height of the SurfaceTexture
-     */
+    /** Height of the SurfaceTexture */
     height: Int,
 
-    /**
-     * Handler used to send SurfaceTexture#OnFrameAvailableListener callbacks
-     */
+    /** Handler used to send SurfaceTexture#OnFrameAvailableListener callbacks */
     private val handler: Handler,
 
-    /**
-     * Callback invoked when a new image frame is available on the underlying SurfaceTexture
-     */
+    /** Callback invoked when a new image frame is available on the underlying SurfaceTexture */
     private val frameAvailable: (SurfaceTexture) -> Unit
 ) {
 
@@ -70,39 +58,42 @@ internal class SurfaceTextureRenderer(
     //
     // Currently we go with the original option as it may not be explicit to implementations that
     // the initial detach is necessary here.
-    private class RenderSurfaceTexture(singleBufferMode: Boolean) : SurfaceTexture(singleBufferMode)
+    private class RenderSurfaceTexture(singleBufferMode: Boolean) :
+        SurfaceTexture(singleBufferMode)
 
     private var mIsReleased = false
 
-    private val mSurfaceTexture = RenderSurfaceTexture(false).apply {
-        setDefaultBufferSize(width, height)
-        setOnFrameAvailableListener({ surfaceTexture -> frameAvailable(surfaceTexture) }, handler)
-    }
+    private val mSurfaceTexture =
+        RenderSurfaceTexture(false).apply {
+            setDefaultBufferSize(width, height)
+            setOnFrameAvailableListener(
+                { surfaceTexture -> frameAvailable(surfaceTexture) },
+                handler
+            )
+        }
 
     private val mTextureSurface = Surface(mSurfaceTexture)
-    private val mHardwareRenderer = HardwareRenderer().apply {
-        setSurface(mTextureSurface)
-        setContentRoot(renderNode)
-        start()
-    }
+    private val mHardwareRenderer =
+        HardwareRenderer().apply {
+            setSurface(mTextureSurface)
+            setContentRoot(renderNode)
+            start()
+        }
 
     fun renderFrame() {
         if (!mIsReleased) {
-            mHardwareRenderer.apply {
-                createRenderRequest()
-                    .setWaitForPresent(false)
-                    .syncAndDraw()
-            }
+            mHardwareRenderer.apply { createRenderRequest().setWaitForPresent(false).syncAndDraw() }
         } else {
             Log.w(
-                TAG, "Attempt to renderFrame when SurfaceTextureRenderer has already " +
-                "been released")
+                TAG,
+                "Attempt to renderFrame when SurfaceTextureRenderer has already " + "been released"
+            )
         }
     }
 
     /**
-     * Releases all resources of the SurfaceTextureRenderer instances. Attempts to use this
-     * object after this call has been made will be ignored.
+     * Releases all resources of the SurfaceTextureRenderer instances. Attempts to use this object
+     * after this call has been made will be ignored.
      */
     fun release() {
         if (!mIsReleased) {
@@ -115,8 +106,9 @@ internal class SurfaceTextureRenderer(
             mIsReleased = true
         } else {
             Log.w(
-                TAG, "Attempt to release a SurfaceTextureRenderer that has " +
-                "already been released")
+                TAG,
+                "Attempt to release a SurfaceTextureRenderer that has " + "already been released"
+            )
         }
     }
 

@@ -48,12 +48,7 @@ internal class FrameBufferPoolTest {
             val height = 3
             val format = HardwareBuffer.RGB_565
             val usage = HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-            val pool = createPool(
-                width,
-                height,
-                format,
-                usage
-            )
+            val pool = createPool(width, height, format, usage)
             try {
                 val buffer = pool.obtain(eglSpec).hardwareBuffer
                 assertEquals(width, buffer.width)
@@ -113,9 +108,7 @@ internal class FrameBufferPoolTest {
                 val pool = createPool(maxPoolSize = poolSize)
                 // Attempting to allocate 1 additional buffer than
                 // maximum specified pool size should block
-                repeat(poolSize + 1) {
-                    pool.obtain(egl)
-                }
+                repeat(poolSize + 1) { pool.obtain(egl) }
                 latch.countDown()
             }
             assertFalse(latch.await(3, TimeUnit.SECONDS))
@@ -182,44 +175,59 @@ internal class FrameBufferPoolTest {
     @Test
     fun testFindQueueEntryWithCondition() {
         data class Entry(val value: Int?, var available: Boolean = true)
-        val list = ArrayList<Entry>().apply {
-            add(Entry(5))
-            add(Entry(4))
-            add(Entry(2))
-            add(Entry(3))
-            add(Entry(null))
-            add(Entry(1))
-        }
+        val list =
+            ArrayList<Entry>().apply {
+                add(Entry(5))
+                add(Entry(4))
+                add(Entry(2))
+                add(Entry(3))
+                add(Entry(null))
+                add(Entry(1))
+            }
         val primary: (Entry) -> Boolean = { entry -> entry.available }
         val secondary: (Entry) -> Boolean = { entry ->
             // Return the first null or odd entry
             (entry.value == null || entry.value % 2 == 1)
         }
 
-        assertEquals(Entry(5, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(5, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
-        assertEquals(Entry(3, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(3, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
-        assertEquals(Entry(null, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(null, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
-        assertEquals(Entry(1, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(1, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
-        assertEquals(Entry(4, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(4, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
         // Verify that we return the first entry that satisfies the primary condition while there
         // are no entries that satisfy both.
         // This should return the first even number we find that is available (4) in this case
         list[1].available = true
-        assertEquals(Entry(4, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(4, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
-        assertEquals(Entry(2, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false })
+        assertEquals(
+            Entry(2, false),
+            list.findEntryWith(primary, secondary)!!.apply { available = false }
+        )
 
         assertEquals(null, list.findEntryWith(primary, secondary))
     }
@@ -230,18 +238,9 @@ internal class FrameBufferPoolTest {
         format: Int = HardwareBuffer.RGB_565,
         usage: Long = HardwareBuffer.USAGE_GPU_COLOR_OUTPUT,
         maxPoolSize: Int = 2
-    ): FrameBufferPool =
-        FrameBufferPool(
-            width,
-            height,
-            format,
-            usage,
-            maxPoolSize
-        )
+    ): FrameBufferPool = FrameBufferPool(width, height, format, usage, maxPoolSize)
 
-    private fun withEGLSpec(
-        block: (egl: EGLSpec) -> Unit = {}
-    ) {
+    private fun withEGLSpec(block: (egl: EGLSpec) -> Unit = {}) {
         with(EGLManager()) {
             try {
                 initialize()

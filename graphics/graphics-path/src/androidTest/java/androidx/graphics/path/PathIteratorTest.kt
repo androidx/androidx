@@ -46,14 +46,15 @@ private fun assertPointsEquals(p1: FloatArray, offset: Int, p2: PointF) {
 }
 
 private fun compareBitmaps(b1: Bitmap, b2: Bitmap) {
-    val epsilon: Int = if (Build.VERSION.SDK_INT != 23) {
-        1
-    } else {
-        // There is more AA variability between conics and cubics on API 23, leading
-        // to failures on relatively small visual differences. Increase the error
-        // value for just this release to avoid erroneous bitmap comparison failures.
-        32
-    }
+    val epsilon: Int =
+        if (Build.VERSION.SDK_INT != 23) {
+            1
+        } else {
+            // There is more AA variability between conics and cubics on API 23, leading
+            // to failures on relatively small visual differences. Increase the error
+            // value for just this release to avoid erroneous bitmap comparison failures.
+            32
+        }
 
     assertEquals(b1.width, b2.width)
     assertEquals(b1.height, b2.height)
@@ -107,25 +108,24 @@ class PathIteratorTest {
 
     @Test
     fun nonEmptyIterator() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            lineTo(2.0f, 2.0f)
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                lineTo(2.0f, 2.0f)
+                close()
+            }
 
         val iterator = path.iterator()
         assertTrue(iterator.hasNext())
 
-        val types = arrayOf(
-            PathSegment.Type.Move,
-            PathSegment.Type.Line,
-            PathSegment.Type.Close,
-            PathSegment.Type.Done
-        )
-        val points = arrayOf(
-            PointF(1.0f, 1.0f),
-            PointF(2.0f, 2.0f)
-        )
+        val types =
+            arrayOf(
+                PathSegment.Type.Move,
+                PathSegment.Type.Line,
+                PathSegment.Type.Close,
+                PathSegment.Type.Done
+            )
+        val points = arrayOf(PointF(1.0f, 1.0f), PointF(2.0f, 2.0f))
 
         var count = 0
         for (segment in path) {
@@ -138,7 +138,7 @@ class PathIteratorTest {
                     assertEquals(points[count - 1], segment.points[0])
                     assertEquals(points[count], segment.points[1])
                 }
-                else -> { }
+                else -> {}
             }
             // TODO: remove condition and just auto-increment count when platform change is
             // checked in which ignores DONE during iteration
@@ -150,11 +150,12 @@ class PathIteratorTest {
 
     @Test
     fun peek() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            lineTo(2.0f, 2.0f)
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                lineTo(2.0f, 2.0f)
+                close()
+            }
 
         val iterator = path.iterator()
         assertEquals(PathSegment.Type.Move, iterator.peek())
@@ -178,16 +179,17 @@ class PathIteratorTest {
 
     @Test
     fun iteratorStyles() {
-        val path = Path().apply {
-            moveTo(1.0f, 1.0f)
-            lineTo(2.0f, 2.0f)
-            cubicTo(3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f)
-            quadTo(7.0f, 7.0f, 8.0f, 8.0f)
-            moveTo(10.0f, 10.0f)
-            // addRoundRect() will generate conic curves on certain API levels
-            addRoundRect(RectF(12.0f, 12.0f, 36.0f, 36.0f), 8.0f, 8.0f, Path.Direction.CW)
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(1.0f, 1.0f)
+                lineTo(2.0f, 2.0f)
+                cubicTo(3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f)
+                quadTo(7.0f, 7.0f, 8.0f, 8.0f)
+                moveTo(10.0f, 10.0f)
+                // addRoundRect() will generate conic curves on certain API levels
+                addRoundRect(RectF(12.0f, 12.0f, 36.0f, 36.0f), 8.0f, 8.0f, Path.Direction.CW)
+                close()
+            }
 
         iteratorStylesImpl(path, PathIterator.ConicEvaluation.AsConic)
         iteratorStylesImpl(path, PathIterator.ConicEvaluation.AsQuadratics)
@@ -214,14 +216,12 @@ class PathIteratorTest {
                     assertPointsEquals(points, 0, segment.points[0])
                     assertPointsEquals(points2, 4, segment.points[0])
                 }
-
                 PathSegment.Type.Line -> {
                     assertPointsEquals(points, 0, segment.points[0])
                     assertPointsEquals(points, 1, segment.points[1])
                     assertPointsEquals(points2, 4, segment.points[0])
                     assertPointsEquals(points2, 5, segment.points[1])
                 }
-
                 PathSegment.Type.Quadratic -> {
                     assertPointsEquals(points, 0, segment.points[0])
                     assertPointsEquals(points, 1, segment.points[1])
@@ -230,7 +230,6 @@ class PathIteratorTest {
                     assertPointsEquals(points2, 5, segment.points[1])
                     assertPointsEquals(points2, 6, segment.points[2])
                 }
-
                 PathSegment.Type.Conic -> {
                     assertPointsEquals(points, 0, segment.points[0])
                     assertPointsEquals(points, 1, segment.points[1])
@@ -244,7 +243,6 @@ class PathIteratorTest {
                     // Weight is stored after all of the points
                     assertEquals(points2[14], segment.weight)
                 }
-
                 PathSegment.Type.Cubic -> {
                     assertPointsEquals(points, 0, segment.points[0])
                     assertPointsEquals(points, 1, segment.points[1])
@@ -256,7 +254,6 @@ class PathIteratorTest {
                     assertPointsEquals(points2, 6, segment.points[2])
                     assertPointsEquals(points2, 7, segment.points[3])
                 }
-
                 PathSegment.Type.Close -> {}
                 PathSegment.Type.Done -> {}
             }
@@ -265,9 +262,7 @@ class PathIteratorTest {
 
     @Test
     fun done() {
-        val path = Path().apply {
-            close()
-        }
+        val path = Path().apply { close() }
 
         val segment = path.iterator().next()
 
@@ -278,10 +273,11 @@ class PathIteratorTest {
 
     @Test
     fun close() {
-        val path = Path().apply {
-            lineTo(10.0f, 12.0f)
-            close()
-        }
+        val path =
+            Path().apply {
+                lineTo(10.0f, 12.0f)
+                close()
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -298,9 +294,7 @@ class PathIteratorTest {
 
     @Test
     fun moveTo() {
-        val path = Path().apply {
-            moveTo(10.0f, 12.0f)
-        }
+        val path = Path().apply { moveTo(10.0f, 12.0f) }
 
         val segment = path.iterator().next()
 
@@ -312,10 +306,11 @@ class PathIteratorTest {
 
     @Test
     fun lineTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            lineTo(10.0f, 12.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                lineTo(10.0f, 12.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -332,10 +327,11 @@ class PathIteratorTest {
 
     @Test
     fun quadraticTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            quadTo(10.0f, 12.0f, 20.0f, 24.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                quadTo(10.0f, 12.0f, 20.0f, 24.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -353,10 +349,11 @@ class PathIteratorTest {
 
     @Test
     fun cubicTo() {
-        val path = Path().apply {
-            moveTo(4.0f, 6.0f)
-            cubicTo(10.0f, 12.0f, 20.0f, 24.0f, 30.0f, 36.0f)
-        }
+        val path =
+            Path().apply {
+                moveTo(4.0f, 6.0f)
+                cubicTo(10.0f, 12.0f, 20.0f, 24.0f, 30.0f, 36.0f)
+            }
 
         val iterator = path.iterator()
         // Swallow the move
@@ -376,9 +373,10 @@ class PathIteratorTest {
     @Test
     fun conicTo() {
         if (Build.VERSION.SDK_INT >= 25) {
-            val path = Path().apply {
-                addRoundRect(RectF(12.0f, 12.0f, 24.0f, 24.0f), 8.0f, 8.0f, Path.Direction.CW)
-            }
+            val path =
+                Path().apply {
+                    addRoundRect(RectF(12.0f, 12.0f, 24.0f, 24.0f), 8.0f, 8.0f, Path.Direction.CW)
+                }
 
             val iterator = path.iterator(PathIterator.ConicEvaluation.AsConic)
             // Swallow the move
@@ -398,9 +396,10 @@ class PathIteratorTest {
 
     @Test
     fun conicAsQuadratics() {
-        val path = Path().apply {
-            addRoundRect(RectF(12.0f, 12.0f, 24.0f, 24.0f), 8.0f, 8.0f, Path.Direction.CW)
-        }
+        val path =
+            Path().apply {
+                addRoundRect(RectF(12.0f, 12.0f, 24.0f, 24.0f), 8.0f, 8.0f, Path.Direction.CW)
+            }
 
         for (segment in path) {
             if (segment.type == PathSegment.Type.Conic) fail("Found conic, none expected: $segment")
@@ -409,75 +408,94 @@ class PathIteratorTest {
 
     @Test
     fun convertedConics() {
-        val path1 = Path().apply {
-            addRoundRect(RectF(
-                12.0f, 12.0f, 64.0f, 64.0f), 12.0f, 12.0f, Path.Direction.CW
-            )
-        }
+        val path1 =
+            Path().apply {
+                addRoundRect(RectF(12.0f, 12.0f, 64.0f, 64.0f), 12.0f, 12.0f, Path.Direction.CW)
+            }
 
         val path2 = Path()
         for (segment in path1) {
             when (segment.type) {
                 PathSegment.Type.Move -> path2.moveTo(segment.points[0].x, segment.points[0].y)
                 PathSegment.Type.Line -> path2.lineTo(segment.points[1].x, segment.points[1].y)
-                PathSegment.Type.Quadratic -> path2.quadTo(
-                    segment.points[1].x, segment.points[1].y,
-                    segment.points[2].x, segment.points[2].y
-                )
+                PathSegment.Type.Quadratic ->
+                    path2.quadTo(
+                        segment.points[1].x,
+                        segment.points[1].y,
+                        segment.points[2].x,
+                        segment.points[2].y
+                    )
                 PathSegment.Type.Conic -> fail("Unexpected conic! $segment")
-                PathSegment.Type.Cubic -> path2.cubicTo(
-                    segment.points[1].x, segment.points[1].y,
-                    segment.points[2].x, segment.points[2].y,
-                    segment.points[3].x, segment.points[3].y
-                )
+                PathSegment.Type.Cubic ->
+                    path2.cubicTo(
+                        segment.points[1].x,
+                        segment.points[1].y,
+                        segment.points[2].x,
+                        segment.points[2].y,
+                        segment.points[3].x,
+                        segment.points[3].y
+                    )
                 PathSegment.Type.Close -> path2.close()
-                PathSegment.Type.Done -> { }
+                PathSegment.Type.Done -> {}
             }
         }
 
         // Now with smaller error tolerance
         val path3 = Path()
-        for (segment in path1.iterator(
-            conicEvaluation = PathIterator.ConicEvaluation.AsQuadratics,
-            0.001f
-        )) {
+        for (segment in
+            path1.iterator(conicEvaluation = PathIterator.ConicEvaluation.AsQuadratics, 0.001f)) {
             when (segment.type) {
                 PathSegment.Type.Move -> path3.moveTo(segment.points[0].x, segment.points[0].y)
                 PathSegment.Type.Line -> path3.lineTo(segment.points[1].x, segment.points[1].y)
-                PathSegment.Type.Quadratic -> path3.quadTo(
-                    segment.points[1].x, segment.points[1].y,
-                    segment.points[2].x, segment.points[2].y
-                )
+                PathSegment.Type.Quadratic ->
+                    path3.quadTo(
+                        segment.points[1].x,
+                        segment.points[1].y,
+                        segment.points[2].x,
+                        segment.points[2].y
+                    )
                 PathSegment.Type.Conic -> fail("Unexpected conic! $segment")
-                PathSegment.Type.Cubic -> path3.cubicTo(
-                    segment.points[1].x, segment.points[1].y,
-                    segment.points[2].x, segment.points[2].y,
-                    segment.points[3].x, segment.points[3].y
-                )
+                PathSegment.Type.Cubic ->
+                    path3.cubicTo(
+                        segment.points[1].x,
+                        segment.points[1].y,
+                        segment.points[2].x,
+                        segment.points[2].y,
+                        segment.points[3].x,
+                        segment.points[3].y
+                    )
                 PathSegment.Type.Close -> path3.close()
-                PathSegment.Type.Done -> { }
+                PathSegment.Type.Done -> {}
             }
         }
 
-        val b1 = createBitmap(76, 76).applyCanvas {
-            drawARGB(255, 255, 255, 255)
-            drawPath(path1, Paint().apply {
-                color = argb(1.0f, 0.0f, 0.0f, 1.0f)
-                strokeWidth = 2.0f
-                isAntiAlias = true
-                style = Paint.Style.STROKE
-            })
-        }
+        val b1 =
+            createBitmap(76, 76).applyCanvas {
+                drawARGB(255, 255, 255, 255)
+                drawPath(
+                    path1,
+                    Paint().apply {
+                        color = argb(1.0f, 0.0f, 0.0f, 1.0f)
+                        strokeWidth = 2.0f
+                        isAntiAlias = true
+                        style = Paint.Style.STROKE
+                    }
+                )
+            }
 
-        val b2 = createBitmap(76, 76).applyCanvas {
-            drawARGB(255, 255, 255, 255)
-            drawPath(path2, Paint().apply {
-                color = argb(1.0f, 0.0f, 0.0f, 1.0f)
-                strokeWidth = 2.0f
-                isAntiAlias = true
-                style = Paint.Style.STROKE
-            })
-        }
+        val b2 =
+            createBitmap(76, 76).applyCanvas {
+                drawARGB(255, 255, 255, 255)
+                drawPath(
+                    path2,
+                    Paint().apply {
+                        color = argb(1.0f, 0.0f, 0.0f, 1.0f)
+                        strokeWidth = 2.0f
+                        isAntiAlias = true
+                        style = Paint.Style.STROKE
+                    }
+                )
+            }
 
         compareBitmaps(b1, b2)
         // Note: b1-vs-b3 is not a valid comparison; default Skia rendering does not use an
@@ -492,8 +510,7 @@ class PathIteratorTest {
 
         assertEquals(0, iterator.calculateSize())
 
-        path.addRoundRect(RectF(12.0f, 12.0f, 64.0f, 64.0f), 8.0f, 8.0f,
-                Path.Direction.CW)
+        path.addRoundRect(RectF(12.0f, 12.0f, 64.0f, 64.0f), 8.0f, 8.0f, Path.Direction.CW)
 
         // Skia converted
         if (Build.VERSION.SDK_INT > 22) {
@@ -519,6 +536,6 @@ class PathIteratorTest {
 
 fun argb(alpha: Float, red: Float, green: Float, blue: Float) =
     ((alpha * 255.0f + 0.5f).toInt() shl 24) or
-    ((red * 255.0f + 0.5f).toInt() shl 16) or
-    ((green * 255.0f + 0.5f).toInt() shl 8) or
-     (blue * 255.0f + 0.5f).toInt()
+        ((red * 255.0f + 0.5f).toInt() shl 16) or
+        ((green * 255.0f + 0.5f).toInt() shl 8) or
+        (blue * 255.0f + 0.5f).toInt()

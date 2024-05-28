@@ -81,12 +81,12 @@ class CustomShapeActivity : ShapeActivity() {
         shapes.add(shape.transformed(mRotate90))
 
         // pie wedge
-        shape = RoundedPolygon(
-            4,
-            perVertexRounding = listOf(
-                cornerRound100, cornerRound20, cornerRound20, cornerRound20
+        shape =
+            RoundedPolygon(
+                4,
+                perVertexRounding =
+                    listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20)
             )
-        )
         shapes.add(shape.transformed(mRotateNeg45))
 
         // Alice
@@ -99,43 +99,80 @@ class CustomShapeActivity : ShapeActivity() {
         shapes.add(RoundedPolygon.rectangle(1f, 1f, rounding = cornerRound30))
 
         // Skewed roundRect
-        shape = RoundedPolygon.rectangle(
-            width = 1.2f, height = 1f,
-            rounding = CornerRounding(.2f, .5f)
-        )
+        shape =
+            RoundedPolygon.rectangle(width = 1.2f, height = 1f, rounding = CornerRounding(.2f, .5f))
         m.setSkew(-.15f, 0f)
         shapes.add(shape.transformed(m))
 
         // Dome
-        shape = RoundedPolygon(
-            4,
-            perVertexRounding = listOf(
-                cornerRound100, cornerRound100, cornerRound20, cornerRound20
+        shape =
+            RoundedPolygon(
+                4,
+                perVertexRounding =
+                    listOf(cornerRound100, cornerRound100, cornerRound20, cornerRound20)
             )
-        )
         shapes.add(shape.transformed(mRotateNeg45))
 
         // Half circle
-        shape = RoundedPolygon.rectangle(
-            1.8f, 1f,
-            perVertexRounding = listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100)
-        )
+        shape =
+            RoundedPolygon.rectangle(
+                1.8f,
+                1f,
+                perVertexRounding =
+                    listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100)
+            )
         shapes.add(shape)
 
         // Sandwich cookie - basically, two pills stacked on each other
         var inset = .4f
-        val sandwichPoints = floatArrayOf(
-            1f, 1f, inset, 1f, -inset, 1f, -1f, 1f,
-            -1f, 0f, -inset, 0f, -1f, 0f,
-            -1f, -1f, -inset, -1f, inset, -1f, 1f, -1f,
-            1f, 0f, inset, 0f, 1f, 0f
-        )
-        var pvRounding = listOf(
-            cornerRound100, unrounded, unrounded, cornerRound100,
-            cornerRound100, unrounded, cornerRound100,
-            cornerRound100, unrounded, unrounded, cornerRound100,
-            cornerRound100, unrounded, cornerRound100
-        )
+        val sandwichPoints =
+            floatArrayOf(
+                1f,
+                1f,
+                inset,
+                1f,
+                -inset,
+                1f,
+                -1f,
+                1f,
+                -1f,
+                0f,
+                -inset,
+                0f,
+                -1f,
+                0f,
+                -1f,
+                -1f,
+                -inset,
+                -1f,
+                inset,
+                -1f,
+                1f,
+                -1f,
+                1f,
+                0f,
+                inset,
+                0f,
+                1f,
+                0f
+            )
+        var pvRounding =
+            listOf(
+                cornerRound100,
+                unrounded,
+                unrounded,
+                cornerRound100,
+                cornerRound100,
+                unrounded,
+                cornerRound100,
+                cornerRound100,
+                unrounded,
+                unrounded,
+                cornerRound100,
+                cornerRound100,
+                unrounded,
+                cornerRound100
+            )
         shapes.add(RoundedPolygon(sandwichPoints, perVertexRounding = pvRounding))
 
         // placeholder
@@ -149,16 +186,42 @@ class CustomShapeActivity : ShapeActivity() {
         val cornerInset = .6f
         val edgeInset = .4f
         val height = .65f
-        val hexPoints = floatArrayOf(
-            1f, 0f, cornerInset, height, edgeInset, height,
-            -edgeInset, height, -cornerInset, height,
-            -1f, 0f, -cornerInset, -height, -edgeInset, -height,
-            edgeInset, -height, cornerInset, -height,
-        )
-        pvRounding = listOf(
-            cornerRound50, cornerRound50, unrounded, unrounded, cornerRound50,
-            cornerRound50, cornerRound50, unrounded, unrounded, cornerRound50,
-        )
+        val hexPoints =
+            floatArrayOf(
+                1f,
+                0f,
+                cornerInset,
+                height,
+                edgeInset,
+                height,
+                -edgeInset,
+                height,
+                -cornerInset,
+                height,
+                -1f,
+                0f,
+                -cornerInset,
+                -height,
+                -edgeInset,
+                -height,
+                edgeInset,
+                -height,
+                cornerInset,
+                -height,
+            )
+        pvRounding =
+            listOf(
+                cornerRound50,
+                cornerRound50,
+                unrounded,
+                unrounded,
+                cornerRound50,
+                cornerRound50,
+                cornerRound50,
+                unrounded,
+                unrounded,
+                cornerRound50,
+            )
         shapes.add(RoundedPolygon(hexPoints, perVertexRounding = pvRounding))
 
         // irregular hexagon (right narrower than left, then rotated)
@@ -186,10 +249,8 @@ class CustomShapeActivity : ShapeActivity() {
         inset = .5f
         val w = .88f
         points = floatArrayOf(1f, w, -1f, w, -inset, 0f, -1f, -w, 1f, -w)
-        pvRounding = listOf(
-            cornerRound100, cornerRound50, cornerRound100, cornerRound50,
-            cornerRound100
-        )
+        pvRounding =
+            listOf(cornerRound100, cornerRound50, cornerRound100, cornerRound50, cornerRound100)
         shapes.add(RoundedPolygon(points, perVertexRounding = pvRounding).transformed(mRotateNeg90))
 
         // Star4
@@ -203,34 +264,26 @@ class CustomShapeActivity : ShapeActivity() {
 
         // Star6
         shapes.add(
-            RoundedPolygon.star(
-                6, innerRadius = .75f,
-                rounding = cornerRound50
-            ).transformed(mRotateNeg90)
+            RoundedPolygon.star(6, innerRadius = .75f, rounding = cornerRound50)
+                .transformed(mRotateNeg90)
         )
 
         // Star7
         shapes.add(
-            RoundedPolygon.star(
-                7, innerRadius = .75f,
-                rounding = cornerRound50
-            ).transformed(mRotateNeg90)
+            RoundedPolygon.star(7, innerRadius = .75f, rounding = cornerRound50)
+                .transformed(mRotateNeg90)
         )
 
         // Star9
         shapes.add(
-            RoundedPolygon.star(
-                9, innerRadius = .75f,
-                rounding = cornerRound50
-            ).transformed(mRotateNeg90)
+            RoundedPolygon.star(9, innerRadius = .75f, rounding = cornerRound50)
+                .transformed(mRotateNeg90)
         )
 
         // Star12
         shapes.add(
-            RoundedPolygon.star(
-                12, innerRadius = .8f,
-                rounding = cornerRound50
-            ).transformed(mRotateNeg90)
+            RoundedPolygon.star(12, innerRadius = .8f, rounding = cornerRound50)
+                .transformed(mRotateNeg90)
         )
 
         // Star8
@@ -243,25 +296,34 @@ class CustomShapeActivity : ShapeActivity() {
         val smoothRound = CornerRounding(.26f, .95f)
         shapes.add(
             RoundedPolygon.star(
-                8, radius = 2f, innerRadius = 1.15f,
-                rounding = smoothRound, innerRounding = unrounded
+                8,
+                radius = 2f,
+                innerRadius = 1.15f,
+                rounding = smoothRound,
+                innerRounding = unrounded
             )
         )
 
         // Star4Bulbous (no inner rounding)
         shapes.add(
             RoundedPolygon.star(
-                4, innerRadius = .2f,
-                rounding = cornerRound40, innerRounding = unrounded
-            ).transformed(mRotate45)
+                    4,
+                    innerRadius = .2f,
+                    rounding = cornerRound40,
+                    innerRounding = unrounded
+                )
+                .transformed(mRotate45)
         )
 
         // Star8BulbousB (no inner rounding)
         shapes.add(
             RoundedPolygon.star(
-                8, innerRadius = .65f,
-                rounding = cornerRound30, innerRounding = unrounded
-            ).transformed(rotationMatrix(360f / 16))
+                    8,
+                    innerRadius = .65f,
+                    rounding = cornerRound30,
+                    innerRounding = unrounded
+                )
+                .transformed(rotationMatrix(360f / 16))
         )
 
         // Pointy12
@@ -271,59 +333,112 @@ class CustomShapeActivity : ShapeActivity() {
         shapes.add(RoundedPolygon.star(15, innerRadius = .42f))
 
         // Heart
-        points = floatArrayOf(
-            .2f, 0f, -.4f, .5f, -1f, 1f, -1.5f, .5f, -1f, 0f,
-            -1.5f, -.5f, -1f, -1f, -.4f, -.5f
-        )
-        pvRounding = listOf(
-            unrounded, unrounded, cornerRound100, cornerRound100, unrounded,
-            cornerRound100, cornerRound100, unrounded
-        )
+        points =
+            floatArrayOf(
+                .2f,
+                0f,
+                -.4f,
+                .5f,
+                -1f,
+                1f,
+                -1.5f,
+                .5f,
+                -1f,
+                0f,
+                -1.5f,
+                -.5f,
+                -1f,
+                -1f,
+                -.4f,
+                -.5f
+            )
+        pvRounding =
+            listOf(
+                unrounded,
+                unrounded,
+                cornerRound100,
+                cornerRound100,
+                unrounded,
+                cornerRound100,
+                cornerRound100,
+                unrounded
+            )
         shape = RoundedPolygon(points, perVertexRounding = pvRounding)
         m.setRotate(-90f)
         shapes.add(shape.transformed(rotationMatrix(90f)))
 
         // Jaggycircle
         val pixelSize = .1f
-        points = floatArrayOf(
-            // BR quadrant
-            6 * pixelSize, 0 * pixelSize,
-            6 * pixelSize, 2 * pixelSize,
-            5 * pixelSize, 2 * pixelSize,
-            5 * pixelSize, 4 * pixelSize,
-            4 * pixelSize, 4 * pixelSize,
-            4 * pixelSize, 5 * pixelSize,
-            2 * pixelSize, 5 * pixelSize,
-            2 * pixelSize, 6 * pixelSize,
+        points =
+            floatArrayOf(
+                // BR quadrant
+                6 * pixelSize,
+                0 * pixelSize,
+                6 * pixelSize,
+                2 * pixelSize,
+                5 * pixelSize,
+                2 * pixelSize,
+                5 * pixelSize,
+                4 * pixelSize,
+                4 * pixelSize,
+                4 * pixelSize,
+                4 * pixelSize,
+                5 * pixelSize,
+                2 * pixelSize,
+                5 * pixelSize,
+                2 * pixelSize,
+                6 * pixelSize,
 
-            // BL quadrant
-            -2 * pixelSize, 6 * pixelSize,
-            -2 * pixelSize, 5 * pixelSize,
-            -4 * pixelSize, 5 * pixelSize,
-            -4 * pixelSize, 4 * pixelSize,
-            -5 * pixelSize, 4 * pixelSize,
-            -5 * pixelSize, 2 * pixelSize,
-            -6 * pixelSize, 2 * pixelSize,
-            -6 * pixelSize, 0 * pixelSize,
+                // BL quadrant
+                -2 * pixelSize,
+                6 * pixelSize,
+                -2 * pixelSize,
+                5 * pixelSize,
+                -4 * pixelSize,
+                5 * pixelSize,
+                -4 * pixelSize,
+                4 * pixelSize,
+                -5 * pixelSize,
+                4 * pixelSize,
+                -5 * pixelSize,
+                2 * pixelSize,
+                -6 * pixelSize,
+                2 * pixelSize,
+                -6 * pixelSize,
+                0 * pixelSize,
 
-            // TL quadrant
-            -6 * pixelSize, -2 * pixelSize,
-            -5 * pixelSize, -2 * pixelSize,
-            -5 * pixelSize, -4 * pixelSize,
-            -4 * pixelSize, -4 * pixelSize,
-            -4 * pixelSize, -5 * pixelSize,
-            -2 * pixelSize, -5 * pixelSize,
-            -2 * pixelSize, -6 * pixelSize,
+                // TL quadrant
+                -6 * pixelSize,
+                -2 * pixelSize,
+                -5 * pixelSize,
+                -2 * pixelSize,
+                -5 * pixelSize,
+                -4 * pixelSize,
+                -4 * pixelSize,
+                -4 * pixelSize,
+                -4 * pixelSize,
+                -5 * pixelSize,
+                -2 * pixelSize,
+                -5 * pixelSize,
+                -2 * pixelSize,
+                -6 * pixelSize,
 
-            // TR quadrant
-            2 * pixelSize, -6 * pixelSize,
-            2 * pixelSize, -5 * pixelSize,
-            4 * pixelSize, -5 * pixelSize,
-            4 * pixelSize, -4 * pixelSize,
-            5 * pixelSize, -4 * pixelSize,
-            5 * pixelSize, -2 * pixelSize,
-            6 * pixelSize, -2 * pixelSize
-        )
+                // TR quadrant
+                2 * pixelSize,
+                -6 * pixelSize,
+                2 * pixelSize,
+                -5 * pixelSize,
+                4 * pixelSize,
+                -5 * pixelSize,
+                4 * pixelSize,
+                -4 * pixelSize,
+                5 * pixelSize,
+                -4 * pixelSize,
+                5 * pixelSize,
+                -2 * pixelSize,
+                6 * pixelSize,
+                -2 * pixelSize
+            )
         shapes.add(RoundedPolygon(points, unrounded))
 
         prevShape = shapes[0]
@@ -332,10 +447,12 @@ class CustomShapeActivity : ShapeActivity() {
 }
 
 private val Zero = PointF(0f, 0f)
+
 private fun radialToCartesian(radius: Float, angleRadians: Float, center: PointF = Zero) =
     directionVector(angleRadians) * radius + center
 
 private fun directionVector(angleRadians: Float) = PointF(cos(angleRadians), sin(angleRadians))
 
 internal operator fun PointF.times(operand: Float): PointF = PointF(x * operand, y * operand)
+
 internal operator fun PointF.plus(operand: PointF): PointF = PointF(x + operand.x, y + operand.y)

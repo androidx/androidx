@@ -44,9 +44,8 @@ internal class BufferTransformerTest {
 
     @Test
     fun testIdentity() {
-        val transform = BufferTransformer().apply {
-            computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_IDENTITY)
-        }
+        val transform =
+            BufferTransformer().apply { computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_IDENTITY) }
         assertEquals(transform.bufferWidth, WIDTH)
         assertEquals(transform.bufferHeight, HEIGHT)
         val expected = createMatrix()
@@ -57,63 +56,67 @@ internal class BufferTransformerTest {
 
     @Test
     fun test90rotation() {
-        val transform = BufferTransformer().apply {
-            computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_90)
-        }
+        val transform =
+            BufferTransformer().apply {
+                computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_90)
+            }
         assertEquals(transform.bufferWidth, HEIGHT)
         assertEquals(transform.bufferHeight, WIDTH)
-        val expected = computeResult(
-            createMatrix(),
-            createMatrix {
-                Matrix.setRotateM(this, 0, -90f, 0f, 0f, 1f)
-                Matrix.translateM(this, 0, -WIDTH.toFloat(), 0f, 0f)
-            }
-        )
+        val expected =
+            computeResult(
+                createMatrix(),
+                createMatrix {
+                    Matrix.setRotateM(this, 0, -90f, 0f, 0f, 1f)
+                    Matrix.translateM(this, 0, -WIDTH.toFloat(), 0f, 0f)
+                }
+            )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_90, transform.computedTransform)
     }
 
     @Test
     fun test180rotation() {
-        val transform = BufferTransformer().apply {
-            computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_180)
-        }
+        val transform =
+            BufferTransformer().apply {
+                computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_180)
+            }
         assertEquals(transform.bufferWidth, WIDTH)
         assertEquals(transform.bufferHeight, HEIGHT)
-        val expected = computeResult(
-            createMatrix(),
-            createMatrix {
-                Matrix.setRotateM(this, 0, 180f, 0f, 0f, 1f)
-                Matrix.translateM(this, 0, -WIDTH.toFloat(), -HEIGHT.toFloat(), 0f)
-            }
-        )
+        val expected =
+            computeResult(
+                createMatrix(),
+                createMatrix {
+                    Matrix.setRotateM(this, 0, 180f, 0f, 0f, 1f)
+                    Matrix.translateM(this, 0, -WIDTH.toFloat(), -HEIGHT.toFloat(), 0f)
+                }
+            )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_180, transform.computedTransform)
     }
 
     @Test
     fun test270rotation() {
-        val transform = BufferTransformer().apply {
-            computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_270)
-        }
+        val transform =
+            BufferTransformer().apply {
+                computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_270)
+            }
         assertEquals(transform.bufferWidth, HEIGHT)
         assertEquals(transform.bufferHeight, WIDTH)
-        val expected = computeResult(
-            createMatrix(),
-            createMatrix {
-                Matrix.setRotateM(this, 0, 90f, 0f, 0f, 1f)
-                Matrix.translateM(this, 0, 0f, -HEIGHT.toFloat(), 0f)
-            }
-        )
+        val expected =
+            computeResult(
+                createMatrix(),
+                createMatrix {
+                    Matrix.setRotateM(this, 0, 90f, 0f, 0f, 1f)
+                    Matrix.translateM(this, 0, 0f, -HEIGHT.toFloat(), 0f)
+                }
+            )
         assertIsEqual(transform.transform, expected)
         assertEquals(BUFFER_TRANSFORM_ROTATE_270, transform.computedTransform)
     }
 
     @Test
     fun testUnknown() {
-        val transform = BufferTransformer().apply {
-            computeTransform(WIDTH, HEIGHT, 42)
-        }
+        val transform = BufferTransformer().apply { computeTransform(WIDTH, HEIGHT, 42) }
         assertEquals(transform.bufferWidth, WIDTH)
         assertEquals(transform.bufferHeight, HEIGHT)
         val expected = createMatrix()
@@ -128,10 +131,9 @@ internal class BufferTransformerTest {
             block(this)
         }
 
-    private fun computeResult(ortho: FloatArray, transform: FloatArray): FloatArray =
-        createMatrix {
-            Matrix.multiplyMM(this, 0, ortho, 0, transform, 0)
-        }
+    private fun computeResult(ortho: FloatArray, transform: FloatArray): FloatArray = createMatrix {
+        Matrix.multiplyMM(this, 0, ortho, 0, transform, 0)
+    }
 
     private fun assertIsEqual(actual: FloatArray, expected: FloatArray) {
         assertEquals(actual.size, SIZE)

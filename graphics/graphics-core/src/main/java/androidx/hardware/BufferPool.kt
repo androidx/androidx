@@ -61,8 +61,10 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
 
     private fun obtainFromPool(): T? {
         if (mIsClosed) {
-            throw IllegalStateException("Attempt to obtain frame buffer from FrameBufferPool " +
-                "that has already been closed")
+            throw IllegalStateException(
+                "Attempt to obtain frame buffer from FrameBufferPool " +
+                    "that has already been closed"
+            )
         }
         val singleBuffered = maxPoolSize == 1
         return if (singleBuffered) {
@@ -77,20 +79,18 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
                 )
                 mCondition.await()
             }
-            val entry = mPool.findEntryWith(
-                isAvailable,
-                signaledFence
-            )?.also { entry ->
-                mBuffersAvailable--
-                with(entry) {
-                    isAvailable = false
-                    releaseFence?.let { fence ->
-                        fence.awaitForever()
-                        fence.close()
+            val entry =
+                mPool.findEntryWith(isAvailable, signaledFence)?.also { entry ->
+                    mBuffersAvailable--
+                    with(entry) {
+                        isAvailable = false
+                        releaseFence?.let { fence ->
+                            fence.awaitForever()
+                            fence.close()
+                        }
+                        bufferProvider
                     }
-                    bufferProvider
                 }
-            }
             entry?.bufferProvider
         }
     }
@@ -130,16 +130,18 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
                 // If the FrameBuffer is not previously closed and we don't own this, flag this as
                 // an error as most likely this buffer was attempted to be returned to the wrong
                 // pool
-                throw IllegalArgumentException("No entry associated with this framebuffer " +
-                    "instance. Was this frame buffer created from a different FrameBufferPool?")
+                throw IllegalArgumentException(
+                    "No entry associated with this framebuffer " +
+                        "instance. Was this frame buffer created from a different FrameBufferPool?"
+                )
             }
         }
     }
 
     /**
-     * Return the current pool allocation size. This will increase until the [maxPoolSize].
-     * This count will decrease if a buffer is closed before it is returned to the pool as a
-     * closed buffer is no longer re-usable
+     * Return the current pool allocation size. This will increase until the [maxPoolSize]. This
+     * count will decrease if a buffer is closed before it is returned to the pool as a closed
+     * buffer is no longer re-usable
      */
     val allocationCount: Int
         get() = mPool.size
@@ -148,8 +150,8 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
         get() = mLock.withLock { mIsClosed }
 
     /**
-     * Invokes [BufferProvider.release] on all [Entry] instances currently available within the
-     * pool and clears the pool. This method is thread safe.
+     * Invokes [BufferProvider.release] on all [Entry] instances currently available within the pool
+     * and clears the pool. This method is thread safe.
      */
     fun close() {
         mLock.withLock {
@@ -171,7 +173,7 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
         }
     }
 
-    private data class Entry<T : BufferProvider> (
+    private data class Entry<T : BufferProvider>(
         val bufferProvider: T,
         var releaseFence: SyncFenceCompat? = null,
         var isAvailable: Boolean = true
@@ -182,6 +184,7 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
 
     interface BufferProvider {
         val hardwareBuffer: HardwareBuffer
+
         fun release()
     }
 
@@ -189,8 +192,8 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
         private const val TAG = "BufferPool"
 
         /**
-         * Predicate used to search for the first entry within the pool that is either null
-         * or has already signalled
+         * Predicate used to search for the first entry within the pool that is either null or has
+         * already signalled
          */
         private val signaledFence: (Entry<*>) -> Boolean = { entry ->
             val fence = entry.releaseFence
@@ -200,9 +203,9 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
         private val isAvailable: (Entry<*>) -> Boolean = { entry -> entry.isAvailable }
 
         /**
-         * Finds the first element within the ArrayList that satisfies both primary and
-         * secondary conditions. If no entries satisfy the secondary condition, this returns
-         * the first entry that satisfies the primary condition or null if no entries do.
+         * Finds the first element within the ArrayList that satisfies both primary and secondary
+         * conditions. If no entries satisfy the secondary condition, this returns the first entry
+         * that satisfies the primary condition or null if no entries do.
          */
         internal fun <T> ArrayList<T>.findEntryWith(
             primaryCondition: ((T) -> Boolean),

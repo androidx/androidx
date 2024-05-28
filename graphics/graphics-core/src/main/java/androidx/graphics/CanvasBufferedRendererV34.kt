@@ -63,10 +63,11 @@ internal class CanvasBufferedRendererV34(
 
     private val mPool = BufferPool<HardwareBufferProvider>(maxBuffers)
 
-    private val mRootNode = RenderNode("rootNode").apply {
-        setPosition(0, 0, mWidth, mHeight)
-        clipToBounds = false
-    }
+    private val mRootNode =
+        RenderNode("rootNode").apply {
+            setPosition(0, 0, mWidth, mHeight)
+            clipToBounds = false
+        }
 
     private var mContentNode: RenderNode? = null
     private var mLightX: Float = 0f
@@ -79,13 +80,7 @@ internal class CanvasBufferedRendererV34(
 
     private fun obtainBufferEntry(): HardwareBufferProvider =
         mPool.obtain {
-            val hardwareBuffer = HardwareBuffer.create(
-                mWidth,
-                mHeight,
-                mFormat,
-                1,
-                mUsage
-            )
+            val hardwareBuffer = HardwareBuffer.create(mWidth, mHeight, mFormat, 1, mUsage)
             HardwareBufferProvider(hardwareBuffer, HardwareBufferRenderer(hardwareBuffer))
         }
 
@@ -103,8 +98,8 @@ internal class CanvasBufferedRendererV34(
         callback: Consumer<CanvasBufferedRenderer.RenderResult>
     ) {
         val contentNode = mContentNode
-        val shouldDraw = !mRootNode.hasDisplayList() ||
-            mPreserveContents != request.preserveContents
+        val shouldDraw =
+            !mRootNode.hasDisplayList() || mPreserveContents != request.preserveContents
         if (shouldDraw && contentNode != null) {
             val canvas = mRootNode.beginRecording()
             canvas.save()
@@ -132,18 +127,20 @@ internal class CanvasBufferedRendererV34(
                         setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
                         setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
                         setContentRoot(renderNode)
-                        obtainRenderRequest().apply {
-                            setColorSpace(colorSpace)
-                            setBufferTransform(transform)
-                        }.draw(executor) { result ->
-                            callback.accept(
-                                CanvasBufferedRenderer.RenderResult(
-                                    hardwareBuffer,
-                                    SyncFenceCompat(result.fence),
-                                    result.status
+                        obtainRenderRequest()
+                            .apply {
+                                setColorSpace(colorSpace)
+                                setBufferTransform(transform)
+                            }
+                            .draw(executor) { result ->
+                                callback.accept(
+                                    CanvasBufferedRenderer.RenderResult(
+                                        hardwareBuffer,
+                                        SyncFenceCompat(result.fence),
+                                        result.status
+                                    )
                                 )
-                            )
-                        }
+                            }
                     }
                 }
             }
@@ -175,6 +172,7 @@ internal class CanvasBufferedRendererV34(
         mLightZ = lightZ
         mLightRadius = lightRadius
     }
+
     internal companion object {
         private val monitorLock = ReentrantLock()
         private var sharedFdMonitor: SharedFileDescriptorMonitor? = null
@@ -186,11 +184,10 @@ internal class CanvasBufferedRendererV34(
                 monitorLock.withLock {
                     var monitor = sharedFdMonitor
                     if (monitor == null || !monitor.isMonitoring) {
-                        monitor = SharedFileDescriptorMonitor(
-                            FileDescriptorMonitor().apply {
-                                startMonitoring()
-                            }
-                        )
+                        monitor =
+                            SharedFileDescriptorMonitor(
+                                FileDescriptorMonitor().apply { startMonitoring() }
+                            )
                         sharedFdMonitor = monitor
                     }
                     return monitor

@@ -24,10 +24,9 @@ import androidx.graphics.surface.SurfaceControlCompat
 
 /**
  * Class responsible for computing the corresponding transformations necessary to support
- * pre-rotation.
- * Consumers are expected to use the corresponding [bufferWidth] and [bufferHeight] parameters to configure
- * with [GLES20.glViewport] as well as [transform] that should be consumed in any
- * vertex shader computations
+ * pre-rotation. Consumers are expected to use the corresponding [bufferWidth] and [bufferHeight]
+ * parameters to configure with [GLES20.glViewport] as well as [transform] that should be consumed
+ * in any vertex shader computations
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class BufferTransformer {
@@ -42,6 +41,7 @@ internal class BufferTransformer {
 
     var logicalHeight = 0
         private set
+
     var bufferWidth = 0
         private set
 
@@ -67,11 +67,7 @@ internal class BufferTransformer {
     /**
      * Compute the corresponding transform to apply to take into account buffer transformation hints
      */
-    fun computeTransform(
-        width: Int,
-        height: Int,
-        transformHint: Int
-    ) {
+    fun computeTransform(width: Int, height: Int, transformHint: Int) {
         val fWidth = width.toFloat()
         val fHeight = height.toFloat()
         logicalWidth = width

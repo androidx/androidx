@@ -38,34 +38,36 @@ class EGLTestActivity : Activity() {
 
     private val mGLRenderer = GLRenderer()
     private val mParam = AtomicInteger()
-    private val mRenderer1 = object : GLRenderer.RenderCallback {
-        override fun onSurfaceCreated(
-            spec: EGLSpec,
-            config: EGLConfig,
-            surface: Surface,
-            width: Int,
-            height: Int
-        ): EGLSurface {
-            val attrs = EGLConfigAttributes {
-                EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+    private val mRenderer1 =
+        object : GLRenderer.RenderCallback {
+            override fun onSurfaceCreated(
+                spec: EGLSpec,
+                config: EGLConfig,
+                surface: Surface,
+                width: Int,
+                height: Int
+            ): EGLSurface {
+                val attrs = EGLConfigAttributes {
+                    EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+                }
+                return spec.eglCreateWindowSurface(config, surface, attrs)
             }
-            return spec.eglCreateWindowSurface(config, surface, attrs)
+
+            override fun onDrawFrame(eglManager: EGLManager) {
+                val red = mParam.toFloat() / 100f
+                GLES20.glClearColor(red, 0.0f, 0.0f, 1.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            }
         }
 
-        override fun onDrawFrame(eglManager: EGLManager) {
-            val red = mParam.toFloat() / 100f
-            GLES20.glClearColor(red, 0.0f, 0.0f, 1.0f)
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+    private val mRenderer2 =
+        object : GLRenderer.RenderCallback {
+            override fun onDrawFrame(eglManager: EGLManager) {
+                val blue = mParam.toFloat() / 100f
+                GLES20.glClearColor(0.0f, 0.0f, blue, 1.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            }
         }
-    }
-
-    private val mRenderer2 = object : GLRenderer.RenderCallback {
-        override fun onDrawFrame(eglManager: EGLManager) {
-            val blue = mParam.toFloat() / 100f
-            GLES20.glClearColor(0.0f, 0.0f, blue, 1.0f)
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-        }
-    }
 
     private lateinit var mSurfaceView: SurfaceView
     private lateinit var mTextureView: TextureView
@@ -78,16 +80,18 @@ class EGLTestActivity : Activity() {
         super.onCreate(savedInstanceState)
         mGLRenderer.start()
 
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            weightSum = 2f
-        }
+        val container =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                weightSum = 2f
+            }
         mSurfaceView = SurfaceView(this)
         mTextureView = TextureView(this)
 
-        val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0).apply {
-            weight = 1f
-        }
+        val params =
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0).apply {
+                weight = 1f
+            }
 
         mRenderTarget1 = mGLRenderer.attach(mSurfaceView, mRenderer1)
         mRenderTarget2 = mGLRenderer.attach(mTextureView, mRenderer2)
@@ -97,17 +101,18 @@ class EGLTestActivity : Activity() {
 
         setContentView(container)
 
-        mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f).apply {
-            duration = 3000
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
-            addUpdateListener {
-                mParam.set(((it.animatedValue as Float) * 100).toInt())
-                mRenderTarget1.requestRender()
-                mRenderTarget2.requestRender()
+        mAnimator =
+            ValueAnimator.ofFloat(0.0f, 1.0f).apply {
+                duration = 3000
+                repeatCount = ValueAnimator.INFINITE
+                repeatMode = ValueAnimator.REVERSE
+                addUpdateListener {
+                    mParam.set(((it.animatedValue as Float) * 100).toInt())
+                    mRenderTarget1.requestRender()
+                    mRenderTarget2.requestRender()
+                }
+                start()
             }
-            start()
-        }
     }
 
     override fun onResume() {

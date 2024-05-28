@@ -49,24 +49,26 @@ import kotlin.math.max
  * due to graphical tearing.
  *
  * @param surfaceView Target SurfaceView to act as the parent rendering layer for multi buffered
- *  content
+ *   content
  * @param callback Callbacks used to render into front and multi buffered layers as well as
- *  configuring [SurfaceControlCompat.Transaction]s for controlling these layers in addition to
- *  other [SurfaceControlCompat] instances that must be updated atomically within the user
- *  interface. These callbacks are invoked on an internal rendering thread. The templated type
- *  here is consumer defined to represent the data structures to be consumed for rendering within
- *  [Callback.onDrawFrontBufferedLayer] and [Callback.onDrawMultiBufferedLayer] and are provided
- *  by the [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] and
- *  [CanvasFrontBufferedRenderer.renderMultiBufferedLayer] methods.
- *  @param bufferFormat format of the underlying buffers being rendered into by
- *  [CanvasFrontBufferedRenderer]. The particular valid combinations for a given Android version
- *  and implementation should be documented by that version.
- *  [HardwareBuffer.RGBA_8888] and [HardwareBuffer.RGBX_8888] are guaranteed to be supported.
- *  However, consumers are recommended to query the desired HardwareBuffer configuration using
- *  [HardwareBuffer.isSupported]. The default is [HardwareBuffer.RGBA_8888].
+ *   configuring [SurfaceControlCompat.Transaction]s for controlling these layers in addition to
+ *   other [SurfaceControlCompat] instances that must be updated atomically within the user
+ *   interface. These callbacks are invoked on an internal rendering thread. The templated type here
+ *   is consumer defined to represent the data structures to be consumed for rendering within
+ *   [Callback.onDrawFrontBufferedLayer] and [Callback.onDrawMultiBufferedLayer] and are provided by
+ *   the [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] and
+ *   [CanvasFrontBufferedRenderer.renderMultiBufferedLayer] methods.
+ * @param bufferFormat format of the underlying buffers being rendered into by
+ *   [CanvasFrontBufferedRenderer]. The particular valid combinations for a given Android version
+ *   and implementation should be documented by that version. [HardwareBuffer.RGBA_8888] and
+ *   [HardwareBuffer.RGBX_8888] are guaranteed to be supported. However, consumers are recommended
+ *   to query the desired HardwareBuffer configuration using [HardwareBuffer.isSupported]. The
+ *   default is [HardwareBuffer.RGBA_8888].
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
+class CanvasFrontBufferedRenderer<T>
+@JvmOverloads
+constructor(
     private val surfaceView: SurfaceView,
     private val callback: Callback<T>,
     @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
@@ -78,14 +80,12 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     private val mHandlerThread = HandlerThreadExecutor("CanvasRenderThread")
 
-    /**
-     * RenderNode used to render multi buffered content
-     */
+    /** RenderNode used to render multi buffered content */
     private var mMultiBufferedRenderNode: RenderNode? = null
 
     /**
-     * Renderer used to draw [RenderNode] into a [HardwareBuffer] that is used to configure
-     * the parent SurfaceControl that represents the multi-buffered scene
+     * Renderer used to draw [RenderNode] into a [HardwareBuffer] that is used to configure the
+     * parent SurfaceControl that represents the multi-buffered scene
      */
     private var mMultiBufferedCanvasRenderer: CanvasBufferedRenderer? = null
 
@@ -107,8 +107,8 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Queue of parameters to be consumed in [Callback.onDrawFrontBufferedLayer] with the parameter
-     * provided in [renderFrontBufferedLayer]. When [commit] is invoked the collection is used
-     * to render the multi-buffered scene and is subsequently cleared
+     * provided in [renderFrontBufferedLayer]. When [commit] is invoked the collection is used to
+     * render the multi-buffered scene and is subsequently cleared
      */
     private var mParams = ParamQueue<T>()
 
@@ -120,14 +120,14 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mIsReleased = false
 
     /**
-     * Flag to determine if a request to clear the front buffer content is pending. This should
-     * only be accessed on the background thread
+     * Flag to determine if a request to clear the front buffer content is pending. This should only
+     * be accessed on the background thread
      */
     private val mPendingClear = AtomicBoolean(true)
 
     /**
-     * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well
-     * as hide the SurfaceControl associated with the front buffered layer
+     * Runnable executed on the GLThread to update [FrontBufferSyncStrategy.isVisible] as well as
+     * hide the SurfaceControl associated with the front buffered layer
      */
     private val mCancelRunnable = Runnable {
         mPersistedCanvasRenderer?.isVisible = false
@@ -138,8 +138,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
         }
     }
 
-    @Volatile
-    private var mFrontBufferReleaseFence: SyncFenceCompat? = null
+    @Volatile private var mFrontBufferReleaseFence: SyncFenceCompat? = null
     private val mCommitCount = AtomicInteger(0)
     private var mColorSpace: ColorSpace = CanvasBufferedRenderer.DefaultColorSpace
     private var mInverse = BufferTransformHintResolver.UNKNOWN_TRANSFORM
@@ -147,40 +146,39 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     private var mHeight = -1
     private var mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
     private val mTransformResolver = BufferTransformHintResolver()
-    private val mHolderCallback = object : SurfaceHolder.Callback2 {
+    private val mHolderCallback =
+        object : SurfaceHolder.Callback2 {
 
-        override fun surfaceCreated(p0: SurfaceHolder) {
-            // NO-OP
-        }
-
-        override fun surfaceChanged(
-            holder: SurfaceHolder,
-            format: Int,
-            width: Int,
-            height: Int
-        ) {
-            update(surfaceView, width, height)
-        }
-
-        override fun surfaceDestroyed(p0: SurfaceHolder) {
-            releaseInternal(true)
-        }
-
-        override fun surfaceRedrawNeeded(holder: SurfaceHolder) {
-            val latch = CountDownLatch(1)
-            renderMultiBufferedLayerInternal {
-                latch.countDown()
+            override fun surfaceCreated(p0: SurfaceHolder) {
+                // NO-OP
             }
-            latch.await()
-        }
 
-        override fun surfaceRedrawNeededAsync(
-            holder: SurfaceHolder,
-            drawingFinished: Runnable
-        ) {
-            renderMultiBufferedLayerInternal(callback = drawingFinished)
+            override fun surfaceChanged(
+                holder: SurfaceHolder,
+                format: Int,
+                width: Int,
+                height: Int
+            ) {
+                update(surfaceView, width, height)
+            }
+
+            override fun surfaceDestroyed(p0: SurfaceHolder) {
+                releaseInternal(true)
+            }
+
+            override fun surfaceRedrawNeeded(holder: SurfaceHolder) {
+                val latch = CountDownLatch(1)
+                renderMultiBufferedLayerInternal { latch.countDown() }
+                latch.await()
+            }
+
+            override fun surfaceRedrawNeededAsync(
+                holder: SurfaceHolder,
+                drawingFinished: Runnable
+            ) {
+                renderMultiBufferedLayerInternal(callback = drawingFinished)
+            }
         }
-    }
 
     init {
         surfaceView.holder.addCallback(mHolderCallback)
@@ -194,8 +192,11 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     internal fun update(surfaceView: SurfaceView, width: Int, height: Int) {
         if (width <= 0 || height <= 0) {
-            Log.w(TAG, "Invalid dimensions provided, width and height must be > 0. " +
-                "width: $width height: $height")
+            Log.w(
+                TAG,
+                "Invalid dimensions provided, width and height must be > 0. " +
+                    "width: $width height: $height"
+            )
             return
         }
         val transformHint = mTransformResolver.getBufferTransformHint(surfaceView)
@@ -208,96 +209,107 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
             val bufferWidth = bufferTransform.bufferWidth
             val bufferHeight = bufferTransform.bufferHeight
 
-            val parentSurfaceControl = SurfaceControlCompat.Builder()
-                .setParent(surfaceView)
-                .setName("MultiBufferedLayer")
-                .build()
-                .apply {
-                    // SurfaceControl is not visible by default so make it visible right
-                    // after creation
-                    SurfaceControlCompat.Transaction()
-                        .setVisibility(this, true)
-                        .commit()
-                }
+            val parentSurfaceControl =
+                SurfaceControlCompat.Builder()
+                    .setParent(surfaceView)
+                    .setName("MultiBufferedLayer")
+                    .build()
+                    .apply {
+                        // SurfaceControl is not visible by default so make it visible right
+                        // after creation
+                        SurfaceControlCompat.Transaction().setVisibility(this, true).commit()
+                    }
 
-            val frontBufferSurfaceControl = SurfaceControlCompat.Builder()
-                .setParent(parentSurfaceControl)
-                .setName("FrontBufferedLayer")
-                .build()
+            val frontBufferSurfaceControl =
+                SurfaceControlCompat.Builder()
+                    .setParent(parentSurfaceControl)
+                    .setName("FrontBufferedLayer")
+                    .build()
 
             FrontBufferUtils.configureFrontBufferLayerFrameRate(frontBufferSurfaceControl)?.commit()
 
             var singleBufferedCanvasRenderer: SingleBufferedCanvasRenderer<T>? = null
-            singleBufferedCanvasRenderer = SingleBufferedCanvasRenderer(
-                width,
-                height,
-                bufferWidth,
-                bufferHeight,
-                bufferFormat,
-                inverse,
-                mHandlerThread,
-                object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
+            singleBufferedCanvasRenderer =
+                SingleBufferedCanvasRenderer(
+                        width,
+                        height,
+                        bufferWidth,
+                        bufferHeight,
+                        bufferFormat,
+                        inverse,
+                        mHandlerThread,
+                        object : SingleBufferedCanvasRenderer.RenderCallbacks<T> {
 
-                    override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
-                        if (mPendingClear.compareAndSet(true, false)) {
-                            mFrontBufferReleaseFence?.let { fence ->
-                                fence.awaitForever()
-                                fence.close()
-                                mFrontBufferReleaseFence = null
-                            }
-                            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-                        }
-                        callback.onDrawFrontBufferedLayer(canvas, width, height, param)
-                    }
-
-                    @SuppressLint("WrongConstant")
-                    override fun onBufferReady(
-                        hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
-                    ) {
-                        if (frontBufferSurfaceControl.isValid()) {
-                            val transaction = SurfaceControlCompat.Transaction()
-                                .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
-                                .setBuffer(
-                                    frontBufferSurfaceControl,
-                                    hardwareBuffer,
-                                    if (singleBufferedCanvasRenderer?.isVisible == true) {
-                                        null
-                                    } else {
-                                        syncFenceCompat
+                            override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
+                                if (mPendingClear.compareAndSet(true, false)) {
+                                    mFrontBufferReleaseFence?.let { fence ->
+                                        fence.awaitForever()
+                                        fence.close()
+                                        mFrontBufferReleaseFence = null
                                     }
-                                ) { releaseFence ->
-                                    mFrontBufferReleaseFence?.close()
-                                    mFrontBufferReleaseFence = releaseFence
+                                    canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
                                 }
-                                .setVisibility(frontBufferSurfaceControl, true)
-                                .reparent(frontBufferSurfaceControl, parentSurfaceControl)
-                            if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                                transaction.setBufferTransform(
-                                    frontBufferSurfaceControl,
-                                    transformHint
-                                )
+                                callback.onDrawFrontBufferedLayer(canvas, width, height, param)
                             }
-                            callback.onFrontBufferedLayerRenderComplete(
-                                frontBufferSurfaceControl, transaction)
-                            transaction.commit()
-                            singleBufferedCanvasRenderer?.isVisible = true
+
+                            @SuppressLint("WrongConstant")
+                            override fun onBufferReady(
+                                hardwareBuffer: HardwareBuffer,
+                                syncFenceCompat: SyncFenceCompat?
+                            ) {
+                                if (frontBufferSurfaceControl.isValid()) {
+                                    val transaction =
+                                        SurfaceControlCompat.Transaction()
+                                            .setLayer(frontBufferSurfaceControl, Integer.MAX_VALUE)
+                                            .setBuffer(
+                                                frontBufferSurfaceControl,
+                                                hardwareBuffer,
+                                                if (
+                                                    singleBufferedCanvasRenderer?.isVisible == true
+                                                ) {
+                                                    null
+                                                } else {
+                                                    syncFenceCompat
+                                                }
+                                            ) { releaseFence ->
+                                                mFrontBufferReleaseFence?.close()
+                                                mFrontBufferReleaseFence = releaseFence
+                                            }
+                                            .setVisibility(frontBufferSurfaceControl, true)
+                                            .reparent(
+                                                frontBufferSurfaceControl,
+                                                parentSurfaceControl
+                                            )
+                                    if (
+                                        transformHint !=
+                                            BufferTransformHintResolver.UNKNOWN_TRANSFORM
+                                    ) {
+                                        transaction.setBufferTransform(
+                                            frontBufferSurfaceControl,
+                                            transformHint
+                                        )
+                                    }
+                                    callback.onFrontBufferedLayerRenderComplete(
+                                        frontBufferSurfaceControl,
+                                        transaction
+                                    )
+                                    transaction.commit()
+                                    singleBufferedCanvasRenderer?.isVisible = true
+                                }
+                                syncFenceCompat?.close()
+                            }
                         }
-                        syncFenceCompat?.close()
-                    }
-                }).apply {
-                    colorSpace = mColorSpace
-                }
+                    )
+                    .apply { colorSpace = mColorSpace }
 
-            val renderNode = RenderNode("node").apply {
-                setPosition(0, 0, width, height)
-            }
+            val renderNode = RenderNode("node").apply { setPosition(0, 0, width, height) }
 
-            mMultiBufferedCanvasRenderer = CanvasBufferedRenderer.Builder(bufferWidth, bufferHeight)
-                .setUsageFlags(FrontBufferUtils.BaseFlags)
-                .setBufferFormat(bufferFormat)
-                .build()
-                .apply { setContentRoot(renderNode) }
+            mMultiBufferedCanvasRenderer =
+                CanvasBufferedRenderer.Builder(bufferWidth, bufferHeight)
+                    .setUsageFlags(FrontBufferUtils.BaseFlags)
+                    .setBufferFormat(bufferFormat)
+                    .build()
+                    .apply { setContentRoot(renderNode) }
 
             mMultiBufferedRenderNode = renderNode
             mFrontBufferSurfaceControl = frontBufferSurfaceControl
@@ -311,9 +323,9 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Configures the [ColorSpace] that the content should be rendered with for the front and
-     * multi buffered layers. This parameter is only consumed on Android U and above. For older API
-     * levels this is ignored.
+     * Configures the [ColorSpace] that the content should be rendered with for the front and multi
+     * buffered layers. This parameter is only consumed on Android U and above. For older API levels
+     * this is ignored.
      */
     var colorSpace: ColorSpace
         get() = mColorSpace
@@ -324,11 +336,10 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Render content to the front buffered layer providing optional parameters to be consumed in
-     * [Callback.onDrawFrontBufferedLayer].
-     * Additionally the parameter provided here will also be consumed in
-     * [Callback.onDrawMultiBufferedLayer]
-     * when the corresponding [commit] method is invoked, which will include all [param]s in each
-     * call made to this method up to the corresponding [commit] call.
+     * [Callback.onDrawFrontBufferedLayer]. Additionally the parameter provided here will also be
+     * consumed in [Callback.onDrawMultiBufferedLayer] when the corresponding [commit] method is
+     * invoked, which will include all [param]s in each call made to this method up to the
+     * corresponding [commit] call.
      *
      * If this [CanvasFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
      * this call is ignored.
@@ -342,7 +353,9 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                 flushPendingFrontBufferRenders()
             }
         } else {
-            Log.w(TAG, "Attempt to render to front buffered layer when " +
+            Log.w(
+                TAG,
+                "Attempt to render to front buffered layer when " +
                     "CanvasFrontBufferedRenderer has been released"
             )
         }
@@ -356,29 +369,29 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Requests to render to the multi buffered layer. This schedules a call to
-     * [Callback.onDrawMultiBufferedLayer] with the parameters provided. If the front buffered
-     * layer is visible, this will hide this layer after rendering to the multi buffered layer
-     * is complete. This is equivalent to calling [CanvasFrontBufferedRenderer.renderFrontBufferedLayer]
-     * for each parameter provided in the collection followed by a single call to
-     * [CanvasFrontBufferedRenderer.commit]. This is useful for re-rendering the multi buffered
-     * scene when the corresponding Activity is being resumed from the background in which the
-     * contents should be re-drawn. Additionally this allows for applications to decide to
-     * dynamically render to either front or multi buffered layers.
+     * [Callback.onDrawMultiBufferedLayer] with the parameters provided. If the front buffered layer
+     * is visible, this will hide this layer after rendering to the multi buffered layer is
+     * complete. This is equivalent to calling
+     * [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] for each parameter provided in the
+     * collection followed by a single call to [CanvasFrontBufferedRenderer.commit]. This is useful
+     * for re-rendering the multi buffered scene when the corresponding Activity is being resumed
+     * from the background in which the contents should be re-drawn. Additionally this allows for
+     * applications to decide to dynamically render to either front or multi buffered layers.
      *
      * If this [CanvasFrontBufferedRenderer] has been released, that is [isValid] returns 'false',
      * this call is ignored.
      *
      * @param params Parameters that to be consumed when rendering to the multi buffered layer.
-     * These parameters will be provided in the corresponding call to
-     * [Callback.onDrawMultiBufferedLayer]
+     *   These parameters will be provided in the corresponding call to
+     *   [Callback.onDrawMultiBufferedLayer]
      */
     fun renderMultiBufferedLayer(params: Collection<T>) {
         renderMultiBufferedLayerInternal(params)
     }
 
     /**
-     * Helper method to commit contents to the multi buffered layer invoking an optional
-     * callback when rendering is complete
+     * Helper method to commit contents to the multi buffered layer invoking an optional callback
+     * when rendering is complete
      */
     internal fun renderMultiBufferedLayerInternal(
         params: Collection<T> = Collections.emptyList(),
@@ -388,17 +401,18 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
             mParams.addAll(params)
             commitInternal(callback)
         } else {
-            Log.w(TAG, "Attempt to render to the multi buffered layer when " +
-                "CanvasFrontBufferedRenderer has been released"
+            Log.w(
+                TAG,
+                "Attempt to render to the multi buffered layer when " +
+                    "CanvasFrontBufferedRenderer has been released"
             )
         }
     }
 
     /**
      * Determines whether or not the [CanvasFrontBufferedRenderer] is in a valid state. That is the
-     * [release] method has not been called.
-     * If this returns false, then subsequent calls to [renderFrontBufferedLayer],
-     * [renderMultiBufferedLayer], [commit], and [release] are ignored
+     * [release] method has not been called. If this returns false, then subsequent calls to
+     * [renderFrontBufferedLayer], [renderMultiBufferedLayer], [commit], and [release] are ignored
      *
      * @return `true` if this [CanvasFrontBufferedRenderer] has been released, `false` otherwise
      */
@@ -414,31 +428,39 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
         buffer: HardwareBuffer,
         fence: SyncFenceCompat?
     ) {
-        if (frontBufferSurfaceControl != null && frontBufferSurfaceControl.isValid() &&
-            parentSurfaceControl != null && parentSurfaceControl.isValid()) {
+        if (
+            frontBufferSurfaceControl != null &&
+                frontBufferSurfaceControl.isValid() &&
+                parentSurfaceControl != null &&
+                parentSurfaceControl.isValid()
+        ) {
             persistedCanvasRenderer?.isVisible = false
-            val transaction = SurfaceControlCompat.Transaction()
-                .setVisibility(frontBufferSurfaceControl, false)
-                // Set a null buffer here so that the original front buffer's release callback
-                // gets invoked and we can clear the content of the front buffer
-                .setBuffer(frontBufferSurfaceControl, null)
-                .setVisibility(parentSurfaceControl, true)
-                .setBuffer(parentSurfaceControl, buffer, fence) { releaseFence ->
-                    mPendingClear.set(true)
-                    val result = mCommitCount.updateAndGet { value -> max(value - 1, 0) }
-                    if (result != 0) {
-                        surfaceView.post { commitInternal() }
-                    } else {
-                        flushPendingFrontBufferRenders()
+            val transaction =
+                SurfaceControlCompat.Transaction()
+                    .setVisibility(frontBufferSurfaceControl, false)
+                    // Set a null buffer here so that the original front buffer's release callback
+                    // gets invoked and we can clear the content of the front buffer
+                    .setBuffer(frontBufferSurfaceControl, null)
+                    .setVisibility(parentSurfaceControl, true)
+                    .setBuffer(parentSurfaceControl, buffer, fence) { releaseFence ->
+                        mPendingClear.set(true)
+                        val result = mCommitCount.updateAndGet { value -> max(value - 1, 0) }
+                        if (result != 0) {
+                            surfaceView.post { commitInternal() }
+                        } else {
+                            flushPendingFrontBufferRenders()
+                        }
+                        multiBufferedCanvasRenderer.releaseBuffer(buffer, releaseFence)
                     }
-                    multiBufferedCanvasRenderer.releaseBuffer(buffer, releaseFence)
-                }
 
             if (transform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                 transaction.setBufferTransform(parentSurfaceControl, transform)
             }
             callback.onMultiBufferedLayerRenderComplete(
-                frontBufferSurfaceControl, parentSurfaceControl, transaction)
+                frontBufferSurfaceControl,
+                parentSurfaceControl,
+                transaction
+            )
             transaction.commit()
         }
     }
@@ -451,10 +473,11 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     fun clear() {
         if (isValid()) {
             mParams.clear()
-            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
-                cancelPending()
-                clear()
-            }
+            val persistedCanvasRenderer =
+                mPersistedCanvasRenderer?.apply {
+                    cancelPending()
+                    clear()
+                }
             val transform = mTransform
             val inverse = mInverse
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl
@@ -492,8 +515,11 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
             }
         } else {
-            Log.w(TAG, "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
-                "has been released")
+            Log.w(
+                TAG,
+                "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
+                    "has been released"
+            )
         }
     }
 
@@ -515,15 +541,13 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Helper method to commit contents to the multi buffered layer, invoking an optional
-     * callback on completion
+     * Helper method to commit contents to the multi buffered layer, invoking an optional callback
+     * on completion
      */
     @SuppressWarnings("WrongConstant")
     private fun commitInternal(onComplete: Runnable? = null) {
         if (isValid()) {
-            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
-                cancelPending()
-            }
+            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply { cancelPending() }
             val params = mParams.release()
             val width = mWidth
             val height = mHeight
@@ -566,22 +590,24 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                 }
             }
         } else {
-            Log.w(TAG, "Attempt to render to the multi buffered layer when " +
-                "CanvasFrontBufferedRenderer has been released"
+            Log.w(
+                TAG,
+                "Attempt to render to the multi buffered layer when " +
+                    "CanvasFrontBufferedRenderer has been released"
             )
         }
     }
 
     /**
-     * Requests to cancel rendering and hides the front buffered layer.
-     * Unlike [commit], this does not schedule a call to render into the multi buffered layer. This
-     * is useful in palm rejection use cases, where some initial touch events might be processed
-     * before a corresponding cancel event is received indicating the touch gesture is coming
-     * from a palm rather than intentional user input. In the case where MotionEvent#getAction
-     * returns ACTION_CANCEL, this is to be invoked.
+     * Requests to cancel rendering and hides the front buffered layer. Unlike [commit], this does
+     * not schedule a call to render into the multi buffered layer. This is useful in palm rejection
+     * use cases, where some initial touch events might be processed before a corresponding cancel
+     * event is received indicating the touch gesture is coming from a palm rather than intentional
+     * user input. In the case where MotionEvent#getAction returns ACTION_CANCEL, this is to be
+     * invoked.
      *
-     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`,
-     * this call is ignored.
+     * If this [GLFrontBufferedRenderer] has been released, that is [isValid] returns `false`, this
+     * call is ignored.
      */
     fun cancel() {
         if (isValid()) {
@@ -590,8 +616,11 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
             mHandlerThread.execute(mCancelRunnable)
             mPersistedCanvasRenderer?.clear()
         } else {
-            Log.w(TAG, "Attempt to cancel rendering to front buffer after " +
-                "CanvasFrontBufferRenderer has been released")
+            Log.w(
+                TAG,
+                "Attempt to cancel rendering to front buffer after " +
+                    "CanvasFrontBufferRenderer has been released"
+            )
         }
     }
 
@@ -628,9 +657,9 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     /**
-     * Releases the [CanvasFrontBufferedRenderer]. In process requests are ignored.
-     * If the [CanvasFrontBufferedRenderer] is already released, that is [isValid] returns `false`,
-     * this method does nothing.
+     * Releases the [CanvasFrontBufferedRenderer]. In process requests are ignored. If the
+     * [CanvasFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
+     * method does nothing.
      */
     @JvmOverloads
     fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
@@ -655,35 +684,31 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
         /**
          * Callback invoked to render content into the front buffered layer with the specified
          * parameters.
+         *
          * @param canvas [Canvas] used to issue drawing instructions into the front buffered layer
          * @param bufferWidth Width of the buffer that is being rendered into.
          * @param bufferHeight Height of the buffer that is being rendered into.
          * @param param optional parameter provided the corresponding
-         * [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] method that triggered this request
-         * to render into the front buffered layer
+         *   [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] method that triggered this
+         *   request to render into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(
-            canvas: Canvas,
-            bufferWidth: Int,
-            bufferHeight: Int,
-            param: T
-        )
+        fun onDrawFrontBufferedLayer(canvas: Canvas, bufferWidth: Int, bufferHeight: Int, param: T)
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
          * parameters.
+         *
          * @param canvas [Canvas] used to issue drawing instructions into the front buffered layer
          * @param bufferWidth Width of the buffer that is being rendered into.
          * @param bufferHeight Height of the buffer that is being rendered into.
          * @param params optional parameter provided to render the entire scene into the multi
-         * buffered layer.
-         * This is a collection of all parameters provided in consecutive invocations to
-         * [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] since the last call to
-         * [CanvasFrontBufferedRenderer.commit] has been made. After
-         * [CanvasFrontBufferedRenderer.commit] is invoked, this collection is cleared and new
-         * parameters are added on each subsequent call to
-         * [CanvasFrontBufferedRenderer.renderFrontBufferedLayer]
+         *   buffered layer. This is a collection of all parameters provided in consecutive
+         *   invocations to [CanvasFrontBufferedRenderer.renderFrontBufferedLayer] since the last
+         *   call to [CanvasFrontBufferedRenderer.commit] has been made. After
+         *   [CanvasFrontBufferedRenderer.commit] is invoked, this collection is cleared and new
+         *   parameters are added on each subsequent call to
+         *   [CanvasFrontBufferedRenderer.renderFrontBufferedLayer]
          */
         @WorkerThread
         fun onDrawMultiBufferedLayer(
@@ -695,16 +720,16 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but
-         * before the buffers are submitted to the hardware compositor.
-         * This provides consumers a mechanism for synchronizing the transaction with other
-         * [SurfaceControlCompat] objects that maybe rendered within the scene.
+         * before the buffers are submitted to the hardware compositor. This provides consumers a
+         * mechanism for synchronizing the transaction with other [SurfaceControlCompat] objects
+         * that maybe rendered within the scene.
          *
          * @param frontBufferedLayerSurfaceControl Handle to the [SurfaceControlCompat] where the
-         * front buffered layer content is drawn. This can be used to configure various properties
-         * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
-         * [SurfaceControlCompat.Transaction].
+         *   front buffered layer content is drawn. This can be used to configure various properties
+         *   of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         *   [SurfaceControlCompat.Transaction].
          * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
-         * content to the front buffered layer.
+         *   content to the front buffered layer.
          */
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
@@ -716,20 +741,20 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
 
         /**
          * Optional callback invoked when rendering to the multi buffered layer is complete but
-         * before the buffers are submitted to the hardware compositor.
-         * This provides consumers a mechanism for synchronizing the transaction with other
-         * [SurfaceControlCompat] objects that maybe rendered within the scene.
+         * before the buffers are submitted to the hardware compositor. This provides consumers a
+         * mechanism for synchronizing the transaction with other [SurfaceControlCompat] objects
+         * that maybe rendered within the scene.
          *
          * @param frontBufferedLayerSurfaceControl Handle to the [SurfaceControlCompat] where the
-         * front buffered layer content is drawn. This can be used to configure various properties
-         * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
-         * [SurfaceControlCompat.Transaction].
+         *   front buffered layer content is drawn. This can be used to configure various properties
+         *   of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         *   [SurfaceControlCompat.Transaction].
          * @param multiBufferedLayerSurfaceControl Handle to the [SurfaceControlCompat] where the
-         * multi-buffered layer content is drawn. This can be used to configure various properties
-         * of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
-         * [SurfaceControlCompat.Transaction].
+         *   multi-buffered layer content is drawn. This can be used to configure various properties
+         *   of the [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         *   [SurfaceControlCompat.Transaction].
          * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
-         * content to the multi buffered layer.
+         *   content to the multi buffered layer.
          */
         @WorkerThread
         fun onMultiBufferedLayerRenderComplete(

@@ -67,8 +67,9 @@ annotation class HardwareBufferFormat
 // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
 internal const val USAGE_COMPOSER_OVERLAY: Long = 2048L
 
-internal const val DefaultFlags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
-    USAGE_COMPOSER_OVERLAY
+internal const val DefaultFlags =
+    HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
+        HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
+        USAGE_COMPOSER_OVERLAY
 
 internal const val DefaultNumBuffers = 3

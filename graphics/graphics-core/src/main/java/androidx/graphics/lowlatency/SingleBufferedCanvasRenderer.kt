@@ -34,8 +34,8 @@ import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Class to provide an abstraction around implementations for a low latency hardware
- * accelerated [Canvas] that provides a [HardwareBuffer] with the [Canvas] rendered scene
+ * Class to provide an abstraction around implementations for a low latency hardware accelerated
+ * [Canvas] that provides a [HardwareBuffer] with the [Canvas] rendered scene
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class SingleBufferedCanvasRenderer<T>(
@@ -50,17 +50,13 @@ internal class SingleBufferedCanvasRenderer<T>(
 ) {
 
     interface RenderCallbacks<T> {
-        @WorkerThread
-        fun render(canvas: Canvas, width: Int, height: Int, param: T)
+        @WorkerThread fun render(canvas: Canvas, width: Int, height: Int, param: T)
 
         @WorkerThread
         fun onBufferReady(hardwareBuffer: HardwareBuffer, syncFenceCompat: SyncFenceCompat?)
 
         @WorkerThread
-        fun onBufferCancelled(
-            hardwareBuffer: HardwareBuffer,
-            syncFenceCompat: SyncFenceCompat?
-        ) {
+        fun onBufferCancelled(hardwareBuffer: HardwareBuffer, syncFenceCompat: SyncFenceCompat?) {
             // NO-OP
         }
     }
@@ -82,50 +78,52 @@ internal class SingleBufferedCanvasRenderer<T>(
         callbacks
     )
 
-    private val mRenderNode = RenderNode("node").apply {
-        setPosition(
-            0,
-            0,
-            this@SingleBufferedCanvasRenderer.width,
-            this@SingleBufferedCanvasRenderer.height
-        )
-    }
+    private val mRenderNode =
+        RenderNode("node").apply {
+            setPosition(
+                0,
+                0,
+                this@SingleBufferedCanvasRenderer.width,
+                this@SingleBufferedCanvasRenderer.height
+            )
+        }
 
-    private val mRenderQueue = RenderQueue(
-        handlerThread,
-        object : RenderQueue.FrameProducer {
-            override fun renderFrame(
-                executor: Executor,
-                requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
-            ) {
-                mHardwareBufferRenderer.obtainRenderRequest().apply {
-                    if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
-                        setBufferTransform(transformHint)
-                    }
-                    preserveContents(true)
-                    setColorSpace(this@SingleBufferedCanvasRenderer.colorSpace)
-                    drawAsync(executor) { result ->
-                        requestComplete.invoke(result.hardwareBuffer, result.fence)
+    private val mRenderQueue =
+        RenderQueue(
+            handlerThread,
+            object : RenderQueue.FrameProducer {
+                override fun renderFrame(
+                    executor: Executor,
+                    requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
+                ) {
+                    mHardwareBufferRenderer.obtainRenderRequest().apply {
+                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                            setBufferTransform(transformHint)
+                        }
+                        preserveContents(true)
+                        setColorSpace(this@SingleBufferedCanvasRenderer.colorSpace)
+                        drawAsync(executor) { result ->
+                            requestComplete.invoke(result.hardwareBuffer, result.fence)
+                        }
                     }
                 }
-            }
-        },
-        object : RenderQueue.FrameCallback {
-            override fun onFrameComplete(
-                hardwareBuffer: HardwareBuffer,
-                fence: SyncFenceCompat?
-            ) {
-                callbacks.onBufferReady(hardwareBuffer, fence)
-            }
+            },
+            object : RenderQueue.FrameCallback {
+                override fun onFrameComplete(
+                    hardwareBuffer: HardwareBuffer,
+                    fence: SyncFenceCompat?
+                ) {
+                    callbacks.onBufferReady(hardwareBuffer, fence)
+                }
 
-            override fun onFrameCancelled(
-                hardwareBuffer: HardwareBuffer,
-                fence: SyncFenceCompat?
-            ) {
-                callbacks.onBufferCancelled(hardwareBuffer, fence)
+                override fun onFrameCancelled(
+                    hardwareBuffer: HardwareBuffer,
+                    fence: SyncFenceCompat?
+                ) {
+                    callbacks.onBufferCancelled(hardwareBuffer, fence)
+                }
             }
-        }
-    )
+        )
 
     private val mVisibleFlag = AtomicBoolean(false)
 
@@ -133,12 +131,13 @@ internal class SingleBufferedCanvasRenderer<T>(
         mHardwareBufferRenderer.close()
     }
 
-    private val mHardwareBufferRenderer = CanvasBufferedRenderer.Builder(bufferWidth, bufferHeight)
-        .setUsageFlags(FrontBufferUtils.obtainHardwareBufferUsageFlags())
-        .setMaxBuffers(1)
-        .setBufferFormat(bufferFormat)
-        .build()
-        .apply { setContentRoot(mRenderNode) }
+    private val mHardwareBufferRenderer =
+        CanvasBufferedRenderer.Builder(bufferWidth, bufferHeight)
+            .setUsageFlags(FrontBufferUtils.obtainHardwareBufferUsageFlags())
+            .setMaxBuffers(1)
+            .setBufferFormat(bufferFormat)
+            .build()
+            .apply { setContentRoot(mRenderNode) }
 
     private val mPendingParams = ArrayList<T>()
 
@@ -182,16 +181,14 @@ internal class SingleBufferedCanvasRenderer<T>(
 
     private val defaultClearRequest = ClearRequest(null)
 
-    /**
-     * Render into the [HardwareBuffer] with the given parameter and bounds
-     */
+    /** Render into the [HardwareBuffer] with the given parameter and bounds */
     fun render(param: T) {
         mRenderQueue.enqueue(DrawParamRequest(param))
     }
 
     /**
-     * Flag to indicate whether or not the contents of the [SingleBufferedCanvasRenderer] are visible.
-     * This is used to help internal state to determine appropriate synchronization
+     * Flag to indicate whether or not the contents of the [SingleBufferedCanvasRenderer] are
+     * visible. This is used to help internal state to determine appropriate synchronization
      */
     var isVisible: Boolean
         get() = mVisibleFlag.get()
@@ -199,14 +196,12 @@ internal class SingleBufferedCanvasRenderer<T>(
             mVisibleFlag.set(value)
         }
 
-    /**
-     * Configure the color space that the content is rendered with
-     */
+    /** Configure the color space that the content is rendered with */
     var colorSpace: ColorSpace = CanvasBufferedRenderer.DefaultColorSpace
 
     /**
-     * Releases resources associated with [SingleBufferedCanvasRenderer] instance. Attempts to
-     * use this object after it is closed will be ignored
+     * Releases resources associated with [SingleBufferedCanvasRenderer] instance. Attempts to use
+     * this object after it is closed will be ignored
      */
     fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         mRenderQueue.release(cancelPending) {
@@ -215,21 +210,18 @@ internal class SingleBufferedCanvasRenderer<T>(
         }
     }
 
-    /**
-     * Clear the contents of the [HardwareBuffer]
-     */
+    /** Clear the contents of the [HardwareBuffer] */
     fun clear(clearComplete: (() -> Unit)? = null) {
-        val clearRequest = if (clearComplete == null) {
-            defaultClearRequest
-        } else {
-            ClearRequest(clearComplete)
-        }
+        val clearRequest =
+            if (clearComplete == null) {
+                defaultClearRequest
+            } else {
+                ClearRequest(clearComplete)
+            }
         mRenderQueue.enqueue(clearRequest)
     }
 
-    /**
-     * Cancel all pending render requests
-     */
+    /** Cancel all pending render requests */
     fun cancelPending() {
         mRenderQueue.cancelPending()
     }

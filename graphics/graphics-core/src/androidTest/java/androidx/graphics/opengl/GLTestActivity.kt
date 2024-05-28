@@ -36,10 +36,11 @@ class GLTestActivity : Activity() {
         super.onCreate(savedInstanceState)
         surfaceView = SurfaceView(this)
         textureView = TextureView(this)
-        val ll = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            weightSum = 2f
-        }
+        val ll =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                weightSum = 2f
+            }
         val layoutParams = LinearLayout.LayoutParams(TARGET_WIDTH, TARGET_HEIGHT)
 
         ll.addView(surfaceView, layoutParams)

@@ -113,15 +113,15 @@ open class ShapeActivity : Activity() {
         //        "More" to DefaultShapes.More,
         shapes.add(MaterialShapes.more())
         //        Round Rect
-        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
-            rounding = CornerRounding(1f)
-        ))
+        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f, rounding = CornerRounding(1f)))
         //        Round Rect (smoothed)
-        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
-            rounding = CornerRounding(1f, .5f)))
+        shapes.add(
+            RoundedPolygon.rectangle(width = 4f, height = 2f, rounding = CornerRounding(1f, .5f))
+        )
         //        Round Rect (smoothed more)
-        shapes.add(RoundedPolygon.rectangle(width = 4f, height = 2f,
-            rounding = CornerRounding(1f, 1f)))
+        shapes.add(
+            RoundedPolygon.rectangle(width = 4f, height = 2f, rounding = CornerRounding(1f, 1f))
+        )
 
         //        "CornerSW" to DefaultShapes.CornerSE.rotate(TwoPI / 4),
         shapes.add(RoundedPolygon(4))
@@ -140,23 +140,35 @@ open class ShapeActivity : Activity() {
         val starRounding = CornerRounding(.05f, .25f)
         shapes.add(RoundedPolygon(numVertices = 4, rounding = rounding))
         shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding))
-        shapes.add(RoundedPolygon.star(8, radius = 1f, innerRadius = .4f, rounding = starRounding,
-            innerRounding = CornerRounding.Unrounded))
         shapes.add(
-            MaterialShapes.clover(rounding = .352f, innerRadius = .1f,
-            innerRounding = Unrounded))
+            RoundedPolygon.star(
+                8,
+                radius = 1f,
+                innerRadius = .4f,
+                rounding = starRounding,
+                innerRounding = CornerRounding.Unrounded
+            )
+        )
+        shapes.add(
+            MaterialShapes.clover(rounding = .352f, innerRadius = .1f, innerRounding = Unrounded)
+        )
         shapes.add(RoundedPolygon(3))
 
         // Pills
         shapes.add(RoundedPolygon.pill())
         shapes.add(RoundedPolygon.pill(15f, 1f))
         shapes.add(RoundedPolygon.pillStar())
-        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
-            rounding = CornerRounding(.5f)
-        ))
-        shapes.add(RoundedPolygon.pillStar(numVerticesPerRadius = 10,
-            rounding = CornerRounding(.5f), innerRadiusRatio = .5f,
-            innerRounding = CornerRounding(.2f)))
+        shapes.add(
+            RoundedPolygon.pillStar(numVerticesPerRadius = 10, rounding = CornerRounding(.5f))
+        )
+        shapes.add(
+            RoundedPolygon.pillStar(
+                numVerticesPerRadius = 10,
+                rounding = CornerRounding(.5f),
+                innerRadiusRatio = .5f,
+                innerRounding = CornerRounding(.2f)
+            )
+        )
 
         prevShape = shapes[0]
         currShape = shapes[0]
@@ -171,8 +183,8 @@ open class ShapeActivity : Activity() {
         while (shapeIndex < shapes.size) {
             if (shapeIndex % 6 == 0) {
                 row = LinearLayout(this)
-                val layoutParams = LinearLayout.LayoutParams(
-                    LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                val layoutParams =
+                    LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
                 row.layoutParams = layoutParams
                 row.orientation = LinearLayout.HORIZONTAL
                 container.addView(row)
