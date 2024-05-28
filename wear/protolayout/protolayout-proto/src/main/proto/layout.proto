@@ -143,28 +143,31 @@ message FontStyle {
   // The collection of font settings to be applied.
   //
   // Supported settings depend on the font used and renderer version.
-  // If this is used with the variable fonts on renderers supporting 1.4, weight and width setting
-  // will be always available.
+  // <setter>If this is used with the variable fonts on renderers
+  // supporting 1.4, weight and width setting will always be available.</setter>
   repeated FontSetting settings = 8;
 
-  // The prioritized collection of font family names describing which font should be used for this
-  // FontStyle and its fallback values if not available. For example, preferring default system
-  // variable font with default non variable system font as a fallback. If not set, defaults to
-  // system font.
+  // The prioritized collection of font family names describing which font
+  // should be used for this FontStyle and its fallback values if not available.
+  // For example, preferring default system variable font with default non
+  // variable system font as a fallback. <setter>If not set, defaults to system
+  // font.</setter>
   repeated string preferred_font_families = 9;
 }
 
 // A single point of customization in a font.
 message FontSetting {
   oneof inner {
-    // A single point of customization in a font variation, with axis tag and a value for it.
+    // A single point of customization in a font variation, with axis tag and a
+    // value for it.
     FontVariationSetting variation = 1;
     // A single point of customization in a font feature, with specified tag.
     FontFeatureSetting feature = 2;
   }
 }
 
-// A single point of customization in a font variation, with axis tag and a value for it.
+// A single point of customization in a font variation, with axis tag and a
+// value for it.
 message FontVariationSetting {
   // The axis tag for this setting. This represents a 4 ASCII characters tag.
   fixed32 axis_tag = 1;
