@@ -51,8 +51,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String)
 
-        val bundle = bundleOf("arg" to "theArg")
-        val result = decode<TestClass>(bundle, listOf(stringArgument("arg")))
+        val values = mapOf("arg" to "theArg")
+        val result = decode<TestClass>(values, listOf(stringArgument("arg")))
         assertThat(result.arg).isEqualTo("theArg")
     }
 
@@ -61,8 +61,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: Int)
 
-        val bundle = bundleOf("arg" to 15)
-        val result = decode<TestClass>(bundle, listOf(intArgument("arg")))
+        val values = mapOf("arg" to 15)
+        val result = decode<TestClass>(values, listOf(intArgument("arg")))
         assertThat(result.arg).isEqualTo(15)
     }
 
@@ -71,8 +71,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: Boolean)
 
-        val bundle = bundleOf("arg" to false)
-        val result = decode<TestClass>(bundle, listOf(
+        val values = mapOf("arg" to false)
+        val result = decode<TestClass>(values, listOf(
             navArgument("arg") {
                 type = NavType.BoolType
             }
@@ -85,8 +85,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: Long)
 
-        val bundle = bundleOf("arg" to 1L)
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to 1L)
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.LongType
             }
@@ -99,8 +99,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: Float)
 
-        val bundle = bundleOf("arg" to 1.0F)
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to 1.0F)
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.FloatType
             }
@@ -112,8 +112,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     fun decodeReference() {
         @Serializable
         class TestClass(val arg: Int)
-        val bundle = bundleOf("arg" to R.id.nav_id_reference)
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to R.id.nav_id_reference)
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.ReferenceType
             }
@@ -127,8 +127,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         data class TestClass(val arg: Array<String>)
 
         val expected = arrayOf("arg1", "arg")
-        val bundle = bundleOf("arg" to expected)
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to expected)
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.StringArrayType
             }
@@ -141,8 +141,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: IntArray)
 
-        val bundle = bundleOf("arg" to intArrayOf(0, 1, 2, 3))
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to intArrayOf(0, 1, 2, 3))
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.IntArrayType
             }
@@ -155,8 +155,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: BooleanArray)
 
-        val bundle = bundleOf("arg" to booleanArrayOf(false, true))
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to booleanArrayOf(false, true))
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.BoolArrayType
             }
@@ -169,8 +169,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: LongArray)
 
-        val bundle = bundleOf("arg" to longArrayOf(1L, 2L))
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to longArrayOf(1L, 2L))
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.LongArrayType
             }
@@ -183,8 +183,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: FloatArray)
 
-        val bundle = bundleOf("arg" to floatArrayOf(1.0F, 1.5F))
-        val result = decode<TestClass>(bundle, listOf(
+        val map = mapOf("arg" to floatArrayOf(1.0F, 1.5F))
+        val result = decode<TestClass>(map, listOf(
             navArgument("arg") {
                 type = NavType.FloatArrayType
             }
@@ -198,9 +198,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(val arg: Int, val arg2: String)
 
-        val bundle = bundleOf("arg" to 15, "arg2" to "theArg")
+        val map = mapOf("arg" to 15, "arg2" to "theArg")
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(stringArgument("arg2"), intArgument("arg"))
         )
         assertThat(result.arg).isEqualTo(15)
@@ -212,11 +212,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: CustomType)
 
-        val bundle = Bundle().apply {
-            customNavType.argument.type.put(this, "arg", CustomType(1))
-        }
+        val map = mapOf("arg" to CustomType(1))
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(customNavType)
         )
         assertThat(result.arg.nestedArg).isEqualTo(1)
@@ -227,11 +225,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: CustomType?)
 
-        val bundle = Bundle().apply {
-            customNavType.argument.type.put(this, "arg", CustomType(1))
-        }
+        val map = mapOf("arg" to CustomType(1))
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(customNavType)
         )
         assertThat(result.arg?.nestedArg).isEqualTo(1)
@@ -242,8 +238,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String)
 
-        val bundle = bundleOf("arg" to "null")
-        val result = decode<TestClass>(bundle, listOf(stringArgument("arg")))
+        val map = mapOf("arg" to "null")
+        val result = decode<TestClass>(map, listOf(stringArgument("arg")))
         assertThat(result.arg).isEqualTo("null")
     }
 
@@ -252,9 +248,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String = "defaultValue")
 
-        val bundle = bundleOf()
+        val map = emptyMap<String, Any?>()
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(stringArgument("arg", true))
         )
         assertThat(result.arg).isEqualTo("defaultValue")
@@ -265,9 +261,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String = "defaultValue", val arg2: Int = 0)
 
-        val bundle = bundleOf()
+        val map = emptyMap<String, Any?>()
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(
                 stringArgument("arg", true),
                 intArgument("arg2", true)
@@ -282,9 +278,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String = "defaultValue")
 
-        val bundle = bundleOf("arg" to "newValue")
+        val map = mapOf("arg" to "newValue")
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(stringArgument("arg", true))
         )
         assertThat(result.arg).isEqualTo("newValue")
@@ -295,9 +291,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String = "defaultValue", val arg2: Int = 0)
 
-        val bundle = bundleOf("arg" to "newValue", "arg2" to 1)
+        val map = mapOf("arg" to "newValue", "arg2" to 1)
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(
                 stringArgument("arg", true),
                 intArgument("arg2", hasDefaultValue = true)
@@ -312,9 +308,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String = "defaultValue", val arg2: Int)
 
-        val bundle = bundleOf("arg2" to 1)
+        val map = mapOf("arg2" to 1)
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(
                 stringArgument("arg", true),
                 intArgument("arg2", false)
@@ -329,8 +325,8 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         data class TestClass(val arg: String?)
 
-        val bundle = bundleOf("arg" to null)
-        val result = decode<TestClass>(bundle, listOf(nullableStringArgument("arg")))
+        val map = mapOf("arg" to null)
+        val result = decode<TestClass>(map, listOf(nullableStringArgument("arg")))
         assertThat(result.arg).isEqualTo(null)
     }
 
@@ -339,9 +335,9 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Serializable
         class TestClass(val arg: CustomType?)
 
-        val bundle = bundleOf("arg" to null)
+        val map = mapOf("arg" to null)
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(customNavType)
         )
         assertThat(result.arg).isNull()
@@ -361,16 +357,20 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Suppress("DEPRECATION")
         val customArg = navArgument("custom") {
             type = object : NavType<CustomType>(false) {
-                override fun put(bundle: Bundle, key: String, value: CustomType) { }
-                override fun get(bundle: Bundle, key: String): CustomType? =
-                    bundle[key] as? CustomType
+                override fun put(bundle: Bundle, key: String, value: CustomType) {
+                    if (value.arg == null) { bundle.putInt(key, -1) }
+                }
+                override fun get(bundle: Bundle, key: String): CustomType? {
+                    val value = bundle.getInt(key)
+                    return if (value == -1) CustomType(null) else CustomType(value)
+                }
                 override fun parseValue(value: String): CustomType = CustomType(0)
                 override fun serializeAsValue(value: CustomType) = ""
             }
         }
-        val bundle = bundleOf("custom" to CustomType(null))
+        val map = mapOf("custom" to CustomType(null))
         val result = decode<TestClass>(
-            bundle,
+            map,
             listOf(customArg)
         )
         assertThat(result.custom.arg).isNull()
@@ -378,10 +378,14 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
 
     @Test
     fun decodeCollectionNavType() {
-        val arg = listOf(CustomType(1), CustomType(3), CustomType(5))
-        val bundle = bundleOf("list" to arg)
+        val arg = listOf(
+            CustomTypeWithArg(1),
+            CustomTypeWithArg(3),
+            CustomTypeWithArg(5)
+        )
+        val map = mapOf("list" to arg)
         val result = decode<TestClassCollectionArg>(
-            bundle,
+            map,
             listOf(navArgument("list") { type = collectionNavType })
         )
         assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
@@ -393,28 +397,49 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     private val customNavType = navArgument("arg") {
         type = object : NavType<CustomType?>(true) {
             override fun put(bundle: Bundle, key: String, value: CustomType?) {
-                bundle.putString(key, value?.nestedArg.toString())
+                val string = value?.nestedArg?.toString() ?: "null"
+                bundle.putString(key, string)
             }
-            override fun get(bundle: Bundle, key: String): CustomType? =
-                bundle.getString(key)?.toInt()?.let { CustomType(it) }
-            override fun parseValue(value: String): CustomType? = CustomType(value.toInt())
+            override fun get(bundle: Bundle, key: String): CustomType? {
+                val string = bundle.getString(key)
+                return if (string == "null") {
+                    null
+                } else {
+                    CustomType(string!!.toInt())
+                }
+            }
+            override fun parseValue(value: String): CustomType? {
+                return if (value == "null") {
+                    null
+                } else {
+                    CustomType(value.toInt())
+                }
+            }
             override fun serializeAsValue(value: CustomType?) = value?.nestedArg.toString()
         }
     }
 
     @Suppress("DEPRECATION")
     private inline fun <reified T : Any> decode(
-        bundle: Bundle,
-        args: List<NamedNavArgument> = emptyList()
+        argValues: Map<String, Any?>,
+        navArgs: List<NamedNavArgument> = emptyList()
     ): T {
         val typeMap = mutableMapOf<String, NavType<Any?>>()
-        args.forEach { typeMap[it.name] = it.argument.type }
+        val finalBundle = bundleOf()
+        navArgs.forEach {
+            val navType = it.argument.type
+            typeMap[it.name] = navType
+            if (argValues.containsKey(it.name)) {
+                navType.put(finalBundle, it.name, argValues[it.name])
+            }
+        }
+
         return if (source == ArgumentSource.BUNDLE) {
-            serializer<T>().decodeArguments(bundle, typeMap)
+            serializer<T>().decodeArguments(finalBundle, typeMap)
         } else {
             val handle = SavedStateHandle()
-            bundle.keySet().forEach {
-                handle[it] = bundle[it]
+            finalBundle.keySet().forEach {
+                handle[it] = finalBundle[it]
             }
             serializer<T>().decodeArguments(handle, typeMap)
         }
