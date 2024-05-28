@@ -155,7 +155,11 @@ class NativeSQLiteStatement(
             throw OutOfMemoryError()
         }
         val size = sqlite3_column_bytes(stmtPointer, index)
-        return blob!!.readBytes(size)
+        return if (blob != null && size > 0) {
+            blob.readBytes(size)
+        } else {
+            ByteArray(0)
+        }
     }
 
     override fun getDouble(index: Int): Double {
