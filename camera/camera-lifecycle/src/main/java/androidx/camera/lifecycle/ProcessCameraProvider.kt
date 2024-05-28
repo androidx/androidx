@@ -534,13 +534,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         return lifecycleCameraToBind
     }
 
-    /**
-     * Returns `true` if the [UseCase] is bound to a lifecycle. Otherwise returns `false`.
-     *
-     * After binding a use case with [bindToLifecycle], use cases remain bound until the lifecycle
-     * reaches a [Lifecycle.State.DESTROYED] state or if is unbound by calls to [unbind] or
-     * [unbindAll].
-     */
     override fun isBound(useCase: UseCase): Boolean {
         for (lifecycleCamera: LifecycleCamera in mLifecycleCameraRepository.lifecycleCameras) {
             if (lifecycleCamera.isBound(useCase)) {
@@ -579,13 +572,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         mLifecycleCameraRepository.unbind(listOf(*useCases))
     }
 
-    /**
-     * Unbinds all use cases from the lifecycle and removes them from CameraX.
-     *
-     * This will initiate a close of every currently open camera.
-     *
-     * @throws IllegalStateException If not called on main thread.
-     */
     @MainThread
     override fun unbindAll() {
         Threads.checkMainThread()
@@ -593,7 +579,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         mLifecycleCameraRepository.unbindAll()
     }
 
-    /** {@inheritDoc} */
     @Throws(CameraInfoUnavailableException::class)
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         try {
@@ -665,18 +650,6 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             return availableConcurrentCameraInfos
         }
 
-    /**
-     * Returns the [CameraInfo] instance of the camera resulted from the specified [CameraSelector].
-     *
-     * The returned [CameraInfo] is corresponded to the camera that will be bound when calling
-     * [bindToLifecycle] with the specified [CameraSelector].
-     *
-     * @param cameraSelector The [CameraSelector] to get the [CameraInfo] that is corresponded to.
-     * @return The corresponding [CameraInfo].
-     * @throws UnsupportedOperationException If the camera provider is not implemented properly.
-     * @throws IllegalArgumentException If the given [CameraSelector] can't result in a valid camera
-     *   to provide the [CameraInfo].
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         val cameraInfoInternal =
