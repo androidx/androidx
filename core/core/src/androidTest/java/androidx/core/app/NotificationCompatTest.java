@@ -767,6 +767,50 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    public void testGetTextsFromContentView() {
+        Notification n1 = new NotificationCompat.Builder(mContext, "channelId")
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .build();
+        List<CharSequence> texts = NotificationCompat.DecoratedCustomViewStyle
+                .getTextsFromContentView(mContext, n1);
+        assertThat(texts).isEmpty();
+
+        Notification n2 = new NotificationCompat.Builder(mContext, "channelId")
+                .setStyle(new NotificationCompat.BigTextStyle())
+                .build();
+        texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n2);
+        assertThat(texts).isEmpty();
+
+        Notification n3 = new NotificationCompat.Builder(mContext, "channelId")
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(new RemoteViews(mContext.getPackageName(),
+                        R.layout.notification_custom_content_view))
+                .build();
+        texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n3);
+        assertThat(texts).isNotEmpty();
+        assertTrue(texts.containsAll(List.of("Test title", "Test info")));
+
+        Notification n4 = new NotificationCompat.Builder(mContext, "channelId")
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomBigContentView(new RemoteViews(mContext.getPackageName(),
+                        R.layout.notification_custom_content_view))
+                .build();
+        texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n4);
+        assertThat(texts).isNotEmpty();
+        assertTrue(texts.containsAll(List.of("Test title", "Test info")));
+
+        Notification n5 = new NotificationCompat.Builder(mContext, "channelId")
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomHeadsUpContentView(new RemoteViews(mContext.getPackageName(),
+                        R.layout.notification_custom_content_view))
+                .build();
+        texts = NotificationCompat.DecoratedCustomViewStyle.getTextsFromContentView(mContext, n5);
+        assertThat(texts).isNotEmpty();
+        assertTrue(texts.containsAll(List.of("Test title", "Test info")));
+    }
+
     @Test
     public void testNotificationChannel() throws Throwable {
         String channelId = "new ID";
