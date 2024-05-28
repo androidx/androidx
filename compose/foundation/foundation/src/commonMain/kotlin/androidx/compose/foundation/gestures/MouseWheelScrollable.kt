@@ -113,7 +113,10 @@ internal class MouseWheelScrollNode(
     ) {
         operator fun plus(other: MouseWheelScrollDelta) = MouseWheelScrollDelta(
             value = value + other.value,
-            shouldApplyImmediately = shouldApplyImmediately || other.shouldApplyImmediately
+
+            // Ignore [other.shouldApplyImmediately] to avoid false-positive [isPreciseWheelScroll]
+            // detection during animation
+            shouldApplyImmediately = shouldApplyImmediately
         )
     }
     private val channel = Channel<MouseWheelScrollDelta>(capacity = Channel.UNLIMITED)
@@ -216,12 +219,18 @@ internal class MouseWheelScrollNode(
          *  Ideally it should be resolved by catching real touches from input device instead of
          *  waiting the next event with timeout before resetting progress flag.
          */
-        suspend fun waitNextScrollDelta(timeoutMillis: Long, forceApplyImmediately: Boolean = false): Boolean {
+        suspend fun waitNextScrollDelta(timeoutMillis: Long): Boolean {
             if (timeoutMillis < 0) return false
             return withTimeoutOrNull(timeoutMillis) {
                 channel.busyReceive()
             }?.let {
-                targetScrollDelta = if (forceApplyImmediately) it.copy(shouldApplyImmediately = true) else it
+                // Keep this value unchanged during animation
+                // Currently, [isPreciseWheelScroll] might be unstable in case if
+                // a precise value is almost equal regular one.
+                val previousDeltaShouldApplyImmediately = targetScrollDelta.shouldApplyImmediately
+                targetScrollDelta = it.copy(
+                    shouldApplyImmediately = previousDeltaShouldApplyImmediately
+                )
                 targetValue = targetScrollDelta.value.reverseIfNeeded().toFloat()
                 animationState = AnimationState(0f) // Reset previous animation leftover
 
@@ -236,14 +245,7 @@ internal class MouseWheelScrollNode(
                 val targetValueLeftover = targetValue - animationState.value
                 if (targetScrollDelta.shouldApplyImmediately || abs(targetValueLeftover) < threshold) {
                     dispatchMouseWheelScroll(targetValueLeftover)
-                    requiredAnimation = waitNextScrollDelta(
-                        timeoutMillis = ScrollProgressTimeout,
-
-                        // Apply the next event without `ProgressTimeout` immediately too.
-                        // Currently, `isPreciseWheelScroll` might be false-negative in case if
-                        // precise value is almost equal regular one.
-                        forceApplyImmediately = targetScrollDelta.shouldApplyImmediately
-                    )
+                    requiredAnimation = waitNextScrollDelta(ScrollProgressTimeout)
                 } else {
                     // Animation will start only on the next frame,
                     // so apply threshold immediately to avoid delays.

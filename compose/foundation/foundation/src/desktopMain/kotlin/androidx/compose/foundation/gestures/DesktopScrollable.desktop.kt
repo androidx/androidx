@@ -118,4 +118,11 @@ private val PointerEvent.isPreciseWheelRotation
     get() = (awtEventOrNull as? MouseWheelEvent)?.isPreciseWheelRotation ?: false
 
 private val MouseWheelEvent.isPreciseWheelRotation
-    get() = abs(preciseWheelRotation - wheelRotation.toDouble()) > 0.001
+    get() = when (DesktopPlatform.Current) {
+        // On Windows, even free scrolling wheels should trigger animation
+        DesktopPlatform.Windows -> false
+
+        // For other platforms, apply this heuristic to determine if it's
+        // high-precision wheel/trackpad or regular stepping mouse wheel.
+        else -> abs(preciseWheelRotation - wheelRotation.toDouble()) > 0.001
+    }
