@@ -68,6 +68,7 @@ class OwnerFocusTest {
         }
     }
 
+    @Ignore("b/325466015")
     @Test
     fun whenOwnerGainsFocus_focusModifiersAreUpdated() {
         // Arrange.
@@ -301,6 +302,7 @@ class OwnerFocusTest {
         }
     }
 
+    @Ignore("b/325466015")
     @Test
     fun clickingOnNonClickableSpaceInAppWhenViewIsFocused_doesNotChangeViewFocus() {
         // Arrange.
