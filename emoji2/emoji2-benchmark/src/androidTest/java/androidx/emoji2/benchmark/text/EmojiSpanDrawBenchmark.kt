@@ -34,8 +34,7 @@ import org.junit.runner.RunWith
 @LargeTest
 class EmojiSpanDrawBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun draw() {
@@ -47,11 +46,7 @@ class EmojiSpanDrawBenchmark {
         val paint = TextPaint()
         var bitmap: Bitmap? = null
         try {
-            bitmap = Bitmap.createBitmap(
-                100,
-                100,
-                Bitmap.Config.ARGB_8888
-            )
+            bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
 
             benchmarkRule.measureRepeated {
@@ -60,7 +55,7 @@ class EmojiSpanDrawBenchmark {
                     polarSpanned,
                     /* start */ 0,
                     /* end */ polarSpanned.length,
-                    /* x */0f,
+                    /* x */ 0f,
                     /* top */ 0,
                     /* y */ 0,
                     /* bottom */ 0,

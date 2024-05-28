@@ -30,17 +30,17 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class EmojiStartupBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun emojiCompatInitDisabledStartup() {
         benchmarkRule.measureStartup(
-            compilationMode = if (Build.VERSION.SDK_INT >= 24) {
-                CompilationMode.None()
-            } else {
-                CompilationMode.Full()
-            },
+            compilationMode =
+                if (Build.VERSION.SDK_INT >= 24) {
+                    CompilationMode.None()
+                } else {
+                    CompilationMode.Full()
+                },
             startupMode = StartupMode.COLD,
             packageName = "androidx.emoji2.integration.macrobenchmark.disabled.target"
         ) {

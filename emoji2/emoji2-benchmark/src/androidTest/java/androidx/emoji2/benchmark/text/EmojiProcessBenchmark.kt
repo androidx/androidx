@@ -33,24 +33,19 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 23)
-class EmojiProcessBenchmark(
-    private val size: Int,
-    private val replaceAll: Boolean
-) {
+class EmojiProcessBenchmark(private val size: Int, private val replaceAll: Boolean) {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     companion object {
         @Parameterized.Parameters(name = "size={0},replaceAll={1}")
         @JvmStatic
-        fun parameters() = mutableListOf<Array<Any>>().apply {
-            listOf(1, 10, 20, 30, 40).forEach { size ->
-                listOf(true, false).forEach { replaceAll ->
-                    add(arrayOf(size, replaceAll))
+        fun parameters() =
+            mutableListOf<Array<Any>>().apply {
+                listOf(1, 10, 20, 30, 40).forEach { size ->
+                    listOf(true, false).forEach { replaceAll -> add(arrayOf(size, replaceAll)) }
                 }
             }
-        }
     }
 
     @Test
@@ -64,16 +59,12 @@ class EmojiProcessBenchmark(
 
     @Test
     fun emojiSpannableStringBuilder() {
-        doEmojiBenchmark {
-            SpannableStringBuilder(emojisString(size))
-        }
+        doEmojiBenchmark { SpannableStringBuilder(emojisString(size)) }
     }
 
     @Test
     fun emojiSpannedString() {
-        doEmojiBenchmark {
-            SpannedString(emojisString(size))
-        }
+        doEmojiBenchmark { SpannedString(emojisString(size)) }
     }
 
     @Test
@@ -101,9 +92,7 @@ class EmojiProcessBenchmark(
         doEmojiBenchmark { string }
     }
 
-    private fun doEmojiBenchmark(
-        stepFactory: () -> CharSequence
-    ) {
+    private fun doEmojiBenchmark(stepFactory: () -> CharSequence) {
         initializeEmojiCompatWithBundledForTest(replaceAll)
         val ec = EmojiCompat.get()
         benchmarkRule.measureRepeated {
@@ -115,10 +104,11 @@ class EmojiProcessBenchmark(
     private fun emptyGlyphCache(text: CharSequence) {
         if (replaceAll) return
         // reset hasGlyph cache on all metadata returned via replaceAll
-        val allEmojiMetadata = EmojiCompat.get()
-            .process(text, 0, text.length, size, EmojiCompat.REPLACE_STRATEGY_ALL)
-            as Spanned
-        allEmojiMetadata.getSpans(0, text.length, EmojiSpan::class.java)
-            .forEach { it.typefaceRasterizer.resetHasGlyphCache() }
+        val allEmojiMetadata =
+            EmojiCompat.get().process(text, 0, text.length, size, EmojiCompat.REPLACE_STRATEGY_ALL)
+                as Spanned
+        allEmojiMetadata.getSpans(0, text.length, EmojiSpan::class.java).forEach {
+            it.typefaceRasterizer.resetHasGlyphCache()
+        }
     }
 }

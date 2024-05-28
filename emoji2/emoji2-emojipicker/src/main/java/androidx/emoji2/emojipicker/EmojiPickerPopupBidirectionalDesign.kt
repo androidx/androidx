@@ -24,9 +24,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
 
-/**
- * Emoji picker popup view with bidirectional UI design to switch emoji to face left or right.
- */
+/** Emoji picker popup view with bidirectional UI design to switch emoji to face left or right. */
 internal class EmojiPickerPopupBidirectionalDesign(
     override val context: Context,
     override val targetEmojiView: View,
@@ -39,18 +37,23 @@ internal class EmojiPickerPopupBidirectionalDesign(
     init {
         updateTemplate()
     }
+
     override fun addLayoutHeader() {
-        val row = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
+        val row =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER
+                layoutParams =
+                    LinearLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+            }
         FrameLayout.inflate(context, R.layout.emoji_picker_popup_bidirectional, row)
             .findViewById<AppCompatImageView>(R.id.emoji_picker_popup_bidirectional_icon)
             .apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    targetEmojiView.width, targetEmojiView.height)
+                layoutParams =
+                    LinearLayout.LayoutParams(targetEmojiView.width, targetEmojiView.height)
             }
         popupView.addView(row)
         val imageView =
@@ -58,10 +61,11 @@ internal class EmojiPickerPopupBidirectionalDesign(
         imageView.setOnClickListener {
             emojiFacingLeft = !emojiFacingLeft
             updateTemplate()
-            popupView.removeViews( /* start= */1, getActualNumberOfRows())
+            popupView.removeViews(/* start= */ 1, getActualNumberOfRows())
             addRowsToPopupView()
             imageView.announceForAccessibility(
-                context.getString(R.string.emoji_bidirectional_switcher_clicked_desc))
+                context.getString(R.string.emoji_bidirectional_switcher_clicked_desc)
+            )
         }
     }
 
@@ -69,6 +73,7 @@ internal class EmojiPickerPopupBidirectionalDesign(
         // Adding one row for the bidirectional switcher.
         return variants.size / 2 / BIDIRECTIONAL_COLUMN_COUNT + 1
     }
+
     override fun getNumberOfColumns(): Int {
         return BIDIRECTIONAL_COLUMN_COUNT
     }
@@ -79,10 +84,10 @@ internal class EmojiPickerPopupBidirectionalDesign(
     }
 
     private fun updateTemplate() {
-        template = if (emojiFacingLeft)
-            arrayOf((variants.indices.filter { it % 12 < 6 }.map { it + 1 }).toIntArray())
-        else
-            arrayOf((variants.indices.filter { it % 12 >= 6 }.map { it + 1 }).toIntArray())
+        template =
+            if (emojiFacingLeft)
+                arrayOf((variants.indices.filter { it % 12 < 6 }.map { it + 1 }).toIntArray())
+            else arrayOf((variants.indices.filter { it % 12 >= 6 }.map { it + 1 }).toIntArray())
 
         val row = getActualNumberOfRows()
         val column = getNumberOfColumns()

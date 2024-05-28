@@ -66,10 +66,7 @@ class EmojiPickerViewTestActivity : Activity() {
 class EmojiPickerViewTest {
     private lateinit var context: Context
 
-    @get:Rule
-    val activityTestRule = ActivityScenarioRule(
-        EmojiPickerViewTestActivity::class.java
-    )
+    @get:Rule val activityTestRule = ActivityScenarioRule(EmojiPickerViewTestActivity::class.java)
 
     @Before
     fun setUp() {
@@ -88,10 +85,7 @@ class EmojiPickerViewTest {
     @Test
     fun testCustomEmojiPickerView_noVariant() {
         activityTestRule.scenario.onActivity {
-            val targetView = findViewByEmoji(
-                it.findViewById(R.id.emojiPickerTest),
-                GRINNING_FACE
-            )!!
+            val targetView = findViewByEmoji(it.findViewById(R.id.emojiPickerTest), GRINNING_FACE)!!
             // Not long-clickable
             assertEquals(targetView.isLongClickable, false)
         }
@@ -101,9 +95,7 @@ class EmojiPickerViewTest {
     @SdkSuppress(minSdkVersion = 24)
     fun testCustomEmojiPickerView_hasVariant() {
         lateinit var view: EmojiPickerView
-        activityTestRule.scenario.onActivity {
-            view = it.findViewById(R.id.emojiPickerTest)
-        }
+        activityTestRule.scenario.onActivity { view = it.findViewById(R.id.emojiPickerTest) }
         findViewByEmoji(view, NOSE_EMOJI)
             ?: onView(withId(EmojiPickerViewR.id.emoji_picker_body))
                 .perform(
@@ -119,9 +111,7 @@ class EmojiPickerViewTest {
     @Ignore("b/294556440")
     fun testStickyVariant_displayAndSaved() {
         lateinit var view: EmojiPickerView
-        activityTestRule.scenario.onActivity {
-            view = it.findViewById(R.id.emojiPickerTest)
-        }
+        activityTestRule.scenario.onActivity { view = it.findViewById(R.id.emojiPickerTest) }
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         // Scroll to the nose emoji, long click then select nose in dark skin tone
@@ -137,9 +127,7 @@ class EmojiPickerViewTest {
         assertNotNull(findViewByEmoji(view, NOSE_EMOJI_DARK))
         // Switch back to clear saved preference
         onView(createEmojiViewMatcher(NOSE_EMOJI_DARK)).perform(longClick())
-        onView(createEmojiViewMatcher(NOSE_EMOJI))
-            .inRoot(hasWindowLayoutParams())
-            .perform(click())
+        onView(createEmojiViewMatcher(NOSE_EMOJI)).inRoot(hasWindowLayoutParams()).perform(click())
         assertNotNull(findViewByEmoji(view, NOSE_EMOJI))
     }
 
@@ -158,35 +146,27 @@ class EmojiPickerViewTest {
 
     @Test
     fun testHeader_clickingIconWillScrollToCategory() {
-        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ ->
-            assertNull(view)
-        }
+        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ -> assertNull(view) }
 
-        onView(withId(EmojiPickerViewR.id.emoji_picker_header)).perform(
-            RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                4,
-                click()
+        onView(withId(EmojiPickerViewR.id.emoji_picker_header))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(4, click())
             )
-        )
 
-        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ ->
-            assertNotNull(view)
-        }
+        onView(createEmojiViewMatcher(STRAWBERRY)).check { view, _ -> assertNotNull(view) }
         assertSelectedHeaderIndex(4)
     }
 
     @Test(expected = UnsupportedOperationException::class)
     fun testAddView_throwsException() {
-        activityTestRule.scenario.onActivity {
-            it.emojiPickerView.addView(View(context))
-        }
+        activityTestRule.scenario.onActivity { it.emojiPickerView.addView(View(context)) }
     }
 
     private fun findViewByEmoji(root: View, emoji: String) =
         try {
-            mutableListOf<EmojiView>().apply {
-                findEmojiViews(root, this)
-            }.first { it.emoji == emoji }
+            mutableListOf<EmojiView>()
+                .apply { findEmojiViews(root, this) }
+                .first { it.emoji == emoji }
         } catch (e: NoSuchElementException) {
             null
         }
@@ -196,13 +176,14 @@ class EmojiPickerViewTest {
             return
         }
         for (i in 0 until root.childCount) {
-            root.getChildAt(i).apply {
-                if (this is EmojiView) {
-                    output.add(this)
+            root
+                .getChildAt(i)
+                .apply {
+                    if (this is EmojiView) {
+                        output.add(this)
+                    }
                 }
-            }.also {
-                findEmojiViews(it, output)
-            }
+                .also { findEmojiViews(it, output) }
         }
     }
 
@@ -210,41 +191,48 @@ class EmojiPickerViewTest {
         object :
             BoundedMatcher<RecyclerView.ViewHolder, EmojiViewHolder>(EmojiViewHolder::class.java) {
             override fun describeTo(description: Description) {}
+
             override fun matchesSafely(item: EmojiViewHolder) =
                 (item.itemView as EmojiView).emoji == emoji
         }
 
     private fun createEmojiViewMatcher(emoji: String) =
-        object :
-            BoundedMatcher<View, EmojiView>(EmojiView::class.java) {
+        object : BoundedMatcher<View, EmojiView>(EmojiView::class.java) {
             override fun describeTo(description: Description) {}
+
             override fun matchesSafely(item: EmojiView) = item.emoji == emoji
         }
 
-    private fun assertSelectedHeaderIndex(expected: Int) = onView(
-        withId(EmojiPickerViewR.id.emoji_picker_header)
-    ).check { view, noViewFoundException ->
-        view ?: throw noViewFoundException
-        val selectedIndex = (view as RecyclerView)
-            .children
-            .withIndex()
-            .single { (_, view) ->
-                view.findViewById<ImageView>(EmojiPickerViewR.id.emoji_picker_header_icon)
-                    .isSelected
-            }.index
-        assertEquals(expected, selectedIndex)
-    }
+    private fun assertSelectedHeaderIndex(expected: Int) =
+        onView(withId(EmojiPickerViewR.id.emoji_picker_header)).check { view, noViewFoundException
+            ->
+            view ?: throw noViewFoundException
+            val selectedIndex =
+                (view as RecyclerView)
+                    .children
+                    .withIndex()
+                    .single { (_, view) ->
+                        view
+                            .findViewById<ImageView>(EmojiPickerViewR.id.emoji_picker_header_icon)
+                            .isSelected
+                    }
+                    .index
+            assertEquals(expected, selectedIndex)
+        }
 
-    private fun scrollToEmoji(emoji: String) = onView(withId(EmojiPickerViewR.id.emoji_picker_body))
-        .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(emoji)))
+    private fun scrollToEmoji(emoji: String) =
+        onView(withId(EmojiPickerViewR.id.emoji_picker_body))
+            .perform(RecyclerViewActions.scrollToHolder(createEmojiViewHolderMatcher(emoji)))
 
     private fun disableRecent() {
         activityTestRule.scenario.onActivity {
-            it.emojiPickerView.setRecentEmojiProvider(object : RecentEmojiProvider {
-                override fun recordSelection(emoji: String) {}
+            it.emojiPickerView.setRecentEmojiProvider(
+                object : RecentEmojiProvider {
+                    override fun recordSelection(emoji: String) {}
 
-                override suspend fun getRecentEmojiList(): List<String> = listOf()
-            })
+                    override suspend fun getRecentEmojiList(): List<String> = listOf()
+                }
+            )
         }
     }
 
