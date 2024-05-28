@@ -425,7 +425,9 @@ internal class TriggerBasedInvalidationTracker(
         }
     }
 
-    internal fun getAllObservers() = observerMap.keys
+    internal fun getAllObservers() = observerMapLock.withLock {
+        observerMap.keys.toList()
+    }
 
     internal fun resetSync() {
         observedTableStates.resetTriggerState()
