@@ -15,9 +15,7 @@
  */
 package replacewith
 
-/**
- * Usage of replacement with imports.
- */
+/** Usage of replacement with imports. */
 @Suppress("deprecation", "unused")
 internal class MethodWithNoImportsKotlin {
     fun usageSingleImport() {

@@ -41,29 +41,29 @@ class BanInlineOptIn : Detector(), Detector.UastScanner {
             val hasOptInAnnotation = context.evaluator.getAnnotation(node, "kotlin.OptIn") != null
 
             if (context.evaluator.isInline(node) && hasOptInAnnotation) {
-                val incident = Incident(context, ISSUE)
-                    .location(context.getNameLocation((node)))
-                    .message("Inline functions cannot opt into experimental APIs.")
-                    .scope(node)
+                val incident =
+                    Incident(context, ISSUE)
+                        .location(context.getNameLocation((node)))
+                        .message("Inline functions cannot opt into experimental APIs.")
+                        .scope(node)
                 context.report(incident)
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "BanInlineOptIn",
-            briefDescription = "Uses @OptIn annotation on an inline function",
-            explanation = "Use of the @OptIn annotation is not allowed on inline functions," +
-                " as libraries using this method will inline the reference to the opted-in" +
-                " class. This can potentially create a compatibility issue.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                BanInlineOptIn::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                id = "BanInlineOptIn",
+                briefDescription = "Uses @OptIn annotation on an inline function",
+                explanation =
+                    "Use of the @OptIn annotation is not allowed on inline functions," +
+                        " as libraries using this method will inline the reference to the opted-in" +
+                        " class. This can potentially create a compatibility issue.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation = Implementation(BanInlineOptIn::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }

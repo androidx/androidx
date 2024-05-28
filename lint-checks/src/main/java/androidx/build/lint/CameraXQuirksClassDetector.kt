@@ -36,55 +36,63 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UClass::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
 
-        override fun visitClass(node: UClass) {
-            val isQuirk = node.implementsList?.referenceElements?.find {
-                it.referenceName!!.endsWith("Quirk")
-            } != null
+            override fun visitClass(node: UClass) {
+                val isQuirk =
+                    node.implementsList?.referenceElements?.find {
+                        it.referenceName!!.endsWith("Quirk")
+                    } != null
 
-            if (isQuirk) {
-                val comments = node.comments
-                val sb = StringBuilder()
-                comments.forEach { sb.append(it.text) }
-                val comment = sb.append("\n").toString()
+                if (isQuirk) {
+                    val comments = node.comments
+                    val sb = StringBuilder()
+                    comments.forEach { sb.append(it.text) }
+                    val comment = sb.append("\n").toString()
 
-                if (!comment.contains("<p>QuirkSummary") ||
-                    !comment.contains("Bug Id:") ||
-                    !comment.contains("Description:") ||
-                    !comment.contains("Device(s):")) {
-                    val implForInsertion = """
+                    if (
+                        !comment.contains("<p>QuirkSummary") ||
+                            !comment.contains("Bug Id:") ||
+                            !comment.contains("Description:") ||
+                            !comment.contains("Device(s):")
+                    ) {
+                        val implForInsertion =
+                            """
                          * <p>QuirkSummary
                          *     Bug Id:
                          *     Description:
                          *     Device(s):
-                        """.trimIndent()
+                        """
+                                .trimIndent()
 
-                    val incident = Incident(context)
-                        .issue(ISSUE)
-                        .message("CameraX quirks should include this template in the javadoc:" +
-                            "\n\n$implForInsertion\n\n")
-                        .location(context.getNameLocation(node))
-                        .scope(node)
-                    context.report(incident)
+                        val incident =
+                            Incident(context)
+                                .issue(ISSUE)
+                                .message(
+                                    "CameraX quirks should include this template in the javadoc:" +
+                                        "\n\n$implForInsertion\n\n"
+                                )
+                                .location(context.getNameLocation(node))
+                                .scope(node)
+                        context.report(incident)
+                    }
                 }
             }
         }
-    }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "CameraXQuirksClassDetector",
-            briefDescription = "CameraQuirks include @QuirkSummary in the javadoc",
-            explanation = "CameraX quirks should include @QuirkSummary in the javadoc.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            enabledByDefault = false,
-            implementation = Implementation(
-                CameraXQuirksClassDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                id = "CameraXQuirksClassDetector",
+                briefDescription = "CameraQuirks include @QuirkSummary in the javadoc",
+                explanation = "CameraX quirks should include @QuirkSummary in the javadoc.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                enabledByDefault = false,
+                implementation =
+                    Implementation(CameraXQuirksClassDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }

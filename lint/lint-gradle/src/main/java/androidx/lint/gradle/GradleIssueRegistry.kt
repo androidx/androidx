@@ -20,25 +20,25 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
-/**
- * Collection of Gradle lint check issues.
- */
+/** Collection of Gradle lint check issues. */
 class GradleIssueRegistry : IssueRegistry() {
     override val api = CURRENT_API
 
-    override val issues = listOf(
-        DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE,
-        DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE,
-        InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
-        InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
-        WithPluginClasspathUsageDetector.ISSUE,
-        WithTypeWithoutConfigureEachUsageDetector.ISSUE,
-    )
+    override val issues =
+        listOf(
+            DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE,
+            DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE,
+            InternalApiUsageDetector.INTERNAL_GRADLE_ISSUE,
+            InternalApiUsageDetector.INTERNAL_AGP_ISSUE,
+            WithPluginClasspathUsageDetector.ISSUE,
+            WithTypeWithoutConfigureEachUsageDetector.ISSUE,
+        )
 
-    override val vendor = Vendor(
-        // TODO: Update component (or the issue template)
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=1147525",
-        identifier = "androidx.lint:lint-gradle",
-        vendorName = "Android Open Source Project",
-    )
+    override val vendor =
+        Vendor(
+            // TODO: Update component (or the issue template)
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=1147525",
+            identifier = "androidx.lint:lint-gradle",
+            vendorName = "Android Open Source Project",
+        )
 }

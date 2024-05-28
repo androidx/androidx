@@ -34,30 +34,35 @@ class BanSynchronizedMethods : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UMethod::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitMethod(node: UMethod) {
-            if (node.hasModifier(JvmModifier.SYNCHRONIZED)) {
-                val incident = Incident(context)
-                    .fix(null)
-                    .issue(ISSUE)
-                    .location(context.getLocation(node))
-                    .message("Use of synchronized methods is not recommended")
-                    .scope(node)
-                context.report(incident)
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitMethod(node: UMethod) {
+                if (node.hasModifier(JvmModifier.SYNCHRONIZED)) {
+                    val incident =
+                        Incident(context)
+                            .fix(null)
+                            .issue(ISSUE)
+                            .location(context.getLocation(node))
+                            .message("Use of synchronized methods is not recommended")
+                            .scope(node)
+                    context.report(incident)
+                }
             }
         }
-    }
 
     companion object {
         @SuppressWarnings("LintImplUnexpectedDomain")
-        val ISSUE = Issue.create(
-            "BanSynchronizedMethods",
-            "Method is synchronized",
-            "Use of synchronized methods is not recommended," +
-                " please refer to https://android.googlesource.com/platform/frameworks/" +
-                "support/+/androidx-main/docs/api_guidelines.md",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanSynchronizedMethods::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "BanSynchronizedMethods",
+                "Method is synchronized",
+                "Use of synchronized methods is not recommended," +
+                    " please refer to https://android.googlesource.com/platform/frameworks/" +
+                    "support/+/androidx-main/docs/api_guidelines.md",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanSynchronizedMethods::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

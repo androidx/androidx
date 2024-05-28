@@ -60,7 +60,8 @@ internal val STUBS =
                     val value: String = ""
                 )
 
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
@@ -68,7 +69,8 @@ internal val STUBS =
                 interface Provider<T> {
                     fun get() : T
                 }
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
@@ -98,21 +100,24 @@ internal val STUBS =
                 interface Action<T>
 
                 interface Task
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
                 package groovy.lang
 
                 class Closure
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
                 package org.gradle.api.component
 
                 interface SoftwareComponent
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
@@ -125,13 +130,15 @@ internal val STUBS =
                 }
 
                 interface UsageContext
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
                 package com.android.build.gradle.internal.lint
                 abstract class VariantInputs
-            """.trimIndent()
+            """
+                .trimIndent()
         ),
         kotlin(
             """
@@ -145,6 +152,7 @@ internal val STUBS =
                     fun withPluginClasspath(): GradleRunner = this
                     fun build(): org.gradle.testkit.runner.BuildResult = TODO()
                 }
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     )

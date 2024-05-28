@@ -28,9 +28,7 @@ import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import java.io.FileNotFoundException
 
-/**
- * Implementation of [LintDetectorTest] that's slightly more Kotlin-friendly.
- */
+/** Implementation of [LintDetectorTest] that's slightly more Kotlin-friendly. */
 abstract class AbstractLintDetectorTest(
     val useDetector: Detector,
     val useIssues: List<Issue>,
@@ -52,66 +50,49 @@ abstract class AbstractLintDetectorTest(
     ): TestLintResult {
         // If we have stubs, push those into a virtual project and pass them through the call to
         // projects(), since attempting to call files() would overwrite the call to projects().
-        val projectsWithStubs = if (stubs.isNotEmpty()) {
-            arrayOf(*projects, project().files(*stubs))
-        } else {
-            projects
-        }
+        val projectsWithStubs =
+            if (stubs.isNotEmpty()) {
+                arrayOf(*projects, project().files(*stubs))
+            } else {
+                projects
+            }
 
-        return lint()
-            .projects(*projectsWithStubs)
-            .testModes(testModes)
-            .allowDuplicates()
-            .run()
+        return lint().projects(*projectsWithStubs).testModes(testModes).allowDuplicates().run()
     }
 
     fun check(
         vararg files: TestFile,
     ): TestLintResult {
-        return lint()
-            .files(
-                *stubs,
-                *files
-            )
-            .allowDuplicates()
-            .run()
+        return lint().files(*stubs, *files).allowDuplicates().run()
     }
 }
 
-/**
- * Creates a new [ProjectDescription].
- */
+/** Creates a new [ProjectDescription]. */
 fun project(): ProjectDescription = ProjectDescription()
 
-/**
- * Loads a [TestFile] from `AndroidManifest.xml` included in the JAR resources.
- */
-fun manifestSample(): TestFile = TestFiles.manifest(
-    Stubs::class.java.getResource(
-        "/AndroidManifest.xml"
-    )?.readText() ?: throw FileNotFoundException(
-        "Could not find AndroidManifest.xml in the integration test project"
+/** Loads a [TestFile] from `AndroidManifest.xml` included in the JAR resources. */
+fun manifestSample(): TestFile =
+    TestFiles.manifest(
+        Stubs::class.java.getResource("/AndroidManifest.xml")?.readText()
+            ?: throw FileNotFoundException(
+                "Could not find AndroidManifest.xml in the integration test project"
+            )
     )
-)
 
-/**
- * Loads a [TestFile] from Java source code included in the JAR resources.
- */
-fun javaSample(className: String): TestFile = TestFiles.java(
-    Stubs::class.java.getResource(
-        "/java/${className.replace('.', '/')}.java"
-    )?.readText() ?: throw FileNotFoundException(
-        "Could not find Java sources for $className in the integration test project"
+/** Loads a [TestFile] from Java source code included in the JAR resources. */
+fun javaSample(className: String): TestFile =
+    TestFiles.java(
+        Stubs::class.java.getResource("/java/${className.replace('.', '/')}.java")?.readText()
+            ?: throw FileNotFoundException(
+                "Could not find Java sources for $className in the integration test project"
+            )
     )
-)
 
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
-fun ktSample(className: String): TestFile = TestFiles.kotlin(
-    Stubs::class.java.getResource(
-        "/java/${className.replace('.', '/')}.kt"
-    )?.readText() ?: throw FileNotFoundException(
-        "Could not find Kotlin sources for $className in the integration test project"
+/** Loads a [TestFile] from Kotlin source code included in the JAR resources. */
+fun ktSample(className: String): TestFile =
+    TestFiles.kotlin(
+        Stubs::class.java.getResource("/java/${className.replace('.', '/')}.kt")?.readText()
+            ?: throw FileNotFoundException(
+                "Could not find Kotlin sources for $className in the integration test project"
+            )
     )
-)

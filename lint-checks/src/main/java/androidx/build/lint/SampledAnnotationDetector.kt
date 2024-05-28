@@ -57,26 +57,26 @@ import org.jetbrains.uast.UMethod
  * Detector responsible for enforcing @Sampled annotation usage
  *
  * This detector enforces that:
- *
  * - Functions referenced with @sample are annotated with @Sampled - [UNRESOLVED_SAMPLE_LINK]
  * - Functions annotated with @Sampled are referenced with @sample - [OBSOLETE_SAMPLED_ANNOTATION]
  * - Functions annotated with @Sampled are inside a valid samples directory, matching module /
- * directory structure guidelines - [INVALID_SAMPLES_LOCATION]
- * - There are never multiple functions with the same fully qualified name that could be resolved
- * by an @sample link - [MULTIPLE_FUNCTIONS_FOUND]
+ *   directory structure guidelines - [INVALID_SAMPLES_LOCATION]
+ * - There are never multiple functions with the same fully qualified name that could be resolved by
+ *   an @sample link - [MULTIPLE_FUNCTIONS_FOUND]
  */
 class SampledAnnotationDetector : Detector(), SourceCodeScanner {
 
     override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitDeclaration(node: UDeclaration) {
-            KDocSampleLinkHandler(context).visitDeclaration(node)
-            if (node is UMethod) {
-                SampledAnnotationHandler(context).visitMethod(node)
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitDeclaration(node: UDeclaration) {
+                KDocSampleLinkHandler(context).visitDeclaration(node)
+                if (node is UMethod) {
+                    SampledAnnotationHandler(context).visitMethod(node)
+                }
             }
         }
-    }
 
     override fun checkPartialResults(context: Context, partialResults: PartialResult) {
         val sampleLinks = mutableMapOf<String, MutableList<Location>>()
@@ -101,8 +101,8 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
         /**
          * Returns whether this [Location] represents a file that we want to report errors for. We
          * only want to report an error for files in the parent module of this samples module, to
-         * avoid reporting the same errors multiple times if multiple sample modules depend
-         * on a library that has @sample links.
+         * avoid reporting the same errors multiple times if multiple sample modules depend on a
+         * library that has @sample links.
          */
         fun Location.shouldReport(): Boolean {
             // Path of the parent module that the sample module has samples for
@@ -117,10 +117,13 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 functionLocations == null -> {
                     locations.forEach { location ->
                         if (location.shouldReport()) {
-                            val incident = Incident(context)
-                                .issue(UNRESOLVED_SAMPLE_LINK)
-                                .location(location)
-                                .message("Couldn't find a valid @Sampled function matching $link")
+                            val incident =
+                                Incident(context)
+                                    .issue(UNRESOLVED_SAMPLE_LINK)
+                                    .location(location)
+                                    .message(
+                                        "Couldn't find a valid @Sampled function matching $link"
+                                    )
                             context.report(incident)
                         }
                     }
@@ -130,10 +133,11 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 functionLocations.size > 1 -> {
                     locations.forEach { location ->
                         if (location.shouldReport()) {
-                            val incident = Incident(context)
-                                .issue(MULTIPLE_FUNCTIONS_FOUND)
-                                .location(location)
-                                .message("Found multiple functions matching $link")
+                            val incident =
+                                Incident(context)
+                                    .issue(MULTIPLE_FUNCTIONS_FOUND)
+                                    .location(location)
+                                    .message("Found multiple functions matching $link")
                             context.report(incident)
                         }
                     }
@@ -145,11 +149,14 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
             if (sampleLinks[link] == null) {
                 locations.forEach { location ->
                     if (location.shouldReport()) {
-                        val incident = Incident(context)
-                            .issue(OBSOLETE_SAMPLED_ANNOTATION)
-                            .location(location)
-                            .message("$link is annotated with @$SAMPLED_ANNOTATION, but is not " +
-                                "linked to from a @$SAMPLE_KDOC_ANNOTATION tag.")
+                        val incident =
+                            Incident(context)
+                                .issue(OBSOLETE_SAMPLED_ANNOTATION)
+                                .location(location)
+                                .message(
+                                    "$link is annotated with @$SAMPLED_ANNOTATION, but is not " +
+                                        "linked to from a @$SAMPLE_KDOC_ANNOTATION tag."
+                                )
                         context.report(incident)
                     }
                 }
@@ -169,62 +176,61 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
         const val SAMPLE_LINK_MAP = "SampleLinkMap"
         const val SAMPLED_FUNCTION_MAP = "SampledFunctionMap"
 
-        val OBSOLETE_SAMPLED_ANNOTATION = Issue.create(
-            id = "ObsoleteSampledAnnotation",
-            briefDescription = "Obsolete @$SAMPLED_ANNOTATION annotation",
-            explanation = "This function is annotated with @$SAMPLED_ANNOTATION, but is not " +
-                "linked to from a @$SAMPLE_KDOC_ANNOTATION tag. Either remove this annotation, " +
-                "or add a valid @$SAMPLE_KDOC_ANNOTATION tag linking to it.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                SampledAnnotationDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val OBSOLETE_SAMPLED_ANNOTATION =
+            Issue.create(
+                id = "ObsoleteSampledAnnotation",
+                briefDescription = "Obsolete @$SAMPLED_ANNOTATION annotation",
+                explanation =
+                    "This function is annotated with @$SAMPLED_ANNOTATION, but is not " +
+                        "linked to from a @$SAMPLE_KDOC_ANNOTATION tag. Either remove this annotation, " +
+                        "or add a valid @$SAMPLE_KDOC_ANNOTATION tag linking to it.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
 
-        val UNRESOLVED_SAMPLE_LINK = Issue.create(
-            id = "UnresolvedSampleLink",
-            briefDescription = "Unresolved @$SAMPLE_KDOC_ANNOTATION annotation",
-            explanation = "Couldn't find a valid @Sampled function matching the function " +
-                "specified in the $SAMPLE_KDOC_ANNOTATION link. If there is a function with the " +
-                "same fully qualified name, make sure it is annotated with @Sampled.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                SampledAnnotationDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val UNRESOLVED_SAMPLE_LINK =
+            Issue.create(
+                id = "UnresolvedSampleLink",
+                briefDescription = "Unresolved @$SAMPLE_KDOC_ANNOTATION annotation",
+                explanation =
+                    "Couldn't find a valid @Sampled function matching the function " +
+                        "specified in the $SAMPLE_KDOC_ANNOTATION link. If there is a function with the " +
+                        "same fully qualified name, make sure it is annotated with @Sampled.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
 
-        val MULTIPLE_FUNCTIONS_FOUND = Issue.create(
-            id = "MultipleSampledFunctions",
-            briefDescription = "Multiple matching functions found",
-            explanation = "Found multiple functions matching the $SAMPLE_KDOC_ANNOTATION link.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                SampledAnnotationDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val MULTIPLE_FUNCTIONS_FOUND =
+            Issue.create(
+                id = "MultipleSampledFunctions",
+                briefDescription = "Multiple matching functions found",
+                explanation = "Found multiple functions matching the $SAMPLE_KDOC_ANNOTATION link.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
 
-        val INVALID_SAMPLES_LOCATION = Issue.create(
-            id = "InvalidSamplesLocation",
-            briefDescription = "Invalid samples location",
-            explanation = "This function is annotated with @$SAMPLED_ANNOTATION, but is not " +
-                "inside a project/directory named $SAMPLES_DIRECTORY.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                SampledAnnotationDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val INVALID_SAMPLES_LOCATION =
+            Issue.create(
+                id = "InvalidSamplesLocation",
+                briefDescription = "Invalid samples location",
+                explanation =
+                    "This function is annotated with @$SAMPLED_ANNOTATION, but is not " +
+                        "inside a project/directory named $SAMPLES_DIRECTORY.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }
 
@@ -236,13 +242,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
 private class KDocSampleLinkHandler(private val context: JavaContext) {
     fun visitDeclaration(node: UDeclaration) {
         val source = node.sourcePsi
-        node.comments
-            .mapNotNull {
-                it.sourcePsi as? KDoc
-            }
-            .forEach {
-                handleSampleLink(it)
-            }
+        node.comments.mapNotNull { it.sourcePsi as? KDoc }.forEach { handleSampleLink(it) }
         // Expect declarations are not visible in UAST, but they may have sample links on them.
         // If we are looking at an actual declaration, also manually find the corresponding
         // expect declaration for analysis.
@@ -255,9 +255,7 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
                 // is a class with members that have documentation that we should look at - this
                 // will visit the declaration itself as well
                 declaration.forEachDescendantOfType<KtDeclaration> {
-                    it.docComment?.let { comment ->
-                        handleSampleLink(comment)
-                    }
+                    it.docComment?.let { comment -> handleSampleLink(comment) }
                 }
             }
         }
@@ -268,27 +266,27 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
 
         // map of a KDocTag (which contains the location used when reporting issues) to the
         // method link specified in @sample
-        val sampleTags = sections.flatMap { section ->
-            section.findTagsByName(SAMPLE_KDOC_ANNOTATION)
-                .mapNotNull { sampleTag ->
-                    val linkText = sampleTag.getSubjectLink()?.getLinkText()
-                    if (linkText == null) {
-                        null
-                    } else {
-                        sampleTag to linkText
+        val sampleTags =
+            sections
+                .flatMap { section ->
+                    section.findTagsByName(SAMPLE_KDOC_ANNOTATION).mapNotNull { sampleTag ->
+                        val linkText = sampleTag.getSubjectLink()?.getLinkText()
+                        if (linkText == null) {
+                            null
+                        } else {
+                            sampleTag to linkText
+                        }
                     }
                 }
-        }.distinct()
+                .distinct()
 
         sampleTags.forEach { (docTag, link) ->
             // TODO: handle suppressions (if needed) with LintDriver.isSuppressed
-            val mainLintMap =
-                context.getPartialResults(UNRESOLVED_SAMPLE_LINK).map()
+            val mainLintMap = context.getPartialResults(UNRESOLVED_SAMPLE_LINK).map()
 
             val sampleLinkLintMap =
-                mainLintMap.getMap(SAMPLE_LINK_MAP) ?: LintMap().also {
-                    mainLintMap.put(SAMPLE_LINK_MAP, it)
-                }
+                mainLintMap.getMap(SAMPLE_LINK_MAP)
+                    ?: LintMap().also { mainLintMap.put(SAMPLE_LINK_MAP, it) }
 
             // This overrides any identical links in the same project - no need to report the
             // same error multiple times in different places, and it is tricky to do so in any case.
@@ -297,9 +295,7 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
     }
 }
 
-/**
- * Handles sample functions annotated with @Sampled
- */
+/** Handles sample functions annotated with @Sampled */
 private class SampledAnnotationHandler(private val context: JavaContext) {
 
     fun visitMethod(node: UMethod) {
@@ -312,12 +308,15 @@ private class SampledAnnotationHandler(private val context: JavaContext) {
         val currentPath = context.psiFile!!.virtualFile.path
 
         if (SAMPLES_DIRECTORY !in currentPath) {
-            val incident = Incident(context)
-                .issue(INVALID_SAMPLES_LOCATION)
-                .location(context.getNameLocation(node))
-                .message("${node.name} is annotated with @$SAMPLED_ANNOTATION" +
-                    ", but is not inside a project/directory named $SAMPLES_DIRECTORY.")
-                .scope(node)
+            val incident =
+                Incident(context)
+                    .issue(INVALID_SAMPLES_LOCATION)
+                    .location(context.getNameLocation(node))
+                    .message(
+                        "${node.name} is annotated with @$SAMPLED_ANNOTATION" +
+                            ", but is not inside a project/directory named $SAMPLES_DIRECTORY."
+                    )
+                    .scope(node)
             context.report(incident)
             return
         }
@@ -327,21 +326,20 @@ private class SampledAnnotationHandler(private val context: JavaContext) {
         // The full name of the current function that will be referenced in a @sample tag
         val fullFqName = "$parentFqName.${node.name}"
 
-        val mainLintMap =
-            context.getPartialResults(UNRESOLVED_SAMPLE_LINK).map()
+        val mainLintMap = context.getPartialResults(UNRESOLVED_SAMPLE_LINK).map()
 
         val sampledFunctionLintMap =
-            mainLintMap.getMap(SAMPLED_FUNCTION_MAP) ?: LintMap().also {
-                mainLintMap.put(SAMPLED_FUNCTION_MAP, it)
-            }
+            mainLintMap.getMap(SAMPLED_FUNCTION_MAP)
+                ?: LintMap().also { mainLintMap.put(SAMPLED_FUNCTION_MAP, it) }
 
         val location = context.getNameLocation(node)
 
         if (sampledFunctionLintMap.getLocation(fullFqName) != null) {
-            val incident = Incident(context)
-                .issue(MULTIPLE_FUNCTIONS_FOUND)
-                .location(location)
-                .message("Found multiple functions matching $fullFqName")
+            val incident =
+                Incident(context)
+                    .issue(MULTIPLE_FUNCTIONS_FOUND)
+                    .location(location)
+                    .message("Found multiple functions matching $fullFqName")
             context.report(incident)
         }
 

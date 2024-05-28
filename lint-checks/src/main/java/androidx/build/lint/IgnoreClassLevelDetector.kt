@@ -33,9 +33,7 @@ import java.util.EnumSet
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
 
-/**
- * Checks for usages of @org.junit.Ignore at the class level.
- */
+/** Checks for usages of @org.junit.Ignore at the class level. */
 class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
 
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
@@ -47,12 +45,15 @@ class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
             if (node.qualifiedName == "org.junit.Ignore" && node.uastParent is UClass) {
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .location(context.getNameLocation(node))
-                    .message("@Ignore should not be used at the class level. Move the annotation " +
-                        "to each test individually.")
-                    .scope(node)
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getNameLocation(node))
+                        .message(
+                            "@Ignore should not be used at the class level. Move the annotation " +
+                                "to each test individually."
+                        )
+                        .scope(node)
                 context.report(incident)
             }
         }
@@ -66,37 +67,42 @@ class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
      */
     @Suppress("unused")
     private fun createFix(testClass: UClass, context: JavaContext, annotation: String): LintFix {
-        val fix = fix()
-            .name("Annotate each test method and remove the class-level annotation")
-            .composite()
+        val fix =
+            fix()
+                .name("Annotate each test method and remove the class-level annotation")
+                .composite()
 
         for (method in testClass.allMethods) {
             if (method.isTestMethod()) {
-                val methodFix = fix()
-                    // The replace param on annotate doesn't work: if @Ignore is already present on
-                    // the method, the annotation is added again instead of being replaced.
-                    .annotate("org.junit.Ignore", context, method, true)
-                    .build()
+                val methodFix =
+                    fix()
+                        // The replace param on annotate doesn't work: if @Ignore is already present
+                        // on
+                        // the method, the annotation is added again instead of being replaced.
+                        .annotate("org.junit.Ignore", context, method, true)
+                        .build()
                 fix.add(methodFix)
             }
         }
 
-        val classFix = fix().replace()
-            // This requires the exact text of the class annotation to be passed to this function.
-            // This can be gotten with `node.sourcePsi?.node?.text!!`, but `text`'s doc says using
-            // it should be avoided, so this isn't the best solution.
-            .text(annotation)
-            .with("")
-            .reformat(true)
-            .build()
+        val classFix =
+            fix()
+                .replace()
+                // This requires the exact text of the class annotation to be passed to this
+                // function.
+                // This can be gotten with `node.sourcePsi?.node?.text!!`, but `text`'s doc says
+                // using
+                // it should be avoided, so this isn't the best solution.
+                .text(annotation)
+                .with("")
+                .reformat(true)
+                .build()
         fix.add(classFix)
 
         return fix.build()
     }
 
-    /**
-     * Checks if this PsiMethod has a @org.junit.Test annotation
-     */
+    /** Checks if this PsiMethod has a @org.junit.Test annotation */
     private fun PsiMethod.isTestMethod(): Boolean {
         for (annotation in this.annotations) {
             if (annotation.qualifiedName == "org.junit.Test") {
@@ -107,16 +113,19 @@ class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "IgnoreClassLevelDetector",
-            "@Ignore should not be used at the class level.",
-            "Using @Ignore at the class level instead of annotating each individual " +
-                "test causes errors in Android Test Hub.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                IgnoreClassLevelDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ISSUE =
+            Issue.create(
+                "IgnoreClassLevelDetector",
+                "@Ignore should not be used at the class level.",
+                "Using @Ignore at the class level instead of annotating each individual " +
+                    "test causes errors in Android Test Hub.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(
+                    IgnoreClassLevelDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }

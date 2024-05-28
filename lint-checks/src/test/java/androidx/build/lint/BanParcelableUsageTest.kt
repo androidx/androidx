@@ -23,24 +23,28 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanParcelableUsageTest : AbstractLintDetectorTest(
-    useDetector = BanParcelableUsage(),
-    useIssues = listOf(BanParcelableUsage.ISSUE),
-) {
+class BanParcelableUsageTest :
+    AbstractLintDetectorTest(
+        useDetector = BanParcelableUsage(),
+        useIssues = listOf(BanParcelableUsage.ISSUE),
+    ) {
 
     @Test
     fun `Detection of Parcelable usage in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.ParcelableUsageJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.ParcelableUsageJava"),
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ParcelableUsageJava.java:25: Error: Class implements android.os.Parcelable [BanParcelableUsage]
 public class ParcelableUsageJava implements Parcelable {
              ~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -48,17 +52,20 @@ public class ParcelableUsageJava implements Parcelable {
 
     @Test
     fun `Detection of Parcelable usage in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.ParcelableUsageKotlin"),
-        )
+        val input =
+            arrayOf(
+                ktSample("androidx.ParcelableUsageKotlin"),
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/ParcelableUsageKotlin.kt:23: Error: Class implements android.os.Parcelable [BanParcelableUsage]
 open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcelable {
            ~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)

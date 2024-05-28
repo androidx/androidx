@@ -24,10 +24,7 @@ class ReplaceWithUsageKotlin {
     var otherBooleanProperty: Boolean = false
     var otherProperty: String = "value"
 
-    @Deprecated(
-        message = "Use [otherProperty] instead",
-        replaceWith = ReplaceWith("otherProperty")
-    )
+    @Deprecated(message = "Use [otherProperty] instead", replaceWith = ReplaceWith("otherProperty"))
     var someProperty: String = "value"
 
     @Deprecated(
@@ -36,10 +33,7 @@ class ReplaceWithUsageKotlin {
     )
     var someBooleanProperty: Boolean = false
 
-    @get:Deprecated(
-        message = "Use [getMethod] instead",
-        replaceWith = ReplaceWith("getMethod")
-    )
+    @get:Deprecated(message = "Use [getMethod] instead", replaceWith = ReplaceWith("getMethod"))
     @set:Deprecated(
         message = "Use [setMethod(String)] instead",
         replaceWith = ReplaceWith("setMethod(value)")
@@ -47,16 +41,17 @@ class ReplaceWithUsageKotlin {
     var deprecatedSetGetProperty: String = "value"
 
     var deprecatedAccessorProperty: String
-        @Deprecated(
-            message = "Use [getMethod] instead",
-            replaceWith = ReplaceWith("getMethod")
-        )
-        get() { return otherProperty }
+        @Deprecated(message = "Use [getMethod] instead", replaceWith = ReplaceWith("getMethod"))
+        get() {
+            return otherProperty
+        }
         @Deprecated(
             message = "Use [setMethod(String)] instead",
             replaceWith = ReplaceWith("setMethod(value)")
         )
-        set(value) { otherProperty = value }
+        set(value) {
+            otherProperty = value
+        }
 
     @Deprecated(
         message = "Use [otherProperty] instead",
@@ -66,10 +61,7 @@ class ReplaceWithUsageKotlin {
         otherProperty = arg
     }
 
-    @Deprecated(
-        message = "Use [otherProperty] instead",
-        replaceWith = ReplaceWith("otherProperty")
-    )
+    @Deprecated(message = "Use [otherProperty] instead", replaceWith = ReplaceWith("otherProperty"))
     fun getMethodDeprecated(): String {
         return otherProperty
     }
@@ -108,9 +100,7 @@ class ReplaceWithUsageKotlin {
         // Stub.
     }
 
-    /**
-     * Constructor.
-     */
+    /** Constructor. */
     constructor() {
         // Stub.
     }
@@ -121,15 +111,12 @@ class ReplaceWithUsageKotlin {
          *
          * @deprecated Use [InnerClass#InnerClass()] instead.
          */
-
         @Deprecated("Use [InnerClass#InnerClass()] instead.", ReplaceWith("InnerClass()"))
         constructor(param: String) {
             // Stub.
         }
 
-        /**
-         * Constructor.
-         */
+        /** Constructor. */
         constructor() {
             // Stub.
         }
@@ -147,17 +134,13 @@ class ReplaceWithUsageKotlin {
             obj.toString()
         }
 
-        /**
-         * Returns a new object.
-         */
+        /** Returns a new object. */
         @JvmStatic
         fun obtain(param: Int): ReplaceWithUsageKotlin {
             return ReplaceWithUsageKotlin()
         }
 
-        /**
-         * String constant.
-         */
+        /** String constant. */
         @Deprecated(
             message = "Use {@link View#AUTOFILL_HINT_NAME} directly.",
             ReplaceWith(expression = "View.AUTOFILL_HINT_NAME")

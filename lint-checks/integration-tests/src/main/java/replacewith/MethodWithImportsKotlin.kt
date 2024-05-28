@@ -17,9 +17,7 @@ package replacewith
 
 import androidx.annotation.AnyThread
 
-/**
- * Usage of replacement with imports.
- */
+/** Usage of replacement with imports. */
 @Suppress("deprecation", "unused")
 internal class MethodWithImportsKotlin {
     @AnyThread

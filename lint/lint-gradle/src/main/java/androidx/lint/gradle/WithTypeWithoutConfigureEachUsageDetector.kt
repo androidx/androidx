@@ -29,17 +29,21 @@ import org.jetbrains.uast.UCallExpression
 
 class WithTypeWithoutConfigureEachUsageDetector : Detector(), Detector.UastScanner {
     override fun getApplicableMethodNames(): List<String> = listOf("withType")
+
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         val evaluator = context.evaluator
         val message = "Avoid passing a closure to withType, use withType().configureEach instead"
-        val incident = Incident(context)
-            .issue(ISSUE)
-            .location(context.getNameLocation(node))
-            .message(message)
-            .scope(node)
+        val incident =
+            Incident(context)
+                .issue(ISSUE)
+                .location(context.getNameLocation(node))
+                .message(message)
+                .scope(node)
 
-        if (evaluator.isMemberInClass(node.resolve(), DOMAIN_OBJECT_COLLECTION) &&
-            node.valueArgumentCount != 1) {
+        if (
+            evaluator.isMemberInClass(node.resolve(), DOMAIN_OBJECT_COLLECTION) &&
+                node.valueArgumentCount != 1
+        ) {
             context.report(incident)
         }
     }
@@ -47,20 +51,24 @@ class WithTypeWithoutConfigureEachUsageDetector : Detector(), Detector.UastScann
     companion object {
         private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
 
-        val ISSUE = Issue.create(
-            id = "WithTypeWithoutConfigureEach",
-            briefDescription = "Flags usage of withType with a closure instead of configureEach",
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "WithTypeWithoutConfigureEach",
+                briefDescription =
+                    "Flags usage of withType with a closure instead of configureEach",
+                explanation =
+                    """
                 Using withType with a closure directly eagerly creates task.
                 Using configureEach defers the creation of tasks.
             """,
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                WithTypeWithoutConfigureEachUsageDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        WithTypeWithoutConfigureEachUsageDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    )
             )
-        )
     }
 }

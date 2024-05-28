@@ -40,45 +40,50 @@ class PrivateConstructorForUtilityClassDetector : Detector(), Detector.UastScann
 
     override fun getApplicableUastTypes() = listOf(UClass::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitClass(node: UClass) {
-            // If this doesn't look like a utility class then return.
-            if (node.isInterface ||
-                node.isEnum ||
-                node.hasModifierProperty(PsiModifier.ABSTRACT) ||
-                node is UAnonymousClass ||
-                // If this is a subclass, then don't flag it.
-                node.supers.any { !it.qualifiedName.equals("java.lang.Object") } ||
-                // Don't run for Kotlin, for now at least
-                node.containingFile.fileType == KotlinFileType.INSTANCE
-            ) {
-                return
-            }
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitClass(node: UClass) {
+                // If this doesn't look like a utility class then return.
+                if (
+                    node.isInterface ||
+                        node.isEnum ||
+                        node.hasModifierProperty(PsiModifier.ABSTRACT) ||
+                        node is UAnonymousClass ||
+                        // If this is a subclass, then don't flag it.
+                        node.supers.any { !it.qualifiedName.equals("java.lang.Object") } ||
+                        // Don't run for Kotlin, for now at least
+                        node.containingFile.fileType == KotlinFileType.INSTANCE
+                ) {
+                    return
+                }
 
-            // If the constructors are already private or the class is private with a default
-            // constructor (e.g. no constructors) then return.
-            if (node.constructors.isNotEmpty() && node.constructors.all { it.isPrivate() } ||
-                node.constructors.isEmpty() && node.isPrivate()
-            ) {
-                return
-            }
+                // If the constructors are already private or the class is private with a default
+                // constructor (e.g. no constructors) then return.
+                if (
+                    node.constructors.isNotEmpty() && node.constructors.all { it.isPrivate() } ||
+                        node.constructors.isEmpty() && node.isPrivate()
+                ) {
+                    return
+                }
 
-            // If not all (non-constructor) members are static then return.
-            if (node.methods.any { !it.isStatic && !it.isConstructor } ||
-                node.methods.none { !it.isConstructor } ||
-                node.fields.any { !it.isStatic }
-            ) {
-                return
-            }
+                // If not all (non-constructor) members are static then return.
+                if (
+                    node.methods.any { !it.isStatic && !it.isConstructor } ||
+                        node.methods.none { !it.isConstructor } ||
+                        node.fields.any { !it.isStatic }
+                ) {
+                    return
+                }
 
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getNameLocation(node))
-                .message("Utility class is missing private constructor")
-                .scope(node)
-            context.report(incident)
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getNameLocation(node))
+                        .message("Utility class is missing private constructor")
+                        .scope(node)
+                context.report(incident)
+            }
         }
-    }
 
     private fun PsiModifierListOwner.isPrivateOrParameterInPrivateMethod(): Boolean {
         if (hasModifier(JvmModifier.PRIVATE)) return true
@@ -86,23 +91,24 @@ class PrivateConstructorForUtilityClassDetector : Detector(), Detector.UastScann
         return parentMethod.hasModifier(JvmModifier.PRIVATE)
     }
 
-    /**
-     * Returns whether the element is private.
-     */
+    /** Returns whether the element is private. */
     fun PsiModifierListOwner.isPrivate(): Boolean = hasModifier(JvmModifier.PRIVATE)
 
     companion object {
-        val ISSUE = Issue.create(
-            "PrivateConstructorForUtilityClass",
-            "Utility classes should have a private constructor",
-            "Classes which are not intended to be instantiated should be made non-instantiable " +
-                "with a private constructor. This includes utility classes (classes with " +
-                "only static members), and the main class.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                PrivateConstructorForUtilityClassDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                "PrivateConstructorForUtilityClass",
+                "Utility classes should have a private constructor",
+                "Classes which are not intended to be instantiated should be made non-instantiable " +
+                    "with a private constructor. This includes utility classes (classes with " +
+                    "only static members), and the main class.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(
+                    PrivateConstructorForUtilityClassDetector::class.java,
+                    Scope.JAVA_FILE_SCOPE
+                )
             )
-        )
     }
 }

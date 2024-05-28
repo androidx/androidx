@@ -23,27 +23,21 @@ import androidx.annotation.VisibleForTesting.Companion.NONE
 
 @Suppress("RemoveRedundantQualifierName")
 class VisibleForTestingUsageKotlin {
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun testMethodPrivate() {}
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) fun testMethodPrivate() {}
 
     @VisibleForTesting(otherwise = VisibleForTesting.Companion.PRIVATE)
     fun testMethodCompanionPrivate() {}
 
-    @VisibleForTesting(VisibleForTesting.PRIVATE)
-    fun testMethodValuePrivate() {}
+    @VisibleForTesting(VisibleForTesting.PRIVATE) fun testMethodValuePrivate() {}
 
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     fun testMethodPackagePrivate() {}
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    fun testMethodProtected() {}
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED) fun testMethodProtected() {}
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun testMethodPackageNone() {}
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE) fun testMethodPackageNone() {}
 
-    @VisibleForTesting
-    fun testMethodDefault() {}
+    @VisibleForTesting fun testMethodDefault() {}
 
-    @get:VisibleForTesting(NONE)
-    val testPropertyGet = "test"
+    @get:VisibleForTesting(NONE) val testPropertyGet = "test"
 }

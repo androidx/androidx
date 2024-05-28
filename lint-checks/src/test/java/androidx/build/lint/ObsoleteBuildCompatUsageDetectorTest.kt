@@ -24,17 +24,19 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
-    useDetector = ObsoleteBuildCompatUsageDetector(),
-    useIssues = listOf(ObsoleteBuildCompatUsageDetector.ISSUE),
-    stubs = arrayOf(BuildCompat),
-) {
+class ObsoleteBuildCompatUsageDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = ObsoleteBuildCompatUsageDetector(),
+        useIssues = listOf(ObsoleteBuildCompatUsageDetector.ISSUE),
+        stubs = arrayOf(BuildCompat),
+    ) {
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastN() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -44,18 +46,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastN()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 24:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastN()) {
@@ -63,16 +68,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastNStaticImport() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import static androidx.core.os.BuildCompat.isAtLeastN;
             public class Example {
@@ -82,18 +86,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (isAtLeastN()) {
                     ~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 24:
             @@ -5 +5
             -     if (isAtLeastN()) {
@@ -101,16 +108,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastNMR1() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -120,18 +126,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastNMR1()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 25:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastNMR1()) {
@@ -139,16 +148,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastO() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -158,18 +166,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastO()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 26:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastO()) {
@@ -177,16 +188,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastOMR1() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -196,18 +206,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastOMR1()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 27:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastOMR1()) {
@@ -215,16 +228,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastP() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -234,18 +246,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastP()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 28:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastP()) {
@@ -253,16 +268,15 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test
     @Ignore("ANDROID_HOME not available on CI")
     fun isAtLeastQ() {
-        val input = java(
-            """
+        val input =
+            java(
+                """
             package foo;
             import androidx.core.os.BuildCompat;
             public class Example {
@@ -272,18 +286,21 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
                 }
               }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
             src/foo/Example.java:5: Error: Using deprecated BuildCompat methods [ObsoleteBuildCompat]
                 if (BuildCompat.isAtLeastQ()) {
                     ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
         """
 
-        val expectedDiff = """
+        val expectedDiff =
+            """
             Fix for src/foo/Example.java line 5: Use SDK_INT >= 29:
             @@ -5 +5
             -     if (BuildCompat.isAtLeastQ()) {
@@ -291,14 +308,13 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
         """
         /* ktlint-enable max-line-length */
 
-        check(input)
-            .expect(expected.trimIndent())
-            .expectFixDiffs(expectedDiff.trimIndent())
+        check(input).expect(expected.trimIndent()).expectFixDiffs(expectedDiff.trimIndent())
     }
 
     companion object {
-        private val BuildCompat = java(
-            """
+        private val BuildCompat =
+            java(
+                """
             package androidx.core.os;
             public class BuildCompat {
               public static boolean isAtLeastN() { return false; }
@@ -308,7 +324,8 @@ class ObsoleteBuildCompatUsageDetectorTest : AbstractLintDetectorTest(
               public static boolean isAtLeastP() { return false; }
               public static boolean isAtLeastQ() { return false; }
             }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 }

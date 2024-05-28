@@ -38,26 +38,30 @@ class AndroidManifestServiceExportedDetector : Detector(), XmlScanner {
     override fun visitElement(context: XmlContext, element: Element) {
         val attrExported = element.getAttribute("android:${SdkConstants.ATTR_EXPORTED}")
         if (attrExported != "true") {
-            val incident = Incident(context, ISSUE)
-                .message("Missing exported=true in <service> tag")
-                .at(element)
+            val incident =
+                Incident(context, ISSUE)
+                    .message("Missing exported=true in <service> tag")
+                    .at(element)
             context.report(incident)
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "MissingServiceExportedEqualsTrue",
-            briefDescription = "Missing exported=true declaration in the <service> tag inside" +
-                " the library manifest",
-            explanation = "Library-defined services should set the exported attribute to true.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                AndroidManifestServiceExportedDetector::class.java,
-                Scope.MANIFEST_SCOPE
+        val ISSUE =
+            Issue.create(
+                id = "MissingServiceExportedEqualsTrue",
+                briefDescription =
+                    "Missing exported=true declaration in the <service> tag inside" +
+                        " the library manifest",
+                explanation = "Library-defined services should set the exported attribute to true.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        AndroidManifestServiceExportedDetector::class.java,
+                        Scope.MANIFEST_SCOPE
+                    )
             )
-        )
     }
 }

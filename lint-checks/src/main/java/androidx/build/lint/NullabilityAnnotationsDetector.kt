@@ -28,9 +28,7 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.isJava
 import org.jetbrains.uast.UAnnotation
 
-/**
- * Checks for usages of JetBrains nullability annotations in Java code.
- */
+/** Checks for usages of JetBrains nullability annotations in Java code. */
 class NullabilityAnnotationsDetector : Detector(), Detector.UastScanner {
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
 
@@ -61,33 +59,39 @@ class NullabilityAnnotationsDetector : Detector(), Detector.UastScanner {
             val patternToReplace = "(?:org\\.jetbrains\\.annotations\\.)?$jetBrainsAnnotation"
 
             if (node.qualifiedName == incorrectAnnotation) {
-                val lintFix = fix().name("Replace with `@$replacementAnnotation`")
-                    .replace()
-                    .pattern(patternToReplace)
-                    .with(replacementAnnotation)
-                    .shortenNames()
-                    .autoFix(true, true)
-                    .build()
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .fix(lintFix)
-                    .location(context.getNameLocation(node))
-                    .message("Use `@$replacementAnnotation` instead of `@$incorrectAnnotation`")
-                    .scope(node)
+                val lintFix =
+                    fix()
+                        .name("Replace with `@$replacementAnnotation`")
+                        .replace()
+                        .pattern(patternToReplace)
+                        .with(replacementAnnotation)
+                        .shortenNames()
+                        .autoFix(true, true)
+                        .build()
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .fix(lintFix)
+                        .location(context.getNameLocation(node))
+                        .message("Use `@$replacementAnnotation` instead of `@$incorrectAnnotation`")
+                        .scope(node)
                 context.report(incident)
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "NullabilityAnnotationsDetector",
-            "Replace usages of JetBrains nullability annotations with androidx " +
-                "versions in Java code",
-            "The androidx nullability annotations should be used in androidx libraries " +
-                "instead of JetBrains annotations.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(NullabilityAnnotationsDetector::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "NullabilityAnnotationsDetector",
+                "Replace usages of JetBrains nullability annotations with androidx " +
+                    "versions in Java code",
+                "The androidx nullability annotations should be used in androidx libraries " +
+                    "instead of JetBrains annotations.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(NullabilityAnnotationsDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

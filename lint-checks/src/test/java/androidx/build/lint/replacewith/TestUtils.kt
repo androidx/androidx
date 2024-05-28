@@ -24,45 +24,40 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask
 
 fun check(vararg testFiles: TestFile): TestLintResult {
     return TestLintTask.lint()
-        .files(
-            ANDROIDX_REPLACE_WITH_KT,
-            ANDROIDX_ANY_THREAD_KT,
-            *testFiles
-        )
+        .files(ANDROIDX_REPLACE_WITH_KT, ANDROIDX_ANY_THREAD_KT, *testFiles)
         .issues(ReplaceWithDetector.ISSUE)
         .run()
 }
 
-/**
- * Loads a [TestFile] from Java source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Java source code included in the JAR resources. */
 fun javaSample(className: String): TestFile {
     return TestFiles.java(
-        ReplaceWithDetectorMethodTest::class.java.getResource(
-            "/java/${className.replace('.', '/')}.java"
-        )!!.readText()
+        ReplaceWithDetectorMethodTest::class
+            .java
+            .getResource("/java/${className.replace('.', '/')}.java")!!
+            .readText()
     )
 }
 
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Kotlin source code included in the JAR resources. */
 fun ktSample(className: String): TestFile {
     return TestFiles.kotlin(
-        ReplaceWithDetectorMethodTest::class.java.getResource(
-            "/java/${className.replace('.', '/')}.kt"
-        )!!.readText()
+        ReplaceWithDetectorMethodTest::class
+            .java
+            .getResource("/java/${className.replace('.', '/')}.kt")!!
+            .readText()
     )
 }
 
 /**
  * [TestFile] containing ReplaceWith.kt from the Annotation library.
  *
- * This is a workaround for IntelliJ failing to recognize source files if they are also
- * included as resources.
+ * This is a workaround for IntelliJ failing to recognize source files if they are also included as
+ * resources.
  */
-val ANDROIDX_REPLACE_WITH_KT: TestFile = TestFiles.kotlin(
-    """
+val ANDROIDX_REPLACE_WITH_KT: TestFile =
+    TestFiles.kotlin(
+        """
             package androidx.annotation
 
             @Retention(AnnotationRetention.BINARY)
@@ -86,14 +81,14 @@ val ANDROIDX_REPLACE_WITH_KT: TestFile = TestFiles.kotlin(
                 val expression: String,
                 vararg val imports: String
             )
-            """.trimIndent()
-)
+            """
+            .trimIndent()
+    )
 
-/**
- * [TestFile] containing AnyThread.kt from the Annotation library.
- */
-val ANDROIDX_ANY_THREAD_KT: TestFile = TestFiles.kotlin(
-    """
+/** [TestFile] containing AnyThread.kt from the Annotation library. */
+val ANDROIDX_ANY_THREAD_KT: TestFile =
+    TestFiles.kotlin(
+        """
             package androidx.annotation
             
             @MustBeDocumented
@@ -108,5 +103,6 @@ val ANDROIDX_ANY_THREAD_KT: TestFile = TestFiles.kotlin(
                 AnnotationTarget.VALUE_PARAMETER
             )
             annotation class AnyThread
-            """.trimIndent()
-)
+            """
+            .trimIndent()
+    )
