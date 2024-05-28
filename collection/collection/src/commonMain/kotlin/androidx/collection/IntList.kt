@@ -59,18 +59,6 @@ public sealed class IntList(initialCapacity: Int) {
     public val size: Int
         get() = _size
 
-    /**
-     * The current backing [IntArray] for the contents of [IntList].
-     *
-     * Modifying this array may affect the contents of the [IntList]. The values are stored in
-     * indices 0 to [lastIndex], but any values after [lastIndex] can be any value.
-     *
-     * This should only be used for highly-optimized code that needs direct access to the backing
-     * array.
-     */
-    public val internalArray: IntArray
-        get() = content
-
     /** Returns the last valid index in the [IntList]. This can be `-1` when the list is empty. */
     @get:androidx.annotation.IntRange(from = -1)
     public inline val lastIndex: Int
