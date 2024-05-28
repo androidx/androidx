@@ -55,24 +55,24 @@ class BinaryCompatibilityChecker(
     }
 
     private fun LibraryAbi.checkIsBinaryCompatibleWith(olderLibraryAbi: LibraryAbi) {
-        val errors = mutableListOf<String>()
+        val errors = CompatibilityErrors()
         topLevelDeclarations.isBinaryCompatibleWith(
             olderLibraryAbi.topLevelDeclarations,
             uniqueName,
             errors
         )
         if (errors.isNotEmpty()) {
-            throw ValidationException(errors)
+            throw ValidationException(errors.toString())
         }
     }
 
     private fun AbiDeclarationContainer.isBinaryCompatibleWith(
         oldContainer: AbiDeclarationContainer,
         parentQualifiedName: String,
-        errors: MutableList<String>
+        errors: CompatibilityErrors
     ) {
         val isBinaryCompatibleWith:
-            AbiDeclaration.(AbiDeclaration, String, MutableList<String>) -> Unit =
+            AbiDeclaration.(AbiDeclaration, String, CompatibilityErrors) -> Unit =
             { other, /* parentQualifiedName */ _, errs ->
                 isBinaryCompatibleWith(other, errs)
             }
@@ -89,12 +89,12 @@ class BinaryCompatibilityChecker(
     private fun AbiDeclaration.isBinaryCompatibleWith(
         oldDeclaration: AbiDeclaration,
         @Suppress("UNUSED_PARAMETER") parentQualifiedName: String,
-        errors: MutableList<String>
+        errors: CompatibilityErrors
     ) = isBinaryCompatibleWith(oldDeclaration, errors)
 
     private fun AbiDeclaration.isBinaryCompatibleWith(
         oldDeclaration: AbiDeclaration,
-        errors: MutableList<String>
+        errors: CompatibilityErrors
     ) {
         // If we're comparing a class to a function, or any other type, they are not compatible and
         // it's not worth checking anything further. The code that calls this function should
@@ -114,7 +114,7 @@ class BinaryCompatibilityChecker(
         }
     }
 
-    private fun AbiClass.isBinaryCompatibleWith(oldClass: AbiClass, errors: MutableList<String>) {
+    private fun AbiClass.isBinaryCompatibleWith(oldClass: AbiClass, errors: CompatibilityErrors) {
         if (modality != oldClass.modality) {
             when {
                 modality == AbiModality.OPEN && oldClass.modality == AbiModality.FINAL -> Unit
@@ -222,7 +222,7 @@ class BinaryCompatibilityChecker(
 
     private fun AbiFunction.isBinaryCompatibleWith(
         otherFunction: AbiFunction,
-        errors: MutableList<String>
+        errors: CompatibilityErrors
     ) {
         if (isConstructor != otherFunction.isConstructor) {
             errors.add(
@@ -300,7 +300,7 @@ class BinaryCompatibilityChecker(
 
     private fun AbiProperty.isBinaryCompatibleWith(
         oldProperty: AbiProperty,
-        errors: MutableList<String>
+        errors: CompatibilityErrors
     ) {
         if (kind != oldProperty.kind) {
             when {
@@ -336,9 +336,7 @@ class BinaryCompatibilityChecker(
         ) {
             val removedTargets = oldLibraries.keys - newLibraries.keys
             if (removedTargets.isNotEmpty()) {
-                throw ValidationException(
-                    listOf("Removed targets [${removedTargets.joinToString(", ")}]")
-                )
+                throw ValidationException("Removed targets [${removedTargets.joinToString(", ")}]")
             }
             oldLibraries.keys.forEach { target ->
                 val newLib = newLibraries[target]!!
@@ -352,7 +350,7 @@ class BinaryCompatibilityChecker(
 internal fun AbiTypeParameter.isBinaryCompatibleWith(
     otherTypeParam: AbiTypeParameter,
     parentQualifiedName: String,
-    errors: MutableList<String>
+    errors: CompatibilityErrors
 ) {
     if (isReified != otherTypeParam.isReified) {
         when {
@@ -395,7 +393,7 @@ private fun List<AbiType>.isUnbounded(): Boolean =
 private fun AbiValueParameter.isBinaryCompatibleWith(
     otherParam: AbiValueParameter,
     parentQualifiedName: String,
-    errors: MutableList<String>
+    errors: CompatibilityErrors
 ) {
     type.isBinaryCompatibleWith(otherParam.type, parentQualifiedName, errors)
     if (isVararg != otherParam.isVararg) {
@@ -431,13 +429,13 @@ private fun AbiValueParameter.isBinaryCompatibleWith(
 private fun AbiType?.isBinaryCompatibleWith(
     otherType: AbiType?,
     parentQualifiedName: String,
-    errors: MutableList<String>,
+    errors: CompatibilityErrors,
 ) = isBinaryCompatibleWith(otherType, parentQualifiedName, errors, "Type")
 
 private fun AbiType?.isBinaryCompatibleWith(
     otherType: AbiType?,
     parentQualifiedName: String,
-    errors: MutableList<String>,
+    errors: CompatibilityErrors,
     kind: String = "type"
 ) {
     if (valueAsString != otherType.valueAsString) {
@@ -459,7 +457,7 @@ private fun AbiType?.isBinaryCompatibleWith(
 private fun AbiType.Simple.isBinaryCompatible(
     otherType: AbiType.Simple,
     parentQualifiedName: String,
-    errors: MutableList<String>,
+    errors: CompatibilityErrors,
     kind: String
 ) {
     val classifierRef = classifierReference
@@ -495,7 +493,7 @@ private fun AbiType.Simple.isBinaryCompatible(
 private fun AbiTypeArgument.isBinaryCompatibleWith(
     otherTypeArgument: AbiTypeArgument,
     parentQualifiedName: String,
-    errors: MutableList<String>
+    errors: CompatibilityErrors
 ) {
     if (this is StarProjection && otherTypeArgument is StarProjection) {
         return
@@ -546,7 +544,7 @@ private fun AbiTypeArgument.asString() =
         is TypeProjection -> type.asString()
     }
 
-class ValidationException(errors: List<String>) : Throwable(errors.joinToString("\n"))
+class ValidationException(errorMessage: String) : RuntimeException(errorMessage)
 
 private fun LibraryAbi.allDeclarations(): List<AbiDeclaration> {
     val allDeclarations = mutableListOf<AbiDeclaration>()
@@ -574,10 +572,10 @@ private fun <T> List<T>.isBinaryCompatibleWith(
     oldEntitiesList: List<T>,
     entityName: String,
     uniqueId: T.() -> String,
-    isBinaryCompatibleWith: T.(T, String, MutableList<String>) -> Unit,
+    isBinaryCompatibleWith: T.(T, String, CompatibilityErrors) -> Unit,
     isAllowedAddition: T.() -> Boolean = { true },
     parentQualifiedName: String,
-    errors: MutableList<String>
+    errors: CompatibilityErrors
 ) {
     val oldEntities = oldEntitiesList.associateBy { it.uniqueId() }
     val newEntities = associateBy { it.uniqueId() }
@@ -592,4 +590,22 @@ private fun <T> List<T>.isBinaryCompatibleWith(
         val newEntity: T = newEntities[id] ?: continue
         newEntity.isBinaryCompatibleWith(oldEntity, parentQualifiedName, errors)
     }
+}
+
+internal class CompatibilityErrors() : MutableList<CompatibilityError> by mutableListOf() {
+    fun add(
+        message: String,
+        severity: CompatibilityErrorSeverity = CompatibilityErrorSeverity.ERROR
+    ) = add(CompatibilityError(message, severity))
+
+    override fun toString(): String = joinToString("\n")
+}
+
+internal data class CompatibilityError(
+    val message: String,
+    val severity: CompatibilityErrorSeverity
+)
+
+enum class CompatibilityErrorSeverity() {
+    ERROR
 }
