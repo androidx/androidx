@@ -57,16 +57,18 @@ import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 
 /**
- * Lint check for ensuring that [androidx.lifecycle.MutableLiveData] values are never null when
- * the type is defined as non-nullable in Kotlin.
+ * Lint check for ensuring that [androidx.lifecycle.MutableLiveData] values are never null when the
+ * type is defined as non-nullable in Kotlin.
  */
 class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
 
     companion object {
-        val ISSUE = Issue.Companion.create(
-            id = "NullSafeMutableLiveData",
-            briefDescription = "LiveData value assignment nullability mismatch",
-            explanation = """This check ensures that LiveData values are not null when explicitly \
+        val ISSUE =
+            Issue.Companion.create(
+                id = "NullSafeMutableLiveData",
+                briefDescription = "LiveData value assignment nullability mismatch",
+                explanation =
+                    """This check ensures that LiveData values are not null when explicitly \
                 declared as non-nullable.
 
                 Kotlin interoperability does not support enforcing explicit null-safety when using \
@@ -74,14 +76,15 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 be null even when its type is explicitly declared as non-nullable. This can lead \
                 to runtime exceptions from reading a null LiveData value that is assumed to be \
                 non-nullable.""",
-            category = Category.INTEROPERABILITY_KOTLIN,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                NonNullableMutableLiveDataDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.INTEROPERABILITY_KOTLIN,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        NonNullableMutableLiveDataDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    ),
+                androidSpecific = true
+            )
     }
 
     val typesMap = HashMap<String, KtTypeReference>()
@@ -107,9 +110,8 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // Given the field `val liveDataField: MutableLiveData<Boolean> = MutableLiveData()`
                 // reference: `MutableLiveData<Boolean>`
                 // argument: `Boolean`
-                val typeReference = element.sourcePsi
-                    ?.children
-                    ?.firstNotNullOfOrNull { it as? KtTypeReference }
+                val typeReference =
+                    element.sourcePsi?.children?.firstNotNullOfOrNull { it as? KtTypeReference }
                 val typeArgument = typeReference?.typeElement?.typeArgumentsAsTypes?.singleOrNull()
                 if (typeArgument != null) {
                     return typeArgument
@@ -119,16 +121,17 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // Given the field `val liveDataField = MutableLiveData<Boolean>()`
                 // expression: `MutableLiveData<Boolean>()`
                 // argument: `Boolean`
-                val expression = element.sourcePsi
-                    ?.children
-                    ?.firstNotNullOfOrNull { it as? KtCallExpression }
+                val expression =
+                    element.sourcePsi?.children?.firstNotNullOfOrNull { it as? KtCallExpression }
                 return expression?.typeArguments?.singleOrNull()?.typeReference
             }
 
             override fun visitCallExpression(node: UCallExpression) {
                 var isGeneric = false
-                val ktCallExpression = node.sourcePsi as? KtCallExpression
-                    ?: node.sourcePsi as? KtNameReferenceExpression ?: return
+                val ktCallExpression =
+                    node.sourcePsi as? KtCallExpression
+                        ?: node.sourcePsi as? KtNameReferenceExpression
+                        ?: return
                 analyze(ktCallExpression) {
                     val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
                     val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
@@ -144,21 +147,24 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 }
                 if (isGeneric) return
 
-                if (!isKotlin(node.lang) || !methods.contains(node.methodName) ||
-                    !context.evaluator.isMemberInSubClassOf(
-                            node.resolve()!!, "androidx.lifecycle.LiveData", false
+                if (
+                    !isKotlin(node.lang) ||
+                        !methods.contains(node.methodName) ||
+                        !context.evaluator.isMemberInSubClassOf(
+                            node.resolve()!!,
+                            "androidx.lifecycle.LiveData",
+                            false
                         )
-                ) return
+                )
+                    return
 
                 val receiverType = node.receiverType as? PsiClassType
                 var liveDataType =
                     if (receiverType != null && receiverType.hasParameters()) {
-                        val receiver =
-                            (node.receiver as? USimpleNameReferenceExpression)?.resolve()
+                        val receiver = (node.receiver as? USimpleNameReferenceExpression)?.resolve()
                         val variable = (receiver as? PsiVariable)
-                        val assignment = variable?.let {
-                            UastLintUtils.findLastAssignment(it, node)
-                        }
+                        val assignment =
+                            variable?.let { UastLintUtils.findLastAssignment(it, node) }
                         val constructorExpression = assignment?.sourcePsi as? KtCallExpression
                         constructorExpression?.typeArguments?.singleOrNull()?.typeReference
                     } else {
@@ -176,14 +182,17 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 // node.sourcePsi : `value`
                 // dot: `.`
                 // variable: `liveDataField`
-                val dot = generateSequence(node.sourcePsi?.prevSibling) {
-                    it.prevSibling
-                }.firstOrNull { it !is PsiWhiteSpace }
-                val variable = generateSequence(generateSequence(dot?.prevSibling) {
-                    it.prevSibling
-                }.firstOrNull { it !is PsiWhiteSpace }) {
-                    it.firstChild
-                }.firstOrNull { it !is PsiWhiteSpace }
+                val dot =
+                    generateSequence(node.sourcePsi?.prevSibling) { it.prevSibling }
+                        .firstOrNull { it !is PsiWhiteSpace }
+                val variable =
+                    generateSequence(
+                            generateSequence(dot?.prevSibling) { it.prevSibling }
+                                .firstOrNull { it !is PsiWhiteSpace }
+                        ) {
+                            it.firstChild
+                        }
+                        .firstOrNull { it !is PsiWhiteSpace }
                 return variable?.text
             }
         }
@@ -227,8 +236,13 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             if (context.getLocation(liveDataType).file == context.file) {
                 // Quick Fixes can only be applied to current file
                 fixes.add(
-                    fix().name("Change `LiveData` type to nullable")
-                        .replace().with("?").range(context.getLocation(liveDataType)).end().build()
+                    fix()
+                        .name("Change `LiveData` type to nullable")
+                        .replace()
+                        .with("?")
+                        .range(context.getLocation(liveDataType))
+                        .end()
+                        .build()
                 )
             }
             val argument = node.valueArguments[0]
@@ -242,8 +256,13 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                 )
             } else if (argument.isNullable(context)) {
                 fixes.add(
-                    fix().name("Add non-null asserted (!!) call")
-                        .replace().with("!!").range(context.getLocation(argument)).end().build()
+                    fix()
+                        .name("Add non-null asserted (!!) call")
+                        .replace()
+                        .with("!!")
+                        .range(context.getLocation(argument))
+                        .end()
+                        .build()
                 )
                 checkNullability(context, argument, "Expected non-nullable value", fixes)
             }
@@ -274,7 +293,9 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
             context.report(ISSUE, context.getLocation(element), message)
         } else {
             context.report(
-                ISSUE, context.getLocation(element), message,
+                ISSUE,
+                context.getLocation(element),
+                message,
                 fix().alternatives(*fixes.toTypedArray())
             )
         }

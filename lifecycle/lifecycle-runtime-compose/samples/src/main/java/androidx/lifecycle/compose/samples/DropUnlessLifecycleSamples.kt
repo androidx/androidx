@@ -27,10 +27,11 @@ import androidx.lifecycle.compose.dropUnlessStarted
 @Composable
 fun DropUnlessStarted() {
     Button(
-        onClick = dropUnlessStarted {
-            // Run on clicks only when the lifecycle is at least STARTED.
-            // Example: navController.navigate("next_screen")
-        },
+        onClick =
+            dropUnlessStarted {
+                // Run on clicks only when the lifecycle is at least STARTED.
+                // Example: navController.navigate("next_screen")
+            },
     ) {
         Text(text = "Navigate to next screen")
     }
@@ -40,10 +41,11 @@ fun DropUnlessStarted() {
 @Composable
 fun DropUnlessResumed() {
     Button(
-        onClick = dropUnlessResumed {
-            // Run on clicks only when the lifecycle is at least RESUMED.
-            // Example: navController.navigate("next_screen")
-        },
+        onClick =
+            dropUnlessResumed {
+                // Run on clicks only when the lifecycle is at least RESUMED.
+                // Example: navController.navigate("next_screen")
+            },
     ) {
         Text(text = "Navigate to next screen")
     }

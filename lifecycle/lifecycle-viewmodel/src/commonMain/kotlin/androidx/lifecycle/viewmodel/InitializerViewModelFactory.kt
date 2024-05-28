@@ -24,22 +24,16 @@ import androidx.lifecycle.viewmodel.internal.canonicalName
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
 
-@DslMarker
-public annotation class ViewModelFactoryDsl
+@DslMarker public annotation class ViewModelFactoryDsl
 
-/**
- * Creates an [InitializerViewModelFactory] with the initializers provided in the builder.
- */
+/** Creates an [InitializerViewModelFactory] with the initializers provided in the builder. */
 public inline fun viewModelFactory(
     builder: InitializerViewModelFactoryBuilder.() -> Unit
 ): ViewModelProvider.Factory = InitializerViewModelFactoryBuilder().apply(builder).build()
 
-/**
- * DSL for constructing a new [ViewModelProvider.Factory]
- */
+/** DSL for constructing a new [ViewModelProvider.Factory] */
 @ViewModelFactoryDsl
-public class InitializerViewModelFactoryBuilder
-public constructor() {
+public class InitializerViewModelFactoryBuilder public constructor() {
 
     private val initializers = mutableMapOf<KClass<*>, ViewModelInitializer<*>>()
 
@@ -68,18 +62,14 @@ public constructor() {
         ViewModelProviders.createInitializerFactory(initializers.values)
 }
 
-/**
- * Add an initializer to the [InitializerViewModelFactoryBuilder]
- */
+/** Add an initializer to the [InitializerViewModelFactoryBuilder] */
 public inline fun <reified VM : ViewModel> InitializerViewModelFactoryBuilder.initializer(
     noinline initializer: CreationExtras.() -> VM
 ) {
     addInitializer(VM::class, initializer)
 }
 
-/**
- * Holds a [ViewModel] class and initializer for that class
- */
+/** Holds a [ViewModel] class and initializer for that class */
 public expect class ViewModelInitializer<T : ViewModel>
 /**
  * Construct a new [ViewModelInitializer] instance.
@@ -96,9 +86,8 @@ public constructor(
 }
 
 /**
- * A [ViewModelProvider.Factory] that allows you to add lambda initializers for handling
- * particular ViewModel classes using [CreationExtras], while using the default behavior for any
- * other classes.
+ * A [ViewModelProvider.Factory] that allows you to add lambda initializers for handling particular
+ * ViewModel classes using [CreationExtras], while using the default behavior for any other classes.
  *
  * ```
  * val factory = viewModelFactory {

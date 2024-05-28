@@ -20,9 +20,7 @@ import androidx.lifecycle.LifecycleObserver
 
 @Suppress("DEPRECATION")
 interface Interface2 : LifecycleObserver {
-    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate()
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_CREATE) fun onCreate()
 
-    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy()
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_DESTROY) fun onDestroy()
 }

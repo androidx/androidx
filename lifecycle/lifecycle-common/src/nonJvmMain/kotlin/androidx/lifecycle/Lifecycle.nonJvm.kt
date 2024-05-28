@@ -22,7 +22,9 @@ import kotlinx.coroutines.CoroutineScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual class AtomicReference<V> actual constructor(value: V) {
     private val delegate = atomic(value)
+
     public actual fun get(): V = delegate.value
+
     public actual fun compareAndSet(expect: V, newValue: V): Boolean =
         delegate.compareAndSet(expect, newValue)
 }

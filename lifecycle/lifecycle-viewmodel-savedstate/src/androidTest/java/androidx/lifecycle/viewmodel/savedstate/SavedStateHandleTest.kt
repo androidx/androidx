@@ -128,6 +128,7 @@ class SavedStateHandleTest {
         val ld: LiveData<String?> = handle.getLiveData("aa")
         ld.assertNoValue()
     }
+
     @Test
     @UiThreadTest
     fun newLiveData_nullInitial() {
@@ -196,7 +197,8 @@ class SavedStateHandleTest {
     fun savedStateValueFlow() = runBlocking {
         val handle = SavedStateHandle()
 
-        handle.getStateFlow("test", 1)
+        handle
+            .getStateFlow("test", 1)
             .take(3)
             .withIndex()
             .onEach { (index, value) ->
@@ -216,13 +218,10 @@ class SavedStateHandleTest {
     @UiThreadTest
     fun newFlow_nullInitial() = runBlocking {
         val handle = SavedStateHandle()
-        handle.getStateFlow<String?>("aa", null)
+        handle
+            .getStateFlow<String?>("aa", null)
             .take(1)
-            .onEach {
-                assertWithMessage("Flow should emit a null value")
-                    .that(it)
-                    .isNull()
-            }
+            .onEach { assertWithMessage("Flow should emit a null value").that(it).isNull() }
             .collect()
     }
 
@@ -232,11 +231,10 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         val flow = handle.getStateFlow("aa", "xx")
 
-        flow.take(1)
+        flow
+            .take(1)
             .onEach {
-                assertWithMessage("Flow should emit the initial value")
-                    .that(it)
-                    .isEqualTo("xx")
+                assertWithMessage("Flow should emit the initial value").that(it).isEqualTo("xx")
             }
             .collect()
 
@@ -249,12 +247,11 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         handle["aa"] = "existing"
 
-        handle.getStateFlow("aa", "xx")
+        handle
+            .getStateFlow("aa", "xx")
             .take(1)
             .onEach {
-                assertWithMessage("Flow should emit a null value")
-                    .that(it)
-                    .isEqualTo("existing")
+                assertWithMessage("Flow should emit a null value").that(it).isEqualTo("existing")
             }
             .collect()
     }
@@ -265,12 +262,11 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         handle["aa"] = "existing"
 
-        handle.getStateFlow<String?>("aa", null)
+        handle
+            .getStateFlow<String?>("aa", null)
             .take(1)
             .onEach {
-                assertWithMessage("Flow should emit the set value")
-                    .that(it)
-                    .isEqualTo("existing")
+                assertWithMessage("Flow should emit the set value").that(it).isEqualTo("existing")
             }
             .collect()
     }
@@ -281,13 +277,10 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         handle["aa"] = null
 
-        handle.getStateFlow<String?>("aa", "xx")
+        handle
+            .getStateFlow<String?>("aa", "xx")
             .take(1)
-            .onEach {
-                assertWithMessage("Flow should emit a null value")
-                    .that(it)
-                    .isNull()
-            }
+            .onEach { assertWithMessage("Flow should emit a null value").that(it).isNull() }
             .collect()
     }
 
@@ -297,11 +290,10 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         val flow = handle.getStateFlow("aa", "xx")
 
-        flow.take(1)
+        flow
+            .take(1)
             .onEach {
-                assertWithMessage("Flow should emit the initial value")
-                    .that(it)
-                    .isEqualTo("xx")
+                assertWithMessage("Flow should emit the initial value").that(it).isEqualTo("xx")
             }
             .collect()
 
@@ -315,11 +307,10 @@ class SavedStateHandleTest {
         val handle = SavedStateHandle()
         val flow = handle.getStateFlow("aa", "xx")
 
-        flow.take(1)
+        flow
+            .take(1)
             .onEach {
-                assertWithMessage("Flow should emit the initial value")
-                    .that(it)
-                    .isEqualTo("xx")
+                assertWithMessage("Flow should emit the initial value").that(it).isEqualTo("xx")
             }
             .collect()
 
@@ -343,9 +334,7 @@ class SavedStateHandleTest {
 
     private fun <T> LiveData<T>.assertNoValue() {
         var received = false
-        observeForever {
-            received = true
-        }
+        observeForever { received = true }
         assertThat(received).isFalse()
     }
 }

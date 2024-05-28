@@ -26,27 +26,21 @@ import org.junit.Test
 import org.mockito.Mockito.mock
 
 class LiveDataSubjectTest {
-    @get:Rule
-    val mInstantTaskExecutorRule = InstantTaskExecutorRule()
+    @get:Rule val mInstantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun testHasActiveObservers() {
-        @Suppress("UNCHECKED_CAST")
-        val observer = mock(Observer::class.java) as Observer<Any>
+        @Suppress("UNCHECKED_CAST") val observer = mock(Observer::class.java) as Observer<Any>
         val liveData = MutableLiveData<Any>()
         liveData.observeForever(observer)
         assertThat(liveData).hasActiveObservers()
-        assertThrows {
-            assertThat(liveData).hasNoActiveObservers()
-        }
+        assertThrows { assertThat(liveData).hasNoActiveObservers() }
     }
 
     @Test
     fun testHasNoActiveObservers() {
         val liveData = MutableLiveData<Any>()
         assertThat(liveData).hasNoActiveObservers()
-        assertThrows {
-            assertThat(liveData).hasActiveObservers()
-        }
+        assertThrows { assertThat(liveData).hasActiveObservers() }
     }
 }

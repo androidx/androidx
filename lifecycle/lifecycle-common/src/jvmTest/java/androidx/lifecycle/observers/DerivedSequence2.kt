@@ -20,6 +20,5 @@ import androidx.lifecycle.Lifecycle
 
 @Suppress("DEPRECATION")
 class DerivedSequence2 : DerivedSequence1() {
-    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {}
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP) fun onStop() {}
 }

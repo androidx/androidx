@@ -93,13 +93,8 @@ class SavedStateViewModel(val handle: SavedStateHandle, val value: String) : Vie
 @Sampled
 fun SnapshotStateViewModel() {
 
-    /**
-     * A simple item that is not inherently [Parcelable]
-     */
-    data class Item(
-        val id: UUID,
-        val value: String
-    )
+    /** A simple item that is not inherently [Parcelable] */
+    data class Item(val id: UUID, val value: String)
 
     @OptIn(SavedStateHandleSaveableApi::class)
     class SnapshotStateViewModel(handle: SavedStateHandle) : ViewModel() {
@@ -109,60 +104,54 @@ fun SnapshotStateViewModel() {
          * The size of this set must remain small in expectation, since the maximum size of saved
          * instance state space is limited.
          */
-        private val items: MutableList<Item> = handle.saveable(
-            key = "items",
-            saver = listSaver(
-                save = {
-                    it.map { item ->
-                        listOf(item.id.toString(), item.value)
-                    }
-                },
-                restore = {
-                    it.map { saved ->
-                        Item(
-                            id = UUID.fromString(saved[0]),
-                            value = saved[1]
-                        )
-                    }.toMutableStateList()
-                }
-            )
-        ) {
-            mutableStateListOf()
-        }
+        private val items: MutableList<Item> =
+            handle.saveable(
+                key = "items",
+                saver =
+                    listSaver(
+                        save = { it.map { item -> listOf(item.id.toString(), item.value) } },
+                        restore = {
+                            it.map { saved ->
+                                    Item(id = UUID.fromString(saved[0]), value = saved[1])
+                                }
+                                .toMutableStateList()
+                        }
+                    )
+            ) {
+                mutableStateListOf()
+            }
 
         /**
          * A snapshot-backed [MutableMap] representing a set of selected item ids, persisted by the
-         * [SavedStateHandle]. A [MutableSet] is approximated by ignoring the keys.
-         * The size of this set must remain small in expectation, since the maximum size of saved
-         * instance state space is limited.
+         * [SavedStateHandle]. A [MutableSet] is approximated by ignoring the keys. The size of this
+         * set must remain small in expectation, since the maximum size of saved instance state
+         * space is limited.
          */
-        private val selectedItemIds: MutableMap<UUID, Unit> = handle.saveable(
-            key = "selectedItemIds",
-            saver = listSaver(
-                save = { it.keys.map(UUID::toString) },
-                restore = { it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap() }
-            )
-        ) {
-            mutableStateMapOf()
-        }
+        private val selectedItemIds: MutableMap<UUID, Unit> =
+            handle.saveable(
+                key = "selectedItemIds",
+                saver =
+                    listSaver(
+                        save = { it.keys.map(UUID::toString) },
+                        restore = {
+                            it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
+                        }
+                    )
+            ) {
+                mutableStateMapOf()
+            }
 
         /**
          * A snapshot-backed flag representing where selections are enabled, persisted by the
          * [SavedStateHandle].
          */
-        var areSelectionsEnabled by handle.saveable("areSelectionsEnabled") {
-            mutableStateOf(true)
-        }
+        var areSelectionsEnabled by handle.saveable("areSelectionsEnabled") { mutableStateOf(true) }
 
-        /**
-         * A list of items paired with a selection state.
-         */
-        val selectedItems: List<Pair<Item, Boolean>> get() =
-            items.map { it to (it.id in selectedItemIds) }
+        /** A list of items paired with a selection state. */
+        val selectedItems: List<Pair<Item, Boolean>>
+            get() = items.map { it to (it.id in selectedItemIds) }
 
-        /**
-         * Updates the selection state for the item with [id] to [selected].
-         */
+        /** Updates the selection state for the item with [id] to [selected]. */
         fun selectItem(id: UUID, selected: Boolean) {
             if (selected) {
                 selectedItemIds[id] = Unit
@@ -171,9 +160,7 @@ fun SnapshotStateViewModel() {
             }
         }
 
-        /**
-         * Adds an item with the given [value].
-         */
+        /** Adds an item with the given [value]. */
         fun addItem(value: String) {
             items.add(Item(UUID.randomUUID(), value))
         }
@@ -183,13 +170,8 @@ fun SnapshotStateViewModel() {
 @Sampled
 fun SnapshotStateViewModelWithDelegates() {
 
-    /**
-     * A simple item that is not inherently [Parcelable]
-     */
-    data class Item(
-        val id: UUID,
-        val value: String
-    )
+    /** A simple item that is not inherently [Parcelable] */
+    data class Item(val id: UUID, val value: String)
 
     @OptIn(SavedStateHandleSaveableApi::class)
     class SnapshotStateViewModel(handle: SavedStateHandle) : ViewModel() {
@@ -199,40 +181,40 @@ fun SnapshotStateViewModelWithDelegates() {
          * The size of this set must remain small in expectation, since the maximum size of saved
          * instance state space is limited.
          */
-        private val items: MutableList<Item> by handle.saveable(
-            saver = listSaver(
-                save = {
-                    it.map { item ->
-                        listOf(item.id.toString(), item.value)
-                    }
-                },
-                restore = {
-                    it.map { saved ->
-                        Item(
-                            id = UUID.fromString(saved[0]),
-                            value = saved[1]
-                        )
-                    }.toMutableStateList()
-                }
-            )
-        ) {
-            mutableStateListOf()
-        }
+        private val items: MutableList<Item> by
+            handle.saveable(
+                saver =
+                    listSaver(
+                        save = { it.map { item -> listOf(item.id.toString(), item.value) } },
+                        restore = {
+                            it.map { saved ->
+                                    Item(id = UUID.fromString(saved[0]), value = saved[1])
+                                }
+                                .toMutableStateList()
+                        }
+                    )
+            ) {
+                mutableStateListOf()
+            }
 
         /**
          * A snapshot-backed [MutableMap] representing a set of selected item ids, persisted by the
-         * [SavedStateHandle]. A [MutableSet] is approximated by ignoring the keys.
-         * The size of this set must remain small in expectation, since the maximum size of saved
-         * instance state space is limited.
+         * [SavedStateHandle]. A [MutableSet] is approximated by ignoring the keys. The size of this
+         * set must remain small in expectation, since the maximum size of saved instance state
+         * space is limited.
          */
-        private val selectedItemIds: MutableMap<UUID, Unit> by handle.saveable(
-            saver = listSaver(
-                save = { it.keys.map(UUID::toString) },
-                restore = { it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap() }
-            )
-        ) {
-            mutableStateMapOf()
-        }
+        private val selectedItemIds: MutableMap<UUID, Unit> by
+            handle.saveable(
+                saver =
+                    listSaver(
+                        save = { it.keys.map(UUID::toString) },
+                        restore = {
+                            it.map(UUID::fromString).map { id -> id to Unit }.toMutableStateMap()
+                        }
+                    )
+            ) {
+                mutableStateMapOf()
+            }
 
         /**
          * A snapshot-backed flag representing where selections are enabled, persisted by the
@@ -240,15 +222,11 @@ fun SnapshotStateViewModelWithDelegates() {
          */
         var areSelectionsEnabled by handle.saveable { mutableStateOf(true) }
 
-        /**
-         * A list of items paired with a selection state.
-         */
-        val selectedItems: List<Pair<Item, Boolean>> get() =
-            items.map { it to (it.id in selectedItemIds) }
+        /** A list of items paired with a selection state. */
+        val selectedItems: List<Pair<Item, Boolean>>
+            get() = items.map { it to (it.id in selectedItemIds) }
 
-        /**
-         * Updates the selection state for the item with [id] to [selected].
-         */
+        /** Updates the selection state for the item with [id] to [selected]. */
         fun selectItem(id: UUID, selected: Boolean) {
             if (selected) {
                 selectedItemIds[id] = Unit
@@ -257,9 +235,7 @@ fun SnapshotStateViewModelWithDelegates() {
             }
         }
 
-        /**
-         * Adds an item with the given [value].
-         */
+        /** Adds an item with the given [value]. */
         fun addItem(value: String) {
             items.add(Item(UUID.randomUUID(), value))
         }

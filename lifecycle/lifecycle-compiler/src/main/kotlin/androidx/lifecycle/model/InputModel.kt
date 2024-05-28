@@ -30,9 +30,7 @@ data class InputModel(
     val generatedAdapters: Map<TypeElement, List<ExecutableElement>>
 ) {
 
-    /**
-     *  Root class is class defined in currently processed module, not in classpath
-     */
+    /** Root class is class defined in currently processed module, not in classpath */
     fun isRootType(type: TypeElement) = type in rootTypes
 
     fun hasSyntheticAccessorFor(eventMethod: EventMethod): Boolean {

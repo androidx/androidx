@@ -27,9 +27,9 @@ public actual abstract class ViewModel {
     /**
      * Internal implementation of the multiplatform [ViewModel].
      *
-     * **Why is it nullable?** Since [clear] is final, this method is still called on mock
-     * objects. In those cases, [impl] is `null`. It'll always be empty though because
-     * [addCloseable] and [getCloseable] are open so we can skip clearing it.
+     * **Why is it nullable?** Since [clear] is final, this method is still called on mock objects.
+     * In those cases, [impl] is `null`. It'll always be empty though because [addCloseable] and
+     * [getCloseable] are open so we can skip clearing it.
      */
     private val impl: ViewModelImpl?
 
@@ -50,11 +50,10 @@ public actual abstract class ViewModel {
     }
 
     /**
-     * Construct a new ViewModel instance. Any [AutoCloseable] objects provided here
-     * will be closed directly before [ViewModel.onCleared] is called.
+     * Construct a new ViewModel instance. Any [AutoCloseable] objects provided here will be closed
+     * directly before [ViewModel.onCleared] is called.
      *
-     * You should **never** manually construct a ViewModel outside of a
-     * [ViewModelProvider.Factory].
+     * You should **never** manually construct a ViewModel outside of a [ViewModelProvider.Factory].
      */
     @Deprecated(message = "Replaced by `AutoCloseable` overload.", level = DeprecationLevel.HIDDEN)
     public constructor(vararg closeables: Closeable) {
@@ -78,14 +77,14 @@ public actual abstract class ViewModel {
     }
 
     /**
-     * Add a new [Closeable] object that will be closed directly before
-     * [ViewModel.onCleared] is called.
+     * Add a new [Closeable] object that will be closed directly before [ViewModel.onCleared] is
+     * called.
      *
-     * If `onCleared()` has already been called, the closeable will not be added,
-     * and will instead be closed immediately.
+     * If `onCleared()` has already been called, the closeable will not be added, and will instead
+     * be closed immediately.
      *
      * @param closeable The object that should be [closed][Closeable.close] directly before
-     *                  [ViewModel.onCleared] is called.
+     *   [ViewModel.onCleared] is called.
      */
     @Deprecated(message = "Replaced by `AutoCloseable` overload.", level = DeprecationLevel.HIDDEN)
     public open fun addCloseable(closeable: Closeable) {

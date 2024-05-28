@@ -60,39 +60,42 @@ class ViewModelsWithStateTest(private val mode: Mode) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = arrayOf(
-            Mode(FRAGMENT_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
-            Mode(FRAGMENT_MODE, SAVEDSTATE_FACTORY_MODE),
-            Mode(FRAGMENT_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
-            Mode(FRAGMENT_MODE, ABSTRACT_FACTORY_MODE),
-            Mode(ACTIVITY_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
-            Mode(ACTIVITY_MODE, SAVEDSTATE_FACTORY_MODE),
-            Mode(ACTIVITY_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
-            Mode(ACTIVITY_MODE, ABSTRACT_FACTORY_MODE),
-        )
+        fun initParameters(): Array<Any> =
+            arrayOf(
+                Mode(FRAGMENT_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
+                Mode(FRAGMENT_MODE, SAVEDSTATE_FACTORY_MODE),
+                Mode(FRAGMENT_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
+                Mode(FRAGMENT_MODE, ABSTRACT_FACTORY_MODE),
+                Mode(ACTIVITY_MODE, LEGACY_SAVEDSTATE_FACTORY_MODE),
+                Mode(ACTIVITY_MODE, SAVEDSTATE_FACTORY_MODE),
+                Mode(ACTIVITY_MODE, LEGACY_ABSTRACT_FACTORY_MODE),
+                Mode(ACTIVITY_MODE, ABSTRACT_FACTORY_MODE),
+            )
     }
 
     @Test
     fun testSimpleSavingVM() {
         val newValue = "para"
-        val state = with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
-            onActivity {
-                val vm = vmProvider(it).get(VM::class.java)
-                vm.mLiveData.value = newValue
-            }
+        val state =
+            with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
+                onActivity {
+                    val vm = vmProvider(it).get(VM::class.java)
+                    vm.mLiveData.value = newValue
+                }
 
-            moveToState(Lifecycle.State.CREATED)
-            val state = withActivity { savedState }
-            moveToState(Lifecycle.State.DESTROYED)
-            assertThat(state.isEmpty).isFalse()
-            state
-        }
+                moveToState(Lifecycle.State.CREATED)
+                val state = withActivity { savedState }
+                moveToState(Lifecycle.State.DESTROYED)
+                assertThat(state.isEmpty).isFalse()
+                state
+            }
 
         val intent = createIntent(state)
 
-        val vm = ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
-            vmProvider(this).get(VM::class.java)
-        }
+        val vm =
+            ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
+                vmProvider(this).get(VM::class.java)
+            }
         assertThat(vm.mLiveData.value).isEqualTo(newValue)
     }
 
@@ -100,26 +103,28 @@ class ViewModelsWithStateTest(private val mode: Mode) {
     @Throws(Throwable::class)
     fun testReattachment() {
         val newValue = "newValue"
-        val state = with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
-            val escapedVM = withActivity { vmProvider(this).get(VM::class.java) }
-            recreate()
-            val vm = withActivity {
-                val vm = vmProvider(this).get(VM::class.java)
-                vm.mLiveData.value = newValue
-                vm
-            }
-            assertThat(vm).isEqualTo(escapedVM)
-            moveToState(Lifecycle.State.CREATED)
+        val state =
+            with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
+                val escapedVM = withActivity { vmProvider(this).get(VM::class.java) }
+                recreate()
+                val vm = withActivity {
+                    val vm = vmProvider(this).get(VM::class.java)
+                    vm.mLiveData.value = newValue
+                    vm
+                }
+                assertThat(vm).isEqualTo(escapedVM)
+                moveToState(Lifecycle.State.CREATED)
 
-            val state = withActivity { savedState }
-            moveToState(Lifecycle.State.DESTROYED)
-            state
-        }
+                val state = withActivity { savedState }
+                moveToState(Lifecycle.State.DESTROYED)
+                state
+            }
 
         val intent = createIntent(state)
-        val vm = ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
-            vmProvider(this).get(VM::class.java)
-        }
+        val vm =
+            ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
+                vmProvider(this).get(VM::class.java)
+            }
         assertThat(vm.mLiveData.value).isEqualTo(newValue)
     }
 
@@ -127,69 +132,73 @@ class ViewModelsWithStateTest(private val mode: Mode) {
     @Throws(Throwable::class)
     fun testFirstAccessAfterOnStop() {
         val newValue = "newValue"
-        val state = with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
-            moveToState(Lifecycle.State.CREATED)
-            val escapedVM = withActivity {
-                val escapedVM = vmProvider(this).get(VM::class.java)
-                escapedVM.mLiveData.value = newValue
-                escapedVM
+        val state =
+            with(ActivityScenario.launch(FakingSavedStateActivity::class.java)) {
+                moveToState(Lifecycle.State.CREATED)
+                val escapedVM = withActivity {
+                    val escapedVM = vmProvider(this).get(VM::class.java)
+                    escapedVM.mLiveData.value = newValue
+                    escapedVM
+                }
+                recreate()
+                val vm = withActivity { vmProvider(this).get(VM::class.java) }
+                assertThat(vm).isEqualTo(escapedVM)
+                moveToState(Lifecycle.State.CREATED)
+                val state = withActivity { savedState }
+                assertThat(state.isEmpty).isFalse()
+                moveToState(Lifecycle.State.DESTROYED)
+                state
             }
-            recreate()
-            val vm = withActivity { vmProvider(this).get(VM::class.java) }
-            assertThat(vm).isEqualTo(escapedVM)
-            moveToState(Lifecycle.State.CREATED)
-            val state = withActivity { savedState }
-            assertThat(state.isEmpty).isFalse()
-            moveToState(Lifecycle.State.DESTROYED)
-            state
-        }
         val intent = createIntent(state)
-        val vm = ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
-            vmProvider(this).get(VM::class.java)
-        }
+        val vm =
+            ActivityScenario.launch<FakingSavedStateActivity>(intent).withActivity {
+                vmProvider(this).get(VM::class.java)
+            }
         assertThat(vm.mLiveData.value).isEqualTo(newValue)
     }
 
     private fun vmProvider(activity: FakingSavedStateActivity): ViewModelProvider {
-        val owner: ViewModelStoreOwner = if (mode.ownerMode == FRAGMENT_MODE) {
-            activity.fragment
-        } else {
-            activity
-        }
+        val owner: ViewModelStoreOwner =
+            if (mode.ownerMode == FRAGMENT_MODE) {
+                activity.fragment
+            } else {
+                activity
+            }
 
         val savedStateOwner = owner as SavedStateRegistryOwner
 
-        val factory: Factory = when (mode.factoryMode) {
-            LEGACY_SAVEDSTATE_FACTORY_MODE -> {
-                // otherwise common type of factory is package private KeyedFactory
-                SavedStateViewModelFactory(activity.application, savedStateOwner)
-            }
-            SAVEDSTATE_FACTORY_MODE -> {
-                SavedStateViewModelFactory()
-            }
-            LEGACY_ABSTRACT_FACTORY_MODE -> {
-                object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
-                    override fun <T : ViewModel> create(
-                        key: String,
-                        modelClass: Class<T>,
-                        handle: SavedStateHandle
-                    ): T {
-                        return modelClass.cast(VM(handle))!!
+        val factory: Factory =
+            when (mode.factoryMode) {
+                LEGACY_SAVEDSTATE_FACTORY_MODE -> {
+                    // otherwise common type of factory is package private KeyedFactory
+                    SavedStateViewModelFactory(activity.application, savedStateOwner)
+                }
+                SAVEDSTATE_FACTORY_MODE -> {
+                    SavedStateViewModelFactory()
+                }
+                LEGACY_ABSTRACT_FACTORY_MODE -> {
+                    object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
+                        override fun <T : ViewModel> create(
+                            key: String,
+                            modelClass: Class<T>,
+                            handle: SavedStateHandle
+                        ): T {
+                            return modelClass.cast(VM(handle))!!
+                        }
+                    }
+                }
+                else -> {
+                    object : AbstractSavedStateViewModelFactory() {
+                        override fun <T : ViewModel> create(
+                            key: String,
+                            modelClass: Class<T>,
+                            handle: SavedStateHandle
+                        ): T {
+                            return modelClass.cast(VM(handle))!!
+                        }
                     }
                 }
             }
-            else -> {
-                object : AbstractSavedStateViewModelFactory() {
-                    override fun <T : ViewModel> create(
-                        key: String,
-                        modelClass: Class<T>,
-                        handle: SavedStateHandle
-                    ): T {
-                        return modelClass.cast(VM(handle))!!
-                    }
-                }
-            }
-        }
         return if (mode.factoryMode in setOf(ABSTRACT_FACTORY_MODE, SAVEDSTATE_FACTORY_MODE))
             ViewModelProvider(DecorateWithCreationExtras(savedStateOwner, owner), factory)
         else ViewModelProvider(owner, factory)
@@ -226,8 +235,10 @@ class FakingSavedStateActivity : FragmentActivity() {
         super.onCreate(alternativeState)
         enableSavedStateHandles()
         if (alternativeState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(FragmentWithSavedStateHandleSupport(), FRAGMENT_TAG).commitNow()
+            supportFragmentManager
+                .beginTransaction()
+                .add(FragmentWithSavedStateHandleSupport(), FRAGMENT_TAG)
+                .commitNow()
         }
     }
 
@@ -247,7 +258,8 @@ class FragmentWithSavedStateHandleSupport : Fragment() {
 class DecorateWithCreationExtras(
     val ssrOwner: SavedStateRegistryOwner,
     val vmOwner: ViewModelStoreOwner
-) : ViewModelStoreOwner by vmOwner,
+) :
+    ViewModelStoreOwner by vmOwner,
     SavedStateRegistryOwner by ssrOwner,
     HasDefaultViewModelProviderFactory {
 

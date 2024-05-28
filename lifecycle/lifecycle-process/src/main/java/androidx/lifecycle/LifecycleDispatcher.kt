@@ -23,9 +23,9 @@ import androidx.annotation.VisibleForTesting
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * When initialized, it hooks into the Activity callback of the Application and observes
- * Activities. It is responsible to hook in child-fragments to activities and fragments to report
- * their lifecycle events. Another responsibility of this class is to mark as stopped all lifecycle
+ * When initialized, it hooks into the Activity callback of the Application and observes Activities.
+ * It is responsible to hook in child-fragments to activities and fragments to report their
+ * lifecycle events. Another responsibility of this class is to mark as stopped all lifecycle
  * providers related to an activity as soon it is not safe to run a fragment transaction in this
  * activity.
  */
@@ -37,8 +37,9 @@ internal object LifecycleDispatcher {
         if (initialized.getAndSet(true)) {
             return
         }
-        (context.applicationContext as Application)
-            .registerActivityLifecycleCallbacks(DispatcherActivityCallback())
+        (context.applicationContext as Application).registerActivityLifecycleCallbacks(
+            DispatcherActivityCallback()
+        )
     }
 
     @VisibleForTesting

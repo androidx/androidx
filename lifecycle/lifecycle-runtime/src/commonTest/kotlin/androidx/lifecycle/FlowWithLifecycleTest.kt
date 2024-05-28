@@ -38,10 +38,11 @@ class FlowWithLifecycleTest {
     @Test
     fun testFiniteFlowCompletes() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
-        val result = flowOf(1, 2, 3)
-            .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
-            .take(3)
-            .toList()
+        val result =
+            flowOf(1, 2, 3)
+                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
+                .take(3)
+                .toList()
         assertThat(result).containsExactly(1, 2, 3).inOrder()
         owner.setState(Lifecycle.State.DESTROYED)
     }
@@ -49,10 +50,11 @@ class FlowWithLifecycleTest {
     @Test
     fun testFlowStartsInSubsequentLifecycleState() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
-        val result = flowOf(1, 2, 3)
-            .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
-            .take(3)
-            .toList()
+        val result =
+            flowOf(1, 2, 3)
+                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
+                .take(3)
+                .toList()
         assertThat(result).containsExactly(1, 2, 3).inOrder()
         owner.setState(Lifecycle.State.DESTROYED)
     }
@@ -61,10 +63,11 @@ class FlowWithLifecycleTest {
     fun testFlowDoesNotCollectIfLifecycleIsDestroyed() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
-        val result = flowOf(1, 2, 3)
-            .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
-            .take(3)
-            .toList()
+        val result =
+            flowOf(1, 2, 3)
+                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
+                .take(3)
+                .toList()
         assertThat(result.size).isEqualTo(0)
     }
 
@@ -111,11 +114,12 @@ class FlowWithLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val sharedFlow = MutableSharedFlow<Int>()
         val resultList = mutableListOf<Int>()
-        val job = launch(Dispatchers.Main.immediate) {
-            sharedFlow
-                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
-                .collect { resultList.add(it) }
-        }
+        val job =
+            launch(Dispatchers.Main.immediate) {
+                sharedFlow.flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED).collect {
+                    resultList.add(it)
+                }
+            }
         owner.setState(Lifecycle.State.RESUMED)
         sharedFlow.emit(1)
         sharedFlow.emit(2)
@@ -137,9 +141,9 @@ class FlowWithLifecycleTest {
         val sharedFlow = MutableSharedFlow<Int>()
         val resultList = mutableListOf<Int>()
         launch(Dispatchers.Main.immediate) {
-            sharedFlow
-                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
-                .collect { resultList.add(it) }
+            sharedFlow.flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED).collect {
+                resultList.add(it)
+            }
         }
         owner.setState(Lifecycle.State.RESUMED)
         sharedFlow.emit(1)
@@ -218,9 +222,9 @@ class FlowWithLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val resultList = mutableListOf<Int>()
         launch(Dispatchers.Main.immediate) {
-            flowOf(1, 2, 3)
-                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.DESTROYED)
-                .collect { resultList.add(it) }
+            flowOf(1, 2, 3).flowWithLifecycle(owner.lifecycle, Lifecycle.State.DESTROYED).collect {
+                resultList.add(it)
+            }
         }
         assertThat(resultList).isEmpty()
         // Lifecycle is cancelled
@@ -231,17 +235,17 @@ class FlowWithLifecycleTest {
         flowUnderTest: Flow<Int>,
         expectedItemsBeforeRestarting: List<Int>,
         expectedItemsAfterRestarting: List<Int>,
-        beforeRestart: suspend () -> Unit = { },
-        onRestart: suspend () -> Unit = { },
-        afterRestart: suspend () -> Unit = { }
+        beforeRestart: suspend () -> Unit = {},
+        onRestart: suspend () -> Unit = {},
+        afterRestart: suspend () -> Unit = {}
     ) = coroutineScope {
         owner.setState(Lifecycle.State.STARTED)
 
         val resultList = mutableListOf<Int>()
         launch(Dispatchers.Main.immediate) {
-            flowUnderTest
-                .flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED)
-                .collect { resultList.add(it) }
+            flowUnderTest.flowWithLifecycle(owner.lifecycle, Lifecycle.State.RESUMED).collect {
+                resultList.add(it)
+            }
         }
         assertThat(resultList.size).isEqualTo(0)
         owner.setState(Lifecycle.State.RESUMED)

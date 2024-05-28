@@ -36,7 +36,7 @@ class ViewModelScopeTest {
 
     private val testScope = TestScope()
 
-    //region viewModelScope with default scope
+    // region viewModelScope with default scope
     @Test
     fun viewModelScope_withDefaultScope_whenLaunch_cancelsOnClear() {
         val viewModel = ViewModel1()
@@ -83,9 +83,10 @@ class ViewModelScopeTest {
             delayingDeferred.cancelAndJoin()
         }
     }
-    //endregion
 
-    //region viewModelScope with custom scope
+    // endregion
+
+    // region viewModelScope with custom scope
     @Test
     fun viewModelScope_withCustomScope_whenLaunch_cancelsOnClear() {
         val viewModel = ViewModel2(viewModelScope = testScope.backgroundScope)
@@ -120,7 +121,8 @@ class ViewModelScopeTest {
         assertThat(scopeAfterClear.coroutineContext)
             .isSameInstanceAs(testScope.backgroundScope.coroutineContext)
     }
-    //endregion
+
+    // endregion
 
     private class ViewModel1() : ViewModel()
 

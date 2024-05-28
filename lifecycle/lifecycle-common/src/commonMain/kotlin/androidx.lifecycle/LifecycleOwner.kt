@@ -18,8 +18,8 @@ package androidx.lifecycle
 import kotlinx.coroutines.CoroutineScope
 
 /**
- * A class that has an Android lifecycle. These events can be used by custom components to
- * handle lifecycle changes without implementing any code inside the Activity or the Fragment.
+ * A class that has an Android lifecycle. These events can be used by custom components to handle
+ * lifecycle changes without implementing any code inside the Activity or the Fragment.
  *
  * @see Lifecycle
  * @see ViewTreeLifecycleOwner

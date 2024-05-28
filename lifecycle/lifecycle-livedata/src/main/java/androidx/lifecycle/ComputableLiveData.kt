@@ -25,34 +25,31 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * A LiveData class that can be invalidated & computed when there are active observers.
  *
- * It can be invalidated via [invalidate], which will result in a call to
- * [compute] if there are active observers (or when they start observing)
+ * It can be invalidated via [invalidate], which will result in a call to [compute] if there are
+ * active observers (or when they start observing)
  *
  * This is an internal class for now, might be public if we see the necessity.
  *
  * @param <T> The type of the live data
-*/
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-abstract class ComputableLiveData<T> @JvmOverloads
+abstract class ComputableLiveData<T>
+@JvmOverloads
 /**
- * Creates a computable live data that computes values on the specified executor
- * or the arch IO thread executor by default.
+ * Creates a computable live data that computes values on the specified executor or the arch IO
+ * thread executor by default.
  *
  * @param executor Executor that is used to compute new LiveData values.
  */
-constructor(
-    internal val executor: Executor = ArchTaskExecutor.getIOThreadExecutor()
-) {
+constructor(internal val executor: Executor = ArchTaskExecutor.getIOThreadExecutor()) {
 
     private val _liveData: LiveData<T?> =
         object : LiveData<T?>() {
             override fun onActive() {
                 executor.execute(refreshRunnable)
             }
-    }
-    /**
-     * The LiveData managed by this class.
-     */
+        }
+    /** The LiveData managed by this class. */
     open val liveData: LiveData<T?> = _liveData
     internal val invalid = AtomicBoolean(true)
     internal val computing = AtomicBoolean(false)
@@ -112,6 +109,5 @@ constructor(
     }
 
     // TODO https://issuetracker.google.com/issues/112197238
-    @WorkerThread
-    protected abstract fun compute(): T
+    @WorkerThread protected abstract fun compute(): T
 }

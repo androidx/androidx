@@ -28,9 +28,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ViewTreeLifecycleOwnerTest {
-    /**
-     * Tests that a direct set/get on a single view survives a round trip
-     */
+    /** Tests that a direct set/get on a single view survives a round trip */
     @Test
     fun setGetSameView() {
         val v = View(getInstrumentation().context)
@@ -45,8 +43,8 @@ class ViewTreeLifecycleOwnerTest {
     }
 
     /**
-     * Tests that the owner set on a root of a sub-hierarchy is seen by both direct children
-     * and other descendants
+     * Tests that the owner set on a root of a sub-hierarchy is seen by both direct children and
+     * other descendants
      */
     @Test
     fun getAncestorOwner() {
@@ -56,32 +54,17 @@ class ViewTreeLifecycleOwnerTest {
         val child = View(context)
         root.addView(parent)
         parent.addView(child)
-        assertNull(
-            "initial LifecycleOwner expects null",
-            child.findViewTreeLifecycleOwner()
-        )
+        assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
         val fakeOwner = FakeLifecycleOwner()
         root.setViewTreeLifecycleOwner(fakeOwner)
-        assertEquals(
-            "root sees owner",
-            fakeOwner,
-            root.findViewTreeLifecycleOwner()
-        )
-        assertEquals(
-            "direct child sees owner",
-            fakeOwner,
-            parent.findViewTreeLifecycleOwner()
-        )
-        assertEquals(
-            "grandchild sees owner",
-            fakeOwner,
-            child.findViewTreeLifecycleOwner()
-        )
+        assertEquals("root sees owner", fakeOwner, root.findViewTreeLifecycleOwner())
+        assertEquals("direct child sees owner", fakeOwner, parent.findViewTreeLifecycleOwner())
+        assertEquals("grandchild sees owner", fakeOwner, child.findViewTreeLifecycleOwner())
     }
 
     /**
-     * Tests that a new owner set between a root and a descendant is seen by the descendant
-     * instead of the root value
+     * Tests that a new owner set between a root and a descendant is seen by the descendant instead
+     * of the root value
      */
     @Test
     fun shadowedOwner() {
@@ -91,29 +74,18 @@ class ViewTreeLifecycleOwnerTest {
         val child = View(context)
         root.addView(parent)
         parent.addView(child)
-        assertNull(
-            "initial LifecycleOwner expects null",
-            child.findViewTreeLifecycleOwner()
-        )
+        assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
         val rootFakeOwner = FakeLifecycleOwner()
         root.setViewTreeLifecycleOwner(rootFakeOwner)
         val parentFakeOwner = FakeLifecycleOwner()
         parent.setViewTreeLifecycleOwner(parentFakeOwner)
-        assertEquals(
-            "root sees owner",
-            rootFakeOwner,
-            root.findViewTreeLifecycleOwner()
-        )
+        assertEquals("root sees owner", rootFakeOwner, root.findViewTreeLifecycleOwner())
         assertEquals(
             "direct child sees owner",
             parentFakeOwner,
             parent.findViewTreeLifecycleOwner()
         )
-        assertEquals(
-            "grandchild sees owner",
-            parentFakeOwner,
-            child.findViewTreeLifecycleOwner()
-        )
+        assertEquals("grandchild sees owner", parentFakeOwner, child.findViewTreeLifecycleOwner())
     }
 
     internal class FakeLifecycleOwner : LifecycleOwner {
@@ -122,7 +94,9 @@ class ViewTreeLifecycleOwnerTest {
 
     internal class NoOpLifecycle : Lifecycle() {
         override fun addObserver(observer: LifecycleObserver) {}
+
         override fun removeObserver(observer: LifecycleObserver) {}
+
         // use arbitrary State
         override val currentState = State.RESUMED
     }

@@ -20,13 +20,9 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 
-/**
- * An executor wrapper that tracks active tasks and reports back to a Callback when it changes.
- */
-class TrackedExecutor(
-    private val callback: Callback,
-    private val delegate: ExecutorService
-) : Executor {
+/** An executor wrapper that tracks active tasks and reports back to a Callback when it changes. */
+class TrackedExecutor(private val callback: Callback, private val delegate: ExecutorService) :
+    Executor {
     override fun execute(runnable: Runnable) {
         callback.inc()
         delegate.execute {
@@ -45,6 +41,7 @@ class TrackedExecutor(
 
     interface Callback {
         fun inc()
+
         fun dec()
     }
 }

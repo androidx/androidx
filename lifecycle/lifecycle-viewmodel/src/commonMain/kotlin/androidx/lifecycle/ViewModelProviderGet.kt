@@ -21,10 +21,9 @@ import androidx.annotation.MainThread
 import kotlin.jvm.JvmName
 
 /**
- * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
- * an activity), associated with this `ViewModelProvider`.
+ * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
+ * activity), associated with this `ViewModelProvider`.
  *
  * @see ViewModelProvider.get(Class)
  */
-@MainThread
-public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class)
+@MainThread public inline fun <reified VM : ViewModel> ViewModelProvider.get(): VM = get(VM::class)

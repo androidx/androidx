@@ -26,70 +26,60 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /**
- * Create a [LifecycleOwner] that allows changing the state via the
- * [handleLifecycleEvent] method or [currentState] property.
+ * Create a [LifecycleOwner] that allows changing the state via the [handleLifecycleEvent] method or
+ * [currentState] property.
  *
  * Under the hood, this uses a [LifecycleRegistry]. However, it uses
- * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate] as the
- * default [coroutineDispatcher] to ensure that all
- * mutations to the [current state][currentState] are run on that dispatcher, no
- * matter what thread you mutate the state from.
+ * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate] as the default
+ * [coroutineDispatcher] to ensure that all mutations to the [current state][currentState] are run
+ * on that dispatcher, no matter what thread you mutate the state from.
  *
  * @param initialState The initial [Lifecycle.State].
  * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this class.
  */
-public class TestLifecycleOwner @JvmOverloads constructor(
+public class TestLifecycleOwner
+@JvmOverloads
+constructor(
     initialState: Lifecycle.State = Lifecycle.State.STARTED,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : LifecycleOwner {
     // it is in test artifact
     @SuppressLint("VisibleForTests")
-    private val lifecycleRegistry = LifecycleRegistry.createUnsafe(this).apply {
-        currentState = initialState
-    }
+    private val lifecycleRegistry =
+        LifecycleRegistry.createUnsafe(this).apply { currentState = initialState }
 
     override val lifecycle: LifecycleRegistry
         get() = lifecycleRegistry
 
     /**
-     * Update the [currentState] by moving it to the state directly after the given [event].
-     * This is safe to mutate on any thread, but will block that thread during execution.
+     * Update the [currentState] by moving it to the state directly after the given [event]. This is
+     * safe to mutate on any thread, but will block that thread during execution.
      */
     public fun handleLifecycleEvent(event: Lifecycle.Event) {
-        runBlocking(coroutineDispatcher) {
-            lifecycleRegistry.handleLifecycleEvent(event)
-        }
+        runBlocking(coroutineDispatcher) { lifecycleRegistry.handleLifecycleEvent(event) }
     }
 
     /**
-     * The current [Lifecycle.State] of this owner.
-     * This is safe to call on any thread but is thread-blocking and should not be
-     * called from within a coroutine (use [setCurrentState] instead).
+     * The current [Lifecycle.State] of this owner. This is safe to call on any thread but is
+     * thread-blocking and should not be called from within a coroutine (use [setCurrentState]
+     * instead).
      */
     public var currentState: Lifecycle.State
-        get() = runBlocking(coroutineDispatcher) {
-            lifecycleRegistry.currentState
-        }
+        get() = runBlocking(coroutineDispatcher) { lifecycleRegistry.currentState }
         set(value) {
-            runBlocking(coroutineDispatcher) {
-                lifecycleRegistry.currentState = value
-            }
+            runBlocking(coroutineDispatcher) { lifecycleRegistry.currentState = value }
         }
 
     /**
-     * Updates the [currentState].
-     * This suspending function is safe to call on any thread and will not block that thread.
-     * If the state should be updated from outside of a suspending function, use [currentState]
-     * property syntax instead.
+     * Updates the [currentState]. This suspending function is safe to call on any thread and will
+     * not block that thread. If the state should be updated from outside of a suspending function,
+     * use [currentState] property syntax instead.
      */
     suspend fun setCurrentState(state: Lifecycle.State) {
-        withContext(coroutineDispatcher) {
-            lifecycleRegistry.currentState = state
-        }
+        withContext(coroutineDispatcher) { lifecycleRegistry.currentState = state }
     }
 
-    /**
-     * Get the number of observers.
-     */
-    public val observerCount: Int get() = lifecycleRegistry.observerCount
+    /** Get the number of observers. */
+    public val observerCount: Int
+        get() = lifecycleRegistry.observerCount
 }

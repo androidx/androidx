@@ -59,11 +59,12 @@ class TestLifecycleOwnerAndroidTest {
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
     @Test
-    fun testSetCurrentStateInRunTest() = runTest(timeout = 5000.milliseconds) {
-        Dispatchers.setMain(coroutineContext[CoroutineDispatcher]!!)
-        val owner = TestLifecycleOwner()
-        owner.setCurrentState(Lifecycle.State.RESUMED)
-        assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
-        Dispatchers.resetMain()
-    }
+    fun testSetCurrentStateInRunTest() =
+        runTest(timeout = 5000.milliseconds) {
+            Dispatchers.setMain(coroutineContext[CoroutineDispatcher]!!)
+            val owner = TestLifecycleOwner()
+            owner.setCurrentState(Lifecycle.State.RESUMED)
+            assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+            Dispatchers.resetMain()
+        }
 }

@@ -32,9 +32,7 @@ import kotlinx.coroutines.test.setMain
 class MainDispatcherCheckerTest {
     @Test
     fun checkMainDispatcher() {
-        runBlocking(Dispatchers.Main) {
-            assertTrue(MainDispatcherChecker.isMainDispatcherThread())
-        }
+        runBlocking(Dispatchers.Main) { assertTrue(MainDispatcherChecker.isMainDispatcherThread()) }
         runBlocking(Dispatchers.Main.immediate) {
             assertTrue(MainDispatcherChecker.isMainDispatcherThread())
         }
@@ -42,9 +40,7 @@ class MainDispatcherCheckerTest {
 
     @Test
     fun checkNonMainDispatcher() {
-        runBlocking(Dispatchers.IO) {
-            assertFalse(MainDispatcherChecker.isMainDispatcherThread())
-        }
+        runBlocking(Dispatchers.IO) { assertFalse(MainDispatcherChecker.isMainDispatcherThread()) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

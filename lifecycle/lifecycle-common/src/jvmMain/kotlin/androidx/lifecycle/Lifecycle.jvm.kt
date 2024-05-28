@@ -46,9 +46,10 @@ public actual abstract class LifecycleCoroutineScope internal actual constructor
      * @see Lifecycle.coroutineScope
      */
     @Deprecated(
-        message = "launchWhenCreated is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.CREATED."
+        message =
+            "launchWhenCreated is deprecated as it can lead to wasted resources " +
+                "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+                "the Lifecycle state is at least Lifecycle.State.CREATED."
     )
     @Suppress("DEPRECATION")
     public fun launchWhenCreated(block: suspend CoroutineScope.() -> Unit): Job = launch {
@@ -65,9 +66,10 @@ public actual abstract class LifecycleCoroutineScope internal actual constructor
      * @see Lifecycle.coroutineScope
      */
     @Deprecated(
-        message = "launchWhenStarted is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.STARTED."
+        message =
+            "launchWhenStarted is deprecated as it can lead to wasted resources " +
+                "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+                "the Lifecycle state is at least Lifecycle.State.STARTED."
     )
     @Suppress("DEPRECATION")
     public fun launchWhenStarted(block: suspend CoroutineScope.() -> Unit): Job = launch {
@@ -84,9 +86,10 @@ public actual abstract class LifecycleCoroutineScope internal actual constructor
      * @see Lifecycle.coroutineScope
      */
     @Deprecated(
-        message = "launchWhenResumed is deprecated as it can lead to wasted resources " +
-            "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
-            "the Lifecycle state is at least Lifecycle.State.RESUMED."
+        message =
+            "launchWhenResumed is deprecated as it can lead to wasted resources " +
+                "in some cases. Replace with suspending repeatOnLifecycle to run the block whenever " +
+                "the Lifecycle state is at least Lifecycle.State.RESUMED."
     )
     @Suppress("DEPRECATION")
     public fun launchWhenResumed(block: suspend CoroutineScope.() -> Unit): Job = launch {

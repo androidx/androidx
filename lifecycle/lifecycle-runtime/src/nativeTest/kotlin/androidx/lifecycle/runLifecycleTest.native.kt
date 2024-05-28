@@ -32,13 +32,11 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 
-@ThreadLocal
-private var isMainThread = false
+@ThreadLocal private var isMainThread = false
 
 /**
- * On native platforms, tests are running from the main thread itself,
- * so it is impossible to reschedule some coroutines to a later time,
- * as the test code itself is preventing it.
+ * On native platforms, tests are running from the main thread itself, so it is impossible to
+ * reschedule some coroutines to a later time, as the test code itself is preventing it.
  *
  * That's why we need a complete replacement for the Dispatchers.Main.
  */
@@ -65,7 +63,8 @@ private class SurrogateMainCoroutineDispatcher : MainCoroutineDispatcher() {
 private class ImmediateMainCoroutineDispatcher(
     private val mainThreadSurrogate: CloseableCoroutineDispatcher
 ) : MainCoroutineDispatcher() {
-    override val immediate: MainCoroutineDispatcher get() = this
+    override val immediate: MainCoroutineDispatcher
+        get() = this
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         mainThreadSurrogate.dispatch(context, block)

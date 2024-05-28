@@ -41,27 +41,31 @@ internal const val VIEW_MODEL_SCOPE_KEY =
  *
  * The [CoroutineScope.coroutineContext] is configured with:
  * - [SupervisorJob]: ensures children jobs can fail independently of each other.
- * - [MainCoroutineDispatcher.immediate]: executes jobs immediately on the main (UI) thread. If
- *  the [Dispatchers.Main] is not available on the current platform (e.g., Linux), we fallback to
- *  an [EmptyCoroutineContext].
+ * - [MainCoroutineDispatcher.immediate]: executes jobs immediately on the main (UI) thread. If the
+ *   [Dispatchers.Main] is not available on the current platform (e.g., Linux), we fallback to an
+ *   [EmptyCoroutineContext].
  *
  * For background execution, use [kotlinx.coroutines.withContext] to switch to appropriate
  * dispatchers (e.g., [kotlinx.coroutines.IO]).
  */
 internal fun createViewModelScope(): CloseableCoroutineScope {
-    val dispatcher = try {
-        // In platforms where `Dispatchers.Main` is not available, Kotlin Multiplatform will throw
-        // an exception (the specific exception type may depend on the platform). Since there's no
-        // direct functional alternative, we use `EmptyCoroutineContext` to ensure that a coroutine
-        // launched within this scope will run in the same context as the caller.
-        Dispatchers.Main.immediate
-    } catch (_: NotImplementedError) {
-        // In Native environments where `Dispatchers.Main` might not exist (e.g., Linux):
-        EmptyCoroutineContext
-    } catch (_: IllegalStateException) {
-        // In JVM Desktop environments where `Dispatchers.Main` might not exist (e.g., Swing):
-        EmptyCoroutineContext
-    }
+    val dispatcher =
+        try {
+            // In platforms where `Dispatchers.Main` is not available, Kotlin Multiplatform will
+            // throw
+            // an exception (the specific exception type may depend on the platform). Since there's
+            // no
+            // direct functional alternative, we use `EmptyCoroutineContext` to ensure that a
+            // coroutine
+            // launched within this scope will run in the same context as the caller.
+            Dispatchers.Main.immediate
+        } catch (_: NotImplementedError) {
+            // In Native environments where `Dispatchers.Main` might not exist (e.g., Linux):
+            EmptyCoroutineContext
+        } catch (_: IllegalStateException) {
+            // In JVM Desktop environments where `Dispatchers.Main` might not exist (e.g., Swing):
+            EmptyCoroutineContext
+        }
     return CloseableCoroutineScope(coroutineContext = dispatcher + SupervisorJob())
 }
 
