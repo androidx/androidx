@@ -24,12 +24,12 @@ import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.KeepFields
 import androidx.car.app.utils.RemoteUtils
 
-/** Implementation for [RemoteListDelegate] */
+/** Implementation for [ListDelegate] */
 @ExperimentalCarApi
 @CarProtocol
 @KeepFields
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class RemoteListDelegateImpl<T> : RemoteListDelegate<T> {
+class ListDelegateImpl<T> : ListDelegate<T> {
     private var _size: Int = -1
     private lateinit var mStub: IRemoteList
 
