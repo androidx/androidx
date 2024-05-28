@@ -23,10 +23,9 @@ import androidx.paging.PagingSource.LoadResult.Page
  * Snapshot state of Paging system including the loaded [pages], the last accessed [anchorPosition],
  * and the [config] used.
  */
-public class PagingState<Key : Any, Value : Any> constructor(
-    /**
-     * Loaded pages of data in the list.
-     */
+public class PagingState<Key : Any, Value : Any>
+constructor(
+    /** Loaded pages of data in the list. */
     public val pages: List<Page<Key, Value>>,
     /**
      * Most recently accessed index in the list, including placeholders.
@@ -35,15 +34,12 @@ public class PagingState<Key : Any, Value : Any> constructor(
      * generated before or during the first load.
      */
     public val anchorPosition: Int?,
-    /**
-     * [PagingConfig] that was given when initializing the [PagingData] stream.
-     */
+    /** [PagingConfig] that was given when initializing the [PagingData] stream. */
     public val config: PagingConfig,
     /**
      * Number of placeholders before the first loaded item if placeholders are enabled, otherwise 0.
      */
-    @IntRange(from = 0)
-    private val leadingPlaceholderCount: Int
+    @IntRange(from = 0) private val leadingPlaceholderCount: Int
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -55,20 +51,21 @@ public class PagingState<Key : Any, Value : Any> constructor(
     }
 
     override fun hashCode(): Int {
-        return pages.hashCode() + anchorPosition.hashCode() + config.hashCode() +
+        return pages.hashCode() +
+            anchorPosition.hashCode() +
+            config.hashCode() +
             leadingPlaceholderCount.hashCode()
     }
 
     /**
      * Coerces [anchorPosition] to closest loaded value in [pages].
      *
-     * This function can be called with [anchorPosition] to fetch the loaded item that is closest
-     * to the last accessed index in the list.
+     * This function can be called with [anchorPosition] to fetch the loaded item that is closest to
+     * the last accessed index in the list.
      *
      * @param anchorPosition Index in the list, including placeholders.
-     *
-     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
-     * all loaded [pages] are empty.
+     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if all
+     *   loaded [pages] are empty.
      */
     public fun closestItemToPosition(anchorPosition: Int): Value? {
         if (pages.all { it.data.isEmpty() }) return null
@@ -89,13 +86,12 @@ public class PagingState<Key : Any, Value : Any> constructor(
     /**
      * Coerces an index in the list, including placeholders, to closest loaded page in [pages].
      *
-     * This function can be called with [anchorPosition] to fetch the loaded page that is closest
-     * to the last accessed index in the list.
+     * This function can be called with [anchorPosition] to fetch the loaded page that is closest to
+     * the last accessed index in the list.
      *
      * @param anchorPosition Index in the list, including placeholders.
-     *
-     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if
-     * all loaded [pages] are empty.
+     * @return The closest loaded [Value] in [pages] to the provided [anchorPosition]. `null` if all
+     *   loaded [pages] are empty.
      */
     public fun closestPageToPosition(anchorPosition: Int): Page<Key, Value>? {
         if (pages.all { it.data.isEmpty() }) return null
@@ -110,13 +106,13 @@ public class PagingState<Key : Any, Value : Any> constructor(
 
     /**
      * @return `true` if all loaded pages are empty or no pages were loaded when this [PagingState]
-     * was created, `false` otherwise.
+     *   was created, `false` otherwise.
      */
     public fun isEmpty(): Boolean = pages.all { it.data.isEmpty() }
 
     /**
      * @return The first loaded item in the list or `null` if all loaded pages are empty or no pages
-     * were loaded when this [PagingState] was created.
+     *   were loaded when this [PagingState] was created.
      */
     public fun firstItemOrNull(): Value? {
         return pages.firstOrNull { it.data.isNotEmpty() }?.data?.firstOrNull()
@@ -124,7 +120,7 @@ public class PagingState<Key : Any, Value : Any> constructor(
 
     /**
      * @return The last loaded item in the list or `null` if all loaded pages are empty or no pages
-     * were loaded when this [PagingState] was created.
+     *   were loaded when this [PagingState] was created.
      */
     public fun lastItemOrNull(): Value? {
         return pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()

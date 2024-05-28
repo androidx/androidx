@@ -20,6 +20,4 @@ package androidx.paging
  * Marks experimental Paging APIs, which may have known issues that would likely be solved by a
  * source-incompatible change in newer versions of the artifact that supplies it.
  */
-@RequiresOptIn
-@Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalPagingApi
+@RequiresOptIn @Retention(AnnotationRetention.BINARY) public annotation class ExperimentalPagingApi

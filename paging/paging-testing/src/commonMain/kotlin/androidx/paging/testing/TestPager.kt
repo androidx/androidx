@@ -36,12 +36,12 @@ import kotlinx.coroutines.sync.withLock
 /**
  * A fake [Pager] class to simulate how a real Pager and UI would load data from a PagingSource.
  *
- * As Paging's first load is always of type [LoadType.REFRESH], the first load operation of
- * the [TestPager] must be a call to [refresh].
+ * As Paging's first load is always of type [LoadType.REFRESH], the first load operation of the
+ * [TestPager] must be a call to [refresh].
  *
  * This class only supports loads from a single instance of PagingSource. To simulate
- * multi-generational Paging behavior, you must create a new [TestPager] by supplying a
- * new instance of [PagingSource].
+ * multi-generational Paging behavior, you must create a new [TestPager] by supplying a new instance
+ * of [PagingSource].
  *
  * @param config the [PagingConfig] to configure this TestPager's loading behavior.
  * @param pagingSource the [PagingSource] to load data from.
@@ -62,29 +62,30 @@ public class TestPager<Key : Any, Value : Any>(
      *
      * If initialKey != null, refresh will start loading from the supplied key.
      *
-     * Since Paging's first load is always of [LoadType.REFRESH], this method must be the very
-     * first load operation to be called on the TestPager before either [append] or [prepend]
-     * can be called. However, other non-loading operations can still be invoked. For example,
-     * you can call [getLastLoadedPage] before any load operations.
+     * Since Paging's first load is always of [LoadType.REFRESH], this method must be the very first
+     * load operation to be called on the TestPager before either [append] or [prepend] can be
+     * called. However, other non-loading operations can still be invoked. For example, you can call
+     * [getLastLoadedPage] before any load operations.
      *
      * Returns the LoadResult upon refresh on the [PagingSource].
      *
      * @param initialKey the [Key] to start loading data from on initial refresh.
-     *
      * @throws IllegalStateException TestPager does not support multi-generational paging behavior.
-     * As such, multiple calls to refresh() on this TestPager is illegal. The [PagingSource] passed
-     * in to this [TestPager] will also be invalidated to prevent reuse of this pager for loads.
-     * However, other [TestPager] methods that does not invoke loads can still be called,
-     * such as [getLastLoadedPage].
+     *   As such, multiple calls to refresh() on this TestPager is illegal. The [PagingSource]
+     *   passed in to this [TestPager] will also be invalidated to prevent reuse of this pager for
+     *   loads. However, other [TestPager] methods that does not invoke loads can still be called,
+     *   such as [getLastLoadedPage].
      */
     public suspend fun refresh(
         initialKey: Key? = null
     ): @JvmSuppressWildcards LoadResult<Key, Value> {
         if (!hasRefreshed.compareAndSet(false, true)) {
             pagingSource.invalidate()
-            throw IllegalStateException("TestPager does not support multi-generational access " +
-                "and refresh() can only be called once per TestPager. To start a new generation," +
-                "create a new TestPager with a new PagingSource.")
+            throw IllegalStateException(
+                "TestPager does not support multi-generational access " +
+                    "and refresh() can only be called once per TestPager. To start a new generation," +
+                    "create a new TestPager with a new PagingSource."
+            )
         }
         return doInitialLoad(initialKey)
     }
@@ -121,112 +122,106 @@ public class TestPager<Key : Any, Value : Any>(
         return doLoad(PREPEND)
     }
 
-    /**
-     * Helper to perform REFRESH loads.
-     */
+    /** Helper to perform REFRESH loads. */
     private suspend fun doInitialLoad(
         initialKey: Key?
     ): @JvmSuppressWildcards LoadResult<Key, Value> {
         return lock.withLock {
-            pagingSource.load(
-                LoadParams.Refresh(initialKey, config.initialLoadSize, config.enablePlaceholders)
-            ).also { result ->
-                if (result is LoadResult.Page) {
-                    pages.addLast(result)
+            pagingSource
+                .load(
+                    LoadParams.Refresh(
+                        initialKey,
+                        config.initialLoadSize,
+                        config.enablePlaceholders
+                    )
+                )
+                .also { result ->
+                    if (result is LoadResult.Page) {
+                        pages.addLast(result)
+                    }
                 }
-            }
         }
     }
 
-    /**
-     * Helper to perform APPEND or PREPEND loads.
-     */
+    /** Helper to perform APPEND or PREPEND loads. */
     private suspend fun doLoad(loadType: LoadType): LoadResult<Key, Value>? {
         return lock.withLock {
             if (!hasRefreshed.get()) {
-                throw IllegalStateException("TestPager's first load operation must be a refresh. " +
-                    "Please call refresh() once before calling ${loadType.name.lowercase()}().")
+                throw IllegalStateException(
+                    "TestPager's first load operation must be a refresh. " +
+                        "Please call refresh() once before calling ${loadType.name.lowercase()}()."
+                )
             }
             when (loadType) {
-                REFRESH -> throw IllegalArgumentException(
-                    "For LoadType.REFRESH use doInitialLoad()"
-                )
+                REFRESH ->
+                    throw IllegalArgumentException("For LoadType.REFRESH use doInitialLoad()")
                 APPEND -> {
                     val key = pages.lastOrNull()?.nextKey ?: return null
-                    pagingSource.load(
-                        LoadParams.Append(key, config.pageSize, config.enablePlaceholders)
-                    ).also { result ->
-                        if (result is LoadResult.Page) {
-                            pages.addLast(result)
+                    pagingSource
+                        .load(LoadParams.Append(key, config.pageSize, config.enablePlaceholders))
+                        .also { result ->
+                            if (result is LoadResult.Page) {
+                                pages.addLast(result)
+                            }
+                            dropPagesOrNoOp(PREPEND)
                         }
-                        dropPagesOrNoOp(PREPEND)
-                    }
-                } PREPEND -> {
+                }
+                PREPEND -> {
                     val key = pages.firstOrNull()?.prevKey ?: return null
-                    pagingSource.load(
-                        LoadParams.Prepend(key, config.pageSize, config.enablePlaceholders)
-                    ).also { result ->
-                        if (result is LoadResult.Page) {
-                            pages.addFirst(result)
+                    pagingSource
+                        .load(LoadParams.Prepend(key, config.pageSize, config.enablePlaceholders))
+                        .also { result ->
+                            if (result is LoadResult.Page) {
+                                pages.addFirst(result)
+                            }
+                            dropPagesOrNoOp(APPEND)
                         }
-                        dropPagesOrNoOp(APPEND)
-                    }
                 }
             }
         }
     }
 
     /**
-     * Returns the most recent [LoadResult.Page] loaded from the [PagingSource]. Null if
-     * no pages have been returned from [PagingSource]. For example, if PagingSource has
-     * only returned [LoadResult.Error] or [LoadResult.Invalid].
+     * Returns the most recent [LoadResult.Page] loaded from the [PagingSource]. Null if no pages
+     * have been returned from [PagingSource]. For example, if PagingSource has only returned
+     * [LoadResult.Error] or [LoadResult.Invalid].
      */
     public suspend fun getLastLoadedPage(): @JvmSuppressWildcards LoadResult.Page<Key, Value>? {
-        return lock.withLock {
-            pages.lastOrNull()
-        }
+        return lock.withLock { pages.lastOrNull() }
     }
 
-    /**
-     * Returns the current list of [LoadResult.Page] loaded so far from the [PagingSource].
-     */
+    /** Returns the current list of [LoadResult.Page] loaded so far from the [PagingSource]. */
     public suspend fun getPages(): @JvmSuppressWildcards List<LoadResult.Page<Key, Value>> {
-        return lock.withLock {
-            pages.toList()
-        }
+        return lock.withLock { pages.toList() }
     }
 
     /**
      * Returns a [PagingState] to generate a [LoadParams.key] by supplying it to
-     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey]
-     * should be used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of
-     * TestPager.
+     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey] should be
+     * used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of TestPager.
      *
-     * The anchorPosition must be within index of loaded items, which can include
-     * placeholders if [PagingConfig.enablePlaceholders] is true. For example:
-     * - No placeholders: If 40 items have been loaded so far , anchorPosition must be
-     * in [0 .. 39].
-     * - With placeholders: If there are a total of 100 loadable items, the anchorPosition
-     * must be in [0..99].
+     * The anchorPosition must be within index of loaded items, which can include placeholders if
+     * [PagingConfig.enablePlaceholders] is true. For example:
+     * - No placeholders: If 40 items have been loaded so far , anchorPosition must be in [0 .. 39].
+     * - With placeholders: If there are a total of 100 loadable items, the anchorPosition must be
+     *   in [0..99].
      *
-     * The [anchorPosition] should be the index that the user has hypothetically
-     * scrolled to on the UI. Since the [PagingState.anchorPosition] in Paging can be based
-     * on any item or placeholder currently visible on the screen, the actual
-     * value of [PagingState.anchorPosition] may not exactly match the [anchorPosition] passed
-     * to this function even if viewing the same page of data.
+     * The [anchorPosition] should be the index that the user has hypothetically scrolled to on the
+     * UI. Since the [PagingState.anchorPosition] in Paging can be based on any item or placeholder
+     * currently visible on the screen, the actual value of [PagingState.anchorPosition] may not
+     * exactly match the [anchorPosition] passed to this function even if viewing the same page of
+     * data.
      *
-     * Note that when `[PagingConfig.enablePlaceholders] = false`, the
-     * [PagingState.anchorPosition] returned from this function references the absolute index
-     * within all loadable data. For example, with items[0 - 99]:
-     * If items[20 - 30] were loaded without placeholders, anchorPosition 0 references item[20].
-     * But once translated into [PagingState.anchorPosition], anchorPosition 0 references item[0].
-     * The [PagingSource] is expected to handle this correctly within [PagingSource.getRefreshKey]
-     * when [PagingConfig.enablePlaceholders] = false.
+     * Note that when `[PagingConfig.enablePlaceholders] = false`, the [PagingState.anchorPosition]
+     * returned from this function references the absolute index within all loadable data. For
+     * example, with items[0 - 99]: If items[20 - 30] were loaded without placeholders,
+     * anchorPosition 0 references item[20]. But once translated into [PagingState.anchorPosition],
+     * anchorPosition 0 references item[0]. The [PagingSource] is expected to handle this correctly
+     * within [PagingSource.getRefreshKey] when [PagingConfig.enablePlaceholders] = false.
      *
-     * @param anchorPosition the index representing the last accessed item within the
-     * items presented on the UI, which may be a placeholder if
-     * [PagingConfig.enablePlaceholders] is true.
-     *
+     * @param anchorPosition the index representing the last accessed item within the items
+     *   presented on the UI, which may be a placeholder if [PagingConfig.enablePlaceholders] is
+     *   true.
      * @throws IllegalStateException if anchorPosition is out of bounds.
      */
     public suspend fun getPagingState(
@@ -245,50 +240,47 @@ public class TestPager<Key : Any, Value : Any>(
 
     /**
      * Returns a [PagingState] to generate a [LoadParams.key] by supplying it to
-     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey]
-     * should be used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of
-     * TestPager.
+     * [PagingSource.getRefreshKey]. The key returned from [PagingSource.getRefreshKey] should be
+     * used as the [LoadParams.Refresh.key] when calling [refresh] on a new generation of TestPager.
      *
      * The [anchorPositionLookup] lambda should return an item that the user has hypothetically
-     * scrolled to on the UI. The item must have already been loaded prior to using this helper.
-     * To generate a PagingState anchored to a placeholder, use the overloaded [getPagingState]
-     * function instead. Since the [PagingState.anchorPosition] in Paging can be based
-     * on any item or placeholder currently visible on the screen, the actual
-     * value of [PagingState.anchorPosition] may not exactly match the anchorPosition returned
-     * from this function even if viewing the same page of data.
+     * scrolled to on the UI. The item must have already been loaded prior to using this helper. To
+     * generate a PagingState anchored to a placeholder, use the overloaded [getPagingState]
+     * function instead. Since the [PagingState.anchorPosition] in Paging can be based on any item
+     * or placeholder currently visible on the screen, the actual value of
+     * [PagingState.anchorPosition] may not exactly match the anchorPosition returned from this
+     * function even if viewing the same page of data.
      *
-     * Note that when `[PagingConfig.enablePlaceholders] = false`, the
-     * [PagingState.anchorPosition] returned from this function references the absolute index
-     * within all loadable data. For example, with items[0 - 99]:
-     * If items[20 - 30] were loaded without placeholders, anchorPosition 0 references item[20].
-     * But once translated into [PagingState.anchorPosition], anchorPosition 0 references item[0].
-     * The [PagingSource] is expected to handle this correctly within [PagingSource.getRefreshKey]
-     * when [PagingConfig.enablePlaceholders] = false.
+     * Note that when `[PagingConfig.enablePlaceholders] = false`, the [PagingState.anchorPosition]
+     * returned from this function references the absolute index within all loadable data. For
+     * example, with items[0 - 99]: If items[20 - 30] were loaded without placeholders,
+     * anchorPosition 0 references item[20]. But once translated into [PagingState.anchorPosition],
+     * anchorPosition 0 references item[0]. The [PagingSource] is expected to handle this correctly
+     * within [PagingSource.getRefreshKey] when [PagingConfig.enablePlaceholders] = false.
      *
      * @param anchorPositionLookup the predicate to match with an item which will serve as the basis
-     * for generating the [PagingState].
-     *
+     *   for generating the [PagingState].
      * @throws IllegalArgumentException if the given predicate fails to match with an item.
      */
     public suspend fun getPagingState(
         anchorPositionLookup: (item: @JvmSuppressWildcards Value) -> Boolean
     ): @JvmSuppressWildcards PagingState<Key, Value> {
         lock.withLock {
-            val indexInPages = pages.flatten().indexOfFirst {
-                anchorPositionLookup(it)
-            }
+            val indexInPages = pages.flatten().indexOfFirst { anchorPositionLookup(it) }
             return when {
-                indexInPages < 0 -> throw IllegalArgumentException(
-                    "The given predicate has returned false for every loaded item. To generate a" +
-                        "PagingState anchored to an item, the expected item must have already " +
-                        "been loaded."
-                )
+                indexInPages < 0 ->
+                    throw IllegalArgumentException(
+                        "The given predicate has returned false for every loaded item. To generate a" +
+                            "PagingState anchored to an item, the expected item must have already " +
+                            "been loaded."
+                    )
                 else -> {
-                    val finalIndex = if (config.enablePlaceholders) {
-                        indexInPages + (pages.firstOrNull()?.itemsBefore ?: 0)
-                    } else {
-                        indexInPages
-                    }
+                    val finalIndex =
+                        if (config.enablePlaceholders) {
+                            indexInPages + (pages.firstOrNull()?.itemsBefore ?: 0)
+                        } else {
+                            indexInPages
+                        }
                     PagingState(
                         pages = pages.toList(),
                         anchorPosition = finalIndex,
@@ -313,12 +305,14 @@ public class TestPager<Key : Any, Value : Any>(
      */
     private fun checkWithinBoundary(anchorPosition: Int) {
         val loadedSize = pages.flatten().size
-        val maxBoundary = if (config.enablePlaceholders) {
-            (pages.firstOrNull()?.itemsBefore ?: 0) + loadedSize +
-                (pages.lastOrNull()?.itemsAfter ?: 0) - 1
-        } else {
-            loadedSize - 1
-        }
+        val maxBoundary =
+            if (config.enablePlaceholders) {
+                (pages.firstOrNull()?.itemsBefore ?: 0) +
+                    loadedSize +
+                    (pages.lastOrNull()?.itemsAfter ?: 0) - 1
+            } else {
+                loadedSize - 1
+            }
         check(anchorPosition in 0..maxBoundary) {
             "anchorPosition $anchorPosition is out of bounds between [0..$maxBoundary]. Please " +
                 "provide a valid anchorPosition."
@@ -335,11 +329,12 @@ public class TestPager<Key : Any, Value : Any>(
             // 3. COUNT_UNDEFINED if not implemented
             val itemsBefore: Int? = pages.firstOrNull()?.itemsBefore
             // finalItemsBefore is `null` if it is either case 2. or 3.
-            val finalItemsBefore = if (itemsBefore == null || itemsBefore == COUNT_UNDEFINED) {
-                null
-            } else {
-                itemsBefore
-            }
+            val finalItemsBefore =
+                if (itemsBefore == null || itemsBefore == COUNT_UNDEFINED) {
+                    null
+                } else {
+                    itemsBefore
+                }
             // This will ultimately return 0 if user didn't implement itemsBefore or if pages
             // are empty, i.e. user called getPagingState before any loads.
             finalItemsBefore ?: 0
@@ -349,9 +344,7 @@ public class TestPager<Key : Any, Value : Any>(
     }
 
     private fun dropPagesOrNoOp(dropType: LoadType) {
-        require(dropType != REFRESH) {
-            "Drop loadType must be APPEND or PREPEND but got $dropType"
-        }
+        require(dropType != REFRESH) { "Drop loadType must be APPEND or PREPEND but got $dropType" }
 
         // check if maxSize has been set
         if (config.maxSize == PagingConfig.MAX_SIZE_UNBOUNDED) return
@@ -360,21 +353,21 @@ public class TestPager<Key : Any, Value : Any>(
         if (itemCount < config.maxSize) return
 
         // represents the max droppable amount of items
-        val presentedItemsBeforeOrAfter = when (dropType) {
-            PREPEND -> pages.take(pages.lastIndex)
-            else -> pages.takeLast(pages.lastIndex)
-        }.fold(0) { acc, page ->
-            acc + page.data.size
-        }
+        val presentedItemsBeforeOrAfter =
+            when (dropType) {
+                PREPEND -> pages.take(pages.lastIndex)
+                else -> pages.takeLast(pages.lastIndex)
+            }.fold(0) { acc, page -> acc + page.data.size }
 
         var itemsDropped = 0
 
         // mirror Paging requirement to never drop below 2 pages
         while (pages.size > 2 && itemCount - itemsDropped > config.maxSize) {
-            val pageSize = when (dropType) {
-                PREPEND -> pages.first().data.size
-                else -> pages.last().data.size
-            }
+            val pageSize =
+                when (dropType) {
+                    PREPEND -> pages.first().data.size
+                    else -> pages.last().data.size
+                }
 
             val itemsAfterDrop = presentedItemsBeforeOrAfter - itemsDropped - pageSize
 

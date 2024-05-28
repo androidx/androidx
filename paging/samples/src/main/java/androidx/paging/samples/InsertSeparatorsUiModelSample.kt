@@ -34,12 +34,7 @@ import java.util.concurrent.Executors
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class Item(
-    @JvmField
-    val id: String,
-    @JvmField
-    val label: String
-)
+class Item(@JvmField val id: String, @JvmField val label: String)
 
 private lateinit var pagingDataStream: Flow<PagingData<Item>>
 
@@ -69,7 +64,8 @@ fun insertSeparatorsUiModelSample() {
                     // separator - after is first item that starts with its first letter
                     SeparatorUiModel(after.item.label.first().uppercaseChar())
                 } else {
-                    // no separator - either end of list, or first letters of before/after are the same
+                    // no separator - either end of list, or first letters of before/after are the
+                    // same
                     null
                 }
             }
@@ -99,14 +95,19 @@ fun insertSeparatorsUiModelRxSample() {
             }
             .insertSeparatorsAsync { before: ItemUiModel?, after: ItemUiModel? ->
                 Maybe.fromCallable<UiModel> {
-                    if (after != null && before?.item?.label?.first() != after.item.label.first()) {
-                        // separator - after is first item that starts with its first letter
-                        SeparatorUiModel(after.item.label.first().uppercaseChar())
-                    } else {
-                        // no separator - either end of list, or first letters of before/after are the same
-                        null
+                        if (
+                            after != null &&
+                                before?.item?.label?.first() != after.item.label.first()
+                        ) {
+                            // separator - after is first item that starts with its first letter
+                            SeparatorUiModel(after.item.label.first().uppercaseChar())
+                        } else {
+                            // no separator - either end of list, or first letters of before/after
+                            // are the same
+                            null
+                        }
                     }
-                }.subscribeOn(Schedulers.computation())
+                    .subscribeOn(Schedulers.computation())
             }
     }
 }
@@ -140,13 +141,15 @@ fun insertSeparatorsUiModelFutureSample() {
                     Futures.submit(
                         Callable<UiModel> {
                             val (before, after) = it!!
-                            if (after != null &&
-                                before?.item?.label?.first() != after.item.label.first()
+                            if (
+                                after != null &&
+                                    before?.item?.label?.first() != after.item.label.first()
                             ) {
                                 // separator - after is first item that starts with its first letter
                                 SeparatorUiModel(after.item.label.first().uppercaseChar())
                             } else {
-                                // no separator - either end of list, or first letters of before/after are the same
+                                // no separator - either end of list, or first letters of
+                                // before/after are the same
                                 null
                             }
                         },

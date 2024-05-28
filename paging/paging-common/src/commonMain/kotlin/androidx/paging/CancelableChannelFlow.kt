@@ -27,9 +27,7 @@ internal fun <T> cancelableChannelFlow(
     block: suspend SimpleProducerScope<T>.() -> Unit
 ): Flow<T> {
     return simpleChannelFlow<T> {
-        controller.invokeOnCompletion {
-            close()
-        }
+        controller.invokeOnCompletion { close() }
         this.block()
     }
 }

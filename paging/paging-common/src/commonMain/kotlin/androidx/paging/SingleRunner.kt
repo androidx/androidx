@@ -29,31 +29,23 @@ import kotlinx.coroutines.sync.withLock
  *
  * When priorities are used, if the currently running block has a higher priority, the new one is
  * cancelled. If the currently running block has lower priority, currently running block is
- * cancelled.
- * If they have equal priority:
- *  * if cancelPreviousInEqualPriority == true, existing block is cancelled
- *  * if cancelPreviousInEqualPriority == false, new block is cancelled
+ * cancelled. If they have equal priority:
+ * * if cancelPreviousInEqualPriority == true, existing block is cancelled
+ * * if cancelPreviousInEqualPriority == false, new block is cancelled
  *
  * Note: When a block is cancelled, the outer scope (which called runInIsolation) is NOT cancelled.
  */
-internal class SingleRunner(
-    cancelPreviousInEqualPriority: Boolean = true
-) {
+internal class SingleRunner(cancelPreviousInEqualPriority: Boolean = true) {
     private val holder = Holder(this, cancelPreviousInEqualPriority)
 
-    suspend fun runInIsolation(
-        priority: Int = DEFAULT_PRIORITY,
-        block: suspend () -> Unit
-    ) {
+    suspend fun runInIsolation(priority: Int = DEFAULT_PRIORITY, block: suspend () -> Unit) {
         try {
             coroutineScope {
-                val myJob = checkNotNull(coroutineContext[Job]) {
-                    "Internal error. coroutineScope should've created a job."
-                }
-                val run = holder.tryEnqueue(
-                    priority = priority,
-                    job = myJob
-                )
+                val myJob =
+                    checkNotNull(coroutineContext[Job]) {
+                        "Internal error. coroutineScope should've created a job."
+                    }
+                val run = holder.tryEnqueue(priority = priority, job = myJob)
                 if (run) {
                     try {
                         block()
@@ -71,13 +63,12 @@ internal class SingleRunner(
     }
 
     /**
-     * Internal exception which is used to cancel previous instance of an isolated runner.
-     * We use this special class so that we can still support regular cancelation coming from the
-     * `block` but don't cancel its coroutine just to cancel the block.
+     * Internal exception which is used to cancel previous instance of an isolated runner. We use
+     * this special class so that we can still support regular cancelation coming from the `block`
+     * but don't cancel its coroutine just to cancel the block.
      */
-    private class CancelIsolatedRunnerException(
-        val runner: SingleRunner
-    ) : CancellationException("Cancelled isolated runner")
+    private class CancelIsolatedRunnerException(val runner: SingleRunner) :
+        CancellationException("Cancelled isolated runner")
 
     private class Holder(
         private val singleRunner: SingleRunner,
@@ -87,16 +78,14 @@ internal class SingleRunner(
         private var previous: Job? = null
         private var previousPriority: Int = 0
 
-        suspend fun tryEnqueue(
-            priority: Int,
-            job: Job
-        ): Boolean {
+        suspend fun tryEnqueue(priority: Int, job: Job): Boolean {
             mutex.withLock {
                 val prev = previous
-                return if (prev == null ||
-                    !prev.isActive ||
-                    previousPriority < priority ||
-                    (previousPriority == priority && cancelPreviousInEqualPriority)
+                return if (
+                    prev == null ||
+                        !prev.isActive ||
+                        previousPriority < priority ||
+                        (previousPriority == priority && cancelPreviousInEqualPriority)
                 ) {
                     prev?.cancel(CancelIsolatedRunnerException(singleRunner))
                     prev?.join()

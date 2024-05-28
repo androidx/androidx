@@ -27,13 +27,9 @@ internal class TestBackend(
 ) {
     val DataBatchSize = 5
 
-    class DesiredLoadResultPageResponse(
-        val data: List<String>
-    )
+    class DesiredLoadResultPageResponse(val data: List<String>)
 
-    /**
-     * Returns [DataBatchSize] items for a key
-     */
+    /** Returns [DataBatchSize] items for a key */
     fun searchItemsByKey(key: Int): DesiredLoadResultPageResponse {
         val maxKey = ceil(backendDataList.size.toFloat() / DataBatchSize).toInt()
 
@@ -72,11 +68,7 @@ internal class TestPagingSource(
         // data, we return `null` to signify no more pages should be loaded
         val nextKey = if (response.data.isNotEmpty()) pageNumber + 1 else null
 
-        return LoadResult.Page(
-            data = response.data,
-            prevKey = prevKey,
-            nextKey = nextKey
-        )
+        return LoadResult.Page(data = response.data, prevKey = prevKey, nextKey = nextKey)
     }
 
     override fun getRefreshKey(state: PagingState<Int, String>): Int? {

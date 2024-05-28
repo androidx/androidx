@@ -18,5 +18,4 @@ package androidx.paging.samples.shared
 
 import androidx.room.Entity
 
-@Entity(tableName = "users")
-data class User(val id: String, val label: String)
+@Entity(tableName = "users") data class User(val id: String, val label: String)

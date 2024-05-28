@@ -39,74 +39,71 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.withContext
 
 /**
- * The class that connects the UI layer to the underlying Paging operations. Takes input from
- * UI presenters and outputs Paging events (Loads, LoadStateUpdate) in response.
+ * The class that connects the UI layer to the underlying Paging operations. Takes input from UI
+ * presenters and outputs Paging events (Loads, LoadStateUpdate) in response.
  *
- * Paging front ends that implement this class will be able to access loaded data, LoadStates,
- * and callbacks from LoadState or Page updates. This class also exposes the
- * [PagingDataEvent] from a [PagingData] for custom logic on how to present Loads, Drops, and
- * other Paging events.
+ * Paging front ends that implement this class will be able to access loaded data, LoadStates, and
+ * callbacks from LoadState or Page updates. This class also exposes the [PagingDataEvent] from a
+ * [PagingData] for custom logic on how to present Loads, Drops, and other Paging events.
  *
- * For implementation examples, refer to [AsyncPagingDataDiffer] for RecyclerView,
- * or [LazyPagingItems] for Compose.
+ * For implementation examples, refer to [AsyncPagingDataDiffer] for RecyclerView, or
+ * [LazyPagingItems] for Compose.
  *
- * @param [mainContext] The coroutine context that core Paging operations will run on.
- * Defaults to [Dispatchers.Main]. Main operations executed within this context include
- * but are not limited to:
+ * @param [mainContext] The coroutine context that core Paging operations will run on. Defaults to
+ *   [Dispatchers.Main]. Main operations executed within this context include but are not limited
+ *   to:
  * 1. flow collection on a [PagingData] for Loads, LoadStateUpdate etc.
  * 2. emitting [CombinedLoadStates] to the [loadStateFlow]
  * 3. invoking LoadState and PageUpdate listeners
  * 4. invoking [presentPagingDataEvent]
  *
- * @param [cachedPagingData] a [PagingData] that will initialize this PagingDataPresenter with
- * any LoadStates or loaded data contained within it.
+ * @param [cachedPagingData] a [PagingData] that will initialize this PagingDataPresenter with any
+ *   LoadStates or loaded data contained within it.
  */
-public abstract class PagingDataPresenter<T : Any> (
+public abstract class PagingDataPresenter<T : Any>(
     private val mainContext: CoroutineContext = Dispatchers.Main,
     cachedPagingData: PagingData<T>? = null,
 ) {
     private var hintReceiver: HintReceiver? = null
     private var uiReceiver: UiReceiver? = null
     private var pageStore: PageStore<T> = PageStore.initial(cachedPagingData?.cachedEvent())
-    private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection().apply {
-        cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
-    }
+    private val combinedLoadStatesCollection =
+        MutableCombinedLoadStateCollection().apply {
+            cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
+        }
     private val onPagesUpdatedListeners = CopyOnWriteArrayList<() -> Unit>()
 
     private val collectFromRunner = SingleRunner()
 
     /**
-     * Track whether [lastAccessedIndex] points to a loaded item in the list or a placeholder
-     * after applying transformations to loaded pages. `true` if [lastAccessedIndex] points to a
+     * Track whether [lastAccessedIndex] points to a loaded item in the list or a placeholder after
+     * applying transformations to loaded pages. `true` if [lastAccessedIndex] points to a
      * placeholder, `false` if [lastAccessedIndex] points to a loaded item after transformations.
      *
      * [lastAccessedIndexUnfulfilled] is used to track whether resending [lastAccessedIndex] as a
-     * hint is necessary, since in cases of aggressive filtering, an index may be unfulfilled
-     * after being sent to [PageFetcher], which is only capable of handling prefetchDistance
-     * before transformations.
+     * hint is necessary, since in cases of aggressive filtering, an index may be unfulfilled after
+     * being sent to [PageFetcher], which is only capable of handling prefetchDistance before
+     * transformations.
      */
-    @Volatile
-    private var lastAccessedIndexUnfulfilled: Boolean = false
+    @Volatile private var lastAccessedIndexUnfulfilled: Boolean = false
 
     /**
-     * Track last index access so it can be forwarded to new generations after DiffUtil runs and
-     * it is transformed to an index in the new list.
+     * Track last index access so it can be forwarded to new generations after DiffUtil runs and it
+     * is transformed to an index in the new list.
      */
-    @Volatile
-    private var lastAccessedIndex: Int = 0
+    @Volatile private var lastAccessedIndex: Int = 0
 
     /**
      * Handler for [PagingDataEvent] emitted by [PagingData].
      *
-     * When a [PagingData] is submitted to this PagingDataPresenter through [collectFrom],
-     * page loads, drops, or LoadStateUpdates will be emitted to presenters as [PagingDataEvent]
-     * through this method.
+     * When a [PagingData] is submitted to this PagingDataPresenter through [collectFrom], page
+     * loads, drops, or LoadStateUpdates will be emitted to presenters as [PagingDataEvent] through
+     * this method.
      *
-     * Presenter layers that communicate directly with [PagingDataPresenter] should override
-     * this method to handle the [PagingDataEvent] accordingly. For example by diffing two
+     * Presenter layers that communicate directly with [PagingDataPresenter] should override this
+     * method to handle the [PagingDataEvent] accordingly. For example by diffing two
      * [PagingDataEvent.Refresh] lists, or appending the inserted list of data from
      * [PagingDataEvent.Prepend] or [PagingDataEvent.Append].
-     *
      */
     public abstract suspend fun presentPagingDataEvent(
         event: PagingDataEvent<T>,
@@ -121,31 +118,31 @@ public abstract class PagingDataPresenter<T : Any> (
                     /**
                      * The hint receiver of a new generation is set only after it has been
                      * presented. This ensures that:
-                     *
                      * 1. while new generation is still loading, access hints (and jump hints) will
-                     * be sent to current generation.
-                     *
+                     *    be sent to current generation.
                      * 2. the access hint sent from presentNewList will have the correct
-                     * placeholders and indexInPage adjusted according to new pageStore's most
-                     * recent state
+                     *    placeholders and indexInPage adjusted according to new pageStore's most
+                     *    recent state
                      *
                      * Ensuring that viewport hints are sent to the correct generation helps
-                     * synchronize fetcher/pageStore in the correct calculation of the
-                     * next anchorPosition.
+                     * synchronize fetcher/pageStore in the correct calculation of the next
+                     * anchorPosition.
                      */
                     when {
                         event is StaticList -> {
                             presentNewList(
-                                pages = listOf(
-                                    TransformablePage(
-                                        originalPageOffset = 0,
-                                        data = event.data,
-                                    )
-                                ),
+                                pages =
+                                    listOf(
+                                        TransformablePage(
+                                            originalPageOffset = 0,
+                                            data = event.data,
+                                        )
+                                    ),
                                 placeholdersBefore = 0,
                                 placeholdersAfter = 0,
-                                dispatchLoadStates = event.sourceLoadStates != null ||
-                                    event.mediatorLoadStates != null,
+                                dispatchLoadStates =
+                                    event.sourceLoadStates != null ||
+                                        event.mediatorLoadStates != null,
                                 sourceLoadStates = event.sourceLoadStates,
                                 mediatorLoadStates = event.mediatorLoadStates,
                                 newHintReceiver = pagingData.hintReceiver
@@ -172,7 +169,8 @@ public abstract class PagingDataPresenter<T : Any> (
                                 remoteLoadStates = event.mediatorLoadStates,
                             )
 
-                            // If index points to a placeholder after transformations, resend it unless
+                            // If index points to a placeholder after transformations, resend it
+                            // unless
                             // there are no more items to load.
                             val source = combinedLoadStatesCollection.stateFlow.value?.source
                             checkNotNull(source) {
@@ -181,16 +179,17 @@ public abstract class PagingDataPresenter<T : Any> (
                             }
                             val prependDone = source.prepend.endOfPaginationReached
                             val appendDone = source.append.endOfPaginationReached
-                            val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                                !(event.loadType == APPEND && appendDone)
+                            val canContinueLoading =
+                                !(event.loadType == PREPEND && prependDone) &&
+                                    !(event.loadType == APPEND && appendDone)
 
                             /**
-                             *  If the insert is empty due to aggressive filtering, another hint
-                             *  must be sent to fetcher-side to notify that PagingDataPresenter
-                             *  received the page, since fetcher estimates prefetchDistance based on
-                             *  page indices presented by PagingDataPresenter and we cannot rely on a
-                             *  new item being bound to trigger another hint since the presented
-                             *  page is empty.
+                             * If the insert is empty due to aggressive filtering, another hint must
+                             * be sent to fetcher-side to notify that PagingDataPresenter received
+                             * the page, since fetcher estimates prefetchDistance based on page
+                             * indices presented by PagingDataPresenter and we cannot rely on a new
+                             * item being bound to trigger another hint since the presented page is
+                             * empty.
                              */
                             val emptyInsert = event.pages.all { it.data.isEmpty() }
                             if (!canContinueLoading) {
@@ -199,10 +198,11 @@ public abstract class PagingDataPresenter<T : Any> (
                                 // index.
                                 lastAccessedIndexUnfulfilled = false
                             } else if (lastAccessedIndexUnfulfilled || emptyInsert) {
-                                val shouldResendHint = emptyInsert ||
-                                    lastAccessedIndex < pageStore.placeholdersBefore ||
-                                    lastAccessedIndex > pageStore.placeholdersBefore +
-                                        pageStore.dataCount
+                                val shouldResendHint =
+                                    emptyInsert ||
+                                        lastAccessedIndex < pageStore.placeholdersBefore ||
+                                        lastAccessedIndex >
+                                            pageStore.placeholdersBefore + pageStore.dataCount
 
                                 if (shouldResendHint) {
                                     hintReceiver?.accessHint(
@@ -292,8 +292,8 @@ public abstract class PagingDataPresenter<T : Any> (
      * within the same generation of [PagingData].
      *
      * [LoadState.Error] can be generated from two types of load requests:
-     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
-     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     * * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     * * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     public fun retry() {
         log(DEBUG) { "Retry signal received" }
@@ -321,9 +321,7 @@ public abstract class PagingDataPresenter<T : Any> (
         uiReceiver?.refresh()
     }
 
-    /**
-     * @return Total number of presented items, including placeholders.
-     */
+    /** @return Total number of presented items, including placeholders. */
     public val size: Int
         get() = pageStore.size
 
@@ -332,45 +330,43 @@ public abstract class PagingDataPresenter<T : Any> (
      * current [PagingData] changes.
      *
      * This flow is conflated. It buffers the last update to [CombinedLoadStates] and immediately
-     * delivers the current load states on collection, unless this [PagingDataPresenter] has not been
-     * hooked up to a [PagingData] yet, and thus has no state to emit.
+     * delivers the current load states on collection, unless this [PagingDataPresenter] has not
+     * been hooked up to a [PagingData] yet, and thus has no state to emit.
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
     public val loadStateFlow: StateFlow<CombinedLoadStates?> =
         combinedLoadStatesCollection.stateFlow
 
-    private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> = MutableSharedFlow(
-        replay = 0,
-        extraBufferCapacity = 64,
-        onBufferOverflow = DROP_OLDEST,
-    )
+    private val _onPagesUpdatedFlow: MutableSharedFlow<Unit> =
+        MutableSharedFlow(
+            replay = 0,
+            extraBufferCapacity = 64,
+            onBufferOverflow = DROP_OLDEST,
+        )
 
     /**
-     * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
-     * actual items presented don't change.
+     * A hot [Flow] that emits after the pages presented to the UI are updated, even if the actual
+     * items presented don't change.
      *
      * An update is triggered from one of the following:
-     *   * [collectFrom] is called and initial load completes, regardless of any differences in
-     *     the loaded data
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     * * [collectFrom] is called and initial load completes, regardless of any differences in the
+     *   loaded data
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
      *
-     * Note: This is a [SharedFlow][kotlinx.coroutines.flow.SharedFlow] configured to replay
-     * 0 items with a buffer of size 64. If a collector lags behind page updates, it may
-     * trigger multiple times for each intermediate update that was presented while your collector
-     * was still working. To avoid this behavior, you can
-     * [conflate][kotlinx.coroutines.flow.conflate] this [Flow] so that you only receive the latest
-     * update, which is useful in cases where you are simply updating UI and don't care about
-     * tracking the exact number of page updates.
+     * Note: This is a [SharedFlow][kotlinx.coroutines.flow.SharedFlow] configured to replay 0 items
+     * with a buffer of size 64. If a collector lags behind page updates, it may trigger multiple
+     * times for each intermediate update that was presented while your collector was still working.
+     * To avoid this behavior, you can [conflate][kotlinx.coroutines.flow.conflate] this [Flow] so
+     * that you only receive the latest update, which is useful in cases where you are simply
+     * updating UI and don't care about tracking the exact number of page updates.
      */
     public val onPagesUpdatedFlow: Flow<Unit>
         get() = _onPagesUpdatedFlow.asSharedFlow()
 
     init {
-        addOnPagesUpdatedListener {
-            _onPagesUpdatedFlow.tryEmit(Unit)
-        }
+        addOnPagesUpdatedListener { _onPagesUpdatedFlow.tryEmit(Unit) }
     }
 
     /**
@@ -378,13 +374,12 @@ public abstract class PagingDataPresenter<T : Any> (
      * actual items presented don't change.
      *
      * An update is triggered from one of the following:
-     *   * [collectFrom] is called and initial load completes, regardless of any differences in
-     *     the loaded data
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     * * [collectFrom] is called and initial load completes, regardless of any differences in the
+     *   loaded data
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
      *
      * @param listener called after pages presented are updated.
-     *
      * @see removeOnPagesUpdatedListener
      */
     public fun addOnPagesUpdatedListener(listener: () -> Unit) {
@@ -395,7 +390,6 @@ public abstract class PagingDataPresenter<T : Any> (
      * Remove a previously registered listener for updates to presented pages.
      *
      * @param listener Previously registered listener.
-     *
      * @see addOnPagesUpdatedListener
      */
     public fun removeOnPagesUpdatedListener(listener: () -> Unit) {
@@ -409,11 +403,10 @@ public abstract class PagingDataPresenter<T : Any> (
      * reflect the current [CombinedLoadStates].
      *
      * When a new listener is added, it will be immediately called with the current
-     * [CombinedLoadStates], unless this [PagingDataPresenter] has not been hooked up to a [PagingData]
-     * yet, and thus has no state to emit.
+     * [CombinedLoadStates], unless this [PagingDataPresenter] has not been hooked up to a
+     * [PagingData] yet, and thus has no state to emit.
      *
      * @param listener [LoadStates] listener to receive updates.
-     *
      * @see removeLoadStateListener
      *
      * @sample androidx.paging.samples.addLoadStateListenerSample
@@ -449,11 +442,12 @@ public abstract class PagingDataPresenter<T : Any> (
 
         lastAccessedIndexUnfulfilled = false
 
-        val newPageStore = PageStore(
-            pages = pages,
-            placeholdersBefore = placeholdersBefore,
-            placeholdersAfter = placeholdersAfter,
-        )
+        val newPageStore =
+            PageStore(
+                pages = pages,
+                placeholdersBefore = placeholdersBefore,
+                placeholdersAfter = placeholdersAfter,
+            )
         // must capture previousList states here before we update pageStore
         val previousList = pageStore as PlaceholderPaddedList<T>
 
@@ -499,8 +493,8 @@ public abstract class PagingDataPresenter<T : Any> (
 }
 
 /**
- * Payloads used to dispatch change events.
- * Could become a public API post 3.0 in case developers want to handle it more effectively.
+ * Payloads used to dispatch change events. Could become a public API post 3.0 in case developers
+ * want to handle it more effectively.
  *
  * Sending these change payloads is critical for the common case where DefaultItemAnimator won't
  * animate them and re-use the same view holder if possible.

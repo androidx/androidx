@@ -34,9 +34,9 @@ internal sealed class PageEvent<T : Any> {
      * generation.
      *
      * @param sourceLoadStates source [LoadStates] to emit if non-null, ignored otherwise, allowing
-     * the presenter receiving this event to maintain the previous state.
+     *   the presenter receiving this event to maintain the previous state.
      * @param mediatorLoadStates mediator [LoadStates] to emit if non-null, ignored otherwise,
-     * allowing the presenter receiving this event to maintain its previous state.
+     *   allowing the presenter receiving this event to maintain its previous state.
      */
     data class StaticList<T : Any>(
         val data: List<T>,
@@ -82,7 +82,8 @@ internal sealed class PageEvent<T : Any> {
 
     // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
     @Suppress("DataClassPrivateConstructor")
-    data class Insert<T : Any> private constructor(
+    data class Insert<T : Any>
+    private constructor(
         val loadType: LoadType,
         val pages: List<TransformablePage<T>>,
         val placeholdersBefore: Int,
@@ -113,14 +114,15 @@ internal sealed class PageEvent<T : Any> {
 
         internal inline fun <R : Any> transformPages(
             transform: (List<TransformablePage<T>>) -> List<TransformablePage<R>>
-        ): Insert<R> = Insert(
-            loadType = loadType,
-            pages = transform(pages),
-            placeholdersBefore = placeholdersBefore,
-            placeholdersAfter = placeholdersAfter,
-            sourceLoadStates = sourceLoadStates,
-            mediatorLoadStates = mediatorLoadStates,
-        )
+        ): Insert<R> =
+            Insert(
+                loadType = loadType,
+                pages = transform(pages),
+                placeholdersBefore = placeholdersBefore,
+                placeholdersAfter = placeholdersAfter,
+                sourceLoadStates = sourceLoadStates,
+                mediatorLoadStates = mediatorLoadStates,
+            )
 
         override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = mapPages {
             TransformablePage(
@@ -175,58 +177,63 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
                 mediatorLoadStates: LoadStates? = null
-            ) = Insert(
-                REFRESH,
-                pages,
-                placeholdersBefore,
-                placeholdersAfter,
-                sourceLoadStates,
-                mediatorLoadStates,
-            )
+            ) =
+                Insert(
+                    REFRESH,
+                    pages,
+                    placeholdersBefore,
+                    placeholdersAfter,
+                    sourceLoadStates,
+                    mediatorLoadStates,
+                )
 
             fun <T : Any> Prepend(
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
                 sourceLoadStates: LoadStates,
                 mediatorLoadStates: LoadStates? = null
-            ) = Insert(
-                PREPEND,
-                pages,
-                placeholdersBefore,
-                -1,
-                sourceLoadStates,
-                mediatorLoadStates,
-            )
+            ) =
+                Insert(
+                    PREPEND,
+                    pages,
+                    placeholdersBefore,
+                    -1,
+                    sourceLoadStates,
+                    mediatorLoadStates,
+                )
 
             fun <T : Any> Append(
                 pages: List<TransformablePage<T>>,
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
                 mediatorLoadStates: LoadStates? = null
-            ) = Insert(
-                APPEND,
-                pages,
-                -1,
-                placeholdersAfter,
-                sourceLoadStates,
-                mediatorLoadStates,
-            )
+            ) =
+                Insert(
+                    APPEND,
+                    pages,
+                    -1,
+                    placeholdersAfter,
+                    sourceLoadStates,
+                    mediatorLoadStates,
+                )
 
             /**
              * Empty refresh, used to convey initial state.
              *
              * Note - has no remote state, so remote state may be added over time
              */
-            val EMPTY_REFRESH_LOCAL: Insert<Any> = Refresh(
-                pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
-                placeholdersBefore = 0,
-                placeholdersAfter = 0,
-                sourceLoadStates = LoadStates(
-                    refresh = LoadState.NotLoading.Incomplete,
-                    prepend = LoadState.NotLoading.Complete,
-                    append = LoadState.NotLoading.Complete,
-                ),
-            )
+            val EMPTY_REFRESH_LOCAL: Insert<Any> =
+                Refresh(
+                    pages = listOf(TransformablePage.EMPTY_INITIAL_PAGE),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 0,
+                    sourceLoadStates =
+                        LoadStates(
+                            refresh = LoadState.NotLoading.Incomplete,
+                            prepend = LoadState.NotLoading.Complete,
+                            append = LoadState.NotLoading.Complete,
+                        ),
+                )
         }
 
         override fun toString(): String {
@@ -248,13 +255,9 @@ internal sealed class PageEvent<T : Any> {
     // TODO: b/195658070 consider refactoring Drop events to carry full source/mediator states.
     data class Drop<T : Any>(
         val loadType: LoadType,
-        /**
-         * Smallest [TransformablePage.originalPageOffsets] to drop; inclusive.
-         */
+        /** Smallest [TransformablePage.originalPageOffsets] to drop; inclusive. */
         val minPageOffset: Int,
-        /**
-         * Largest [TransformablePage.originalPageOffsets] to drop; inclusive
-         */
+        /** Largest [TransformablePage.originalPageOffsets] to drop; inclusive */
         val maxPageOffset: Int,
         val placeholdersRemaining: Int
     ) : PageEvent<T>() {
@@ -267,21 +270,23 @@ internal sealed class PageEvent<T : Any> {
             }
         }
 
-        val pageCount get() = maxPageOffset - minPageOffset + 1
+        val pageCount
+            get() = maxPageOffset - minPageOffset + 1
 
         override fun toString(): String {
-            val direction = when (loadType) {
-                APPEND -> "end"
-                PREPEND -> "front"
-                else -> throw IllegalArgumentException(
-                    "Drop load type must be PREPEND or APPEND"
-                )
-            }
+            val direction =
+                when (loadType) {
+                    APPEND -> "end"
+                    PREPEND -> "front"
+                    else ->
+                        throw IllegalArgumentException("Drop load type must be PREPEND or APPEND")
+                }
             return """PageEvent.Drop from the $direction (
                     |   minPageOffset: $minPageOffset
                     |   maxPageOffset: $maxPageOffset
                     |   placeholdersRemaining: $placeholdersRemaining
-                    |)""".trimMargin()
+                    |)"""
+                .trimMargin()
         }
     }
 

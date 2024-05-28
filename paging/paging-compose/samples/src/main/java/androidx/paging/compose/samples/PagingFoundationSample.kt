@@ -44,15 +44,15 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
-private val db: TestBackend = TestBackend(
-    loadDelay = 0,
-    backendDataList = (0..500).toList().map { "$it" }
-)
+private val db: TestBackend =
+    TestBackend(loadDelay = 0, backendDataList = (0..500).toList().map { "$it" })
 
-private val pager = Pager(
-    config = PagingConfig(pageSize = 5, initialLoadSize = 15, enablePlaceholders = true),
-    pagingSourceFactory = { db.getAllData() }
-).flow
+private val pager =
+    Pager(
+            config = PagingConfig(pageSize = 5, initialLoadSize = 15, enablePlaceholders = true),
+            pagingSourceFactory = { db.getAllData() }
+        )
+        .flow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Sampled
@@ -118,10 +118,7 @@ public fun PagingWithLazyList() {
             contentType = "My Header",
         ) {
             Box(
-                modifier = Modifier
-                    .padding(bottom = 10.dp)
-                    .background(Color.Red)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(bottom = 10.dp).background(Color.Red).fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = "Header", fontSize = 32.sp)
@@ -141,11 +138,7 @@ public fun PagingWithLazyList() {
 @Composable
 private fun PagingItem(item: String?) {
     Box(
-        modifier = Modifier
-            .padding(10.dp)
-            .background(Color.Blue)
-            .fillMaxWidth()
-            .aspectRatio(1f),
+        modifier = Modifier.padding(10.dp).background(Color.Blue).fillMaxWidth().aspectRatio(1f),
         contentAlignment = Alignment.Center
     ) {
         if (item != null) {

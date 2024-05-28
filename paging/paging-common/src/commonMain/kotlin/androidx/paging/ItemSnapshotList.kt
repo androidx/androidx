@@ -28,17 +28,13 @@ public class ItemSnapshotList<T>(
      * Number of placeholders before the presented [items], 0 if
      * [enablePlaceholders][androidx.paging.PagingConfig.enablePlaceholders] is `false`.
      */
-    @IntRange(from = 0)
-    public val placeholdersBefore: Int,
+    @IntRange(from = 0) public val placeholdersBefore: Int,
     /**
      * Number of placeholders after the presented [items], 0 if
      * [enablePlaceholders][androidx.paging.PagingConfig.enablePlaceholders] is `false`.
      */
-    @IntRange(from = 0)
-    public val placeholdersAfter: Int,
-    /**
-     * The presented data, excluding placeholders.
-     */
+    @IntRange(from = 0) public val placeholdersAfter: Int,
+    /** The presented data, excluding placeholders. */
     public val items: List<T>
 ) : AbstractList<T?>() {
 
@@ -67,9 +63,10 @@ public class ItemSnapshotList<T>(
                 items[index - placeholdersBefore]
             }
             in (placeholdersBefore + items.size) until size -> null
-            else -> throw IndexOutOfBoundsException(
-                "Illegal attempt to access index $index in ItemSnapshotList of size $size"
-            )
+            else ->
+                throw IndexOutOfBoundsException(
+                    "Illegal attempt to access index $index in ItemSnapshotList of size $size"
+                )
         }
     }
 }

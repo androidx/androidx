@@ -17,8 +17,8 @@
 package androidx.paging
 
 /**
- * [InitialDataSource] is a placeholder [DataSource] implementation that only returns empty
- * pages and `null` keys.
+ * [InitialDataSource] is a placeholder [DataSource] implementation that only returns empty pages
+ * and `null` keys.
  *
  * It should be used exclusively in [InitialPagedList] since it is required to be supplied
  * synchronously, but [DataSource.Factory] should run on background thread.

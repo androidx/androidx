@@ -33,9 +33,9 @@ import kotlinx.coroutines.CoroutineScope
  *
  * NOTE: Instances of [PagingData] emitted by this [LiveData] are not re-usable and cannot be
  * submitted multiple times. This is especially relevant because [LiveData] will replays the latest
- * value downstream. To ensure you get a new instance of [PagingData] for each downstream
- * observer, you should use the [cachedIn] operator which multicasts the [LiveData] in a way that
- * returns a new instance of [PagingData] with cached data pre-loaded.
+ * value downstream. To ensure you get a new instance of [PagingData] for each downstream observer,
+ * you should use the [cachedIn] operator which multicasts the [LiveData] in a way that returns a
+ * new instance of [PagingData] with cached data pre-loaded.
  */
 val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Value>>
     get() = flow.asLiveData()
@@ -43,57 +43,54 @@ val <Key : Any, Value : Any> Pager<Key, Value>.liveData: LiveData<PagingData<Val
 /**
  * Operator which caches a [LiveData] of [PagingData] within the scope of a [Lifecycle].
  *
- * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
- * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those pages in memory.
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple observers
+ * on the same instance of [PagingData] to receive the same events, avoiding redundant work, but
+ * comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
- * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
- * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
- * same generation of [PagingData] is an unsupported operation.
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData] emitted
+ * by [Pager] or any of its transformed derivatives, as reloading data from scratch on the same
+ * generation of [PagingData] is an unsupported operation.
  *
  * @param lifecycle The [Lifecycle] where the page cache will be kept alive.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) = asFlow()
-    .cachedIn(lifecycle.coroutineScope)
-    .asLiveData()
+fun <T : Any> LiveData<PagingData<T>>.cachedIn(lifecycle: Lifecycle) =
+    asFlow().cachedIn(lifecycle.coroutineScope).asLiveData()
 
 /**
  * Operator which caches a [LiveData] of [PagingData] within the scope of a [ViewModel].
  *
- * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
- * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those pages in memory.
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple observers
+ * on the same instance of [PagingData] to receive the same events, avoiding redundant work, but
+ * comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
- * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
- * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
- * same generation of [PagingData] is an unsupported operation.
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData] emitted
+ * by [Pager] or any of its transformed derivatives, as reloading data from scratch on the same
+ * generation of [PagingData] is an unsupported operation.
  *
- * @param viewModel The [ViewModel] whose [viewModelScope] will dictate how long the page
- * cache will be kept alive.
+ * @param viewModel The [ViewModel] whose [viewModelScope] will dictate how long the page cache will
+ *   be kept alive.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(viewModel: ViewModel) = asFlow()
-    .cachedIn(viewModel.viewModelScope)
-    .asLiveData()
+fun <T : Any> LiveData<PagingData<T>>.cachedIn(viewModel: ViewModel) =
+    asFlow().cachedIn(viewModel.viewModelScope).asLiveData()
 
 /**
  * Operator which caches a [LiveData] of [PagingData] within a [CoroutineScope].
  *
- * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
- * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those pages in memory.
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple observers
+ * on the same instance of [PagingData] to receive the same events, avoiding redundant work, but
+ * comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
- * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
- * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
- * same generation of [PagingData] is an unsupported operation.
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData] emitted
+ * by [Pager] or any of its transformed derivatives, as reloading data from scratch on the same
+ * generation of [PagingData] is an unsupported operation.
  *
- * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
- * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
- * manually cancelled to avoid memory leaks.
+ * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this would
+ *   be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after the
+ *   [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ *   manually cancelled to avoid memory leaks.
  */
-fun <T : Any> LiveData<PagingData<T>>.cachedIn(scope: CoroutineScope) = asFlow()
-    .cachedIn(scope)
-    .asLiveData()
+fun <T : Any> LiveData<PagingData<T>>.cachedIn(scope: CoroutineScope) =
+    asFlow().cachedIn(scope).asLiveData()

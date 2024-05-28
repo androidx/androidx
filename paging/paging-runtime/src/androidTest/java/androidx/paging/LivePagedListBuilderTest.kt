@@ -53,27 +53,27 @@ class LivePagedListBuilderTest {
     private val backgroundExecutor = TestExecutor()
     private val lifecycleOwner = TestLifecycleOwner()
 
-    private data class LoadStateEvent(
-        val type: LoadType,
-        val state: LoadState
-    )
+    private data class LoadStateEvent(val type: LoadType, val state: LoadState)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
-        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
-            override fun executeOnDiskIO(runnable: Runnable) {
-                fail("IO executor should be overwritten")
-            }
+        ArchTaskExecutor.getInstance()
+            .setDelegate(
+                object : TaskExecutor() {
+                    override fun executeOnDiskIO(runnable: Runnable) {
+                        fail("IO executor should be overwritten")
+                    }
 
-            override fun postToMainThread(runnable: Runnable) {
-                runnable.run()
-            }
+                    override fun postToMainThread(runnable: Runnable) {
+                        runnable.run()
+                    }
 
-            override fun isMainThread(): Boolean {
-                return true
-            }
-        })
+                    override fun isMainThread(): Boolean {
+                        return true
+                    }
+                }
+            )
         lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
     }
 
@@ -99,10 +99,11 @@ class LivePagedListBuilderTest {
 
             var invalidInitialLoadResult = false
 
-            override suspend fun load(params: LoadParams<Int>) = when (params) {
-                is LoadParams.Refresh -> loadInitial(params)
-                else -> loadRange()
-            }
+            override suspend fun load(params: LoadParams<Int>) =
+                when (params) {
+                    is LoadParams.Refresh -> loadInitial(params)
+                    else -> loadRange()
+                }
 
             override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
 
@@ -134,19 +135,14 @@ class LivePagedListBuilderTest {
 
             private fun loadRange(): LoadResult<Int, String> {
                 val data = listOf("c", "d")
-                return LoadResult.Page(
-                    data = data,
-                    prevKey = 2,
-                    nextKey = null
-                )
+                return LoadResult.Page(data = data, prevKey = 2, nextKey = null)
             }
         }
     }
 
     @Test
     fun initialValueAllowsGetDataSource() {
-        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
-            .build()
+        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2).build()
 
         // Calling .dataSource should never throw from the initial paged list.
         livePagedList.value!!.dataSource
@@ -158,23 +154,21 @@ class LivePagedListBuilderTest {
         // represent the common case when writing tests.
         ArchTaskExecutor.getInstance().setDelegate(null)
 
-        LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
-            .build()
+        LivePagedListBuilder(MockPagingSourceFactory()::create, 2).build()
     }
 
     @Test
     fun executorBehavior() {
         // specify a background dispatcher via builder, and verify it gets used for all loads,
         // overriding default IO dispatcher
-        val livePagedList = LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
-            .setFetchExecutor(backgroundExecutor)
-            .build()
+        val livePagedList =
+            LivePagedListBuilder(MockPagingSourceFactory()::create, 2)
+                .setFetchExecutor(backgroundExecutor)
+                .build()
 
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        livePagedList.observe(lifecycleOwner) { newList ->
-            pagedListHolder[0] = newList
-        }
+        livePagedList.observe(lifecycleOwner) { newList -> pagedListHolder[0] = newList }
 
         // initially, immediately get passed empty initial list
         assertNotNull(pagedListHolder[0])
@@ -199,15 +193,12 @@ class LivePagedListBuilderTest {
         val factory = MockPagingSourceFactory()
         factory.enqueueError()
 
-        val livePagedList = LivePagedListBuilder(factory::create, 2)
-            .setFetchExecutor(backgroundExecutor)
-            .build()
+        val livePagedList =
+            LivePagedListBuilder(factory::create, 2).setFetchExecutor(backgroundExecutor).build()
 
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
-        livePagedList.observe(lifecycleOwner) { newList ->
-            pagedListHolder[0] = newList
-        }
+        livePagedList.observe(lifecycleOwner) { newList -> pagedListHolder[0] = newList }
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -230,9 +221,7 @@ class LivePagedListBuilderTest {
         // TODO: Investigate removing initial IDLE state from callback updates.
         assertEquals(
             listOf(
-                LoadStateEvent(
-                    REFRESH, NotLoading(endOfPaginationReached = false)
-                ),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION))
             ),
@@ -250,10 +239,7 @@ class LivePagedListBuilderTest {
 
         assertEquals(
             listOf(
-                LoadStateEvent(
-                    REFRESH,
-                    NotLoading(endOfPaginationReached = false)
-                ),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading)
@@ -266,17 +252,11 @@ class LivePagedListBuilderTest {
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
-                LoadStateEvent(
-                    REFRESH,
-                    NotLoading(endOfPaginationReached = false)
-                ),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(
-                    REFRESH,
-                    NotLoading(endOfPaginationReached = false)
-                )
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
             ),
             loadStates
         )
@@ -288,20 +268,21 @@ class LivePagedListBuilderTest {
         val pagingSources = mutableListOf<MockPagingSourceFactory.MockPagingSource>()
         val pagedListHolder = mutableListOf<PagedList<String>>()
 
-        val livePagedList = LivePagedListBuilder(
-            {
-                factory.create().also { pagingSource ->
-                    pagingSource as MockPagingSourceFactory.MockPagingSource
-                    if (pagingSources.size == 0) {
-                        pagingSource.invalidInitialLoadResult = true
-                    }
-                    pagingSources.add(pagingSource)
-                }
-            },
-            pageSize = 2
-        )
-            .setFetchExecutor(backgroundExecutor)
-            .build()
+        val livePagedList =
+            LivePagedListBuilder(
+                    {
+                        factory.create().also { pagingSource ->
+                            pagingSource as MockPagingSourceFactory.MockPagingSource
+                            if (pagingSources.size == 0) {
+                                pagingSource.invalidInitialLoadResult = true
+                            }
+                            pagingSources.add(pagingSource)
+                        }
+                    },
+                    pageSize = 2
+                )
+                .setFetchExecutor(backgroundExecutor)
+                .build()
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -332,23 +313,15 @@ class LivePagedListBuilderTest {
         assertThat(pagedListHolder.size).isEqualTo(2)
         assertThat(pagedListHolder[1]).isInstanceOf(ContiguousPagedList::class.java)
 
-        assertThat(loadStates).containsExactly(
-            LoadStateEvent(
-                REFRESH,
-                NotLoading(endOfPaginationReached = false)
-            ),
-            LoadStateEvent(REFRESH, Loading),
-            // when LoadResult.Invalid is returned, REFRESH is reset back to NotLoading
-            LoadStateEvent(
-                REFRESH,
-                NotLoading(endOfPaginationReached = false)
-            ),
-            LoadStateEvent(REFRESH, Loading),
-            LoadStateEvent(
-                REFRESH,
-                NotLoading(endOfPaginationReached = false)
+        assertThat(loadStates)
+            .containsExactly(
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
+                LoadStateEvent(REFRESH, Loading),
+                // when LoadResult.Invalid is returned, REFRESH is reset back to NotLoading
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
+                LoadStateEvent(REFRESH, Loading),
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
             )
-        )
     }
 
     @Test
@@ -357,16 +330,18 @@ class LivePagedListBuilderTest {
         val pagedLists = mutableListOf<PagedList<Int>>()
         val factory = { TestPagingSource(loadDelay = 0).also { pagingSources.add(it) } }
 
-        val livePagedList = LivePagedListBuilder(
-            factory,
-            config = PagedList.Config.Builder()
-                .setPageSize(2)
-                .setInitialLoadSizeHint(6)
-                .setEnablePlaceholders(false)
+        val livePagedList =
+            LivePagedListBuilder(
+                    factory,
+                    config =
+                        PagedList.Config.Builder()
+                            .setPageSize(2)
+                            .setInitialLoadSizeHint(6)
+                            .setEnablePlaceholders(false)
+                            .build()
+                )
+                .setFetchExecutor(backgroundExecutor)
                 .build()
-        )
-            .setFetchExecutor(backgroundExecutor)
-            .build()
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -407,26 +382,27 @@ class LivePagedListBuilderTest {
 
         assertThat(pagingSources.size).isEqualTo(2)
         assertThat(pagedLists.size).isEqualTo(3)
-        assertThat(loadStates).containsExactly(
-            LoadStateEvent(
-                APPEND,
-                NotLoading(endOfPaginationReached = false)
-            ), // first empty paged list
-            LoadStateEvent(
-                APPEND,
-                NotLoading(endOfPaginationReached = false)
-            ), // second paged list
-            LoadStateEvent(APPEND, Loading), // second paged list append
-            LoadStateEvent(
-                APPEND,
-                NotLoading(endOfPaginationReached = false)
-            ), // append success
-            LoadStateEvent(APPEND, Loading), // second paged list append again but fails
-            LoadStateEvent(
-                APPEND,
-                NotLoading(endOfPaginationReached = false)
-            ) // third paged list
-        )
+        assertThat(loadStates)
+            .containsExactly(
+                LoadStateEvent(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ), // first empty paged list
+                LoadStateEvent(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ), // second paged list
+                LoadStateEvent(APPEND, Loading), // second paged list append
+                LoadStateEvent(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ), // append success
+                LoadStateEvent(APPEND, Loading), // second paged list append again but fails
+                LoadStateEvent(
+                    APPEND,
+                    NotLoading(endOfPaginationReached = false)
+                ) // third paged list
+            )
     }
 
     @Test
@@ -434,36 +410,40 @@ class LivePagedListBuilderTest {
         val dataSources = mutableListOf<DataSource<Int, Int>>()
         val pagedLists = mutableListOf<PagedList<Int>>()
         val requestedLoadSizes = mutableListOf<Int>()
-        val livePagedList = LivePagedListBuilder(
-            pagingSourceFactory = object : DataSource.Factory<Int, Int>() {
-                override fun create(): DataSource<Int, Int> {
-                    return object : PositionalDataSource<Int>() {
-                        override fun loadInitial(
-                            params: LoadInitialParams,
-                            callback: LoadInitialCallback<Int>
-                        ) {
-                            requestedLoadSizes.add(params.requestedLoadSize)
-                            callback.onResult(listOf(1, 2, 3), 0)
-                        }
+        val livePagedList =
+            LivePagedListBuilder(
+                    pagingSourceFactory =
+                        object : DataSource.Factory<Int, Int>() {
+                                override fun create(): DataSource<Int, Int> {
+                                    return object : PositionalDataSource<Int>() {
+                                            override fun loadInitial(
+                                                params: LoadInitialParams,
+                                                callback: LoadInitialCallback<Int>
+                                            ) {
+                                                requestedLoadSizes.add(params.requestedLoadSize)
+                                                callback.onResult(listOf(1, 2, 3), 0)
+                                            }
 
-                        override fun loadRange(
-                            params: LoadRangeParams,
-                            callback: LoadRangeCallback<Int>
-                        ) {
-                            requestedLoadSizes.add(params.loadSize)
-                        }
-                    }.also {
-                        dataSources.add(it)
-                    }
-                }
-            }.asPagingSourceFactory(backgroundExecutor.asCoroutineDispatcher()),
-            config = PagedList.Config.Builder()
-                .setPageSize(3)
-                .setInitialLoadSizeHint(3)
-                .setEnablePlaceholders(false)
+                                            override fun loadRange(
+                                                params: LoadRangeParams,
+                                                callback: LoadRangeCallback<Int>
+                                            ) {
+                                                requestedLoadSizes.add(params.loadSize)
+                                            }
+                                        }
+                                        .also { dataSources.add(it) }
+                                }
+                            }
+                            .asPagingSourceFactory(backgroundExecutor.asCoroutineDispatcher()),
+                    config =
+                        PagedList.Config.Builder()
+                            .setPageSize(3)
+                            .setInitialLoadSizeHint(3)
+                            .setEnablePlaceholders(false)
+                            .build()
+                )
+                .setFetchExecutor(backgroundExecutor)
                 .build()
-        ).setFetchExecutor(backgroundExecutor)
-            .build()
 
         livePagedList.observeForever { pagedLists.add(it) }
 
@@ -485,61 +465,72 @@ class LivePagedListBuilderTest {
 
     @Test
     fun initialPagedListEvents() {
-        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
-            override fun executeOnDiskIO(runnable: Runnable) {
-                runnable.run()
-            }
+        ArchTaskExecutor.getInstance()
+            .setDelegate(
+                object : TaskExecutor() {
+                    override fun executeOnDiskIO(runnable: Runnable) {
+                        runnable.run()
+                    }
 
-            override fun postToMainThread(runnable: Runnable) {
-                runnable.run()
-            }
+                    override fun postToMainThread(runnable: Runnable) {
+                        runnable.run()
+                    }
 
-            override fun isMainThread(): Boolean {
-                return true
-            }
-        })
+                    override fun isMainThread(): Boolean {
+                        return true
+                    }
+                }
+            )
 
         val listUpdateCallback = ListUpdateCapture()
         val loadStateListener = LoadStateCapture()
-        val differ = AsyncPagedListDiffer<Int>(
-            listUpdateCallback = listUpdateCallback,
-            config = AsyncDifferConfig.Builder(
-                object : DiffUtil.ItemCallback<Int>() {
-                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
+        val differ =
+            AsyncPagedListDiffer<Int>(
+                listUpdateCallback = listUpdateCallback,
+                config =
+                    AsyncDifferConfig.Builder(
+                            object : DiffUtil.ItemCallback<Int>() {
+                                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                    return oldItem == newItem
+                                }
 
-                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                        return oldItem == newItem
-                    }
-                }
-            ).apply {
-                setBackgroundThreadExecutor(backgroundExecutor)
-            }.build()
-        )
+                                override fun areContentsTheSame(
+                                    oldItem: Int,
+                                    newItem: Int
+                                ): Boolean {
+                                    return oldItem == newItem
+                                }
+                            }
+                        )
+                        .apply { setBackgroundThreadExecutor(backgroundExecutor) }
+                        .build()
+            )
         differ.addLoadStateListener(loadStateListener)
 
         val observer = Observer<PagedList<Int>> { t -> differ.submitList(t) }
 
         // LivePagedList which immediately produces a real PagedList, skipping InitialPagedList.
-        val livePagedList = LivePagedListBuilder(
-            pagingSourceFactory = { TestPagingSource(loadDelay = 0) },
-            pageSize = 10,
-        ).build()
+        val livePagedList =
+            LivePagedListBuilder(
+                    pagingSourceFactory = { TestPagingSource(loadDelay = 0) },
+                    pageSize = 10,
+                )
+                .build()
         livePagedList.observeForever(observer)
 
         drain()
         livePagedList.removeObserver(observer)
 
-        assertThat(listUpdateCallback.newEvents()).containsExactly(
-            ListUpdateEvent.Inserted(position = 0, count = 100)
-        )
+        assertThat(listUpdateCallback.newEvents())
+            .containsExactly(ListUpdateEvent.Inserted(position = 0, count = 100))
 
         // LivePagedList which will emit InitialPagedList first.
-        val livePagedListWithInitialPagedList = LivePagedListBuilder(
-            pagingSourceFactory = { TestPagingSource(loadDelay = 1000) },
-            pageSize = 10,
-        ).build()
+        val livePagedListWithInitialPagedList =
+            LivePagedListBuilder(
+                    pagingSourceFactory = { TestPagingSource(loadDelay = 1000) },
+                    pageSize = 10,
+                )
+                .build()
         livePagedListWithInitialPagedList.observeForever(observer)
 
         drain()

@@ -27,8 +27,7 @@ import io.reactivex.Single
 interface RemoteKeyDao {
     // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
     // in both Java and Kotlin samples.
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrReplace(remoteKey: RemoteKey)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertOrReplace(remoteKey: RemoteKey)
 
     @Query("SELECT * FROM remote_keys WHERE label = :query")
     fun remoteKeyByQuery(query: String): RemoteKey
@@ -41,6 +40,5 @@ interface RemoteKeyDao {
 
     // Normally suspend when using Kotlin Coroutines, but sync version allows this Dao to be used
     // in both Java and Kotlin samples.
-    @Query("DELETE FROM remote_keys WHERE label = :query")
-    fun deleteByQuery(query: String)
+    @Query("DELETE FROM remote_keys WHERE label = :query") fun deleteByQuery(query: String)
 }

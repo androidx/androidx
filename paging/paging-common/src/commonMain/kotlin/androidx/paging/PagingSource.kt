@@ -21,9 +21,9 @@ import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadType.REFRESH
 
 /**
- * Base class for an abstraction of pageable static data from some source, where loading pages
- * of data is typically an expensive operation. Some examples of common [PagingSource]s might be
- * from network or from a database.
+ * Base class for an abstraction of pageable static data from some source, where loading pages of
+ * data is typically an expensive operation. Some examples of common [PagingSource]s might be from
+ * network or from a database.
  *
  * An instance of a [PagingSource] is used to load pages of data for an instance of [PagingData].
  *
@@ -33,8 +33,8 @@ import androidx.paging.LoadType.REFRESH
  *
  * ### Loading Pages
  *
- * [PagingData] queries data from its [PagingSource] in response to loading hints generated as
- * the user scrolls in a `RecyclerView`.
+ * [PagingData] queries data from its [PagingSource] in response to loading hints generated as the
+ * user scrolls in a `RecyclerView`.
  *
  * To control how and when a [PagingData] queries data from its [PagingSource], see [PagingConfig],
  * which defines behavior such as [PagingConfig.pageSize] and [PagingConfig.prefetchDistance].
@@ -43,10 +43,10 @@ import androidx.paging.LoadType.REFRESH
  *
  * A [PagingSource] / [PagingData] pair is a snapshot of the data set. A new [PagingData] /
  * [PagingData] must be created if an update occurs, such as a reorder, insert, delete, or content
- * update occurs. A [PagingSource] must detect that it cannot continue loading its snapshot
- * (for instance, when Database query notices a table being invalidated), and call [invalidate].
- * Then a new [PagingSource] / [PagingData] pair would be created to represent data from the new
- * state of the database query.
+ * update occurs. A [PagingSource] must detect that it cannot continue loading its snapshot (for
+ * instance, when Database query notices a table being invalidated), and call [invalidate]. Then a
+ * new [PagingSource] / [PagingData] pair would be created to represent data from the new state of
+ * the database query.
  *
  * ### Presenting Data to UI
  *
@@ -55,31 +55,29 @@ import androidx.paging.LoadType.REFRESH
  * [PagingDataAdapter][androidx.paging.PagingDataAdapter].
  *
  * @param Key Type of key which define what data to load. E.g. [Int] to represent either a page
- * number or item position, or [String] if your network uses Strings as next tokens returned with
- * each response.
+ *   number or item position, or [String] if your network uses Strings as next tokens returned with
+ *   each response.
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
- * passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
- * `RecyclerView`.
+ *   passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
+ *   `RecyclerView`.
  *
  * @sample androidx.paging.samples.pageKeyedPagingSourceSample
+ *
  * @sample androidx.paging.samples.itemKeyedPagingSourceSample
  *
  * @see Pager
  */
 public abstract class PagingSource<Key : Any, Value : Any> {
 
-    private val invalidateCallbackTracker = InvalidateCallbackTracker<() -> Unit>(
-        callbackInvoker = { it() }
-    )
+    private val invalidateCallbackTracker =
+        InvalidateCallbackTracker<() -> Unit>(callbackInvoker = { it() })
 
     internal val invalidateCallbackCount: Int
-        @VisibleForTesting
-        get() = invalidateCallbackTracker.callbackCount()
+        @VisibleForTesting get() = invalidateCallbackTracker.callbackCount()
 
-    /**
-     * Params for a load request on a [PagingSource] from [PagingSource.load].
-     */
-    public sealed class LoadParams<Key : Any> constructor(
+    /** Params for a load request on a [PagingSource] from [PagingSource.load]. */
+    public sealed class LoadParams<Key : Any>
+    constructor(
         /**
          * Requested number of items to load.
          *
@@ -97,17 +95,17 @@ public abstract class PagingSource<Key : Any, Value : Any> {
         /**
          * Key for the page to be loaded.
          *
-         * [key] can be `null` only if this [LoadParams] is [Refresh], and either no `initialKey`
-         * is provided to the [Pager] or [PagingSource.getRefreshKey] from the previous
-         * [PagingSource] returns `null`.
+         * [key] can be `null` only if this [LoadParams] is [Refresh], and either no `initialKey` is
+         * provided to the [Pager] or [PagingSource.getRefreshKey] from the previous [PagingSource]
+         * returns `null`.
          *
          * The value of [key] is dependent on the type of [LoadParams]:
-         *  * [Refresh]
-         *      * On initial load, the nullable `initialKey` passed to the [Pager].
-         *      * On subsequent loads due to invalidation or refresh, the result of
-         *      [PagingSource.getRefreshKey].
-         *  * [Prepend] - [LoadResult.Page.prevKey] of the loaded page at the front of the list.
-         *  * [Append] - [LoadResult.Page.nextKey] of the loaded page at the end of the list.
+         * * [Refresh]
+         *     * On initial load, the nullable `initialKey` passed to the [Pager].
+         *     * On subsequent loads due to invalidation or refresh, the result of
+         *       [PagingSource.getRefreshKey].
+         * * [Prepend] - [LoadResult.Page.prevKey] of the loaded page at the front of the list.
+         * * [Append] - [LoadResult.Page.nextKey] of the loaded page at the end of the list.
          */
         public abstract val key: Key?
 
@@ -115,40 +113,46 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * Params for an initial load request on a [PagingSource] from [PagingSource.load] or a
          * refresh triggered by [invalidate].
          */
-        public class Refresh<Key : Any> constructor(
+        public class Refresh<Key : Any>
+        constructor(
             override val key: Key?,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-        ) : LoadParams<Key>(
-            loadSize = loadSize,
-            placeholdersEnabled = placeholdersEnabled,
-        )
+        ) :
+            LoadParams<Key>(
+                loadSize = loadSize,
+                placeholdersEnabled = placeholdersEnabled,
+            )
 
         /**
          * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
          * appended to the end of the list.
          */
-        public class Append<Key : Any> constructor(
+        public class Append<Key : Any>
+        constructor(
             override val key: Key,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-        ) : LoadParams<Key>(
-            loadSize = loadSize,
-            placeholdersEnabled = placeholdersEnabled,
-        )
+        ) :
+            LoadParams<Key>(
+                loadSize = loadSize,
+                placeholdersEnabled = placeholdersEnabled,
+            )
 
         /**
          * Params to load a page of data from a [PagingSource] via [PagingSource.load] to be
          * prepended to the start of the list.
          */
-        public class Prepend<Key : Any> constructor(
+        public class Prepend<Key : Any>
+        constructor(
             override val key: Key,
             loadSize: Int,
             placeholdersEnabled: Boolean,
-        ) : LoadParams<Key>(
-            loadSize = loadSize,
-            placeholdersEnabled = placeholdersEnabled,
-        )
+        ) :
+            LoadParams<Key>(
+                loadSize = loadSize,
+                placeholdersEnabled = placeholdersEnabled,
+            )
 
         internal companion object {
             fun <Key : Any> create(
@@ -156,33 +160,31 @@ public abstract class PagingSource<Key : Any, Value : Any> {
                 key: Key?,
                 loadSize: Int,
                 placeholdersEnabled: Boolean,
-            ): LoadParams<Key> = when (loadType) {
-                LoadType.REFRESH -> Refresh(
-                    key = key,
-                    loadSize = loadSize,
-                    placeholdersEnabled = placeholdersEnabled,
-                )
-                LoadType.PREPEND -> Prepend(
-                    loadSize = loadSize,
-                    key = requireNotNull(key) {
-                        "key cannot be null for prepend"
-                    },
-                    placeholdersEnabled = placeholdersEnabled,
-                )
-                LoadType.APPEND -> Append(
-                    loadSize = loadSize,
-                    key = requireNotNull(key) {
-                        "key cannot be null for append"
-                    },
-                    placeholdersEnabled = placeholdersEnabled,
-                )
-            }
+            ): LoadParams<Key> =
+                when (loadType) {
+                    LoadType.REFRESH ->
+                        Refresh(
+                            key = key,
+                            loadSize = loadSize,
+                            placeholdersEnabled = placeholdersEnabled,
+                        )
+                    LoadType.PREPEND ->
+                        Prepend(
+                            loadSize = loadSize,
+                            key = requireNotNull(key) { "key cannot be null for prepend" },
+                            placeholdersEnabled = placeholdersEnabled,
+                        )
+                    LoadType.APPEND ->
+                        Append(
+                            loadSize = loadSize,
+                            key = requireNotNull(key) { "key cannot be null for append" },
+                            placeholdersEnabled = placeholdersEnabled,
+                        )
+                }
         }
     }
 
-    /**
-     * Result of a load request from [PagingSource.load].
-     */
+    /** Result of a load request from [PagingSource.load]. */
     public sealed class LoadResult<Key : Any, Value : Any> {
         /**
          * Error result object for [PagingSource.load].
@@ -193,13 +195,13 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          *
          * @sample androidx.paging.samples.pageKeyedPagingSourceSample
          */
-        public data class Error<Key : Any, Value : Any>(
-            val throwable: Throwable
-        ) : LoadResult<Key, Value>() {
+        public data class Error<Key : Any, Value : Any>(val throwable: Throwable) :
+            LoadResult<Key, Value>() {
             override fun toString(): String {
                 return """LoadResult.Error(
                     |   throwable: $throwable
-                    |) """.trimMargin()
+                    |) """
+                    .trimMargin()
             }
         }
 
@@ -209,15 +211,15 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * This return type can be used to terminate future load requests on this [PagingSource]
          * when the [PagingSource] is not longer valid due to changes in the underlying dataset.
          *
-         * For example, if the underlying database gets written into but the [PagingSource] does
-         * not invalidate in time, it may return inconsistent results if its implementation depends
-         * on the immutability of the backing dataset it loads from (e.g., LIMIT OFFSET style db
+         * For example, if the underlying database gets written into but the [PagingSource] does not
+         * invalidate in time, it may return inconsistent results if its implementation depends on
+         * the immutability of the backing dataset it loads from (e.g., LIMIT OFFSET style db
          * implementations). In this scenario, it is recommended to check for invalidation after
-         * loading and to return LoadResult.Invalid, which causes Paging to discard any
-         * pending or future load requests to this PagingSource and invalidate it.
+         * loading and to return LoadResult.Invalid, which causes Paging to discard any pending or
+         * future load requests to this PagingSource and invalidate it.
          *
-         * Returning [Invalid] will trigger Paging to [invalidate] this [PagingSource] and
-         * terminate any future attempts to [load] from this [PagingSource]
+         * Returning [Invalid] will trigger Paging to [invalidate] this [PagingSource] and terminate
+         * any future attempts to [load] from this [PagingSource]
          */
         public class Invalid<Key : Any, Value : Any> : LoadResult<Key, Value>() {
             override fun toString(): String {
@@ -231,12 +233,12 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * As a convenience, iterating on this object will iterate through its loaded [data].
          *
          * @sample androidx.paging.samples.pageKeyedPage
+         *
          * @sample androidx.paging.samples.pageIndexedPage
          */
-        public data class Page<Key : Any, Value : Any> constructor(
-            /**
-             * Loaded data
-             */
+        public data class Page<Key : Any, Value : Any>
+        constructor(
+            /** Loaded data */
             val data: List<Value>,
             /**
              * [Key] for previous page if more data can be loaded in that direction, `null`
@@ -251,14 +253,12 @@ public abstract class PagingSource<Key : Any, Value : Any> {
              * Count of items before the loaded data. Must be implemented if
              * [jumping][PagingSource.jumpingSupported] is enabled. Optional otherwise.
              */
-            @IntRange(from = COUNT_UNDEFINED.toLong())
-            val itemsBefore: Int = COUNT_UNDEFINED,
+            @IntRange(from = COUNT_UNDEFINED.toLong()) val itemsBefore: Int = COUNT_UNDEFINED,
             /**
              * Count of items after the loaded data. Must be implemented if
              * [jumping][PagingSource.jumpingSupported] is enabled. Optional otherwise.
              */
-            @IntRange(from = COUNT_UNDEFINED.toLong())
-            val itemsAfter: Int = COUNT_UNDEFINED
+            @IntRange(from = COUNT_UNDEFINED.toLong()) val itemsAfter: Int = COUNT_UNDEFINED
         ) : LoadResult<Key, Value>(), Iterable<Value> {
 
             /**
@@ -266,9 +266,9 @@ public abstract class PagingSource<Key : Any, Value : Any> {
              *
              * @param data Loaded data
              * @param prevKey [Key] for previous page if more data can be loaded in that direction,
-             * `null` otherwise.
+             *   `null` otherwise.
              * @param nextKey [Key] for next page if more data can be loaded in that direction,
-             * `null` otherwise.
+             *   `null` otherwise.
              */
             public constructor(
                 data: List<Value>,
@@ -299,7 +299,8 @@ public abstract class PagingSource<Key : Any, Value : Any> {
                     |   prevKey: $prevKey
                     |   itemsBefore: $itemsBefore
                     |   itemsAfter: $itemsAfter
-                    |) """.trimMargin()
+                    |) """
+                    .trimMargin()
             }
 
             public companion object {
@@ -335,8 +336,8 @@ public abstract class PagingSource<Key : Any, Value : Any> {
         get() = false
 
     /**
-     * `true` if this [PagingSource] expects to re-use keys to load distinct pages
-     * without a call to [invalidate], `false` otherwise.
+     * `true` if this [PagingSource] expects to re-use keys to load distinct pages without a call to
+     * [invalidate], `false` otherwise.
      */
     public open val keyReuseSupported: Boolean
         get() = false
@@ -372,7 +373,7 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * triggered immediately.
      *
      * @param onInvalidatedCallback The callback that will be invoked on thread that invalidates the
-     * [PagingSource].
+     *   [PagingSource].
      */
     public fun registerInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
         invalidateCallbackTracker.registerInvalidatedCallback(onInvalidatedCallback)
@@ -398,27 +399,26 @@ public abstract class PagingSource<Key : Any, Value : Any> {
      * Provide a [Key] used for the initial [load] for the next [PagingSource] due to invalidation
      * of this [PagingSource]. The [Key] is provided to [load] via [LoadParams.key].
      *
-     * The [Key] returned by this method should cause [load] to load enough items to
-     * fill the viewport *around* the last accessed position, allowing the next generation to
-     * transparently animate in. The last accessed position can be retrieved via
-     * [state.anchorPosition][PagingState.anchorPosition], which is typically
-     * the *top-most* or *bottom-most* item in the viewport due to access being triggered by binding
-     * items as they scroll into view.
+     * The [Key] returned by this method should cause [load] to load enough items to fill the
+     * viewport *around* the last accessed position, allowing the next generation to transparently
+     * animate in. The last accessed position can be retrieved via
+     * [state.anchorPosition][PagingState.anchorPosition], which is typically the *top-most* or
+     * *bottom-most* item in the viewport due to access being triggered by binding items as they
+     * scroll into view.
      *
-     * For example, if items are loaded based on integer position keys, you can return
-     * `( (state.anchorPosition ?: 0) - state.config.initialLoadSize / 2).coerceAtLeast(0)`.
+     * For example, if items are loaded based on integer position keys, you can return `(
+     * (state.anchorPosition ?: 0) - state.config.initialLoadSize / 2).coerceAtLeast(0)`.
      *
      * Alternately, if items contain a key used to load, get the key from the item in the page at
      * index [state.anchorPosition][PagingState.anchorPosition] then try to center it based on
      * `state.config.initialLoadSize`.
      *
      * @param state [PagingState] of the currently fetched data, which includes the most recently
-     * accessed position in the list via [PagingState.anchorPosition].
-     *
+     *   accessed position in the list via [PagingState.anchorPosition].
      * @return [Key] passed to [load] after invalidation used for initial load of the next
-     * generation. The [Key] returned by [getRefreshKey] should load pages centered around
-     * user's current viewport. If the correct [Key] cannot be determined, `null` can be returned
-     * to allow [load] decide what default key to use.
+     *   generation. The [Key] returned by [getRefreshKey] should load pages centered around user's
+     *   current viewport. If the correct [Key] cannot be determined, `null` can be returned to
+     *   allow [load] decide what default key to use.
      */
     public abstract fun getRefreshKey(state: PagingState<Key, Value>): Key?
 }

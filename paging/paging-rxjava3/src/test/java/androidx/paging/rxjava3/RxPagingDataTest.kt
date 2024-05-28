@@ -39,32 +39,38 @@ class RxPagingDataTest {
     private val presenter = TestPagingDataPresenter<String>(testDispatcher)
 
     @Test
-    fun map() = testScope.runTest {
-        val transformed = original.mapAsync { Single.just(it + it) }
-        presenter.collectFrom(transformed)
-        assertEquals(listOf("aa", "bb", "cc"), presenter.currentList)
-    }
-
-    @Test
-    fun flatMap() = testScope.runTest {
-        val transformed = original.flatMapAsync { Single.just(listOf(it, it) as Iterable<String>) }
-        presenter.collectFrom(transformed)
-        assertEquals(listOf("a", "a", "b", "b", "c", "c"), presenter.currentList)
-    }
-
-    @Test
-    fun filter() = testScope.runTest {
-        val filtered = original.filterAsync { Single.just(it != "b") }
-        presenter.collectFrom(filtered)
-        assertEquals(listOf("a", "c"), presenter.currentList)
-    }
-
-    @Test
-    fun insertSeparators() = testScope.runTest {
-        val separated = original.insertSeparatorsAsync { left, right ->
-            if (left == null || right == null) Maybe.empty() else Maybe.just("|")
+    fun map() =
+        testScope.runTest {
+            val transformed = original.mapAsync { Single.just(it + it) }
+            presenter.collectFrom(transformed)
+            assertEquals(listOf("aa", "bb", "cc"), presenter.currentList)
         }
-        presenter.collectFrom(separated)
-        assertEquals(listOf("a", "|", "b", "|", "c"), presenter.currentList)
-    }
+
+    @Test
+    fun flatMap() =
+        testScope.runTest {
+            val transformed =
+                original.flatMapAsync { Single.just(listOf(it, it) as Iterable<String>) }
+            presenter.collectFrom(transformed)
+            assertEquals(listOf("a", "a", "b", "b", "c", "c"), presenter.currentList)
+        }
+
+    @Test
+    fun filter() =
+        testScope.runTest {
+            val filtered = original.filterAsync { Single.just(it != "b") }
+            presenter.collectFrom(filtered)
+            assertEquals(listOf("a", "c"), presenter.currentList)
+        }
+
+    @Test
+    fun insertSeparators() =
+        testScope.runTest {
+            val separated =
+                original.insertSeparatorsAsync { left, right ->
+                    if (left == null || right == null) Maybe.empty() else Maybe.just("|")
+                }
+            presenter.collectFrom(separated)
+            assertEquals(listOf("a", "|", "b", "|", "c"), presenter.currentList)
+        }
 }

@@ -28,9 +28,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
- * Helper class to handle UI hints.
- * It processes incoming hints and keeps a min/max (prepend/append) values and provides them as a
- * flow to [PageFetcherSnapshot].
+ * Helper class to handle UI hints. It processes incoming hints and keeps a min/max (prepend/append)
+ * values and provides them as a flow to [PageFetcherSnapshot].
  */
 internal class HintHandler {
     private val state = State()
@@ -42,31 +41,23 @@ internal class HintHandler {
     val lastAccessHint: ViewportHint.Access?
         get() = state.lastAccessHint
 
-    /**
-     * Returns a flow of hints for the given [loadType].
-     */
-    fun hintFor(loadType: LoadType): Flow<ViewportHint> = when (loadType) {
-        PREPEND -> state.prependFlow
-        APPEND -> state.appendFlow
-        else -> throw IllegalArgumentException("invalid load type for hints")
-    }
+    /** Returns a flow of hints for the given [loadType]. */
+    fun hintFor(loadType: LoadType): Flow<ViewportHint> =
+        when (loadType) {
+            PREPEND -> state.prependFlow
+            APPEND -> state.appendFlow
+            else -> throw IllegalArgumentException("invalid load type for hints")
+        }
 
     /**
-     * Resets the hint for the given [loadType].
-     * Note that this won't update [lastAccessHint] or the other load type.
+     * Resets the hint for the given [loadType]. Note that this won't update [lastAccessHint] or the
+     * other load type.
      */
-    fun forceSetHint(
-        loadType: LoadType,
-        viewportHint: ViewportHint
-    ) {
-        require(
-            loadType == PREPEND || loadType == APPEND
-        ) {
+    fun forceSetHint(loadType: LoadType, viewportHint: ViewportHint) {
+        require(loadType == PREPEND || loadType == APPEND) {
             "invalid load type for reset: $loadType"
         }
-        state.modify(
-            accessHint = null
-        ) { prependHint, appendHint ->
+        state.modify(accessHint = null) { prependHint, appendHint ->
             if (loadType == PREPEND) {
                 prependHint.value = viewportHint
             } else {
@@ -75,23 +66,15 @@ internal class HintHandler {
         }
     }
 
-    /**
-     * Processes the hint coming from UI.
-     */
+    /** Processes the hint coming from UI. */
     fun processHint(viewportHint: ViewportHint) {
         state.modify(viewportHint as? ViewportHint.Access) { prependHint, appendHint ->
-            if (viewportHint.shouldPrioritizeOver(
-                    previous = prependHint.value,
-                    loadType = PREPEND
-                )
+            if (
+                viewportHint.shouldPrioritizeOver(previous = prependHint.value, loadType = PREPEND)
             ) {
                 prependHint.value = viewportHint
             }
-            if (viewportHint.shouldPrioritizeOver(
-                    previous = appendHint.value,
-                    loadType = APPEND
-                )
-            ) {
+            if (viewportHint.shouldPrioritizeOver(previous = appendHint.value, loadType = APPEND)) {
                 appendHint.value = viewportHint
             }
         }
@@ -102,15 +85,16 @@ internal class HintHandler {
         private val append = HintFlow()
         var lastAccessHint: ViewportHint.Access? = null
             private set
+
         val prependFlow
             get() = prepend.flow
+
         val appendFlow
             get() = append.flow
+
         private val lock = ReentrantLock()
 
-        /**
-         * Modifies the state inside a lock where it gets access to the mutable values.
-         */
+        /** Modifies the state inside a lock where it gets access to the mutable values. */
         fun modify(
             accessHint: ViewportHint.Access?,
             block: (prepend: HintFlow, append: HintFlow) -> Unit
@@ -125,8 +109,8 @@ internal class HintHandler {
     }
 
     /**
-     * Like a StateFlow that holds the value but does not do de-duping.
-     * Note that, this class is not thread safe.
+     * Like a StateFlow that holds the value but does not do de-duping. Note that, this class is not
+     * thread safe.
      */
     private inner class HintFlow {
         var value: ViewportHint? = null
@@ -136,10 +120,12 @@ internal class HintHandler {
                     _flow.tryEmit(value)
                 }
             }
-        private val _flow = MutableSharedFlow<ViewportHint>(
-            replay = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
+
+        private val _flow =
+            MutableSharedFlow<ViewportHint>(
+                replay = 1,
+                onBufferOverflow = BufferOverflow.DROP_OLDEST
+            )
         val flow: Flow<ViewportHint>
             get() = _flow
     }
