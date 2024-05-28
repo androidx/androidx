@@ -27,6 +27,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
+internal const val TEST_RESOURCES_ROOT = "src/test/resources"
 abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
@@ -42,8 +43,7 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
 
     @JvmField
     @Rule
-    val goldenTransformRule =
-        GoldenTransformRule("src/test/resources/golden")
+    val goldenTransformRule = GoldenTransformRule()
 
     fun verifyCrossModuleComposeIrTransform(
         @Language("kotlin")
