@@ -16,11 +16,10 @@
 
 package androidx.glance.text
 
-/**
- * Weight of a font.
- */
+/** Weight of a font. */
 @JvmInline
-value class FontWeight private constructor(
+value class FontWeight
+private constructor(
     /** numerical value for the weight (a number from 0 to 1000) */
     val value: Int,
 ) {

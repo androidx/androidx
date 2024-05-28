@@ -23,9 +23,7 @@ import com.example.datastorecomposesamples.CountPreferences
 import java.io.InputStream
 import java.io.OutputStream
 
-/**
- * Handles converting the CountPreferences to and from an OutputStream for storing in protos.
- */
+/** Handles converting the CountPreferences to and from an OutputStream for storing in protos. */
 object CountSerializer : Serializer<CountPreferences> {
 
     override val defaultValue: CountPreferences = CountPreferences.getDefaultInstance()

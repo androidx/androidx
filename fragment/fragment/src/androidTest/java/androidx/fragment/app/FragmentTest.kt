@@ -41,9 +41,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
-/**
- * Miscellaneous tests for fragments that aren't big enough to belong to their own classes.
- */
+/** Miscellaneous tests for fragments that aren't big enough to belong to their own classes. */
 @RunWith(AndroidJUnit4::class)
 class FragmentTest {
 
@@ -52,8 +50,8 @@ class FragmentTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     private lateinit var instrumentation: Instrumentation
 
@@ -89,7 +87,8 @@ class FragmentTest {
         val activity = activityRule.activity
         val fragment1 = OrderFragment()
         val fragment2 = OrderFragment()
-        activity.supportFragmentManager.beginTransaction()
+        activity.supportFragmentManager
+            .beginTransaction()
             .add(R.id.content, fragment1)
             .add(R.id.content, fragment2)
             .commitNow()
@@ -104,16 +103,20 @@ class FragmentTest {
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragmentA)
                 .commitNow()
         }
         instrumentation.waitForIdleSync()
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .setCustomAnimations(
-                    R.anim.long_fade_in, R.anim.long_fade_out,
-                    R.anim.long_fade_in, R.anim.long_fade_out
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out,
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out
                 )
                 .replace(R.id.content, fragmentB)
                 .addToBackStack(null)
@@ -123,10 +126,13 @@ class FragmentTest {
         waitForHalfFadeIn(fragmentB)
 
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .setCustomAnimations(
-                    R.anim.long_fade_in, R.anim.long_fade_out,
-                    R.anim.long_fade_in, R.anim.long_fade_out
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out,
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out
                 )
                 .replace(R.id.content, fragmentA)
                 .addToBackStack(null)
@@ -149,19 +155,24 @@ class FragmentTest {
         val fragmentA = FragmentA()
         val fragmentB = FragmentB()
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(unrelatedFragment, "unrelated")
                 .commitNow()
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragmentA)
                 .commitNow()
         }
         instrumentation.waitForIdleSync()
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
+            activity.supportFragmentManager
+                .beginTransaction()
                 .setCustomAnimations(
-                    R.anim.long_fade_in, R.anim.long_fade_out,
-                    R.anim.long_fade_in, R.anim.long_fade_out
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out,
+                    R.anim.long_fade_in,
+                    R.anim.long_fade_out
                 )
                 .replace(R.id.content, fragmentB)
                 .addToBackStack(null)
@@ -173,9 +184,7 @@ class FragmentTest {
         assertThat(unrelatedFragment.calledOnResume).isTrue()
 
         activityRule.runOnUiThread {
-            activity.supportFragmentManager.beginTransaction()
-                .remove(unrelatedFragment)
-                .commit()
+            activity.supportFragmentManager.beginTransaction().remove(unrelatedFragment).commit()
         }
         instrumentation.waitForIdleSync()
 
@@ -213,15 +222,16 @@ class FragmentTest {
         }
         val latch = CountDownLatch(1)
         val viewTreeObserver = view.viewTreeObserver
-        val listener = object : ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                if (animation.hasEnded() || view.drawingTime > startTime) {
-                    val onDrawListener = this
-                    latch.countDown()
-                    view.post { viewTreeObserver.removeOnDrawListener(onDrawListener) }
+        val listener =
+            object : ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    if (animation.hasEnded() || view.drawingTime > startTime) {
+                        val onDrawListener = this
+                        latch.countDown()
+                        view.post { viewTreeObserver.removeOnDrawListener(onDrawListener) }
+                    }
                 }
             }
-        }
         viewTreeObserver.addOnDrawListener(listener)
         latch.await(5, TimeUnit.SECONDS)
     }

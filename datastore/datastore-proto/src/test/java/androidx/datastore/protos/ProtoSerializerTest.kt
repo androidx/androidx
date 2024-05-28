@@ -34,8 +34,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @ExperimentalCoroutinesApi
 class ProtoSerializerTest {
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
+    @get:Rule val temporaryFolder = TemporaryFolder()
 
     @Test
     fun testReadWriteProto() = runTest {
@@ -43,14 +42,13 @@ class ProtoSerializerTest {
 
         val fooProtoWithText = FooProto.newBuilder().setText("abc").build()
 
-        val protoSerializer = ProtoSerializer<FooProto>(
-            FooProto.getDefaultInstance(),
-            ExtensionRegistryLite.getEmptyRegistry()
-        )
+        val protoSerializer =
+            ProtoSerializer<FooProto>(
+                FooProto.getDefaultInstance(),
+                ExtensionRegistryLite.getEmptyRegistry()
+            )
 
-        file.outputStream().use {
-            protoSerializer.writeTo(fooProtoWithText, it)
-        }
+        file.outputStream().use { protoSerializer.writeTo(fooProtoWithText, it) }
 
         val readProto = file.inputStream().use { protoSerializer.readFrom(it) }
 
@@ -64,19 +62,20 @@ class ProtoSerializerTest {
         val registry = ExtensionRegistryLite.newInstance()
         registry.add(ExtensionProto.extension)
 
-        val protoSerializer = ProtoSerializer<ExtendableProto>(
-            ExtendableProto.getDefaultInstance(),
-            registry
-        )
+        val protoSerializer =
+            ProtoSerializer<ExtendableProto>(ExtendableProto.getDefaultInstance(), registry)
 
-        val extendedProto = ExtendableProto.newBuilder().setExtension(
-            ExtensionProto.extension,
-            ExtensionProto.newBuilder().setFoo(FooProto.newBuilder().setText("abc").build()).build()
-        ).build()
+        val extendedProto =
+            ExtendableProto.newBuilder()
+                .setExtension(
+                    ExtensionProto.extension,
+                    ExtensionProto.newBuilder()
+                        .setFoo(FooProto.newBuilder().setText("abc").build())
+                        .build()
+                )
+                .build()
 
-        file.outputStream().use {
-            protoSerializer.writeTo(extendedProto, it)
-        }
+        file.outputStream().use { protoSerializer.writeTo(extendedProto, it) }
 
         val readProto = file.inputStream().use { protoSerializer.readFrom(it) }
         assertThat(readProto).isEqualTo(extendedProto)
@@ -87,10 +86,11 @@ class ProtoSerializerTest {
         val file = temporaryFolder.newFile("test_file.pb")
         file.writeBytes(byteArrayOf(0x00, 0x02)) // Protos cannot start with 0x00.
 
-        val protoSerializer = ProtoSerializer<FooProto>(
-            FooProto.getDefaultInstance(),
-            ExtensionRegistryLite.getEmptyRegistry()
-        )
+        val protoSerializer =
+            ProtoSerializer<FooProto>(
+                FooProto.getDefaultInstance(),
+                ExtensionRegistryLite.getEmptyRegistry()
+            )
 
         assertThrows<CorruptionException> {
             file.inputStream().use { protoSerializer.readFrom(it) }

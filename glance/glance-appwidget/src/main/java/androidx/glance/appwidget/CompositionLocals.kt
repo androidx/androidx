@@ -25,5 +25,4 @@ import androidx.compose.runtime.compositionLocalOf
  *
  * See [AppWidgetManager#getAppWidgetOptions] for details
  */
-val LocalAppWidgetOptions: ProvidableCompositionLocal<Bundle> =
-    compositionLocalOf { Bundle() }
+val LocalAppWidgetOptions: ProvidableCompositionLocal<Bundle> = compositionLocalOf { Bundle() }

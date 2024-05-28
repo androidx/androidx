@@ -36,52 +36,46 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /**
- * Used for testing multi-process cases while also maintaining resources so that services
- * are properly closed after test.
+ * Used for testing multi-process cases while also maintaining resources so that services are
+ * properly closed after test.
  */
 class MultiProcessTestRule : TestWatcher() {
     private val didRunTest = AtomicBoolean(false)
     private val context = InstrumentationRegistry.getInstrumentation().context
 
     // use a real scope, it is too hard to use a TestScope when we cannot control the IPC
-    val datastoreScope = CoroutineScope(
-        Dispatchers.IO + Job()
-    )
+    val datastoreScope = CoroutineScope(Dispatchers.IO + Job())
     private val connectionsMutex = Mutex()
     private val connections = mutableListOf<TwoWayIpcConnection>()
-    private val availableServiceClasses = mutableListOf<Class<out TwoWayIpcService>>(
-        TwoWayIpcService::class.java,
-        TwoWayIpcService2::class.java
-    )
+    private val availableServiceClasses =
+        mutableListOf<Class<out TwoWayIpcService>>(
+            TwoWayIpcService::class.java,
+            TwoWayIpcService2::class.java
+        )
 
     fun runTest(block: suspend CoroutineScope.() -> Unit) {
         // don't use datastore scope here as it will not finish by itself.
         runBlocking {
-            check(didRunTest.compareAndSet(false, true)) {
-                "Cannot call runTest multiple times"
-            }
+            check(didRunTest.compareAndSet(false, true)) { "Cannot call runTest multiple times" }
             try {
-                withTimeout(TEST_TIMEOUT) {
-                    block()
-                }
+                withTimeout(TEST_TIMEOUT) { block() }
             } finally {
-                connections.map {
-                    async { it.disconnect() }
-                }.awaitAll()
+                connections.map { async { it.disconnect() } }.awaitAll()
             }
         }
     }
 
     suspend fun createConnection(): TwoWayIpcConnection {
-        val connection = connectionsMutex.withLock {
-            val klass = availableServiceClasses.removeFirstOrNull() ?: error(
-                "Cannot create more services," +
-                    "you can declare more in the manifest if needed"
-            )
-            TwoWayIpcConnection(context, klass).also {
-                connections.add(it)
+        val connection =
+            connectionsMutex.withLock {
+                val klass =
+                    availableServiceClasses.removeFirstOrNull()
+                        ?: error(
+                            "Cannot create more services," +
+                                "you can declare more in the manifest if needed"
+                        )
+                TwoWayIpcConnection(context, klass).also { connections.add(it) }
             }
-        }
         connection.connect()
         return connection
     }

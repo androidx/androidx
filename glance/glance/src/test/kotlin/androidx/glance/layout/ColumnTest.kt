@@ -38,63 +38,64 @@ class ColumnTest {
     }
 
     @Test
-    fun createComposableRow() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Column {}
+    fun createComposableRow() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Column {} }
+
+            assertThat(root.children).hasSize(1)
+            val column = assertIs<EmittableColumn>(root.children[0])
+            assertThat(column.children).hasSize(0)
         }
 
-        assertThat(root.children).hasSize(1)
-        val column = assertIs<EmittableColumn>(root.children[0])
-        assertThat(column.children).hasSize(0)
-    }
-
     @Test
-    fun createComposableRowWithParams() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Column(
-                modifier = GlanceModifier.padding(2.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalAlignment = Alignment.CenterVertically
-            ) {}
-        }
-
-        val innerColumn = assertIs<EmittableColumn>(root.children[0])
-        val paddingModifier = requireNotNull(innerColumn.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
-        assertThat(innerColumn.horizontalAlignment).isEqualTo(Alignment.CenterHorizontally)
-        assertThat(innerColumn.verticalAlignment).isEqualTo(Alignment.CenterVertically)
-    }
-
-    @Test
-    fun createComposableColumnWithChildren() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Column {
-                Box(contentAlignment = Alignment.BottomCenter) {}
-                Box(contentAlignment = Alignment.TopCenter) {}
+    fun createComposableRowWithParams() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Column(
+                    modifier = GlanceModifier.padding(2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {}
             }
+
+            val innerColumn = assertIs<EmittableColumn>(root.children[0])
+            val paddingModifier =
+                requireNotNull(innerColumn.modifier.findModifier<PaddingModifier>())
+            assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
+            assertThat(innerColumn.horizontalAlignment).isEqualTo(Alignment.CenterHorizontally)
+            assertThat(innerColumn.verticalAlignment).isEqualTo(Alignment.CenterVertically)
         }
-
-        val innerColumn = assertIs<EmittableColumn>(root.children[0])
-        val leafBox0 = assertIs<EmittableBox>(innerColumn.children[0])
-        val leafBox1 = assertIs<EmittableBox>(innerColumn.children[1])
-
-        assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
-        assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
-    }
 
     @Test
-    fun createComposableColumnWithWeightChildren() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Column {
-                Box(modifier = GlanceModifier.defaultWeight()) { }
+    fun createComposableColumnWithChildren() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Column {
+                    Box(contentAlignment = Alignment.BottomCenter) {}
+                    Box(contentAlignment = Alignment.TopCenter) {}
+                }
             }
+
+            val innerColumn = assertIs<EmittableColumn>(root.children[0])
+            val leafBox0 = assertIs<EmittableBox>(innerColumn.children[0])
+            val leafBox1 = assertIs<EmittableBox>(innerColumn.children[1])
+
+            assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
+            assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
         }
 
-        val column = assertIs<EmittableColumn>(root.children[0])
-        val box = assertIs<EmittableBox>(column.children[0])
+    @Test
+    fun createComposableColumnWithWeightChildren() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Column { Box(modifier = GlanceModifier.defaultWeight()) {} }
+            }
 
-        val heightModifier = checkNotNull(box.modifier.findModifier<HeightModifier>())
-        assertThat(heightModifier.height).isSameInstanceAs(Dimension.Expand)
-        assertThat(box.modifier.findModifier<WidthModifier>()).isNull()
-    }
+            val column = assertIs<EmittableColumn>(root.children[0])
+            val box = assertIs<EmittableBox>(column.children[0])
+
+            val heightModifier = checkNotNull(box.modifier.findModifier<HeightModifier>())
+            assertThat(heightModifier.height).isSameInstanceAs(Dimension.Expand)
+            assertThat(box.modifier.findModifier<WidthModifier>()).isNull()
+        }
 }

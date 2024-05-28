@@ -35,13 +35,12 @@ internal fun PsiType?.extends(
     strict: Boolean = false
 ): Boolean = context.evaluator.extendsClass(PsiTypesUtil.getPsiClass(this), superName, strict)
 
-/**
- * Walks up the uastParent hierarchy from this element.
- */
+/** Walks up the uastParent hierarchy from this element. */
 internal fun UElement.walkUp(): Sequence<UElement> = generateSequence(uastParent) { it.uastParent }
 
 /**
- * This is useful if you're in a nested call expression and want to find the nearest parent while ignoring this call.
+ * This is useful if you're in a nested call expression and want to find the nearest parent while
+ * ignoring this call.
  *
  * For example, if you have the following two cases of a `foo()` expression:
  * - `checkNotNull(fragment.foo())`
@@ -50,13 +49,9 @@ internal fun UElement.walkUp(): Sequence<UElement> = generateSequence(uastParent
  * Calling this from `foo()` in both cases will drop you at the outer `checkNotNull()` expression.
  */
 val UElement.nearestNonQualifiedReferenceParent: UElement?
-    get() = walkUp().first {
-        it !is UQualifiedReferenceExpression
-    }
+    get() = walkUp().first { it !is UQualifiedReferenceExpression }
 
-/**
- * @see [fullyQualifiedNearestParentOrNull]
- */
+/** @see [fullyQualifiedNearestParentOrNull] */
 internal fun UElement.fullyQualifiedNearestParent(includeSelf: Boolean = true): UElement {
     return fullyQualifiedNearestParentOrNull(includeSelf)!!
 }

@@ -59,9 +59,7 @@ class AppWidgetHostTestActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.app_widget_host_activity)
 
-        mHost = TestAppWidgetHost(this, 1025).also {
-            it.startListening()
-        }
+        mHost = TestAppWidgetHost(this, 1025).also { it.startListening() }
     }
 
     override fun onDestroy() {
@@ -86,11 +84,12 @@ class AppWidgetHostTestActivity : Activity() {
         val appWidgetId = host.allocateAppWidgetId()
         val componentName = ComponentName(this, TestGlanceAppWidgetReceiver::class.java)
 
-        val wasBound = appWidgetManager.bindAppWidgetIdIfAllowed(
-            appWidgetId,
-            componentName,
-            optionsBundleOf(listOf(portraitSize, landscapeSize))
-        )
+        val wasBound =
+            appWidgetManager.bindAppWidgetIdIfAllowed(
+                appWidgetId,
+                componentName,
+                optionsBundleOf(listOf(portraitSize, landscapeSize))
+            )
         if (!wasBound) {
             fail("Failed to bind the app widget")
         }
@@ -132,10 +131,10 @@ class AppWidgetHostTestActivity : Activity() {
     }
 
     fun resetConfigurationChangedLatch() {
-       synchronized(this) {
-           mConfigurationChanged = CountDownLatch(1)
-           mLastConfiguration = null
-       }
+        synchronized(this) {
+            mConfigurationChanged = CountDownLatch(1)
+            mLastConfiguration = null
+        }
     }
 
     // This should not be called from the main thread, so that it does not block
@@ -177,6 +176,7 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     private var mLatch: CountDownLatch? = null
     var mRemoteViews: RemoteViews? = null
         private set
+
     private var mPortraitSize: DpSize = DpSize(0.dp, 0.dp)
     private var mLandscapeSize: DpSize = DpSize(0.dp, 0.dp)
 
@@ -186,7 +186,9 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
      */
     fun waitForRemoteViews() {
         synchronized(this) {
-            mRemoteViews?.let { return }
+            mRemoteViews?.let {
+                return
+            }
             mLatch = CountDownLatch(1)
         }
         val result = mLatch?.await(30, TimeUnit.SECONDS)!!
@@ -230,11 +232,12 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     fun updateSize(orientation: Int) {
-        val size = when (orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
-            Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
-            else -> error("Unknown orientation ${context.resources.configuration.orientation}")
-        }
+        val size =
+            when (orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
+                Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
+                else -> error("Unknown orientation ${context.resources.configuration.orientation}")
+            }
         val displayMetrics = resources.displayMetrics
         val width = size.width.toPixels(displayMetrics)
         val height = size.height.toPixels(displayMetrics)

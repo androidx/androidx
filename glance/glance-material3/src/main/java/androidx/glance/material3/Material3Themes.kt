@@ -34,63 +34,46 @@ fun ColorProviders(light: ColorScheme, dark: ColorScheme): ColorProviders {
     return colorProviders(
         primary = ColorProvider(day = light.primary, night = dark.primary),
         onPrimary = ColorProvider(day = light.onPrimary, night = dark.onPrimary),
-        primaryContainer = ColorProvider(
-            day = light.primaryContainer,
-            night = dark.primaryContainer
-        ),
-        onPrimaryContainer = ColorProvider(
-            day = light.onPrimaryContainer,
-            night = dark.onPrimaryContainer
-        ),
+        primaryContainer =
+            ColorProvider(day = light.primaryContainer, night = dark.primaryContainer),
+        onPrimaryContainer =
+            ColorProvider(day = light.onPrimaryContainer, night = dark.onPrimaryContainer),
         secondary = ColorProvider(day = light.secondary, night = dark.secondary),
         onSecondary = ColorProvider(day = light.onSecondary, night = dark.onSecondary),
-        secondaryContainer = ColorProvider(
-            day = light.secondaryContainer,
-            night = dark.secondaryContainer
-        ),
-        onSecondaryContainer = ColorProvider(
-            day = light.onSecondaryContainer,
-            night = dark.onSecondaryContainer
-        ),
+        secondaryContainer =
+            ColorProvider(day = light.secondaryContainer, night = dark.secondaryContainer),
+        onSecondaryContainer =
+            ColorProvider(day = light.onSecondaryContainer, night = dark.onSecondaryContainer),
         tertiary = ColorProvider(day = light.tertiary, night = dark.tertiary),
         onTertiary = ColorProvider(day = light.onTertiary, night = dark.onTertiary),
-        tertiaryContainer = ColorProvider(
-            day = light.tertiaryContainer,
-            night = dark.tertiaryContainer
-        ),
-        onTertiaryContainer = ColorProvider(
-            day = light.onTertiaryContainer,
-            night = dark.onTertiaryContainer
-        ),
+        tertiaryContainer =
+            ColorProvider(day = light.tertiaryContainer, night = dark.tertiaryContainer),
+        onTertiaryContainer =
+            ColorProvider(day = light.onTertiaryContainer, night = dark.onTertiaryContainer),
         error = ColorProvider(day = light.error, night = dark.error),
         errorContainer = ColorProvider(day = light.errorContainer, night = dark.errorContainer),
         onError = ColorProvider(day = light.onError, night = dark.onError),
-        onErrorContainer = ColorProvider(
-            day = light.onErrorContainer,
-            night = dark.onErrorContainer
-        ),
+        onErrorContainer =
+            ColorProvider(day = light.onErrorContainer, night = dark.onErrorContainer),
         background = ColorProvider(day = light.background, night = dark.background),
         onBackground = ColorProvider(day = light.onBackground, night = dark.onBackground),
         surface = ColorProvider(day = light.surface, night = dark.surface),
         onSurface = ColorProvider(day = light.onSurface, night = dark.onSurface),
         surfaceVariant = ColorProvider(day = light.surfaceVariant, night = dark.surfaceVariant),
-        onSurfaceVariant = ColorProvider(
-            day = light.onSurfaceVariant,
-            night = dark.onSurfaceVariant
-        ),
+        onSurfaceVariant =
+            ColorProvider(day = light.onSurfaceVariant, night = dark.onSurfaceVariant),
         outline = ColorProvider(day = light.outline, night = dark.outline),
-        inverseOnSurface = ColorProvider(
-            day = light.inverseOnSurface,
-            night = dark.inverseOnSurface
-        ),
+        inverseOnSurface =
+            ColorProvider(day = light.inverseOnSurface, night = dark.inverseOnSurface),
         inverseSurface = ColorProvider(day = light.inverseSurface, night = dark.inverseSurface),
         inversePrimary = ColorProvider(day = light.inversePrimary, night = dark.inversePrimary),
         // Widget background is a widget / glace specific token it is generally derived from the
         // secondary container color.
-        widgetBackground = ColorProvider(
-            day = adjustColorToneForWidgetBackground(light.secondaryContainer),
-            night = adjustColorToneForWidgetBackground(dark.secondaryContainer)
-        ),
+        widgetBackground =
+            ColorProvider(
+                day = adjustColorToneForWidgetBackground(light.secondaryContainer),
+                night = adjustColorToneForWidgetBackground(dark.secondaryContainer)
+            ),
     )
 }
 
@@ -129,8 +112,8 @@ fun ColorProviders(scheme: ColorScheme): ColorProviders {
 
         // Widget background is a widget / glace specific token it is generally derived from the
         // secondary container color.
-        widgetBackground = ColorProvider(
-            color = adjustColorToneForWidgetBackground(scheme.secondaryContainer))
+        widgetBackground =
+            ColorProvider(color = adjustColorToneForWidgetBackground(scheme.secondaryContainer))
     )
 }
 

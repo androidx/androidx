@@ -35,13 +35,10 @@ import kotlinx.coroutines.rx3.asFlowable
 import kotlinx.coroutines.rx3.asSingle
 import kotlinx.coroutines.rx3.await
 
-/**
- * A DataStore that supports RxJava operations on DataStore.
- */
-public class RxDataStore<T : Any> private constructor(
-    /**
-     * The delegate DataStore.
-     */
+/** A DataStore that supports RxJava operations on DataStore. */
+public class RxDataStore<T : Any>
+private constructor(
+    /** The delegate DataStore. */
     private val delegateDs: DataStore<T>,
     /**
      * The CoroutineScope that the DataStore is created with. Must contain a Job to allow for
@@ -51,25 +48,23 @@ public class RxDataStore<T : Any> private constructor(
 ) : Disposable {
 
     companion object {
-        /**
-         * Visible for datastore-preferences-rxjava2 artifact only
-         */
+        /** Visible for datastore-preferences-rxjava2 artifact only */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun <T : Any> create(delegateDs: DataStore<T>, scope: CoroutineScope):
-            RxDataStore<T> {
-                return RxDataStore<T>(delegateDs, scope)
-            }
+        public fun <T : Any> create(
+            delegateDs: DataStore<T>,
+            scope: CoroutineScope
+        ): RxDataStore<T> {
+            return RxDataStore<T>(delegateDs, scope)
+        }
     }
 
     /**
-     * Dispose of the DataStore. Wait for the Completable returned by [shutdownComplete] to
-     * confirm that the DataStore has been shut down.
+     * Dispose of the DataStore. Wait for the Completable returned by [shutdownComplete] to confirm
+     * that the DataStore has been shut down.
      */
     override fun dispose() = scope.coroutineContext.job.cancel()
 
-    /**
-     * Returns whether this DataStore is closed
-     */
+    /** Returns whether this DataStore is closed */
     override fun isDisposed(): Boolean = !scope.coroutineContext.job.isActive
 
     /**
@@ -77,16 +72,15 @@ public class RxDataStore<T : Any> private constructor(
      * create a new DataStore with the same file name until this has completed.
      */
     public fun shutdownComplete(): Completable =
-        scope.coroutineContext.job.asCompletable(
-            scope.coroutineContext.minusKey(Job)
-        )
+        scope.coroutineContext.job.asCompletable(scope.coroutineContext.minusKey(Job))
 
     /**
-     * Gets a reactivex.Flowable of the data from DataStore. See [DataStore.data] for more information.
+     * Gets a reactivex.Flowable of the data from DataStore. See [DataStore.data] for more
+     * information.
      *
-     * Provides efficient, cached (when possible) access to the latest durably persisted state.
-     * The flow will always either emit a value or throw an exception encountered when attempting
-     * to read from disk. If an exception is encountered, collecting again will attempt to read the
+     * Provides efficient, cached (when possible) access to the latest durably persisted state. The
+     * flow will always either emit a value or throw an exception encountered when attempting to
+     * read from disk. If an exception is encountered, collecting again will attempt to read the
      * data again.
      *
      * Do not layer a cache on top of this API: it will be be impossible to guarantee consistency.
@@ -105,13 +99,12 @@ public class RxDataStore<T : Any> private constructor(
     /**
      * See [DataStore.updateData]
      *
-     * Updates the data transactionally in an atomic read-modify-write operation. All operations
-     * are serialized, and the transform itself is a async so it can perform heavy work
-     * such as RPCs.
+     * Updates the data transactionally in an atomic read-modify-write operation. All operations are
+     * serialized, and the transform itself is a async so it can perform heavy work such as RPCs.
      *
-     * The Single completes when the data has been persisted durably to disk (after which
-     * [data] will reflect the update). If the transform or write to disk fails, the
-     * transaction is aborted and the returned Single is completed with the error.
+     * The Single completes when the data has been persisted durably to disk (after which [data]
+     * will reflect the update). If the transform or write to disk fails, the transaction is aborted
+     * and the returned Single is completed with the error.
      *
      * The transform will be run on the scheduler that DataStore was constructed with.
      *
@@ -120,10 +113,8 @@ public class RxDataStore<T : Any> private constructor(
      */
     @ExperimentalCoroutinesApi
     public fun updateDataAsync(transform: Function<T, Single<T>>): Single<T> {
-        return scope.async(SupervisorJob()) {
-            delegateDs.updateData {
-                transform.apply(it).await()
-            }
-        }.asSingle(scope.coroutineContext.minusKey(Job))
+        return scope
+            .async(SupervisorJob()) { delegateDs.updateData { transform.apply(it).await() } }
+            .asSingle(scope.coroutineContext.minusKey(Job))
     }
 }

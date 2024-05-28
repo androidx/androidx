@@ -19,17 +19,10 @@ package androidx.datastore.core.twoWayIpc
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-/**
- * A [Parcelable] action that can be executed in a remote process, inside a [TwoWayIpcSubject].
- */
+/** A [Parcelable] action that can be executed in a remote process, inside a [TwoWayIpcSubject]. */
 internal abstract class IpcAction<T : Parcelable> : Parcelable {
-    abstract suspend fun invokeInRemoteProcess(
-        subject: TwoWayIpcSubject
-    ): T
+    abstract suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): T
 }
 
-/**
- * Utility object for [IpcAction]s that do not return a value.
- */
-@Parcelize
-object IpcUnit : Parcelable
+/** Utility object for [IpcAction]s that do not return a value. */
+@Parcelize object IpcUnit : Parcelable

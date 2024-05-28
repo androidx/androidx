@@ -33,8 +33,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class GlanceAppWidgetManagerTest {
-    @get:Rule
-    val mHostRule = AppWidgetHostRule()
+    @get:Rule val mHostRule = AppWidgetHostRule()
 
     @Before
     fun setUp() {
@@ -44,10 +43,12 @@ class GlanceAppWidgetManagerTest {
 
     @After
     fun tearDown() {
-        context.startActivity(Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        })
+        context.startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        )
     }
 
     @Test
@@ -59,26 +60,20 @@ class GlanceAppWidgetManagerTest {
 
     @Test
     fun withAppWidget() = runBlocking {
-        TestGlanceAppWidget.uiDefinition = {
-            Text("Something")
-        }
+        TestGlanceAppWidget.uiDefinition = { Text("Something") }
         val manager = GlanceAppWidgetManager(context)
 
         suspend fun verifyGlanceIdsAndSizes() {
             val glanceIds = manager.getGlanceIds(TestGlanceAppWidget::class.java)
             assertThat(glanceIds).hasSize(1)
-            assertThat(manager.listKnownReceivers()).containsExactly(
-                TestGlanceAppWidgetReceiver::class.java.canonicalName
-            )
+            assertThat(manager.listKnownReceivers())
+                .containsExactly(TestGlanceAppWidgetReceiver::class.java.canonicalName)
 
             val glanceId = manager.getGlanceIdBy((glanceIds[0] as AppWidgetId).appWidgetId)
             assertThat(glanceId).isEqualTo(glanceIds[0])
 
             val sizes = manager.getAppWidgetSizes(glanceIds[0])
-            assertThat(sizes).containsExactly(
-                mHostRule.portraitSize,
-                mHostRule.landscapeSize
-            )
+            assertThat(sizes).containsExactly(mHostRule.portraitSize, mHostRule.landscapeSize)
         }
 
         mHostRule.startHost()
@@ -96,14 +91,14 @@ class GlanceAppWidgetManagerTest {
     @Test
     fun pinAppWidget() = runTest {
         val text = "Something"
-        TestGlanceAppWidget.uiDefinition = {
-            Text(text)
-        }
+        TestGlanceAppWidget.uiDefinition = { Text(text) }
 
-        val result = GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-            TestGlanceAppWidgetReceiver::class.java,
-            preview = TestGlanceAppWidget
-        )
+        val result =
+            GlanceAppWidgetManager(context)
+                .requestPinGlanceAppWidget(
+                    TestGlanceAppWidgetReceiver::class.java,
+                    preview = TestGlanceAppWidget
+                )
 
         assertThat(result).isTrue()
         mHostRule.onHostActivity {
@@ -113,31 +108,34 @@ class GlanceAppWidgetManagerTest {
 
     @Test
     fun pinInvalidAppWidget() = runTest {
-        val result = GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
-            DummyGlanceAppWidgetReceiver::class.java,
-        )
+        val result =
+            GlanceAppWidgetManager(context)
+                .requestPinGlanceAppWidget(
+                    DummyGlanceAppWidgetReceiver::class.java,
+                )
 
         assertThat(result).isFalse()
     }
 
     @Ignore("b/285198114")
     @Test
-    fun cleanReceivers() = runBlocking<Unit> {
-        val manager = GlanceAppWidgetManager(context)
+    fun cleanReceivers() =
+        runBlocking<Unit> {
+            val manager = GlanceAppWidgetManager(context)
 
-        manager.updateReceiver(DummyGlanceAppWidgetReceiver(), TestGlanceAppWidget)
+            manager.updateReceiver(DummyGlanceAppWidgetReceiver(), TestGlanceAppWidget)
 
-        assertThat(manager.listKnownReceivers()).containsExactly(
-            DummyGlanceAppWidgetReceiver::class.java.canonicalName,
-            TestGlanceAppWidgetReceiver::class.java.canonicalName
-        )
+            assertThat(manager.listKnownReceivers())
+                .containsExactly(
+                    DummyGlanceAppWidgetReceiver::class.java.canonicalName,
+                    TestGlanceAppWidgetReceiver::class.java.canonicalName
+                )
 
-        manager.cleanReceivers()
+            manager.cleanReceivers()
 
-        assertThat(manager.listKnownReceivers()).containsExactly(
-            TestGlanceAppWidgetReceiver::class.java.canonicalName
-        )
-    }
+            assertThat(manager.listKnownReceivers())
+                .containsExactly(TestGlanceAppWidgetReceiver::class.java.canonicalName)
+        }
 }
 
 private class DummyGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {

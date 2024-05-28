@@ -39,12 +39,8 @@ fun <T : FragmentActivity> Fragment.addButton(text: String, clazz: Class<T>) {
         Button(context).apply {
             this.text = text
 
-            setOnClickListener {
-                startActivity(Intent(activity, clazz))
-            }
-            layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
-                weight = 1f
-            }
+            setOnClickListener { startActivity(Intent(activity, clazz)) }
+            layoutParams = LinearLayout.LayoutParams(-1, 0).apply { weight = 1f }
         }
     )
 }

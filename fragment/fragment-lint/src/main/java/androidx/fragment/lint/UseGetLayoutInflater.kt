@@ -35,27 +35,28 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.getContainingUClass
 
 /**
- * Lint check for detecting calls to [android.view.LayoutInflater.from]
- * while being invoked from DialogFragment
+ * Lint check for detecting calls to [android.view.LayoutInflater.from] while being invoked from
+ * DialogFragment
  */
 class UseGetLayoutInflater : Detector(), SourceCodeScanner {
 
     companion object Issues {
-        val ISSUE = Issue.create(
-            id = "UseGetLayoutInflater",
-            briefDescription = "Use getLayoutInflater() to get the LayoutInflater instead of " +
-                "calling LayoutInflater.from(Context).",
-            explanation = """Using LayoutInflater.from(Context) can return a LayoutInflater  \
+        val ISSUE =
+            Issue.create(
+                id = "UseGetLayoutInflater",
+                briefDescription =
+                    "Use getLayoutInflater() to get the LayoutInflater instead of " +
+                        "calling LayoutInflater.from(Context).",
+                explanation =
+                    """Using LayoutInflater.from(Context) can return a LayoutInflater  \
                 that does not have the correct theme.""",
-            category = Category.CORRECTNESS,
-            priority = 9,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                UseGetLayoutInflater::class.java,
-                Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                priority = 9,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(UseGetLayoutInflater::class.java, Scope.JAVA_FILE_SCOPE),
+                androidSpecific = true
+            )
     }
 
     override fun getApplicableMethodNames(): List<String>? {
@@ -65,8 +66,9 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         val containingClass = method.containingClass ?: return
         val evaluator = context.evaluator
-        if (evaluator.getQualifiedName(containingClass) == UNWANTED_CLASS &&
-            evaluator.getParameterCount(method) == 1
+        if (
+            evaluator.getQualifiedName(containingClass) == UNWANTED_CLASS &&
+                evaluator.getParameterCount(method) == 1
         ) {
             if (!isKotlin(context.psiFile)) {
                 startLintForJava(context, node)
@@ -85,8 +87,9 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
         context.report(
             issue = ISSUE,
             location = context.getLocation(node),
-            message = "Use of LayoutInflater.from($methodParameter) detected. Consider using " +
-                "${correctMethod(node)} instead",
+            message =
+                "Use of LayoutInflater.from($methodParameter) detected. Consider using " +
+                    "${correctMethod(node)} instead",
             quickfixData = createFix(correctMethod(node), methodParameter)
         )
     }
@@ -94,10 +97,8 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
     private fun startLintForKotlin(context: JavaContext, node: UCallExpression) {
         val classType = node.getContainingUClass()?.superClassType as? PsiType
         if (
-            !(
-                classType?.presentableText == DIALOG_FRAGMENT_CLASS ||
-                    classType.extends(context, (DIALOG_FRAGMENT_CLASS))
-                )
+            !(classType?.presentableText == DIALOG_FRAGMENT_CLASS ||
+                classType.extends(context, (DIALOG_FRAGMENT_CLASS)))
         ) {
             return
         }
@@ -105,8 +106,9 @@ class UseGetLayoutInflater : Detector(), SourceCodeScanner {
         context.report(
             issue = ISSUE,
             location = context.getLocation(node),
-            message = "Use of LayoutInflater.from(Context) detected. Consider using " +
-                "${correctMethod(node)} instead",
+            message =
+                "Use of LayoutInflater.from(Context) detected. Consider using " +
+                    "${correctMethod(node)} instead",
             quickfixData = null
         )
     }

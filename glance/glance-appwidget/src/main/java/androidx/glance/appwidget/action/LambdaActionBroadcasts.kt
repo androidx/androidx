@@ -35,9 +35,10 @@ internal object LambdaActionBroadcasts {
         receiver: ComponentName,
         actionKey: String,
         appWidgetId: Int,
-    ) = Intent()
-        .setComponent(receiver)
-        .setAction(ActionTriggerLambda)
-        .putExtra(ExtraActionKey, actionKey)
-        .putExtra(ExtraAppWidgetId, appWidgetId)
+    ) =
+        Intent()
+            .setComponent(receiver)
+            .setAction(ActionTriggerLambda)
+            .putExtra(ExtraActionKey, actionKey)
+            .putExtra(ExtraAppWidgetId, appWidgetId)
 }

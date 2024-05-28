@@ -43,8 +43,8 @@ class NestedInflatedFragmentTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     @UiThreadTest
@@ -91,13 +91,14 @@ class NestedInflatedFragmentTest {
         val parentFragment = ParentFragment()
         fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
 
-        val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
-            InflatedChildFragment
+        val child =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as InflatedChildFragment
 
-        assertThat(child.name).isEqualTo(
-            "androidx.fragment.app" +
-                ".NestedInflatedFragmentTest\$InflatedChildFragment"
-        )
+        assertThat(child.name)
+            .isEqualTo(
+                "androidx.fragment.app" + ".NestedInflatedFragmentTest\$InflatedChildFragment"
+            )
     }
 
     @Test
@@ -109,18 +110,17 @@ class NestedInflatedFragmentTest {
         val parentFragment = ParentFragmentContainerView()
         fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
 
-        val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
-            InflatedChildFragment
+        val child =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as InflatedChildFragment
 
-        assertThat(child.name).isEqualTo(
-            "androidx.fragment.app" +
-                ".NestedInflatedFragmentTest\$InflatedChildFragment"
-        )
+        assertThat(child.name)
+            .isEqualTo(
+                "androidx.fragment.app" + ".NestedInflatedFragmentTest\$InflatedChildFragment"
+            )
     }
 
-    /**
-     * This mimics the behavior of FragmentStatePagerAdapter jumping between pages
-     */
+    /** This mimics the behavior of FragmentStatePagerAdapter jumping between pages */
     @Test
     @UiThreadTest
     fun nestedSetUserVisibleHint() {
@@ -197,8 +197,7 @@ class NestedInflatedFragmentTest {
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     class UserVisibleHintParentFragmentContainerView :
-        ParentFragmentContainerView(),
-        FragmentOnAttachListener {
+        ParentFragmentContainerView(), FragmentOnAttachListener {
         override fun onAttach(context: Context) {
             super.onAttach(context)
             childFragmentManager.addFragmentOnAttachListener(this)
@@ -220,6 +219,7 @@ class NestedInflatedFragmentTest {
 
     class InflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child) {
         var name: String? = null
+
         override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
             super.onInflate(context, attrs, savedInstanceState)
             val a = context.obtainStyledAttributes(attrs, androidx.fragment.R.styleable.Fragment)
@@ -233,8 +233,6 @@ class NestedInflatedFragmentTest {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ) = TextView(inflater.context).apply {
-            text = "Simple fragment"
-        }
+        ) = TextView(inflater.context).apply { text = "Simple fragment" }
     }
 }

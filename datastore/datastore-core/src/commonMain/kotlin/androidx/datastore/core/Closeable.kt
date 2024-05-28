@@ -16,15 +16,11 @@
 
 package androidx.datastore.core
 
-/**
- * Datastore common version of java.io.Closeable
- */
+/** Datastore common version of java.io.Closeable */
 @Suppress("NotCloseable") // No closable in KMP common.
 interface Closeable {
 
-    /**
-     * Closes the specified resource.
-     */
+    /** Closes the specified resource. */
     fun close()
 }
 
@@ -57,6 +53,8 @@ inline fun <T : Closeable, R> T.use(block: (T) -> R): R {
         }
     }
     // We either returned in the try block, or thrown must be not null, so this code is unreachable.
-    error("""Unreachable code. If this occurs, please file a bug here:
-        https://b.corp.google.com/issues/new?component=907884&template=1466542""")
+    error(
+        """Unreachable code. If this occurs, please file a bug here:
+        https://b.corp.google.com/issues/new?component=907884&template=1466542"""
+    )
 }

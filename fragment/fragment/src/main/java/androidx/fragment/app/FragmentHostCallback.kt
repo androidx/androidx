@@ -33,40 +33,31 @@ import java.io.PrintWriter
 /**
  * Integration points with the Fragment host.
  *
- * Fragments may be hosted by any object; such as an [Activity]. In order to
- * host fragments, implement [FragmentHostCallback], overriding the methods
- * applicable to the host.
+ * Fragments may be hosted by any object; such as an [Activity]. In order to host fragments,
+ * implement [FragmentHostCallback], overriding the methods applicable to the host.
  *
- * FragmentManager changes its behavior based on what optional interfaces your
- * FragmentHostCallback implements. This includes the following:
+ * FragmentManager changes its behavior based on what optional interfaces your FragmentHostCallback
+ * implements. This includes the following:
+ * - **[androidx.activity.result.ActivityResultRegistryOwner]**: Removes the need to override
+ *   [.onStartIntentSenderFromFragment] or [.onRequestPermissionsFromFragment].
+ * - **[FragmentOnAttachListener]**: Removes the need to manually call
+ *   [FragmentManager.addFragmentOnAttachListener] from your host in order to receive
+ *   [FragmentOnAttachListener.onAttachFragment] callbacks for the
+ *   [FragmentController.getSupportFragmentManager].
+ * - **[androidx.activity.OnBackPressedDispatcherOwner]**: Removes the need to manually call
+ *   [FragmentManager.popBackStackImmediate] when handling the system back button.
+ * - **[androidx.lifecycle.ViewModelStoreOwner]**: Removes the need for your [FragmentController] to
+ *   call [FragmentController.retainNestedNonConfig] or [FragmentController.restoreAllState].
  *
- * - **[androidx.activity.result.ActivityResultRegistryOwner]**: Removes the need to
- * override [.onStartIntentSenderFromFragment] or
- * [.onRequestPermissionsFromFragment].
- * - **[FragmentOnAttachListener]**: Removes the need to
- * manually call [FragmentManager.addFragmentOnAttachListener] from your
- * host in order to receive [FragmentOnAttachListener.onAttachFragment] callbacks
- * for the [FragmentController.getSupportFragmentManager].
- * - **[androidx.activity.OnBackPressedDispatcherOwner]**: Removes
- * the need to manually call
- * [FragmentManager.popBackStackImmediate] when handling the system
- * back button.
- * - **[androidx.lifecycle.ViewModelStoreOwner]**: Removes the need
- * for your [FragmentController] to call
- * [FragmentController.retainNestedNonConfig] or
- * [FragmentController.restoreAllState].
- *
- * @param H the type of object that's currently hosting the fragments. An instance of this
- * class must be returned by [onGetHost].
+ * @param H the type of object that's currently hosting the fragments. An instance of this class
+ *   must be returned by [onGetHost].
  */
 @Suppress("deprecation")
-abstract class FragmentHostCallback<H> internal constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val activity: Activity?,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val context: Context,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val handler: Handler,
+abstract class FragmentHostCallback<H>
+internal constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val activity: Activity?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val context: Context,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val handler: Handler,
     private val windowAnimations: Int
 ) : FragmentContainer() {
 
@@ -78,28 +69,20 @@ abstract class FragmentHostCallback<H> internal constructor(
         context: Context,
         handler: Handler,
         windowAnimations: Int
-    ) : this(
-        if (context is Activity) context else null,
-        context,
-        handler,
-        windowAnimations
-    )
+    ) : this(if (context is Activity) context else null, context, handler, windowAnimations)
 
     @Suppress("deprecation")
-    internal constructor(activity: FragmentActivity) : this(
-        activity,
-        context = activity,
-        Handler(),
-        windowAnimations = 0
-    )
+    internal constructor(
+        activity: FragmentActivity
+    ) : this(activity, context = activity, Handler(), windowAnimations = 0)
 
     /**
      * Print internal state into the given stream.
      *
      * @param prefix Desired prefix to prepend at each line of output.
      * @param fd The raw file descriptor that the dump is being sent to.
-     * @param writer The PrintWriter to which you should dump your state. This will be closed
-     * for you after you return.
+     * @param writer The PrintWriter to which you should dump your state. This will be closed for
+     *   you after you return.
      * @param args additional arguments to the dump request.
      */
     open fun onDump(
@@ -107,52 +90,41 @@ abstract class FragmentHostCallback<H> internal constructor(
         fd: FileDescriptor?,
         writer: PrintWriter,
         args: Array<String>?
-    ) {
-    }
+    ) {}
 
-    /**
-     * Return `true` if the fragment's state needs to be saved.
-     */
+    /** Return `true` if the fragment's state needs to be saved. */
     open fun onShouldSaveFragmentState(fragment: Fragment): Boolean {
         return true
     }
 
-    /**
-     * Return a [LayoutInflater].
-     * See [Activity.getLayoutInflater].
-     */
+    /** Return a [LayoutInflater]. See [Activity.getLayoutInflater]. */
     open fun onGetLayoutInflater(): LayoutInflater {
         return LayoutInflater.from(context)
     }
 
     /**
-     * Return the object that's currently hosting the fragment. If a [Fragment]
-     * is hosted by a [FragmentActivity], the object returned here should be
-     * the same object returned from [Fragment.getActivity].
+     * Return the object that's currently hosting the fragment. If a [Fragment] is hosted by a
+     * [FragmentActivity], the object returned here should be the same object returned from
+     * [Fragment.getActivity].
      */
     abstract fun onGetHost(): H
 
     /**
-     * Invalidates the activity's options menu.
-     * See [FragmentActivity.supportInvalidateOptionsMenu]
+     * Invalidates the activity's options menu. See [FragmentActivity.supportInvalidateOptionsMenu]
      */
     open fun onSupportInvalidateOptionsMenu() {}
 
     /**
-     * Starts a new [Activity] from the given fragment.
-     * See [FragmentActivity.startActivityForResult].
+     * Starts a new [Activity] from the given fragment. See
+     * [FragmentActivity.startActivityForResult].
      */
-    open fun onStartActivityFromFragment(
-        fragment: Fragment,
-        intent: Intent,
-        requestCode: Int
-    ) {
+    open fun onStartActivityFromFragment(fragment: Fragment, intent: Intent, requestCode: Int) {
         onStartActivityFromFragment(fragment, intent, requestCode, null)
     }
 
     /**
-     * Starts a new [Activity] from the given fragment.
-     * See [FragmentActivity.startActivityForResult].
+     * Starts a new [Activity] from the given fragment. See
+     * [FragmentActivity.startActivityForResult].
      */
     open fun onStartActivityFromFragment(
         fragment: Fragment,
@@ -166,10 +138,7 @@ abstract class FragmentHostCallback<H> internal constructor(
         ContextCompat.startActivity(context, intent, options)
     }
 
-    /**
-     * Starts a new [IntentSender] from the given fragment.
-     * See [Activity.startIntentSender].
-     */
+    /** Starts a new [IntentSender] from the given fragment. See [Activity.startIntentSender]. */
     @Deprecated(
         """Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
       to allow Fragments to use
@@ -191,19 +160,23 @@ abstract class FragmentHostCallback<H> internal constructor(
         check(requestCode == -1) {
             "Starting intent sender with a requestCode requires a FragmentActivity host"
         }
-        val activity = checkNotNull(activity) {
-            "Starting intent sender with a requestCode requires a FragmentActivity host"
-        }
+        val activity =
+            checkNotNull(activity) {
+                "Starting intent sender with a requestCode requires a FragmentActivity host"
+            }
         ActivityCompat.startIntentSenderForResult(
-            activity, intent, requestCode, fillInIntent,
-            flagsMask, flagsValues, extraFlags, options
+            activity,
+            intent,
+            requestCode,
+            fillInIntent,
+            flagsMask,
+            flagsValues,
+            extraFlags,
+            options
         )
     }
 
-    /**
-     * Requests permissions from the given fragment.
-     * See [FragmentActivity.requestPermissions]
-     */
+    /** Requests permissions from the given fragment. See [FragmentActivity.requestPermissions] */
     @Deprecated(
         """Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
       to allow Fragments to use
@@ -215,27 +188,22 @@ abstract class FragmentHostCallback<H> internal constructor(
         fragment: Fragment,
         permissions: Array<String>,
         requestCode: Int
-    ) {
-    }
+    ) {}
 
     /**
-     * Checks whether to show permission rationale UI from a fragment.
-     * See [FragmentActivity.shouldShowRequestPermissionRationale]
+     * Checks whether to show permission rationale UI from a fragment. See
+     * [FragmentActivity.shouldShowRequestPermissionRationale]
      */
     open fun onShouldShowRequestPermissionRationale(permission: String): Boolean {
         return false
     }
 
-    /**
-     * Return `true` if there are window animations.
-     */
+    /** Return `true` if there are window animations. */
     open fun onHasWindowAnimations(): Boolean {
         return true
     }
 
-    /**
-     * Return the window animations.
-     */
+    /** Return the window animations. */
     open fun onGetWindowAnimations(): Int {
         return windowAnimations
     }

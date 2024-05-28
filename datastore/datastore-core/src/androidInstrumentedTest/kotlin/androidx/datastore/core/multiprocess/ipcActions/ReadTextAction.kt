@@ -24,14 +24,9 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 internal class ReadTextAction : IpcAction<ReadTextAction.TextValue>() {
-    @Parcelize
-    data class TextValue(val value: String) : Parcelable
+    @Parcelize data class TextValue(val value: String) : Parcelable
 
-    override suspend fun invokeInRemoteProcess(
-        subject: TwoWayIpcSubject
-    ): TextValue {
-        return TextValue(
-            subject.datastore.data.first().text
-        )
+    override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): TextValue {
+        return TextValue(subject.datastore.data.first().text)
     }
 }

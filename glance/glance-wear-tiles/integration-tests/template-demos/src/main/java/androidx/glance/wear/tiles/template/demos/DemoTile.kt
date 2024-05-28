@@ -28,32 +28,40 @@ import androidx.glance.template.TextType
 import androidx.glance.wear.tiles.GlanceTileService
 import androidx.glance.wear.tiles.template.SingleEntityTemplate
 
-/** Simple demo tile, displays [SingleEntityTemplate]  */
+/** Simple demo tile, displays [SingleEntityTemplate] */
 class DemoTile : GlanceTileService() {
 
     @Composable
     override fun Content() {
         SingleEntityTemplate(
             SingleEntityTemplateData(
-                headerBlock = HeaderBlock(
-                    text = TemplateText("Single Entity Demo", TextType.Title),
-                    icon = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose),
-                        "image"
+                headerBlock =
+                    HeaderBlock(
+                        text = TemplateText("Single Entity Demo", TextType.Title),
+                        icon =
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.compose),
+                                "image"
+                            ),
                     ),
-                ),
-                textBlock = TextBlock(
-                    text1 = TemplateText("Title", TextType.Title),
-                    text2 = TemplateText("Subtitle", TextType.Label),
-                    text3 = TemplateText("Here's the body", TextType.Body),
-                    priority = 0,
-                ),
-                imageBlock = ImageBlock(
-                    images = listOf(
-                        TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image")
+                textBlock =
+                    TextBlock(
+                        text1 = TemplateText("Title", TextType.Title),
+                        text2 = TemplateText("Subtitle", TextType.Label),
+                        text3 = TemplateText("Here's the body", TextType.Body),
+                        priority = 0,
                     ),
-                    priority = 1,
-                ),
+                imageBlock =
+                    ImageBlock(
+                        images =
+                            listOf(
+                                TemplateImageWithDescription(
+                                    ImageProvider(R.drawable.compose),
+                                    "image"
+                                )
+                            ),
+                        priority = 1,
+                    ),
             )
         )
     }

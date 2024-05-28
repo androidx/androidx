@@ -24,20 +24,22 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-/**
- * Common IOException mapped to java.io.Exception in jvm code.
- */
+/** Common IOException mapped to java.io.Exception in jvm code. */
 actual typealias IOException = java.io.IOException
 
 internal actual class AtomicInt {
     private val delegate: AtomicInteger
+
     actual constructor(initialValue: Int) {
         delegate = AtomicInteger(initialValue)
     }
 
     actual fun getAndIncrement(): Int = delegate.getAndIncrement()
+
     actual fun decrementAndGet(): Int = delegate.decrementAndGet()
+
     actual fun get(): Int = delegate.get()
+
     actual fun incrementAndGet(): Int = delegate.incrementAndGet()
 }
 

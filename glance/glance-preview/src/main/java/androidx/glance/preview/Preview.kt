@@ -21,23 +21,17 @@ package androidx.glance.preview
  * Studio.
  *
  * The [widthDp] and [heightDp] parameters correspond to the size of the widget, i.e. the size
- * available in the LocalSize composition local. When [widthDp] and [heightDp] aren't specified,
- * the visual preview wraps its content. In this case, LocalSize should not be read within the
+ * available in the LocalSize composition local. When [widthDp] and [heightDp] aren't specified, the
+ * visual preview wraps its content. In this case, LocalSize should not be read within the
  * composable.
  *
  * @param widthDp width in DP that will be used when rendering the annotated Glance @[Composable]
- * and that will be set as the widget's LocalSize width.
+ *   and that will be set as the widget's LocalSize width.
  * @param heightDp height in DP that will be used when rendering the annotated Glance @[Composable]
- * and that will be set as the widget's LocalSize height.
+ *   and that will be set as the widget's LocalSize height.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.FUNCTION
-)
+@Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @ExperimentalGlancePreviewApi
 @Repeatable
-annotation class Preview(
-    val widthDp: Int = -1,
-    val heightDp: Int = -1
-)
+annotation class Preview(val widthDp: Int = -1, val heightDp: Int = -1)

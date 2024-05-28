@@ -55,8 +55,7 @@ class MulticastFileObserverTest {
     // we cannot control
     private val testScope = CoroutineScope(Dispatchers.IO)
 
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
+    @get:Rule val tmpFolder = TemporaryFolder()
 
     @After
     fun cleanup() {
@@ -75,27 +74,21 @@ class MulticastFileObserverTest {
         // wait 5 seconds for it to close. It really shouldn't take 5 seconds but just being safe
         for (i in 0 until 50) {
             if (MulticastFileObserver.fileObservers.isEmpty()) {
-                break;
+                break
             }
             Thread.sleep(100)
         }
-        assertWithMessage(
-            "Didn't reach expected observer count"
-        ).that(
-            MulticastFileObserver.fileObservers.size
-        ).isEqualTo(0)
+        assertWithMessage("Didn't reach expected observer count")
+            .that(MulticastFileObserver.fileObservers.size)
+            .isEqualTo(0)
     }
 
     @Test
     fun twoObserversNotified() = runBlocking {
         val folder = tmpFolder.newFolder()
         folder.mkdirs()
-        val f1 = folder.resolve("f1").also {
-            it.writeText("x")
-        }
-        val f2 = folder.resolve("f2").also {
-            it.writeText("y")
-        }
+        val f1 = folder.resolve("f1").also { it.writeText("x") }
+        val f2 = folder.resolve("f2").also { it.writeText("y") }
         val subject1 = UpdateCollector(testScope, f1)
         val subject2 = UpdateCollector(testScope, f2)
         subject1.awaitValue("x")
@@ -116,22 +109,12 @@ class MulticastFileObserverTest {
     fun observerAddedRemovedReAdded() = runBlocking {
         val folder = tmpFolder.newFolder()
         folder.mkdirs()
-        val f1 = folder.resolve("f1").also {
-            it.writeText("x")
-        }
-        val f2 = folder.resolve("f2").also {
-            it.writeText("y")
-        }
-        val subject1Scope = CoroutineScope(
-            testScope.coroutineContext + Job(
-                testScope.coroutineContext[Job]
-            )
-        )
-        val subject2Scope = CoroutineScope(
-            testScope.coroutineContext + Job(
-                testScope.coroutineContext[Job]
-            )
-        )
+        val f1 = folder.resolve("f1").also { it.writeText("x") }
+        val f2 = folder.resolve("f2").also { it.writeText("y") }
+        val subject1Scope =
+            CoroutineScope(testScope.coroutineContext + Job(testScope.coroutineContext[Job]))
+        val subject2Scope =
+            CoroutineScope(testScope.coroutineContext + Job(testScope.coroutineContext[Job]))
         val subject1 = UpdateCollector(subject1Scope, f1)
         val subject2 = UpdateCollector(subject2Scope, f2)
         subject1.awaitValue("x")
@@ -149,27 +132,22 @@ class MulticastFileObserverTest {
     fun stressTest() = runBlocking {
         // create many folders and many files, ensure observers get the latest value and
         // we also cleanup properly
-        val folders = (0 until 10).map {
-            tmpFolder.newFolder()
-        }
-        val files = folders.flatMap { folder ->
-            (0 until 10).map {
-                folder.resolve("f$it").also {
-                    it.writeText("init")
+        val folders = (0 until 10).map { tmpFolder.newFolder() }
+        val files =
+            folders.flatMap { folder ->
+                (0 until 10).map { folder.resolve("f$it").also { it.writeText("init") } }
+            }
+        val updateCollectors = files.map { file -> UpdateCollector(testScope, file) }
+        files
+            .mapIndexed { fileIndex, file ->
+                async(Dispatchers.IO) {
+                    repeat(10) { subIndex ->
+                        file.modify("$fileIndex/$subIndex")
+                        delay(100)
+                    }
                 }
             }
-        }
-        val updateCollectors = files.map { file ->
-            UpdateCollector(testScope, file)
-        }
-        files.mapIndexed { fileIndex, file ->
-            async(Dispatchers.IO) {
-                repeat(10) { subIndex ->
-                    file.modify("$fileIndex/$subIndex")
-                    delay(100)
-                }
-            }
-        }.awaitAll()
+            .awaitAll()
         updateCollectors.forEachIndexed { fileIndex, updateCollector ->
             updateCollector.awaitValue("$fileIndex/9")
         }
@@ -179,25 +157,22 @@ class MulticastFileObserverTest {
     fun blockedObserverDoesntBlockTheOther() = runBlocking {
         val folder = tmpFolder.newFolder()
         folder.mkdirs()
-        val f1 = folder.resolve("f1").also {
-            it.writeText("x")
-        }
+        val f1 = folder.resolve("f1").also { it.writeText("x") }
         val subject = UpdateCollector(testScope, f1)
         subject.awaitValue("x")
         val blockedObserverReceivedValue = CompletableDeferred<Unit>()
-        val blockedObserver = testScope.async {
-            MulticastFileObserver.observe(f1).onEach {
-                blockedObserverReceivedValue.complete(Unit)
-                // suspend indefinitely
-                suspendCancellableCoroutine { }
-            }.collect()
-        }
-        withTimeout(5.seconds) {
-            blockedObserverReceivedValue.await()
-        }
-        repeat(10) {
-            f1.modify("x$it")
-        }
+        val blockedObserver =
+            testScope.async {
+                MulticastFileObserver.observe(f1)
+                    .onEach {
+                        blockedObserverReceivedValue.complete(Unit)
+                        // suspend indefinitely
+                        suspendCancellableCoroutine {}
+                    }
+                    .collect()
+            }
+        withTimeout(5.seconds) { blockedObserverReceivedValue.await() }
+        repeat(10) { f1.modify("x$it") }
         subject.awaitValue("x9")
         blockedObserver.cancelAndJoin()
     }
@@ -209,25 +184,22 @@ class MulticastFileObserverTest {
         tmp.delete()
     }
 
-    private class UpdateCollector(
-        scope: CoroutineScope,
-        private val file: File
-    ) {
-        private val state = MulticastFileObserver.observe(file).map {
-            file.readText()
-        }.stateIn(scope, SharingStarted.Eagerly, "no-value")
+    private class UpdateCollector(scope: CoroutineScope, private val file: File) {
+        private val state =
+            MulticastFileObserver.observe(file)
+                .map { file.readText() }
+                .stateIn(scope, SharingStarted.Eagerly, "no-value")
 
         suspend fun awaitValue(expected: String) {
             try {
-                withTimeout(5.seconds) {
-                    state.takeWhile {
-                        it != expected
-                    }.collect()
-                }
+                withTimeout(5.seconds) { state.takeWhile { it != expected }.collect() }
             } catch (timeout: TimeoutCancellationException) {
-                throw AssertionError("""
+                throw AssertionError(
+                    """
                     [${file.name}] expected "$expected" but value is "${state.value}"
-                """.trimIndent())
+                """
+                        .trimIndent()
+                )
             }
         }
     }

@@ -30,12 +30,8 @@ import androidx.glance.unit.ColorProvider
  * @param width The width of the border, in DP
  * @param color The color of the border
  */
-public fun GlanceModifier.border(
-    width: Dp,
-    color: ColorProvider
-): GlanceModifier = this.then(
-    BorderModifier(BorderDimension(dp = width), color)
-)
+public fun GlanceModifier.border(width: Dp, color: ColorProvider): GlanceModifier =
+    this.then(BorderModifier(BorderDimension(dp = width), color))
 
 /**
  * Apply a border around an element, border width is provided with dimension resource
@@ -43,12 +39,8 @@ public fun GlanceModifier.border(
  * @param width The width of the border, value provided by a dimension resource
  * @param color The color of the border
  */
-public fun GlanceModifier.border(
-    @DimenRes width: Int,
-    color: ColorProvider
-): GlanceModifier = this.then(
-    BorderModifier(BorderDimension(resourceId = width), color)
-)
+public fun GlanceModifier.border(@DimenRes width: Int, color: ColorProvider): GlanceModifier =
+    this.then(BorderModifier(BorderDimension(resourceId = width), color))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BorderModifier(
@@ -61,7 +53,7 @@ public data class BorderDimension(
     public val dp: Dp = 0.dp,
     @DimenRes public val resourceId: Int = 0
 ) {
-   fun toDp(resources: Resources): Dp =
-      if (resourceId == 0) dp
-      else (resources.getDimension(resourceId) / resources.displayMetrics.density).dp
-   }
+    fun toDp(resources: Resources): Dp =
+        if (resourceId == 0) dp
+        else (resources.getDimension(resourceId) / resources.displayMetrics.density).dp
+}

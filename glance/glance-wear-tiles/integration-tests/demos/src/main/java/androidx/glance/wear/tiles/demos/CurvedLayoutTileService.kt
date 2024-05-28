@@ -43,37 +43,24 @@ class CurvedLayoutTileService : GlanceTileService() {
 
     @Composable
     override fun Content() {
-        CurvedRow(
-            anchorType = AnchorType.Start
-        ) {
-            curvedText(
-                text = "hello",
-                style = CurvedTextStyle(
-                    color = ColorProvider(Color.Green)
-                )
-            )
+        CurvedRow(anchorType = AnchorType.Start) {
+            curvedText(text = "hello", style = CurvedTextStyle(color = ColorProvider(Color.Green)))
             curvedComposable {
-                Text(
-                    text = "glance",
-                    style = TextStyle(color = ColorProvider(Color.Yellow))
-                )
+                Text(text = "glance", style = TextStyle(color = ColorProvider(Color.Yellow)))
             }
             curvedLine(
                 color = ColorProvider(Color.Cyan),
-                curvedModifier =
-                GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
             )
-            curvedSpacer(
-                curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f)
-            )
+            curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
             curvedText(
                 text = "calendar",
-                style = CurvedTextStyle(
-                    color = ColorProvider(Color.Green)
-                ),
-                curvedModifier = GlanceCurvedModifier
-                    .clickable(actionStartActivity(CalendarActivity::class.java))
-                    .semantics({ contentDescription = "click to open activity" })
+                style = CurvedTextStyle(color = ColorProvider(Color.Green)),
+                curvedModifier =
+                    GlanceCurvedModifier.clickable(
+                            actionStartActivity(CalendarActivity::class.java)
+                        )
+                        .semantics({ contentDescription = "click to open activity" })
             )
             curvedComposable(false) {
                 Image(

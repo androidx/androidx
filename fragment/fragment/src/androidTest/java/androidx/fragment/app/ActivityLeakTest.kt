@@ -31,9 +31,7 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Class representing the different configurations for testing leaks
- */
+/** Class representing the different configurations for testing leaks */
 sealed class LeakConfiguration {
     abstract fun commit(fragmentManager: FragmentManager): Fragment?
 
@@ -41,22 +39,16 @@ sealed class LeakConfiguration {
 }
 
 object NotRetained : LeakConfiguration() {
-    override fun commit(fragmentManager: FragmentManager) = StrictFragment().also {
-        fragmentManager.beginTransaction()
-            .add(it, "tag")
-            .commitNow()
-    }
+    override fun commit(fragmentManager: FragmentManager) =
+        StrictFragment().also { fragmentManager.beginTransaction().add(it, "tag").commitNow() }
 }
 
 object Retained : LeakConfiguration() {
     @Suppress("DEPRECATION")
-    override fun commit(fragmentManager: FragmentManager) = StrictFragment().apply {
-        retainInstance = true
-    }.also {
-        fragmentManager.beginTransaction()
-            .add(it, "tag")
-            .commitNow()
-    }
+    override fun commit(fragmentManager: FragmentManager) =
+        StrictFragment()
+            .apply { retainInstance = true }
+            .also { fragmentManager.beginTransaction().add(it, "tag").commitNow() }
 }
 
 object NoChild : LeakConfiguration() {
@@ -72,16 +64,14 @@ class ActivityLeakTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "parent={0}, child={1}")
-        fun data() = mutableListOf<Array<Any>>().apply {
-            arrayOf(
-                NotRetained,
-                Retained
-            ).forEach { operation ->
-                add(arrayOf(operation, NotRetained))
-                add(arrayOf(operation, Retained))
-                add(arrayOf(operation, NoChild))
+        fun data() =
+            mutableListOf<Array<Any>>().apply {
+                arrayOf(NotRetained, Retained).forEach { operation ->
+                    add(arrayOf(operation, NotRetained))
+                    add(arrayOf(operation, Retained))
+                    add(arrayOf(operation, NoChild))
+                }
             }
-        }
     }
 
     @Suppress("DEPRECATION")
@@ -89,8 +79,8 @@ class ActivityLeakTest(
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun testActivityDoesNotLeak() {
@@ -111,14 +101,13 @@ class ActivityLeakTest(
 
         // Force a garbage collection.
         forceGC()
-        assertWithMessage("Old activity should be garbage collected")
-            .that(weakRef.get())
-            .isNull()
+        assertWithMessage("Old activity should be garbage collected").that(weakRef.get()).isNull()
     }
 }
 
 class ActivityLeakActivity : RecreatedActivity() {
     companion object {
-        val activity get() = RecreatedActivity.activity
+        val activity
+            get() = RecreatedActivity.activity
     }
 }

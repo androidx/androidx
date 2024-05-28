@@ -24,6 +24,5 @@ import androidx.glance.unit.ColorProvider
  * color. Helps with changing color of entire drawable and using it as shaped color background.
  */
 internal class TintAndAlphaColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParams {
-    override fun toString() =
-        "TintAndAlphaColorFilterParams(colorProvider=$colorProvider))"
+    override fun toString() = "TintAndAlphaColorFilterParams(colorProvider=$colorProvider))"
 }

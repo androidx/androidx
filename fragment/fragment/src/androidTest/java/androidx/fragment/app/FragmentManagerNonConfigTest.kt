@@ -38,12 +38,12 @@ class FragmentManagerNonConfigTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     /**
-     * When a fragment is added during onStop(), it shouldn't show up in non-config
-     * state when restored before P, because OnSaveInstanceState was already called.
+     * When a fragment is added during onStop(), it shouldn't show up in non-config state when
+     * restored before P, because OnSaveInstanceState was already called.
      */
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
@@ -55,8 +55,8 @@ class FragmentManagerNonConfigTest {
     }
 
     /**
-     * When a fragment is added during onStop(), it shouldn't show up in non-config
-     * state when restored after (>=) P, because OnSaveInstanceState isn't yet called.
+     * When a fragment is added during onStop(), it shouldn't show up in non-config state when
+     * restored after (>=) P, because OnSaveInstanceState isn't yet called.
      */
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)

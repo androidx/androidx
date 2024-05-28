@@ -50,8 +50,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FragmentRemoveTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<EmptyTestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<EmptyTestActivity>()
 
     @Test
     fun testRemoval() {
@@ -60,9 +59,7 @@ class FragmentRemoveTest {
         lateinit var fragment: Fragment
         rule.setContent {
             if (show) {
-                AndroidFragment<SimpleEditTextFragment> {
-                    fragment = it
-                }
+                AndroidFragment<SimpleEditTextFragment> { fragment = it }
             }
         }
 
@@ -88,9 +85,7 @@ class FragmentRemoveTest {
         lateinit var fragment: Fragment
         rule.setContent {
             if (show) {
-                AndroidFragment<SimpleEditTextFragment> {
-                    fragment = it
-                }
+                AndroidFragment<SimpleEditTextFragment> { fragment = it }
             }
         }
 
@@ -103,9 +98,7 @@ class FragmentRemoveTest {
 
         // Update the state to allow verifying the state is destroyed when the
         // AndroidViewBinding is removed from composition
-        rule.runOnUiThread {
-            editText.setText("Updated")
-        }
+        rule.runOnUiThread { editText.setText("Updated") }
 
         show = false
 
@@ -137,13 +130,9 @@ class FragmentRemoveTest {
         lateinit var fragment: Fragment
         rule.setContent {
             if (showStateA) {
-                AndroidFragment<SimpleEditTextFragment>() {
-                    fragment = it
-                }
+                AndroidFragment<SimpleEditTextFragment>() { fragment = it }
             } else {
-                SideEffect {
-                    showStateA = true
-                }
+                SideEffect { showStateA = true }
             }
         }
 
@@ -156,9 +145,7 @@ class FragmentRemoveTest {
 
         // Update the state to allow verifying the state is destroyed when the
         // AndroidViewBinding is removed from composition
-        rule.runOnUiThread {
-            editText.setText("Updated")
-        }
+        rule.runOnUiThread { editText.setText("Updated") }
 
         showStateA = false
 
@@ -210,13 +197,11 @@ class ComposeFragmentActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AndroidFragment<SimpleEditTextFragment>(Modifier.requiredSize(50.dp)) {
-                fragment = it
-            }
+            AndroidFragment<SimpleEditTextFragment>(Modifier.requiredSize(50.dp)) { fragment = it }
         }
 
-        composeView = window.decorView
-            .findViewById<ViewGroup>(android.R.id.content)
-            .getChildAt(0) as? ComposeView
+        composeView =
+            window.decorView.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+                as? ComposeView
     }
 }

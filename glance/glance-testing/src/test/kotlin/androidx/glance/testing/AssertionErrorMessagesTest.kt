@@ -24,76 +24,80 @@ import org.junit.Test
 class AssertionErrorMessagesTest {
     @Test
     fun countMismatch_expectedNone() {
-        val resultMessage = buildErrorMessageWithReason(
-            errorMessageOnFail = "Failed assert",
-            reason = buildErrorReasonForCountMismatch(
-                matcherDescription = "testTag = 'my-node'",
-                expectedCount = 0,
-                actualCount = 1
+        val resultMessage =
+            buildErrorMessageWithReason(
+                errorMessageOnFail = "Failed assert",
+                reason =
+                    buildErrorReasonForCountMismatch(
+                        matcherDescription = "testTag = 'my-node'",
+                        expectedCount = 0,
+                        actualCount = 1
+                    )
             )
-        )
 
-        assertThat(resultMessage).isEqualTo(
-            "Failed assert" +
-                "\nReason: Did not expect any node matching condition: testTag = 'my-node'" +
-                ", but found '1'"
-        )
+        assertThat(resultMessage)
+            .isEqualTo(
+                "Failed assert" +
+                    "\nReason: Did not expect any node matching condition: testTag = 'my-node'" +
+                    ", but found '1'"
+            )
     }
 
     @Test
     fun countMismatch_expectedButFoundNone() {
-        val resultMessage = buildErrorMessageWithReason(
-            errorMessageOnFail = "Failed assert",
-            reason = buildErrorReasonForCountMismatch(
-                matcherDescription = "testTag = 'my-node'",
-                expectedCount = 2,
-                actualCount = 0
+        val resultMessage =
+            buildErrorMessageWithReason(
+                errorMessageOnFail = "Failed assert",
+                reason =
+                    buildErrorReasonForCountMismatch(
+                        matcherDescription = "testTag = 'my-node'",
+                        expectedCount = 2,
+                        actualCount = 0
+                    )
             )
-        )
 
-        assertThat(resultMessage).isEqualTo(
-            "Failed assert" +
-                "\nReason: Expected '2' node(s) matching condition: testTag = 'my-node'" +
-                ", but found '0'"
-        )
+        assertThat(resultMessage)
+            .isEqualTo(
+                "Failed assert" +
+                    "\nReason: Expected '2' node(s) matching condition: testTag = 'my-node'" +
+                    ", but found '0'"
+            )
     }
 
     @Test
     fun generalErrorMessage_singleNode() {
-        val node = GlanceMappedNode(
-            EmittableText().also { it.text = "test text" }
-        )
+        val node = GlanceMappedNode(EmittableText().also { it.text = "test text" })
 
-        val resultMessage = buildGeneralErrorMessage(
-            errorMessage = "Failed to match the condition: (testTag = 'my-node')",
-            node = node
-        )
+        val resultMessage =
+            buildGeneralErrorMessage(
+                errorMessage = "Failed to match the condition: (testTag = 'my-node')",
+                node = node
+            )
 
-        assertThat(resultMessage).isEqualTo(
-            "Failed to match the condition: (testTag = 'my-node')" +
-                "\nGlance Node: ${node.toDebugString()}"
-        )
+        assertThat(resultMessage)
+            .isEqualTo(
+                "Failed to match the condition: (testTag = 'my-node')" +
+                    "\nGlance Node: ${node.toDebugString()}"
+            )
     }
 
     @Test
     fun generalErrorMessage_multipleNodes() {
-        val node1 = GlanceMappedNode(
-            EmittableText().also { it.text = "text1" }
-        )
-        val node2 = GlanceMappedNode(
-            EmittableText().also { it.text = "text2" }
-        )
+        val node1 = GlanceMappedNode(EmittableText().also { it.text = "text1" })
+        val node2 = GlanceMappedNode(EmittableText().also { it.text = "text2" })
 
-        val resultMessage = buildGeneralErrorMessage(
-            errorMessage = "Failed to match the condition: (testTag = 'my-node')",
-            nodes = listOf(node1, node2)
-        )
+        val resultMessage =
+            buildGeneralErrorMessage(
+                errorMessage = "Failed to match the condition: (testTag = 'my-node')",
+                nodes = listOf(node1, node2)
+            )
 
-        assertThat(resultMessage).isEqualTo(
-            "Failed to match the condition: (testTag = 'my-node')" +
-                "\nFound 2 node(s) that don't match." +
-                "\nNon-matching Glance Node #1: ${node1.toDebugString()}" +
-                "\nNon-matching Glance Node #2: ${node2.toDebugString()}"
-        )
+        assertThat(resultMessage)
+            .isEqualTo(
+                "Failed to match the condition: (testTag = 'my-node')" +
+                    "\nFound 2 node(s) that don't match." +
+                    "\nNon-matching Glance Node #1: ${node1.toDebugString()}" +
+                    "\nNon-matching Glance Node #2: ${node2.toDebugString()}"
+            )
     }
 }

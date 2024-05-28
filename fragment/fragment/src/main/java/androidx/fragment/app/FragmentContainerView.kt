@@ -34,9 +34,8 @@ import androidx.fragment.R
  * [FrameLayout], so it can reliably handle Fragment Transactions, and it also has additional
  * features to coordinate with fragment behavior.
  *
- * FragmentContainerView should be used as the container for Fragments, commonly set in the
- * xml layout of an activity, e.g.:
- *
+ * FragmentContainerView should be used as the container for Fragments, commonly set in the xml
+ * layout of an activity, e.g.:
  * ```
  * <androidx.fragment.app.FragmentContainerView
  * xmlns:android="http://schemas.android.com/apk/res/android"
@@ -47,10 +46,8 @@ import androidx.fragment.R
  * </androidx.fragment.app.FragmentContainerView>
  * ```
  *
- * FragmentContainerView can also be used to add a Fragment by using the
- * `android:name` attribute. FragmentContainerView will perform a one time operation
- * that:
- *
+ * FragmentContainerView can also be used to add a Fragment by using the `android:name` attribute.
+ * FragmentContainerView will perform a one time operation that:
  * 1. Creates a new instance of the Fragment
  * 2. Calls [Fragment.onInflate]
  * 3. Executes a FragmentTransaction to add the Fragment to the appropriate FragmentManager
@@ -73,9 +70,8 @@ import androidx.fragment.R
  * FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
  *
- * FragmentContainerView will only allow views returned by a Fragment's
- * [Fragment.onCreateView]. Attempting to add any other
- * view will result in an [IllegalStateException].
+ * FragmentContainerView will only allow views returned by a Fragment's [Fragment.onCreateView].
+ * Attempting to add any other view will result in an [IllegalStateException].
  *
  * Layout animations and transitions are disabled for FragmentContainerView for APIs above 17.
  * Otherwise, Animations should be done through [FragmentTransaction.setCustomAnimations]. If
@@ -165,15 +161,15 @@ public class FragmentContainerView : FrameLayout {
     }
 
     /**
-     * When called, this method throws a [UnsupportedOperationException] on APIs above 17.
-     * On APIs 17 and below, it calls [FrameLayout.setLayoutTransition]. This can be called
-     * either explicitly, or implicitly by setting animateLayoutChanges to `true`.
+     * When called, this method throws a [UnsupportedOperationException] on APIs above 17. On APIs
+     * 17 and below, it calls [FrameLayout.setLayoutTransition]. This can be called either
+     * explicitly, or implicitly by setting animateLayoutChanges to `true`.
      *
-     * View animations and transitions are disabled for FragmentContainerView for APIs above 17.
-     * Use [FragmentTransaction.setCustomAnimations] and [FragmentTransaction.setTransition].
+     * View animations and transitions are disabled for FragmentContainerView for APIs above 17. Use
+     * [FragmentTransaction.setCustomAnimations] and [FragmentTransaction.setTransition].
      *
      * @param transition The LayoutTransition object that will animated changes in layout. A value
-     * of `null` means no transition will run on layout changes.
+     *   of `null` means no transition will run on layout changes.
      * @attr ref android.R.styleable#ViewGroup_animateLayoutChanges
      */
     public override fun setLayoutTransition(transition: LayoutTransition?) {
@@ -198,13 +194,14 @@ public class FragmentContainerView : FrameLayout {
     @RequiresApi(20)
     public override fun dispatchApplyWindowInsets(insets: WindowInsets): WindowInsets {
         val insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets)
-        val dispatchInsets = if (applyWindowInsetsListener != null) {
-            WindowInsetsCompat.toWindowInsetsCompat(
-                Api20Impl.onApplyWindowInsets(applyWindowInsetsListener!!, this, insets)
-            )
-        } else {
-            ViewCompat.onApplyWindowInsets(this, insetsCompat)
-        }
+        val dispatchInsets =
+            if (applyWindowInsetsListener != null) {
+                WindowInsetsCompat.toWindowInsetsCompat(
+                    Api20Impl.onApplyWindowInsets(applyWindowInsetsListener!!, this, insets)
+                )
+            } else {
+                ViewCompat.onApplyWindowInsets(this, insetsCompat)
+            }
         if (!dispatchInsets.isConsumed) {
             for (i in 0 until childCount) {
                 ViewCompat.dispatchApplyWindowInsets(getChildAt(i), dispatchInsets)
@@ -261,10 +258,8 @@ public class FragmentContainerView : FrameLayout {
      */
     public override fun addView(child: View, index: Int, params: ViewGroup.LayoutParams?) {
         checkNotNull(FragmentManager.getViewFragment(child)) {
-            (
-                "Views added to a FragmentContainerView must be associated with a Fragment. View " +
-                    "$child is not associated with a Fragment."
-                )
+            ("Views added to a FragmentContainerView must be associated with a Fragment. View " +
+                "$child is not associated with a Fragment.")
         }
         super.addView(child, index, params)
     }

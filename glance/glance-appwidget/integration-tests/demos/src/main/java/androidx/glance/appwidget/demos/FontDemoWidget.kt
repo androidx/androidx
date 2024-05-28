@@ -44,16 +44,11 @@ import androidx.glance.text.FontFamily
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 
-/**
- * Sample AppWidget to demonstrate font changes.
- */
+/** Sample AppWidget to demonstrate font changes. */
 class FontDemoWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         FontDemoContent()
     }
 
@@ -83,15 +78,19 @@ class FontDemoWidget : GlanceAppWidget() {
                     style = TextStyle(fontSize = 18.sp, fontFamily = font)
                 )
                 Spacer(GlanceModifier.defaultWeight())
-                Button(text = "Toggle font", onClick = {
-                    font = when (font) {
-                        FontFamily.Serif -> FontFamily.SansSerif
-                        FontFamily.SansSerif -> FontFamily.Cursive
-                        FontFamily.Cursive -> FontFamily.Monospace
-                        FontFamily.Monospace -> FontFamily.Serif
-                        else -> FontFamily.SansSerif
+                Button(
+                    text = "Toggle font",
+                    onClick = {
+                        font =
+                            when (font) {
+                                FontFamily.Serif -> FontFamily.SansSerif
+                                FontFamily.SansSerif -> FontFamily.Cursive
+                                FontFamily.Cursive -> FontFamily.Monospace
+                                FontFamily.Monospace -> FontFamily.Serif
+                                else -> FontFamily.SansSerif
+                            }
                     }
-                })
+                )
             }
         }
     }

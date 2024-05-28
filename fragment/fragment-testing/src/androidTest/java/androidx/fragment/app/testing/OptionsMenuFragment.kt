@@ -22,9 +22,7 @@ import android.view.MenuInflater
 import androidx.fragment.app.Fragment
 import androidx.fragment.testing.test.R
 
-/**
- * A minimum example Fragment with options menu for testing.
- */
+/** A minimum example Fragment with options menu for testing. */
 @Suppress("DEPRECATION")
 class OptionsMenuFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {

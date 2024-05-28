@@ -30,21 +30,17 @@ import org.mockito.kotlin.mock
 
 class BorderTest {
 
-    private val mockDisplayMetrics = DisplayMetrics().also {
-        it.density = density
-    }
+    private val mockDisplayMetrics = DisplayMetrics().also { it.density = density }
 
-    private val mockResources = mock<Resources>() {
-        on { displayMetrics } doReturn mockDisplayMetrics
-        on { getDimension(dimensionRes) } doReturn dimensionInDp * density
-    }
+    private val mockResources =
+        mock<Resources>() {
+            on { displayMetrics } doReturn mockDisplayMetrics
+            on { getDimension(dimensionRes) } doReturn dimensionInDp * density
+        }
 
     @Test
     fun buildBorderWithWidthInDp() {
-        val modifiers = GlanceModifier.border(
-            width = 5.dp,
-            color = ColorProvider(Color.Red)
-        )
+        val modifiers = GlanceModifier.border(width = 5.dp, color = ColorProvider(Color.Red))
 
         // Find the border modifier
         val borderModifier = checkNotNull(modifiers.findModifier<BorderModifier>())
@@ -56,10 +52,8 @@ class BorderTest {
 
     @Test
     fun buildBorderWithWidthInDimenRes() {
-        val modifiers = GlanceModifier.border(
-            width = dimensionRes,
-            color = ColorProvider(Color.Red)
-        )
+        val modifiers =
+            GlanceModifier.border(width = dimensionRes, color = ColorProvider(Color.Red))
 
         // Find the border modifier
         val borderModifier = checkNotNull(modifiers.findModifier<BorderModifier>())

@@ -36,34 +36,33 @@ internal fun RemoteViews.translateEmittableCircularProgressIndicator(
     translationContext: TranslationContext,
     element: EmittableCircularProgressIndicator
 ) {
-    val viewDef = insertView(translationContext,
-                             LayoutType.CircularProgressIndicator,
-                             element.modifier)
+    val viewDef =
+        insertView(translationContext, LayoutType.CircularProgressIndicator, element.modifier)
     setProgressBar(viewDef.mainViewId, 0, 0, true)
     if (Build.VERSION.SDK_INT >= 31) {
-      when (val indicatorColor = element.color) {
-        is FixedColorProvider -> {
-          setProgressBarIndeterminateTintList(
-            viewId = viewDef.mainViewId,
-            tint = ColorStateList.valueOf(indicatorColor.color.toArgb())
-          )
+        when (val indicatorColor = element.color) {
+            is FixedColorProvider -> {
+                setProgressBarIndeterminateTintList(
+                    viewId = viewDef.mainViewId,
+                    tint = ColorStateList.valueOf(indicatorColor.color.toArgb())
+                )
+            }
+            is ResourceColorProvider -> {
+                setProgressBarIndeterminateTintList(
+                    viewId = viewDef.mainViewId,
+                    resId = indicatorColor.resId
+                )
+            }
+            is DayNightColorProvider -> {
+                setProgressBarIndeterminateTintList(
+                    viewId = viewDef.mainViewId,
+                    notNightTint = ColorStateList.valueOf(indicatorColor.day.toArgb()),
+                    nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb())
+                )
+            }
+            else ->
+                Log.w(GlanceAppWidgetTag, "Unexpected progress indicator color: $indicatorColor")
         }
-        is ResourceColorProvider -> {
-          setProgressBarIndeterminateTintList(
-            viewId = viewDef.mainViewId,
-            resId = indicatorColor.resId
-          )
-        }
-        is DayNightColorProvider -> {
-          setProgressBarIndeterminateTintList(
-              viewId = viewDef.mainViewId,
-              notNightTint = ColorStateList.valueOf(indicatorColor.day.toArgb()),
-              nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb())
-          )
-        }
-        else ->
-            Log.w(GlanceAppWidgetTag, "Unexpected progress indicator color: $indicatorColor")
-      }
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }

@@ -37,75 +37,63 @@ class BackStackStateTest {
 
     @Suppress("DEPRECATION")
     val activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
-    private val fragmentManager get() = activityRule.withActivity {
-        supportFragmentManager
-    }
+    private val fragmentManager
+        get() = activityRule.withActivity { supportFragmentManager }
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun testRestoreFromPending() {
         val fragment = StrictFragment()
-        val backStackRecord = BackStackRecord(fragmentManager).apply {
-            add(fragment, "tag")
-            addToBackStack("back_stack")
-            setReorderingAllowed(true)
-            setMaxLifecycle(fragment, Lifecycle.State.STARTED)
-        }
+        val backStackRecord =
+            BackStackRecord(fragmentManager).apply {
+                add(fragment, "tag")
+                addToBackStack("back_stack")
+                setReorderingAllowed(true)
+                setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+            }
 
-        val backStackState = BackStackState(
-            listOf(fragment.mWho),
-            listOf(BackStackRecordState(backStackRecord))
-        )
+        val backStackState =
+            BackStackState(listOf(fragment.mWho), listOf(BackStackRecordState(backStackRecord)))
 
-        val restoredBackStackRecords = backStackState.instantiate(
-            fragmentManager,
-            mapOf(fragment.mWho to fragment)
-        )
-        assertThat(restoredBackStackRecords)
-            .hasSize(1)
-        assertThat(restoredBackStackRecords[0].mOps[0].mFragment)
-            .isSameInstanceAs(fragment)
+        val restoredBackStackRecords =
+            backStackState.instantiate(fragmentManager, mapOf(fragment.mWho to fragment))
+        assertThat(restoredBackStackRecords).hasSize(1)
+        assertThat(restoredBackStackRecords[0].mOps[0].mFragment).isSameInstanceAs(fragment)
     }
 
     @Test
     @Suppress("DEPRECATION")
     fun testParcel() {
         val fragment = StrictFragment()
-        val backStackRecord = BackStackRecord(fragmentManager).apply {
-            add(fragment, "tag")
-            addToBackStack("back_stack")
-            setReorderingAllowed(true)
-            setMaxLifecycle(fragment, Lifecycle.State.STARTED)
-        }
+        val backStackRecord =
+            BackStackRecord(fragmentManager).apply {
+                add(fragment, "tag")
+                addToBackStack("back_stack")
+                setReorderingAllowed(true)
+                setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+            }
 
         val stateBundle = Bundle()
         stateBundle.putParcelable(FragmentStateManager.FRAGMENT_STATE_KEY, FragmentState(fragment))
         fragmentManager.fragmentStore.setSavedState(fragment.mWho, stateBundle)
-        val backStackState = BackStackState(
-            listOf(fragment.mWho),
-            listOf(BackStackRecordState(backStackRecord))
-        )
+        val backStackState =
+            BackStackState(listOf(fragment.mWho), listOf(BackStackRecordState(backStackRecord)))
 
         val parcel = Parcel.obtain()
         backStackState.writeToParcel(parcel, 0)
         // Reset for reading
         parcel.setDataPosition(0)
         val restoredBackStackState = BackStackState(parcel)
-        assertThat(restoredBackStackState.mFragments)
-            .hasSize(1)
-        assertThat(restoredBackStackState.mTransactions)
-            .hasSize(1)
+        assertThat(restoredBackStackState.mFragments).hasSize(1)
+        assertThat(restoredBackStackState.mTransactions).hasSize(1)
 
-        val restoredBackStackRecords = restoredBackStackState.instantiate(
-            fragmentManager,
-            emptyMap()
-        )
-        assertThat(restoredBackStackRecords)
-            .hasSize(1)
+        val restoredBackStackRecords =
+            restoredBackStackState.instantiate(fragmentManager, emptyMap())
+        assertThat(restoredBackStackRecords).hasSize(1)
         assertThat(restoredBackStackRecords[0].mOps[0].mFragment)
             .isInstanceOf(StrictFragment::class.java)
     }

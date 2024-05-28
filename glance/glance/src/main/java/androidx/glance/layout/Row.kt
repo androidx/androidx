@@ -30,28 +30,29 @@ class EmittableRow : EmittableWithChildren() {
     var horizontalAlignment: Alignment.Horizontal = Alignment.Start
     var verticalAlignment: Alignment.Vertical = Alignment.Top
 
-    override fun copy(): Emittable = EmittableRow().also {
-        it.modifier = modifier
-        it.horizontalAlignment = horizontalAlignment
-        it.verticalAlignment = verticalAlignment
-        it.children.addAll(children.map { it.copy() })
-    }
+    override fun copy(): Emittable =
+        EmittableRow().also {
+            it.modifier = modifier
+            it.horizontalAlignment = horizontalAlignment
+            it.verticalAlignment = verticalAlignment
+            it.children.addAll(children.map { it.copy() })
+        }
 
-    override fun toString(): String = "EmittableRow(" +
-        "modifier=$modifier, " +
-        "horizontalAlignment=$horizontalAlignment, " +
-        "verticalAlignment=$verticalAlignment, " +
-        "children=[\n${childrenToString()}\n]" +
-        ")"
+    override fun toString(): String =
+        "EmittableRow(" +
+            "modifier=$modifier, " +
+            "horizontalAlignment=$horizontalAlignment, " +
+            "verticalAlignment=$verticalAlignment, " +
+            "children=[\n${childrenToString()}\n]" +
+            ")"
 }
 
 /** Scope defining modifiers only available on rows. */
 interface RowScope {
     /**
-     * Size the element's width to split the available space with other weighted sibling elements
-     * in the [Row]. The parent will divide the horizontal space remaining after measuring
-     * unweighted child elements and distribute it according to the weights, the default weight
-     * being 1.
+     * Size the element's width to split the available space with other weighted sibling elements in
+     * the [Row]. The parent will divide the horizontal space remaining after measuring unweighted
+     * child elements and distribute it according to the weights, the default weight being 1.
      */
     fun GlanceModifier.defaultWeight(): GlanceModifier
 }
@@ -66,8 +67,8 @@ private object RowScopeImplInstance : RowScope {
  * A layout composable with [content], which lays its children out in a Row.
  *
  * By default, the [Row] will size itself to fit the content, unless a [Dimension] constraint has
- * been provided. When children are smaller than the size of the [Row], they will be placed
- * within the available space subject to [verticalAlignment] and [horizontalAlignment].
+ * been provided. When children are smaller than the size of the [Row], they will be placed within
+ * the available space subject to [verticalAlignment] and [horizontalAlignment].
  *
  * Note for App Widgets: [Row] supports up to 10 child elements. Any additional elements will be
  * truncated from the output.
@@ -76,8 +77,8 @@ private object RowScopeImplInstance : RowScope {
  * @param horizontalAlignment The horizontal alignment to apply to the set of children, when they do
  *   not consume the full width of the [Row] (i.e. whether to push the children towards the start,
  *   center or end of the [Row]).
- * @param verticalAlignment The horizontal alignment to apply to children when they are smaller
- *  than the height of the [Row]
+ * @param verticalAlignment The horizontal alignment to apply to children when they are smaller than
+ *   the height of the [Row]
  * @param content The content inside the [Row]
  */
 @Composable

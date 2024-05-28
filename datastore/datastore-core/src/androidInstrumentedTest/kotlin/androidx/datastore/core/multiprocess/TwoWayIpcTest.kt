@@ -29,66 +29,49 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class TwoWayIpcTest {
-    @get:Rule
-    val multiProcessRule = MultiProcessTestRule()
+    @get:Rule val multiProcessRule = MultiProcessTestRule()
 
     @Parcelize
-    internal class MultiplyBy3Action(
-        var input: Int
-    ) : IpcAction<MultiplyBy3Action.Output>() {
-        @Parcelize
-        data class Output(val value: Int) : Parcelable
+    internal class MultiplyBy3Action(var input: Int) : IpcAction<MultiplyBy3Action.Output>() {
+        @Parcelize data class Output(val value: Int) : Parcelable
 
-        override suspend fun invokeInRemoteProcess(
-            subject: TwoWayIpcSubject
-        ): Output {
+        override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): Output {
             return Output(input * 3)
         }
     }
 
     @Test
-    fun sample() = multiProcessRule.runTest {
-        val connection = multiProcessRule.createConnection()
-        val subject = connection.createSubject(this)
-        assertThat(
-            subject.invokeInRemoteProcess(MultiplyBy3Action(3))
-        ).isEqualTo(MultiplyBy3Action.Output(9))
-    }
+    fun sample() =
+        multiProcessRule.runTest {
+            val connection = multiProcessRule.createConnection()
+            val subject = connection.createSubject(this)
+            assertThat(subject.invokeInRemoteProcess(MultiplyBy3Action(3)))
+                .isEqualTo(MultiplyBy3Action.Output(9))
+        }
 
     @Parcelize
     internal class ThrowingAction : IpcAction<ThrowingAction>() {
-        override suspend fun invokeInRemoteProcess(
-            subject: TwoWayIpcSubject
-        ): ThrowingAction {
+        override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): ThrowingAction {
             error("some error i got")
         }
     }
 
     @Test
-    fun exceptionThrown() = multiProcessRule.runTest {
-        val connection = multiProcessRule.createConnection()
-        val subject = connection.createSubject(this)
-        val result = runCatching {
-            subject.invokeInRemoteProcess(ThrowingAction())
+    fun exceptionThrown() =
+        multiProcessRule.runTest {
+            val connection = multiProcessRule.createConnection()
+            val subject = connection.createSubject(this)
+            val result = runCatching { subject.invokeInRemoteProcess(ThrowingAction()) }
+            assertThat(result.exceptionOrNull()).hasMessageThat().contains("some error i got")
         }
-        assertThat(result.exceptionOrNull()).hasMessageThat().contains(
-            "some error i got"
-        )
-    }
 
     @Parcelize
-    internal data class ValueInRemoteAction(
-        val id: String,
-        val value: String,
-        val set: Boolean
-    ) : IpcAction<ValueInRemoteAction.Output>() {
+    internal data class ValueInRemoteAction(val id: String, val value: String, val set: Boolean) :
+        IpcAction<ValueInRemoteAction.Output>() {
 
-        @Parcelize
-        data class Output(val value: String) : Parcelable
+        @Parcelize data class Output(val value: String) : Parcelable
 
-        override suspend fun invokeInRemoteProcess(
-            subject: TwoWayIpcSubject
-        ): Output {
+        override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): Output {
             if (set) {
                 subject.data[StringKey(id)] = value
             }
@@ -99,43 +82,35 @@ class TwoWayIpcTest {
     }
 
     @Test
-    fun multipleSubjects() = multiProcessRule.runTest {
-        val connection = multiProcessRule.createConnection()
-        val subject1 = connection.createSubject(this)
-        val subject2 = connection.createSubject(this)
-        val action = ValueInRemoteAction(
-            id = "a", value = "b", set = true
-        )
-        assertThat(
-            subject1.invokeInRemoteProcess(action).value
-        ).isEqualTo("b")
-        assertThat(
-            subject2.invokeInRemoteProcess(action).value
-        ).isEqualTo("b")
+    fun multipleSubjects() =
+        multiProcessRule.runTest {
+            val connection = multiProcessRule.createConnection()
+            val subject1 = connection.createSubject(this)
+            val subject2 = connection.createSubject(this)
+            val action = ValueInRemoteAction(id = "a", value = "b", set = true)
+            assertThat(subject1.invokeInRemoteProcess(action).value).isEqualTo("b")
+            assertThat(subject2.invokeInRemoteProcess(action).value).isEqualTo("b")
 
-        assertThat(
-            subject1.invokeInRemoteProcess(action.copy(value = "c")).value
-        ).isEqualTo("c")
+            assertThat(subject1.invokeInRemoteProcess(action.copy(value = "c")).value)
+                .isEqualTo("c")
 
-        assertThat(
-            // don't set
-            subject1.invokeInRemoteProcess(action.copy(value = "d", set = false)).value
-        ).isEqualTo("c")
-        assertThat(
-            // don't set
-            subject2.invokeInRemoteProcess(action.copy(value = "d", set = false)).value
-        ).isEqualTo("b")
-    }
+            assertThat(
+                    // don't set
+                    subject1.invokeInRemoteProcess(action.copy(value = "d", set = false)).value
+                )
+                .isEqualTo("c")
+            assertThat(
+                    // don't set
+                    subject2.invokeInRemoteProcess(action.copy(value = "d", set = false)).value
+                )
+                .isEqualTo("b")
+        }
 
     @Parcelize
-    internal class SendFromRemoteProcess(
-        val value: String
-    ) : IpcAction<SendFromRemoteProcess>() {
+    internal class SendFromRemoteProcess(val value: String) : IpcAction<SendFromRemoteProcess>() {
 
         @Parcelize
-        internal class ActionInMainProcess(
-            val value: String
-        ) : IpcAction<ActionInMainProcess>() {
+        internal class ActionInMainProcess(val value: String) : IpcAction<ActionInMainProcess>() {
             override suspend fun invokeInRemoteProcess(
                 subject: TwoWayIpcSubject
             ): ActionInMainProcess {
@@ -147,11 +122,7 @@ class TwoWayIpcTest {
         override suspend fun invokeInRemoteProcess(
             subject: TwoWayIpcSubject
         ): SendFromRemoteProcess {
-            subject.invokeInRemoteProcess(
-                ActionInMainProcess(
-                    "$value-$value"
-                )
-            )
+            subject.invokeInRemoteProcess(ActionInMainProcess("$value-$value"))
             return this
         }
 
@@ -161,12 +132,11 @@ class TwoWayIpcTest {
     }
 
     @Test
-    fun getMessageFromRemoteProcess() = multiProcessRule.runTest {
-        val connection = multiProcessRule.createConnection()
-        val hostSubject = connection.createSubject(this)
-        hostSubject.invokeInRemoteProcess(SendFromRemoteProcess("hello"))
-        assertThat(
-            hostSubject.data[SendFromRemoteProcess.VALUE_KEY]
-        ).isEqualTo("hello-hello")
-    }
+    fun getMessageFromRemoteProcess() =
+        multiProcessRule.runTest {
+            val connection = multiProcessRule.createConnection()
+            val hostSubject = connection.createSubject(this)
+            hostSubject.invokeInRemoteProcess(SendFromRemoteProcess("hello"))
+            assertThat(hostSubject.data[SendFromRemoteProcess.VALUE_KEY]).isEqualTo("hello-hello")
+        }
 }

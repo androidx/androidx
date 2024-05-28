@@ -65,19 +65,19 @@ class BackgroundTest {
     fun canUseBackgroundModifier_colorFilteredImage() {
         fun tintColor() = ColorProvider(Color.Magenta)
 
-        val modifier = GlanceModifier.background(
-            ImageProvider(R.drawable.oval),
-            colorFilter = ColorFilter.tint(
-                tintColor()
+        val modifier =
+            GlanceModifier.background(
+                ImageProvider(R.drawable.oval),
+                colorFilter = ColorFilter.tint(tintColor())
             )
-        )
 
         val addedModifier: BackgroundModifier.Image =
             requireNotNull(modifier.findModifier<BackgroundModifier.Image>())
 
         assertThat(
-            (addedModifier.colorFilter?.colorFilterParams as TintColorFilterParams).colorProvider)
-            .isEqualTo(tintColor()
-        )
+                (addedModifier.colorFilter?.colorFilterParams as TintColorFilterParams)
+                    .colorProvider
+            )
+            .isEqualTo(tintColor())
     }
 }

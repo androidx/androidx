@@ -19,18 +19,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 
-/**
- * A simple Activity used to return a result.
- */
+/** A simple Activity used to return a result. */
 class FragmentResultActivity : Activity() {
 
     public override fun onCreate(icicle: Bundle?) {
         super.onCreate(icicle)
         val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, Activity.RESULT_OK)
         val result = intent.getStringExtra(EXTRA_RESULT_CONTENT)
-        val intent = Intent().apply {
-            putExtra(EXTRA_RESULT_CONTENT, result)
-        }
+        val intent = Intent().apply { putExtra(EXTRA_RESULT_CONTENT, result) }
         setResult(resultCode, intent)
         finish()
     }

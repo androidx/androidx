@@ -32,26 +32,25 @@ import org.junit.runner.RunWith
 @MediumTest
 class ContentViewTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testContentViewWithInflatedFragment() {
         // Test basic lifecycle when the fragment view is inflated with <fragment> tag
-       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
-            val fm = withActivity {
-                supportFragmentManager
-            }
+        withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
             val f1 = fm.findFragmentById(R.id.inflated_fragment) as StrictViewFragment
 
             assertWithMessage("onDestroyView was called when the fragment was added")
-                .that(f1.onDestroyViewCalled).isFalse()
+                .that(f1.onDestroyViewCalled)
+                .isFalse()
 
             fm.beginTransaction().remove(f1).commit()
             executePendingTransactions(fm)
 
             assertWithMessage("onDestroyView was not called when the fragment was removed")
-                .that(f1.onDestroyViewCalled).isTrue()
+                .that(f1.onDestroyViewCalled)
+                .isTrue()
         }
     }
 }

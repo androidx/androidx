@@ -24,9 +24,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * Annotation for specifying a per-test or per-method override of the device night mode
- */
+/** Annotation for specifying a per-test or per-method override of the device night mode */
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 internal annotation class WithNightMode(val value: Boolean = true)

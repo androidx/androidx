@@ -46,11 +46,9 @@ class GlanceAppWidgetViewAdapterTest {
     @Before
     fun setup() {
         glanceAppWidgetViewAdapter =
-            activityTestRule
-                .activity
-                .window
-                .decorView
-                .findViewInHierarchy(GlanceAppWidgetViewAdapter::class.java)!!
+            activityTestRule.activity.window.decorView.findViewInHierarchy(
+                GlanceAppWidgetViewAdapter::class.java
+            )!!
     }
 
     /**
@@ -121,10 +119,16 @@ class GlanceAppWidgetViewAdapterTest {
             assertNotNull(linearLayoutRow, viewNotFoundMsg("LinearLayout", "Row"))
             // Backport button are implemented using FrameLayout and depending on the API version
             // Button might be wrapped in the RelativeLayout.
-            val button1 = linearLayoutRow.getChildOfType<Button>()
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
-            val button2 = linearLayoutRow.getChildOfType<Button>(1)
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
+            val button1 =
+                linearLayoutRow.getChildOfType<Button>()
+                    ?: linearLayoutRow
+                        .getChildOfType<RelativeLayout>()!!
+                        .getChildOfType<FrameLayout>()
+            val button2 =
+                linearLayoutRow.getChildOfType<Button>(1)
+                    ?: linearLayoutRow
+                        .getChildOfType<RelativeLayout>(1)!!
+                        .getChildOfType<FrameLayout>()
             assertNotNull(button1, viewNotFoundMsg("FrameLayout", "Button"))
             assertNotNull(button2, viewNotFoundMsg("FrameLayout", "Button"))
         }
@@ -150,10 +154,16 @@ class GlanceAppWidgetViewAdapterTest {
             assertNotNull(linearLayoutRow, viewNotFoundMsg("LinearLayout", "Row"))
             // Backport button are implemented using FrameLayout and depending on the API version
             // Button might be wrapped in the RelativeLayout.
-            val button1 = linearLayoutRow.getChildOfType<Button>()
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
-            val button2 = linearLayoutRow.getChildOfType<Button>(1)
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
+            val button1 =
+                linearLayoutRow.getChildOfType<Button>()
+                    ?: linearLayoutRow
+                        .getChildOfType<RelativeLayout>()!!
+                        .getChildOfType<FrameLayout>()
+            val button2 =
+                linearLayoutRow.getChildOfType<Button>(1)
+                    ?: linearLayoutRow
+                        .getChildOfType<RelativeLayout>(1)!!
+                        .getChildOfType<FrameLayout>()
             assertNotNull(button1, viewNotFoundMsg("FrameLayout", "Button"))
             assertNotNull(button2, viewNotFoundMsg("FrameLayout", "Button"))
         }

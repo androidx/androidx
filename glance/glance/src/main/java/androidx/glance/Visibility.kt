@@ -18,9 +18,7 @@ package androidx.glance
 
 import androidx.annotation.RestrictTo
 
-/**
- * Value of the visibility field for a node in the composition tree.
- */
+/** Value of the visibility field for a node in the composition tree. */
 enum class Visibility {
     /** The node is visible (the default). */
     Visible,
@@ -38,5 +36,4 @@ data class VisibilityModifier(val visibility: Visibility) : GlanceModifier.Eleme
  *
  * @param visibility New visibility of the node.
  */
-fun GlanceModifier.visibility(visibility: Visibility) =
-    this.then(VisibilityModifier(visibility))
+fun GlanceModifier.visibility(visibility: Visibility) = this.then(VisibilityModifier(visibility))

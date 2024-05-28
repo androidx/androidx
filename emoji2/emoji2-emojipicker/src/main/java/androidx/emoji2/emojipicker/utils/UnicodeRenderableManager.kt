@@ -23,9 +23,7 @@ import androidx.core.graphics.PaintCompat
 import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.emoji2.text.EmojiCompat
 
-/**
- * Checks renderability of unicode characters.
- */
+/** Checks renderability of unicode characters. */
 internal object UnicodeRenderableManager {
 
     private const val VARIATION_SELECTOR = "\uFE0F"
@@ -35,9 +33,9 @@ internal object UnicodeRenderableManager {
     private val paint = TextPaint()
 
     /**
-     * Some emojis were usual (non-emoji) characters.
-     * Old devices cannot render them with variation selector (U+FE0F)
-     * so it's worth trying to check renderability again without variation selector.
+     * Some emojis were usual (non-emoji) characters. Old devices cannot render them with variation
+     * selector (U+FE0F) so it's worth trying to check renderability again without variation
+     * selector.
      */
     private val CATEGORY_MOVED_EMOJIS =
         listOf( // These three characters have been emoji since Unicode emoji version 4.
@@ -73,11 +71,12 @@ internal object UnicodeRenderableManager {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             return emoji.replace(VARIATION_SELECTOR, "").takeIfHasGlyph()
         }
-        return emoji.takeIfHasGlyph() ?: run {
-            if (CATEGORY_MOVED_EMOJIS.contains(emoji))
-                emoji.replace(VARIATION_SELECTOR, "").takeIfHasGlyph()
-            else null
-        }
+        return emoji.takeIfHasGlyph()
+            ?: run {
+                if (CATEGORY_MOVED_EMOJIS.contains(emoji))
+                    emoji.replace(VARIATION_SELECTOR, "").takeIfHasGlyph()
+                else null
+            }
     }
 
     private fun String.takeIfHasGlyph() = takeIf { PaintCompat.hasGlyph(paint, this) }

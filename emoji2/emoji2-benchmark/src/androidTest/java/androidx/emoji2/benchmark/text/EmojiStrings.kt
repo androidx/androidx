@@ -25,6 +25,7 @@ const val POLARBEAR = "\uD83D\uDC3B\u200D❄️"
 private val loadedEmojiStrings: List<String> by lazy { loadEmojiStrings() }
 
 fun emojisString(size: Int) = emojisList(size).joinToString("")
+
 fun emojisList(size: Int) = loadedEmojiStrings.take(size)
 
 fun loadEmojiStrings(): List<String> {
@@ -39,7 +40,8 @@ fun loadEmojiStrings(): List<String> {
             if (line.isEmpty() || line.startsWith("#")) return@forEachLine
 
             stringBuilder.setLength(0)
-            line.split(" ")
+            line
+                .split(" ")
                 .toTypedArray()
                 .map { intVal -> Character.toChars(intVal.toInt(16)) }
                 .forEach { charArray -> stringBuilder.append(charArray) }

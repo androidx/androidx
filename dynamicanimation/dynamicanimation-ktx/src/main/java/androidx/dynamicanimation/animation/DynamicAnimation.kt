@@ -19,8 +19,7 @@ package androidx.dynamicanimation.animation
 /**
  * Creates [FlingAnimation] for a property that can be accessed via the provided setter and getter.
  * For example, the following sample code creates a [FlingAnimation] for the alpha property of a
- * [View] object named `view`:
- * `flingAnimationOf(view::setAlpha, view::getAlpha)`
+ * [View] object named `view`: `flingAnimationOf(view::setAlpha, view::getAlpha)`
  *
  * @param setter The function that mutates the property being animated
  * @param getter The function that returns the value of the property

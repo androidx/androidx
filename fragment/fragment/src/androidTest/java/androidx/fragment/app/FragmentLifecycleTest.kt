@@ -60,8 +60,8 @@ class FragmentLifecycleTest {
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun basicLifecycle() {
@@ -200,16 +200,19 @@ class FragmentLifecycleTest {
         val view = f1.requireView()
         assertWithMessage("fragment 1 returned null from getView").that(view).isNotNull()
         assertWithMessage("fragment 1's view is not attached to a window")
-            .that(view.isAttachedToWindow()).isTrue()
+            .that(view.isAttachedToWindow())
+            .isTrue()
 
         fm.beginTransaction().remove(f1).commit()
         executePendingTransactions(fm)
 
         assertWithMessage("fragment 1 is added").that(f1.isAdded).isFalse()
         assertWithMessage("fragment 1 returned non-null from getView after removal")
-            .that(f1.view).isNull()
+            .that(f1.view)
+            .isNull()
         assertWithMessage("fragment 1's previous view is still attached to a window")
-            .that(view.isAttachedToWindow()).isFalse()
+            .that(view.isAttachedToWindow())
+            .isFalse()
     }
 
     @Test
@@ -228,7 +231,8 @@ class FragmentLifecycleTest {
         val origView1 = f1.requireView()
         assertWithMessage("fragment 1 returned null view").that(origView1).isNotNull()
         assertWithMessage("fragment 1's view not attached")
-            .that(origView1.isAttachedToWindow()).isTrue()
+            .that(origView1.isAttachedToWindow())
+            .isTrue()
 
         fm.beginTransaction().replace(android.R.id.content, f2).addToBackStack("stack1").commit()
         executePendingTransactions(fm)
@@ -237,11 +241,13 @@ class FragmentLifecycleTest {
         assertWithMessage("fragment 2 is added").that(f2.isAdded).isTrue()
         assertWithMessage("fragment 1 returned non-null view").that(f1.view).isNull()
         assertWithMessage("fragment 1's old view still attached")
-            .that(origView1.isAttachedToWindow()).isFalse()
+            .that(origView1.isAttachedToWindow())
+            .isFalse()
         val origView2 = f2.requireView()
         assertWithMessage("fragment 2 returned null view").that(origView2).isNotNull()
         assertWithMessage("fragment 2's view not attached")
-            .that(origView2.isAttachedToWindow()).isTrue()
+            .that(origView2.isAttachedToWindow())
+            .isTrue()
 
         fm.popBackStack()
         executePendingTransactions(fm)
@@ -250,21 +256,25 @@ class FragmentLifecycleTest {
         assertWithMessage("fragment 2 is added").that(f2.isAdded).isFalse()
         assertWithMessage("fragment 2 returned non-null view").that(f2.view).isNull()
         assertWithMessage("fragment 2's view still attached")
-            .that(origView2.isAttachedToWindow()).isFalse()
+            .that(origView2.isAttachedToWindow())
+            .isFalse()
         val newView1 = f1.requireView()
         assertWithMessage("fragment 1 had same view from last attachment")
-            .that(newView1).isNotSameInstanceAs(origView1)
+            .that(newView1)
+            .isNotSameInstanceAs(origView1)
         assertWithMessage("fragment 1's view not attached")
-            .that(newView1.isAttachedToWindow()).isTrue()
+            .that(newView1.isAttachedToWindow())
+            .isTrue()
     }
 
     @Test
     @UiThreadTest
     fun setMaxLifecycle() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         fc.attachHost(null)
         fc.dispatchCreate()
 
@@ -292,17 +302,13 @@ class FragmentLifecycleTest {
         val fm = fc.supportFragmentManager
 
         val fragment = StrictViewFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         val view = fragment.requireView()
         assertThat(view.parent).isNotNull()
 
-        fm.beginTransaction()
-            .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
-            .commitNow()
+        fm.beginTransaction().setMaxLifecycle(fragment, Lifecycle.State.CREATED).commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(fragment.view).isNull()
@@ -374,15 +380,10 @@ class FragmentLifecycleTest {
         val fm = fc.supportFragmentManager
 
         val fragment1 = StrictViewFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment1)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment1).commitNow()
 
         val fragment2 = StrictViewFragment()
-        fm.beginTransaction()
-            .replace(android.R.id.content, fragment2)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().replace(android.R.id.content, fragment2).addToBackStack(null).commit()
         fm.executePendingTransactions()
 
         // Now go through a cycle of onSaveInstanceState
@@ -409,16 +410,15 @@ class FragmentLifecycleTest {
     @UiThreadTest
     fun addChildFragmentInAttach() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         fc.attachHost(null)
 
         val fm = fc.supportFragmentManager
 
-        fm.beginTransaction()
-            .add(android.R.id.content, AddChildInOnAttachFragment())
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, AddChildInOnAttachFragment()).commitNow()
 
         fc.dispatchCreate()
     }
@@ -427,9 +427,10 @@ class FragmentLifecycleTest {
     @UiThreadTest
     fun focusedInflatedView() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         fc.attachHost(null)
 
@@ -454,19 +455,20 @@ class FragmentLifecycleTest {
     }
 
     /**
-     * This test confirms that as long as a parent fragment has called super.onCreate,
-     * any child fragments added, committed and with transactions executed will be brought
-     * to at least the CREATED state by the time the parent fragment receives onCreateView.
-     * This means the child fragment will have received onAttach/onCreate.
+     * This test confirms that as long as a parent fragment has called super.onCreate, any child
+     * fragments added, committed and with transactions executed will be brought to at least the
+     * CREATED state by the time the parent fragment receives onCreateView. This means the child
+     * fragment will have received onAttach/onCreate.
      */
     @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
     fun childFragmentManagerAttach() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         fc.attachHost(null)
         fc.dispatchCreate()
 
@@ -478,9 +480,7 @@ class FragmentLifecycleTest {
         fm.registerFragmentLifecycleCallbacks(mockRecursiveLc, true)
 
         val fragment = ChildFragmentManagerFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         verify<FragmentManager.FragmentLifecycleCallbacks>(mockLc, times(1))
             .onFragmentCreated(fm, fragment, null)
@@ -514,7 +514,8 @@ class FragmentLifecycleTest {
 
         // Confirm that the parent fragment received onAttachFragment
         assertWithMessage("parent fragment did not receive onAttachFragment")
-            .that(fragment.calledOnAttachFragment).isTrue()
+            .that(fragment.calledOnAttachFragment)
+            .isTrue()
 
         fc.dispatchStop()
 
@@ -534,25 +535,22 @@ class FragmentLifecycleTest {
             .onFragmentDestroyed(fm, childFragment)
     }
 
-    /**
-     * This test checks that FragmentLifecycleCallbacks are invoked when expected.
-     */
+    /** This test checks that FragmentLifecycleCallbacks are invoked when expected. */
     @Test
     @UiThreadTest
     fun fragmentLifecycleCallbacks() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         fc.attachHost(null)
         fc.dispatchCreate()
 
         val fm = fc.supportFragmentManager
 
         val fragment = ChildFragmentManagerFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         fc.dispatchActivityCreated()
 
@@ -561,14 +559,13 @@ class FragmentLifecycleTest {
 
         // Confirm that the parent fragment received onAttachFragment
         assertWithMessage("parent fragment did not receive onAttachFragment")
-            .that(fragment.calledOnAttachFragment).isTrue()
+            .that(fragment.calledOnAttachFragment)
+            .isTrue()
 
         fc.shutdown(viewModelStore)
     }
 
-    /**
-     * This tests that fragments call onDestroy when the activity finishes.
-     */
+    /** This tests that fragments call onDestroy when the activity finishes. */
     @Test
     @UiThreadTest
     fun fragmentDestroyedOnFinish() {
@@ -578,14 +575,9 @@ class FragmentLifecycleTest {
 
         val fragmentA = StrictViewFragment(R.layout.fragment_a)
         val fragmentB = StrictViewFragment(R.layout.fragment_b)
-        fm.beginTransaction()
-            .add(android.R.id.content, fragmentA)
-            .commit()
+        fm.beginTransaction().add(android.R.id.content, fragmentA).commit()
         fm.executePendingTransactions()
-        fm.beginTransaction()
-            .replace(android.R.id.content, fragmentB)
-            .addToBackStack(null)
-            .commit()
+        fm.beginTransaction().replace(android.R.id.content, fragmentB).addToBackStack(null).commit()
         fm.executePendingTransactions()
         fc.shutdown(viewModelStore)
         assertThat(fragmentB.calledOnDestroy).isTrue()
@@ -604,13 +596,12 @@ class FragmentLifecycleTest {
         val fm = fc.supportFragmentManager
 
         val fragment = ParentFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         val childFragment = StrictViewFragment()
 
-        fragment.childFragmentManager.beginTransaction()
+        fragment.childFragmentManager
+            .beginTransaction()
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .add(R.id.fragmentContainer, childFragment, "child")
             .commitNow()
@@ -620,12 +611,11 @@ class FragmentLifecycleTest {
         fc.restart(activityRule, viewModelStore, false)
 
         assertWithMessage("ChildFragment viewLifecycle was not destroyed")
-            .that(viewLifecycleOwner.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            .that(viewLifecycleOwner.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
-    /**
-     * Test to ensure childFragment gets initState() called when parent is destroyed
-     */
+    /** Test to ensure childFragment gets initState() called when parent is destroyed */
     @Test
     @UiThreadTest
     fun childFragmentInitWhenFragmentManagerDestroyed() {
@@ -634,13 +624,12 @@ class FragmentLifecycleTest {
         val fm = fc.supportFragmentManager
 
         val fragment = ParentFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         val childFragment = StrictViewFragment()
 
-        fragment.childFragmentManager.beginTransaction()
+        fragment.childFragmentManager
+            .beginTransaction()
             .add(R.id.fragmentContainer, childFragment, "child")
             .commitNow()
 
@@ -649,7 +638,8 @@ class FragmentLifecycleTest {
         fc.restart(activityRule, viewModelStore, false)
 
         assertWithMessage("ChildFragment lifecycle instance is same")
-            .that(lifecycle).isNotSameInstanceAs(childFragment.lifecycle)
+            .that(lifecycle)
+            .isNotSameInstanceAs(childFragment.lifecycle)
     }
 
     @Test
@@ -660,20 +650,14 @@ class FragmentLifecycleTest {
         var fm = fc.supportFragmentManager
 
         val fragment = StrictFragment()
-        fm.beginTransaction()
-            .add(fragment, "tag")
-            .commitNow()
+        fm.beginTransaction().add(fragment, "tag").commitNow()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commitNow()
+        fm.beginTransaction().remove(fragment).commitNow()
 
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
 
-        fm.beginTransaction()
-            .add(fragment, "tag")
-            .commitNow()
+        fm.beginTransaction().add(fragment, "tag").commitNow()
     }
 
     @Suppress("DEPRECATION")
@@ -687,25 +671,17 @@ class FragmentLifecycleTest {
         // Not using StrictFragment here, retained fragment wont go to ATTACHED
         val fragment = Fragment()
         fragment.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment, "tag")
-            .commitNow()
+        fm.beginTransaction().add(fragment, "tag").commitNow()
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commitNow()
+        fm.beginTransaction().remove(fragment).commitNow()
 
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
 
-        fm.beginTransaction()
-            .add(fragment, "tag")
-            .commitNow()
+        fm.beginTransaction().add(fragment, "tag").commitNow()
     }
 
-    /**
-     * Test to ensure childFragment gets initState() called when parent is removed
-     */
+    /** Test to ensure childFragment gets initState() called when parent is removed */
     @Test
     @UiThreadTest
     fun childFragmentInitWhenParentRemoved() {
@@ -714,24 +690,22 @@ class FragmentLifecycleTest {
         val fm = fc.supportFragmentManager
 
         val fragment = StrictViewFragment(R.layout.simple_container)
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         val childFragment = StrictViewFragment()
 
-        fragment.childFragmentManager.beginTransaction()
+        fragment.childFragmentManager
+            .beginTransaction()
             .add(R.id.fragmentContainer, childFragment, "child")
             .commitNow()
 
         val lifecycle = childFragment.lifecycle
 
-        fm.beginTransaction()
-            .remove(fragment)
-            .commitNow()
+        fm.beginTransaction().remove(fragment).commitNow()
 
         assertWithMessage("ChildFragment lifecycle instance is same")
-            .that(lifecycle).isNotSameInstanceAs(childFragment.lifecycle)
+            .that(lifecycle)
+            .isNotSameInstanceAs(childFragment.lifecycle)
     }
 
     @Test
@@ -749,14 +723,14 @@ class FragmentLifecycleTest {
         f.arguments = Bundle()
 
         fc.dispatchPause()
-        @Suppress("DEPRECATION")
-        fc.saveAllState()
+        @Suppress("DEPRECATION") fc.saveAllState()
 
         try {
             f.arguments = Bundle()
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains("Fragment already added and state has been saved")
+                .hasMessageThat()
+                .contains("Fragment already added and state has been saved")
         }
 
         fc.dispatchStop()
@@ -765,7 +739,8 @@ class FragmentLifecycleTest {
             f.arguments = Bundle()
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains("Fragment already added and state has been saved")
+                .hasMessageThat()
+                .contains("Fragment already added and state has been saved")
         }
 
         viewModelStore.clear()
@@ -776,8 +751,8 @@ class FragmentLifecycleTest {
     }
 
     /**
-     * Ensure that FragmentManager rejects commit() and commitNow() prior to restoring
-     * saved instance state
+     * Ensure that FragmentManager rejects commit() and commitNow() prior to restoring saved
+     * instance state
      */
     @Suppress("DEPRECATION")
     @Test
@@ -789,38 +764,29 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         fc.shutdown(viewModelStore, false)
 
-        fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
 
         // Now before we restoreSaveState, add a retained Fragment
         val fragment2 = StrictFragment()
         fragment2.retainInstance = true
         try {
-            fc.supportFragmentManager.beginTransaction()
-                .add(fragment2, "2")
-                .commitNow()
+            fc.supportFragmentManager.beginTransaction().add(fragment2, "2").commitNow()
             fail("commitNow() should fail prior to onCreate")
-        } catch (expected: IllegalStateException) {
-        }
+        } catch (expected: IllegalStateException) {}
         try {
-            fc.supportFragmentManager.beginTransaction()
-                .add(fragment2, "2")
-                .commit()
+            fc.supportFragmentManager.beginTransaction().add(fragment2, "2").commit()
             fail("commit() should fail prior to onCreate")
-        } catch (expected: IllegalStateException) {
-        }
+        } catch (expected: IllegalStateException) {}
     }
 
-    /**
-     * Ensure that FragmentManager
-     */
+    /** Ensure that FragmentManager */
     @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
@@ -831,9 +797,7 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         // Now save the state of the FragmentManager
         fc.dispatchPause()
@@ -841,9 +805,7 @@ class FragmentLifecycleTest {
 
         val fragment2 = StrictFragment()
         fragment2.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment2, "2")
-            .commitNowAllowingStateLoss()
+        fm.beginTransaction().add(fragment2, "2").commitNowAllowingStateLoss()
 
         fc.dispatchStop()
         fc.dispatchDestroy()
@@ -851,10 +813,8 @@ class FragmentLifecycleTest {
         fc = activityRule.startupFragmentController(viewModelStore, savedState)
         fm = fc.supportFragmentManager
 
-        assertThat(fm.findFragmentByTag("1"))
-            .isSameInstanceAs(fragment1)
-        assertThat(fm.findFragmentByTag("2"))
-            .isNull()
+        assertThat(fm.findFragmentByTag("1")).isSameInstanceAs(fragment1)
+        assertThat(fm.findFragmentByTag("2")).isNull()
     }
 
     @Suppress("DEPRECATION")
@@ -867,9 +827,7 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         // Now save the state of the FragmentManager
         fc.dispatchPause()
@@ -877,9 +835,7 @@ class FragmentLifecycleTest {
 
         val fragment2 = StrictFragment()
         fragment2.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment2, "2")
-            .commitNowAllowingStateLoss()
+        fm.beginTransaction().add(fragment2, "2").commitNowAllowingStateLoss()
 
         try {
             fm.popBackStackImmediate()
@@ -902,9 +858,7 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         // Now save the state of the FragmentManager
         fc.dispatchPause()
@@ -912,9 +866,7 @@ class FragmentLifecycleTest {
 
         val fragment2 = StrictFragment()
         fragment2.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment2, "2")
-            .commitNowAllowingStateLoss()
+        fm.beginTransaction().add(fragment2, "2").commitNowAllowingStateLoss()
 
         try {
             fm.popBackStack()
@@ -937,9 +889,7 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         // Now destroy the Fragment Manager
         fc.dispatchPause()
@@ -962,27 +912,25 @@ class FragmentLifecycleTest {
     @UiThreadTest
     fun commitWhenFragmentManagerNeverAttached() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         val fm = fc.supportFragmentManager
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
 
         try {
-            fm.beginTransaction()
-                .add(fragment1, "1")
-                .commit()
+            fm.beginTransaction().add(fragment1, "1").commit()
             fail(
-                "Commit when FragmentManager never attached should throw " +
-                    "IllegalStateException"
+                "Commit when FragmentManager never attached should throw " + "IllegalStateException"
             )
         } catch (e: IllegalStateException) {
             assertWithMessage(
-                "Commit when FragmentManager never attached should throw an " +
-                    "IllegalStateException"
-            )
+                    "Commit when FragmentManager never attached should throw an " +
+                        "IllegalStateException"
+                )
                 .that(e)
                 .hasMessageThat()
                 .contains("FragmentManager has not been attached to a host.")
@@ -999,18 +947,14 @@ class FragmentLifecycleTest {
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment1, "1")
-            .commitNow()
+        fm.beginTransaction().add(fragment1, "1").commitNow()
 
         // Now save the state of the FragmentManager
         fc.dispatchPause()
 
         val fragment2 = StrictFragment()
         fragment2.retainInstance = true
-        fm.beginTransaction()
-            .add(fragment2, "2")
-            .commitNowAllowingStateLoss()
+        fm.beginTransaction().add(fragment2, "2").commitNowAllowingStateLoss()
 
         fc.dispatchStop()
         fc.dispatchDestroy()
@@ -1031,17 +975,16 @@ class FragmentLifecycleTest {
     @UiThreadTest
     fun commitNowWhenFragmentHostNeverAttached() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         val fm = fc.supportFragmentManager
 
         val fragment1 = StrictFragment()
         fragment1.retainInstance = true
         try {
-            fm.beginTransaction()
-                .add(fragment1, "1")
-                .commitNow()
+            fm.beginTransaction().add(fragment1, "1").commitNow()
             fail("CommitNow when host never attached should throw an IllegalStateException")
         } catch (e: IllegalStateException) {
             assertWithMessage("CommitNow should throw an IllegalStateException")
@@ -1051,9 +994,7 @@ class FragmentLifecycleTest {
         }
     }
 
-    /**
-     * When a fragment is saved in non-config, it should be restored to the same index.
-     */
+    /** When a fragment is saved in non-config, it should be restored to the same index. */
     @Suppress("DEPRECATION")
     @Test
     @UiThreadTest
@@ -1098,10 +1039,11 @@ class FragmentLifecycleTest {
         }
         assertThat(foundFragment2).isTrue()
         fc.supportFragmentManager.popBackStackImmediate()
-        val foundBackStackRetainedFragment = fc.supportFragmentManager
-            .findFragmentByTag("backStack")
+        val foundBackStackRetainedFragment =
+            fc.supportFragmentManager.findFragmentByTag("backStack")
         assertWithMessage("Retained Fragment on the back stack was not retained")
-            .that(foundBackStackRetainedFragment).isEqualTo(backStackRetainedFragment)
+            .that(foundBackStackRetainedFragment)
+            .isEqualTo(backStackRetainedFragment)
     }
 
     /**
@@ -1132,14 +1074,12 @@ class FragmentLifecycleTest {
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
         fm.popBackStackImmediate()
-        val retainedChild = fm.findFragmentByTag("1")!!
-            .childFragmentManager.findFragmentByTag("child")
+        val retainedChild =
+            fm.findFragmentByTag("1")!!.childFragmentManager.findFragmentByTag("child")
         assertThat(retainedChild).isEqualTo(child)
     }
 
-    /**
-     * When the FragmentManager state changes, the pending transactions should execute.
-     */
+    /** When the FragmentManager state changes, the pending transactions should execute. */
     @Test
     @UiThreadTest
     fun runTransactionsOnChange() {
@@ -1188,8 +1128,8 @@ class FragmentLifecycleTest {
     }
 
     /**
-     * When a retained instance fragment is saved while in the back stack, it should go
-     * through onCreate() when it is popped back.
+     * When a retained instance fragment is saved while in the back stack, it should go through
+     * onCreate() when it is popped back.
      */
     @Test
     @UiThreadTest
@@ -1260,8 +1200,9 @@ class FragmentLifecycleTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
         fm.executePendingTransactions()
 
-        val childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+        val childFragment =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as RetainedInflatedChildFragment
 
         fm.beginTransaction().remove(parentFragment).addToBackStack(null).commit()
 
@@ -1271,13 +1212,16 @@ class FragmentLifecycleTest {
         fm.popBackStackImmediate()
 
         parentFragment = fm.findFragmentById(android.R.id.content) as RetainedInflatedParentFragment
-        val childFragment2 = parentFragment.childFragmentManager
-            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+        val childFragment2 =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as RetainedInflatedChildFragment
 
         assertWithMessage("Child Fragment should be retained")
-            .that(childFragment2).isEqualTo(childFragment)
+            .that(childFragment2)
+            .isEqualTo(childFragment)
         assertWithMessage("Child Fragment should have onInflate called twice")
-            .that(childFragment2.mOnInflateCount).isEqualTo(2)
+            .that(childFragment2.mOnInflateCount)
+            .isEqualTo(2)
     }
 
     @Test
@@ -1292,8 +1236,9 @@ class FragmentLifecycleTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
         fm.executePendingTransactions()
 
-        val childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+        val childFragment =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as RetainedInflatedChildFragment
 
         fm.beginTransaction().remove(parentFragment).addToBackStack(null).commit()
 
@@ -1302,29 +1247,32 @@ class FragmentLifecycleTest {
 
         fm.popBackStackImmediate()
 
-        parentFragment = fm.findFragmentById(android.R.id.content) as
-            RetainedInflatedParentFragmentContainerView
-        val childFragment2 = parentFragment.childFragmentManager
-            .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
+        parentFragment =
+            fm.findFragmentById(android.R.id.content) as RetainedInflatedParentFragmentContainerView
+        val childFragment2 =
+            parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment)
+                as RetainedInflatedChildFragment
 
         assertWithMessage("Child Fragment should be retained")
-            .that(childFragment2).isEqualTo(childFragment)
+            .that(childFragment2)
+            .isEqualTo(childFragment)
         assertWithMessage("Child Fragment should have onInflate called once")
-            .that(childFragment2.mOnInflateCount).isEqualTo(1)
+            .that(childFragment2.mOnInflateCount)
+            .isEqualTo(1)
     }
 
     /**
-     * When a Fragment is added solely via a <fragment> tag, we need to specifically
-     * test what happens when a configuration change, etc. happens that removes the
-     * <fragment> tag from the layout.
+     * When a Fragment is added solely via a <fragment> tag, we need to specifically test what
+     * happens when a configuration change, etc. happens that removes the <fragment> tag from the
+     * layout.
      *
-     * What should happen is that the Fragment remains in the FragmentManager, but it
-     * should not move beyond CREATED until it is re-added to the layout.
+     * What should happen is that the Fragment remains in the FragmentManager, but it should not
+     * move beyond CREATED until it is re-added to the layout.
      *
-     * SwappingInflatedParentFragment switches between two layouts: one with a
-     * <fragment> tag and one without. This allows us to test the transitions
-     * between the two just by restarting the FragmentController (effectively
-     * going through a virtual configuration change between two different layouts).
+     * SwappingInflatedParentFragment switches between two layouts: one with a <fragment> tag and
+     * one without. This allows us to test the transitions between the two just by restarting the
+     * FragmentController (effectively going through a virtual configuration change between two
+     * different layouts).
      */
     @Test
     @UiThreadTest
@@ -1337,44 +1285,37 @@ class FragmentLifecycleTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
         fm.executePendingTransactions()
 
-        var childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.inflated_fragment)
+        var childFragment =
+            parentFragment.childFragmentManager.findFragmentById(R.id.inflated_fragment)
         // The child fragment was added via a <fragment> tag, so it
         // should receive lifecycle events by default
         assertThat(childFragment).isNotNull()
-        assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(childFragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
 
-        parentFragment = fm.findFragmentById(android.R.id.content) as
-            SwappingInflatedParentFragment
-        childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.inflated_fragment)
+        parentFragment = fm.findFragmentById(android.R.id.content) as SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager.findFragmentById(R.id.inflated_fragment)
         // Ensure the Fragment is still in the FragmentManager, but hasn't moved
         // beyond CREATED since it isn't in the layout this time
         assertThat(childFragment).isNotNull()
-        assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
+        assertThat(childFragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
 
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
 
-        parentFragment = fm.findFragmentById(android.R.id.content) as
-            SwappingInflatedParentFragment
-        childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.inflated_fragment)
+        parentFragment = fm.findFragmentById(android.R.id.content) as SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager.findFragmentById(R.id.inflated_fragment)
         // Now that the <fragment> tag is back, the fragment should receive
         // lifecycle events again
         assertThat(childFragment).isNotNull()
-        assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(childFragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     /**
-     * Confirm that when a Fragment added via the <fragment> tag is removed from the layout
-     * that we still clear any non config state when the FragmentManager is destroyed.
+     * Confirm that when a Fragment added via the <fragment> tag is removed from the layout that we
+     * still clear any non config state when the FragmentManager is destroyed.
      */
     @Test
     @UiThreadTest
@@ -1387,13 +1328,12 @@ class FragmentLifecycleTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commit()
         fm.executePendingTransactions()
 
-        var childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.inflated_fragment)
+        var childFragment =
+            parentFragment.childFragmentManager.findFragmentById(R.id.inflated_fragment)
         // The child fragment was added via a <fragment> tag, so it
         // should receive lifecycle events by default
         assertThat(childFragment).isNotNull()
-        assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(childFragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
         // Add a ViewModel to the child fragment so that it has some retained state
         val createdViewModel = ViewModelProvider(childFragment)[TestViewModel::class.java]
@@ -1401,27 +1341,22 @@ class FragmentLifecycleTest {
         fc = fc.restart(activityRule, viewModelStore, false)
         fm = fc.supportFragmentManager
 
-        parentFragment = fm.findFragmentById(android.R.id.content) as
-            SwappingInflatedParentFragment
-        childFragment = parentFragment.childFragmentManager
-            .findFragmentById(R.id.inflated_fragment)
+        parentFragment = fm.findFragmentById(android.R.id.content) as SwappingInflatedParentFragment
+        childFragment = parentFragment.childFragmentManager.findFragmentById(R.id.inflated_fragment)
         // Ensure the Fragment is still in the FragmentManager, but hasn't moved
         // beyond CREATED since it isn't in the layout this time
         assertThat(childFragment).isNotNull()
-        assertThat(childFragment!!.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.CREATED)
-        assertThat(createdViewModel.cleared)
-            .isFalse()
+        assertThat(childFragment!!.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(createdViewModel.cleared).isFalse()
 
         fc.shutdown(viewModelStore, true)
 
-        assertThat(createdViewModel.cleared)
-            .isTrue()
+        assertThat(createdViewModel.cleared).isTrue()
     }
 
     @Test
     fun inflatedFragmentTagAfterResume() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragment = withActivity {
                 setContentView(R.layout.activity_inflated_fragment)
                 val fm = supportFragmentManager
@@ -1435,7 +1370,7 @@ class FragmentLifecycleTest {
 
     @Test
     fun inflatedFragmentContainerViewAfterResume() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             var fragment = withActivity {
                 setContentView(R.layout.inflated_fragment_container_view)
                 val fm = supportFragmentManager
@@ -1461,7 +1396,7 @@ class FragmentLifecycleTest {
 
     @Test
     fun inflatedFragmentContainerViewWithMultipleFragmentsAfterResume() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val addedFragment1 = StrictViewFragment()
             val addedFragment2 = StrictViewFragment()
             var fragment = withActivity {
@@ -1508,18 +1443,17 @@ class FragmentLifecycleTest {
     @UiThreadTest
     fun testReplaceChildFragmentInViewCreated() {
         val viewModelStore = ViewModelStore()
-        val fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore)
-        )
+        val fc =
+            FragmentController.createController(
+                ControllerHostCallbacks(activityRule.activity, viewModelStore)
+            )
         fc.attachHost(null)
         fc.dispatchCreate()
 
         val fm = fc.supportFragmentManager
 
         val fragment = AddChildInOnCreateParentFragment()
-        fm.beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
+        fm.beginTransaction().add(android.R.id.content, fragment).commitNow()
 
         fc.dispatchActivityCreated()
         fc.shutdown(viewModelStore, true)
@@ -1531,7 +1465,8 @@ class FragmentLifecycleTest {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             replaceInViewCreateFragment = ReplaceInViewCreatedParentFragment()
-            childFragmentManager.beginTransaction()
+            childFragmentManager
+                .beginTransaction()
                 .replace(R.id.fragmentContainer, replaceInViewCreateFragment)
                 .commit()
         }
@@ -1540,10 +1475,9 @@ class FragmentLifecycleTest {
     class ReplaceInViewCreatedParentFragment : StrictViewFragment(R.layout.fragment_a) {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            viewLifecycleOwner.lifecycle.addObserver(
-                LifecycleEventObserver { _, _ -> }
-            )
-            parentFragmentManager.beginTransaction()
+            viewLifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, _ -> })
+            parentFragmentManager
+                .beginTransaction()
                 .replace(R.id.fragmentContainer, StrictViewFragment())
                 .commit()
         }
@@ -1556,9 +1490,9 @@ class FragmentLifecycleTest {
     class ParentFragment : StrictViewFragment(R.layout.simple_container)
 
     /**
-     * This tests a deliberately odd use of a child fragment, added in onCreateView instead
-     * of elsewhere. It simulates creating a UI child fragment added to the view hierarchy
-     * created by this fragment.
+     * This tests a deliberately odd use of a child fragment, added in onCreateView instead of
+     * elsewhere. It simulates creating a UI child fragment added to the view hierarchy created by
+     * this fragment.
      */
     class ChildFragmentManagerFragment : StrictFragment() {
         private lateinit var savedChildFragmentManager: FragmentManager
@@ -1576,19 +1510,23 @@ class FragmentLifecycleTest {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ) = TextView(inflater.context).also {
-            assertWithMessage("child FragmentManagers not the same instance")
-                .that(childFragmentManager).isSameInstanceAs(savedChildFragmentManager)
-            var child = savedChildFragmentManager
-                .findFragmentByTag("tag") as ChildFragmentManagerChildFragment?
-            if (child == null) {
-                child = ChildFragmentManagerChildFragment("foo")
-                savedChildFragmentManager.beginTransaction().add(child, "tag").commitNow()
-                assertWithMessage("argument strings don't match")
-                    .that(child.string).isEqualTo("foo")
+        ) =
+            TextView(inflater.context).also {
+                assertWithMessage("child FragmentManagers not the same instance")
+                    .that(childFragmentManager)
+                    .isSameInstanceAs(savedChildFragmentManager)
+                var child =
+                    savedChildFragmentManager.findFragmentByTag("tag")
+                        as ChildFragmentManagerChildFragment?
+                if (child == null) {
+                    child = ChildFragmentManagerChildFragment("foo")
+                    savedChildFragmentManager.beginTransaction().add(child, "tag").commitNow()
+                    assertWithMessage("argument strings don't match")
+                        .that(child.string)
+                        .isEqualTo("foo")
+                }
+                childFragmentManagerChildFragment = child
             }
-            childFragmentManagerChildFragment = child
-        }
     }
 
     class ChildFragmentManagerChildFragment : StrictFragment {
@@ -1613,9 +1551,7 @@ class FragmentLifecycleTest {
         override fun onAttach(context: Context) {
             super.onAttach(context)
 
-            childFragmentManager.beginTransaction()
-                .add(Fragment(), "child")
-                .commitNow()
+            childFragmentManager.beginTransaction().add(Fragment(), "child").commitNow()
         }
     }
 
@@ -1680,8 +1616,8 @@ class FragmentLifecycleTest {
     }
 
     /**
-     * A fragment which swaps between two layouts every time it is created: one with
-     * a <fragment> tag and one empty layout.
+     * A fragment which swaps between two layouts every time it is created: one with a <fragment>
+     * tag and one empty layout.
      */
     class SwappingInflatedParentFragment : Fragment() {
         private var count = 0
@@ -1702,7 +1638,8 @@ class FragmentLifecycleTest {
                 } else {
                     R.layout.activity_content
                 },
-                container, false
+                container,
+                false
             )
         }
 

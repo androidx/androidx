@@ -27,9 +27,7 @@ import androidx.compose.ui.graphics.Color
 
 /** Provider of colors for a glance composable's attributes. */
 interface ColorProvider {
-    /**
-     * Returns the color the provider would use in the given [context].
-     */
+    /** Returns the color the provider would use in the given [context]. */
     fun getColor(context: Context): Color
 }
 
@@ -38,9 +36,10 @@ fun ColorProvider(color: Color): ColorProvider {
     return FixedColorProvider(color)
 }
 
-/** Returns a [ColorProvider] that resolves to the color resource. This should
- * not be used outside of the Glance Libraries due to inconsistencies with regards
- * to what process (app vs launcher) colors are resolved in
+/**
+ * Returns a [ColorProvider] that resolves to the color resource. This should not be used outside of
+ * the Glance Libraries due to inconsistencies with regards to what process (app vs launcher) colors
+ * are resolved in
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun ColorProvider(@ColorRes resId: Int): ColorProvider {
@@ -55,12 +54,13 @@ data class FixedColorProvider(val color: Color) : ColorProvider {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider {
     override fun getColor(context: Context): Color {
-        val androidColor = if (Build.VERSION.SDK_INT >= 23) {
-            ColorProviderApi23Impl.getColor(context, resId)
-        } else {
-            @Suppress("DEPRECATION") // Resources.getColor must be used on < 23.
-            context.resources.getColor(resId)
-        }
+        val androidColor =
+            if (Build.VERSION.SDK_INT >= 23) {
+                ColorProviderApi23Impl.getColor(context, resId)
+            } else {
+                @Suppress("DEPRECATION") // Resources.getColor must be used on < 23.
+                context.resources.getColor(resId)
+            }
         return Color(androidColor)
     }
 }

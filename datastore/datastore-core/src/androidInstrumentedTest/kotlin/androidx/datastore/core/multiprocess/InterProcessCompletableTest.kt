@@ -29,11 +29,9 @@ import org.junit.Rule
 import org.junit.Test
 
 class InterProcessCompletableTest {
-    @get:Rule
-    val multiProcess = MultiProcessTestRule()
+    @get:Rule val multiProcess = MultiProcessTestRule()
 
-    @Parcelize
-    private data class Value(val value: String) : Parcelable
+    @Parcelize private data class Value(val value: String) : Parcelable
 
     @Parcelize
     private data class Complete(
@@ -42,37 +40,34 @@ class InterProcessCompletableTest {
         val hostValue: Value,
         val remoteValue: Value
     ) : IpcAction<IpcUnit>() {
-        override suspend fun invokeInRemoteProcess(
-            subject: TwoWayIpcSubject
-        ): IpcUnit {
-            assertThat(
-                hostLatch.await(subject)
-            ).isEqualTo(hostValue)
+        override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
+            assertThat(hostLatch.await(subject)).isEqualTo(hostValue)
             remoteLatch.complete(subject, remoteValue)
             return IpcUnit
         }
     }
 
     @Test
-    fun completeInRemoteProcess() = multiProcess.runTest {
-        val subject = multiProcess.createConnection().createSubject(this)
-        val hostLatch = InterProcessCompletable<Value>()
-        val remoteLatch = InterProcessCompletable<Value>()
-        val remoteInvocation = async {
-            subject.invokeInRemoteProcess(
-                Complete(
-                    hostLatch = hostLatch,
-                    remoteLatch = remoteLatch,
-                    hostValue = Value("host"),
-                    remoteValue = Value("remote")
+    fun completeInRemoteProcess() =
+        multiProcess.runTest {
+            val subject = multiProcess.createConnection().createSubject(this)
+            val hostLatch = InterProcessCompletable<Value>()
+            val remoteLatch = InterProcessCompletable<Value>()
+            val remoteInvocation = async {
+                subject.invokeInRemoteProcess(
+                    Complete(
+                        hostLatch = hostLatch,
+                        remoteLatch = remoteLatch,
+                        hostValue = Value("host"),
+                        remoteValue = Value("remote")
+                    )
                 )
-            )
+            }
+            yield()
+            // cannot complete, we didn't release the host latch
+            assertThat(remoteInvocation.isActive).isTrue()
+            hostLatch.complete(subject, Value("host"))
+            remoteInvocation.await()
+            assertThat(remoteLatch.await(subject)).isEqualTo(Value("remote"))
         }
-        yield()
-        // cannot complete, we didn't release the host latch
-        assertThat(remoteInvocation.isActive).isTrue()
-        hostLatch.complete(subject, Value("host"))
-        remoteInvocation.await()
-        assertThat(remoteLatch.await(subject)).isEqualTo(Value("remote"))
-    }
 }

@@ -48,11 +48,9 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SingleProcessDataStoreStressTest {
-    @get:Rule
-    val tempFolder = TemporaryFolder()
+    @get:Rule val tempFolder = TemporaryFolder()
 
-    @get:Rule
-    val timeout = Timeout(4, TimeUnit.MINUTES)
+    @get:Rule val timeout = Timeout(4, TimeUnit.MINUTES)
 
     // using real dispatchers here to test parallelism
     private val testScope = CoroutineScope(Job() + Dispatchers.IO)
@@ -63,158 +61,159 @@ class SingleProcessDataStoreStressTest {
     }
 
     @Test
-    fun testManyConcurrentReadsAndWrites() = runBlocking<Unit> {
-        val file = tempFolder.newFile()
-        file.delete()
+    fun testManyConcurrentReadsAndWrites() =
+        runBlocking<Unit> {
+            val file = tempFolder.newFile()
+            file.delete()
 
-        val dataStore = DataStoreFactory.create(
-            serializer = LongSerializer(failWrites = false, failReads = false),
-            scope = testScope
-        ) { file }
-        assertThat(dataStore.data.first()).isEqualTo(0)
-
-        val readers = (0 until READER_COUNT).map {
-            testScope.async {
-                dataStore.data.takeWhile {
-                    it < FINAL_TEST_VALUE
-                }.assertIncreasingAfterFirstRead()
-            }
-        }
-        val writers = (0 until WRITER_COUNT).map {
-            testScope.async {
-                repeat(UPDATES_PER_WRITER) {
-                    dataStore.updateData {
-                        it.inc()
-                    }
+            val dataStore =
+                DataStoreFactory.create(
+                    serializer = LongSerializer(failWrites = false, failReads = false),
+                    scope = testScope
+                ) {
+                    file
                 }
-            }
-        }
+            assertThat(dataStore.data.first()).isEqualTo(0)
 
-        // There's no reason this should take more than a few seconds once writers complete and
-        // there's no reason writers won't complete.
-        withTimeout(10.seconds) {
-            (writers + readers).awaitAll()
-        }
-    }
-
-    @Test
-    fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() = runBlocking<Unit> {
-        val file = tempFolder.newFile()
-        file.delete()
-
-        val serializer = LongSerializer(failWrites = false, failReads = false)
-
-        val dataStore = DataStoreFactory.create(
-            serializer = serializer,
-            scope = testScope
-        ) { file }
-
-        val readers = (0 until READER_COUNT).map {
-            testScope.async {
-                try {
-                    dataStore.data.takeWhile {
-                        it < FINAL_TEST_VALUE
-                    }.reduce { accumulator, value ->
-                        // we don't use `assertIncreasingAfterFirstRead` here because failed writes
-                        // might increment the shared counter and trigger more reads than necessary.
-                        // Hence, we only assert for ">=" here.
-                        assertThat(value).isAtLeast(accumulator)
-                        value
-                    }
-                } catch (_: NoSuchElementException) {
-                    // the reduce on dataStore.data could start after dataStore is in Final state
-                    // thus no longer emitting elements.
-                }
-            }
-        }
-        val writers = (0 until WRITER_COUNT).map {
-            testScope.async {
-                repeat(UPDATES_PER_WRITER) {
-                    var success = false
-                    while (!success) {
-                        try {
-                            dataStore.updateData { it.inc() }
-                            success = true
-                        } catch (_: IOException) {
-                        }
-                    }
-                }
-            }
-        }
-
-        serializer.failWrites = true
-
-        repeat(10) {
-            delay(10)
-            serializer.failWrites = !serializer.failWrites
-        }
-
-        serializer.failWrites = false
-
-        // There's no reason this should take more than a few seconds once writers complete and
-        // there's no reason writers won't complete.
-        withTimeout(10.seconds) {
-            (writers + readers).awaitAll()
-        }
-    }
-
-    @Test
-    fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() = runBlocking<Unit> {
-        val file = tempFolder.newFile()
-        file.delete()
-
-        val serializer = LongSerializer(failWrites = false, failReads = true)
-
-        val dataStore = DataStoreFactory.create(
-            serializer = serializer,
-            scope = testScope
-        ) { file }
-
-        val readers = (0 until READER_COUNT).map {
-            testScope.async {
-                var retry = true
-                while (retry) {
-                    // we retry because the test itself is creating read failures on purpose.
-                    retry = false
-                    try {
+            val readers =
+                (0 until READER_COUNT).map {
+                    testScope.async {
                         dataStore.data
-                            .takeWhile {
-                                it < FINAL_TEST_VALUE
-                            }.assertIncreasingAfterFirstRead()
-                    } catch (_: IOException) {
-                        // reader is configured to throw IO exceptions in the test, hence it is
-                        // ok to get them here. It means we need to go back to reading until we
-                        // reach to the final value.
-                        retry = true
+                            .takeWhile { it < FINAL_TEST_VALUE }
+                            .assertIncreasingAfterFirstRead()
                     }
                 }
-            }
+            val writers =
+                (0 until WRITER_COUNT).map {
+                    testScope.async {
+                        repeat(UPDATES_PER_WRITER) { dataStore.updateData { it.inc() } }
+                    }
+                }
+
+            // There's no reason this should take more than a few seconds once writers complete and
+            // there's no reason writers won't complete.
+            withTimeout(10.seconds) { (writers + readers).awaitAll() }
         }
-        val writers = (0 until WRITER_COUNT).map {
-            testScope.async {
-                repeat(UPDATES_PER_WRITER) {
-                    var success = false
-                    while (!success) {
+
+    @Test
+    fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() =
+        runBlocking<Unit> {
+            val file = tempFolder.newFile()
+            file.delete()
+
+            val serializer = LongSerializer(failWrites = false, failReads = false)
+
+            val dataStore =
+                DataStoreFactory.create(serializer = serializer, scope = testScope) { file }
+
+            val readers =
+                (0 until READER_COUNT).map {
+                    testScope.async {
                         try {
-                            dataStore.updateData { it.inc() }
-                            success = true
-                        } catch (_: IOException) {
+                            dataStore.data
+                                .takeWhile { it < FINAL_TEST_VALUE }
+                                .reduce { accumulator, value ->
+                                    // we don't use `assertIncreasingAfterFirstRead` here because
+                                    // failed writes
+                                    // might increment the shared counter and trigger more reads
+                                    // than necessary.
+                                    // Hence, we only assert for ">=" here.
+                                    assertThat(value).isAtLeast(accumulator)
+                                    value
+                                }
+                        } catch (_: NoSuchElementException) {
+                            // the reduce on dataStore.data could start after dataStore is in Final
+                            // state
+                            // thus no longer emitting elements.
                         }
                     }
                 }
+            val writers =
+                (0 until WRITER_COUNT).map {
+                    testScope.async {
+                        repeat(UPDATES_PER_WRITER) {
+                            var success = false
+                            while (!success) {
+                                try {
+                                    dataStore.updateData { it.inc() }
+                                    success = true
+                                } catch (_: IOException) {}
+                            }
+                        }
+                    }
+                }
+
+            serializer.failWrites = true
+
+            repeat(10) {
+                delay(10)
+                serializer.failWrites = !serializer.failWrites
             }
+
+            serializer.failWrites = false
+
+            // There's no reason this should take more than a few seconds once writers complete and
+            // there's no reason writers won't complete.
+            withTimeout(10.seconds) { (writers + readers).awaitAll() }
         }
 
-        // Read failures for first 100 ms
-        delay(100)
-        serializer.failReads = false
+    @Test
+    fun testManyConcurrentReadsAndWrites_withBeginningReadFailures() =
+        runBlocking<Unit> {
+            val file = tempFolder.newFile()
+            file.delete()
 
-        // There's no reason this should take more than a few seconds once writers complete and
-        // there's no reason writers won't complete.
-        withTimeout(10.seconds) {
-            (writers + readers).awaitAll()
+            val serializer = LongSerializer(failWrites = false, failReads = true)
+
+            val dataStore =
+                DataStoreFactory.create(serializer = serializer, scope = testScope) { file }
+
+            val readers =
+                (0 until READER_COUNT).map {
+                    testScope.async {
+                        var retry = true
+                        while (retry) {
+                            // we retry because the test itself is creating read failures on
+                            // purpose.
+                            retry = false
+                            try {
+                                dataStore.data
+                                    .takeWhile { it < FINAL_TEST_VALUE }
+                                    .assertIncreasingAfterFirstRead()
+                            } catch (_: IOException) {
+                                // reader is configured to throw IO exceptions in the test, hence it
+                                // is
+                                // ok to get them here. It means we need to go back to reading until
+                                // we
+                                // reach to the final value.
+                                retry = true
+                            }
+                        }
+                    }
+                }
+            val writers =
+                (0 until WRITER_COUNT).map {
+                    testScope.async {
+                        repeat(UPDATES_PER_WRITER) {
+                            var success = false
+                            while (!success) {
+                                try {
+                                    dataStore.updateData { it.inc() }
+                                    success = true
+                                } catch (_: IOException) {}
+                            }
+                        }
+                    }
+                }
+
+            // Read failures for first 100 ms
+            delay(100)
+            serializer.failReads = false
+
+            // There's no reason this should take more than a few seconds once writers complete and
+            // there's no reason writers won't complete.
+            withTimeout(10.seconds) { (writers + readers).awaitAll() }
         }
-    }
 
     private suspend fun Flow<Long>.assertIncreasingAfterFirstRead() {
         // at a very rare race condition, we might read the new value with old
@@ -234,8 +233,7 @@ class SingleProcessDataStoreStressTest {
     private class LongSerializer(
         @Volatile var failWrites: Boolean,
         @Volatile var failReads: Boolean
-    ) :
-        Serializer<Long> {
+    ) : Serializer<Long> {
         override val defaultValue = 0L
 
         override suspend fun readFrom(input: InputStream): Long {

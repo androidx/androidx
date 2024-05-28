@@ -37,11 +37,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-/**
- * Object containing the result from composition of [GlanceRemoteViews].
- */
-@ExperimentalGlanceRemoteViewsApi
-class RemoteViewsCompositionResult(val remoteViews: RemoteViews)
+/** Object containing the result from composition of [GlanceRemoteViews]. */
+@ExperimentalGlanceRemoteViewsApi class RemoteViewsCompositionResult(val remoteViews: RemoteViews)
 
 /**
  * Maximum depth for a composition. Although there is no hard limit, this should avoid deep
@@ -49,14 +46,12 @@ class RemoteViewsCompositionResult(val remoteViews: RemoteViews)
  */
 private const val MAX_COMPOSE_TREE_DEPTH = 50
 
-/**
- * Fake GlanceId for use in places where GlanceId is needed.
- */
+/** Fake GlanceId for use in places where GlanceId is needed. */
 private val REMOTE_VIEWS_ID = object : GlanceId {}
 
 /**
- * Object containing the information needed to generate a [RemoteViews]. The same
- * instance should be reused to compose layouts for a host view.
+ * Object containing the information needed to generate a [RemoteViews]. The same instance should be
+ * reused to compose layouts for a host view.
  */
 @ExperimentalGlanceRemoteViewsApi
 class GlanceRemoteViews {
@@ -70,9 +65,8 @@ class GlanceRemoteViews {
      * @param state Local view state that can be passed to composition through [LocalState].
      * @param size Size of the [RemoteViews] to be displayed at.
      * @param appWidgetOptions AppWidget options [Bundle] to be passed to composition through
-     * [LocalAppWidgetOptions].
+     *   [LocalAppWidgetOptions].
      * @param content Definition of the UI.
-     *
      * @return Composition result containing the [RemoteViews].
      */
     suspend fun compose(
@@ -81,47 +75,52 @@ class GlanceRemoteViews {
         state: Any? = null,
         appWidgetOptions: Bundle = Bundle(),
         content: @Composable () -> Unit
-    ): RemoteViewsCompositionResult = withContext(BroadcastFrameClock()) {
-        val layoutConfiguration = initializeLayoutConfiguration(context)
-        // The maximum depth must be reduced if the compositions are combined
-        val root = RemoteViewsRoot(maxDepth = MAX_COMPOSE_TREE_DEPTH)
-        val applier = Applier(root)
-        val recomposer = Recomposer(coroutineContext)
-        val composition = Composition(applier, recomposer)
-        composition.setContent {
-            CompositionLocalProvider(
-                LocalContext provides context,
-                LocalGlanceId provides REMOTE_VIEWS_ID,
-                LocalState provides state,
-                LocalAppWidgetOptions provides appWidgetOptions,
-                LocalSize provides size,
-                content = content,
+    ): RemoteViewsCompositionResult =
+        withContext(BroadcastFrameClock()) {
+            val layoutConfiguration = initializeLayoutConfiguration(context)
+            // The maximum depth must be reduced if the compositions are combined
+            val root = RemoteViewsRoot(maxDepth = MAX_COMPOSE_TREE_DEPTH)
+            val applier = Applier(root)
+            val recomposer = Recomposer(coroutineContext)
+            val composition = Composition(applier, recomposer)
+            composition.setContent {
+                CompositionLocalProvider(
+                    LocalContext provides context,
+                    LocalGlanceId provides REMOTE_VIEWS_ID,
+                    LocalState provides state,
+                    LocalAppWidgetOptions provides appWidgetOptions,
+                    LocalSize provides size,
+                    content = content,
+                )
+            }
+
+            launch { recomposer.runRecomposeAndApplyChanges() }
+            recomposer.close()
+            recomposer.join()
+
+            normalizeCompositionTree(root)
+
+            RemoteViewsCompositionResult(
+                translateComposition(
+                    context,
+                    AppWidgetManager.INVALID_APPWIDGET_ID,
+                    root,
+                    layoutConfiguration,
+                    layoutConfiguration.addLayout(root),
+                    size
+                )
             )
         }
-
-        launch { recomposer.runRecomposeAndApplyChanges() }
-        recomposer.close()
-        recomposer.join()
-
-        normalizeCompositionTree(root)
-
-        RemoteViewsCompositionResult(
-            translateComposition(
-                context,
-                AppWidgetManager.INVALID_APPWIDGET_ID,
-                root,
-                layoutConfiguration,
-                layoutConfiguration.addLayout(root),
-                size
-            )
-        )
-    }
 
     private suspend fun initializeLayoutConfiguration(context: Context): LayoutConfiguration =
-        layoutConfiguration ?: mutex.withLock {
-            layoutConfiguration = layoutConfiguration ?: LayoutConfiguration.create(
-                context, AppWidgetManager.INVALID_APPWIDGET_ID
-            )
-            layoutConfiguration!!
-        }
+        layoutConfiguration
+            ?: mutex.withLock {
+                layoutConfiguration =
+                    layoutConfiguration
+                        ?: LayoutConfiguration.create(
+                            context,
+                            AppWidgetManager.INVALID_APPWIDGET_ID
+                        )
+                layoutConfiguration!!
+            }
 }

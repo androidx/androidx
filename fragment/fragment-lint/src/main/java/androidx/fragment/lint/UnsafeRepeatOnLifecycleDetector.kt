@@ -42,27 +42,29 @@ import org.jetbrains.uast.getParentOfType
 class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "UnsafeRepeatOnLifecycleDetector",
-            briefDescription = "RepeatOnLifecycle should be used with viewLifecycleOwner in " +
-                "Fragments.",
-            explanation = """The repeatOnLifecycle APIs should be used with the viewLifecycleOwner \
+        val ISSUE =
+            Issue.create(
+                id = "UnsafeRepeatOnLifecycleDetector",
+                briefDescription =
+                    "RepeatOnLifecycle should be used with viewLifecycleOwner in " + "Fragments.",
+                explanation =
+                    """The repeatOnLifecycle APIs should be used with the viewLifecycleOwner \
                 in Fragments as opposed to lifecycleOwner.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                UnsafeRepeatOnLifecycleDetector::class.java, Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        UnsafeRepeatOnLifecycleDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    ),
+                androidSpecific = true
+            )
     }
 
     override fun getApplicableMethodNames() = listOf("repeatOnLifecycle")
 
-    private val lifecycleMethods = setOf(
-        "onCreateView", "onViewCreated", "onActivityCreated",
-        "onViewStateRestored"
-    )
+    private val lifecycleMethods =
+        setOf("onCreateView", "onViewCreated", "onActivityCreated", "onViewStateRestored")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // Check that repeatOnLifecycle is called in a Fragment
@@ -99,9 +101,7 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
         return lifecycleMethods.contains(uMethod.name)
     }
 
-    /**
-     * Check if `uClass` has FRAGMENT as a super type but not DIALOG_FRAGMENT
-     */
+    /** Check if `uClass` has FRAGMENT as a super type but not DIALOG_FRAGMENT */
     @Suppress("UNCHECKED_CAST")
     private fun hasFragmentAsAncestorType(uClass: UClass?): Boolean {
         if (uClass == null) return false

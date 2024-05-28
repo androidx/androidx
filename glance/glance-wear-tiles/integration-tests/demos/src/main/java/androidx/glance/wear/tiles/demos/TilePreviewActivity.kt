@@ -30,17 +30,16 @@ import androidx.viewpager2.widget.ViewPager2
 import androidx.wear.tiles.manager.TileUiClient
 
 private const val NUM_PAGES = 4
-private val TILE_PROVIDERS_NAME = arrayOf(
-    HelloTileService::class.java,
-    CalendarTileService::class.java,
-    CountTileService::class.java,
-    CurvedLayoutTileService::class.java
-)
+private val TILE_PROVIDERS_NAME =
+    arrayOf(
+        HelloTileService::class.java,
+        CalendarTileService::class.java,
+        CountTileService::class.java,
+        CurvedLayoutTileService::class.java
+    )
 
-class TilePageFragment(
-    private val activityContext: Context,
-    private val position: Int
-) : Fragment() {
+class TilePageFragment(private val activityContext: Context, private val position: Int) :
+    Fragment() {
     lateinit var tileUiClient: TileUiClient
 
     override fun onCreateView(
@@ -53,11 +52,12 @@ class TilePageFragment(
         super.onViewCreated(view, savedInstanceState)
         val rootLayout = requireView().findViewById<FrameLayout>(R.id.tile_container)
 
-        tileUiClient = TileUiClient(
-            context = activityContext,
-            component = ComponentName(activityContext, TILE_PROVIDERS_NAME[position]),
-            parentView = rootLayout
-        )
+        tileUiClient =
+            TileUiClient(
+                context = activityContext,
+                component = ComponentName(activityContext, TILE_PROVIDERS_NAME[position]),
+                parentView = rootLayout
+            )
         tileUiClient.connect()
     }
 
@@ -80,10 +80,10 @@ class TilePreviewActivity : FragmentActivity() {
         viewPager.adapter = pagerAdapter
     }
 
-    private inner class TilePagerAdaptor(
-        private val fa: FragmentActivity
-    ) : FragmentStateAdapter(fa) {
+    private inner class TilePagerAdaptor(private val fa: FragmentActivity) :
+        FragmentStateAdapter(fa) {
         override fun getItemCount(): Int = NUM_PAGES
+
         override fun createFragment(position: Int): Fragment = TilePageFragment(fa, position)
     }
 }

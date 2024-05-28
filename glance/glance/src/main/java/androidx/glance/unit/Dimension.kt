@@ -22,15 +22,18 @@ import androidx.annotation.RestrictTo
 /**
  * Dimension types. This contains all the dimension types which are supported by androidx.glance.
  *
- * These should only be used internally; developers should be using the width/height Modifiers
- * below rather than this class directly.
- *
+ * These should only be used internally; developers should be using the width/height Modifiers below
+ * rather than this class directly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 sealed class Dimension {
     class Dp(val dp: androidx.compose.ui.unit.Dp) : Dimension()
+
     object Wrap : Dimension()
+
     object Fill : Dimension()
+
     object Expand : Dimension()
+
     class Resource(@DimenRes val res: Int) : Dimension()
 }

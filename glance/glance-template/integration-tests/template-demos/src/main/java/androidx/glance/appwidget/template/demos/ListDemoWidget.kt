@@ -55,8 +55,7 @@ import androidx.glance.template.TextType
  * template from [BaseListDemoWidget].
  */
 class FullHeaderActionListDemoWidget : BaseListDemoWidget() {
-    @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
+    @Composable override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true)
 
     override fun itemSelectAction(params: ActionParameters): Action =
         actionRunCallback<ListTemplateItemAction>(params)
@@ -67,8 +66,7 @@ class FullHeaderActionListDemoWidget : BaseListDemoWidget() {
  * list template from [BaseListDemoWidget] with custom theme.
  */
 class FullHeaderListThemedDemoWidget : BaseListDemoWidget() {
-    @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true, true)
+    @Composable override fun TemplateContent() = ListTemplateContent(ListStyle.Full, true, true)
 }
 
 /**
@@ -76,8 +74,7 @@ class FullHeaderListThemedDemoWidget : BaseListDemoWidget() {
  * list template from [BaseListDemoWidget].
  */
 class NoHeaderListDemoWidget : BaseListDemoWidget() {
-    @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Full)
+    @Composable override fun TemplateContent() = ListTemplateContent(ListStyle.Full)
 }
 
 /**
@@ -85,8 +82,7 @@ class NoHeaderListDemoWidget : BaseListDemoWidget() {
  * action button using data and list template from [BaseListDemoWidget].
  */
 class BriefListDemoWidget : BaseListDemoWidget() {
-    @Composable
-    override fun TemplateContent() = ListTemplateContent(ListStyle.Brief)
+    @Composable override fun TemplateContent() = ListTemplateContent(ListStyle.Brief)
 }
 
 class FullActionListReceiver : GlanceAppWidgetReceiver() {
@@ -143,53 +139,63 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                 }
                 content.add(
                     ListTemplateItem(
-                        textBlock = TextBlock(
-                            text1 = TemplateText("Title Medium", TextType.Title),
-                            text2 = if (listStyle == ListStyle.Full) TemplateText(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                                TextType.Body
-                            ) else null,
-                            text3 = if (listStyle == ListStyle.Full) TemplateText(
-                                label,
-                                TextType.Label
-                            ) else null,
-                            priority = 1,
-                        ),
-                        imageBlock = ImageBlock(
-                            images = listOf(
-                                TemplateImageWithDescription(
-                                    ImageProvider(R.drawable.palm_leaf),
-                                    "$i"
-                                )
+                        textBlock =
+                            TextBlock(
+                                text1 = TemplateText("Title Medium", TextType.Title),
+                                text2 =
+                                    if (listStyle == ListStyle.Full)
+                                        TemplateText(
+                                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                                            TextType.Body
+                                        )
+                                    else null,
+                                text3 =
+                                    if (listStyle == ListStyle.Full)
+                                        TemplateText(label, TextType.Label)
+                                    else null,
+                                priority = 1,
                             ),
-                            size = ImageSize.Medium,
-                            priority = 0, // ahead of textBlock
-                        ),
-                        actionBlock = ActionBlock(
-                            actionButtons = listOf(
-                                TemplateImageButton(
-                                    itemSelectAction(
-                                        actionParametersOf(ClickedKey to i)
+                        imageBlock =
+                            ImageBlock(
+                                images =
+                                    listOf(
+                                        TemplateImageWithDescription(
+                                            ImageProvider(R.drawable.palm_leaf),
+                                            "$i"
+                                        )
                                     ),
-                                    TemplateImageWithDescription(
-                                        ImageProvider(R.drawable.ic_bookmark),
-                                        "button"
-                                    )
-                                ),
+                                size = ImageSize.Medium,
+                                priority = 0, // ahead of textBlock
                             ),
-                        ),
+                        actionBlock =
+                            ActionBlock(
+                                actionButtons =
+                                    listOf(
+                                        TemplateImageButton(
+                                            itemSelectAction(actionParametersOf(ClickedKey to i)),
+                                            TemplateImageWithDescription(
+                                                ImageProvider(R.drawable.ic_bookmark),
+                                                "button"
+                                            )
+                                        ),
+                                    ),
+                            ),
                     )
                 )
             }
             ListTemplate(
                 ListTemplateData(
-                    headerBlock = if (showHeader) HeaderBlock(
-                        text = TemplateText("List Demo", TextType.Title),
-                        icon = TemplateImageWithDescription(
-                            ImageProvider(R.drawable.ic_widgets),
-                            "Logo"
-                        ),
-                    ) else null,
+                    headerBlock =
+                        if (showHeader)
+                            HeaderBlock(
+                                text = TemplateText("List Demo", TextType.Title),
+                                icon =
+                                    TemplateImageWithDescription(
+                                        ImageProvider(R.drawable.ic_widgets),
+                                        "Logo"
+                                    ),
+                            )
+                        else null,
                     listContent = content,
                     listStyle = listStyle
                 )
@@ -203,8 +209,7 @@ class DefaultNoopAction : ActionCallback {
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
-    ) {
-    }
+    ) {}
 }
 
 class ListTemplateItemAction : ActionCallback {

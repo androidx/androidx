@@ -22,19 +22,21 @@ class CombinedGlanceModifierTest {
     @Test
     fun foldIn() {
         assertThat(
-            testModifier.foldIn(listOf<Int>()) { lst, m ->
-                if (m is Element) lst + m.value else lst
-            }
-        ).isEqualTo(listOf(1, 2, 3))
+                testModifier.foldIn(listOf<Int>()) { lst, m ->
+                    if (m is Element) lst + m.value else lst
+                }
+            )
+            .isEqualTo(listOf(1, 2, 3))
     }
 
     @Test
     fun foldOut() {
         assertThat(
-            testModifier.foldOut(listOf<Int>()) { m, lst ->
-                if (m is Element) lst + m.value else lst
-            }
-        ).isEqualTo(listOf(3, 2, 1))
+                testModifier.foldOut(listOf<Int>()) { m, lst ->
+                    if (m is Element) lst + m.value else lst
+                }
+            )
+            .isEqualTo(listOf(3, 2, 1))
     }
 
     @Test
@@ -66,5 +68,4 @@ class CombinedGlanceModifierTest {
 
 private data class Element(val value: Int) : GlanceModifier.Element
 
-private fun GlanceModifier.element(value: Int) =
-    this.then(Element(value))
+private fun GlanceModifier.element(value: Int) = this.then(Element(value))

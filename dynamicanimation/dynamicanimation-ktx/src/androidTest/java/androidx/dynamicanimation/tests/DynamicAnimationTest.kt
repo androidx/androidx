@@ -43,20 +43,20 @@ import org.mockito.Mockito.verify
 class DynamicAnimationTest {
 
     @Suppress("DEPRECATION")
-    @get:Rule val activityTestRule = androidx.test.rule.ActivityTestRule<AnimationActivity>(
-        AnimationActivity::class.java
-    )
+    @get:Rule
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<AnimationActivity>(AnimationActivity::class.java)
 
     private lateinit var view: View
 
-    @Before fun setup() {
+    @Before
+    fun setup() {
         view = activityTestRule.getActivity().findViewById(R.id.anim_view)
     }
 
-    /**
-     * Test extension for creating [FlingAnimation]
-     */
-    @Test fun testCreateFlingAnimation() {
+    /** Test extension for creating [FlingAnimation] */
+    @Test
+    fun testCreateFlingAnimation() {
         val flingAnimation = flingAnimationOf(view::setAlpha, view::getAlpha)
         assertNotNull(flingAnimation)
         assertTrue(flingAnimation.friction == 1f)
@@ -64,10 +64,9 @@ class DynamicAnimationTest {
         assertTrue(flingAnimation.friction == 1.5f)
     }
 
-    /**
-     * Test extension for creating [SpringAnimation]
-     */
-    @Test fun testCreateSpringAnimation() {
+    /** Test extension for creating [SpringAnimation] */
+    @Test
+    fun testCreateSpringAnimation() {
         val springAnimationWithoutFinalPosition =
             springAnimationOf(view::setScaleX, view::getScaleX)
         assertNotNull(springAnimationWithoutFinalPosition)
@@ -78,39 +77,32 @@ class DynamicAnimationTest {
         assertNotNull(springAnimationWithFinalPosition.spring)
         assertEquals(springAnimationWithFinalPosition.spring.finalPosition, 100f)
 
-        val listener: DynamicAnimation.OnAnimationEndListener = mock(
-            DynamicAnimation.OnAnimationEndListener::class.java
-        )
+        val listener: DynamicAnimation.OnAnimationEndListener =
+            mock(DynamicAnimation.OnAnimationEndListener::class.java)
         springAnimationWithFinalPosition.addEndListener(listener)
-        InstrumentationRegistry.getInstrumentation().runOnMainSync({
-            springAnimationWithFinalPosition.setStartValue(0f).start()
-        })
+        InstrumentationRegistry.getInstrumentation()
+            .runOnMainSync({ springAnimationWithFinalPosition.setStartValue(0f).start() })
         assertTrue(springAnimationWithFinalPosition.isRunning())
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync({
-            springAnimationWithFinalPosition.skipToEnd()
-        })
+        InstrumentationRegistry.getInstrumentation()
+            .runOnMainSync({ springAnimationWithFinalPosition.skipToEnd() })
 
-        verify(listener, timeout(2000)).onAnimationEnd(
-            springAnimationWithFinalPosition, false,
-            100f, 0f
-        )
+        verify(listener, timeout(2000))
+            .onAnimationEnd(springAnimationWithFinalPosition, false, 100f, 0f)
 
         assertEquals(100f, view.getScaleX())
     }
 
-    /**
-     * Test extension for setting up [SpringForce]
-     */
-    @Test fun testSpringForce() {
-        val springAnimationWithoutFinalPosition = springAnimationOf(
-            view::setTranslationX, view::getTranslationX
-        )
-            .withSpringForceProperties {
-                finalPosition = 100f
-                dampingRatio = SpringForce.DAMPING_RATIO_HIGH_BOUNCY
-                stiffness = SpringForce.STIFFNESS_HIGH
-            }
+    /** Test extension for setting up [SpringForce] */
+    @Test
+    fun testSpringForce() {
+        val springAnimationWithoutFinalPosition =
+            springAnimationOf(view::setTranslationX, view::getTranslationX)
+                .withSpringForceProperties {
+                    finalPosition = 100f
+                    dampingRatio = SpringForce.DAMPING_RATIO_HIGH_BOUNCY
+                    stiffness = SpringForce.STIFFNESS_HIGH
+                }
         assertNotNull(springAnimationWithoutFinalPosition.spring)
         assertEquals(springAnimationWithoutFinalPosition.spring.finalPosition, 100f)
         assertEquals(
@@ -121,22 +113,18 @@ class DynamicAnimationTest {
             springAnimationWithoutFinalPosition.spring.stiffness,
             SpringForce.STIFFNESS_HIGH
         )
-        val springAnimationWithFinalPosition = springAnimationOf(
-            view::setTranslationX, view::getTranslationX, 120f
-        )
-            .withSpringForceProperties {
-                dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
-                stiffness = SpringForce.STIFFNESS_LOW
-            }
+        val springAnimationWithFinalPosition =
+            springAnimationOf(view::setTranslationX, view::getTranslationX, 120f)
+                .withSpringForceProperties {
+                    dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+                    stiffness = SpringForce.STIFFNESS_LOW
+                }
         assertNotNull(springAnimationWithFinalPosition.spring)
         assertEquals(springAnimationWithFinalPosition.spring.finalPosition, 120f)
         assertEquals(
             springAnimationWithFinalPosition.spring.dampingRatio,
             SpringForce.DAMPING_RATIO_LOW_BOUNCY
         )
-        assertEquals(
-            springAnimationWithFinalPosition.spring.stiffness,
-            SpringForce.STIFFNESS_LOW
-        )
+        assertEquals(springAnimationWithFinalPosition.spring.stiffness, SpringForce.STIFFNESS_LOW)
     }
 }

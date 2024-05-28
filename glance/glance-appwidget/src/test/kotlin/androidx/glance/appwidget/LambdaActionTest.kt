@@ -32,13 +32,15 @@ import org.robolectric.RobolectricTestRunner
 class LambdaActionTest {
     @Test
     fun siblingActionsHaveDifferentKeys() = runTest {
-        val lambdas = runTestingComposition {
-            Box {
-                Text("hello1", modifier = GlanceModifier.clickable {})
-                Text("hello2", modifier = GlanceModifier.clickable {})
-            }
-            Text("hello3", modifier = GlanceModifier.clickable {})
-        }.updateLambdaActionKeys()
+        val lambdas =
+            runTestingComposition {
+                    Box {
+                        Text("hello1", modifier = GlanceModifier.clickable {})
+                        Text("hello2", modifier = GlanceModifier.clickable {})
+                    }
+                    Text("hello3", modifier = GlanceModifier.clickable {})
+                }
+                .updateLambdaActionKeys()
 
         assertThat(lambdas.size).isEqualTo(3)
     }

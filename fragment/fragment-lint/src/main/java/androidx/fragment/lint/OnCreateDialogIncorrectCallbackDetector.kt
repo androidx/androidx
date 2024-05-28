@@ -38,30 +38,34 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
  * When using a `DialogFragment`, the `setOnCancelListener` and `setOnDismissListener` callback
- * functions within the `onCreateDialog` function __must not be used__
- * because the `DialogFragment` owns these callbacks. Instead the respective `onCancel` and
- * `onDismiss` functions can be used to achieve the desired effect.
+ * functions within the `onCreateDialog` function __must not be used__ because the `DialogFragment`
+ * owns these callbacks. Instead the respective `onCancel` and `onDismiss` functions can be used to
+ * achieve the desired effect.
  */
 class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
 
     companion object Issues {
-        val ISSUE = Issue.create(
-            id = "DialogFragmentCallbacksDetector",
-            briefDescription = "Use onCancel() and onDismiss() instead of calling " +
-                "setOnCancelListener() and setOnDismissListener() from onCreateDialog()",
-            explanation = """When using a `DialogFragment`, the `setOnCancelListener` and \
+        val ISSUE =
+            Issue.create(
+                id = "DialogFragmentCallbacksDetector",
+                briefDescription =
+                    "Use onCancel() and onDismiss() instead of calling " +
+                        "setOnCancelListener() and setOnDismissListener() from onCreateDialog()",
+                explanation =
+                    """When using a `DialogFragment`, the `setOnCancelListener` and \
                 `setOnDismissListener` callback functions within the `onCreateDialog` function \
                  __must not be used__ because the `DialogFragment` owns these callbacks. \
                  Instead the respective `onCancel` and `onDismiss` functions can be used to \
                  achieve the desired effect.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                OnCreateDialogIncorrectCallbackDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        OnCreateDialogIncorrectCallbackDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    ),
+                androidSpecific = true
+            )
     }
 
     override fun getApplicableUastTypes(): List<Class<out UElement>>? {
@@ -74,16 +78,18 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
 
     private inner class UastHandler(val context: JavaContext) : UElementHandler() {
         override fun visitClass(node: UClass) {
-            if (isKotlin(node.lang) &&
-                (node.sourcePsi as? KtClassOrObject)?.getSuperNames()?.firstOrNull() !=
-                DIALOG_FRAGMENT_CLASS
+            if (
+                isKotlin(node.lang) &&
+                    (node.sourcePsi as? KtClassOrObject)?.getSuperNames()?.firstOrNull() !=
+                        DIALOG_FRAGMENT_CLASS
             ) {
                 return
             }
 
-            if (!isKotlin(node.lang) &&
-                (node.uastSuperTypes.firstOrNull()?.type as? PsiClassReferenceType)
-                    ?.className != DIALOG_FRAGMENT_CLASS
+            if (
+                !isKotlin(node.lang) &&
+                    (node.uastSuperTypes.firstOrNull()?.type as? PsiClassReferenceType)
+                        ?.className != DIALOG_FRAGMENT_CLASS
             ) {
                 return
             }
@@ -98,8 +104,8 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
     }
 
     /**
-     * A UAST Visitor that explores all method calls within a
-     * [androidx.fragment.app.DialogFragment] callback to check for an incorrect method call.
+     * A UAST Visitor that explores all method calls within a [androidx.fragment.app.DialogFragment]
+     * callback to check for an incorrect method call.
      *
      * @param context The context of the lint request.
      * @param containingMethodName The name of the originating Fragment lifecycle method.
@@ -122,8 +128,9 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                     report(
                         context = context,
                         node = node,
-                        message = "Use onCancel() instead of calling setOnCancelListener() " +
-                            "from onCreateDialog()"
+                        message =
+                            "Use onCancel() instead of calling setOnCancelListener() " +
+                                "from onCreateDialog()"
                     )
                     visitedMethods.add(node)
                 }
@@ -131,8 +138,9 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                     report(
                         context = context,
                         node = node,
-                        message = "Use onDismiss() instead of calling setOnDismissListener() " +
-                            "from onCreateDialog()"
+                        message =
+                            "Use onDismiss() instead of calling setOnDismissListener() " +
+                                "from onCreateDialog()"
                     )
                     visitedMethods.add(node)
                 }

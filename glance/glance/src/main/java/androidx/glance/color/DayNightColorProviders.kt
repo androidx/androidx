@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.glance.unit.ColorProvider
 
 /**
- * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
- * mode is on.
+ * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night mode
+ * is on.
  */
 fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
@@ -39,5 +39,6 @@ data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvid
 
 val Context.isNightMode: Boolean
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-        Configuration.UI_MODE_NIGHT_YES
+    get() =
+        (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES

@@ -37,60 +37,58 @@ class BoxTest {
     }
 
     @Test
-    fun createComposableBox() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Box {}
+    fun createComposableBox() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Box {} }
+
+            // Outer box (added by runTestingComposition) should have a single child box.
+            assertThat(root.children).hasSize(1)
+            val child = assertIs<EmittableBox>(root.children[0])
+
+            // The Box added above should not have any other children.
+            assertThat(child.children).hasSize(0)
         }
 
-        // Outer box (added by runTestingComposition) should have a single child box.
-        assertThat(root.children).hasSize(1)
-        val child = assertIs<EmittableBox>(root.children[0])
-
-        // The Box added above should not have any other children.
-        assertThat(child.children).hasSize(0)
-    }
-
     @Test
-    fun createComposableBoxWithModifier() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Box(modifier = GlanceModifier.padding(1.dp)) {}
+    fun createComposableBoxWithModifier() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Box(modifier = GlanceModifier.padding(1.dp)) {} }
+
+            val innerBox = assertIs<EmittableBox>(root.children[0])
+            val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
+
+            // Don't need to test all elements, that's covered in PaddingTest
+            assertThat(paddingModifier.top).isEqualTo(PaddingDimension(1.dp))
         }
 
-        val innerBox = assertIs<EmittableBox>(root.children[0])
-        val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
-
-        // Don't need to test all elements, that's covered in PaddingTest
-        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(1.dp))
-    }
-
     @Test
-    fun createComposableBoxWithAlignment() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Box(contentAlignment = Alignment.Center) {}
+    fun createComposableBoxWithAlignment() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Box(contentAlignment = Alignment.Center) {} }
+
+            val innerBox = assertIs<EmittableBox>(root.children[0])
+
+            assertThat(innerBox.contentAlignment).isEqualTo(Alignment.Center)
         }
 
-        val innerBox = assertIs<EmittableBox>(root.children[0])
-
-        assertThat(innerBox.contentAlignment).isEqualTo(Alignment.Center)
-    }
-
     @Test
-    fun createComposableBoxWithChildren() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Box(contentAlignment = Alignment.Center) {
-                Box(contentAlignment = Alignment.BottomCenter) {}
-                Box(contentAlignment = Alignment.TopCenter) {}
+    fun createComposableBoxWithChildren() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Box(contentAlignment = Alignment.Center) {
+                    Box(contentAlignment = Alignment.BottomCenter) {}
+                    Box(contentAlignment = Alignment.TopCenter) {}
+                }
             }
+
+            val innerBox = assertIs<EmittableBox>(root.children[0])
+
+            assertThat(innerBox.children).hasSize(2)
+
+            val leafBox0 = assertIs<EmittableBox>(innerBox.children[0])
+            val leafBox1 = assertIs<EmittableBox>(innerBox.children[1])
+
+            assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
+            assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
         }
-
-        val innerBox = assertIs<EmittableBox>(root.children[0])
-
-        assertThat(innerBox.children).hasSize(2)
-
-        val leafBox0 = assertIs<EmittableBox>(innerBox.children[0])
-        val leafBox1 = assertIs<EmittableBox>(innerBox.children[1])
-
-        assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
-        assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
-    }
 }

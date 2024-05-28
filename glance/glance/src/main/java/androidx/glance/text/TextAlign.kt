@@ -16,9 +16,7 @@
 
 package androidx.glance.text
 
-/**
- * Defines the alignment of the text in its view.
- */
+/** Defines the alignment of the text in its view. */
 @JvmInline
 value class TextAlign internal constructor(private val value: Int) {
     override fun toString(): String {
@@ -60,9 +58,7 @@ value class TextAlign internal constructor(private val value: Int) {
          */
         val End = TextAlign(5)
 
-        /**
-         * Return a list containing all possible values of TextAlign.
-         */
+        /** Return a list containing all possible values of TextAlign. */
         fun values(): List<TextAlign> = listOf(Left, Right, Center, Start, End)
     }
 }

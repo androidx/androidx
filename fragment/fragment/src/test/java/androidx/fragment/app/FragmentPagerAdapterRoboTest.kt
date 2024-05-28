@@ -33,8 +33,8 @@ class FragmentPagerAdapterRoboTest {
 
     @Test
     fun fragmentPagerTest() {
-        val activityController = Robolectric.buildActivity(FragmentPagerActivity::class.java)
-            .setup()
+        val activityController =
+            Robolectric.buildActivity(FragmentPagerActivity::class.java).setup()
         val activity = activityController.get()
 
         activity.next()
@@ -44,8 +44,8 @@ class FragmentPagerAdapterRoboTest {
 
     @Test
     fun fragmentStatePagerTest() {
-        val activityController = Robolectric.buildActivity(FragmentStatePagerActivity::class.java)
-            .setup()
+        val activityController =
+            Robolectric.buildActivity(FragmentStatePagerActivity::class.java).setup()
         val activity = activityController.get()
 
         activity.next()

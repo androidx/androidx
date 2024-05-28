@@ -37,18 +37,14 @@ internal class SingleProcessCoordinator(
 
     // run block with the exclusive lock
     override suspend fun <T> lock(block: suspend () -> T): T {
-        return mutex.withLock {
-            block()
-        }
+        return mutex.withLock { block() }
     }
 
     // run block with an attempt to get the exclusive lock, still run even if
     // attempt fails. Pass a boolean to indicate if the attempt succeeds.
     @OptIn(ExperimentalContracts::class) // withTryLock
     override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
-        return mutex.withTryLock {
-            block(it)
-        }
+        return mutex.withTryLock { block(it) }
     }
 
     // get the current version

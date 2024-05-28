@@ -39,10 +39,10 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
     @Test
     fun testMutatingDataStoreFails() = runTest {
-        val dataStore = DataStoreFactory.create(
-            serializer = ByteWrapperSerializer(),
-            scope = dataStoreScope
-        ) { testFile.file }
+        val dataStore =
+            DataStoreFactory.create(serializer = ByteWrapperSerializer(), scope = dataStoreScope) {
+                testFile.file
+            }
 
         assertThrows<IllegalStateException> {
             dataStore.updateData { input: ByteWrapper ->
@@ -56,16 +56,15 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
     @Test
     fun testClosingOutputStreamDoesntCloseUnderlyingStream() = runTest {
         val delegate = TestingSerializer()
-        val serializer = object : Serializer<Byte> by delegate {
-            override suspend fun writeTo(t: Byte, output: OutputStream) {
-                delegate.writeTo(t, output)
-                output.close() // This will be a no-op so the fd.sync() call will succeed.
+        val serializer =
+            object : Serializer<Byte> by delegate {
+                override suspend fun writeTo(t: Byte, output: OutputStream) {
+                    delegate.writeTo(t, output)
+                    output.close() // This will be a no-op so the fd.sync() call will succeed.
+                }
             }
-        }
 
-        val dataStore = DataStoreImpl(
-            FileStorage(serializer) { testFile.file }
-        )
+        val dataStore = DataStoreImpl(FileStorage(serializer) { testFile.file })
 
         // Shouldn't throw:
         dataStore.data.first()
@@ -79,14 +78,11 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
         // ensure the file exists by writing into it
         testFile.file.writeText("")
         testFile.file.setReadable(false)
-        val result = runCatching {
-            store.data.first()
-        }
+        val result = runCatching { store.data.first() }
 
         assertThat(result.exceptionOrNull()).isInstanceOf<IOException>()
         // Don't assert hasCauseThat().hasMessageThat() as it's platform dependent
-        assertThat(result.exceptionOrNull()).hasMessageThat()
-            .contains("Inoperable file")
+        assertThat(result.exceptionOrNull()).hasMessageThat().contains("Inoperable file")
     }
 
     @Test
@@ -97,7 +93,8 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
 
         // Don't assert hasCauseThat().hasMessageThat() as it's platform dependent
         assertThrows<IOException> { store.data.first() }
-            .hasMessageThat().contains("Inoperable file")
+            .hasMessageThat()
+            .contains("Inoperable file")
 
         testFile.file.setReadable(true)
         assertThat(store.data.first()).isEqualTo(0)

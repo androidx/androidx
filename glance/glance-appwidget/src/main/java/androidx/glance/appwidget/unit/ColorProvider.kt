@@ -41,7 +41,8 @@ internal data class ResourceCheckableColorProvider(
  * Combination of two different [ColorProvider]s representing checked and unchecked states. These
  * must be [FixedColorProvider]s or [DayNightColorProvider]s.
  */
-internal data class CheckedUncheckedColorProvider private constructor(
+internal data class CheckedUncheckedColorProvider
+private constructor(
     private val source: String,
     private val checked: ColorProvider,
     private val unchecked: ColorProvider,
@@ -57,10 +58,13 @@ internal data class CheckedUncheckedColorProvider private constructor(
      * Resolves the [CheckedUncheckedColorProvider] to a single [Color] given the night mode and
      * checked states.
      */
-    fun getColor(context: Context, isNightMode: Boolean, isChecked: Boolean) = when {
-        isChecked -> getColor(colorProvider = checked, isNightMode = isNightMode, context = context)
-        else -> getColor(colorProvider = unchecked, isNightMode = isNightMode, context = context)
-    }
+    fun getColor(context: Context, isNightMode: Boolean, isChecked: Boolean) =
+        when {
+            isChecked ->
+                getColor(colorProvider = checked, isNightMode = isNightMode, context = context)
+            else ->
+                getColor(colorProvider = unchecked, isNightMode = isNightMode, context = context)
+        }
 
     private fun getColor(colorProvider: ColorProvider, isNightMode: Boolean, context: Context) =
         if (colorProvider is DayNightColorProvider) {
@@ -89,23 +93,26 @@ internal fun resolveCheckedColor(
 ): Color? {
     if (resId == 0) return null
 
-    val resolveContext = if (isNightMode == null) {
-        context
-    } else {
-        val configuration = Configuration()
-        configuration.uiMode =
-            if (isNightMode) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
-        context.createConfigurationContext(configuration)
-    }
-    val colorStateList = try {
-        ContextCompat.getColorStateList(resolveContext, resId) ?: return null
-    } catch (e: Resources.NotFoundException) {
-        Log.w(GlanceAppWidgetTag, "Could not resolve the checked color", e)
-        return null
-    }
+    val resolveContext =
+        if (isNightMode == null) {
+            context
+        } else {
+            val configuration = Configuration()
+            configuration.uiMode =
+                if (isNightMode) Configuration.UI_MODE_NIGHT_YES else Configuration.UI_MODE_NIGHT_NO
+            context.createConfigurationContext(configuration)
+        }
+    val colorStateList =
+        try {
+            ContextCompat.getColorStateList(resolveContext, resId) ?: return null
+        } catch (e: Resources.NotFoundException) {
+            Log.w(GlanceAppWidgetTag, "Could not resolve the checked color", e)
+            return null
+        }
     return Color(
         colorStateList.getColorForState(
-            if (isChecked) CheckedStateSet else UncheckedStateSet, colorStateList.defaultColor
+            if (isChecked) CheckedStateSet else UncheckedStateSet,
+            colorStateList.defaultColor
         )
     )
 }

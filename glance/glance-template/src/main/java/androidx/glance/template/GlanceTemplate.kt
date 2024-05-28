@@ -126,10 +126,8 @@ class TemplateTextButton(action: Action, val text: String) : TemplateButton(acti
  * @param action The onClick action
  * @param image The button image
  */
-class TemplateImageButton(
-    action: Action,
-    val image: TemplateImageWithDescription
-) : TemplateButton(action) {
+class TemplateImageButton(action: Action, val image: TemplateImageWithDescription) :
+    TemplateButton(action) {
 
     override fun hashCode(): Int = 31 * super.hashCode() + image.hashCode()
 
@@ -148,25 +146,24 @@ class TemplateImageButton(
  * number relative to other blocks such as an [ImageBlock].
  *
  * Priority is a number assigned to blocks to show the semantic importance of each block in a
- * sequence. Different templates will interpret priority in different ways. Some may treat this
- * as an ordering, some may only use it to define which elements are most important when showing
- * smaller layouts. Priority number is zero based with smaller numbers being higher priority.
- * If two blocks has the same priority number, the default order (e.g. text before image)
- * is used. Currently only [TextBlock] and [ImageBlock] comparison are supported in the design. For
- * example, the Gallery Template layout determines the ordering of mainTextBlock and mainImageBlock
- * in [GalleryTemplateData] by their corresponding priority number.
+ * sequence. Different templates will interpret priority in different ways. Some may treat this as
+ * an ordering, some may only use it to define which elements are most important when showing
+ * smaller layouts. Priority number is zero based with smaller numbers being higher priority. If two
+ * blocks has the same priority number, the default order (e.g. text before image) is used.
+ * Currently only [TextBlock] and [ImageBlock] comparison are supported in the design. For example,
+ * the Gallery Template layout determines the ordering of mainTextBlock and mainImageBlock in
+ * [GalleryTemplateData] by their corresponding priority number.
  *
  * @param text1 The text displayed first within the block.
  * @param text2 The text displayed second within the block.
- * @param text3 The text displayed third  within the block.
+ * @param text3 The text displayed third within the block.
  * @param priority The display priority number relative to other blocks.
  */
 class TextBlock(
     val text1: TemplateText,
     val text2: TemplateText? = null,
     val text3: TemplateText? = null,
-    @IntRange(from = 0)
-    val priority: Int = 0,
+    @IntRange(from = 0) val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
         var result = text1.hashCode()
@@ -204,8 +201,7 @@ class ImageBlock(
     val images: List<TemplateImageWithDescription> = listOf(),
     val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
     val size: ImageSize = ImageSize.Undefined,
-    @IntRange(from = 0)
-    val priority: Int = 0,
+    @IntRange(from = 0) val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
         var result = images.hashCode()
@@ -296,19 +292,13 @@ class HeaderBlock(
 @JvmInline
 value class AspectRatio private constructor(private val value: Int) {
     companion object {
-        /**
-         * The aspect ratio of 1 x 1.
-         */
+        /** The aspect ratio of 1 x 1. */
         val Ratio1x1: AspectRatio = AspectRatio(0)
 
-        /**
-         * The aspect ratio of 16 x 9.
-         */
+        /** The aspect ratio of 16 x 9. */
         val Ratio16x9: AspectRatio = AspectRatio(1)
 
-        /**
-         * The aspect ratio of 2 x 3.
-         */
+        /** The aspect ratio of 2 x 3. */
         val Ratio2x3: AspectRatio = AspectRatio(2)
     }
 }
@@ -319,52 +309,34 @@ value class AspectRatio private constructor(private val value: Int) {
 @JvmInline
 value class ImageSize private constructor(private val value: Int) {
     companion object {
-        /**
-         * Unknown image scale for dynamic sizing by image hosting space available.
-         */
+        /** Unknown image scale for dynamic sizing by image hosting space available. */
         val Undefined: ImageSize = ImageSize(0)
 
-        /**
-         * Small sized image.
-         */
+        /** Small sized image. */
         val Small: ImageSize = ImageSize(1)
 
-        /**
-         * Medium sized image.
-         */
+        /** Medium sized image. */
         val Medium: ImageSize = ImageSize(2)
 
-        /**
-         * Large sized image.
-         */
+        /** Large sized image. */
         val Large: ImageSize = ImageSize(3)
     }
 }
 
-/**
- * The type of button such as FAB/Icon/Text/IconText types
- */
+/** The type of button such as FAB/Icon/Text/IconText types */
 @JvmInline
 value class ButtonType private constructor(private val value: Int) {
     companion object {
-        /**
-         * FAB (Floating Action Button) type of image button.
-         */
+        /** FAB (Floating Action Button) type of image button. */
         val Fab: ButtonType = ButtonType(0)
 
-        /**
-         * Icon image button type.
-         */
+        /** Icon image button type. */
         val Icon: ButtonType = ButtonType(1)
 
-        /**
-         * Text button type.
-         */
+        /** Text button type. */
         val Text: ButtonType = ButtonType(2)
 
-        /**
-         * Button with Text and Icon type.
-         */
+        /** Button with Text and Icon type. */
         val TextIcon: ButtonType = ButtonType(3)
     }
 }
@@ -376,29 +348,19 @@ value class ButtonType private constructor(private val value: Int) {
 @JvmInline
 value class TextType private constructor(private val value: Int) {
     companion object {
-        /**
-         * The text is for display with large font size.
-         */
+        /** The text is for display with large font size. */
         val Display: TextType = TextType(0)
 
-        /**
-         * The text is for title content with medium font size.
-         */
+        /** The text is for title content with medium font size. */
         val Title: TextType = TextType(1)
 
-        /**
-         * The text is for label content with small font size.
-         */
+        /** The text is for label content with small font size. */
         val Label: TextType = TextType(2)
 
-        /**
-         * The text is for body content with small font size.
-         */
+        /** The text is for body content with small font size. */
         val Body: TextType = TextType(3)
 
-        /**
-         * The text is headline with small font size.
-         */
+        /** The text is headline with small font size. */
         val Headline: TextType = TextType(4)
     }
 }

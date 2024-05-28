@@ -37,9 +37,7 @@ class BasicFragmentAnimatorFragment : Fragment(R.layout.basic_animators_main) {
         savedInstanceState: Bundle?
     ): View? {
         if (savedInstanceState == null) {
-            parentFragmentManager.beginTransaction()
-                .setPrimaryNavigationFragment(this)
-                .commit()
+            parentFragmentManager.beginTransaction().setPrimaryNavigationFragment(this).commit()
             childFragmentManager.commit {
                 add(R.id.content, Fragment(R.layout.basic_animator_fragment))
             }
@@ -51,27 +49,40 @@ class BasicFragmentAnimatorFragment : Fragment(R.layout.basic_animators_main) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.next_button).setOnClickListener {
-            switchFragment()
-        }
+        view.findViewById<Button>(R.id.next_button).setOnClickListener { switchFragment() }
     }
 
     private fun switchFragment() {
         val fragment = MainFragment()
-        fragment.arguments = bundleOf("myarg" to when (count % 6) {
-            1 -> { Color.GREEN }
-            2 -> { Color.RED }
-            3 -> { Color.YELLOW }
-            4 -> { Color.GRAY }
-            5 -> { Color.MAGENTA }
-            else -> {
-                Color.BLUE
-            }
-        })
+        fragment.arguments =
+            bundleOf(
+                "myarg" to
+                    when (count % 6) {
+                        1 -> {
+                            Color.GREEN
+                        }
+                        2 -> {
+                            Color.RED
+                        }
+                        3 -> {
+                            Color.YELLOW
+                        }
+                        4 -> {
+                            Color.GRAY
+                        }
+                        5 -> {
+                            Color.MAGENTA
+                        }
+                        else -> {
+                            Color.BLUE
+                        }
+                    }
+            )
 
         count++
 
-        childFragmentManager.beginTransaction()
+        childFragmentManager
+            .beginTransaction()
             .setCustomAnimations(
                 androidx.fragment.R.animator.fragment_close_enter,
                 androidx.fragment.R.animator.fragment_close_exit,

@@ -42,9 +42,7 @@ import androidx.glance.appwidget.translateChild
 import androidx.glance.appwidget.translateComposition
 import androidx.glance.layout.Alignment
 
-/**
- * Translates an EmittableLazyVerticalGrid and its children to a EmittableLazyList.
- */
+/** Translates an EmittableLazyVerticalGrid and its children to a EmittableLazyList. */
 internal fun RemoteViews.translateEmittableLazyVerticalGrid(
     translationContext: TranslationContext,
     element: EmittableLazyVerticalGrid,
@@ -69,9 +67,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
 
     val gridCells = element.gridCells
     if (gridCells is GridCells.Fixed) {
-      require(gridCells.count in 1..5) {
-          "Only counts from 1 to 5 are supported."
-      }
+        require(gridCells.count in 1..5) { "Only counts from 1 to 5 are supported." }
     }
     setPendingIntentTemplate(
         viewDef.mainViewId,
@@ -79,31 +75,40 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
             translationContext.context,
             0,
             Intent(),
-            FILL_IN_COMPONENT
-                or FLAG_MUTABLE
-                or FLAG_UPDATE_CURRENT
-                or FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT,
+            FILL_IN_COMPONENT or
+                FLAG_MUTABLE or
+                FLAG_UPDATE_CURRENT or
+                FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT,
             element.activityOptions,
         )
     )
-    val items = RemoteCollectionItems.Builder().apply {
-        val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
-        element.children.foldIndexed(false) { position, previous, itemEmittable ->
-            itemEmittable as EmittableLazyVerticalGridListItem
-            val itemId = itemEmittable.itemId
-            addItem(
-                itemId,
-                translateComposition(
-                    childContext.forLazyViewItem(position, LazyVerticalGridItemStartingViewId),
-                    listOf(itemEmittable),
-                    translationContext.layoutConfiguration?.addLayout(itemEmittable) ?: -1,
-                )
-            )
-            // If the user specifies any explicit ids, we assume the list to be stable
-            previous || (itemId > ReservedItemIdRangeEnd)
-        }.let { setHasStableIds(it) }
-        setViewTypeCount(TopLevelLayoutsCount)
-    }.build()
+    val items =
+        RemoteCollectionItems.Builder()
+            .apply {
+                val childContext = translationContext.forLazyCollection(viewDef.mainViewId)
+                element.children
+                    .foldIndexed(false) { position, previous, itemEmittable ->
+                        itemEmittable as EmittableLazyVerticalGridListItem
+                        val itemId = itemEmittable.itemId
+                        addItem(
+                            itemId,
+                            translateComposition(
+                                childContext.forLazyViewItem(
+                                    position,
+                                    LazyVerticalGridItemStartingViewId
+                                ),
+                                listOf(itemEmittable),
+                                translationContext.layoutConfiguration?.addLayout(itemEmittable)
+                                    ?: -1,
+                            )
+                        )
+                        // If the user specifies any explicit ids, we assume the list to be stable
+                        previous || (itemId > ReservedItemIdRangeEnd)
+                    }
+                    .let { setHasStableIds(it) }
+                setViewTypeCount(TopLevelLayoutsCount)
+            }
+            .build()
     setRemoteAdapter(
         translationContext.context,
         translationContext.appWidgetId,
@@ -112,9 +117,11 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
         items
     )
     if (Build.VERSION.SDK_INT >= 31 && gridCells is GridCells.Adaptive) {
-      setGridViewColumnWidth(viewId = viewDef.mainViewId,
-                             value = gridCells.minSize.value,
-                             unit = android.util.TypedValue.COMPLEX_UNIT_DIP)
+        setGridViewColumnWidth(
+            viewId = viewDef.mainViewId,
+            value = gridCells.minSize.value,
+            unit = android.util.TypedValue.COMPLEX_UNIT_DIP
+        )
     }
     applyModifiers(translationContext, this, element.modifier, viewDef)
 }
@@ -129,7 +136,7 @@ internal fun RemoteViews.translateEmittableLazyVerticalGridListItem(
 ) {
     require(element.children.size == 1 && element.alignment == Alignment.CenterStart) {
         "Lazy vertical grid items can only have a single child align at the center start of the " +
-        "view. The normalization of the composition tree failed."
+            "view. The normalization of the composition tree failed."
     }
     translateChild(translationContext, element.children.first())
 }
@@ -139,11 +146,11 @@ internal fun RemoteViews.translateEmittableLazyVerticalGridListItem(
 private const val LazyVerticalGridItemStartingViewId: Int = 0x00100000
 
 private fun GridCells.toLayout(): LayoutType =
-  when (this) {
-    GridCells.Fixed(1) -> LayoutType.VerticalGridOneColumn
-    GridCells.Fixed(2) -> LayoutType.VerticalGridTwoColumns
-    GridCells.Fixed(3) -> LayoutType.VerticalGridThreeColumns
-    GridCells.Fixed(4) -> LayoutType.VerticalGridFourColumns
-    GridCells.Fixed(5) -> LayoutType.VerticalGridFiveColumns
-    else -> LayoutType.VerticalGridAutoFit
-  }
+    when (this) {
+        GridCells.Fixed(1) -> LayoutType.VerticalGridOneColumn
+        GridCells.Fixed(2) -> LayoutType.VerticalGridTwoColumns
+        GridCells.Fixed(3) -> LayoutType.VerticalGridThreeColumns
+        GridCells.Fixed(4) -> LayoutType.VerticalGridFourColumns
+        GridCells.Fixed(5) -> LayoutType.VerticalGridFiveColumns
+        else -> LayoutType.VerticalGridAutoFit
+    }

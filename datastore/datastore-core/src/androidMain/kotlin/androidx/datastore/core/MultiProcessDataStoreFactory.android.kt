@@ -34,21 +34,20 @@ public object MultiProcessDataStoreFactory {
      * multiple instances, each for a different file, in the same process is OK.
      *
      * T is the type DataStore acts on. The type T must be immutable. Mutating a type used in
-     * DataStore invalidates any guarantees that DataStore provides and will result in
-     * potentially serious, hard-to-catch bugs. We strongly recommend using protocol buffers:
+     * DataStore invalidates any guarantees that DataStore provides and will result in potentially
+     * serious, hard-to-catch bugs. We strongly recommend using protocol buffers:
      * https://developers.google.com/protocol-buffers/docs/javatutorial - which provides
      * immutability guarantees, a simple API and efficient serialization.
      *
      * @param storage Storage to handle file reads and writes used with DataStore. The type T must
-     * be immutable. The storage must operate on the same file as the one passed in
-     * {@link produceFile}.
+     *   be immutable. The storage must operate on the same file as the one passed in {@link
+     *   produceFile}.
      * @param corruptionHandler The [ReplaceFileCorruptionHandler] is invoked if DataStore
-     * encounters a [CorruptionException] when attempting to read data. CorruptionExceptions are
-     * thrown by serializers when data can not be de-serialized.
-     * @param migrations Migrations are run before any access to data can occur. Migrations must
-     * be idempotent.
+     *   encounters a [CorruptionException] when attempting to read data. CorruptionExceptions are
+     *   thrown by serializers when data can not be de-serialized.
+     * @param migrations Migrations are run before any access to data can occur. Migrations must be
+     *   idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
-     *
      * @return a new DataStore instance with the provided configuration
      */
     @JvmOverloads // Generate constructors for default params for java users.
@@ -57,12 +56,13 @@ public object MultiProcessDataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    ): DataStore<T> = DataStoreImpl<T>(
-        storage = storage,
-        initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-        corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-        scope = scope
-    )
+    ): DataStore<T> =
+        DataStoreImpl<T>(
+            storage = storage,
+            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
+            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+            scope = scope
+        )
 
     /**
      * Create an instance of MultiProcessDataStore, which provides cross-process eventual
@@ -74,22 +74,23 @@ public object MultiProcessDataStoreFactory {
      * multiple instances, each for a different file, in the same process is OK.
      *
      * T is the type DataStore acts on. The type T must be immutable. Mutating a type used in
-     * DataStore invalidates any guarantees that DataStore provides and will result in
-     * potentially serious, hard-to-catch bugs. We strongly recommend using protocol buffers:
+     * DataStore invalidates any guarantees that DataStore provides and will result in potentially
+     * serious, hard-to-catch bugs. We strongly recommend using protocol buffers:
      * https://developers.google.com/protocol-buffers/docs/javatutorial - which provides
      * immutability guarantees, a simple API and efficient serialization.
      *
-     * @param serializer Serializer for the type T used with DataStore. The type T must be immutable.
-     * @param corruptionHandler The {@link androidx.datastore.core.handlers.ReplaceFileCorruptionHandler}
-     * is invoked if DataStore encounters a [CorruptionException] when attempting to read data.
-     * CorruptionExceptions are thrown by serializers when data can not be de-serialized.
-     * @param migrations Migrations are run before any access to data can occur. Migrations must
-     * be idempotent.
+     * @param serializer Serializer for the type T used with DataStore. The type T must be
+     *   immutable.
+     * @param corruptionHandler The {@link
+     *   androidx.datastore.core.handlers.ReplaceFileCorruptionHandler} is invoked if DataStore
+     *   encounters a [CorruptionException] when attempting to read data. CorruptionExceptions are
+     *   thrown by serializers when data can not be de-serialized.
+     * @param migrations Migrations are run before any access to data can occur. Migrations must be
+     *   idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
      * @param produceFile Function which returns the file that the new DataStore will act on. The
-     * function must return the same path every time. No two instances of DataStore should act on
-     * the same file at the same time in the same process.
-     *
+     *   function must return the same path every time. No two instances of DataStore should act on
+     *   the same file at the same time in the same process.
      * @return a new DataStore instance with the provided configuration
      */
     @JvmOverloads // Generate constructors for default params for java users.
@@ -99,14 +100,16 @@ public object MultiProcessDataStoreFactory {
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
         produceFile: () -> File
-    ): DataStore<T> = DataStoreImpl<T>(
-        storage = FileStorage(
-            serializer,
-            { MultiProcessCoordinator(scope.coroutineContext, it) },
-            produceFile
-        ),
-        initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-        corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-        scope = scope
-    )
+    ): DataStore<T> =
+        DataStoreImpl<T>(
+            storage =
+                FileStorage(
+                    serializer,
+                    { MultiProcessCoordinator(scope.coroutineContext, it) },
+                    produceFile
+                ),
+            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
+            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+            scope = scope
+        )
 }

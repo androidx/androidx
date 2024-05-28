@@ -37,15 +37,14 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
         mutableListOf(UnsafeFragmentLifecycleObserverDetector.LIVEDATA_ISSUE)
 
     private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *LIVEDATA_STUBS)
-            .run()
+        return lint().files(*files, *LIVEDATA_STUBS).run()
     }
 
     @Test
     fun pass() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -73,9 +72,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -92,16 +91,16 @@ class Foo {
     fun observe(fragment: Fragment) {}
 }
             """
+                )
             )
-        )
             .expectClean()
     }
 
     @Test
     fun javaLintFixTest() {
         check(
-            java(
-                """
+                java(
+                    """
 package com.example;
 
 import androidx.fragment.app.Fragment;
@@ -116,8 +115,8 @@ class TestFragment extends Fragment {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -153,8 +152,8 @@ class TestFragment extends Fragment {
     @Test
     fun dialogJavaTestPass() {
         check(
-            java(
-                """
+                java(
+                    """
 package com.example;
 
 import androidx.fragment.app.DialogFragment;
@@ -169,15 +168,16 @@ class TestFragment extends DialogFragment {
     }
 }
             """
+                )
             )
-        ).expectClean()
+            .expectClean()
     }
 
     @Test
     fun inMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -191,8 +191,8 @@ class TestFragment : Fragment {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -227,8 +227,8 @@ class TestFragment : Fragment {
     @Test
     fun inMethodDialogPass() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.DialogFragment
@@ -242,15 +242,16 @@ class TestFragment : DialogFragment {
     }
 }
             """
+                )
             )
-        ).expectClean()
+            .expectClean()
     }
 
     @Test
     fun helperMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -268,8 +269,8 @@ class TestFragment : Fragment {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -308,8 +309,8 @@ class TestFragment : Fragment {
     @Test
     fun externalCallFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -328,9 +329,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -343,8 +344,8 @@ class Foo {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -360,8 +361,8 @@ src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment inst
     @Test
     fun externalHelperMethodFails() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -380,9 +381,9 @@ class TestFragment : Fragment {
     }
 }
             """
-            ),
-            kotlin(
-                """
+                ),
+                kotlin(
+                    """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -402,8 +403,8 @@ class Foo {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -419,8 +420,8 @@ src/com/example/test/Foo.kt:17: Error: Unsafe call to observe with Fragment inst
     @Test
     fun failWhenUsingLiveDataExtensionWithTheWrongLifecycleOwner() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -436,8 +437,8 @@ class TestFragment: Fragment {
     }
 }
             """
+                )
             )
-        )
             /* ktlint-disable max-line-length */
             .expect(
                 """
@@ -445,7 +446,8 @@ class TestFragment: Fragment {
                         LiveDataKt.observe(liveData, this) {
                                                      ~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             /* ktlint-enable max-line-length */
             .checkFix(
@@ -466,7 +468,8 @@ class TestFragment: Fragment {
                         }
                     }
                 }
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
             )
     }
@@ -474,8 +477,8 @@ class TestFragment: Fragment {
     @Test
     fun passWhenUsingExtensionCorrectly() {
         check(
-            kotlin(
-                """
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -491,8 +494,8 @@ class TestFragment: Fragment {
     }
 }
             """
+                )
             )
-        )
             .expectClean()
     }
 }

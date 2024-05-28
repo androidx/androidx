@@ -77,13 +77,14 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
             is String -> Value.newBuilder().setString(value).build()
             is Set<*> ->
                 @Suppress("UNCHECKED_CAST")
-                Value.newBuilder().setStringSet(
-                    StringSet.newBuilder().addAllStrings(value as Set<String>)
-                ).build()
+                Value.newBuilder()
+                    .setStringSet(StringSet.newBuilder().addAllStrings(value as Set<String>))
+                    .build()
             is ByteArray -> Value.newBuilder().setBytes(ByteString.copyFrom(value)).build()
-            else -> throw IllegalStateException(
-                "PreferencesSerializer does not support type: ${value.javaClass.name}"
-            )
+            else ->
+                throw IllegalStateException(
+                    "PreferencesSerializer does not support type: ${value.javaClass.name}"
+                )
         }
     }
 
@@ -94,8 +95,7 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
     ) {
         return when (value.valueCase) {
             Value.ValueCase.BOOLEAN ->
-                mutablePreferences[booleanPreferencesKey(name)] =
-                    value.boolean
+                mutablePreferences[booleanPreferencesKey(name)] = value.boolean
             Value.ValueCase.FLOAT -> mutablePreferences[floatPreferencesKey(name)] = value.float
             Value.ValueCase.DOUBLE -> mutablePreferences[doublePreferencesKey(name)] = value.double
             Value.ValueCase.INTEGER -> mutablePreferences[intPreferencesKey(name)] = value.integer
@@ -106,8 +106,7 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
                     value.stringSet.stringsList.toSet()
             Value.ValueCase.BYTES ->
                 mutablePreferences[byteArrayPreferencesKey(name)] = value.bytes.toByteArray()
-            Value.ValueCase.VALUE_NOT_SET ->
-                throw CorruptionException("Value not set.")
+            Value.ValueCase.VALUE_NOT_SET -> throw CorruptionException("Value not set.")
             null -> throw CorruptionException("Value case is null.")
         }
     }

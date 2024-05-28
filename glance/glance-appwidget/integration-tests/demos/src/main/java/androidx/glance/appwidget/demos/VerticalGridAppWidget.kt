@@ -48,22 +48,21 @@ import androidx.glance.text.Text
 
 class VerticalGridAppWidget : GlanceAppWidget() {
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
-        val gridCells = if (Build.VERSION.SDK_INT >= 31) {
-            GridCells.Adaptive(100.dp)
-        } else {
-            GridCells.Fixed(3)
-        }
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        val gridCells =
+            if (Build.VERSION.SDK_INT >= 31) {
+                GridCells.Adaptive(100.dp)
+            } else {
+                GridCells.Fixed(3)
+            }
         SampleGrid(
             cells = gridCells,
-            modifier = GlanceModifier.padding(R.dimen.external_padding)
-                .fillMaxSize()
-                .appWidgetBackground()
-                .cornerRadius(R.dimen.corner_radius)
-                .background(R.color.default_widget_background)
+            modifier =
+                GlanceModifier.padding(R.dimen.external_padding)
+                    .fillMaxSize()
+                    .appWidgetBackground()
+                    .cornerRadius(R.dimen.corner_radius)
+                    .background(R.color.default_widget_background)
         )
     }
 }
@@ -71,29 +70,18 @@ class VerticalGridAppWidget : GlanceAppWidget() {
 @Composable
 fun SampleGrid(cells: GridCells, modifier: GlanceModifier = GlanceModifier.fillMaxSize()) {
     val localSize = LocalSize.current
-    LazyVerticalGrid(
-        modifier = modifier,
-        gridCells = cells
-    ) {
-        item {
-            Text("LazyVerticalGrid")
-        }
-        item {
-            Text("${localSize.width}x${localSize.height}")
-        }
-        items(count = 22, itemId = { it * 2L }) { index ->
-            Text("Item $index")
-        }
+    LazyVerticalGrid(modifier = modifier, gridCells = cells) {
+        item { Text("LazyVerticalGrid") }
+        item { Text("${localSize.width}x${localSize.height}") }
+        items(count = 22, itemId = { it * 2L }) { index -> Text("Item $index") }
         item {
             Text(
                 text = "Clickable text",
-                modifier = GlanceModifier
-                    .background(GlanceTheme.colors.surfaceVariant)
-                    .padding(8.dp)
-                    .cornerRadius(28.dp)
-                    .clickable {
-                        Log.i("SampleGrid", "Clicked the clickable text!")
-                    }
+                modifier =
+                    GlanceModifier.background(GlanceTheme.colors.surfaceVariant)
+                        .padding(8.dp)
+                        .cornerRadius(28.dp)
+                        .clickable { Log.i("SampleGrid", "Clicked the clickable text!") }
             )
         }
         itemsIndexed(
@@ -108,9 +96,7 @@ fun SampleGrid(cells: GridCells, modifier: GlanceModifier = GlanceModifier.fillM
             ) {
                 Button(
                     text = "Activity ${index + 1}",
-                    onClick = actionStartActivity(
-                        Intent(LocalContext.current, activityClass)
-                    )
+                    onClick = actionStartActivity(Intent(LocalContext.current, activityClass))
                 )
             }
         }

@@ -83,9 +83,7 @@ private fun createTopLevelModifier(
     backgroundImage: ImageProvider?
 ): GlanceModifier {
     var modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(backgroundColor)
-    backgroundImage?.let { image ->
-        modifier = modifier.background(image, ContentScale.Crop)
-    }
+    backgroundImage?.let { image -> modifier = modifier.background(image, ContentScale.Crop) }
 
     return modifier
 }
@@ -95,12 +93,8 @@ private fun textList(
     subtitle: TemplateText? = null
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
-    title?.let {
-        result.add(TemplateText(it.text, TextType.Title))
-    }
-    subtitle?.let {
-        result.add(TemplateText(it.text, TextType.Label))
-    }
+    title?.let { result.add(TemplateText(it.text, TextType.Title)) }
+    subtitle?.let { result.add(TemplateText(it.text, TextType.Label)) }
 
     return result
 }

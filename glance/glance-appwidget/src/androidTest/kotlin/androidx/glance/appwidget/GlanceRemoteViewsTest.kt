@@ -51,9 +51,11 @@ class GlanceRemoteViewsTest {
 
             runBlocking {
                 val remoteViews =
-                    glanceRemoteViews.compose(context = context, size = DpSize(100.dp, 50.dp)) {
-                        Text("text content")
-                    }.remoteViews
+                    glanceRemoteViews
+                        .compose(context = context, size = DpSize(100.dp, 50.dp)) {
+                            Text("text content")
+                        }
+                        .remoteViews
                 hostView.updateAppWidget(remoteViews)
             }
 
@@ -70,20 +72,14 @@ class GlanceRemoteViewsTest {
 
             runBlocking {
                 hostView.updateAppWidget(
-                    glanceRemoteViews.compose(
-                        context = context,
-                        size = DpSize(100.dp, 50.dp)
-                    ) {
-                        Text("first")
-                    }.remoteViews
+                    glanceRemoteViews
+                        .compose(context = context, size = DpSize(100.dp, 50.dp)) { Text("first") }
+                        .remoteViews
                 )
                 hostView.updateAppWidget(
-                    glanceRemoteViews.compose(
-                        context = context,
-                        size = DpSize(100.dp, 50.dp)
-                    ) {
-                        Text("second")
-                    }.remoteViews
+                    glanceRemoteViews
+                        .compose(context = context, size = DpSize(100.dp, 50.dp)) { Text("second") }
+                        .remoteViews
                 )
             }
 

@@ -36,37 +36,40 @@ class BackStackRecordStateTest {
 
     @Suppress("DEPRECATION")
     val activityRule = ActivityScenarioRule(EmptyFragmentTestActivity::class.java)
-    private val fragmentManager get() = activityRule.withActivity {
-        supportFragmentManager
-    }
+    private val fragmentManager
+        get() = activityRule.withActivity { supportFragmentManager }
 
     // Detect leaks BEFORE and AFTER activity is destroyed
     @get:Rule
-    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess())
-        .around(activityRule)
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityRule)
 
     @Test
     fun testParcel() {
         val fragment = StrictFragment()
-        val backStackRecord = BackStackRecord(fragmentManager).apply {
-            add(fragment, "tag")
-            addToBackStack("back_stack")
-            setReorderingAllowed(true)
-            setMaxLifecycle(fragment, Lifecycle.State.STARTED)
-        }
+        val backStackRecord =
+            BackStackRecord(fragmentManager).apply {
+                add(fragment, "tag")
+                addToBackStack("back_stack")
+                setReorderingAllowed(true)
+                setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+            }
         val backStackState = BackStackRecordState(backStackRecord)
         val parcel = Parcel.obtain()
         backStackState.writeToParcel(parcel, 0)
         // Reset for reading
         parcel.setDataPosition(0)
         val restoredBackStackState = BackStackRecordState(parcel)
-        assertThat(restoredBackStackState.mOps).asList()
+        assertThat(restoredBackStackState.mOps)
+            .asList()
             .containsExactlyElementsIn(backStackState.mOps.asList())
         assertThat(restoredBackStackState.mFragmentWhos)
             .containsExactlyElementsIn(backStackState.mFragmentWhos)
-        assertThat(restoredBackStackState.mOldMaxLifecycleStates).asList()
+        assertThat(restoredBackStackState.mOldMaxLifecycleStates)
+            .asList()
             .containsExactlyElementsIn(backStackState.mOldMaxLifecycleStates.asList())
-        assertThat(restoredBackStackState.mCurrentMaxLifecycleStates).asList()
+        assertThat(restoredBackStackState.mCurrentMaxLifecycleStates)
+            .asList()
             .containsExactlyElementsIn(backStackState.mCurrentMaxLifecycleStates.asList())
         assertThat(restoredBackStackState.mReorderingAllowed)
             .isEqualTo(backStackState.mReorderingAllowed)

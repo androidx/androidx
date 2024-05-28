@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @MediumTest
 class OnBackPressedCallbackTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testBackPressFinishesActivity() {
@@ -51,9 +50,8 @@ class OnBackPressedCallbackTest {
                 finishCountDownLatch
             }
             assertWithMessage(
-                "Activity should be finishing after onBackPressed() " +
-                    "on an empty back stack"
-            )
+                    "Activity should be finishing after onBackPressed() " + "on an empty back stack"
+                )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -62,44 +60,44 @@ class OnBackPressedCallbackTest {
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithFrameworkFragment() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             executePendingTransactions()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             withActivity { onBackPressed() }
 
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isNull()
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isNull()
         }
     }
 
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithFragmentOverFrameworkFragment() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             executePendingTransactions()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             val supportFragmentManager = withActivity { supportFragmentManager }
             val supportFragment = StrictFragment()
 
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .add(R.id.content, supportFragment)
                 .addToBackStack(null)
                 .commit()
@@ -109,27 +107,25 @@ class OnBackPressedCallbackTest {
 
             withActivity { onBackPressed() }
 
-            assertThat(supportFragmentManager.findFragmentById(R.id.content))
-                .isNull()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(supportFragmentManager.findFragmentById(R.id.content)).isNull()
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
         }
     }
 
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithCallbackOverFrameworkFragment() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { fragmentManager }
             val fragment = android.app.Fragment()
 
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .add(R.id.content, fragment)
                 .addToBackStack(null)
                 .commit()
             executePendingTransactions()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             val callback = CountingOnBackPressedCallback()
             withActivity {
@@ -138,25 +134,23 @@ class OnBackPressedCallbackTest {
                 onBackPressed()
             }
 
-            assertThat(callback.count)
-                .isEqualTo(1)
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(callback.count).isEqualTo(1)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
         }
     }
 
     @Test
     fun testBackPressWithCallbackOverFragment() {
-       withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .replace(R.id.content, fragment)
                 .addToBackStack("back_stack")
                 .commit()
             executePendingTransactions()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             val callback = CountingOnBackPressedCallback()
             withActivity {
@@ -168,38 +162,35 @@ class OnBackPressedCallbackTest {
             assertWithMessage("OnBackPressedCallbacks should be called before FragmentManager")
                 .that(callback.count)
                 .isEqualTo(1)
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
         }
     }
 
     @Test
     fun testBackPressFinishesActivityAfterFragmentPop() {
         // Since this activity finishes manually, we do not want to use withUse here
-       with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = StrictFragment()
-            fragmentManager.beginTransaction()
+            fragmentManager
+                .beginTransaction()
                 .replace(R.id.content, fragment)
                 .addToBackStack("back_stack")
                 .commit()
             executePendingTransactions()
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             val countDownLatch = withActivity {
                 fragmentManager.popBackStack()
 
                 onBackPressed()
 
-                assertThat(fragmentManager.findFragmentById(R.id.content))
-                    .isNull()
+                assertThat(fragmentManager.findFragmentById(R.id.content)).isNull()
                 finishCountDownLatch
             }
             assertWithMessage(
-                "Activity should be finishing after onBackPressed() " +
-                    "on an empty back stack"
-            )
+                    "Activity should be finishing after onBackPressed() " + "on an empty back stack"
+                )
                 .that(countDownLatch.await(1, TimeUnit.SECONDS))
                 .isTrue()
         }
@@ -207,55 +198,48 @@ class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressWithFragmentCallbackOverFragmentManager() {
-       withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+        withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = withActivity { fragment }
             val fragmentCallback = fragment.onBackPressedCallback
 
-            withActivity {
-                onBackPressed()
-            }
+            withActivity { onBackPressed() }
 
             assertWithMessage("Fragment callback should be called before FragmentManager")
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
         }
     }
 
     @Test
     fun testBackPressWithChildFragmentOverFragmentCallback() {
-       withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+        withUse(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
             val fragmentManager = withActivity { supportFragmentManager }
             val fragment = withActivity { fragment }
             val fragmentCallback = fragment.onBackPressedCallback
 
-            withActivity {
-                onBackPressed()
-            }
+            withActivity { onBackPressed() }
 
             assertWithMessage("Fragment callback should be called before FragmentManager")
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
-            assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameInstanceAs(fragment)
+            assertThat(fragmentManager.findFragmentById(R.id.content)).isSameInstanceAs(fragment)
 
             val grandChildFragmentManager = fragment.childFragment!!.childFragmentManager
             val grandChildFragment = StrictFragment()
-            grandChildFragmentManager.beginTransaction()
+            grandChildFragmentManager
+                .beginTransaction()
                 .add(grandChildFragment, "grandchild")
                 .addToBackStack(null)
                 .commit()
 
-            withActivity {
-                onBackPressed()
-            }
+            withActivity { onBackPressed() }
 
             assertWithMessage(
-                "Grand child fragment should be called before callbacks " +
-                    "registered on the parent Fragment"
-            )
+                    "Grand child fragment should be called before callbacks " +
+                        "registered on the parent Fragment"
+                )
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
             assertWithMessage("Grand child Fragment should be popped by onBackPressed()")
@@ -275,7 +259,8 @@ class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCall
 
 class OnBackPressedStrictFragment : StrictFragment() {
     val onBackPressedCallback = CountingOnBackPressedCallback()
-    val childFragment get() = childFragmentManager.findFragmentByTag("child")
+    val childFragment
+        get() = childFragmentManager.findFragmentByTag("child")
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -285,7 +270,8 @@ class OnBackPressedStrictFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val childFragment = StrictFragment()
-        childFragmentManager.beginTransaction()
+        childFragmentManager
+            .beginTransaction()
             .add(childFragment, "child")
             .setPrimaryNavigationFragment(childFragment)
             .commit()
@@ -293,13 +279,14 @@ class OnBackPressedStrictFragment : StrictFragment() {
 }
 
 class OnBackPressedFragmentActivity : FragmentActivity(R.layout.activity_content) {
-    val fragment: OnBackPressedStrictFragment get() =
-        supportFragmentManager.findFragmentById(R.id.content) as OnBackPressedStrictFragment
+    val fragment: OnBackPressedStrictFragment
+        get() = supportFragmentManager.findFragmentById(R.id.content) as OnBackPressedStrictFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val fragment = OnBackPressedStrictFragment()
-        supportFragmentManager.beginTransaction()
+        supportFragmentManager
+            .beginTransaction()
             .replace(R.id.content, fragment)
             .setPrimaryNavigationFragment(fragment)
             .addToBackStack("back_stack")
