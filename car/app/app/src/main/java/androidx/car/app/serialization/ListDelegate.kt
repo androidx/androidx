@@ -28,7 +28,7 @@ import androidx.car.app.annotations.ExperimentalCarApi
  */
 @ExperimentalCarApi
 @RestrictTo(LIBRARY)
-interface ListDelegate<T> {
+interface ListDelegate {
     /** The size of the underlying [List] */
     val size: Int
 
