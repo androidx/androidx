@@ -15,7 +15,7 @@ package androidx.webkit {
     method public int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  public abstract class JavaScriptReplyProxy {
+  @UiThread public abstract class JavaScriptReplyProxy {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(byte[]);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void postMessage(String);
   }
@@ -85,7 +85,7 @@ package androidx.webkit {
   }
 
   public interface ScriptHandler {
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public void remove();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public void remove();
   }
 
   public abstract class ServiceWorkerClientCompat {
@@ -307,8 +307,8 @@ package androidx.webkit {
   }
 
   public class WebViewCompat {
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.ScriptHandler addDocumentStartJavaScript(android.webkit.WebView, String, java.util.Set<java.lang.String!>);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void addWebMessageListener(android.webkit.WebView, String, java.util.Set<java.lang.String!>, androidx.webkit.WebViewCompat.WebMessageListener);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DOCUMENT_START_SCRIPT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.ScriptHandler addDocumentStartJavaScript(android.webkit.WebView, String, java.util.Set<java.lang.String!>);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void addWebMessageListener(android.webkit.WebView, String, java.util.Set<java.lang.String!>, androidx.webkit.WebViewCompat.WebMessageListener);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.WebMessagePortCompat![] createWebMessageChannel(android.webkit.WebView);
     method @AnyThread public static android.content.pm.PackageInfo? getCurrentWebViewPackage(android.content.Context);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.Profile getProfile(android.webkit.WebView);
@@ -318,12 +318,12 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_WEB_VIEW_CLIENT, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static android.webkit.WebViewClient getWebViewClient(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.GET_WEB_VIEW_RENDERER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.WebViewRenderProcess? getWebViewRenderProcess(android.webkit.WebView);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static androidx.webkit.WebViewRenderProcessClient? getWebViewRenderProcessClient(android.webkit.WebView);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isAudioMuted(android.webkit.WebView);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static boolean isAudioMuted(android.webkit.WebView);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROCESS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean isMultiProcessEnabled();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.VISUAL_STATE_CALLBACK, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postVisualStateCallback(android.webkit.WebView, long, androidx.webkit.WebViewCompat.VisualStateCallback);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.POST_WEB_MESSAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void postWebMessage(android.webkit.WebView, androidx.webkit.WebMessageCompat, android.net.Uri);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void removeWebMessageListener(android.webkit.WebView, String);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setAudioMuted(android.webkit.WebView, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_MESSAGE_LISTENER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void removeWebMessageListener(android.webkit.WebView, String);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.MUTE_AUDIO, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setAudioMuted(android.webkit.WebView, boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.MULTI_PROFILE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @UiThread public static void setProfile(android.webkit.WebView, String);
     method @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ALLOWLIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingAllowlist(java.util.Set<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);
     method @Deprecated @AnyThread @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_WHITELIST, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingWhitelist(java.util.List<java.lang.String!>, android.webkit.ValueCallback<java.lang.Boolean!>?);

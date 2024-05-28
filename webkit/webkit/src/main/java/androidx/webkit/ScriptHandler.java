@@ -17,6 +17,7 @@
 package androidx.webkit;
 
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.UiThread;
 
 /**
  * This interface represents the return result from {@link WebViewCompat#addDocumentStartJavaScript(
@@ -29,6 +30,8 @@ public interface ScriptHandler {
     /**
      * Removes the corresponding script, it will take effect from next page load.
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     void remove();
