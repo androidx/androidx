@@ -111,33 +111,6 @@ private val focusGroupInspectorInfo = InspectableModifier(
     debugInspectorInfo { name = "focusGroup" }
 )
 
-// TODO: b/202856230 - consider either making this / a similar API public, or add a parameter to
-//  focusable to configure this behavior.
-/**
- * [focusable] but only when not in touch mode - when [LocalInputModeManager] is
- * not [InputMode.Touch]
- */
-internal fun Modifier.focusableInNonTouchMode(
-    enabled: Boolean,
-    interactionSource: MutableInteractionSource?
-) = then(if (enabled) FocusableInNonTouchModeElement else Modifier)
-    .focusable(enabled, interactionSource)
-
-private val FocusableInNonTouchModeElement =
-    object : ModifierNodeElement<FocusableInNonTouchMode>() {
-        override fun create(): FocusableInNonTouchMode = FocusableInNonTouchMode()
-
-        override fun update(node: FocusableInNonTouchMode) {}
-
-        override fun hashCode(): Int = System.identityHashCode(this)
-
-        override fun equals(other: Any?): Boolean = this === other
-
-        override fun InspectorInfo.inspectableProperties() {
-            name = "focusableInNonTouchMode"
-        }
-    }
-
 internal class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
     FocusPropertiesModifierNode {
     override val shouldAutoInvalidate: Boolean = false
