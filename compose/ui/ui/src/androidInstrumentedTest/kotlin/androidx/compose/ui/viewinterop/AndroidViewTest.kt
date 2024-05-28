@@ -128,6 +128,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -1643,6 +1644,86 @@ class AndroidViewTest {
             assertThat(viewInsideCompose.parent).isNotNull()
             assertThat(root.requestLayoutCalled).isFalse()
         }
+    }
+
+    // regression test for b/339527377
+    @Test
+    @LargeTest
+    fun androidView_layoutChangesInvokeGlobalLayoutListener() {
+        lateinit var textView1: TextView
+        lateinit var textView2: TextView
+        var callbackInvocations = 0
+
+        @Composable
+        fun GlobalLayoutAwareTextView(init: (TextView) -> Unit, modifier: Modifier = Modifier) {
+            AndroidView(
+                factory = {
+                    TextView(it).apply {
+                        layoutParams = ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+                        init(this)
+                    }
+                },
+                modifier = modifier
+            )
+        }
+
+        rule.activityRule.withActivity {
+            window.decorView.viewTreeObserver.addOnGlobalLayoutListener { callbackInvocations++ }
+        }
+
+        rule.setContent {
+            Column(modifier = Modifier.fillMaxSize()) {
+                GlobalLayoutAwareTextView(
+                    init = { textView1 = it },
+                    modifier = Modifier.fillMaxWidth().height(100.dp)
+                )
+
+                GlobalLayoutAwareTextView(
+                    init = { textView2 = it },
+                    modifier = Modifier.fillMaxWidth().height(100.dp)
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertWithMessage(
+                "The initial layout did not invoke the viewTreeObserver's OnGlobalLayoutListener"
+            )
+            .that(callbackInvocations)
+            .isAtLeast(1)
+        callbackInvocations = 0
+
+        rule.runOnUiThread { textView1.text = "Foo".repeat(20) }
+        rule.waitForIdle()
+
+        assertWithMessage(
+                "Expected exactly one invocation of the viewTreeObserver's OnGlobalLayoutListener " +
+                    "after re-laying out the contained AndroidView."
+            )
+            .that(callbackInvocations)
+            .isEqualTo(1)
+
+        // Reset the layouts
+        rule.runOnUiThread {
+            textView1.text = ""
+            textView2.text = ""
+        }
+        rule.waitForIdle()
+        callbackInvocations = 0
+
+        // Go again, but layout two Views.
+        rule.runOnUiThread {
+            textView1.text = "Foo".repeat(20)
+            textView2.text = "Bar".repeat(20)
+        }
+        rule.waitForIdle()
+
+        assertWithMessage(
+                "Expected exactly one invocation of the viewTreeObserver's OnGlobalLayoutListener " +
+                    "after re-laying out multiple AndroidViews."
+            )
+            .that(callbackInvocations)
+            .isEqualTo(1)
     }
 
     @ExperimentalComposeUiApi
