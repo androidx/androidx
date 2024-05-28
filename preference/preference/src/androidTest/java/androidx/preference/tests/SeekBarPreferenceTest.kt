@@ -48,9 +48,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test for [androidx.preference.SeekBarPreference].
- */
+/** Test for [androidx.preference.SeekBarPreference]. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SeekBarPreferenceTest {
@@ -64,9 +62,7 @@ class SeekBarPreferenceTest {
     @Before
     @UiThreadTest
     fun setUp() {
-        val fragment = activityRule.activity.setupPreferenceHierarchy(
-            R.xml.test_seekbar
-        )
+        val fragment = activityRule.activity.setupPreferenceHierarchy(R.xml.test_seekbar)
         seekBarPreference = fragment.preferenceScreen.getPreference(0) as SeekBarPreference
         seekBarPreference.min = 0
         seekBarPreference.max = 5
@@ -245,9 +241,7 @@ class SeekBarPreferenceTest {
         }
     }
 
-    /**
-     * A [ViewAction] that drags a [SeekBar] from its left edge to the right edge of the screen
-     */
+    /** A [ViewAction] that drags a [SeekBar] from its left edge to the right edge of the screen */
     private fun dragSeekBar(): ViewAction {
         return GeneralSwipeAction(
             Swipe.FAST,
@@ -287,8 +281,7 @@ class SeekBarPreferenceTest {
             }
 
             override fun describeTo(description: Description?) {
-                description?.appendText("with SeekBar progress:")
-                    ?.appendValue(progress)
+                description?.appendText("with SeekBar progress:")?.appendValue(progress)
             }
         }
     }

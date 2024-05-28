@@ -49,8 +49,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test for [PreferenceFragmentCompat] interfaces that can be implemented via subclasses,
- * [Context] and [android.app.Activity], to ensure that they are called, and only once.
+ * Test for [PreferenceFragmentCompat] interfaces that can be implemented via subclasses, [Context]
+ * and [android.app.Activity], to ensure that they are called, and only once.
  *
  * This test doesn't test the paths including [PreferenceFragmentCompat.getCallbackFragment], as
  * this API is @RestrictTo and we don't expect developers to be using it.
@@ -61,53 +61,39 @@ class PreferenceFragmentCompatInterfaceTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val noInterfaceActivityRule = androidx.test.rule.ActivityTestRule(
-        NoInterfaceTestActivity::class.java,
-        false,
-        false
-    )
+    val noInterfaceActivityRule =
+        androidx.test.rule.ActivityTestRule(NoInterfaceTestActivity::class.java, false, false)
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val withInterfaceActivityRule = androidx.test.rule.ActivityTestRule(
-        WithInterfaceTestActivity::class.java,
-        false,
-        false
-    )
+    val withInterfaceActivityRule =
+        androidx.test.rule.ActivityTestRule(WithInterfaceTestActivity::class.java, false, false)
 
     @Test
     fun onPreferenceStartFragmentTest_contextCallback() {
         verifyCallsWithContext {
-            Preference(requireContext()).apply {
-                fragment = "dummy.fragment"
-            }
+            Preference(requireContext()).apply { fragment = "dummy.fragment" }
         }
     }
 
     @Test
     fun onPreferenceStartFragmentTest_activityCallback() {
         verifyCallsWithActivity {
-            Preference(requireContext()).apply {
-                fragment = "dummy.fragment"
-            }
+            Preference(requireContext()).apply { fragment = "dummy.fragment" }
         }
     }
 
     @Test
     fun onPreferenceStartFragmentTest_contextAndActivityCallback_contextHandlesCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = true) {
-            Preference(requireContext()).apply {
-                fragment = "dummy.fragment"
-            }
+            Preference(requireContext()).apply { fragment = "dummy.fragment" }
         }
     }
 
     @Test
     fun onPreferenceStartFragmentTest_contextAndActivityCallback_contextDoesNotHandleCall() {
         verifyCallsWithContextAndActivity(contextHandlesCall = false) {
-            Preference(requireContext()).apply {
-                fragment = "dummy.fragment"
-            }
+            Preference(requireContext()).apply { fragment = "dummy.fragment" }
         }
     }
 
@@ -167,16 +153,12 @@ class PreferenceFragmentCompatInterfaceTest {
 
     @Test
     fun onPreferenceDisplayDialogTest_contextCallback() {
-        verifyCallsWithContext {
-            EditTextPreference(requireContext())
-        }
+        verifyCallsWithContext { EditTextPreference(requireContext()) }
     }
 
     @Test
     fun onPreferenceDisplayDialogTest_activityCallback() {
-        verifyCallsWithActivity {
-            EditTextPreference(requireContext())
-        }
+        verifyCallsWithActivity { EditTextPreference(requireContext()) }
     }
 
     @Test
@@ -207,25 +189,18 @@ class PreferenceFragmentCompatInterfaceTest {
         noInterfaceActivityRule.run {
             runOnUiThread {
                 activity.displayPreferenceFragment(
-                    TestFragment(
-                        testPreferenceFactory,
-                        contextCallback = incrementCount
-                    )
+                    TestFragment(testPreferenceFactory, contextCallback = incrementCount)
                 )
             }
         }
 
         TestFragment.assertPreferenceIsDisplayed()
 
-        noInterfaceActivityRule.runOnUiThread {
-            assertEquals(0, count)
-        }
+        noInterfaceActivityRule.runOnUiThread { assertEquals(0, count) }
 
         TestFragment.clickOnPreference()
 
-        noInterfaceActivityRule.runOnUiThread {
-            assertEquals(1, count)
-        }
+        noInterfaceActivityRule.runOnUiThread { assertEquals(1, count) }
     }
 
     private fun verifyCallsWithActivity(
@@ -243,30 +218,23 @@ class PreferenceFragmentCompatInterfaceTest {
             runOnUiThread {
                 activity.setTestCallback(incrementCount)
                 activity.displayPreferenceFragment(
-                    TestFragment(
-                        testPreferenceFactory,
-                        contextCallback = null
-                    )
+                    TestFragment(testPreferenceFactory, contextCallback = null)
                 )
             }
         }
 
         TestFragment.assertPreferenceIsDisplayed()
 
-        withInterfaceActivityRule.runOnUiThread {
-            assertEquals(0, count)
-        }
+        withInterfaceActivityRule.runOnUiThread { assertEquals(0, count) }
 
         TestFragment.clickOnPreference()
 
-        withInterfaceActivityRule.runOnUiThread {
-            assertEquals(1, count)
-        }
+        withInterfaceActivityRule.runOnUiThread { assertEquals(1, count) }
     }
 
     /**
-     * @param contextHandlesCall whether the context implementation 'handles' the interface call,
-     * by returning true. If it does, then the activity implementation should not be called.
+     * @param contextHandlesCall whether the context implementation 'handles' the interface call, by
+     *   returning true. If it does, then the activity implementation should not be called.
      */
     private fun verifyCallsWithContextAndActivity(
         contextHandlesCall: Boolean,
@@ -290,10 +258,7 @@ class PreferenceFragmentCompatInterfaceTest {
             runOnUiThread {
                 activity.setTestCallback(incrementActivityCount)
                 activity.displayPreferenceFragment(
-                    TestFragment(
-                        testPreferenceFactory,
-                        contextCallback = incrementContextCount
-                    )
+                    TestFragment(testPreferenceFactory, contextCallback = incrementContextCount)
                 )
             }
         }
@@ -311,30 +276,30 @@ class PreferenceFragmentCompatInterfaceTest {
             // Context should be checked before activity, so this will always be called
             assertEquals(1, contextCount)
 
-            val expectedActivityCount = if (contextHandlesCall) {
-                // If context returns true, then we should never call the activity implementation
-                0
-            } else {
-                // If context returns false, it has not handled the call, so we should call the
-                // activity implementation
-                1
-            }
+            val expectedActivityCount =
+                if (contextHandlesCall) {
+                    // If context returns true, then we should never call the activity
+                    // implementation
+                    0
+                } else {
+                    // If context returns false, it has not handled the call, so we should call the
+                    // activity implementation
+                    1
+                }
             assertEquals(expectedActivityCount, activityCount)
         }
     }
 
     /**
      * Verify the callback is dispatched to the parent fragment via the fragment hierarchy. Use
-     * [fragmentHandlesCall] to indicates whether or not the
-     * corresponding fragment handles the callback.
+     * [fragmentHandlesCall] to indicates whether or not the corresponding fragment handles the
+     * callback.
      *
-     * @param fragmentHandlesCall A boolean array indicates whether or not the corresponding
-     * child fragment handles the callback. The first element in the array represents the
-     * parent fragment, and the second element is the child fragment.
+     * @param fragmentHandlesCall A boolean array indicates whether or not the corresponding child
+     *   fragment handles the callback. The first element in the array represents the parent
+     *   fragment, and the second element is the child fragment.
      */
-    private fun verifyCallsWithNestedFragment(
-        fragmentHandlesCall: BooleanArray
-    ) {
+    private fun verifyCallsWithNestedFragment(fragmentHandlesCall: BooleanArray) {
         var parentCount = 0
         val incrementParentCount: () -> Boolean = {
             Log.i("DEBUG_TEST", "parent get called ")
@@ -353,10 +318,7 @@ class PreferenceFragmentCompatInterfaceTest {
         noInterfaceActivityRule.run {
             runOnUiThread {
                 activity.displayPreferenceFragment(
-                    WithInterfaceParentFragment(
-                        incrementParentCount,
-                        incrementChildCount
-                    )
+                    WithInterfaceParentFragment(incrementParentCount, incrementChildCount)
                 )
             }
         }
@@ -379,9 +341,7 @@ class PreferenceFragmentCompatInterfaceTest {
 }
 
 open class NoInterfaceTestActivity : AppCompatActivity() {
-    /**
-     * Displays the given [fragment] by adding it to a FragmentTransaction
-     */
+    /** Displays the given [fragment] by adding it to a FragmentTransaction */
     fun displayPreferenceFragment(fragment: Fragment) {
         supportFragmentManager
             .beginTransaction()
@@ -399,8 +359,8 @@ class WithInterfaceTestActivity :
     private lateinit var testCallback: () -> Boolean
 
     /**
-     * Sets the [callback] to be invoked when an interface method from [PreferenceFragmentCompat]
-     * is invoked on this Activity.
+     * Sets the [callback] to be invoked when an interface method from [PreferenceFragmentCompat] is
+     * invoked on this Activity.
      *
      * @param callback returns true if it handles the event, false if not
      */
@@ -408,27 +368,21 @@ class WithInterfaceTestActivity :
         testCallback = callback
     }
 
-    override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = testCallback()
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference) =
+        testCallback()
 
-    override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat,
-        pref: PreferenceScreen
-    ) = testCallback()
+    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat, pref: PreferenceScreen) =
+        testCallback()
 
-    override fun onPreferenceDisplayDialog(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = testCallback()
+    override fun onPreferenceDisplayDialog(caller: PreferenceFragmentCompat, pref: Preference) =
+        testCallback()
 }
 
 /**
  * [Context] that implements interface methods so that we can return it from inside getContext().
  *
  * @property testCallback invoked when an interface method from [PreferenceFragmentCompat] is
- * invoked on this object. Returns true if it handles the event, false if not.
+ *   invoked on this object. Returns true if it handles the event, false if not.
  */
 private class TestContext(baseContext: Context, private val testCallback: () -> Boolean) :
     ContextWrapper(baseContext),
@@ -436,20 +390,14 @@ private class TestContext(baseContext: Context, private val testCallback: () -> 
     PreferenceFragmentCompat.OnPreferenceStartScreenCallback,
     PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
-    override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = testCallback()
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference) =
+        testCallback()
 
-    override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat,
-        pref: PreferenceScreen
-    ) = testCallback()
+    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat, pref: PreferenceScreen) =
+        testCallback()
 
-    override fun onPreferenceDisplayDialog(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = testCallback()
+    override fun onPreferenceDisplayDialog(caller: PreferenceFragmentCompat, pref: Preference) =
+        testCallback()
 }
 
 /**
@@ -458,9 +406,9 @@ private class TestContext(baseContext: Context, private val testCallback: () -> 
  *
  * @property testPreferenceFactory factory that creates the [Preference] to be tested
  * @property contextCallback optional callback that will be used in the interface methods
- * implemented by a wrapped [TestContext] returned by [getContext] if not null. This simulates the
- * case where a non-Activity object is returned by [getContext], with the interface methods
- * implemented, for non-Activity based Fragment hosts.
+ *   implemented by a wrapped [TestContext] returned by [getContext] if not null. This simulates the
+ *   case where a non-Activity object is returned by [getContext], with the interface methods
+ *   implemented, for non-Activity based Fragment hosts.
  */
 class TestFragment(
     private val testPreferenceFactory: PreferenceFragmentCompat.() -> Preference,
@@ -484,15 +432,13 @@ class TestFragment(
 
     companion object {
         private const val preferenceTitle = "preference"
-        /**
-         * Asserts the preference created by [TestFragment.testPreferenceFactory] is displayed.
-         */
+
+        /** Asserts the preference created by [TestFragment.testPreferenceFactory] is displayed. */
         fun assertPreferenceIsDisplayed() {
             onView(withText(preferenceTitle)).check(matches(isDisplayed()))
         }
-        /**
-         * Clicks on the preference created by [TestFragment.testPreferenceFactory].
-         */
+
+        /** Clicks on the preference created by [TestFragment.testPreferenceFactory]. */
         fun clickOnPreference() {
             onView(withText(preferenceTitle)).perform(click())
         }
@@ -500,12 +446,12 @@ class TestFragment(
 }
 
 /**
- * Testing a nested fragment that implements the interface [PreferenceFragmentCompat
- * .OnPreferenceStartFragmentCallback].
+ * Testing a nested fragment that implements the interface
+ * [PreferenceFragmentCompat .OnPreferenceStartFragmentCallback].
  *
- * @property parentTestCallback invoked when an interface method from [PreferenceFragmentCompat
- * .OnPreferenceStartFragmentCallback] is invoked on parent fragment. Returns true if it handles
- * the event, false if not.
+ * @property parentTestCallback invoked when an interface method from
+ *   [PreferenceFragmentCompat .OnPreferenceStartFragmentCallback] is invoked on parent fragment.
+ *   Returns true if it handles the event, false if not.
  * @property childTestCallback
  */
 class WithInterfaceParentFragment(
@@ -530,9 +476,7 @@ class WithInterfaceParentFragment(
         ): View? {
             val contentView = FrameLayout(inflater.context)
             contentView.addView(
-                FragmentContainerView(inflater.context).apply {
-                    id = R.id.child_fragment
-                },
+                FragmentContainerView(inflater.context).apply { id = R.id.child_fragment },
                 ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             )
 
@@ -555,20 +499,16 @@ class WithInterfaceParentFragment(
             return contentView
         }
 
-        override fun onPreferenceStartFragment(
-            caller: PreferenceFragmentCompat,
-            pref: Preference
-        ) = callback()
+        override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference) =
+            callback()
 
         override fun onPreferenceStartScreen(
             caller: PreferenceFragmentCompat,
             pref: PreferenceScreen
         ) = callback()
 
-        override fun onPreferenceDisplayDialog(
-            caller: PreferenceFragmentCompat,
-            pref: Preference
-        ) = callback()
+        override fun onPreferenceDisplayDialog(caller: PreferenceFragmentCompat, pref: Preference) =
+            callback()
     }
 
     override fun onCreateView(
@@ -591,18 +531,12 @@ class WithInterfaceParentFragment(
         return contentView
     }
 
-    override fun onPreferenceStartFragment(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = parentTestCallback()
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference) =
+        parentTestCallback()
 
-    override fun onPreferenceStartScreen(
-        caller: PreferenceFragmentCompat,
-        pref: PreferenceScreen
-    ) = parentTestCallback()
+    override fun onPreferenceStartScreen(caller: PreferenceFragmentCompat, pref: PreferenceScreen) =
+        parentTestCallback()
 
-    override fun onPreferenceDisplayDialog(
-        caller: PreferenceFragmentCompat,
-        pref: Preference
-    ) = parentTestCallback()
+    override fun onPreferenceDisplayDialog(caller: PreferenceFragmentCompat, pref: Preference) =
+        parentTestCallback()
 }

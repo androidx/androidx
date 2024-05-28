@@ -139,9 +139,7 @@ class PreferenceGroupTest {
     @UiThreadTest
     @Test
     fun forEach() {
-        preferenceGroup.forEach {
-            fail("Empty preference group should not invoke lambda")
-        }
+        preferenceGroup.forEach { fail("Empty preference group should not invoke lambda") }
 
         val preference1 = Preference(context).apply { key = "ASD" }
         preferenceGroup.addPreference(preference1)
@@ -149,18 +147,14 @@ class PreferenceGroupTest {
         preferenceGroup.addPreference(preference2)
 
         val preferences = mutableListOf<Preference>()
-        preferenceGroup.forEach {
-            preferences += it
-        }
+        preferenceGroup.forEach { preferences += it }
         assertThat(preferences).containsExactly(preference1, preference2)
     }
 
     @UiThreadTest
     @Test
     fun forEachIndexed() {
-        preferenceGroup.forEach {
-            fail("Empty preference group should not invoke lambda")
-        }
+        preferenceGroup.forEach { fail("Empty preference group should not invoke lambda") }
 
         val preference1 = Preference(context)
         preferenceGroup.addPreference(preference1)
@@ -189,9 +183,7 @@ class PreferenceGroupTest {
         assertTrue(iterator.hasNext())
         assertSame(preference2, iterator.next())
         assertFalse(iterator.hasNext())
-        assertThrows<IndexOutOfBoundsException> {
-            iterator.next()
-        }
+        assertThrows<IndexOutOfBoundsException> { iterator.next() }
     }
 
     @UiThreadTest
