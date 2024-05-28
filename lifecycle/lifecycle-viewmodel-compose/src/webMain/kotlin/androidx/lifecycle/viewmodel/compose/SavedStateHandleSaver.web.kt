@@ -16,4 +16,5 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-internal actual fun getSaveableKeyPrefix(thisRef: Any?): String = ""
+internal actual fun getSaveableKeyPrefix(thisRef: Any?): String =
+    if (thisRef != null) thisRef::class.simpleName + "." else ""
