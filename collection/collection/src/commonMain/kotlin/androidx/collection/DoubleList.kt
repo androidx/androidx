@@ -60,18 +60,6 @@ public sealed class DoubleList(initialCapacity: Int) {
         get() = _size
 
     /**
-     * The current backing [DoubleArray] for the contents of [DoubleList].
-     *
-     * Modifying this array may affect the contents of the [DoubleList]. The values are stored in
-     * indices 0 to [lastIndex], but any values after [lastIndex] can be any value.
-     *
-     * This should only be used for highly-optimized code that needs direct access to the backing
-     * array.
-     */
-    public val internalArray: DoubleArray
-        get() = content
-
-    /**
      * Returns the last valid index in the [DoubleList]. This can be `-1` when the list is empty.
      */
     @get:androidx.annotation.IntRange(from = -1)

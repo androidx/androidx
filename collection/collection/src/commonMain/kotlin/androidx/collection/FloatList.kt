@@ -59,18 +59,6 @@ public sealed class FloatList(initialCapacity: Int) {
     public val size: Int
         get() = _size
 
-    /**
-     * The current backing [FloatArray] for the contents of [FloatList].
-     *
-     * Modifying this array may affect the contents of the [FloatList]. The values are stored in
-     * indices 0 to [lastIndex], but any values after [lastIndex] can be any value.
-     *
-     * This should only be used for highly-optimized code that needs direct access to the backing
-     * array.
-     */
-    public val internalArray: FloatArray
-        get() = content
-
     /** Returns the last valid index in the [FloatList]. This can be `-1` when the list is empty. */
     @get:androidx.annotation.IntRange(from = -1)
     public inline val lastIndex: Int
