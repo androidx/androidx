@@ -155,7 +155,7 @@ class ProcessCameraProviderTest {
             // Wrap the context with a TestAppContextWrapper and provide a context with an
             // Application that implements CameraXConfig.Provider. Because the
             // ProcessCameraProvider is already configured, this Application should not be used.
-            val testApp = TestApplication(context.packageManager)
+            val testApp = TestApplication(context)
             val contextWrapper = TestAppContextWrapper(context, testApp)
             provider = ProcessCameraProvider.getInstance(contextWrapper).await()
             assertThat(provider).isNotNull()
@@ -165,7 +165,7 @@ class ProcessCameraProviderTest {
 
     @Test
     fun unconfiguredGetInstance_usesApplicationProvider(): Unit = runBlocking {
-        val testApp = TestApplication(context.packageManager)
+        val testApp = TestApplication(context)
         val contextWrapper = TestAppContextWrapper(context, testApp)
         provider = ProcessCameraProvider.getInstance(contextWrapper).await()
         assertThat(provider).isNotNull()
@@ -1093,7 +1093,11 @@ private class TestAppContextWrapper(base: Context, val app: Application? = null)
     }
 }
 
-private class TestApplication(val pm: PackageManager) : Application(), CameraXConfig.Provider {
+private class TestApplication(val context: Context) : Application(), CameraXConfig.Provider {
+    init {
+        attachBaseContext(context)
+    }
+
     private val used = atomic(false)
     val providerUsed: Boolean
         get() = used.value
@@ -1104,18 +1108,10 @@ private class TestApplication(val pm: PackageManager) : Application(), CameraXCo
     }
 
     override fun getPackageManager(): PackageManager {
-        return pm
+        return context.packageManager
     }
 
     override fun createAttributionContext(attributionTag: String?): Context {
         return this
-    }
-
-    override fun getDeviceId(): Int {
-        return Context.DEVICE_ID_DEFAULT
-    }
-
-    override fun getAttributionTag(): String? {
-        return null
     }
 }
