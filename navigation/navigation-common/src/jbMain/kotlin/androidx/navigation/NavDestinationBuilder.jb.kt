@@ -16,6 +16,14 @@
 
 package androidx.navigation
 
+import androidx.navigation.serialization.generateNavArguments
+import androidx.navigation.serialization.generateRoutePattern
+import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
+
 /**
  * DSL for constructing a new [NavDestination]
  */
@@ -41,6 +49,22 @@ public actual constructor(
      */
     public actual val route: String?
 ) {
+    @OptIn(InternalSerializationApi::class)
+    public actual constructor(
+        navigator: Navigator<out D>,
+        @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    ) : this(
+        navigator,
+        route?.serializer()?.generateRoutePattern(typeMap)
+    ) {
+        route?.apply {
+            serializer().generateNavArguments(typeMap).forEach {
+                arguments[it.name] = it.argument
+            }
+        }
+    }
+
     /**
      * The descriptive label of the destination
      */

@@ -90,7 +90,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      */
     @ExperimentalSafeArgsApi
     @OptIn(InternalSerializationApi::class)
-    public constructor(
+    public actual constructor(
         navigator: Navigator<out D>,
         @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,

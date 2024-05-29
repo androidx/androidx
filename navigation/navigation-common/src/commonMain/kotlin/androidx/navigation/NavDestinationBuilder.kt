@@ -16,6 +16,12 @@
 
 package androidx.navigation
 
+import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
+
 @DslMarker
 public annotation class NavDestinationDsl
 
@@ -23,16 +29,34 @@ public annotation class NavDestinationDsl
  * DSL for constructing a new [NavDestination]
  */
 @NavDestinationDsl
-public expect open class NavDestinationBuilder<out D : NavDestination>
-/**
- * DSL for constructing a new [NavDestination] with a unique route.
- *
- * @param navigator navigator used to create the destination
- * @param route the destination's unique route
- *
- * @return the newly constructed [NavDestination]
- */
-public constructor(navigator: Navigator<out D>, route: String?) {
+public expect open class NavDestinationBuilder<out D : NavDestination> {
+
+    /**
+     * DSL for constructing a new [NavDestination] with a unique route.
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    public constructor(navigator: Navigator<out D>, route: String?)
+
+    /**
+     * DSL for constructing a new [NavDestination] with a serializable [KClass].
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. Required only when destination contains custom NavTypes.
+     *
+     * @return the newly constructed [NavDestination]
+     */
+    public constructor(
+        navigator: Navigator<out D>,
+        @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    )
+
     /**
      * The navigator the destination that will be used in [instantiateDestination]
      * to create the destination.
