@@ -656,7 +656,9 @@ private object ShellImpl {
 
     init {
         // b/268107648: UiAutomation always runs on user 0 so shell cannot access other user data.
-        if (UserInfo.currentUserId > 0) {
+        // This behavior was introduced with FUSE on api 30. Before then, shell could access any
+        // user data.
+        if (UserInfo.currentUserId > 0 && Build.VERSION.SDK_INT >= 30) {
             throw IllegalStateException(
                 "Benchmark and Baseline Profile generation are not currently " +
                     "supported on AAOS and multiuser environment when a secondary user is " +
