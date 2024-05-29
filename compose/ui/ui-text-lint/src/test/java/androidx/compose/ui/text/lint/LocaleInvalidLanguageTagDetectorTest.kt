@@ -184,7 +184,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 src/test/test.kt:8: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         bar(Locale("en_UK"))
-                                                    ~~~~~
+                                                   ~~~~~~~
                 1 errors, 0 warnings
             """
             )
@@ -211,7 +211,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 src/test/test.kt:7: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         val locale = LocaleList("en_UK")
-                                                                 ~~~~~
+                                                                ~~~~~~~
                 1 errors, 0 warnings
             """
             )
@@ -238,7 +238,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 src/test/test.kt:7: Error: A hyphen (-), not an underscore (_) delimiter should be used in a language tag [InvalidLanguageTagDelimiter]
                                         val locale = LocaleList("en_UK,en-US")
-                                                                 ~~~~~~~~~~~
+                                                                ~~~~~~~~~~~~~
                 1 errors, 0 warnings
             """
             )
