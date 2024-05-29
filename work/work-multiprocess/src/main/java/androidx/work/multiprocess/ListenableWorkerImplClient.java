@@ -16,8 +16,6 @@
 
 package androidx.work.multiprocess;
 
-import static androidx.work.multiprocess.ServiceBindingKt.bindToService;
-
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
+import androidx.work.multiprocess.ServiceBinding.Session;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -75,10 +74,10 @@ public class ListenableWorkerImplClient {
                                 + component.getClassName());
                 Intent intent = new Intent();
                 intent.setComponent(component);
-                mConnection = bindToService(mContext, intent,
+                mConnection = ServiceBinding.bindToService(mContext, intent,
                         IListenableWorkerImpl.Stub::asInterface, TAG);
             }
-            return mConnection.getConnectedFuture();
+            return mConnection.mConnectedFuture;
         }
     }
 
