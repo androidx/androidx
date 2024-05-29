@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -189,7 +188,7 @@ constructor(
     }
 
     fun capture(requests: List<Request>) {
-        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+        threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
             cameraGraph.acquireSession().use { it.submit(requests) }
         }
     }
@@ -259,13 +258,13 @@ constructor(
         // synchronously with the latest values. The startRepeating/stopRepeating call happens
         // outside of the synchronized block to avoid holding a lock while updating the camera
         // state.
-        threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+        threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
             val result: CompletableDeferred<Unit>?
             val request: Request?
             try {
                     cameraGraph.acquireSession()
                 } catch (e: CancellationException) {
-                    Log.debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
+                    debug(e) { "Cannot acquire session at ${this@UseCaseCameraState}" }
                     null
                 }
                 .let { session ->
@@ -305,8 +304,9 @@ constructor(
                                     )
                                 }
                             }
-                            Log.debug { "Update RepeatingRequest: $request" }
+                            debug { "Update RepeatingRequest: $request" }
                             it.startRepeating(request)
+                            // TODO: Invoke update3A only if required e.g. a 3A value has changed
                             it.update3A(request.parameters)
                         }
                     }
