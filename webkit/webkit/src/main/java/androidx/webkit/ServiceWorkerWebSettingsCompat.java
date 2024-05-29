@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
@@ -34,6 +35,7 @@ import java.util.Set;
  * The settings are similar to {@link WebSettings} but only settings relevant to
  * Service Workers are supported.
  */
+@AnyThread
 public abstract class ServiceWorkerWebSettingsCompat {
     /**
      */
