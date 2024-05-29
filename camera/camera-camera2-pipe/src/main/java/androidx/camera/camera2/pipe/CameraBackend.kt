@@ -40,7 +40,7 @@ interface CameraStatusMonitor {
         }
 
         class CameraAvailable(val cameraId: CameraId) : CameraStatus() {
-            override fun toString(): String = "CameraAvailable(camera=$cameraId"
+            override fun toString(): String = "CameraAvailable(camera=$cameraId)"
         }
     }
 }
