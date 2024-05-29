@@ -189,6 +189,7 @@ fun UAnnotation.extractAttribute(
         attrValue.let { ConstantEvaluator.evaluate(context, it) }
             ?: (attrValue as? UResolvable)?.resolve()
     return when (value) {
+        is String -> value
         is PsiField -> value.name
         is Pair<*, *> -> (value.second as? Name)?.identifier
         else -> null

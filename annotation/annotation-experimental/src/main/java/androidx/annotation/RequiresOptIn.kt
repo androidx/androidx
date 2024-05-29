@@ -72,7 +72,14 @@ import kotlin.annotation.Target
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 public annotation class RequiresOptIn(
     /** Defines the reporting level for incorrect usages of this opt-in API. */
-    val level: Level = Level.ERROR
+    val level: Level = Level.ERROR,
+    /**
+     * Message to be reported on usages of API without an explicit opt-in, or empty string for the
+     * default message. The default message is: "This declaration is experimental and its usage
+     * should be marked with 'Marker' or '@OptIn(Marker::class)'", where Marker is the opt-in
+     * requirement marker.
+     */
+    val message: String = ""
 ) {
     /**
      * Severity of the diagnostic that should be reported on usages of opt-in API which did not
