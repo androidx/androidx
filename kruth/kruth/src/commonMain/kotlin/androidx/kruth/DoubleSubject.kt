@@ -28,33 +28,26 @@ private val NEG_ZERO_BITS: Long = (-0.0).toRawBits()
 private fun checkTolerance(tolerance: Double) {
     require(!tolerance.isNaN()) { "tolerance cannot be NaN" }
     require(tolerance >= 0.0) { "tolerance $tolerance cannot be negative" }
-    require(tolerance.toRawBits() != NEG_ZERO_BITS) {
-        "tolerance $tolerance cannot be negative"
-    }
-    require(tolerance != Double.POSITIVE_INFINITY) {
-        "tolerance cannot be POSITIVE_INFINITY"
-    }
+    require(tolerance.toRawBits() != NEG_ZERO_BITS) { "tolerance $tolerance cannot be negative" }
+    require(tolerance != Double.POSITIVE_INFINITY) { "tolerance cannot be POSITIVE_INFINITY" }
 }
 
-/**
- * Propositions for double subjects.
- */
-class DoubleSubject internal constructor(
+/** Propositions for double subjects. */
+class DoubleSubject
+internal constructor(
     actual: Double?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : ComparableSubject<Double>(actual, metadata = metadata) {
 
     abstract class TolerantDoubleComparison internal constructor() {
         /**
-         * Fails if the subject was expected to be within the tolerance of the given value but was not
-         * _or_ if it was expected _not_ to be within the tolerance but was. The subject and
+         * Fails if the subject was expected to be within the tolerance of the given value but was
+         * not _or_ if it was expected _not_ to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
         abstract fun of(expected: Double)
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated(
             """equals(Any?) is not supported on TolerantDoubleComparison. If
           you meant to compare doubles, use of(Double) instead.""",
@@ -66,9 +59,7 @@ class DoubleSubject internal constructor(
             )
         }
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated("hashCode() is not supported on TolerantDoubleComparison")
         override fun hashCode(): Int {
             throw UnsupportedOperationException("Subject.hashCode() is not supported.")
@@ -107,7 +98,7 @@ class DoubleSubject internal constructor(
         }
     }
 
-    /** Asserts that the subject is zero (i.e. it is either `0.0` or `-0.0`).  */
+    /** Asserts that the subject is zero (i.e. it is either `0.0` or `-0.0`). */
     fun isZero() {
         if (actual != 0.0) {
             failWithoutActual(simpleFact("Expected zero"))
@@ -115,8 +106,8 @@ class DoubleSubject internal constructor(
     }
 
     /**
-     * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0`,
-     * `-0.0` or `null`).
+     * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0`, `-0.0` or
+     * `null`).
      */
     fun isNonZero() {
         if (actual == null) {
@@ -126,23 +117,24 @@ class DoubleSubject internal constructor(
         }
     }
 
-    /** Asserts that the subject is [Double.POSITIVE_INFINITY].  */
+    /** Asserts that the subject is [Double.POSITIVE_INFINITY]. */
     fun isPositiveInfinity() {
         isEqualTo(Double.POSITIVE_INFINITY)
     }
 
-    /** Asserts that the subject is [Double.NEGATIVE_INFINITY].  */
+    /** Asserts that the subject is [Double.NEGATIVE_INFINITY]. */
     fun isNegativeInfinity() {
         isEqualTo(Double.NEGATIVE_INFINITY)
     }
 
-    /** Asserts that the subject is [Double.NaN].  */
+    /** Asserts that the subject is [Double.NaN]. */
     fun isNaN() {
         isEqualTo(Double.NaN)
     }
 
     /**
-     * Asserts that the subject is finite, i.e. not [Double.POSITIVE_INFINITY], [Double.NEGATIVE_INFINITY], or [Double.NaN].
+     * Asserts that the subject is finite, i.e. not [Double.POSITIVE_INFINITY],
+     * [Double.NEGATIVE_INFINITY], or [Double.NaN].
      */
     fun isFinite() {
         if (actual?.isFinite() != true) {
@@ -165,7 +157,6 @@ class DoubleSubject internal constructor(
     /**
      * Checks that the subject is greater than [other].
      *
-     *
      * To check that the subject is greater than *or equal to* [other], use [isAtLeast].
      */
     fun isGreaterThan(other: Int) {
@@ -174,7 +165,6 @@ class DoubleSubject internal constructor(
 
     /**
      * Checks that the subject is less than [other].
-     *
      *
      * To check that the subject is less than *or equal to* [other], use [isAtMost] .
      */
@@ -185,7 +175,6 @@ class DoubleSubject internal constructor(
     /**
      * Checks that the subject is less than or equal to [other].
      *
-     *
      * To check that the subject is *strictly* less than [other], use [isLessThan].
      */
     fun isAtMost(other: Int) {
@@ -194,7 +183,6 @@ class DoubleSubject internal constructor(
 
     /**
      * Checks that the subject is greater than or equal to [other].
-     *
      *
      * To check that the subject is *strictly* greater than [other], use [isGreaterThan].
      */

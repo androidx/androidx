@@ -27,13 +27,11 @@ private val UNDER_NEGATIVE_MIN = -9.9E-324
 private val GOLDEN = 1.23
 private val OVER_GOLDEN = 1.2300000000000002
 
-/**
- * Approximate mirror of truth library for DoubleSubjectTest
- */
+/** Approximate mirror of truth library for DoubleSubjectTest */
 class DoubleSubjectTest {
     /**
-     * Test case utilizes the private function [Subject.standardIsEqualTo] found in [Subject]
-     * which relies on the [Double.compareTo] built-in
+     * Test case utilizes the private function [Subject.standardIsEqualTo] found in [Subject] which
+     * relies on the [Double.compareTo] built-in
      *
      * Also asserts Kotlin behavior where -0.0 is not equal to 0.0 when dynamically typed
      */
@@ -60,9 +58,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsWithinFails(actual: Double, tolerance: Double, expected: Double) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isWithin(tolerance).of(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isWithin(tolerance).of(expected) }
     }
 
     @Test
@@ -80,9 +76,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsNotWithinFails(actual: Double, tolerance: Double, expected: Double) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isNotWithin(tolerance).of(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isNotWithin(tolerance).of(expected) }
     }
 
     @Test
@@ -124,9 +118,7 @@ class DoubleSubjectTest {
             assertThat(actual).isWithin(tolerance).of(expected)
             fail("Expected IllegalArgumentException to be thrown but wasn't")
         } catch (iae: IllegalArgumentException) {
-            assertThat(iae)
-                .hasMessageThat()
-                .isEqualTo("tolerance $tolerance cannot be negative")
+            assertThat(iae).hasMessageThat().isEqualTo("tolerance $tolerance cannot be negative")
         }
     }
 
@@ -135,14 +127,11 @@ class DoubleSubjectTest {
         tolerance: Double,
         expected: Double,
     ) {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            assertThat(actual)
-                .isNotWithin(tolerance)
-                .of(expected)
-        }
-        assertThat(exception)
-            .hasMessageThat()
-            .isEqualTo("tolerance $tolerance cannot be negative")
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                assertThat(actual).isNotWithin(tolerance).of(expected)
+            }
+        assertThat(exception).hasMessageThat().isEqualTo("tolerance $tolerance cannot be negative")
     }
 
     @Test
@@ -305,9 +294,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsEqualToFails(actual: Double, expected: Double) {
-        assertFailsWith<AssertionError> {
-            assertThat(actual).isEqualTo(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).isEqualTo(expected) }
     }
 
     @Test
@@ -323,9 +310,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsNotEqualToFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isNotEqualTo(value)
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isNotEqualTo(value) }
     }
 
     @Test
@@ -340,9 +325,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsZeroFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isZero()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isZero() }
     }
 
     @Test
@@ -357,9 +340,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsNonZeroFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isNonZero()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isNonZero() }
     }
 
     @Test
@@ -372,9 +353,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsPositiveInfinityFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isPositiveInfinity()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isPositiveInfinity() }
     }
 
     @Test
@@ -387,9 +366,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsNegativeInfinityFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isNegativeInfinity()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isNegativeInfinity() }
     }
 
     @Test
@@ -402,9 +379,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsNaNFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isNaN()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isNaN() }
     }
 
     @Test
@@ -419,9 +394,7 @@ class DoubleSubjectTest {
     }
 
     private fun assertThatIsFiniteFails(value: Double?) {
-        assertFailsWith<AssertionError> {
-            assertThat(value).isFinite()
-        }
+        assertFailsWith<AssertionError> { assertThat(value).isFinite() }
     }
 
     @Test
@@ -435,62 +408,46 @@ class DoubleSubjectTest {
 
     @Test
     fun doubleIsNotNaNIsNaN() {
-        assertFailsWith<AssertionError> {
-            assertThat(Double.NaN).isNotNaN()
-        }
+        assertFailsWith<AssertionError> { assertThat(Double.NaN).isNotNaN() }
     }
 
     @Test
     fun doubleIsNotNaNIsNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(null as Double?).isNotNull()
-        }
+        assertFailsWith<AssertionError> { assertThat(null as Double?).isNotNull() }
     }
 
     @Test
     fun doubleIsGreaterThan_int_strictly() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isGreaterThan(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isGreaterThan(3) }
     }
 
     @Test
     fun doubleIsGreaterThan_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isGreaterThan(2)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isGreaterThan(2) }
         assertThat(2.0).isGreaterThan(1)
     }
 
     @Test
     fun doubleIsLessThan_int_strictly() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isLessThan(1)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isLessThan(1) }
     }
 
     @Test
     fun doubleIsLessThan_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isLessThan(2)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isLessThan(2) }
         assertThat(2.0).isLessThan(3)
     }
 
     @Test
     fun doubleIsAtLeast_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isAtLeast(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isAtLeast(3) }
         assertThat(2.0).isAtLeast(2)
         assertThat(2.0).isAtLeast(1)
     }
 
     @Test
     fun doubleIsAtMost_int() {
-        assertFailsWith<AssertionError> {
-            assertThat(2.0).isAtMost(1)
-        }
+        assertFailsWith<AssertionError> { assertThat(2.0).isAtMost(1) }
         assertThat(2.0).isAtMost(2)
         assertThat(2.0).isAtMost(3)
     }

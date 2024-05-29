@@ -24,13 +24,12 @@ import okio.FileSystem
 import okio.IOException
 import okio.Path
 
-open class OkioTestIO(
-    private val fileSystem: FileSystem = FileSystem.SYSTEM
-) : TestIO<OkioPath, IOException>(
-    getTmpDir = {
-        OkioPath(fileSystem = fileSystem, path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY)
-    }
-) {
+open class OkioTestIO(private val fileSystem: FileSystem = FileSystem.SYSTEM) :
+    TestIO<OkioPath, IOException>(
+        getTmpDir = {
+            OkioPath(fileSystem = fileSystem, path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY)
+        }
+    ) {
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
@@ -49,8 +48,7 @@ open class OkioTestIO(
         return IOException(message)
     }
 
-    override fun ioExceptionClass(): KClass<IOException> =
-        IOException::class
+    override fun ioExceptionClass(): KClass<IOException> = IOException::class
 }
 
 class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile<OkioPath>() {
@@ -79,14 +77,9 @@ class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile<Ok
             check(fileSystem.metadataOrNull(path)?.isDirectory == true) {
                 "$path already exists but it is not a directory"
             }
-            check(!mustCreate) {
-                "Directory $path already exists"
-            }
+            check(!mustCreate) { "Directory $path already exists" }
         }
-        fileSystem.createDirectories(
-            path,
-            mustCreate = mustCreate
-        )
+        fileSystem.createDirectories(path, mustCreate = mustCreate)
     }
 
     override fun isRegularFile(): Boolean {
@@ -102,9 +95,7 @@ class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile<Ok
     }
 
     override fun parentFile(): OkioPath? {
-        return path.parent?.let {
-            OkioPath(fileSystem = fileSystem, path = it)
-        }
+        return path.parent?.let { OkioPath(fileSystem = fileSystem, path = it) }
     }
 
     override fun protectedWrite(body: ByteArray) {
@@ -115,8 +106,6 @@ class OkioPath(private val fileSystem: FileSystem, val path: Path) : TestFile<Ok
     }
 
     override fun protectedReadBytes(): ByteArray {
-        return fileSystem.read(path) {
-            readByteArray()
-        }
+        return fileSystem.read(path) { readByteArray() }
     }
 }

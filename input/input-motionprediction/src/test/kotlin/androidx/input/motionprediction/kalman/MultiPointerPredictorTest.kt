@@ -33,14 +33,15 @@ class MultiPointerPredictorTest {
     @Test
     fun historicalTime() {
         val predictor = MultiPointerPredictor(Configuration.STRATEGY_BALANCED)
-        val generator = MotionEventGenerator(
+        val generator =
+            MotionEventGenerator(
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
                 null,
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
                 null,
-        )
+            )
         for (i in 1..INITIAL_FEED) {
             predictor.onTouchEvent(generator.next())
         }
@@ -49,7 +50,7 @@ class MultiPointerPredictorTest {
         assertThat(predicted.getPointerCount()).isEqualTo(2)
         var historicalTime = predicted.getEventTime()
         for (i in (PREDICT_SAMPLE - 2) downTo 0) {
-            historicalTime -= generator.getRateMs().toInt();
+            historicalTime -= generator.getRateMs().toInt()
             assertThat(predicted.getHistoricalEventTime(i)).isEqualTo(historicalTime)
         }
     }
@@ -58,14 +59,15 @@ class MultiPointerPredictorTest {
     @Test
     fun downTime() {
         val predictor = MultiPointerPredictor(Configuration.STRATEGY_BALANCED)
-        val generator = MotionEventGenerator(
+        val generator =
+            MotionEventGenerator(
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
                 null,
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
                 null,
-        )
+            )
         var firstEvent: MotionEvent? = null
         for (i in 1..INITIAL_FEED) {
             val nextEvent = generator.next()
@@ -80,5 +82,6 @@ class MultiPointerPredictorTest {
     }
 }
 
-private const val PREDICT_SAMPLE = 5;
+private const val PREDICT_SAMPLE = 5
+
 private const val INITIAL_FEED = 20

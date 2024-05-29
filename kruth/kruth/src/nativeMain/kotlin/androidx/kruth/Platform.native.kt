@@ -17,11 +17,11 @@
 package androidx.kruth
 
 /**
- *  Cleans the stack trace on the given [Throwable], replacing the original stack trace
- *  stored on the instance (see [Throwable.stackTrace]).
+ * Cleans the stack trace on the given [Throwable], replacing the original stack trace stored on the
+ * instance (see [Throwable.stackTrace]).
  *
- *  Removes Truth stack frames from the top and JUnit framework and reflective call frames from
- *  the bottom. Collapses the frames for various frameworks in the middle of the trace as well.
+ * Removes Truth stack frames from the top and JUnit framework and reflective call frames from the
+ * bottom. Collapses the frames for various frameworks in the middle of the trace as well.
  */
 internal actual fun Throwable.clearStackTrace() {}
 

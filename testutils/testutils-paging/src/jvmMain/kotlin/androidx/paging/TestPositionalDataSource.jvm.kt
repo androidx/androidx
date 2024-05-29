@@ -24,15 +24,8 @@ class TestPositionalDataSource<T : Any>(list: List<T>) : PositionalDataSource<T>
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         val totalCount = list.size
-        val position = computeInitialLoadPosition(
-            params,
-            totalCount
-        )
-        val loadSize = computeInitialLoadSize(
-            params,
-            position,
-            totalCount
-        )
+        val position = computeInitialLoadPosition(params, totalCount)
+        val loadSize = computeInitialLoadSize(params, position, totalCount)
 
         // for simplicity, we could return everything immediately,
         // but we tile here since it's expected behavior

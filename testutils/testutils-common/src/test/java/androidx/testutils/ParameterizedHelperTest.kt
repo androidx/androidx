@@ -24,27 +24,20 @@ class ParameterizedHelperTest {
     fun testIncrement() {
         val number = listOf(RadixDigit(2, 0), RadixDigit(3, 0))
 
-        assertThat(::increment.invoke(number, 1)).isEqualTo(
-            listOf(RadixDigit(2, 0), RadixDigit(3, 1))
-        )
-        assertThat(::increment.invoke(number, 2)).isEqualTo(
-            listOf(RadixDigit(2, 0), RadixDigit(3, 2))
-        )
-        assertThat(::increment.invoke(number, 3)).isEqualTo(
-            listOf(RadixDigit(2, 1), RadixDigit(3, 0))
-        )
-        assertThat(::increment.invoke(number, 4)).isEqualTo(
-            listOf(RadixDigit(2, 1), RadixDigit(3, 1))
-        )
-        assertThat(::increment.invoke(number, 5)).isEqualTo(
-            listOf(RadixDigit(2, 1), RadixDigit(3, 2))
-        )
-        assertThat(::increment.invoke(number, 6)).isEqualTo(
-            listOf(RadixDigit(2, 0), RadixDigit(3, 0))
-        )
-        assertThat(::increment.invoke(number, 7)).isEqualTo(
-            listOf(RadixDigit(2, 0), RadixDigit(3, 1))
-        )
+        assertThat(::increment.invoke(number, 1))
+            .isEqualTo(listOf(RadixDigit(2, 0), RadixDigit(3, 1)))
+        assertThat(::increment.invoke(number, 2))
+            .isEqualTo(listOf(RadixDigit(2, 0), RadixDigit(3, 2)))
+        assertThat(::increment.invoke(number, 3))
+            .isEqualTo(listOf(RadixDigit(2, 1), RadixDigit(3, 0)))
+        assertThat(::increment.invoke(number, 4))
+            .isEqualTo(listOf(RadixDigit(2, 1), RadixDigit(3, 1)))
+        assertThat(::increment.invoke(number, 5))
+            .isEqualTo(listOf(RadixDigit(2, 1), RadixDigit(3, 2)))
+        assertThat(::increment.invoke(number, 6))
+            .isEqualTo(listOf(RadixDigit(2, 0), RadixDigit(3, 0)))
+        assertThat(::increment.invoke(number, 7))
+            .isEqualTo(listOf(RadixDigit(2, 0), RadixDigit(3, 1)))
     }
 
     @Test
@@ -61,55 +54,44 @@ class ParameterizedHelperTest {
 
         // Comparing List of Arrays doesn't work(https://github.com/google/truth/issues/928), so
         // we're mapping it to List of Lists
-        assertThat(
-            generateAllEnumerations(listOf(false)).map { it.toList() }).isEqualTo(
-            listOf(
-                listOf<Any>(false)
-            )
-        )
-        assertThat(
-            generateAllEnumerations(listOf(false, true)).map { it.toList() }).isEqualTo(
-            listOf(
-                listOf<Any>(false),
-                listOf<Any>(true)
-            )
-        )
+        assertThat(generateAllEnumerations(listOf(false)).map { it.toList() })
+            .isEqualTo(listOf(listOf<Any>(false)))
+        assertThat(generateAllEnumerations(listOf(false, true)).map { it.toList() })
+            .isEqualTo(listOf(listOf<Any>(false), listOf<Any>(true)))
         assertThat(generateAllEnumerations(listOf(false, true), listOf())).isEmpty()
         assertThat(
-            generateAllEnumerations(
-                listOf(false, true),
-                listOf(false, true)
-            ).map { it.toList() }
-        ).isEqualTo(
-            listOf(
-                listOf(false, false),
-                listOf(false, true),
-                listOf(true, false),
-                listOf(true, true)
+                generateAllEnumerations(listOf(false, true), listOf(false, true)).map {
+                    it.toList()
+                }
             )
-        )
+            .isEqualTo(
+                listOf(
+                    listOf(false, false),
+                    listOf(false, true),
+                    listOf(true, false),
+                    listOf(true, true)
+                )
+            )
         assertThat(
-            generateAllEnumerations(
-                listOf(false, true),
-                (0..2).toList(),
-                listOf("low", "hi")
-            ).map { it.toList() }
-        ).isEqualTo(
-            listOf(
-                listOf(false, 0, "low"),
-                listOf(false, 0, "hi"),
-                listOf(false, 1, "low"),
-                listOf(false, 1, "hi"),
-                listOf(false, 2, "low"),
-                listOf(false, 2, "hi"),
-                listOf(true, 0, "low"),
-                listOf(true, 0, "hi"),
-                listOf(true, 1, "low"),
-                listOf(true, 1, "hi"),
-                listOf(true, 2, "low"),
-                listOf(true, 2, "hi")
+                generateAllEnumerations(listOf(false, true), (0..2).toList(), listOf("low", "hi"))
+                    .map { it.toList() }
             )
-        )
+            .isEqualTo(
+                listOf(
+                    listOf(false, 0, "low"),
+                    listOf(false, 0, "hi"),
+                    listOf(false, 1, "low"),
+                    listOf(false, 1, "hi"),
+                    listOf(false, 2, "low"),
+                    listOf(false, 2, "hi"),
+                    listOf(true, 0, "low"),
+                    listOf(true, 0, "hi"),
+                    listOf(true, 1, "low"),
+                    listOf(true, 1, "hi"),
+                    listOf(true, 2, "low"),
+                    listOf(true, 2, "hi")
+                )
+            )
     }
 
     // `::f.invoke(0, 3)` is equivalent to `f(f(f(0)))`

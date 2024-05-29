@@ -19,13 +19,14 @@ package androidx.kruth
 import com.google.common.collect.Multiset
 
 /** Propositions for [Multiset] subjects. */
-class MultisetSubject<T> internal constructor(
+class MultisetSubject<T>
+internal constructor(
     actual: Multiset<T>?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : IterableSubject<T>(actual, metadata) {
     private val _actual = actual
 
-    /** Fails if the element does not have the given count.  */
+    /** Fails if the element does not have the given count. */
     fun hasCount(element: Any?, expectedCount: Int) {
         require(expectedCount >= 0) { "expectedCount($expectedCount) must be >= 0" }
         val actualCount = requireNonNull(_actual).count(element)

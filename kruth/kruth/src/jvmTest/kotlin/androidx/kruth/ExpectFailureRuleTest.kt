@@ -22,12 +22,9 @@ import org.junit.rules.ExpectedException
 
 /** Tests for {@link ExpectFailure} used as JUnit {@link Rule}. */
 class ExpectFailureRuleTest {
-    @get:Rule
-    val expectFailure: ExpectFailure = ExpectFailure()
+    @get:Rule val expectFailure: ExpectFailure = ExpectFailure()
 
-    @get:Rule
-    @Suppress("DEPRECATION")
-    val thrown: ExpectedException = ExpectedException.none()
+    @get:Rule @Suppress("DEPRECATION") val thrown: ExpectedException = ExpectedException.none()
 
     @Test
     fun expectFail_captureFailureAsExpected() {

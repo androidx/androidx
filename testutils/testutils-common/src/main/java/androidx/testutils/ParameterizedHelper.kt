@@ -19,7 +19,6 @@ package androidx.testutils
 /**
  * Generate all argument enumerations for Parameterized tests. For example,
  * `generateAllEnumerations(listOf(false, true), listOf(1, 2, 3))` would return:
- *
  * ```
  * [
  *   [false, 1],

@@ -20,9 +20,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
 
-/**
- * [CoroutineDispatcher] which keeps track of all its queued jobs.
- */
+/** [CoroutineDispatcher] which keeps track of all its queued jobs. */
 class TestDispatcher : CoroutineDispatcher() {
     val queue = ArrayDeque<Runnable>()
 

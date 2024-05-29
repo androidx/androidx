@@ -18,26 +18,16 @@ package androidx.fragment.app
 import android.graphics.Rect
 import android.view.View
 
-/**
- * Used in testing to keep track of view Targets
- */
+/** Used in testing to keep track of view Targets */
 interface TargetTracking {
-    /**
-     * Return tracked exiting targets in a list
-     */
+    /** Return tracked exiting targets in a list */
     val exitingTargets: List<View>
-    /**
-     * Return tracked entering targets in a list
-     */
+    /** Return tracked entering targets in a list */
     val enteringTargets: List<View>
 
-    /**
-     * Clear all tracked targets
-     */
+    /** Clear all tracked targets */
     fun clearTargets()
 
-    /**
-     * Get the captured epicenter.
-     */
+    /** Get the captured epicenter. */
     val capturedEpicenter: Rect?
 }

@@ -27,41 +27,37 @@ import kotlin.reflect.typeOf
 // See: https://github.com/google/truth/issues/536
 
 /**
- * An object that lets you perform checks on the value under test. For example, [Subject]
- * contains [isEqualTo] and [isInstanceOf], and [StringSubject] contains [StringSubject.contains]
+ * An object that lets you perform checks on the value under test. For example, [Subject] contains
+ * [isEqualTo] and [isInstanceOf], and [StringSubject] contains [StringSubject.contains]
  *
  * To create a [Subject] instance, most users will call an [assertThat] method.
  *
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
- * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class Subject<out T> internal constructor(
+open class Subject<out T>
+internal constructor(
     val actual: T?,
     metadata: FailureMetadata,
     private val typeDescriptionOverride: String?
 ) {
     /**
-     * Constructor for use by subclasses. If you want to create an instance of this class
-     * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+     * Constructor for use by subclasses. If you want to create an instance of this class itself,
+     * call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
      */
     protected constructor(metadata: FailureMetadata, actual: T?) : this(actual, metadata, null)
 
     val metadata: FailureMetadata by lazy { metadata.updateForSubject(this) }
 
-    protected fun check(): StandardSubjectBuilder = StandardSubjectBuilder(
-        metadata = metadata.updateForCheckCall()
-    )
+    protected fun check(): StandardSubjectBuilder =
+        StandardSubjectBuilder(metadata = metadata.updateForCheckCall())
 
-    /**
-     *  Fails if the subject is not null.
-     */
+    /** Fails if the subject is not null. */
     open fun isNull() {
         actual.standardIsEqualTo(null)
     }
 
-    /**
-     * Fails if the subject is null.
-     */
+    /** Fails if the subject is null. */
     open fun isNotNull() {
         actual.standardIsNotEqualTo(null)
     }
@@ -73,10 +69,10 @@ open class Subject<out T> internal constructor(
      * * they are equal according to [equals]
      * * they are [Array]s and are considered equal by [Array.contentEquals]
      * * they are boxed integer types ([Byte], [Short], [Char], [Int], or [Long]) and they are
-     * numerically equal when converted to [Long].
+     *   numerically equal when converted to [Long].
      * * the actual value is a boxed floating-point type ([Double] or [Float]), the expected value
-     * is an [Int], and the two are numerically equal when converted to [Double]. (This allows
-     * assertThat(someDouble).isEqualTo(0) to pass.)
+     *   is an [Int], and the two are numerically equal when converted to [Double]. (This allows
+     *   assertThat(someDouble).isEqualTo(0) to pass.)
      *
      * Note: This method does not test the [equals] implementation itself; it assumes that method is
      * functioning correctly according to its contract. Testing an equals implementation requires a
@@ -98,7 +94,7 @@ open class Subject<out T> internal constructor(
         actual.standardIsNotEqualTo(unexpected)
     }
 
-    /** Fails if the subject is not the same instance as the given object.  */
+    /** Fails if the subject is not the same instance as the given object. */
     open fun isSameInstanceAs(expected: Any?) {
         if (actual !== expected) {
             metadata.fail(
@@ -113,31 +109,22 @@ open class Subject<out T> internal constructor(
         }
     }
 
-    /** Fails if the subject is the same instance as the given object.  */
+    /** Fails if the subject is the same instance as the given object. */
     open fun isNotSameInstanceAs(unexpected: Any?) {
         if (actual === unexpected) {
-            failWithoutActual(
-                fact("expected not to be specific instance", actual)
-            )
+            failWithoutActual(fact("expected not to be specific instance", actual))
         }
     }
 
-    /**
-     * Fails if the subject is not an instance of the given class.
-     */
+    /** Fails if the subject is not an instance of the given class. */
     // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
     inline fun <reified V> isInstanceOf() {
         if (actual !is V) {
-            doFail(
-                fact("expected instance of", typeOf<V>()),
-                fact("but was", actual.toString())
-            )
+            doFail(fact("expected instance of", typeOf<V>()), fact("but was", actual.toString()))
         }
     }
 
-    /**
-     * Fails if the subject is an instance of the given class.
-     */
+    /** Fails if the subject is an instance of the given class. */
     // TODO(dustinlam): Add a JVM-only non inline version for compatibility and java users.
     inline fun <reified V> isNotInstanceOf() {
         if (actual is V) {
@@ -162,14 +149,14 @@ open class Subject<out T> internal constructor(
 
     /**
      * Fails, reporting a message with two "[facts][Fact]":
-     *  * _key_: _value_
-     *  * but was: _actual value_.
+     * * _key_: _value_
+     * * but was: _actual value_.
      *
-     * This is the simplest failure API. For more advanced needs, see
-     * `failWithActual(Fact, Fact...)` the other overload, and `failWithoutActual(Fact, Fact...)`.
+     * This is the simplest failure API. For more advanced needs, see `failWithActual(Fact,
+     * Fact...)` the other overload, and `failWithoutActual(Fact, Fact...)`.
      *
-     * Example usage: The check `contains(String)` calls
-     * `failWithActual("expected to contain", string)`.
+     * Example usage: The check `contains(String)` calls `failWithActual("expected to contain",
+     * string)`.
      */
     protected fun failWithActual(key: String, value: Any?) {
         failWithActual(fact(key, value))
@@ -178,13 +165,13 @@ open class Subject<out T> internal constructor(
     /**
      * Fails, reporting a message with the given facts, followed by an automatically added fact of
      * the form:
-     *  * but was: _actual value_.
+     * * but was: _actual value_.
      *
      * If you have only one fact to report (and it's a key-value [Fact]), prefer
      * `failWithActual(String, Any?)`, the simpler overload).
      *
-     * Example usage: The check `isEmpty()` calls
-     * `failWithActual(simpleFact("expected to be empty"))`.
+     * Example usage: The check `isEmpty()` calls `failWithActual(simpleFact("expected to be
+     * empty"))`.
      */
     protected fun failWithActual(first: Fact, vararg rest: Fact) {
         metadata.fail(
@@ -229,14 +216,14 @@ open class Subject<out T> internal constructor(
      * Most failure messages should report the actual value, so most checks should call
      * `failWithActual(Fact, Fact...)` instead. However, [failWithoutActual] is useful in some
      * cases:
-     *  * when the actual value is obvious from the rest of the message. For example, `isNotEmpty()`
-     *    calls `failWithoutActual(simpleFact("expected not to be empty")`.
-     *  * when the actual value shouldn't come last or should have a different key than the default
-     *    of "but was." For example, `isNotWithin(...).of(...)` calls `failWithoutActual` so that it
-     *    can put the expected and actual values together, followed by the tolerance.
+     * * when the actual value is obvious from the rest of the message. For example, `isNotEmpty()`
+     *   calls `failWithoutActual(simpleFact("expected not to be empty")`.
+     * * when the actual value shouldn't come last or should have a different key than the default
+     *   of "but was." For example, `isNotWithin(...).of(...)` calls `failWithoutActual` so that it
+     *   can put the expected and actual values together, followed by the tolerance.
      *
-     * Example usage: The check `isEmpty()` calls
-     * `failWithActual(simpleFact("expected to be empty"))`.
+     * Example usage: The check `isEmpty()` calls `failWithActual(simpleFact("expected to be
+     * empty"))`.
      */
     protected fun failWithoutActual(first: Fact, vararg rest: Fact) {
         metadata.fail(
@@ -255,9 +242,7 @@ open class Subject<out T> internal constructor(
     /** Fails unless the subject is equal to any element in the given [iterable]. */
     open fun isIn(iterable: Iterable<*>?) {
         if (actual !in requireNonNull(iterable)) {
-            metadata.fail(
-                listOf(simpleFact("Expected $actual to be in $iterable, but was not"))
-            )
+            metadata.fail(listOf(simpleFact("Expected $actual to be in $iterable, but was not")))
         }
     }
 
@@ -273,7 +258,7 @@ open class Subject<out T> internal constructor(
         }
     }
 
-    /** Fails if the subject is equal to any of the given elements.  */
+    /** Fails if the subject is equal to any of the given elements. */
     open fun isNoneOf(first: Any?, second: Any?, vararg rest: Any?) {
         isNotIn(listOf(first, second, *rest))
     }
@@ -324,7 +309,8 @@ open class Subject<out T> internal constructor(
      */
     private fun Any?.compareForEquality(expected: Any?): Boolean {
         @Suppress("SuspiciousEqualsCombination") // Intentional for behaviour compatibility.
-        // This is migrated from Truth's equality helper, which has very specific logic for handling the
+        // This is migrated from Truth's equality helper, which has very specific logic for handling
+        // the
         // magic "casting" they do between types. See:
         // https://github.com/google/truth/blob/master/core/src/main/java/com/google/common/truth/Subject.java#L210
         return when {
@@ -342,7 +328,6 @@ open class Subject<out T> internal constructor(
             isIntegralBoxedPrimitive() && expected.isIntegralBoxedPrimitive() -> {
                 integralValue() == expected.integralValue()
             }
-
             this is Double && expected is Double -> compareTo(expected) == 0
             this is Float && expected is Float -> compareTo(expected) == 0
             this is Double && expected is Int -> compareTo(expected.toDouble()) == 0
@@ -355,19 +340,22 @@ open class Subject<out T> internal constructor(
         return this is Byte || this is Short || this is Char || this is Int || this is Long
     }
 
-    private fun Any?.integralValue(): Long = when (this) {
-        is Char -> code.toLong()
-        is Number -> toLong()
-        // This is intentionally AssertionError and not AssertionErrorWithFacts to stay behaviour
-        // compatible with Truth.
-        else -> throw AssertionError("$this must be either a Char or a Number.")
-    }
+    private fun Any?.integralValue(): Long =
+        when (this) {
+            is Char -> code.toLong()
+            is Number -> toLong()
+            // This is intentionally AssertionError and not AssertionErrorWithFacts to stay
+            // behaviour
+            // compatible with Truth.
+            else -> throw AssertionError("$this must be either a Char or a Number.")
+        }
 
-    private fun Any?.toStringForAssert(): String = when {
-        this == null -> toString()
-        isIntegralBoxedPrimitive() -> "${this::class.qualifiedName}<$this>"
-        else -> toString()
-    }
+    private fun Any?.toStringForAssert(): String =
+        when {
+            this == null -> toString()
+            isIntegralBoxedPrimitive() -> "${this::class.qualifiedName}<$this>"
+            else -> toString()
+        }
 
     /**
      * Returns a builder for creating a derived subject.
@@ -376,17 +364,17 @@ open class Subject<out T> internal constructor(
      * current subject, and in some cases, they automatically supplement their failure message with
      * information about the original subject.
      *
-     * For example, [ThrowableSubject.hasMessageThat], which returns a [StringSubject],
-     * is implemented with `check("getMessage()").that(actual.getMessage())`.
+     * For example, [ThrowableSubject.hasMessageThat], which returns a [StringSubject], is
+     * implemented with `check("getMessage()").that(actual.getMessage())`.
      *
-     * The arguments to [check] describe how the new subject was derived from the old,
-     * formatted like a chained method call. This allows Truth to include that information in its
-     * failure messages. For example, `assertThat(caught).hasCauseThat().hasMessageThat()` will
-     * produce a failure message that includes the string "throwable.getCause().getMessage()," thanks
-     * to internal [check] calls that supplied "getCause()" and "getMessage()" as arguments.
+     * The arguments to [check] describe how the new subject was derived from the old, formatted
+     * like a chained method call. This allows Truth to include that information in its failure
+     * messages. For example, `assertThat(caught).hasCauseThat().hasMessageThat()` will produce a
+     * failure message that includes the string "throwable.getCause().getMessage()," thanks to
+     * internal [check] calls that supplied "getCause()" and "getMessage()" as arguments.
      *
-     * If the method you're delegating to accepts parameters, you can pass [check] a format
-     * string. For example, [MultimapSubject.valuesForKey] calls `check("valuesForKey(%s)", key)`.
+     * If the method you're delegating to accepts parameters, you can pass [check] a format string.
+     * For example, [MultimapSubject.valuesForKey] calls `check("valuesForKey(%s)", key)`.
      *
      * If you aren't really delegating to an instance method on the actual value -- maybe you're
      * calling a static method, or you're calling a chain of several methods -- you can supply
@@ -428,9 +416,7 @@ open class Subject<out T> internal constructor(
         message: String
     ): StandardSubjectBuilder {
         return StandardSubjectBuilder(
-            metadata.updateForCheckCall(valuesAreSimilar) { input: String? ->
-                "$input.$message"
-            }
+            metadata.updateForCheckCall(valuesAreSimilar) { input: String? -> "$input.$message" }
         )
     }
 
@@ -438,20 +424,22 @@ open class Subject<out T> internal constructor(
         if (typeDescriptionOverride != null) return typeDescriptionOverride
 
         /**
-         * j2cl doesn't store enough metadata to know whether "Foo$BarSubject" is a nested class, so it
-         * can't tell whether the simple name is "Foo$BarSubject" or just "BarSubject": b/71808768. It
-         * returns "Foo$BarSubject" to err on the side of preserving information. We want just
-         * "BarSubject," so we strip any likely enclosing type ourselves.
+         * j2cl doesn't store enough metadata to know whether "Foo$BarSubject" is a nested class, so
+         * it can't tell whether the simple name is "Foo$BarSubject" or just "BarSubject":
+         * b/71808768. It returns "Foo$BarSubject" to err on the side of preserving information. We
+         * want just "BarSubject," so we strip any likely enclosing type ourselves.
          */
         val subjectClass: String? = this::class.simpleName?.replaceFirst(Regex(".*[$]"), "")
-        val actualClass: String = if (subjectClass != null &&
-            subjectClass.endsWith("Subject") &&
-            subjectClass != "Subject"
-        ) {
-            subjectClass.substring(0, subjectClass.length - "Subject".length)
-        } else {
-            "Object"
-        }
+        val actualClass: String =
+            if (
+                subjectClass != null &&
+                    subjectClass.endsWith("Subject") &&
+                    subjectClass != "Subject"
+            ) {
+                subjectClass.substring(0, subjectClass.length - "Subject".length)
+            } else {
+                "Object"
+            }
         return actualClass.replaceFirstChar { it.lowercaseChar() }
     }
 
@@ -468,9 +456,8 @@ open class Subject<out T> internal constructor(
      *
      * **For people extending Kruth**
      *
-     * When you write a custom subject, see
-     * [our doc on extensions](https://truth.dev/extension). It explains where [Factory] fits into
-     * the process.
+     * When you write a custom subject, see [our doc on extensions](https://truth.dev/extension). It
+     * explains where [Factory] fits into the process.
      */
     fun interface Factory<out SubjectT : Subject<ActualT>, ActualT> {
         fun createSubject(metadata: FailureMetadata, actual: ActualT?): SubjectT
@@ -478,31 +465,34 @@ open class Subject<out T> internal constructor(
 }
 
 internal fun lenientFormat(template: String, vararg args: Any?): String {
-    val argsToLenientStrings = args.map {
-        if (it == null) {
-            return@map "null"
-        }
+    val argsToLenientStrings =
+        args.map {
+            if (it == null) {
+                return@map "null"
+            }
 
-        try {
-            it.toString()
-        } catch (e: Exception) {
-            // Default toString() behavior - see Object.toString()
-            val className = it::class.simpleName
-            val exceptionClassName = e::class.simpleName
-            val hashCodeHexString = it.hashCode().toUInt().toString(16)
-            "<$$className@$hashCodeHexString threw $exceptionClassName>"
+            try {
+                it.toString()
+            } catch (e: Exception) {
+                // Default toString() behavior - see Object.toString()
+                val className = it::class.simpleName
+                val exceptionClassName = e::class.simpleName
+                val hashCodeHexString = it.hashCode().toUInt().toString(16)
+                "<$$className@$hashCodeHexString threw $exceptionClassName>"
+            }
         }
-    }
 
     var i = 0
-    val formattedString = template.replace(Regex("%s")) { matchResult ->
-        val result = when {
-            i <= argsToLenientStrings.lastIndex -> argsToLenientStrings[i]
-            else -> matchResult.value
+    val formattedString =
+        template.replace(Regex("%s")) { matchResult ->
+            val result =
+                when {
+                    i <= argsToLenientStrings.lastIndex -> argsToLenientStrings[i]
+                    else -> matchResult.value
+                }
+            i++
+            return@replace result
         }
-        i++
-        return@replace result
-    }
 
     return when {
         i >= argsToLenientStrings.size -> formattedString

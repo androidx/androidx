@@ -46,8 +46,9 @@ class RetainMatchingToStringTest {
             assertContentEquals(
                 expected = expected,
                 actual = actual,
-                message = "Items: $items. Items to check: $itemsToCheck. " +
-                    "Expected: $expected. Actual: $actual",
+                message =
+                    "Items: $items. Items to check: $itemsToCheck. " +
+                        "Expected: $expected. Actual: $actual",
             )
         }
     }

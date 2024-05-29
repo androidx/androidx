@@ -24,26 +24,25 @@ import org.mockito.stubbing.Answer
 import org.mockito.stubbing.OngoingStubbing
 
 /**
- * [Answer] variant intended for [MockSettings.defaultAnswer] that logs the unmocked method
- * that was called, serializing the arguments used, to try and provide a more informative
- * error message.
+ * [Answer] variant intended for [MockSettings.defaultAnswer] that logs the unmocked method that was
+ * called, serializing the arguments used, to try and provide a more informative error message.
  */
 val ANSWER_THROWS: Answer<Any> = Answer {
     when (val name = it.method.name) {
         // Delegate to the actual toString, since that will probably not be mocked by a test
         "toString" -> Answers.CALLS_REAL_METHODS.answer(it)
         else -> {
-            val arguments = it.arguments
-                ?.takeUnless { it.isEmpty() }
-                ?.mapIndexed { index, arg ->
-                    try {
-                        arg?.toString()
-                    } catch (e: Exception) {
-                        "toString[$index] threw ${e.message}"
+            val arguments =
+                it.arguments
+                    ?.takeUnless { it.isEmpty() }
+                    ?.mapIndexed { index, arg ->
+                        try {
+                            arg?.toString()
+                        } catch (e: Exception) {
+                            "toString[$index] threw ${e.message}"
+                        }
                     }
-                }
-                ?.joinToString()
-                ?: "no arguments"
+                    ?.joinToString() ?: "no arguments"
 
             throw UnsupportedOperationException(
                 "${it.mock::class.java.simpleName}#$name with $arguments should not be called"
@@ -57,33 +56,28 @@ fun <Type : Any?> whenever(mock: Type, block: InvocationOnMock.() -> Type): Ongo
 
 /**
  * Spy an existing object and allow mocking within [block]. Once the method returns, the spied
- * instance is prepped to throw exceptions whenever an unmocked method is called. This can be
- * used to enforce that only specifically mocked methods are called, avoiding unexpected
- * results when the behavior under test adds code to call an unexpected method.
+ * instance is prepped to throw exceptions whenever an unmocked method is called. This can be used
+ * to enforce that only specifically mocked methods are called, avoiding unexpected results when the
+ * behavior under test adds code to call an unexpected method.
  */
 inline fun <reified T> spyThrowOnUnmocked(value: T?, block: T.() -> Unit = {}): T {
-    val swappingAnswer = object : Answer<Any?> {
-        var delegate: Answer<*> = Answers.RETURNS_DEFAULTS
+    val swappingAnswer =
+        object : Answer<Any?> {
+            var delegate: Answer<*> = Answers.RETURNS_DEFAULTS
 
-        override fun answer(invocation: InvocationOnMock?): Any? {
-            return delegate.answer(invocation)
+            override fun answer(invocation: InvocationOnMock?): Any? {
+                return delegate.answer(invocation)
+            }
         }
+
+    val settings = Mockito.withSettings().spiedInstance(value).defaultAnswer(swappingAnswer)
+
+    return Mockito.mock(T::class.java, settings).apply(block).also {
+        // To allow Mockito.when() usage inside block, only swap to throwing afterwards
+        swappingAnswer.delegate = ANSWER_THROWS
     }
-
-    val settings = Mockito.withSettings()
-        .spiedInstance(value)
-        .defaultAnswer(swappingAnswer)
-
-    return Mockito.mock(T::class.java, settings)
-        .apply(block)
-        .also {
-            // To allow Mockito.when() usage inside block, only swap to throwing afterwards
-            swappingAnswer.delegate = ANSWER_THROWS
-        }
 }
 
-/**
- * [Mockito.mock] equivalent of [spyThrowOnUnmocked] which doesn't spy an existing instance.
- */
+/** [Mockito.mock] equivalent of [spyThrowOnUnmocked] which doesn't spy an existing instance. */
 inline fun <reified T> mockThrowOnUnmocked(block: T.() -> Unit = {}) =
     spyThrowOnUnmocked(null, block)

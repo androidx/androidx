@@ -39,9 +39,7 @@ val ITERATIONS: List<Int> = (1..10).toList()
 @LargeTest
 class ActivityNoPersist(val index: Int) {
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun spec() = ITERATIONS
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun spec() = ITERATIONS
 
         @BeforeClass
         @JvmStatic
@@ -50,8 +48,7 @@ class ActivityNoPersist(val index: Int) {
         }
     }
 
-    @get:Rule
-    val activityRule = ResettableActivityScenarioRule(TestActivity::class.java)
+    @get:Rule val activityRule = ResettableActivityScenarioRule(TestActivity::class.java)
 
     @Test
     fun test() {
@@ -72,9 +69,7 @@ class ActivityNoPersist(val index: Int) {
 @LargeTest
 class ActivityPersist(@Suppress("unused") val ignored: Int) {
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun spec() = ITERATIONS
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun spec() = ITERATIONS
 
         @BeforeClass
         @JvmStatic
@@ -104,9 +99,7 @@ class ActivityPersist(@Suppress("unused") val ignored: Int) {
 @LargeTest
 class ActivityPersistNoReset(val index: Int) {
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun spec() = ITERATIONS
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun spec() = ITERATIONS
 
         @get:ClassRule
         @JvmStatic
@@ -134,9 +127,7 @@ class ActivityPersistNoReset(val index: Int) {
 @LargeTest
 class ActivityPersistWithReset(val index: Int) {
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun spec() = ITERATIONS
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun spec() = ITERATIONS
 
         @get:ClassRule
         @JvmStatic
@@ -144,9 +135,10 @@ class ActivityPersistWithReset(val index: Int) {
     }
 
     @get:Rule
-    val resetRule = ActivityScenarioResetRule(activityRule.scenario) {
-        it.setContentView(R.layout.content_view)
-    }
+    val resetRule =
+        ActivityScenarioResetRule(activityRule.scenario) {
+            it.setContentView(R.layout.content_view)
+        }
 
     @Test
     fun contentViewIsReplaced() {

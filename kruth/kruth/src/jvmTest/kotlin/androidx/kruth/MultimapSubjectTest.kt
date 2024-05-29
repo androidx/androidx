@@ -52,9 +52,7 @@ class MultimapSubjectTest {
                 .putAll("kurt", "kluever", "cobain", "russell")
                 .build()
 
-        assertFailsWith<AssertionError> {
-            assertThat(multimapA).isEqualTo(multimapB)
-        }
+        assertFailsWith<AssertionError> { assertThat(multimapA).isEqualTo(multimapB) }
     }
 
     @Test
@@ -81,9 +79,7 @@ class MultimapSubjectTest {
             ImmutableSetMultimap.builder<String, String>()
                 .putAll("kurt", "kluever", "russell")
                 .build()
-        assertFailsWith<AssertionError> {
-            assertThat(multimapA).isEqualTo(multimapB)
-        }
+        assertFailsWith<AssertionError> { assertThat(multimapA).isEqualTo(multimapB) }
     }
 
     @Test
@@ -96,9 +92,7 @@ class MultimapSubjectTest {
             ImmutableListMultimap.builder<String, String>()
                 .putAll("kurt", "kluever", "russell", "cobain")
                 .build()
-        assertFailsWith<AssertionError> {
-            assertThat(multimapA).isEqualTo(multimapB)
-        }
+        assertFailsWith<AssertionError> { assertThat(multimapA).isEqualTo(multimapB) }
     }
 
     @Test
@@ -118,9 +112,7 @@ class MultimapSubjectTest {
     @Test
     fun multimapIsEmptyWithFailure() {
         val multimap = ImmutableMultimap.of(1, 5)
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).isEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).isEmpty() }
     }
 
     @Test
@@ -132,9 +124,7 @@ class MultimapSubjectTest {
     @Test
     fun multimapIsNotEmptyWithFailure() {
         val multimap = ImmutableMultimap.of<Int, Int>()
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).isNotEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).isNotEmpty() }
     }
 
     @Test
@@ -163,9 +153,7 @@ class MultimapSubjectTest {
     @Test
     fun containsKeyFailure() {
         val multimap = ImmutableMultimap.of("kurt", "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).containsKey("daniel")
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).containsKey("daniel") }
     }
 
     @Test
@@ -178,17 +166,16 @@ class MultimapSubjectTest {
     @Test
     fun containsKeyNullFailure() {
         val multimap = ImmutableMultimap.of("kurt", "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).containsKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).containsKey(null) }
     }
 
     @Test
     fun containsKey_failsWithSameToString() {
         assertFailsWith<AssertionError> {
             assertThat(
-                ImmutableMultimap.of(1L, "value1a", 1L, "value1b", 2L, "value2", "1", "value3")
-            ).containsKey(1)
+                    ImmutableMultimap.of(1L, "value1a", 1L, "value1b", 2L, "value2", "1", "value3")
+                )
+                .containsKey(1)
         }
     }
 
@@ -202,18 +189,14 @@ class MultimapSubjectTest {
     @Test
     fun doesNotContainKeyFailure() {
         val multimap = ImmutableMultimap.of("kurt", "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).doesNotContainKey("kurt")
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).doesNotContainKey("kurt") }
     }
 
     @Test
     fun doesNotContainNullKeyFailure() {
         val multimap = HashMultimap.create<String?, String>()
         multimap.put(null, "null")
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).doesNotContainKey(null)
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).doesNotContainKey(null) }
     }
 
     @Test
@@ -225,9 +208,7 @@ class MultimapSubjectTest {
     @Test
     fun containsEntryFailure() {
         val multimap = ImmutableMultimap.of("kurt", "kluever")
-        assertFailsWith<AssertionError> {
-            assertThat(multimap).containsEntry("daniel", "ploch")
-        }
+        assertFailsWith<AssertionError> { assertThat(multimap).containsEntry("daniel", "ploch") }
     }
 
     @Test
@@ -240,55 +221,46 @@ class MultimapSubjectTest {
     @Test
     fun failContainsEntry() {
         val actual = ImmutableMultimap.of("a", "A")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("b", "B")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("b", "B") }
     }
 
     @Test
     fun failContainsEntryFailsWithWrongValueForKey() {
         val actual = ImmutableMultimap.of("a", "A")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("a", "a")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("a", "a") }
     }
 
     @Test
     fun failContainsEntryWithNullValuePresentExpected() {
         val actual = ArrayListMultimap.create<String, String?>()
         actual.put("a", null)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("a", "A")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("a", "A") }
     }
 
     @Test
     fun failContainsEntryWithPresentValueNullExpected() {
         val actual = ImmutableMultimap.of("a", "A")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("a", null)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("a", null) }
     }
 
     @Test
     fun failContainsEntryFailsWithWrongKeyForValue() {
         val actual = ImmutableMultimap.of("a", "A")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsEntry("b", "A")
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsEntry("b", "A") }
     }
 
     @Test
     fun containsEntry_failsWithSameToString() {
         assertFailsWith<AssertionError> {
             assertThat(
-                ImmutableMultimap.builder<Any, Any>()
-                    .put(1, "1")
-                    .put(1, 1L)
-                    .put(1L, 1)
-                    .put(2, 3)
-                    .build()
-            ).containsEntry(1, 1)
+                    ImmutableMultimap.builder<Any, Any>()
+                        .put(1, "1")
+                        .put(1, 1L)
+                        .put(1L, 1)
+                        .put(2, 3)
+                        .build()
+                )
+                .containsEntry(1, 1)
         }
     }
 
@@ -367,9 +339,7 @@ class MultimapSubjectTest {
     fun containsExactlyRespectsDuplicatesFailure() {
         val actual = ImmutableListMultimap.of(3, "one", 3, "two", 3, "one", 4, "five", 4, "five")
         val expected = ImmutableSetMultimap.copyOf(actual)
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactlyEntriesIn(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactlyEntriesIn(expected) }
     }
 
     @Test
@@ -378,9 +348,7 @@ class MultimapSubjectTest {
         val actual = LinkedListMultimap.create(expected)
         actual.remove(3, "six")
         actual.remove(4, "five")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactlyEntriesIn(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactlyEntriesIn(expected) }
     }
 
     @Test
@@ -389,9 +357,7 @@ class MultimapSubjectTest {
         val actual = LinkedListMultimap.create(expected)
         actual.put(4, "nine")
         actual.put(5, "eight")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactlyEntriesIn(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactlyEntriesIn(expected) }
     }
 
     @Test
@@ -402,9 +368,7 @@ class MultimapSubjectTest {
         actual.remove(4, "five")
         actual.put(4, "nine")
         actual.put(5, "eight")
-        assertFailsWith<AssertionError> {
-            assertThat(actual).containsExactlyEntriesIn(expected)
-        }
+        assertFailsWith<AssertionError> { assertThat(actual).containsExactlyEntriesIn(expected) }
     }
 
     @Test

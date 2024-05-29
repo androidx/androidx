@@ -25,27 +25,20 @@ class ChainingKruthTest {
 
     @Test
     fun singleChain() {
-        assertFailsWith<AssertionError> {
-            ObjectSubject.assertThat("object1").isNotAnObject()
-        }
+        assertFailsWith<AssertionError> { ObjectSubject.assertThat("object1").isNotAnObject() }
     }
 
     @Test
     fun doubleChain() {
         assertFailsWith<AssertionError> {
-            ObjectSubject.assertThat("object1")
-                .chain("object2")
-                .isNotAnObject()
+            ObjectSubject.assertThat("object1").chain("object2").isNotAnObject()
         }
     }
 
     @Test
     fun tripleChain() {
         assertFailsWith<AssertionError> {
-            ObjectSubject.assertThat("object1")
-                .chain("object2")
-                .chain("object3")
-                .isNotAnObject()
+            ObjectSubject.assertThat("object1").chain("object2").chain("object3").isNotAnObject()
         }
     }
 
@@ -55,9 +48,7 @@ class ChainingKruthTest {
     ) : Subject<Any>(actual = actual, metadata = metadata) {
         companion object {
             val FACTORY: Factory<ObjectSubject, Any> =
-                Factory<ObjectSubject, Any> { metadata, actual ->
-                    ObjectSubject(metadata, actual)
-                }
+                Factory<ObjectSubject, Any> { metadata, actual -> ObjectSubject(metadata, actual) }
 
             // entry point
             fun assertThat(obj: Any): ObjectSubject {

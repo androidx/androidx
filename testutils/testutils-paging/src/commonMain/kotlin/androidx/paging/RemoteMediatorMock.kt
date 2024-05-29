@@ -21,8 +21,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPagingApi::class)
-typealias LoadCallback = suspend (loadType: LoadType, state: PagingState<Int, Int>) ->
-RemoteMediator.MediatorResult?
+typealias LoadCallback =
+    suspend (loadType: LoadType, state: PagingState<Int, Int>) -> RemoteMediator.MediatorResult?
 
 @OptIn(ExperimentalPagingApi::class)
 open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<Int, Int>() {
@@ -56,10 +56,7 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
         return MediatorResult.Success(false)
     }
 
-    override suspend fun load(
-        loadType: LoadType,
-        state: PagingState<Int, Int>
-    ): MediatorResult {
+    override suspend fun load(loadType: LoadType, state: PagingState<Int, Int>): MediatorResult {
         loadEvents.add(LoadEvent(loadType, state))
         _newLoadEvents.add(LoadEvent(loadType, state))
         return loadCallback?.invoke(loadType, state) ?: defaultLoadCallback(loadType, state)
@@ -70,11 +67,8 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
         return initializeResult
     }
 
-    fun loadEventCounts() = LoadType.values().associateWith { loadType ->
-        loadEvents.count {
-            it.loadType == loadType
-        }
-    }
+    fun loadEventCounts() =
+        LoadType.values().associateWith { loadType -> loadEvents.count { it.loadType == loadType } }
 
     data class LoadEvent<Key : Any, Value : Any>(
         val loadType: LoadType,

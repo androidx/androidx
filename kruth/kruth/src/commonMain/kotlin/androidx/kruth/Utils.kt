@@ -31,9 +31,7 @@ internal inline fun <T : Any> requireNonNull(
     value: T?,
     lazyMessage: () -> Any = { "Required value was null." },
 ): T {
-    contract {
-        returns() implies (value != null)
-    }
+    contract { returns() implies (value != null) }
 
     return value ?: throw NullPointerException(lazyMessage().toString())
 }
@@ -42,12 +40,10 @@ internal fun Iterable<*>.isEmpty(): Boolean =
     (this as? Collection<*>)?.isEmpty() ?: !iterator().hasNext()
 
 /**
- * Returns a new collection containing all elements in [this] for which there exists at
- * least one element in [itemsToCheck] that has the same [toString][Any.toString] value without
- * being equal.
+ * Returns a new collection containing all elements in [this] for which there exists at least one
+ * element in [itemsToCheck] that has the same [toString][Any.toString] value without being equal.
  *
  * Example:
- *
  * ```
  * listOf(1L, 2L, 2L).retainMatchingToString(listOf(2, 3)) == listOf(2L, 2L)
  * ```
@@ -77,13 +73,11 @@ internal fun Any?.typeName(): String =
             // The name "null type" comes from the interface javax.lang.model.type.NullType
             "null type"
         }
-
         is Map.Entry<*, *> -> {
             // Fix for interesting bug when entry.getValue() returns itself b/170390717
             val valueTypeName = if (value === this) "Map.Entry" else value.typeName()
             "Map.Entry<${key.typeName()}, $valueTypeName>"
         }
-
         else -> this::class.simpleName ?: "unknown type"
     }
 
@@ -109,9 +103,7 @@ internal fun Iterable<*>.countDuplicates(): String =
             },
         )
 
-/**
- * Returns the name of the single type of all given items or `null` if no such type exists.
- */
+/** Returns the name of the single type of all given items or `null` if no such type exists. */
 private fun Iterable<*>.homogeneousTypeName(): String? {
     var homogeneousTypeName: String? = null
 
@@ -126,5 +118,4 @@ private fun Iterable<*>.homogeneousTypeName(): String? {
     return homogeneousTypeName
 }
 
-private fun Iterable<*>.addTypeInfoToEveryItem(): List<String> =
-    map { "$it (${it.typeName()})" }
+private fun Iterable<*>.addTypeInfoToEveryItem(): List<String> = map { "$it (${it.typeName()})" }

@@ -23,9 +23,10 @@ import androidx.kruth.Fact.Companion.simpleFact
  * Propositions for [Float] subjects.
  *
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
- * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-class FloatSubject internal constructor(
+class FloatSubject
+internal constructor(
     actual: Float?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : ComparableSubject<Float>(metadata, actual) {
@@ -44,13 +45,13 @@ class FloatSubject internal constructor(
      * Use [isEqualTo] to assert that a value is exactly `0.0f` or that it is exactly `-0.0f`.
      *
      * You can use a tolerance of `0.0f` to assert the exact equality of finite floats, but often
-     * [isEqualTo] is preferable (note the different behaviours around non-finite values
-     * and `-0.0f`). See the documentation on [isEqualTo] for advice on when exact
-     * equality assertions are appropriate.
+     * [isEqualTo] is preferable (note the different behaviours around non-finite values and
+     * `-0.0f`). See the documentation on [isEqualTo] for advice on when exact equality assertions
+     * are appropriate.
      *
      * @param tolerance an inclusive upper bound on the difference between the subject and object
-     * allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
-     * [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
+     *   allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
+     *   [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
      */
     fun isWithin(tolerance: Float): TolerantFloatComparison =
         object : TolerantFloatComparison() {
@@ -79,17 +80,17 @@ class FloatSubject internal constructor(
      * [Float.NEGATIVE_INFINITY], or [Float.NaN]. See [isFinite], [isNotNaN], or [isNotEqualTo] for
      * checks with other behaviours.
      *
-     * The check will fail if both values are zero, even if one is `0.0f` and the other is
-     * `-0.0f`. Use [isNotEqualTo] for a test which fails for a value of exactly zero
-     * with one sign but passes for zero with the opposite sign.
+     * The check will fail if both values are zero, even if one is `0.0f` and the other is `-0.0f`.
+     * Use [isNotEqualTo] for a test which fails for a value of exactly zero with one sign but
+     * passes for zero with the opposite sign.
      *
-     * You can use a tolerance of `0.0f` to assert the exact non-equality of finite floats,
-     * but sometimes [isNotEqualTo] is preferable (note the different behaviours around
-     * non-finite values and `-0.0f`).
+     * You can use a tolerance of `0.0f` to assert the exact non-equality of finite floats, but
+     * sometimes [isNotEqualTo] is preferable (note the different behaviours around non-finite
+     * values and `-0.0f`).
      *
-     * @param tolerance an exclusive lower bound  on the difference between the  subject and object
-     * allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
-     * [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
+     * @param tolerance an exclusive lower bound on the difference between the subject and object
+     *   allowed by the check, which must be a non-negative finite value, i.e. not [Float.NaN],
+     *   [Float.POSITIVE_INFINITY], or negative, including `-0.0f`.
      */
     fun isNotWithin(tolerance: Float): TolerantFloatComparison =
         object : TolerantFloatComparison() {
@@ -112,17 +113,17 @@ class FloatSubject internal constructor(
 
     /**
      * Asserts that the subject is exactly equal to the given value, with equality defined as by
-     * [Float.equals]. This method is *not* recommended when the code under test is doing
-     * any kind of arithmetic: use [isWithin] with a suitable tolerance in that case. (Remember
-     * that the exact result of floating point arithmetic is sensitive to apparently trivial changes
-     * such as replacing `(a + b) + c` with `a + (b + c)`, and that unless `strictfp` is in force
-     * even the result of `(a + b) + c` is sensitive to the JVM's choice of precision for the
-     * intermediate result.) This method is recommended when the code under test is specified as
-     * either copying a value without modification from its input or returning a well-defined
-     * literal or constant value.
+     * [Float.equals]. This method is *not* recommended when the code under test is doing any kind
+     * of arithmetic: use [isWithin] with a suitable tolerance in that case. (Remember that the
+     * exact result of floating point arithmetic is sensitive to apparently trivial changes such as
+     * replacing `(a + b) + c` with `a + (b + c)`, and that unless `strictfp` is in force even the
+     * result of `(a + b) + c` is sensitive to the JVM's choice of precision for the intermediate
+     * result.) This method is recommended when the code under test is specified as either copying a
+     * value without modification from its input or returning a well-defined literal or constant
+     * value.
      *
-     * **Note:** The assertion `isEqualTo(0.0f)` fails for an input of `-0.0f`, and
-     * vice versa. For an assertion that passes for either `0.0f` or `-0.0f`, use [isZero].
+     * **Note:** The assertion `isEqualTo(0.0f)` fails for an input of `-0.0f`, and vice versa. For
+     * an assertion that passes for either `0.0f` or `-0.0f`, use [isZero].
      */
     override fun isEqualTo(expected: Any?) {
         super.isEqualTo(expected)
@@ -133,8 +134,8 @@ class FloatSubject internal constructor(
      * [Float.equals]. See [isEqualTo] for advice on when exact equality is recommended. Use
      * [isNotWithin] for an assertion with a tolerance.
      *
-     * **Note:** The assertion `isNotEqualTo(0.0f)` passes for `-0.0f`, and vice
-     * versa. For an assertion that fails for either `0.0f` or `-0.0f`, use [isNonZero].
+     * **Note:** The assertion `isNotEqualTo(0.0f)` passes for `-0.0f`, and vice versa. For an
+     * assertion that fails for either `0.0f` or `-0.0f`, use [isNonZero].
      */
     override fun isNotEqualTo(unexpected: Any?) {
         super.isNotEqualTo(unexpected)
@@ -156,8 +157,8 @@ class FloatSubject internal constructor(
     }
 
     /**
-     * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0f`,
-     * `-0.0f` or `null`).
+     * Asserts that the subject is a non-null value other than zero (i.e. it is not `0.0f`, `-0.0f`
+     * or `null`).
      */
     fun isNonZero() {
         when (actual) {
@@ -233,7 +234,6 @@ class FloatSubject internal constructor(
     /**
      * Checks that the subject is greater than or equal to [other].
      *
-     *
      * To check that the subject is *strictly* greater than [other], use [isGreaterThan].
      */
     fun isAtLeast(other: Int) {
@@ -242,15 +242,13 @@ class FloatSubject internal constructor(
 
     abstract class TolerantFloatComparison internal constructor() {
         /**
-         * Fails if the subject was expected to be within the tolerance of the given value but was not
-         * _or_ if it was expected _not_ to be within the tolerance but was. The subject and
+         * Fails if the subject was expected to be within the tolerance of the given value but was
+         * not _or_ if it was expected _not_ to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
         abstract fun of(expected: Float)
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated(
             "Not supported on TolerantDoubleComparison. " +
                 "If you meant to compare doubles, use of(Double) instead.",
@@ -261,9 +259,7 @@ class FloatSubject internal constructor(
             )
         }
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated("Not supported on TolerantFloatComparison")
         override fun hashCode(): Int {
             throw UnsupportedOperationException("Subject.hashCode() is not supported.")

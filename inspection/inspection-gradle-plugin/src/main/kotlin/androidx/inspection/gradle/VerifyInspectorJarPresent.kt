@@ -31,10 +31,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 
-/**
- * Task for verifying "inspector.jar" is present in all inspector-supported libraries
- */
-
+/** Task for verifying "inspector.jar" is present in all inspector-supported libraries */
 @CacheableTask
 abstract class VerifyInspectorJarPresentTask : DefaultTask() {
     init {
@@ -47,9 +44,7 @@ abstract class VerifyInspectorJarPresentTask : DefaultTask() {
 
     @TaskAction
     fun verifyInspectorJarIsPresent() {
-        check(inspectorJarPresent(inputAarFile)) {
-            "$inputAarFile does not contain inspector.jar"
-        }
+        check(inspectorJarPresent(inputAarFile)) { "$inputAarFile does not contain inspector.jar" }
     }
 }
 
@@ -66,29 +61,22 @@ internal fun inspectorJarPresent(inputFile: File): Boolean {
     return false
 }
 
-internal fun Project.createVerifyInspectorJarPresentTask(artifactId: String):
-    TaskProvider<VerifyInspectorJarPresentTask>? {
+internal fun Project.createVerifyInspectorJarPresentTask(
+    artifactId: String
+): TaskProvider<VerifyInspectorJarPresentTask>? {
     val groupId = project.group.toString().replace('.', '/')
-    @Suppress("DEPRECATION")
-    val androidxRepoOutDir = project.rootProject.buildDir
+    @Suppress("DEPRECATION") val androidxRepoOutDir = project.rootProject.buildDir
     val version = project.version
     val aarFileName = "$artifactId-$version.aar"
-    val aarFile = project.file(
-        "$androidxRepoOutDir/support_repo/$groupId/$artifactId/$version/$aarFileName"
-    )
-    val taskProvider = tasks.register(
-        "verifyInspectorJarIsPresent",
-        VerifyInspectorJarPresentTask::class.java
-    ) {
-        it.dependsOn(
-            "publish"
-        )
-        it.inputAarFile = aarFile
-        it.cacheEvenIfNoOutputs()
-    }
-    tasks.named("buildOnServer").configure {
-        it.dependsOn(taskProvider)
-    }
+    val aarFile =
+        project.file("$androidxRepoOutDir/support_repo/$groupId/$artifactId/$version/$aarFileName")
+    val taskProvider =
+        tasks.register("verifyInspectorJarIsPresent", VerifyInspectorJarPresentTask::class.java) {
+            it.dependsOn("publish")
+            it.inputAarFile = aarFile
+            it.cacheEvenIfNoOutputs()
+        }
+    tasks.named("buildOnServer").configure { it.dependsOn(taskProvider) }
     return taskProvider
 }
 
@@ -98,9 +86,8 @@ fun Task.cacheEvenIfNoOutputs() {
 }
 
 /**
- * Returns an unused output path that we can pass to Gradle to prevent Gradle from thinking
- * that we forgot to declare outputs of this task, and instead to skip this task if its inputs
- * are unchanged
+ * Returns an unused output path that we can pass to Gradle to prevent Gradle from thinking that we
+ * forgot to declare outputs of this task, and instead to skip this task if its inputs are unchanged
  */
 private fun Task.getDummyOutput(): Provider<RegularFile> {
     return project.layout.buildDirectory.file("dummyOutput/" + this.name.replace(":", "-"))

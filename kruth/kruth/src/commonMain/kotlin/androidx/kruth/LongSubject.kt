@@ -18,10 +18,9 @@ package androidx.kruth
 
 import androidx.kruth.Fact.Companion.fact
 
-/**
- * Propositions for [Long] subjects.
- */
-open class LongSubject internal constructor(
+/** Propositions for [Long] subjects. */
+open class LongSubject
+internal constructor(
     actual: Long?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : ComparableSubject<Long>(actual, metadata) {
@@ -31,7 +30,7 @@ open class LongSubject internal constructor(
      * value that will be provided in the next call in the fluent chain.
      *
      * @param tolerance an inclusive upper bound on the difference between the subject and object
-     * allowed by the check, which must be a non-negative value.
+     *   allowed by the check, which must be a non-negative value.
      */
     fun isWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
@@ -58,7 +57,7 @@ open class LongSubject internal constructor(
      * expected value that will be provided in the next call in the fluent chain.
      *
      * @param tolerance an exclusive lower bound on the difference between the subject and object
-     * allowed by the check, which must be a non-negative value.
+     *   allowed by the check, which must be a non-negative value.
      */
     fun isNotWithin(tolerance: Long): TolerantLongComparison {
         return object : TolerantLongComparison() {
@@ -98,15 +97,13 @@ open class LongSubject internal constructor(
      */
     abstract class TolerantLongComparison internal constructor() {
         /**
-         * Fails if the subject was expected to be within the tolerance of the given value but was not
-         * *or* if it was expected *not* to be within the tolerance but was. The subject and
+         * Fails if the subject was expected to be within the tolerance of the given value but was
+         * not *or* if it was expected *not* to be within the tolerance but was. The subject and
          * tolerance are specified earlier in the fluent call chain.
          */
         abstract fun of(expected: Long)
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated(
             "Not supported on TolerantLongComparison. " +
                 "If you meant to compare longs, use `of(Long)` instead."
@@ -117,9 +114,7 @@ open class LongSubject internal constructor(
             )
         }
 
-        /**
-         * @throws UnsupportedOperationException always
-         */
+        /** @throws UnsupportedOperationException always */
         @Deprecated("Not supported on TolerantLongComparison")
         override fun hashCode(): Int {
             throw UnsupportedOperationException("Subject.hashCode() is not supported.")

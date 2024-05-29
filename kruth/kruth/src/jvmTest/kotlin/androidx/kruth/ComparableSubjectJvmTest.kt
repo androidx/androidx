@@ -33,53 +33,41 @@ class ComparableSubjectJvmTest {
     fun isIn_int() {
         val oneToFive = Range.closed(1, 5)
         assertThat(4).isIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(6).isIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(6).isIn(oneToFive) }
     }
 
     @Test
     fun isNotIn_int() {
         val oneToFive = Range.closed(1, 5)
         assertThat(6).isNotIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(4).isNotIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(4).isNotIn(oneToFive) }
     }
 
     @Test
     fun isIn_long() {
         val oneToFive = Range.closed(1L, 5L)
         assertThat(4L).isIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(6L).isIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(6L).isIn(oneToFive) }
     }
 
     @Test
     fun isNotIn_long() {
         val oneToFive = Range.closed(1L, 5L)
         assertThat(6L).isNotIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat(4L).isNotIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat(4L).isNotIn(oneToFive) }
     }
 
     @Test
     fun isIn_string() {
         val oneToFive = Range.closed("a", "c")
         assertThat("b").isIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat("d").isIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat("d").isIn(oneToFive) }
     }
 
     @Test
     fun isNotIn_string() {
         val oneToFive = Range.closed("a", "c")
         assertThat("d").isNotIn(oneToFive)
-        assertFailsWith<AssertionError> {
-            assertThat("b").isNotIn(oneToFive)
-        }
+        assertFailsWith<AssertionError> { assertThat("b").isNotIn(oneToFive) }
     }
 }
