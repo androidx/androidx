@@ -40,11 +40,7 @@ import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
-import androidx.core.telecom.internal.ConnectionServiceAdapter
-import androidx.core.telecom.internal.ConnectionServiceProduction
 import androidx.core.telecom.internal.JetpackConnectionService
-import androidx.core.telecom.internal.TelecomManagerAdapter
-import androidx.core.telecom.internal.TelecomManagerProduction
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -74,8 +70,9 @@ import kotlinx.coroutines.withTimeout
 class CallsManager constructor(context: Context) {
     private val mContext: Context = context
     private var mPhoneAccount: PhoneAccount? = null
-    private var mTelecomManager: TelecomManagerAdapter = TelecomManagerProduction(context)
-    internal var mConnectionService: ConnectionServiceAdapter = ConnectionServiceProduction()
+    private val mTelecomManager: TelecomManager =
+        mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+    internal val mConnectionService: JetpackConnectionService = JetpackConnectionService()
 
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
@@ -499,13 +496,5 @@ class CallsManager constructor(context: Context) {
         capabilities: List<androidx.core.telecom.extensions.Capability>
     ) {
         mCapabilities = capabilities.toMutableList()
-    }
-
-    internal fun setTelecomManagerAdapter(telecomManagerAdapter: TelecomManagerAdapter) {
-        mTelecomManager = telecomManagerAdapter
-    }
-
-    internal fun setConnectionServiceAdapter(connectionServiceAdapter: ConnectionServiceAdapter) {
-        mConnectionService = connectionServiceAdapter
     }
 }

@@ -64,7 +64,7 @@ abstract class BaseTelecomTest {
         mTelecomManager = mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
         mAudioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         mCallsManager = CallsManager(mContext)
-        mConnectionService = mCallsManager.mConnectionService.getConnectionService()!!
+        mConnectionService = mCallsManager.mConnectionService
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
         mPackagePhoneAccountHandle = mCallsManager.getPhoneAccountHandleForPackage()
         mPreviousDefaultDialer = TestUtils.getDefaultDialer()
