@@ -578,6 +578,35 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun removedEnumEntries() {
+        val beforeText =
+            """
+        final enum class my.lib/MyClass : kotlin/Enum<my.lib/MyClass> { // my.lib/MyClass|null[0]
+            enum entry FIRST // my.lib/MyClass.FIRST|null[0]
+            enum entry SECOND // my.lib/MyClass.SECOND|null[0]
+            final fun valueOf(kotlin/String): my.lib/MyClass // my.lib/MyClass.valueOf|valueOf#static(kotlin.String){}[0]
+            final fun values(): kotlin/Array<my.lib/MyClass> // my.lib/MyClass.values|values#static(){}[0]
+            final val entries // my.lib/MyClass.entries|#static{}entries[0]
+                final fun <get-entries>(): kotlin.enums/EnumEntries<my.lib/MyClass> // my.lib/MyClass.entries.<get-entries>|<get-entries>#static(){}[0]
+        }
+        """
+
+        val afterText =
+            """
+        final enum class my.lib/MyClass : kotlin/Enum<my.lib/MyClass> { // my.lib/MyClass|null[0]
+            enum entry FIRST // my.lib/MyClass.FIRST|null[0]
+            final fun valueOf(kotlin/String): my.lib/MyClass // my.lib/MyClass.valueOf|valueOf#static(kotlin.String){}[0]
+            final fun values(): kotlin/Array<my.lib/MyClass> // my.lib/MyClass.values|values#static(){}[0]
+            final val entries // my.lib/MyClass.entries|#static{}entries[0]
+                final fun <get-entries>(): kotlin.enums/EnumEntries<my.lib/MyClass> // my.lib/MyClass.entries.<get-entries>|<get-entries>#static(){}[0]
+        }
+        """
+
+        val expectedErrorMessages = listOf("Removed declaration SECOND from my.lib/MyClass")
+        testBeforeAndAfterIsIncompatible(beforeText, afterText, expectedErrorMessages)
+    }
+
+    @Test
     fun nonSealedToSealed() {
         val beforeText =
             """
