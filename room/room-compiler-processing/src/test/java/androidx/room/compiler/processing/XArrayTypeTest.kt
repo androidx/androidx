@@ -60,10 +60,10 @@ class XArrayTypeTest {
                 invocation.isKsp &&
                 (invocation.processingEnv as KspProcessingEnv).isKsp2
             ) {
-                XTypeName.getProducerExtendsName(String::class.asClassName())
+                XTypeName.getProducerExtendsName(String::class.asClassName().copy(nullable = true))
             } else {
-                String::class.asClassName()
-            }.copy(nullable = true)
+                String::class.asClassName().copy(nullable = true)
+            }
             assertThat(type.asTypeName()).isEqualTo(
                 XTypeName.getArrayName(arrComponentTypeName).copy(nullable = true)
             )
