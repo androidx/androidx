@@ -227,7 +227,11 @@ class DepthSortedSetTest {
         override fun measureAndLayout(sendPointerUpdate: Boolean) = throw IllegalStateException()
         override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) = throw IllegalStateException()
         override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) = throw IllegalStateException()
-        override fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit, explicitLayer: GraphicsLayer?): OwnedLayer = throw IllegalStateException()
+        override fun createLayer(
+            drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+            invalidateParentLayer: () -> Unit,
+            explicitLayer: GraphicsLayer?
+        ): OwnedLayer = throw IllegalStateException()
         override fun onSemanticsChange() = throw IllegalStateException()
         override fun onLayoutChange(layoutNode: LayoutNode) = throw IllegalStateException()
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? = throw IllegalStateException()
