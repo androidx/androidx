@@ -104,17 +104,17 @@ import java.util.Locale
  * @param content The content of the [TimeText].
  */
 @Composable
-public fun TimeText(
+fun TimeText(
     modifier: Modifier = Modifier,
     curvedModifier: CurvedModifier = CurvedModifier,
     maxSweepAngle: Float = TimeTextDefaults.MaxSweepAngle,
-    timeSource: TimeSource = TimeTextDefaults.timeSource(timeFormat()),
+    timeSource: TimeSource = TimeTextDefaults.rememberTimeSource(timeFormat()),
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
     contentColor: Color = MaterialTheme.colorScheme.primary,
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
     content: TimeTextScope.() -> Unit
 ) {
-    val timeText = timeSource.currentTime
+    val timeText = timeSource.currentTime()
 
     if (isRoundDevice()) {
         CurvedLayout(modifier = modifier) {
@@ -145,7 +145,7 @@ public fun TimeText(
 /**
  * Receiver scope which is used by [TimeText].
  */
-public sealed class TimeTextScope {
+sealed class TimeTextScope {
     /**
      * Adds a composable [Text] for non-round devices and [curvedText] for round devices to
      * [TimeText] content. Typically used to add a short status message ahead of the time text.
@@ -182,7 +182,7 @@ public sealed class TimeTextScope {
 /**
  * Contains the default values used by [TimeText].
  */
-public object TimeTextDefaults {
+object TimeTextDefaults {
 
     /**
      * By default, TimeText has 2.dp screen padding from the top.
@@ -210,14 +210,14 @@ public object TimeTextDefaults {
     /**
      * The default content padding used by [TimeText].
      */
-    public val ContentPadding: PaddingValues = PaddingValues(top = Padding)
+    val ContentPadding: PaddingValues = PaddingValues(top = Padding)
 
     /**
      * Retrieves default timeFormat for the device. Depending on settings, it can be either
      * 12h or 24h format.
      */
     @Composable
-    public fun timeFormat(): String {
+    fun timeFormat(): String {
         val format = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
         return DateFormat.getBestDateTimePattern(Locale.getDefault(), format)
             .replace("a", "").trim()
@@ -232,12 +232,32 @@ public object TimeTextDefaults {
      * @param fontSize The font size.
      */
     @Composable
-    public fun timeTextStyle(
+    fun timeTextStyle(
         background: Color = Color.Unspecified,
         color: Color = MaterialTheme.colorScheme.onBackground,
         fontSize: TextUnit = TextUnit.Unspecified,
     ) = MaterialTheme.typography.labelSmall +
         TextStyle(color = color, background = background, fontSize = fontSize)
+
+    /**
+     * Creates a default implementation of [TimeSource] and remembers it.
+     * Once the system time changes, it triggers an update of the [TimeSource.currentTime]
+     * which is formatted using [timeFormat] param.
+     *
+     * [DefaultTimeSource] for Android uses [android.text.format.DateFormat]
+     * [timeFormat] should follow the standard
+     * [Date and Time patterns](https://developer.android.com/reference/java/text/SimpleDateFormat#date-and-time-patterns)
+     * Examples:
+     * "h:mm a" - 12:08 PM
+     * "yyyy.MM.dd HH:mm:ss" - 2021.11.01 14:08:56
+     * More examples can be found [here](https://developer.android.com/reference/java/text/SimpleDateFormat#examples).
+     *
+     * @param timeFormat Date and time string pattern.
+     */
+    @Composable
+    fun rememberTimeSource(timeFormat: String): TimeSource = remember(timeFormat) {
+        DefaultTimeSource(timeFormat)
+    }
 
     /**
      * A default implementation of Separator shown between any text/composable and the time
@@ -247,7 +267,7 @@ public object TimeTextDefaults {
      * @param contentPadding The spacing values between the container and the separator.
      */
     @Composable
-    public fun TextSeparator(
+    internal fun TextSeparator(
         modifier: Modifier = Modifier,
         textStyle: TextStyle = timeTextStyle(),
         contentPadding: PaddingValues = PaddingValues(horizontal = 4.dp)
@@ -265,7 +285,7 @@ public object TimeTextDefaults {
      * @param curvedTextStyle A [CurvedTextStyle] for the separator.
      * @param contentArcPadding [ArcPaddingValues] for the separator text.
      */
-    public fun CurvedScope.CurvedTextSeparator(
+    internal fun CurvedScope.CurvedTextSeparator(
         curvedTextStyle: CurvedTextStyle? = null,
         contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
     ) {
@@ -275,36 +295,16 @@ public object TimeTextDefaults {
             modifier = CurvedModifier.padding(contentArcPadding)
         )
     }
-
-    /**
-     * A default implementation of [TimeSource].
-     * Once the system time changes, it triggers an update of the [TimeSource.currentTime]
-     * which is formatted using [timeFormat] param.
-     *
-     * Android implementation:
-     * [DefaultTimeSource] for Android uses [android.text.format.DateFormat]
-     * [timeFormat] should follow the standard
-     * [Date and Time patterns](https://developer.android.com/reference/java/text/SimpleDateFormat#date-and-time-patterns)
-     * Examples:
-     * "h:mm a" - 12:08 PM
-     * "yyyy.MM.dd HH:mm:ss" - 2021.11.01 14:08:56
-     * More examples can be found [here](https://developer.android.com/reference/java/text/SimpleDateFormat#examples).
-     *
-     * Desktop implementation: TBD.
-     *
-     * @param timeFormat Date and time string pattern.
-     */
-    public fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
 }
 
-public interface TimeSource {
+interface TimeSource {
 
     /**
      * A method responsible for returning updated time string.
      * @return Formatted time string.
      */
-    val currentTime: String
-        @Composable get
+    @Composable
+    fun currentTime(): String
 }
 
 /**
@@ -397,9 +397,9 @@ internal class LinearTimeTextScope(
 internal class DefaultTimeSource(timeFormat: String) : TimeSource {
     private val _timeFormat = timeFormat
 
-    override val currentTime: String
-        @Composable
-        get() = currentTime({ currentTimeMillis() }, _timeFormat).value
+    @Composable
+    override fun currentTime(): String =
+        currentTime({ currentTimeMillis() }, _timeFormat).value
 }
 
 @Composable

@@ -70,9 +70,8 @@ class TimeTextTest {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
                     timeSource = object : TimeSource {
-                        override val currentTime: String
-                            @Composable
-                            get() = timeState.value
+                        @Composable
+                        override fun currentTime(): String = timeState.value
                     },
                 ) {
                     time()
@@ -94,9 +93,8 @@ class TimeTextTest {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
                     timeSource = object : TimeSource {
-                        override val currentTime: String
-                            @Composable
-                            get() = timeState.value
+                        @Composable
+                        override fun currentTime(): String = timeState.value
                     },
                 ) {
                     time()
@@ -245,9 +243,8 @@ class TimeTextTest {
             ) {
                 TimeText(
                     timeSource = object : TimeSource {
-                        override val currentTime: String
-                            @Composable
-                            get() = timeText
+                        @Composable
+                        override fun currentTime(): String = timeText
                     },
                     timeTextStyle = testTextStyle
                 ) {
@@ -283,10 +280,9 @@ class TimeTextTest {
                 ) {
                     TimeText(
                         timeSource = object : TimeSource {
-                            override val currentTime: String
-                                @Composable
-                                get() = timeText
-                        }
+                            @Composable
+                            override fun currentTime(): String = timeText
+                        },
                     ) {
                         time()
                     }
@@ -325,10 +321,9 @@ class TimeTextTest {
                 ) {
                     TimeText(
                         timeSource = object : TimeSource {
-                            override val currentTime: String
-                                @Composable
-                                get() = timeText
-                        }
+                            @Composable
+                            override fun currentTime(): String = timeText
+                        },
                     ) {
                         time()
                     }

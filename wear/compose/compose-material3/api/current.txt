@@ -694,16 +694,13 @@ package androidx.wear.compose.material3 {
   }
 
   public interface TimeSource {
-    method @androidx.compose.runtime.Composable public String getCurrentTime();
-    property @androidx.compose.runtime.Composable public abstract String currentTime;
+    method @androidx.compose.runtime.Composable public String currentTime();
   }
 
   public final class TimeTextDefaults {
-    method public void CurvedTextSeparator(androidx.wear.compose.foundation.CurvedScope, optional androidx.wear.compose.foundation.CurvedTextStyle? curvedTextStyle, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding);
-    method @androidx.compose.runtime.Composable public void TextSeparator(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.layout.PaddingValues contentPadding);
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimeSource rememberTimeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public String timeFormat();
-    method public androidx.wear.compose.material3.TimeSource timeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.TimeTextDefaults INSTANCE;
