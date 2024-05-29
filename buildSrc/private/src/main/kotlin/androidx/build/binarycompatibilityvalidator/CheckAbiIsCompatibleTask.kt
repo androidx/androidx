@@ -73,10 +73,16 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
 
     private fun compatErrorMessage(validationException: ValidationException) =
         "Your change has binary compatibility issues. Please resolve them before updating." +
-            "\n${validationException.message}"
+            "\n${validationException.message}" +
+            "\nIf you believe these changes are actually compatible and that this is a tooling" +
+            "error, please file a bug. $NEW_ISSUE_URL"
 
     private fun frozenApiErrorMessage(referenceVersion: String) =
         "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
             "permission from Android API Council. " +
             summarizeDiff(previousApiDump.get(), currentApiDump.get())
+
+    private companion object {
+        const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"
+    }
 }
