@@ -1274,9 +1274,3 @@ public actual open class NavController {
 //            "android-support-nav:controller:backStackStates:"
     }
 }
-
-public actual inline fun NavController.createGraph(
-    startDestination: String,
-    route: String?,
-    builder: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(startDestination, route, builder)

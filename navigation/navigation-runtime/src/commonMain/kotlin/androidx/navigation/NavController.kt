@@ -23,6 +23,9 @@ import androidx.core.bundle.Bundle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -342,8 +345,43 @@ public expect open class NavController {
  * @param route the route for the graph
  * @param builder the builder used to construct the graph
  */
-public expect inline fun NavController.createGraph(
+public inline fun NavController.createGraph(
     startDestination: String,
-    route: String? = null,
+    route: String?,
     builder: NavGraphBuilder.() -> Unit
-): NavGraph
+): NavGraph = navigatorProvider.navigation(startDestination, route, builder)
+
+/**
+ * Construct a new [NavGraph]
+ *
+ * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
+ * respective NavDestination must be added as a [KClass] in order to match.
+ * @param route the graph's unique route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
+ */
+public inline fun NavController.createGraph(
+    startDestination: KClass<*>,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
+
+/**
+ * Construct a new [NavGraph]
+ *
+ * @param startDestination the starting destination's route from an Object for this NavGraph. The
+ * respective NavDestination must be added as a [KClass] in order to match.
+ * @param route the graph's unique route from a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. Only necessary
+ * if [route] uses custom NavTypes.
+ * @param builder the builder used to construct the graph
+ */
+public inline fun NavController.createGraph(
+    startDestination: Any,
+    route: KClass<*>? = null,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
+

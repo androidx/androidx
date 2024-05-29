@@ -393,7 +393,7 @@ public actual open class NavGraph actual constructor(
      * to this NavGraph.
      */
     @ExperimentalSafeArgsApi
-    public inline fun <reified T : Any> setStartDestination() {
+    public actual inline fun <reified T : Any> setStartDestination() {
         setStartDestination(serializer<T>()) { startDestination ->
             startDestination.route!!
         }
@@ -409,7 +409,7 @@ public actual open class NavGraph actual constructor(
      */
     @OptIn(InternalSerializationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : Any> setStartDestination(startDestRoute: T) {
+    public actual fun <T : Any> setStartDestination(startDestRoute: T) {
         setStartDestination(startDestRoute::class.serializer()) { startDestination ->
             val args = startDestination.arguments.mapValues {
                 it.value.type
@@ -421,7 +421,7 @@ public actual open class NavGraph actual constructor(
     // unfortunately needs to be public so reified setStartDestination can access this
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @OptIn(ExperimentalSerializationApi::class)
-    public fun <T> setStartDestination(
+    public actual fun <T> setStartDestination(
         serializer: KSerializer<T>,
         parseRoute: (NavDestination) -> String,
     ) {

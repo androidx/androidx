@@ -16,7 +16,13 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateRouteWithArgs
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 /**
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
@@ -116,6 +122,35 @@ public expect open class NavGraph(
      *                    NavGraph.
      */
     public fun setStartDestination(startDestRoute: String)
+
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationRoute]
+     *
+     * @param T The route of the destination as a [KClass] to be shown when navigating
+     * to this NavGraph.
+     */
+    public inline fun <reified T : Any> setStartDestination()
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationRoute]
+     *
+     * @param startDestRoute The route of the destination as an object to be shown when navigating
+     * to this NavGraph.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T : Any> setStartDestination(startDestRoute: T)
+
+    // unfortunately needs to be public so reified setStartDestination can access this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun <T> setStartDestination(
+        serializer: KSerializer<T>,
+        parseRoute: (NavDestination) -> String,
+    )
 
     /**
      * The route for the starting destination for this NavGraph. When navigating to the

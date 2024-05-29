@@ -17,7 +17,14 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateRoutePattern
+import androidx.navigation.serialization.generateRouteWithArgs
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 public actual open class NavGraph actual constructor(
     navGraphNavigator: Navigator<out NavGraph>
@@ -147,6 +154,41 @@ public actual open class NavGraph actual constructor(
 
     public actual fun setStartDestination(startDestRoute: String) {
         startDestinationRoute = startDestRoute
+    }
+
+    public actual inline fun <reified T : Any> setStartDestination() {
+        setStartDestination(serializer<T>()) { startDestination ->
+            startDestination.route!!
+        }
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual fun <T : Any> setStartDestination(startDestRoute: T) {
+        setStartDestination(startDestRoute::class.serializer()) { startDestination ->
+            val args = startDestination.arguments.mapValues {
+                it.value.type
+            }
+            startDestRoute.generateRouteWithArgs(args)
+        }
+    }
+
+    // unfortunately needs to be public so reified setStartDestination can access this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(ExperimentalSerializationApi::class)
+    public actual fun <T> setStartDestination(
+        serializer: KSerializer<T>,
+        parseRoute: (NavDestination) -> String,
+    ) {
+        val route = serializer.generateRoutePattern()
+        val startDest = findNode(route)
+        checkNotNull(startDest) {
+            "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
+                "Ensure the starting NavDestination was added via KClass."
+        }
+        // when dest id is based on serializer, we expect the dest route to have been generated
+        // and set
+        startDestinationRoute = parseRoute(startDest)
     }
 
     public actual var startDestinationRoute: String? = null
