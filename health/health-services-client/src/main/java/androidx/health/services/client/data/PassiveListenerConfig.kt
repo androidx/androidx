@@ -23,17 +23,16 @@ import androidx.health.services.client.proto.DataProto
  * Defines configuration for a passive monitoring listener request using Health Services.
  *
  * @constructor Creates a new [PassiveListenerConfig] which defines a request for passive monitoring
- * using Health Services
- *
+ *   using Health Services
  * @property dataTypes set of [DataType]s which should be tracked. Requested data will be returned
- * by [PassiveListenerCallback.onNewDataPointsReceived].
+ *   by [PassiveListenerCallback.onNewDataPointsReceived].
  * @property shouldUserActivityInfoBeRequested whether to request [UserActivityInfo] updates. Data
- * will be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true, calling
- * app must have [android.Manifest.permission.ACTIVITY_RECOGNITION].
+ *   will be returned by [PassiveListenerCallback.onUserActivityInfoReceived]. If set to true,
+ *   calling app must have [android.Manifest.permission.ACTIVITY_RECOGNITION].
  * @property dailyGoals set of daily [PassiveGoal]s which should be tracked. Achieved goals will be
- * returned by [PassiveListenerCallback.onGoalCompleted].
+ *   returned by [PassiveListenerCallback.onGoalCompleted].
  * @property healthEventTypes set of [HealthEvent.Type] which should be tracked. Detected health
- * events will be returned by [PassiveListenerCallback.onHealthEventReceived].
+ *   events will be returned by [PassiveListenerCallback.onHealthEventReceived].
  */
 @Suppress("ParcelCreator")
 public class PassiveListenerConfig(
@@ -50,9 +49,7 @@ public class PassiveListenerConfig(
         proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.includeUserActivityState,
         proto.passiveGoalsList.map { PassiveGoal(it) }.toSet(),
-        proto.healthEventTypesList
-            .map { HealthEvent.Type.fromProto(it) }
-            .toSet()
+        proto.healthEventTypesList.map { HealthEvent.Type.fromProto(it) }.toSet()
     )
 
     internal fun isValidPassiveGoal(): Boolean {
@@ -78,8 +75,8 @@ public class PassiveListenerConfig(
 
         /**
          * Sets whether to request the [UserActivityState] updates. If not set they will not be
-         * included by default and [PassiveListenerCallback.onUserActivityInfoReceived] will not be invoked.
-         * [UserActivityState] requires [android.Manifest.permission.ACTIVITY_RECOGNITION].
+         * included by default and [PassiveListenerCallback.onUserActivityInfoReceived] will not be
+         * invoked. [UserActivityState] requires [android.Manifest.permission.ACTIVITY_RECOGNITION].
          *
          * @param shouldUserActivityInfoBeRequested whether to request user activity state tracking
          */
@@ -131,7 +128,6 @@ public class PassiveListenerConfig(
             .build()
 
     public companion object {
-        @JvmStatic
-        public fun builder(): Builder = Builder()
+        @JvmStatic public fun builder(): Builder = Builder()
     }
 }

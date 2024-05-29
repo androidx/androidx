@@ -21,10 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
 
-/**
- * Request to flush data metrics.
- *
- */
+/** Request to flush data metrics. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FlushRequest(public val packageName: String) :
     ProtoParcelable<RequestsProto.FlushRequest>() {

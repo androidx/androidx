@@ -57,7 +57,7 @@ class IntervalDataPoint<T : Any>(
      * Returns the start [Instant] of this [DataPoint], knowing the time at which the system booted.
      *
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
-     * `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
+     *   `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
      */
     fun getStartInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(startDurationFromBoot)
@@ -67,7 +67,7 @@ class IntervalDataPoint<T : Any>(
      * Returns the end [Instant] of this [DataPoint], knowing the time at which the system booted.
      *
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
-     * `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())`
+     *   `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime())`
      */
     fun getEndInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(endDurationFromBoot)
@@ -104,11 +104,12 @@ class IntervalDataPoint<T : Any>(
                 Duration.ofMillis(proto.startDurationFromBootMs),
                 Duration.ofMillis(proto.endDurationFromBootMs),
                 metadata = BundlesUtil.fromProto(proto.metaData),
-                accuracy = if (proto.hasAccuracy()) {
-                    DataPointAccuracy.fromProto(proto.accuracy)
-                } else {
-                    null
-                },
+                accuracy =
+                    if (proto.hasAccuracy()) {
+                        DataPointAccuracy.fromProto(proto.accuracy)
+                    } else {
+                        null
+                    },
             )
         }
     }

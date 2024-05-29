@@ -23,9 +23,7 @@ import android.system.OsConstants
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-/**
- * Internal class to ensure calls to shared memory are guarded, so that
- */
+/** Internal class to ensure calls to shared memory are guarded, so that */
 @RequiresApi(api = Build.VERSION_CODES.O_MR1)
 internal object SharedMemory27Impl {
     /** Flattens `bytes` into `dest` using [SharedMemory]. */

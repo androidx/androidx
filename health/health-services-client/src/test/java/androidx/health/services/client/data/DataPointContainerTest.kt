@@ -32,15 +32,17 @@ import org.robolectric.RobolectricTestRunner
 class DataPointContainerTest {
 
     private fun Int.duration() = Duration.ofSeconds(this.toLong())
+
     private fun Int.instant() = Instant.ofEpochMilli(this.toLong())
 
-    private val elevationStatsDataPoint = DataPoints.absoluteElevationStats(
-        minAbsoluteElevationMeters = 10.0,
-        maxAbsoluteElevationMeters = 20.0,
-        averageAbsoluteElevationMeters = 15.0,
-        startTime = 10.instant(),
-        endTime = 20.instant()
-    )
+    private val elevationStatsDataPoint =
+        DataPoints.absoluteElevationStats(
+            minAbsoluteElevationMeters = 10.0,
+            maxAbsoluteElevationMeters = 20.0,
+            averageAbsoluteElevationMeters = 15.0,
+            startTime = 10.instant(),
+            endTime = 20.instant()
+        )
 
     @Test
     fun getDataReturnsCorrectNumberSimpleInput() {
@@ -56,23 +58,23 @@ class DataPointContainerTest {
 
     @Test
     fun getDataReturnsCorrectNumberMultipleDataTypes() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
         val steps: List<IntervalDataPoint<Long>> = container.getData(STEPS)
         val floors: List<IntervalDataPoint<Double>> = container.getData(FLOORS)
         val elevationStats: StatisticalDataPoint<Double>? =
             container.getData(ABSOLUTE_ELEVATION_STATS)
-        val caloriesTotal: CumulativeDataPoint<Double>? =
-            container.getData(CALORIES_TOTAL)
+        val caloriesTotal: CumulativeDataPoint<Double>? = container.getData(CALORIES_TOTAL)
 
         assertThat(steps).hasSize(2)
         assertThat(floors).hasSize(1)
@@ -97,33 +99,35 @@ class DataPointContainerTest {
         val byteArray = ByteArray(1)
         byteArray[0] = 0x42
 
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                IntervalDataPoint<ByteArray>(
-                    dataType = customDataType1,
-                    value = byteArray,
-                    startDurationFromBoot = 2.duration(),
-                    endDurationFromBoot = 10.duration(),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    IntervalDataPoint<ByteArray>(
+                        dataType = customDataType1,
+                        value = byteArray,
+                        startDurationFromBoot = 2.duration(),
+                        endDurationFromBoot = 10.duration(),
+                    )
                 )
             )
-        )
 
         assertThat(container.getData(customDataType2).first().value[0]).isEqualTo(0x42)
     }
 
     @Test
     fun getSampleDataPointsReturnsTheCorrectNumber() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
         val dataPoints = container.sampleDataPoints
 
@@ -132,16 +136,17 @@ class DataPointContainerTest {
 
     @Test
     fun getIntervalDataPointsReturnsTheCorrectNumber() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
         val dataPoints = container.intervalDataPoints
 
@@ -150,16 +155,17 @@ class DataPointContainerTest {
 
     @Test
     fun getCumulativeDataPointsReturnsTheCorrectNumber() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
         val dataPoints = container.cumulativeDataPoints
 
@@ -168,16 +174,17 @@ class DataPointContainerTest {
 
     @Test
     fun getStatisticalDataPointsReturnsTheCorrectNumber() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
         val dataPoints = container.statisticalDataPoints
 
@@ -186,23 +193,25 @@ class DataPointContainerTest {
 
     @Test
     fun dataTypePropertyContainsCorrectDataTypes() {
-        val container = DataPointContainer(
-            listOf(
-                DataPoints.steps(5, 1.duration(), 2.duration()),
-                DataPoints.heartRate(130.0, 1.duration()),
-                DataPoints.floors(5.0, 1.duration(), 10.duration()),
-                DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
-                elevationStatsDataPoint,
-                DataPoints.steps(10, 2.duration(), 10.duration()),
+        val container =
+            DataPointContainer(
+                listOf(
+                    DataPoints.steps(5, 1.duration(), 2.duration()),
+                    DataPoints.heartRate(130.0, 1.duration()),
+                    DataPoints.floors(5.0, 1.duration(), 10.duration()),
+                    DataPoints.caloriesTotal(130.0, 10.instant(), 20.instant()),
+                    elevationStatsDataPoint,
+                    DataPoints.steps(10, 2.duration(), 10.duration()),
+                )
             )
-        )
 
-        assertThat(container.dataTypes).containsExactly(
-            STEPS,
-            HEART_RATE_BPM,
-            FLOORS,
-            CALORIES_TOTAL,
-            ABSOLUTE_ELEVATION_STATS
-        )
+        assertThat(container.dataTypes)
+            .containsExactly(
+                STEPS,
+                HEART_RATE_BPM,
+                FLOORS,
+                CALORIES_TOTAL,
+                ABSOLUTE_ELEVATION_STATS
+            )
     }
 }

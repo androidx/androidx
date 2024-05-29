@@ -63,10 +63,11 @@ class BloodPressureAggregationExtensionsTest {
     }
 
     @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        HealthPermission.getWritePermission(BloodPressureRecord::class),
-        HealthPermission.getReadPermission(BloodPressureRecord::class)
-    )
+    val grantPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            HealthPermission.getWritePermission(BloodPressureRecord::class),
+            HealthPermission.getReadPermission(BloodPressureRecord::class)
+        )
 
     @After
     fun tearDown() = runTest {
@@ -75,15 +76,16 @@ class BloodPressureAggregationExtensionsTest {
 
     @Test
     fun aggregateBloodPressure_invalidMetrics() = runTest {
-        val metrics = setOf(
-            BloodPressureRecord.DIASTOLIC_AVG,
-            BloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_AVG,
-            BloodPressureRecord.SYSTOLIC_MAX,
-            BloodPressureRecord.SYSTOLIC_MIN,
-            NutritionRecord.TRANS_FAT_TOTAL
-        )
+        val metrics =
+            setOf(
+                BloodPressureRecord.DIASTOLIC_AVG,
+                BloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_AVG,
+                BloodPressureRecord.SYSTOLIC_MAX,
+                BloodPressureRecord.SYSTOLIC_MIN,
+                NutritionRecord.TRANS_FAT_TOTAL
+            )
 
         assertThrows(IllegalStateException::class.java) {
             runBlocking {
@@ -98,21 +100,20 @@ class BloodPressureAggregationExtensionsTest {
 
     @Test
     fun aggregateBloodPressure_noFiltersNoData() = runTest {
-        val metrics = setOf(
-            BloodPressureRecord.DIASTOLIC_AVG,
-            BloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_AVG,
-            BloodPressureRecord.SYSTOLIC_MAX,
-            BloodPressureRecord.SYSTOLIC_MIN,
-        )
+        val metrics =
+            setOf(
+                BloodPressureRecord.DIASTOLIC_AVG,
+                BloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_AVG,
+                BloodPressureRecord.SYSTOLIC_MAX,
+                BloodPressureRecord.SYSTOLIC_MIN,
+            )
 
         val aggregationResult =
             healthConnectClient.aggregateBloodPressure(metrics, TimeRangeFilter.none(), emptySet())
 
-        metrics.forEach {
-            assertThat(it in aggregationResult).isFalse()
-        }
+        metrics.forEach { assertThat(it in aggregationResult).isFalse() }
         assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
@@ -156,13 +157,13 @@ class BloodPressureAggregationExtensionsTest {
         val aggregationResult =
             healthConnectClient.aggregateBloodPressure(
                 setOf(BloodPressureRecord.SYSTOLIC_MAX),
-                TimeRangeFilter.none(), emptySet()
+                TimeRangeFilter.none(),
+                emptySet()
             )
 
         assertThat(aggregationResult[BloodPressureRecord.SYSTOLIC_MAX])
             .isEqualTo(120.millimetersOfMercury)
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -194,7 +195,8 @@ class BloodPressureAggregationExtensionsTest {
                     BloodPressureRecord.SYSTOLIC_MAX,
                     BloodPressureRecord.SYSTOLIC_MIN,
                 ),
-                TimeRangeFilter.none(), emptySet()
+                TimeRangeFilter.none(),
+                emptySet()
             )
 
         assertEquals(
@@ -205,8 +207,7 @@ class BloodPressureAggregationExtensionsTest {
             aggregationResult[BloodPressureRecord.SYSTOLIC_MAX] to 120.millimetersOfMercury,
             aggregationResult[BloodPressureRecord.SYSTOLIC_MIN] to 100.millimetersOfMercury,
         )
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -235,7 +236,8 @@ class BloodPressureAggregationExtensionsTest {
                     BloodPressureRecord.SYSTOLIC_MAX,
                     BloodPressureRecord.SYSTOLIC_MIN,
                 ),
-                TimeRangeFilter.none(), emptySet()
+                TimeRangeFilter.none(),
+                emptySet()
             )
 
         assertEquals(
@@ -244,12 +246,12 @@ class BloodPressureAggregationExtensionsTest {
             aggregationResult[BloodPressureRecord.SYSTOLIC_MIN] to 100.millimetersOfMercury,
         )
         setOf(
-            BloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_AVG
-        ).forEach { assertThat(it in aggregationResult).isFalse() }
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+                BloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_AVG
+            )
+            .forEach { assertThat(it in aggregationResult).isFalse() }
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -292,19 +294,19 @@ class BloodPressureAggregationExtensionsTest {
         val aggregationResult =
             healthConnectClient.aggregateBloodPressure(
                 emptySet(),
-                TimeRangeFilter.none(), emptySet()
+                TimeRangeFilter.none(),
+                emptySet()
             )
 
         setOf(
-            BloodPressureRecord.DIASTOLIC_AVG,
-            BloodPressureRecord.DIASTOLIC_MAX,
-            BloodPressureRecord.DIASTOLIC_MIN,
-            BloodPressureRecord.SYSTOLIC_AVG,
-            BloodPressureRecord.SYSTOLIC_MAX,
-            BloodPressureRecord.SYSTOLIC_MIN,
-        ).forEach {
-            assertThat(it in aggregationResult).isFalse()
-        }
+                BloodPressureRecord.DIASTOLIC_AVG,
+                BloodPressureRecord.DIASTOLIC_MAX,
+                BloodPressureRecord.DIASTOLIC_MIN,
+                BloodPressureRecord.SYSTOLIC_AVG,
+                BloodPressureRecord.SYSTOLIC_MAX,
+                BloodPressureRecord.SYSTOLIC_MIN,
+            )
+            .forEach { assertThat(it in aggregationResult).isFalse() }
         assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
@@ -345,52 +347,54 @@ class BloodPressureAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateBloodPressure(
-            setOf(BloodPressureRecord.DIASTOLIC_MIN),
-            TimeRangeFilter.between(
-                START_TIME + 30.seconds,
-                START_TIME + 6.minutes + 45.seconds
-            ), emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
+                setOf(BloodPressureRecord.DIASTOLIC_MIN),
+                TimeRangeFilter.between(
+                    START_TIME + 30.seconds,
+                    START_TIME + 6.minutes + 45.seconds
+                ),
+                emptySet()
+            )
 
         assertThat(aggregationResult[BloodPressureRecord.DIASTOLIC_MIN])
             .isEqualTo(65.millimetersOfMercury)
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
-    fun aggregateBloodPressure_instantTimeRangeFilter_filterEndTime() =
-        runTest {
-            healthConnectClient.insertRecords(
-                listOf(
-                    BloodPressureRecord(
-                        time = START_TIME,
-                        zoneOffset = ZoneOffset.UTC,
-                        systolic = 110.millimetersOfMercury,
-                        diastolic = 65.millimetersOfMercury
-                    ),
-                    BloodPressureRecord(
-                        time = START_TIME + 2.minutes,
-                        zoneOffset = ZoneOffset.UTC,
-                        systolic = 100.millimetersOfMercury,
-                        diastolic = 80.millimetersOfMercury
-                    )
+    fun aggregateBloodPressure_instantTimeRangeFilter_filterEndTime() = runTest {
+        healthConnectClient.insertRecords(
+            listOf(
+                BloodPressureRecord(
+                    time = START_TIME,
+                    zoneOffset = ZoneOffset.UTC,
+                    systolic = 110.millimetersOfMercury,
+                    diastolic = 65.millimetersOfMercury
+                ),
+                BloodPressureRecord(
+                    time = START_TIME + 2.minutes,
+                    zoneOffset = ZoneOffset.UTC,
+                    systolic = 100.millimetersOfMercury,
+                    diastolic = 80.millimetersOfMercury
                 )
             )
+        )
 
-            val aggregationResult = healthConnectClient.aggregateBloodPressure(
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
                 setOf(BloodPressureRecord.DIASTOLIC_AVG, BloodPressureRecord.SYSTOLIC_AVG),
                 TimeRangeFilter.between(
                     START_TIME + 1.minutes,
                     START_TIME + 1.minutes + 59.seconds
-                ), emptySet()
+                ),
+                emptySet()
             )
 
-            assertThat(BloodPressureRecord.DIASTOLIC_AVG in aggregationResult).isFalse()
-            assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
-            assertThat(aggregationResult.dataOrigins).isEmpty()
-        }
+        assertThat(BloodPressureRecord.DIASTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(aggregationResult.dataOrigins).isEmpty()
+    }
 
     @Test
     fun aggregateBloodPressure_localTimeRangeFilter() = runTest {
@@ -430,26 +434,27 @@ class BloodPressureAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateBloodPressure(
-            setOf(BloodPressureRecord.DIASTOLIC_MIN, BloodPressureRecord.SYSTOLIC_AVG),
-            TimeRangeFilter.between(
-                LocalDateTime.ofInstant(
-                    START_TIME + 2.hours + 30.seconds,
-                    ZoneOffset.ofHours(-2)
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
+                setOf(BloodPressureRecord.DIASTOLIC_MIN, BloodPressureRecord.SYSTOLIC_AVG),
+                TimeRangeFilter.between(
+                    LocalDateTime.ofInstant(
+                        START_TIME + 2.hours + 30.seconds,
+                        ZoneOffset.ofHours(-2)
+                    ),
+                    LocalDateTime.ofInstant(
+                        START_TIME + 2.hours + 6.minutes + 45.seconds,
+                        ZoneOffset.ofHours(-2)
+                    )
                 ),
-                LocalDateTime.ofInstant(
-                    START_TIME + 2.hours + 6.minutes + 45.seconds,
-                    ZoneOffset.ofHours(-2)
-                )
-            ), emptySet()
-        )
+                emptySet()
+            )
 
         assertThat(aggregationResult[BloodPressureRecord.DIASTOLIC_MIN])
             .isEqualTo(65.millimetersOfMercury)
         assertThat(aggregationResult[BloodPressureRecord.SYSTOLIC_AVG])
             .isEqualTo(110.millimetersOfMercury)
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     // TODO(b/337195270): Test with data origins from multiple apps
@@ -466,16 +471,16 @@ class BloodPressureAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateBloodPressure(
-            setOf(BloodPressureRecord.SYSTOLIC_AVG),
-            TimeRangeFilter.none(),
-            setOf(DataOrigin(context.packageName))
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
+                setOf(BloodPressureRecord.SYSTOLIC_AVG),
+                TimeRangeFilter.none(),
+                setOf(DataOrigin(context.packageName))
+            )
 
         assertThat(aggregationResult[BloodPressureRecord.SYSTOLIC_AVG])
             .isEqualTo(110.millimetersOfMercury)
-        assertThat(aggregationResult.dataOrigins)
-            .containsExactly(DataOrigin(context.packageName))
+        assertThat(aggregationResult.dataOrigins).containsExactly(DataOrigin(context.packageName))
     }
 
     @Test
@@ -491,11 +496,12 @@ class BloodPressureAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateBloodPressure(
-            setOf(BloodPressureRecord.SYSTOLIC_AVG),
-            TimeRangeFilter.after(START_TIME + 2.minutes),
-            emptySet()
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
+                setOf(BloodPressureRecord.SYSTOLIC_AVG),
+                TimeRangeFilter.after(START_TIME + 2.minutes),
+                emptySet()
+            )
 
         assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
         assertThat(aggregationResult.dataOrigins).isEmpty()
@@ -514,11 +520,12 @@ class BloodPressureAggregationExtensionsTest {
             )
         )
 
-        val aggregationResult = healthConnectClient.aggregateBloodPressure(
-            setOf(BloodPressureRecord.SYSTOLIC_AVG),
-            TimeRangeFilter.none(),
-            setOf(DataOrigin("some random package name"))
-        )
+        val aggregationResult =
+            healthConnectClient.aggregateBloodPressure(
+                setOf(BloodPressureRecord.SYSTOLIC_AVG),
+                TimeRangeFilter.none(),
+                setOf(DataOrigin("some random package name"))
+            )
 
         assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
         assertThat(aggregationResult.dataOrigins).isEmpty()

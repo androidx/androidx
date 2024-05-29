@@ -69,9 +69,7 @@ class EGLManagerTest {
     fun testInitializeAndRelease() {
         testEGLManager {
             initialize()
-            val config = loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
-                createContext(it)
-            }
+            val config = loadConfig(EGLConfigAttributes.RGBA_8888)?.also { createContext(it) }
             if (config == null) {
                 fail("Config 8888 should be supported")
             }
@@ -90,9 +88,7 @@ class EGLManagerTest {
     fun testMultipleInitializeCallsIgnored() {
         testEGLManager {
             initialize()
-            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
-                createContext(it)
-            }
+            loadConfig(EGLConfigAttributes.RGBA_8888)?.also { createContext(it) }
             val currentContext = eglContext
             val currentConfig = eglConfig
             assertNotEquals(EGL14.EGL_NO_CONTEXT, currentContext)
@@ -108,9 +104,7 @@ class EGLManagerTest {
     fun testMultipleReleaseCallsIgnored() {
         testEGLManager {
             initialize()
-            loadConfig(EGLConfigAttributes.RGBA_8888)?.also {
-                createContext(it)
-            }
+            loadConfig(EGLConfigAttributes.RGBA_8888)?.also { createContext(it) }
             // Multiple attempts to release should act as no-ops, i.e. we should not crash
             // and the corresponding context should be nulled out
             release()
@@ -161,29 +155,28 @@ class EGLManagerTest {
         // EglKhrSurfacelessContext extension in order to verify
         // the fallback support of initializing the current surface
         // to a PBuffer instead of EGL14.EGL_NO_SURFACE
-        val wrappedEglSpec = object : EGLSpec by EGLSpec.V14 {
-            override fun eglQueryString(nameId: Int): String {
-                val queryString = EGLSpec.V14.eglQueryString(nameId)
-                return if (nameId == EGL14.EGL_EXTENSIONS) {
-                    // Parse the space separated string of EGL extensions into a set
-                    val set = HashSet<String>().apply {
-                        addAll(queryString.split(' '))
-                    }
-                    // Remove EglKhrSurfacelessContext if it exists
-                    // and repack the set into a space separated string
-                    set.remove(EGL_KHR_SURFACELESS_CONTEXT)
-                    StringBuilder().let {
-                        for (entry in set) {
-                            it.append(entry)
-                            it.append(' ')
+        val wrappedEglSpec =
+            object : EGLSpec by EGLSpec.V14 {
+                override fun eglQueryString(nameId: Int): String {
+                    val queryString = EGLSpec.V14.eglQueryString(nameId)
+                    return if (nameId == EGL14.EGL_EXTENSIONS) {
+                        // Parse the space separated string of EGL extensions into a set
+                        val set = HashSet<String>().apply { addAll(queryString.split(' ')) }
+                        // Remove EglKhrSurfacelessContext if it exists
+                        // and repack the set into a space separated string
+                        set.remove(EGL_KHR_SURFACELESS_CONTEXT)
+                        StringBuilder().let {
+                            for (entry in set) {
+                                it.append(entry)
+                                it.append(' ')
+                            }
+                            it.toString()
                         }
-                        it.toString()
+                    } else {
+                        queryString
                     }
-                } else {
-                    queryString
                 }
             }
-        }
 
         testEGLManager(wrappedEglSpec) {
             initialize()
@@ -235,12 +228,14 @@ class EGLManagerTest {
             }
             createContext(config!!)
 
-            val pBuffer = eglSpec.eglCreatePBufferSurface(
-                config,
-                EGLConfigAttributes {
-                    EGL14.EGL_WIDTH to 1
-                    EGL14.EGL_HEIGHT to 1
-                })
+            val pBuffer =
+                eglSpec.eglCreatePBufferSurface(
+                    config,
+                    EGLConfigAttributes {
+                        EGL14.EGL_WIDTH to 1
+                        EGL14.EGL_HEIGHT to 1
+                    }
+                )
 
             makeCurrent(pBuffer)
 
@@ -283,8 +278,7 @@ class EGLManagerTest {
             false
         } else {
             val result = IntArray(1)
-            val queryResult = eglQuerySurface(
-                surface, EGL14.EGL_RENDER_BUFFER, result, 0)
+            val queryResult = eglQuerySurface(surface, EGL14.EGL_RENDER_BUFFER, result, 0)
             queryResult && result[0] == EGL14.EGL_SINGLE_BUFFER
         }
     }
@@ -301,9 +295,7 @@ class EGLManagerTest {
         verifySurfaceContentsWithWindowConfig(true)
     }
 
-    private fun verifySurfaceContentsWithWindowConfig(
-        singleBuffered: Boolean = false
-    ) {
+    private fun verifySurfaceContentsWithWindowConfig(singleBuffered: Boolean = false) {
         testEGLManager {
             initialize()
             val config = loadConfig(EGLConfigAttributes.RGBA_8888)
@@ -316,18 +308,18 @@ class EGLManagerTest {
             val height = 5
             val texture = IntArray(1)
             GLES20.glGenTextures(1, texture, 0)
-            val surfaceTexture = SurfaceTexture(texture[0], singleBuffered).apply {
-                setDefaultBufferSize(width, height)
-            }
+            val surfaceTexture =
+                SurfaceTexture(texture[0], singleBuffered).apply {
+                    setDefaultBufferSize(width, height)
+                }
 
             val surface = Surface(surfaceTexture)
-            val configAttributes = if (singleBuffered) {
-                EGLConfigAttributes {
-                    EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER
+            val configAttributes =
+                if (singleBuffered) {
+                    EGLConfigAttributes { EGL14.EGL_RENDER_BUFFER to EGL14.EGL_SINGLE_BUFFER }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
             val eglSurface = eglSpec.eglCreateWindowSurface(eglConfig!!, surface, configAttributes)
             try {
                 // Skip tests of the device does not support EGL_SINGLE_BUFFER
@@ -382,17 +374,16 @@ class EGLManagerTest {
     fun testEGLGetNativeClientBufferANDROIDSupported() {
         testEGLManager {
             initializeWithDefaultConfig()
-            val khrImageBaseSupported =
-                isExtensionSupported(EGL_KHR_IMAGE_BASE)
+            val khrImageBaseSupported = isExtensionSupported(EGL_KHR_IMAGE_BASE)
             val androidImageNativeBufferSupported =
                 isExtensionSupported(EGL_ANDROID_IMAGE_NATIVE_BUFFER)
-            val eglClientBufferSupported =
-                isExtensionSupported(EGL_ANDROID_CLIENT_BUFFER)
+            val eglClientBufferSupported = isExtensionSupported(EGL_ANDROID_CLIENT_BUFFER)
             // According to EGL spec both these extensions are required in order to support
             // eglGetNativeClientBufferAndroid
-            if (khrImageBaseSupported &&
-                androidImageNativeBufferSupported &&
-                eglClientBufferSupported
+            if (
+                khrImageBaseSupported &&
+                    androidImageNativeBufferSupported &&
+                    eglClientBufferSupported
             ) {
                 assertTrue(EGLBindings.nSupportsEglGetNativeClientBufferAndroid())
             }
@@ -417,15 +408,18 @@ class EGLManagerTest {
     fun testEglCreateAndDestroyImageKHR() {
         testEGLManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EGL_KHR_IMAGE_BASE) && isExtensionSupported(
-                    EGL_ANDROID_IMAGE_NATIVE_BUFFER)) {
-                val hardwareBuffer = HardwareBuffer.create(
-                    10,
-                    10,
-                    PixelFormat.RGBA_8888,
-                    1,
-                    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-                )
+            if (
+                isExtensionSupported(EGL_KHR_IMAGE_BASE) &&
+                    isExtensionSupported(EGL_ANDROID_IMAGE_NATIVE_BUFFER)
+            ) {
+                val hardwareBuffer =
+                    HardwareBuffer.create(
+                        10,
+                        10,
+                        PixelFormat.RGBA_8888,
+                        1,
+                        HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+                    )
                 val image = eglSpec.eglCreateImageFromHardwareBuffer(hardwareBuffer)
                 assertNotNull(image)
                 assertTrue(eglSpec.eglDestroyImageKHR(image!!))
@@ -457,8 +451,8 @@ class EGLManagerTest {
     }
 
     /**
-     * Helper method to determine if both EGLSync fences are supported
-     * along with Android platform specific EGLSync fence types
+     * Helper method to determine if both EGLSync fences are supported along with Android platform
+     * specific EGLSync fence types
      */
     private fun EGLManager.supportsNativeAndroidFence(): Boolean =
         isExtensionSupported(EGL_KHR_FENCE_SYNC) &&
@@ -472,8 +466,7 @@ class EGLManagerTest {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
-                assertTrue(
-                    eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
+                assertTrue(eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
                 assertEquals(EGL_SYNC_NATIVE_FENCE_ANDROID, syncAttr[0])
                 assertTrue(eglSpec.eglDestroySyncKHR(sync))
             }
@@ -483,8 +476,10 @@ class EGLManagerTest {
     @Test
     fun testEGLDupNativeFenceFDMethodLinked() {
         verifyMethodLinked {
-            EGLExt.eglDupNativeFenceFDANDROID(EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
-                EGLSyncKHR(0))
+            EGLExt.eglDupNativeFenceFDANDROID(
+                EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
+                EGLSyncKHR(0)
+            )
         }
     }
 
@@ -566,17 +561,9 @@ class EGLManagerTest {
                 val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
-                assertTrue(
-                    eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
+                assertTrue(eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
                 assertEquals(EGL_SYNC_FENCE_KHR, syncAttr[0])
-                assertTrue(
-                    eglSpec.eglGetSyncAttribKHR(
-                        sync,
-                        EGL_SYNC_CONDITION_KHR,
-                        syncAttr,
-                        0
-                    )
-                )
+                assertTrue(eglSpec.eglGetSyncAttribKHR(sync, EGL_SYNC_CONDITION_KHR, syncAttr, 0))
                 assertEquals(EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR, syncAttr[0])
                 assertTrue(eglSpec.eglDestroySyncKHR(sync))
             }
@@ -592,14 +579,7 @@ class EGLManagerTest {
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 try {
-                    assertFalse(
-                        eglSpec.eglGetSyncAttribKHR(
-                            sync!!,
-                            EGL_SYNC_TYPE_KHR,
-                            syncAttr,
-                            1
-                        )
-                    )
+                    assertFalse(eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 1))
                     fail("Should have thrown for array out of bounds exception")
                 } catch (_: IllegalArgumentException) {
                     // NO-OP
@@ -622,12 +602,7 @@ class EGLManagerTest {
                 val syncAttr = IntArray(1)
                 try {
                     assertFalse(
-                        eglSpec.eglGetSyncAttribKHR(
-                            sync!!,
-                            EGL_SYNC_TYPE_KHR,
-                            syncAttr,
-                            -1
-                        )
+                        eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, -1)
                     )
                     fail("Should have thrown for negative offset into attributes array")
                 } catch (_: IllegalArgumentException) {
@@ -654,13 +629,8 @@ class EGLManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val status = eglSpec.eglClientWaitSyncKHR(
-                    sync!!,
-                    0,
-                    EGL_FOREVER_KHR
-                )
-                assertEquals("eglClientWaitSync failed",
-                    EGLExt.EGL_CONDITION_SATISFIED_KHR, status)
+                val status = eglSpec.eglClientWaitSyncKHR(sync!!, 0, EGL_FOREVER_KHR)
+                assertEquals("eglClientWaitSync failed", EGLExt.EGL_CONDITION_SATISFIED_KHR, status)
                 assertEquals("eglClientWaitSyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
                 assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
@@ -693,6 +663,7 @@ class EGLManagerTest {
             }
         }
     }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testEglDupNativeFenceFDANDROIDawaitForever() {
@@ -739,13 +710,10 @@ class EGLManagerTest {
     }
 
     /**
-     * Helper method to ensure EglManager has the corresponding release calls
-     * made to it and verifies that no exceptions were thrown as part of the test.
+     * Helper method to ensure EglManager has the corresponding release calls made to it and
+     * verifies that no exceptions were thrown as part of the test.
      */
-    private fun testEGLManager(
-        eglSpec: EGLSpec = EGLSpec.V14,
-        block: EGLManager.() -> Unit = {}
-    ) {
+    private fun testEGLManager(eglSpec: EGLSpec = EGLSpec.V14, block: EGLManager.() -> Unit = {}) {
         with(EGLManager(eglSpec)) {
             assertEquals(EGLVersion.Unknown, eglVersion)
             assertEquals(EGL14.EGL_NO_CONTEXT, eglContext)

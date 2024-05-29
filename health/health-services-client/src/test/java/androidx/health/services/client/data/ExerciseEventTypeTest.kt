@@ -24,12 +24,12 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class ExerciseEventTypeTest {
-  @Test
-  fun exerciseEventTypeGolfShotEventRoundTrip() {
-    val proto = GOLF_SHOT_EVENT.toProto()
-    val exerciseEventType = ExerciseEventType.fromProto(proto)
+    @Test
+    fun exerciseEventTypeGolfShotEventRoundTrip() {
+        val proto = GOLF_SHOT_EVENT.toProto()
+        val exerciseEventType = ExerciseEventType.fromProto(proto)
 
-    assertThat(exerciseEventType.toString()).isEqualTo("ExerciseEventType{ GolfShotEvent }")
-    assertThat(exerciseEventType).isEqualTo(GOLF_SHOT_EVENT)
-  }
+        assertThat(exerciseEventType.toString()).isEqualTo("ExerciseEventType{ GolfShotEvent }")
+        assertThat(exerciseEventType).isEqualTo(GOLF_SHOT_EVENT)
+    }
 }

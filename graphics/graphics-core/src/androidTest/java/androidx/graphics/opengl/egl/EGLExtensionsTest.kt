@@ -57,8 +57,7 @@ class EGLExtensionsTest {
     @Test
     fun testSetDamage() {
         assertTrue(
-            EGLExt.parseExtensions("EGL_KHR_partial_update")
-                .contains(EGL_KHR_PARTIAL_UPDATE)
+            EGLExt.parseExtensions("EGL_KHR_partial_update").contains(EGL_KHR_PARTIAL_UPDATE)
         )
     }
 
@@ -72,17 +71,13 @@ class EGLExtensionsTest {
 
     @Test
     fun testColorSpace() {
-        assertTrue(
-            EGLExt.parseExtensions("EGL_KHR_gl_colorspace")
-                .contains(EGL_KHR_GL_COLORSPACE)
-        )
+        assertTrue(EGLExt.parseExtensions("EGL_KHR_gl_colorspace").contains(EGL_KHR_GL_COLORSPACE))
     }
 
     @Test
     fun testNoConfigContext() {
         assertTrue(
-            EGLExt.parseExtensions("EGL_KHR_no_config_context")
-                .contains(EGL_KHR_NO_CONFIG_CONTEXT)
+            EGLExt.parseExtensions("EGL_KHR_no_config_context").contains(EGL_KHR_NO_CONFIG_CONTEXT)
         )
     }
 
@@ -121,8 +116,7 @@ class EGLExtensionsTest {
     @Test
     fun testContextPriority() {
         assertTrue(
-            EGLExt.parseExtensions("EGL_IMG_context_priority")
-                .contains(EGL_IMG_CONTEXT_PRIORITY)
+            EGLExt.parseExtensions("EGL_IMG_context_priority").contains(EGL_IMG_CONTEXT_PRIORITY)
         )
     }
 
@@ -136,17 +130,12 @@ class EGLExtensionsTest {
 
     @Test
     fun testFenceSync() {
-        assertTrue(
-            EGLExt.parseExtensions("EGL_KHR_fence_sync")
-                .contains(EGL_KHR_FENCE_SYNC)
-        )
+        assertTrue(EGLExt.parseExtensions("EGL_KHR_fence_sync").contains(EGL_KHR_FENCE_SYNC))
     }
 
     @Test
     fun testWaitSync() {
-        assertTrue(
-            EGLExt.parseExtensions("EGL_KHR_wait_sync")
-            .contains(EGL_KHR_WAIT_SYNC))
+        assertTrue(EGLExt.parseExtensions("EGL_KHR_wait_sync").contains(EGL_KHR_WAIT_SYNC))
     }
 
     @Test
@@ -159,20 +148,21 @@ class EGLExtensionsTest {
 
     @Test
     fun testExtensionsQueryStringParsing() {
-        val extensionQuery = "EGL_EXT_buffer_age " +
-            "EGL_KHR_partial_update " +
-            "EGL_KHR_swap_buffers_with_damage " +
-            "EGL_KHR_gl_colorspace " +
-            "EGL_KHR_no_config_context " +
-            "EGL_EXT_pixel_format_float " +
-            "EGL_EXT_gl_colorspace_scrgb " +
-            "EGL_EXT_gl_colorspace_display_p3_passthrough " +
-            "EGL_EXT_gl_colorspace_bt2020_pq " +
-            "EGL_IMG_context_priority " +
-            "EGL_KHR_surfaceless_context " +
-            "EGL_KHR_fence_sync " +
-            "EGL_KHR_wait_sync " +
-            "EGL_ANDROID_native_fence_sync "
+        val extensionQuery =
+            "EGL_EXT_buffer_age " +
+                "EGL_KHR_partial_update " +
+                "EGL_KHR_swap_buffers_with_damage " +
+                "EGL_KHR_gl_colorspace " +
+                "EGL_KHR_no_config_context " +
+                "EGL_EXT_pixel_format_float " +
+                "EGL_EXT_gl_colorspace_scrgb " +
+                "EGL_EXT_gl_colorspace_display_p3_passthrough " +
+                "EGL_EXT_gl_colorspace_bt2020_pq " +
+                "EGL_IMG_context_priority " +
+                "EGL_KHR_surfaceless_context " +
+                "EGL_KHR_fence_sync " +
+                "EGL_KHR_wait_sync " +
+                "EGL_ANDROID_native_fence_sync "
         with(EGLExt.parseExtensions(extensionQuery)) {
             assertTrue(contains(EGL_EXT_BUFFER_AGE))
             assertTrue(contains(EGL_KHR_PARTIAL_UPDATE))

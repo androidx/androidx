@@ -33,9 +33,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
     private var mFrontBufferRenderer: GLFrontBufferedRenderer<FloatArray>? = null
 
-    /**
-     * LineRenderer to be created on the GL Thread
-     */
+    /** LineRenderer to be created on the GL Thread */
     private var mLineRenderer: LineRenderer? = null
 
     private var mWidth: Int = 0
@@ -45,95 +43,100 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     private var mCurrentX: Float = 0f
     private var mCurrentY: Float = 0f
 
-    private val translucentCyan = Color.valueOf(
-        Color.red(Color.CYAN) / 255f,
-        Color.green(Color.CYAN) / 255f,
-        Color.blue(Color.CYAN) / 255f,
-        0.5f
-    ).toArgb()
+    private val translucentCyan =
+        Color.valueOf(
+                Color.red(Color.CYAN) / 255f,
+                Color.green(Color.CYAN) / 255f,
+                Color.blue(Color.CYAN) / 255f,
+                0.5f
+            )
+            .toArgb()
 
-    private val translucentMagenta = Color.valueOf(
-        Color.red(Color.MAGENTA) / 255f,
-        Color.green(Color.MAGENTA) / 255f,
-        Color.blue(Color.MAGENTA) / 255f,
-        0.5f
-    ).toArgb()
+    private val translucentMagenta =
+        Color.valueOf(
+                Color.red(Color.MAGENTA) / 255f,
+                Color.green(Color.MAGENTA) / 255f,
+                Color.blue(Color.MAGENTA) / 255f,
+                0.5f
+            )
+            .toArgb()
 
     @WorkerThread // GLThread
     private fun obtainRenderer(): LineRenderer =
-        mLineRenderer ?: (LineRenderer()
-            .apply {
+        mLineRenderer
+            ?: (LineRenderer().apply {
                 initialize()
                 mLineRenderer = this
             })
 
-    private val mCallbacks = object : GLFrontBufferedRenderer.Callback<FloatArray> {
+    private val mCallbacks =
+        object : GLFrontBufferedRenderer.Callback<FloatArray> {
 
-        private val mMVPMatrix = FloatArray(16)
-        private val mProjection = FloatArray(16)
+            private val mMVPMatrix = FloatArray(16)
+            private val mProjection = FloatArray(16)
 
-        private val mSceneParams = ArrayList<FloatArray>()
+            private val mSceneParams = ArrayList<FloatArray>()
 
-        override fun onDrawFrontBufferedLayer(
-            eglManager: EGLManager,
-            width: Int,
-            height: Int,
-            bufferInfo: BufferInfo,
-            transform: FloatArray,
-            param: FloatArray
-        ) {
-            GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-            Matrix.orthoM(
-                mMVPMatrix,
-                0,
-                0f,
-                bufferInfo.width.toFloat(),
-                0f,
-                bufferInfo.height.toFloat(),
-                -1f,
-                1f
-            )
-            Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
-            val vWidth = this@InkSurfaceView.width.toFloat()
-            val vHeight = this@InkSurfaceView.height.toFloat()
-            // Draw debug lines outlining the rendering area
-            with(obtainRenderer()) {
-                drawLines(mProjection, floatArrayOf(0f, 0f, 0f, vHeight), Color.GREEN)
-                drawLines(mProjection, floatArrayOf(0f, vHeight, vWidth, vHeight), Color.CYAN)
-                drawLines(mProjection, floatArrayOf(vWidth, vHeight, vWidth, 0f), Color.BLUE)
-                drawLines(mProjection, floatArrayOf(vWidth, 0f, 0f, 0f), Color.MAGENTA)
-                drawLines(mProjection, param, translucentCyan, LINE_WIDTH)
+            override fun onDrawFrontBufferedLayer(
+                eglManager: EGLManager,
+                width: Int,
+                height: Int,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                param: FloatArray
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                Matrix.orthoM(
+                    mMVPMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
+                val vWidth = this@InkSurfaceView.width.toFloat()
+                val vHeight = this@InkSurfaceView.height.toFloat()
+                // Draw debug lines outlining the rendering area
+                with(obtainRenderer()) {
+                    drawLines(mProjection, floatArrayOf(0f, 0f, 0f, vHeight), Color.GREEN)
+                    drawLines(mProjection, floatArrayOf(0f, vHeight, vWidth, vHeight), Color.CYAN)
+                    drawLines(mProjection, floatArrayOf(vWidth, vHeight, vWidth, 0f), Color.BLUE)
+                    drawLines(mProjection, floatArrayOf(vWidth, 0f, 0f, 0f), Color.MAGENTA)
+                    drawLines(mProjection, param, translucentCyan, LINE_WIDTH)
+                }
+            }
+
+            override fun onDrawMultiBufferedLayer(
+                eglManager: EGLManager,
+                width: Int,
+                height: Int,
+                bufferInfo: BufferInfo,
+                transform: FloatArray,
+                params: Collection<FloatArray>
+            ) {
+                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                GLES20.glClearColor(0f, 0f, 0f, 0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                Matrix.orthoM(
+                    mMVPMatrix,
+                    0,
+                    0f,
+                    bufferInfo.width.toFloat(),
+                    0f,
+                    bufferInfo.height.toFloat(),
+                    -1f,
+                    1f
+                )
+                Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
+                mSceneParams.addAll(params)
+                for (line in mSceneParams) {
+                    obtainRenderer().drawLines(mProjection, line, translucentCyan, LINE_WIDTH)
+                }
             }
         }
-
-        override fun onDrawMultiBufferedLayer(
-            eglManager: EGLManager,
-            width: Int,
-            height: Int,
-            bufferInfo: BufferInfo,
-            transform: FloatArray,
-            params: Collection<FloatArray>
-        ) {
-            GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-            GLES20.glClearColor(0f, 0f, 0f, 0f)
-            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-            Matrix.orthoM(
-                mMVPMatrix,
-                0,
-                0f,
-                bufferInfo.width.toFloat(),
-                0f,
-                bufferInfo.height.toFloat(),
-                -1f,
-                1f
-            )
-            Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
-            mSceneParams.addAll(params)
-            for (line in mSceneParams) {
-                obtainRenderer().drawLines(mProjection, line, translucentCyan, LINE_WIDTH)
-            }
-        }
-    }
 
     val renderCount = AtomicInteger(0)
 
@@ -153,12 +156,13 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                     mCurrentX = event.x
                     mCurrentY = event.y
 
-                    val line = FloatArray(4).apply {
-                        this[0] = mPreviousX
-                        this[1] = mPreviousY
-                        this[2] = mCurrentX
-                        this[3] = mCurrentY
-                    }
+                    val line =
+                        FloatArray(4).apply {
+                            this[0] = mPreviousX
+                            this[1] = mPreviousY
+                            this[2] = mCurrentX
+                            this[3] = mCurrentY
+                        }
                     renderCount.incrementAndGet()
                     mFrontBufferRenderer?.renderFrontBufferedLayer(line)
                 }
@@ -185,9 +189,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     }
 
     override fun onDetachedFromWindow() {
-        mFrontBufferRenderer?.release(true) {
-            obtainRenderer().release()
-        }
+        mFrontBufferRenderer?.release(true) { obtainRenderer().release() }
         super.onDetachedFromWindow()
     }
 

@@ -26,41 +26,49 @@ package androidx.health.services.client.data
  * }
  * ```
  */
-class DataPointContainer(
-    internal val dataPoints: Map<DataType<*, *>, List<DataPoint<*>>>
-) {
+class DataPointContainer(internal val dataPoints: Map<DataType<*, *>, List<DataPoint<*>>>) {
 
     /** Constructs a [DataPointContainer] using a list of [DataPoint]s. */
-    constructor(dataPointList: List<DataPoint<*>>) : this(
-        dataPointList.groupBy { it.dataType }
-    )
+    constructor(dataPointList: List<DataPoint<*>>) : this(dataPointList.groupBy { it.dataType })
 
     /** Set of [DataType]s contained within this [DataPointContainer]. */
     val dataTypes: Set<DataType<*, *>> = dataPoints.keys
 
     /** Returns all [SampleDataPoint]s contained in this update. */
-    val sampleDataPoints: List<SampleDataPoint<*>> get() {
-        return dataPoints.flatMap { it.value }.filterIsInstance(SampleDataPoint::class.java)
-            .toList()
-    }
+    val sampleDataPoints: List<SampleDataPoint<*>>
+        get() {
+            return dataPoints
+                .flatMap { it.value }
+                .filterIsInstance(SampleDataPoint::class.java)
+                .toList()
+        }
 
     /** Returns all [IntervalDataPoint]s contained in this update. */
-    val intervalDataPoints: List<IntervalDataPoint<*>> get() {
-        return dataPoints.flatMap { it.value }.filterIsInstance(IntervalDataPoint::class.java)
-            .toList()
-    }
+    val intervalDataPoints: List<IntervalDataPoint<*>>
+        get() {
+            return dataPoints
+                .flatMap { it.value }
+                .filterIsInstance(IntervalDataPoint::class.java)
+                .toList()
+        }
 
     /** Returns all [CumulativeDataPoint]s contained in this update. */
-    val cumulativeDataPoints: List<CumulativeDataPoint<*>> get() {
-        return dataPoints.flatMap { it.value }.filterIsInstance(CumulativeDataPoint::class.java)
-            .toList()
-    }
+    val cumulativeDataPoints: List<CumulativeDataPoint<*>>
+        get() {
+            return dataPoints
+                .flatMap { it.value }
+                .filterIsInstance(CumulativeDataPoint::class.java)
+                .toList()
+        }
 
     /** Returns all [StatisticalDataPoint]s contained in this update. */
-    val statisticalDataPoints: List<StatisticalDataPoint<*>> get() {
-        return dataPoints.flatMap { it.value }.filterIsInstance(StatisticalDataPoint::class.java)
-            .toList()
-    }
+    val statisticalDataPoints: List<StatisticalDataPoint<*>>
+        get() {
+            return dataPoints
+                .flatMap { it.value }
+                .filterIsInstance(StatisticalDataPoint::class.java)
+                .toList()
+        }
 
     /** Returns all [DataPoint] objects with a matching delta [type]. */
     @Suppress("UNCHECKED_CAST")

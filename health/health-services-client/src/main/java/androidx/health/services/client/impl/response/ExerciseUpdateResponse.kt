@@ -22,10 +22,7 @@ import androidx.health.services.client.data.ExerciseUpdate
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.ResponsesProto
 
-/**
- * Response containing [ExerciseUpdate] when it's updated.
- *
- */
+/** Response containing [ExerciseUpdate] when it's updated. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseUpdateResponse(public val exerciseUpdate: ExerciseUpdate) :
     ProtoParcelable<ResponsesProto.ExerciseUpdateResponse>() {

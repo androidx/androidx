@@ -42,10 +42,8 @@ class SurfaceControlWrapperTestActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mLayoutParams = FrameLayout.LayoutParams(
-            DEFAULT_WIDTH, DEFAULT_HEIGHT,
-            Gravity.LEFT or Gravity.TOP
-        )
+        mLayoutParams =
+            FrameLayout.LayoutParams(DEFAULT_WIDTH, DEFAULT_HEIGHT, Gravity.LEFT or Gravity.TOP)
         mLayoutParams.topMargin = 100
         mLayoutParams.leftMargin = 100
 

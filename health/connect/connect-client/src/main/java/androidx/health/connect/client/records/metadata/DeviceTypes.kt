@@ -19,10 +19,7 @@ package androidx.health.connect.client.records.metadata
 
 import androidx.annotation.RestrictTo
 
-/**
- * List of supported device types on Health Platform.
- *
- */
+/** List of supported device types on Health Platform. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 object DeviceTypes {
     const val UNKNOWN = "UNKNOWN"

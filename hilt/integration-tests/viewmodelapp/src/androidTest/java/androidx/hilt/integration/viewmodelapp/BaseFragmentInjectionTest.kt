@@ -39,18 +39,19 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class BaseFragmentInjectionTest {
 
-    @get:Rule
-    val rule = HiltAndroidRule(this)
+    @get:Rule val rule = HiltAndroidRule(this)
 
     @Test
     fun verifyInjection() {
         ActivityScenario.launch(TestActivity::class.java).use {
             it.onActivity { activity ->
-                val fragment = activity.supportFragmentManager.fragmentFactory.instantiate(
-                    TestFragment::class.java.classLoader!!,
-                    TestFragment::class.java.name
-                ) as TestFragment
-                activity.supportFragmentManager.beginTransaction()
+                val fragment =
+                    activity.supportFragmentManager.fragmentFactory.instantiate(
+                        TestFragment::class.java.classLoader!!,
+                        TestFragment::class.java.name
+                    ) as TestFragment
+                activity.supportFragmentManager
+                    .beginTransaction()
                     .add(0, fragment, FragmentInjectionTest.FRAGMENT_TAG)
                     .commitNow()
                 assertThat(fragment.myAndroidViewModel).isNotNull()
@@ -60,11 +61,9 @@ class BaseFragmentInjectionTest {
         }
     }
 
-    @AndroidEntryPoint
-    class TestActivity : FragmentActivity()
+    @AndroidEntryPoint class TestActivity : FragmentActivity()
 
-    @AndroidEntryPoint
-    class TestFragment : BaseFragment()
+    @AndroidEntryPoint class TestFragment : BaseFragment()
 
     abstract class BaseFragment : Fragment() {
         val myAndroidViewModel by viewModels<MyAndroidViewModel>()

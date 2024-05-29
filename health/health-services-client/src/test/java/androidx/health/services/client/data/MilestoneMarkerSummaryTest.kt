@@ -27,22 +27,27 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 internal class MilestoneMarkerSummaryTest {
     fun Int.instant() = Instant.ofEpochMilli(toLong())
+
     fun Int.duration() = Duration.ofSeconds(toLong())
 
     @Test
     fun protoRoundTrip() {
-        val goal = ExerciseGoal.createOneTimeGoal(
-            DataTypeCondition(CALORIES_TOTAL, 125.0, ComparisonType.GREATER_THAN_OR_EQUAL)
-        )
-        val proto = MilestoneMarkerSummary(
-            startTime = 15.instant(),
-            endTime = 40.instant(),
-            activeDuration = 20.duration(),
-            achievedGoal = goal,
-            summaryMetrics = DataPointContainer(
-                listOf(DataPoints.caloriesTotal(130.0, 15.instant(), 35.instant()))
+        val goal =
+            ExerciseGoal.createOneTimeGoal(
+                DataTypeCondition(CALORIES_TOTAL, 125.0, ComparisonType.GREATER_THAN_OR_EQUAL)
             )
-        ).proto
+        val proto =
+            MilestoneMarkerSummary(
+                    startTime = 15.instant(),
+                    endTime = 40.instant(),
+                    activeDuration = 20.duration(),
+                    achievedGoal = goal,
+                    summaryMetrics =
+                        DataPointContainer(
+                            listOf(DataPoints.caloriesTotal(130.0, 15.instant(), 35.instant()))
+                        )
+                )
+                .proto
 
         val summary = MilestoneMarkerSummary(proto)
 

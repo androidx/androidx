@@ -40,9 +40,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
-/**
- * [MeasureClient] implementation that is backed by Health Services.
- */
+/** [MeasureClient] implementation that is backed by Health Services. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ServiceBackedMeasureClient(
     private val context: Context,
@@ -69,11 +67,7 @@ public class ServiceBackedMeasureClient(
         val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, executor, callback)
         val future =
             registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
-                service.registerCallback(
-                    request,
-                    callbackStub,
-                    StatusCallback(result)
-                )
+                service.registerCallback(request, callbackStub, StatusCallback(result))
             }
         Futures.addCallback(
             future,
@@ -86,7 +80,8 @@ public class ServiceBackedMeasureClient(
                     callback.onRegistrationFailed(t)
                 }
             },
-            executor)
+            executor
+        )
     }
 
     @Suppress("UNCHECKED_CAST")

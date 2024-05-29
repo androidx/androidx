@@ -55,8 +55,8 @@ class PolygonTest {
         val p1 = Point(0f, 1f)
         val p2 = Point(-1f, 0f)
         val p3 = Point(0f, -1f)
-        val manualSquare = RoundedPolygon(floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y,
-            p3.x, p3.y))
+        val manualSquare =
+            RoundedPolygon(floatArrayOf(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y))
         min = Point(-1f, -1f)
         max = Point(1f, 1f)
         assertInBounds(manualSquare.cubics, min, max)
@@ -66,10 +66,22 @@ class PolygonTest {
         val p1Offset = p1 + offset
         val p2Offset = p2 + offset
         val p3Offset = p3 + offset
-        val manualSquareOffset = RoundedPolygon(
-            vertices = floatArrayOf(p0Offset.x, p0Offset.y, p1Offset.x, p1Offset.y,
-                p2Offset.x, p2Offset.y, p3Offset.x, p3Offset.y),
-            centerX = offset.x, centerY = offset.y)
+        val manualSquareOffset =
+            RoundedPolygon(
+                vertices =
+                    floatArrayOf(
+                        p0Offset.x,
+                        p0Offset.y,
+                        p1Offset.x,
+                        p1Offset.y,
+                        p2Offset.x,
+                        p2Offset.y,
+                        p3Offset.x,
+                        p3Offset.y
+                    ),
+                centerX = offset.x,
+                centerY = offset.y
+            )
         min = Point(0f, 1f)
         max = Point(2f, 3f)
         assertInBounds(manualSquareOffset.cubics, min, max)
@@ -92,10 +104,12 @@ class PolygonTest {
         // roundedSquare's approximate bounds will be larger due to control points
         bounds = roundedSquare.calculateBounds()
         betterBounds = roundedSquare.calculateBounds(approximate = false)
-        assertTrue("bounds ${bounds[0]}, ${bounds[1]}, ${bounds[2]}, ${bounds[3]}, " +
-            "betterBounds = ${betterBounds[0]}, ${betterBounds[1]}, ${betterBounds[2]}, " +
-            "${betterBounds[3]}",
-            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0])
+        assertTrue(
+            "bounds ${bounds[0]}, ${bounds[1]}, ${bounds[2]}, ${bounds[3]}, " +
+                "betterBounds = ${betterBounds[0]}, ${betterBounds[1]}, ${betterBounds[2]}, " +
+                "${betterBounds[3]}",
+            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0]
+        )
 
         bounds = pentagon.calculateBounds()
         val maxBounds = pentagon.calculateMaxBounds()
@@ -126,18 +140,22 @@ class PolygonTest {
         val translatedSquareCubics = square.transformed(translator).cubics
 
         for (i in squareCubics.indices) {
-            assertPointsEqualish(Point(squareCubics[i].anchor0X,
-                squareCubics[i].anchor0Y) + offset,
-                Point(translatedSquareCubics[i].anchor0X, translatedSquareCubics[i].anchor0Y))
-            assertPointsEqualish(Point(squareCubics[i].control0X,
-                squareCubics[i].control0Y) + offset,
-                Point(translatedSquareCubics[i].control0X, translatedSquareCubics[i].control0Y))
-            assertPointsEqualish(Point(squareCubics[i].control1X,
-                squareCubics[i].control1Y) + offset,
-                Point(translatedSquareCubics[i].control1X, translatedSquareCubics[i].control1Y))
-            assertPointsEqualish(Point(squareCubics[i].anchor1X,
-                squareCubics[i].anchor1Y) + offset,
-                Point(translatedSquareCubics[i].anchor1X, translatedSquareCubics[i].anchor1Y))
+            assertPointsEqualish(
+                Point(squareCubics[i].anchor0X, squareCubics[i].anchor0Y) + offset,
+                Point(translatedSquareCubics[i].anchor0X, translatedSquareCubics[i].anchor0Y)
+            )
+            assertPointsEqualish(
+                Point(squareCubics[i].control0X, squareCubics[i].control0Y) + offset,
+                Point(translatedSquareCubics[i].control0X, translatedSquareCubics[i].control0Y)
+            )
+            assertPointsEqualish(
+                Point(squareCubics[i].control1X, squareCubics[i].control1Y) + offset,
+                Point(translatedSquareCubics[i].control1X, translatedSquareCubics[i].control1Y)
+            )
+            assertPointsEqualish(
+                Point(squareCubics[i].anchor1X, squareCubics[i].anchor1Y) + offset,
+                Point(translatedSquareCubics[i].anchor1X, translatedSquareCubics[i].anchor1Y)
+            )
         }
     }
 

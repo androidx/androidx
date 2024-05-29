@@ -48,7 +48,7 @@ public interface ExerciseUpdateCallback {
      * Called during an [ExerciseState.ACTIVE] exercise once a lap has been marked.
      *
      * @param lapSummary an [ExerciseLapSummary] containing a summary of data collected during the
-     * past lap
+     *   past lap
      */
     public fun onLapSummaryReceived(lapSummary: ExerciseLapSummary)
 
@@ -62,12 +62,12 @@ public interface ExerciseUpdateCallback {
     public fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability)
 
     /**
-     * Called when an [ExerciseEvent] is emitted. May be called during any exercise state
-     * except for PREPARING or ENDED.
+     * Called when an [ExerciseEvent] is emitted. May be called during any exercise state except for
+     * PREPARING or ENDED.
      *
      * @param event the latest [ExerciseEvent] received during an active exercise. To access the
-     * data for each received [ExerciseEvent], clients can use conditional `when` on [ExerciseEvent]
-     * for a specific event type to access the event-specific data.
+     *   data for each received [ExerciseEvent], clients can use conditional `when` on
+     *   [ExerciseEvent] for a specific event type to access the event-specific data.
      */
     public fun onExerciseEventReceived(event: ExerciseEvent) {}
 }

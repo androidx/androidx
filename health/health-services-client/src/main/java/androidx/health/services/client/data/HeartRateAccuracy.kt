@@ -53,30 +53,24 @@ public class HeartRateAccuracy(public val sensorStatus: SensorStatus) : DataPoin
              * The availability is unknown, or is represented by a value too new for this library
              * version to parse.
              */
-            @JvmField
-            public val UNKNOWN: SensorStatus = SensorStatus(0, "UNKNOWN")
+            @JvmField public val UNKNOWN: SensorStatus = SensorStatus(0, "UNKNOWN")
 
             /**
              * The heart rate cannot be acquired because the sensor is not properly contacting skin.
              */
-            @JvmField
-            public val NO_CONTACT: SensorStatus = SensorStatus(1, "NO_CONTACT")
+            @JvmField public val NO_CONTACT: SensorStatus = SensorStatus(1, "NO_CONTACT")
 
             /** Heart rate data is currently too unreliable to be used. */
-            @JvmField
-            public val UNRELIABLE: SensorStatus = SensorStatus(2, "UNRELIABLE")
+            @JvmField public val UNRELIABLE: SensorStatus = SensorStatus(2, "UNRELIABLE")
 
             /** Heart rate data is available but the accuracy is low. */
-            @JvmField
-            public val ACCURACY_LOW: SensorStatus = SensorStatus(3, "ACCURACY_LOW")
+            @JvmField public val ACCURACY_LOW: SensorStatus = SensorStatus(3, "ACCURACY_LOW")
 
             /** Heart rate data is available and the accuracy is medium. */
-            @JvmField
-            public val ACCURACY_MEDIUM: SensorStatus = SensorStatus(4, "ACCURACY_MEDIUM")
+            @JvmField public val ACCURACY_MEDIUM: SensorStatus = SensorStatus(4, "ACCURACY_MEDIUM")
 
             /** Heart rate data is available with high accuracy. */
-            @JvmField
-            public val ACCURACY_HIGH: SensorStatus = SensorStatus(5, "ACCURACY_HIGH")
+            @JvmField public val ACCURACY_HIGH: SensorStatus = SensorStatus(5, "ACCURACY_HIGH")
 
             @RestrictTo(RestrictTo.Scope.LIBRARY)
             @JvmField

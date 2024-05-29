@@ -54,9 +54,8 @@ class SurfaceTextureRendererTest {
     fun testRenderFrameInvokesCallback() {
         withHandlerThread { handler ->
             val renderLatch = CountDownLatch(1)
-            val renderer = createSurfaceTextureRenderer(handler = handler) {
-                renderLatch.countDown()
-            }
+            val renderer =
+                createSurfaceTextureRenderer(handler = handler) { renderLatch.countDown() }
             renderer.renderFrame()
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
             renderer.release()
@@ -70,9 +69,8 @@ class SurfaceTextureRendererTest {
         withHandlerThread { handler ->
             val renderNode = RenderNode("renderNode")
             val renderLatch = CountDownLatch(1)
-            val renderer = SurfaceTextureRenderer(renderNode, 100, 100, handler) {
-                renderLatch.countDown()
-            }
+            val renderer =
+                SurfaceTextureRenderer(renderNode, 100, 100, handler) { renderLatch.countDown() }
             renderer.release()
             renderer.renderFrame()
             assertFalse(renderLatch.await(1000, TimeUnit.MILLISECONDS))
@@ -83,9 +81,10 @@ class SurfaceTextureRendererTest {
     @Test
     fun testMultiReleasesDoesNotCrash() {
         withHandlerThread { handler ->
-            val renderer = createSurfaceTextureRenderer(handler = handler) {
-                // NO-OP
-            }
+            val renderer =
+                createSurfaceTextureRenderer(handler = handler) {
+                    // NO-OP
+                }
             renderer.release()
             renderer.release()
         }
@@ -97,32 +96,33 @@ class SurfaceTextureRendererTest {
         withHandlerThread { handler ->
             var renderLatch = CountDownLatch(1)
             val glRenderer = GLRenderer().apply { start() }
-            val node = RenderNode("node").apply {
-                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            }
+            val node = RenderNode("node").apply { setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT) }
             var attached = false
             var texture: SurfaceTexture? = null
-            val target = glRenderer.createRenderTarget(
-                TEST_WIDTH,
-                TEST_HEIGHT,
-                object : GLRenderer.RenderCallback {
-                    override fun onDrawFrame(eglManager: EGLManager) {
-                        if (!attached) {
-                            val tex = IntArray(1)
-                            GLES20.glGenTextures(1, tex, 0)
-                            texture!!.attachToGLContext(tex[0])
-                            attached = true
-                        }
+            val target =
+                glRenderer.createRenderTarget(
+                    TEST_WIDTH,
+                    TEST_HEIGHT,
+                    object : GLRenderer.RenderCallback {
+                        override fun onDrawFrame(eglManager: EGLManager) {
+                            if (!attached) {
+                                val tex = IntArray(1)
+                                GLES20.glGenTextures(1, tex, 0)
+                                texture!!.attachToGLContext(tex[0])
+                                attached = true
+                            }
 
-                        texture!!.updateTexImage()
-                        renderLatch.countDown()
+                            texture!!.updateTexImage()
+                            renderLatch.countDown()
+                        }
                     }
-                })
-            val renderer = createSurfaceTextureRenderer(renderNode = node, handler = handler) {
-                    surfaceTexture ->
-                texture = surfaceTexture
-                target.requestRender()
-            }
+                )
+            val renderer =
+                createSurfaceTextureRenderer(renderNode = node, handler = handler) { surfaceTexture
+                    ->
+                    texture = surfaceTexture
+                    target.requestRender()
+                }
 
             var canvas = node.beginRecording()
             canvas.drawColor(Color.RED)

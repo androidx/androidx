@@ -25,18 +25,15 @@ import androidx.opengl.EGLExt
 import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
 
 /**
- * Class responsible for configuration of EGL related resources. This includes
- * initialization of the corresponding EGL Display as well as EGL Context, among
- * other EGL related facilities.
+ * Class responsible for configuration of EGL related resources. This includes initialization of the
+ * corresponding EGL Display as well as EGL Context, among other EGL related facilities.
  */
 @Suppress("AcronymName")
 class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
 
     private var mEglConfig: EGLConfig? = null
 
-    /**
-     * Offscreen pixel buffer surface
-     */
+    /** Offscreen pixel buffer surface */
     private var mPBufferSurface: EGLSurface = EGL14.EGL_NO_SURFACE
     private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var mEglVersion = EGLVersion.Unknown
@@ -46,8 +43,8 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     private var mQueryResult: IntArray? = null
 
     /**
-     * Initialize the EGLManager. This initializes the default display as well
-     * as queries the supported extensions
+     * Initialize the EGLManager. This initializes the default display as well as queries the
+     * supported extensions
      */
     fun initialize() {
         mEglContext.let {
@@ -60,16 +57,15 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     }
 
     /**
-     * Attempt to load an [EGLConfig] instance from the given
-     * [EGLConfigAttributes]. If the [EGLConfig] could not be loaded
-     * this returns null
+     * Attempt to load an [EGLConfig] instance from the given [EGLConfigAttributes]. If the
+     * [EGLConfig] could not be loaded this returns null
      */
     fun loadConfig(configAttributes: EGLConfigAttributes): EGLConfig? =
         eglSpec.loadConfig(configAttributes)
 
     /**
-     * Creates an [EGLContext] from the given [EGLConfig] returning
-     * null if the context could not be created
+     * Creates an [EGLContext] from the given [EGLConfig] returning null if the context could not be
+     * created
      *
      * @throws EGLException if the default surface could not be made current after context creation
      */
@@ -101,9 +97,8 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     }
 
     /**
-     * Release the resources allocated by EGLManager. This will destroy the corresponding
-     * EGLContext instance if it was previously initialized.
-     * The configured EGLVersion as well as EGLExtensions
+     * Release the resources allocated by EGLManager. This will destroy the corresponding EGLContext
+     * instance if it was previously initialized. The configured EGLVersion as well as EGLExtensions
      */
     fun release() {
         mEglContext.let {
@@ -129,66 +124,57 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     }
 
     val eglSpec: EGLSpec
-        @Suppress("AcronymName")
-        @JvmName("getEGLSpec")
-        get() = mEglSpec
+        @Suppress("AcronymName") @JvmName("getEGLSpec") get() = mEglSpec
 
     /**
-     * Returns the EGL version that is supported. This parameter is configured
-     * after [initialize] is invoked.
+     * Returns the EGL version that is supported. This parameter is configured after [initialize] is
+     * invoked.
      */
     val eglVersion: EGLVersion
-        @Suppress("AcronymName")
-        @JvmName("getEGLVersion")
-        get() = mEglVersion
+        @Suppress("AcronymName") @JvmName("getEGLVersion") get() = mEglVersion
 
     /**
      * Returns the current EGLContext. This parameter is configured after [initialize] is invoked
      */
     val eglContext: EGLContext?
-        @Suppress("AcronymName")
-        @JvmName("getEGLContext")
-        get() = mEglContext
+        @Suppress("AcronymName") @JvmName("getEGLContext") get() = mEglContext
 
     /**
-     * Returns the [EGLConfig] used to load the current [EGLContext].
-     * This is configured after [createContext] is invoked.
+     * Returns the [EGLConfig] used to load the current [EGLContext]. This is configured after
+     * [createContext] is invoked.
      */
     val eglConfig: EGLConfig?
-        @Suppress("AcronymName")
-        @JvmName("getEGLConfig")
-        get() = mEglConfig
+        @Suppress("AcronymName") @JvmName("getEGLConfig") get() = mEglConfig
 
     /**
-     * Determines whether the extension with the provided name is supported. The string
-     * provided is expected to be one of the named extensions defined within the OpenGL
-     * extension documentation.
+     * Determines whether the extension with the provided name is supported. The string provided is
+     * expected to be one of the named extensions defined within the OpenGL extension documentation.
      *
-     * See [EGLExt] for additional documentation for given extension name constants
-     * and descriptions.
+     * See [EGLExt] for additional documentation for given extension name constants and
+     * descriptions.
      *
-     * The set of supported extensions is configured after [initialize] is invoked.
-     * Attempts to query support for any extension beforehand will return false.
+     * The set of supported extensions is configured after [initialize] is invoked. Attempts to
+     * query support for any extension beforehand will return false.
      */
     fun isExtensionSupported(extensionName: String): Boolean =
         mEglExtensions?.contains(extensionName) ?: false
 
     /**
-     * Binds the current context to the given draw and read surfaces.
-     * The draw surface is used for all operations except for any pixel data read back or
-     * copy operations which are taken from the read surface.
+     * Binds the current context to the given draw and read surfaces. The draw surface is used for
+     * all operations except for any pixel data read back or copy operations which are taken from
+     * the read surface.
      *
      * The same EGLSurface may be specified for both draw and read surfaces.
      *
-     * If the context is not previously configured, the only valid parameters for the
-     * draw and read surfaces is [EGL14.EGL_NO_SURFACE]. This is useful to make sure there is
-     * always a surface specified and to release the current context without assigning a new one.
+     * If the context is not previously configured, the only valid parameters for the draw and read
+     * surfaces is [EGL14.EGL_NO_SURFACE]. This is useful to make sure there is always a surface
+     * specified and to release the current context without assigning a new one.
      *
      * See https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglMakeCurrent.xhtml
      *
      * @param drawSurface Surface used for all operations that involve writing pixel information
      * @param readSurface Surface used for pixel data read back or copy operations. By default this
-     * is the same as [drawSurface]
+     *   is the same as [drawSurface]
      */
     @JvmOverloads
     fun makeCurrent(drawSurface: EGLSurface, readSurface: EGLSurface = drawSurface): Boolean {
@@ -200,8 +186,8 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     }
 
     /**
-     * Post EGL surface color buffer to a native window. If the current drawing surface
-     * is single buffered this will flush the buffer
+     * Post EGL surface color buffer to a native window. If the current drawing surface is single
+     * buffered this will flush the buffer
      */
     fun swapAndFlushBuffers() {
         if (mIsSingleBuffered) {
@@ -217,21 +203,15 @@ class EGLManager(eglSpec: EGLSpec = EGLSpec.V14) {
     val defaultSurface: EGLSurface
         get() = mPBufferSurface
 
-    /**
-     * Returns the current surface used for drawing pixel content
-     */
+    /** Returns the current surface used for drawing pixel content */
     val currentDrawSurface: EGLSurface
         get() = eglSpec.eglGetCurrentDrawSurface()
 
-    /**
-     * Returns the current surface used for reading back or copying pixels
-     */
+    /** Returns the current surface used for reading back or copying pixels */
     val currentReadSurface: EGLSurface
         get() = eglSpec.eglGetCurrentReadSurface()
 
-    /**
-     * Helper method to query properties of the given surface
-     */
+    /** Helper method to query properties of the given surface */
     private fun querySurface(surface: EGLSurface) {
         if (surface == EGL14.EGL_NO_SURFACE) {
             mIsSingleBuffered = false

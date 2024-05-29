@@ -86,7 +86,6 @@ class CanvasBufferedRendererTests {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-
     @Test
     fun testMultipleClosesDoesNotCrash() = hardwareBufferRendererTest { renderer ->
         renderer.close()
@@ -97,22 +96,21 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testPreservationDisabledClearsContents() = hardwareBufferRendererTest { renderer ->
-        val node = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas -> canvas.drawColor(Color.BLUE) }
-        }
+        val node =
+            RenderNode("content").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                record { canvas -> canvas.drawColor(Color.BLUE) }
+            }
 
         renderer.setContentRoot(node)
         var latch = CountDownLatch(1)
         var bitmap: Bitmap? = null
-        renderer.obtainRenderRequest()
-            .preserveContents(true)
-            .drawAsync(mExecutor) { result ->
-                assertEquals(SUCCESS, result.status)
-                result.fence?.awaitForever()
-                bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
-                latch.countDown()
-            }
+        renderer.obtainRenderRequest().preserveContents(true).drawAsync(mExecutor) { result ->
+            assertEquals(SUCCESS, result.status)
+            result.fence?.awaitForever()
+            bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
+            latch.countDown()
+        }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         assertNotNull(bitmap)
@@ -121,14 +119,12 @@ class CanvasBufferedRendererTests {
         node.record { canvas -> canvas.drawColor(Color.RED, BlendMode.DST_OVER) }
 
         latch = CountDownLatch(1)
-        renderer.obtainRenderRequest()
-            .preserveContents(false)
-            .drawAsync(mExecutor) { result ->
-                assertEquals(SUCCESS, result.status)
-                result.fence?.awaitForever()
-                bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
-                latch.countDown()
-            }
+        renderer.obtainRenderRequest().preserveContents(false).drawAsync(mExecutor) { result ->
+            assertEquals(SUCCESS, result.status)
+            result.fence?.awaitForever()
+            bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
+            latch.countDown()
+        }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -139,16 +135,12 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testPreservationEnabledPreservesContents() =
-        repeat(20) {
-            verifyPreservedBuffer(CanvasBufferedRenderer.DEFAULT_IMPL)
-        }
+        repeat(20) { verifyPreservedBuffer(CanvasBufferedRenderer.DEFAULT_IMPL) }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testPreservationEnabledPreservesContentsWithRedrawStrategy() =
-        repeat(20) {
-            verifyPreservedBuffer(CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW)
-        }
+        repeat(20) { verifyPreservedBuffer(CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW) }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun verifyPreservedBuffer(
@@ -156,31 +148,21 @@ class CanvasBufferedRendererTests {
         width: Int = TEST_WIDTH,
         height: Int = TEST_HEIGHT
     ) {
-        val bitmap = bufferPreservationTestHelper(
-            impl,
-            width,
-            height,
-            mExecutor
-        )
+        val bitmap = bufferPreservationTestHelper(impl, width, height, mExecutor)
         assertNotNull(bitmap)
         assertTrue(bitmap!!.copy(Bitmap.Config.ARGB_8888, false).isAllColor(Color.BLUE))
     }
 
-    /**
-     * Helper test method to save test bitmaps to disk to verify output for debugging purposes
-     */
+    /** Helper test method to save test bitmaps to disk to verify output for debugging purposes */
     private fun saveBitmap(bitmap: Bitmap, name: String) {
-        val filename = InstrumentationRegistry.getInstrumentation()
-            .context
-            .getExternalFilesDir(DIRECTORY_PICTURES)
+        val filename =
+            InstrumentationRegistry.getInstrumentation()
+                .context
+                .getExternalFilesDir(DIRECTORY_PICTURES)
         val testFile = File(filename!!.path + "/" + name)
         try {
             FileOutputStream(testFile).use { out ->
-                bitmap.compress(
-                    Bitmap.CompressFormat.PNG,
-                    100,
-                    out
-                )
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -194,47 +176,40 @@ class CanvasBufferedRendererTests {
         height: Int,
         executor: Executor
     ): Bitmap? {
-        val hardwareBufferRenderer = CanvasBufferedRenderer.Builder(width, height)
-            .setMaxBuffers(1)
-            .setImpl(impl)
-            .build()
+        val hardwareBufferRenderer =
+            CanvasBufferedRenderer.Builder(width, height).setMaxBuffers(1).setImpl(impl).build()
 
         hardwareBufferRenderer.use { renderer ->
-            val node = RenderNode("content").apply {
-                setPosition(0, 0, width, height)
-                record { canvas ->
-                    canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-                    canvas.drawColor(Color.BLUE)
+            val node =
+                RenderNode("content").apply {
+                    setPosition(0, 0, width, height)
+                    record { canvas ->
+                        canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+                        canvas.drawColor(Color.BLUE)
+                    }
                 }
-            }
 
             renderer.setContentRoot(node)
             val firstRenderLatch = CountDownLatch(1)
             var bitmap: Bitmap? = null
-            renderer.obtainRenderRequest()
-                .preserveContents(true)
-                .drawAsync(executor) { result ->
-                    assertEquals(SUCCESS, result.status)
-                    result.fence?.awaitForever()
-                    bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
-                    firstRenderLatch.countDown()
-                }
+            renderer.obtainRenderRequest().preserveContents(true).drawAsync(executor) { result ->
+                assertEquals(SUCCESS, result.status)
+                result.fence?.awaitForever()
+                bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
+                firstRenderLatch.countDown()
+            }
 
             assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
 
-            node.record { canvas ->
-                canvas.drawColor(Color.RED, BlendMode.DST_OVER)
-            }
+            node.record { canvas -> canvas.drawColor(Color.RED, BlendMode.DST_OVER) }
 
             val secondRenderLatch = CountDownLatch(1)
-            renderer.obtainRenderRequest()
-                .preserveContents(true)
-                .drawAsync(executor) { result ->
-                    assertEquals(SUCCESS, result.status)
-                    result.fence?.awaitForever()
-                    bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
-                    secondRenderLatch.countDown()
-                }
+            renderer.obtainRenderRequest().preserveContents(true).drawAsync(executor) { result ->
+                assertEquals(SUCCESS, result.status)
+                result.fence?.awaitForever()
+                bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
+                secondRenderLatch.countDown()
+            }
 
             assertTrue(secondRenderLatch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -243,30 +218,32 @@ class CanvasBufferedRendererTests {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-
     @Test
     fun testHardwareBufferRender() = hardwareBufferRendererTest { renderer ->
-        val contentRoot = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas -> canvas.drawColor(Color.BLUE) }
-        }
+        val contentRoot =
+            RenderNode("content").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                record { canvas -> canvas.drawColor(Color.BLUE) }
+            }
         renderer.setContentRoot(contentRoot)
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
         val latch = CountDownLatch(1)
         var hardwareBuffer: HardwareBuffer? = null
-        renderer.obtainRenderRequest()
-            .setColorSpace(colorSpace)
-            .drawAsync(mExecutor) { renderResult ->
-                renderResult.fence?.awaitForever()
-                hardwareBuffer = renderResult.hardwareBuffer
-                latch.countDown()
-            }
+        renderer.obtainRenderRequest().setColorSpace(colorSpace).drawAsync(mExecutor) { renderResult
+            ->
+            renderResult.fence?.awaitForever()
+            hardwareBuffer = renderResult.hardwareBuffer
+            latch.countDown()
+        }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
 
-        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!
-            .copy(Bitmap.Config.ARGB_8888, false)
+        val bitmap =
+            Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!.copy(
+                Bitmap.Config.ARGB_8888,
+                false
+            )
 
         assertEquals(TEST_WIDTH, bitmap.width)
         assertEquals(TEST_HEIGHT, bitmap.height)
@@ -276,10 +253,11 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDrawSync() = hardwareBufferRendererTest { renderer ->
-        val contentRoot = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas -> canvas.drawColor(Color.BLUE) }
-        }
+        val contentRoot =
+            RenderNode("content").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                record { canvas -> canvas.drawColor(Color.BLUE) }
+            }
         renderer.setContentRoot(contentRoot)
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
@@ -299,8 +277,11 @@ class CanvasBufferedRendererTests {
 
         val hardwareBuffer = renderResult!!.hardwareBuffer
 
-        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!
-            .copy(Bitmap.Config.ARGB_8888, false)
+        val bitmap =
+            Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!.copy(
+                Bitmap.Config.ARGB_8888,
+                false
+            )
 
         assertEquals(TEST_WIDTH, bitmap.width)
         assertEquals(TEST_HEIGHT, bitmap.height)
@@ -310,10 +291,11 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testDrawSyncWithoutBlockingFence() = hardwareBufferRendererTest { renderer ->
-        val contentRoot = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas -> canvas.drawColor(Color.BLUE) }
-        }
+        val contentRoot =
+            RenderNode("content").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                record { canvas -> canvas.drawColor(Color.BLUE) }
+            }
         renderer.setContentRoot(contentRoot)
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
@@ -331,8 +313,11 @@ class CanvasBufferedRendererTests {
 
         val hardwareBuffer = renderResult!!.hardwareBuffer
 
-        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!
-            .copy(Bitmap.Config.ARGB_8888, false)
+        val bitmap =
+            Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!.copy(
+                Bitmap.Config.ARGB_8888,
+                false
+            )
 
         assertEquals(TEST_WIDTH, bitmap.width)
         assertEquals(TEST_HEIGHT, bitmap.height)
@@ -347,265 +332,284 @@ class CanvasBufferedRendererTests {
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-
     @Test
-    fun testContentsPreservedF16() = preservedContentsTest(
-        format = PixelFormat.RGBA_F16,
-        bitmapConfig = Bitmap.Config.RGBA_F16
-    ) { bitmap ->
-        val buffer = ByteBuffer.allocateDirect(bitmap.allocationByteCount).apply {
-            bitmap.copyPixelsToBuffer(this)
-            rewind()
-            order(ByteOrder.LITTLE_ENDIAN)
+    fun testContentsPreservedF16() =
+        preservedContentsTest(
+            format = PixelFormat.RGBA_F16,
+            bitmapConfig = Bitmap.Config.RGBA_F16
+        ) { bitmap ->
+            val buffer =
+                ByteBuffer.allocateDirect(bitmap.allocationByteCount).apply {
+                    bitmap.copyPixelsToBuffer(this)
+                    rewind()
+                    order(ByteOrder.LITTLE_ENDIAN)
+                }
+            val srcColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+            val srcToDst = ColorSpace.connect(srcColorSpace, ColorSpace.get(ColorSpace.Named.SRGB))
+
+            val expectedRed = srcToDst.transform(1.0f, 0.0f, 0.0f)
+            val expectedBlue = srcToDst.transform(0.0f, 0.0f, 1.0f)
+
+            TestHelper.assertEqualsRgba16f(
+                "TopMiddle",
+                bitmap,
+                TEST_WIDTH / 2,
+                TEST_HEIGHT / 4,
+                buffer,
+                expectedRed[0],
+                expectedRed[1],
+                expectedRed[2],
+                1.0f
+            )
+            TestHelper.assertEqualsRgba16f(
+                "BottomMiddle",
+                bitmap,
+                TEST_WIDTH / 2,
+                TEST_HEIGHT / 2 + TEST_HEIGHT / 4,
+                buffer,
+                expectedBlue[0],
+                expectedBlue[1],
+                expectedBlue[2],
+                1.0f
+            )
         }
-        val srcColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
-        val srcToDst = ColorSpace.connect(srcColorSpace, ColorSpace.get(ColorSpace.Named.SRGB))
-
-        val expectedRed = srcToDst.transform(1.0f, 0.0f, 0.0f)
-        val expectedBlue = srcToDst.transform(0.0f, 0.0f, 1.0f)
-
-        TestHelper.assertEqualsRgba16f(
-            "TopMiddle",
-            bitmap,
-            TEST_WIDTH / 2,
-            TEST_HEIGHT / 4,
-            buffer,
-            expectedRed[0],
-            expectedRed[1],
-            expectedRed[2],
-            1.0f
-        )
-        TestHelper.assertEqualsRgba16f(
-            "BottomMiddle",
-            bitmap,
-            TEST_WIDTH / 2,
-            TEST_HEIGHT / 2 + TEST_HEIGHT / 4,
-            buffer,
-            expectedBlue[0],
-            expectedBlue[1],
-            expectedBlue[2],
-            1.0f
-        )
-    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
-    fun testContentsPreserved1010102() = preservedContentsTest(
-        format = PixelFormat.RGBA_1010102,
-        bitmapConfig = Bitmap.Config.RGBA_1010102
-    ) { bitmap ->
-        assertEquals(Color.RED, bitmap.getPixel(TEST_WIDTH / 2, TEST_HEIGHT / 4))
-        assertEquals(Color.BLUE, bitmap.getPixel(TEST_WIDTH / 2, TEST_HEIGHT / 2 + TEST_HEIGHT / 4))
-    }
+    fun testContentsPreserved1010102() =
+        preservedContentsTest(
+            format = PixelFormat.RGBA_1010102,
+            bitmapConfig = Bitmap.Config.RGBA_1010102
+        ) { bitmap ->
+            assertEquals(Color.RED, bitmap.getPixel(TEST_WIDTH / 2, TEST_HEIGHT / 4))
+            assertEquals(
+                Color.BLUE,
+                bitmap.getPixel(TEST_WIDTH / 2, TEST_HEIGHT / 2 + TEST_HEIGHT / 4)
+            )
+        }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun preservedContentsTest(
         format: Int = PixelFormat.RGBA_8888,
         bitmapConfig: Bitmap.Config = Bitmap.Config.ARGB_8888,
         block: (Bitmap) -> Unit
-    ) = hardwareBufferRendererTest(format = format) { renderer ->
-        val contentRoot = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas -> canvas.drawColor(Color.BLUE) }
-        }
-        renderer.setContentRoot(contentRoot)
-        val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
-        val latch = CountDownLatch(1)
-        var hardwareBuffer: HardwareBuffer?
-        renderer.obtainRenderRequest()
-            .setColorSpace(colorSpace)
-            .preserveContents(true)
-            .drawAsync(mExecutor) { renderResult ->
-            renderResult.fence?.awaitForever()
-            hardwareBuffer = renderResult.hardwareBuffer
-            latch.countDown()
-        }
+    ) =
+        hardwareBufferRendererTest(format = format) { renderer ->
+            val contentRoot =
+                RenderNode("content").apply {
+                    setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                    record { canvas -> canvas.drawColor(Color.BLUE) }
+                }
+            renderer.setContentRoot(contentRoot)
+            val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+            val latch = CountDownLatch(1)
+            var hardwareBuffer: HardwareBuffer?
+            renderer
+                .obtainRenderRequest()
+                .setColorSpace(colorSpace)
+                .preserveContents(true)
+                .drawAsync(mExecutor) { renderResult ->
+                    renderResult.fence?.awaitForever()
+                    hardwareBuffer = renderResult.hardwareBuffer
+                    latch.countDown()
+                }
 
-        assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
 
-        val latch2 = CountDownLatch(1)
-        contentRoot.record { canvas ->
-            val paint = Paint().apply { color = Color.RED }
-            canvas.drawRect(0f, 0f, TEST_WIDTH.toFloat(), TEST_HEIGHT / 2f, paint)
-        }
-        renderer.setContentRoot(contentRoot)
-
-        hardwareBuffer = null
-        renderer.obtainRenderRequest()
-            .setColorSpace(colorSpace)
-            .preserveContents(true)
-            .drawAsync(mExecutor) { renderResult ->
-                renderResult.fence?.awaitForever()
-                hardwareBuffer = renderResult.hardwareBuffer
-                latch2.countDown()
+            val latch2 = CountDownLatch(1)
+            contentRoot.record { canvas ->
+                val paint = Paint().apply { color = Color.RED }
+                canvas.drawRect(0f, 0f, TEST_WIDTH.toFloat(), TEST_HEIGHT / 2f, paint)
             }
+            renderer.setContentRoot(contentRoot)
 
-        assertTrue(latch2.await(3000, TimeUnit.MILLISECONDS))
+            hardwareBuffer = null
+            renderer
+                .obtainRenderRequest()
+                .setColorSpace(colorSpace)
+                .preserveContents(true)
+                .drawAsync(mExecutor) { renderResult ->
+                    renderResult.fence?.awaitForever()
+                    hardwareBuffer = renderResult.hardwareBuffer
+                    latch2.countDown()
+                }
 
-        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!
-            .copy(bitmapConfig, false)
+            assertTrue(latch2.await(3000, TimeUnit.MILLISECONDS))
 
-        assertEquals(TEST_WIDTH, bitmap.width)
-        assertEquals(TEST_HEIGHT, bitmap.height)
-        block(bitmap)
-    }
+            val bitmap =
+                Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!.copy(bitmapConfig, false)
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testTransformRotate0TallWide() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH * 2,
-        height = TEST_HEIGHT,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.RED,
-            topRight = Color.BLUE,
-            bottomRight = Color.YELLOW,
-            bottomLeft = Color.GREEN
-        )
-    }
+            assertEquals(TEST_WIDTH, bitmap.width)
+            assertEquals(TEST_HEIGHT, bitmap.height)
+            block(bitmap)
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate0TallRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH,
-        height = TEST_HEIGHT * 2,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.RED,
-            topRight = Color.BLUE,
-            bottomRight = Color.YELLOW,
-            bottomLeft = Color.GREEN
-        )
-    }
+    fun testTransformRotate0TallWide() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH * 2,
+            height = TEST_HEIGHT,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.RED,
+                topRight = Color.BLUE,
+                bottomRight = Color.YELLOW,
+                bottomLeft = Color.GREEN
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate90WideRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH * 2,
-        height = TEST_HEIGHT,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.GREEN,
-            topRight = Color.RED,
-            bottomRight = Color.BLUE,
-            bottomLeft = Color.YELLOW
-        )
-    }
+    fun testTransformRotate0TallRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH,
+            height = TEST_HEIGHT * 2,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.RED,
+                topRight = Color.BLUE,
+                bottomRight = Color.YELLOW,
+                bottomLeft = Color.GREEN
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate90TallRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH,
-        height = TEST_HEIGHT * 2,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.GREEN,
-            topRight = Color.RED,
-            bottomLeft = Color.YELLOW,
-            bottomRight = Color.BLUE
-        )
-    }
+    fun testTransformRotate90WideRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH * 2,
+            height = TEST_HEIGHT,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.GREEN,
+                topRight = Color.RED,
+                bottomRight = Color.BLUE,
+                bottomLeft = Color.YELLOW
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate180WideRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH * 2,
-        height = TEST_HEIGHT,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.YELLOW,
-            topRight = Color.GREEN,
-            bottomLeft = Color.BLUE,
-            bottomRight = Color.RED
-        )
-    }
+    fun testTransformRotate90TallRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH,
+            height = TEST_HEIGHT * 2,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.GREEN,
+                topRight = Color.RED,
+                bottomLeft = Color.YELLOW,
+                bottomRight = Color.BLUE
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate180TallRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH,
-        height = TEST_HEIGHT * 2,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.YELLOW,
-            topRight = Color.GREEN,
-            bottomLeft = Color.BLUE,
-            bottomRight = Color.RED
-        )
-    }
+    fun testTransformRotate180WideRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH * 2,
+            height = TEST_HEIGHT,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.YELLOW,
+                topRight = Color.GREEN,
+                bottomLeft = Color.BLUE,
+                bottomRight = Color.RED
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate270WideRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH * 2,
-        height = TEST_HEIGHT,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.BLUE,
-            topRight = Color.YELLOW,
-            bottomRight = Color.GREEN,
-            bottomLeft = Color.RED
-        )
-    }
+    fun testTransformRotate180TallRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH,
+            height = TEST_HEIGHT * 2,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.YELLOW,
+                topRight = Color.GREEN,
+                bottomLeft = Color.BLUE,
+                bottomRight = Color.RED
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testTransformRotate270TallRect() = TestHelper.quadTest(
-        mExecutor,
-        width = TEST_WIDTH,
-        height = TEST_HEIGHT * 2,
-        transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270
-    ) { bitmap ->
-        TestHelper.assertBitmapQuadColors(
-            bitmap,
-            topLeft = Color.BLUE,
-            topRight = Color.YELLOW,
-            bottomRight = Color.GREEN,
-            bottomLeft = Color.RED
-        )
-    }
+    fun testTransformRotate270WideRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH * 2,
+            height = TEST_HEIGHT,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.BLUE,
+                topRight = Color.YELLOW,
+                bottomRight = Color.GREEN,
+                bottomLeft = Color.RED
+            )
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testTransformRotate270TallRect() =
+        TestHelper.quadTest(
+            mExecutor,
+            width = TEST_WIDTH,
+            height = TEST_HEIGHT * 2,
+            transform = SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270
+        ) { bitmap ->
+            TestHelper.assertBitmapQuadColors(
+                bitmap,
+                topLeft = Color.BLUE,
+                topRight = Color.YELLOW,
+                bottomRight = Color.GREEN,
+                bottomLeft = Color.RED
+            )
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testUnknownTransformThrows() = hardwareBufferRendererTest { renderer ->
-        val root = RenderNode("content").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            record { canvas ->
-                with(canvas) {
-                    drawColor(Color.BLUE)
-                    val paint = Paint().apply { color = Color.RED }
-                    canvas.drawRect(0f, 0f, TEST_WIDTH / 2f, TEST_HEIGHT / 2f, paint)
+        val root =
+            RenderNode("content").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                record { canvas ->
+                    with(canvas) {
+                        drawColor(Color.BLUE)
+                        val paint = Paint().apply { color = Color.RED }
+                        canvas.drawRect(0f, 0f, TEST_WIDTH / 2f, TEST_HEIGHT / 2f, paint)
+                    }
                 }
             }
-        }
         renderer.setContentRoot(root)
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
         val latch = CountDownLatch(1)
 
         assertThrows(IllegalArgumentException::class.java) {
-            renderer.obtainRenderRequest()
+            renderer
+                .obtainRenderRequest()
                 .setColorSpace(colorSpace)
                 .setBufferTransform(42)
                 .drawAsync(mExecutor) { renderResult ->
@@ -672,7 +676,8 @@ class CanvasBufferedRendererTests {
         var renderStatus = CanvasBufferedRenderer.RenderResult.ERROR_UNKNOWN
         var hardwareBuffer: HardwareBuffer? = null
 
-        renderer.obtainRenderRequest()
+        renderer
+            .obtainRenderRequest()
             .setColorSpace(colorSpace)
             .setBufferTransform(transform)
             .drawAsync(mExecutor) { renderResult ->
@@ -684,22 +689,24 @@ class CanvasBufferedRendererTests {
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(renderStatus, SUCCESS)
-        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!
-            .copy(Bitmap.Config.ARGB_8888, false)
+        val bitmap =
+            Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!.copy(
+                Bitmap.Config.ARGB_8888,
+                false
+            )
 
-        val rect = Rect(childRect.left,
-            childRect.bottom,
-            childRect.right,
-            childRect.bottom + 10)
+        val rect = Rect(childRect.left, childRect.bottom, childRect.right, childRect.bottom + 10)
 
-        var result = bitmap.verify(rect) { actual, _, _ ->
-            verifyPixelWithThreshold(actual, Color.RED, 10)
-        }
-        result = result || bitmap.verify(
-            rect.applyBufferTransform(bitmap.width, bitmap.height, transform)
-        ) { actual, _, _ ->
-            verifyPixelGrayScale(actual, 1)
-        }
+        var result =
+            bitmap.verify(rect) { actual, _, _ -> verifyPixelWithThreshold(actual, Color.RED, 10) }
+        result =
+            result ||
+                bitmap.verify(rect.applyBufferTransform(bitmap.width, bitmap.height, transform)) {
+                    actual,
+                    _,
+                    _ ->
+                    verifyPixelGrayScale(actual, 1)
+                }
 
         assertTrue(result)
     }
@@ -715,19 +722,19 @@ class CanvasBufferedRendererTests {
         return true
     }
 
-    /**
-     * @return True if close enough
-     */
+    /** @return True if close enough */
     private fun verifyPixelWithThreshold(color: Int, expectedColor: Int, threshold: Int): Boolean {
-        val diff = (abs((Color.red(color) - Color.red(expectedColor)).toDouble()) + abs(
-            (Color.green(color) - Color.green(expectedColor)).toDouble()
-        ) + abs((Color.blue(color) - Color.blue(expectedColor)).toDouble())).toInt()
+        val diff =
+            (abs((Color.red(color) - Color.red(expectedColor)).toDouble()) +
+                    abs((Color.green(color) - Color.green(expectedColor)).toDouble()) +
+                    abs((Color.blue(color) - Color.blue(expectedColor)).toDouble()))
+                .toInt()
         return diff <= threshold
     }
 
     /**
      * @param threshold Per channel differences for R / G / B channel against the average of these 3
-     * channels. Should be less than 2 normally.
+     *   channels. Should be less than 2 normally.
      * @return True if the color is close enough to be a gray scale color.
      */
     private fun verifyPixelGrayScale(color: Int, threshold: Int): Boolean {
@@ -735,8 +742,7 @@ class CanvasBufferedRendererTests {
         average /= 3
         return abs((Color.red(color) - average).toDouble()) <= threshold &&
             abs((Color.green(color) - average).toDouble()) <= threshold &&
-            abs((Color.blue(color) - average).toDouble()
-        ) <= threshold
+            abs((Color.blue(color) - average).toDouble()) <= threshold
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
@@ -758,18 +764,17 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRendererBlocksOnBufferRelease() {
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-            val canvas = beginRecording()
-            canvas.drawColor(Color.RED)
-            endRecording()
-        }
-        val renderer = CanvasBufferedRenderer.Builder(TEST_WIDTH, TEST_HEIGHT)
-            .setMaxBuffers(2)
-            .build()
-        .apply {
-            setContentRoot(renderNode)
-        }
+        val renderNode =
+            RenderNode("node").apply {
+                setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+                val canvas = beginRecording()
+                canvas.drawColor(Color.RED)
+                endRecording()
+            }
+        val renderer =
+            CanvasBufferedRenderer.Builder(TEST_WIDTH, TEST_HEIGHT).setMaxBuffers(2).build().apply {
+                setContentRoot(renderNode)
+            }
 
         val executor = Executors.newSingleThreadExecutor()
         try {
@@ -790,9 +795,7 @@ class CanvasBufferedRendererTests {
             canvas.drawColor(Color.BLUE)
             renderNode.endRecording()
 
-            renderer.obtainRenderRequest().drawAsync(executor) { _ ->
-                latch2.countDown()
-            }
+            renderer.obtainRenderRequest().drawAsync(executor) { _ -> latch2.countDown() }
 
             assertTrue(latch2.await(1000, TimeUnit.MILLISECONDS))
 
@@ -800,9 +803,7 @@ class CanvasBufferedRendererTests {
             canvas.drawColor(Color.GREEN)
             renderNode.endRecording()
 
-            renderer.obtainRenderRequest().drawAsync(executor) { _ ->
-                latch3.countDown()
-            }
+            renderer.obtainRenderRequest().drawAsync(executor) { _ -> latch3.countDown() }
 
             // The 3rd render request should be blocked until the buffer is released
             assertFalse(latch3.await(1000, TimeUnit.MILLISECONDS))
@@ -906,12 +907,8 @@ class CanvasBufferedRendererTests {
     @LargeTest
     @Test
     fun testFdCleanupAfterSeveralRenders() {
-        val hbr = CanvasBufferedRenderer.Builder(TEST_WIDTH, TEST_HEIGHT)
-            .setMaxBuffers(1)
-            .build()
-        val renderNode = RenderNode("node").apply {
-            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-        }
+        val hbr = CanvasBufferedRenderer.Builder(TEST_WIDTH, TEST_HEIGHT).setMaxBuffers(1).build()
+        val renderNode = RenderNode("node").apply { setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT) }
         hbr.setContentRoot(renderNode)
         val executor = Executors.newSingleThreadExecutor()
         try {
@@ -939,10 +936,10 @@ class CanvasBufferedRendererTests {
     }
 
     /**
-     * Helper class to move test methods that include APIs introduced in newer class levels.
-     * This is done in order to avoid NoClassFoundExceptions being thrown when the test is loaded
-     * on lower API levels even if there are corresponding @SdkSuppress annotations used in
-     * conjunction with the corresponding API version code.
+     * Helper class to move test methods that include APIs introduced in newer class levels. This is
+     * done in order to avoid NoClassFoundExceptions being thrown when the test is loaded on lower
+     * API levels even if there are corresponding @SdkSuppress annotations used in conjunction with
+     * the corresponding API version code.
      */
     internal class TestHelper {
         companion object {
@@ -960,8 +957,10 @@ class CanvasBufferedRendererTests {
             ) {
                 val bufferWidth: Int
                 val bufferHeight: Int
-                if (transform == SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 ||
-                    transform == SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270) {
+                if (
+                    transform == SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 ||
+                        transform == SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270
+                ) {
                     bufferWidth = height
                     bufferHeight = width
                 } else {
@@ -973,26 +972,28 @@ class CanvasBufferedRendererTests {
                     height = bufferHeight,
                     format = format
                 ) { renderer ->
-                    val root = RenderNode("content").apply {
-                        setPosition(0, 0, width, height)
-                        record { canvas ->
-                            val widthF = width.toFloat()
-                            val heightF = height.toFloat()
-                            val paint = Paint().apply { color = Color.RED }
-                            canvas.drawRect(0f, 0f, widthF / 2f, heightF / 2f, paint)
-                            paint.color = Color.BLUE
-                            canvas.drawRect(widthF / 2f, 0f, widthF, heightF / 2f, paint)
-                            paint.color = Color.GREEN
-                            canvas.drawRect(0f, heightF / 2f, widthF / 2f, heightF, paint)
-                            paint.color = Color.YELLOW
-                            canvas.drawRect(widthF / 2f, heightF / 2f, widthF, heightF, paint)
+                    val root =
+                        RenderNode("content").apply {
+                            setPosition(0, 0, width, height)
+                            record { canvas ->
+                                val widthF = width.toFloat()
+                                val heightF = height.toFloat()
+                                val paint = Paint().apply { color = Color.RED }
+                                canvas.drawRect(0f, 0f, widthF / 2f, heightF / 2f, paint)
+                                paint.color = Color.BLUE
+                                canvas.drawRect(widthF / 2f, 0f, widthF, heightF / 2f, paint)
+                                paint.color = Color.GREEN
+                                canvas.drawRect(0f, heightF / 2f, widthF / 2f, heightF, paint)
+                                paint.color = Color.YELLOW
+                                canvas.drawRect(widthF / 2f, heightF / 2f, widthF, heightF, paint)
+                            }
                         }
-                    }
                     renderer.setContentRoot(root)
 
                     val latch = CountDownLatch(1)
                     var hardwareBuffer: HardwareBuffer? = null
-                    renderer.obtainRenderRequest()
+                    renderer
+                        .obtainRenderRequest()
                         .setColorSpace(colorSpace)
                         .preserveContents(true)
                         .setBufferTransform(transform)
@@ -1004,8 +1005,11 @@ class CanvasBufferedRendererTests {
 
                     assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
 
-                    val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!
-                        .copy(bitmapConfig, false)
+                    val bitmap =
+                        Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!.copy(
+                            bitmapConfig,
+                            false
+                        )
 
                     assertEquals(bufferWidth, bitmap.width)
                     assertEquals(bufferHeight, bitmap.height)
@@ -1022,11 +1026,12 @@ class CanvasBufferedRendererTests {
                     colorSpace = dstColorSpace,
                     bitmapConfig = Bitmap.Config.RGBA_F16
                 ) { bitmap ->
-                    val buffer = ByteBuffer.allocateDirect(bitmap.allocationByteCount).apply {
-                        bitmap.copyPixelsToBuffer(this)
-                        rewind()
-                        order(ByteOrder.LITTLE_ENDIAN)
-                    }
+                    val buffer =
+                        ByteBuffer.allocateDirect(bitmap.allocationByteCount).apply {
+                            bitmap.copyPixelsToBuffer(this)
+                            rewind()
+                            order(ByteOrder.LITTLE_ENDIAN)
+                        }
                     val srcColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
                     val srcToDst = ColorSpace.connect(srcColorSpace, dstColorSpace)
 
@@ -1091,15 +1096,18 @@ class CanvasBufferedRendererTests {
                 impl: Int = CanvasBufferedRenderer.DEFAULT_IMPL,
                 block: (renderer: CanvasBufferedRenderer) -> Unit,
             ) {
-                val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-                    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-                if (format != HardwareBuffer.RGBA_8888 &&
-                    !HardwareBuffer.isSupported(width, height, format, 1, usage)) {
+                val usage =
+                    HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+                if (
+                    format != HardwareBuffer.RGBA_8888 &&
+                        !HardwareBuffer.isSupported(width, height, format, 1, usage)
+                ) {
                     // Early out if the hardware configuration is not supported.
                     // PixelFormat.RGBA_8888 should always be supported
                     return
                 }
-                val renderer = CanvasBufferedRenderer.Builder(width, height)
+                val renderer =
+                    CanvasBufferedRenderer.Builder(width, height)
                         .setMaxBuffers(1)
                         .setBufferFormat(format)
                         .setUsageFlags(usage)

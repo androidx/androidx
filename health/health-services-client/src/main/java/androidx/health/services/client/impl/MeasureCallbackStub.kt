@@ -33,10 +33,7 @@ import com.google.common.util.concurrent.MoreExecutors
 import java.util.HashMap
 import java.util.concurrent.Executor
 
-/**
- * A stub implementation for IMeasureCallback.
- *
- */
+/** A stub implementation for IMeasureCallback. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MeasureCallbackStub
 private constructor(callbackKey: MeasureCallbackKey, private val callback: MeasureCallback) :
@@ -63,7 +60,8 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
                     DataType.deltaFromProto(proto.availabilityResponse.dataType),
                     Availability.fromProto(proto.availabilityResponse.availability)
                 )
-            null, EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+            null,
+            EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
         }
     }
 

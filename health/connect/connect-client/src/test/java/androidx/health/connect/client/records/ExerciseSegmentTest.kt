@@ -49,87 +49,95 @@ class ExerciseSegmentTest {
             .map { it.call(ExerciseSegment.Companion) as Int }
             .toSet()
 
-    private val exerciseSessionTypes = setOf(
-        ExerciseSessionRecord.EXERCISE_TYPE_CALISTHENICS,
-        ExerciseSessionRecord.EXERCISE_TYPE_GYMNASTICS,
-        ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
-        ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING
-    )
+    private val exerciseSessionTypes =
+        setOf(
+            ExerciseSessionRecord.EXERCISE_TYPE_CALISTHENICS,
+            ExerciseSessionRecord.EXERCISE_TYPE_GYMNASTICS,
+            ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING,
+            ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING
+        )
 
-    private val swimmingSessionTypes = setOf(
-        ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_POOL,
-        ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_OPEN_WATER,
-    )
+    private val swimmingSessionTypes =
+        setOf(
+            ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_POOL,
+            ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_OPEN_WATER,
+        )
 
-    private val hikingSegments = setOf(
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR
-    )
+    private val hikingSegments =
+        setOf(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR
+        )
 
-    private val runningSegments = setOf(
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING
-    )
+    private val runningSegments =
+        setOf(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING
+        )
 
-    private val exerciseClassSegments = setOf(
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES,
-        ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA,
-    )
+    private val exerciseClassSegments =
+        setOf(
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES,
+            ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA,
+        )
 
-    private val sameSessionAndSegmentTypePairs = mapOf(
-        ExerciseSessionRecord.EXERCISE_TYPE_BIKING to ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING,
-        ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
-        ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_ELLIPTICAL,
-        ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
-        ExerciseSessionRecord.EXERCISE_TYPE_PILATES
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES,
-        ExerciseSessionRecord.EXERCISE_TYPE_ROWING_MACHINE
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_ROWING_MACHINE,
-        ExerciseSessionRecord.EXERCISE_TYPE_RUNNING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
-        ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL,
-        ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING,
-        ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING_MACHINE
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE,
-        ExerciseSessionRecord.EXERCISE_TYPE_STRETCHING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_STRETCHING,
-        ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_OPEN_WATER
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER,
-        ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_POOL
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_POOL,
-        ExerciseSessionRecord.EXERCISE_TYPE_WALKING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
-        ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING,
-        ExerciseSessionRecord.EXERCISE_TYPE_WHEELCHAIR
-            to ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR,
-        ExerciseSessionRecord.EXERCISE_TYPE_YOGA to ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA,
-    )
+    private val sameSessionAndSegmentTypePairs =
+        mapOf(
+            ExerciseSessionRecord.EXERCISE_TYPE_BIKING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING,
+            ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
+            ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_ELLIPTICAL,
+            ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+            ExerciseSessionRecord.EXERCISE_TYPE_PILATES to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_PILATES,
+            ExerciseSessionRecord.EXERCISE_TYPE_ROWING_MACHINE to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_ROWING_MACHINE,
+            ExerciseSessionRecord.EXERCISE_TYPE_RUNNING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING,
+            ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_RUNNING_TREADMILL,
+            ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING,
+            ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING_MACHINE to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_STAIR_CLIMBING_MACHINE,
+            ExerciseSessionRecord.EXERCISE_TYPE_STRETCHING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_STRETCHING,
+            ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_OPEN_WATER to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_OPEN_WATER,
+            ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_POOL to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_SWIMMING_POOL,
+            ExerciseSessionRecord.EXERCISE_TYPE_WALKING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_WALKING,
+            ExerciseSessionRecord.EXERCISE_TYPE_WEIGHTLIFTING to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING,
+            ExerciseSessionRecord.EXERCISE_TYPE_WHEELCHAIR to
+                ExerciseSegment.EXERCISE_SEGMENT_TYPE_WHEELCHAIR,
+            ExerciseSessionRecord.EXERCISE_TYPE_YOGA to ExerciseSegment.EXERCISE_SEGMENT_TYPE_YOGA,
+        )
 
     @Test
     fun validSegment_equals() {
         assertThat(
-            ExerciseSegment(
-                startTime = Instant.ofEpochMilli(1234L),
-                endTime = Instant.ofEpochMilli(5678L),
-                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
-                repetitions = 10,
+                ExerciseSegment(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    endTime = Instant.ofEpochMilli(5678L),
+                    segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                    repetitions = 10,
+                )
             )
-        ).isEqualTo(
-            ExerciseSegment(
-                startTime = Instant.ofEpochMilli(1234L),
-                endTime = Instant.ofEpochMilli(5678L),
-                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
-                repetitions = 10,
+            .isEqualTo(
+                ExerciseSegment(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    endTime = Instant.ofEpochMilli(5678L),
+                    segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                    repetitions = 10,
+                )
             )
-        )
     }
 
     @Test
@@ -165,9 +173,7 @@ class ExerciseSegmentTest {
     @Test
     fun isCompatible_universalSession_acceptsEverything() {
         UNIVERSAL_SESSION_TYPES.forEach { sessionType ->
-            allSegmentTypes.forEach { segmentType ->
-                assertCompatibility(sessionType, segmentType)
-            }
+            allSegmentTypes.forEach { segmentType -> assertCompatibility(sessionType, segmentType) }
         }
     }
 
@@ -241,29 +247,36 @@ class ExerciseSegmentTest {
 
     @Test
     fun isCompatible_allOtherCombinations_returnsFalse() {
-        allSessionTypes.filter { !UNIVERSAL_SESSION_TYPES.contains(it) }.forEach { sessionType ->
-            allSegmentTypes.asSequence().filter { !UNIVERSAL_SEGMENTS.contains(it) }
-                .filter { !(sameSessionAndSegmentTypePairs[sessionType]?.equals(it) ?: false) }
-                .filter {
-                    !(exerciseSessionTypes.contains(sessionType) && EXERCISE_SEGMENTS.contains(it))
-                }
-                .filter {
-                    !(swimmingSessionTypes.contains(sessionType) && SWIMMING_SEGMENTS.contains(it))
-                }
-                .filter {
-                    !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS &&
-                        exerciseClassSegments.contains(it))
-                }
-                .filter {
-                    !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_HIKING &&
-                        hikingSegments.contains(it))
-                }
-                .filter {
-                    !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_RUNNING &&
-                        runningSegments.contains(it))
-                }.toList()
-                .forEach { segmentType -> assertCompatibility(sessionType, segmentType, false) }
-        }
+        allSessionTypes
+            .filter { !UNIVERSAL_SESSION_TYPES.contains(it) }
+            .forEach { sessionType ->
+                allSegmentTypes
+                    .asSequence()
+                    .filter { !UNIVERSAL_SEGMENTS.contains(it) }
+                    .filter { !(sameSessionAndSegmentTypePairs[sessionType]?.equals(it) ?: false) }
+                    .filter {
+                        !(exerciseSessionTypes.contains(sessionType) &&
+                            EXERCISE_SEGMENTS.contains(it))
+                    }
+                    .filter {
+                        !(swimmingSessionTypes.contains(sessionType) &&
+                            SWIMMING_SEGMENTS.contains(it))
+                    }
+                    .filter {
+                        !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_EXERCISE_CLASS &&
+                            exerciseClassSegments.contains(it))
+                    }
+                    .filter {
+                        !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_HIKING &&
+                            hikingSegments.contains(it))
+                    }
+                    .filter {
+                        !(sessionType == ExerciseSessionRecord.EXERCISE_TYPE_RUNNING &&
+                            runningSegments.contains(it))
+                    }
+                    .toList()
+                    .forEach { segmentType -> assertCompatibility(sessionType, segmentType, false) }
+            }
     }
 
     private fun assertCompatibility(
@@ -273,11 +286,13 @@ class ExerciseSegmentTest {
     ) {
         assertEquals(
             expected = isCompatible,
-            actual = ExerciseSegment(
-                startTime = Instant.ofEpochMilli(1),
-                endTime = Instant.ofEpochMilli(2),
-                segmentType = segmentType
-            ).isCompatibleWith(sessionType),
+            actual =
+                ExerciseSegment(
+                        startTime = Instant.ofEpochMilli(1),
+                        endTime = Instant.ofEpochMilli(2),
+                        segmentType = segmentType
+                    )
+                    .isCompatibleWith(sessionType),
             message = "$sessionType and $segmentType is not compatible"
         )
     }

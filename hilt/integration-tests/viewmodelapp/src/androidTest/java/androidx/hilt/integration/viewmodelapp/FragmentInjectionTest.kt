@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class FragmentInjectionTest {
 
-    @get:Rule
-    val rule = HiltAndroidRule(this)
+    @get:Rule val rule = HiltAndroidRule(this)
 
     @Test
     fun verifyInjection() {
@@ -98,17 +97,17 @@ class FragmentInjectionTest {
         }
 
         fun addTestFragment() {
-            val fragment = supportFragmentManager.fragmentFactory.instantiate(
-                TestFragment::class.java.classLoader!!,
-                TestFragment::class.java.name
-            )
-            supportFragmentManager.beginTransaction()
-                .add(0, fragment, FRAGMENT_TAG)
-                .commitNow()
+            val fragment =
+                supportFragmentManager.fragmentFactory.instantiate(
+                    TestFragment::class.java.classLoader!!,
+                    TestFragment::class.java.name
+                )
+            supportFragmentManager.beginTransaction().add(0, fragment, FRAGMENT_TAG).commitNow()
         }
 
         fun removeTestFragment() {
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .remove(supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)!!)
                 .commitNow()
         }
@@ -122,8 +121,7 @@ class FragmentInjectionTest {
         val myActivityLevelInjectedViewModel by activityViewModels<MyInjectedViewModel>()
     }
 
-    private fun FragmentManager.findTestFragment() =
-        findFragmentByTag(FRAGMENT_TAG) as TestFragment
+    private fun FragmentManager.findTestFragment() = findFragmentByTag(FRAGMENT_TAG) as TestFragment
 
     companion object {
         const val FRAGMENT_TAG = "tag"

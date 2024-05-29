@@ -27,34 +27,38 @@ import androidx.graphics.opengl.egl.EGLManager
 @Sampled
 fun glFrameBufferSample(context: Context) {
     val surfaceView = SurfaceView(context)
-    val renderer = GLFrameBufferRenderer.Builder(surfaceView,
-        object : GLFrameBufferRenderer.Callback {
+    val renderer =
+        GLFrameBufferRenderer.Builder(
+                surfaceView,
+                object : GLFrameBufferRenderer.Callback {
 
-            val myMatrix = FloatArray(16)
-            val result = FloatArray(16)
+                    val myMatrix = FloatArray(16)
+                    val result = FloatArray(16)
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                Matrix.orthoM(
-                    myMatrix, // matrix
-                    0, // offset starting index into myMatrix
-                    0f, // left
-                    bufferInfo.width.toFloat(), // right
-                    0f, // bottom
-                    bufferInfo.width.toFloat(), // top
-                    -1f, // near
-                    1f // far
-                )
+                    override fun onDrawFrame(
+                        eglManager: EGLManager,
+                        width: Int,
+                        height: Int,
+                        bufferInfo: BufferInfo,
+                        transform: FloatArray
+                    ) {
+                        Matrix.orthoM(
+                            myMatrix, // matrix
+                            0, // offset starting index into myMatrix
+                            0f, // left
+                            bufferInfo.width.toFloat(), // right
+                            0f, // bottom
+                            bufferInfo.width.toFloat(), // top
+                            -1f, // near
+                            1f // far
+                        )
 
-                Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
+                        Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
 
-                // pass result matrix as uniform to shader logic
-            }
-        }).build()
+                        // pass result matrix as uniform to shader logic
+                    }
+                }
+            )
+            .build()
     renderer.render()
 }

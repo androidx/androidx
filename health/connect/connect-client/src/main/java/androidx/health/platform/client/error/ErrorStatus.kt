@@ -21,9 +21,7 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ErrorProto
 import java.lang.reflect.Field
 
-/**
- * Data object holding error state for IPC method calls.
- */
+/** Data object holding error state for IPC method calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ErrorStatus
 constructor(
@@ -57,8 +55,7 @@ constructor(
                         return@map ErrorCode.INTERNAL_ERROR
                     }
                 }
-                .firstOrNull { value: Int -> value == errorCode }
-                ?: ErrorCode.INTERNAL_ERROR
+                .firstOrNull { value: Int -> value == errorCode } ?: ErrorCode.INTERNAL_ERROR
         }
 
         @JvmField

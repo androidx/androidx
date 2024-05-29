@@ -24,9 +24,9 @@ import androidx.graphics.path.PathIterator.ConicEvaluation
 import dalvik.annotation.optimization.FastNative
 
 /**
- * Base class for API-version-specific PathIterator implementation classes. All functionality
- * is implemented in the subclasses except for [next], which relies on shared native code
- * to perform conic conversion.
+ * Base class for API-version-specific PathIterator implementation classes. All functionality is
+ * implemented in the subclasses except for [next], which relies on shared native code to perform
+ * conic conversion.
  */
 internal abstract class PathIteratorImpl(
     val path: Path,
@@ -34,16 +34,16 @@ internal abstract class PathIteratorImpl(
     val tolerance: Float = 0.25f
 ) {
     /**
-     * pointsData is used internally when the no-arg variant of next() is called,
-     * to avoid allocating a new array every time.
+     * pointsData is used internally when the no-arg variant of next() is called, to avoid
+     * allocating a new array every time.
      */
     private val pointsData = FloatArray(8)
 
     private companion object {
         init {
             /**
-             * The native library is used mainly for pre-API34, but we also rely
-             * on the conic conversion code in API34+, thus it is initialized here.
+             * The native library is used mainly for pre-API34, but we also rely on the conic
+             * conversion code in API34+, thus it is initialized here.
              */
             System.loadLibrary("androidx.graphics.path")
         }
@@ -52,7 +52,9 @@ internal abstract class PathIteratorImpl(
     abstract fun calculateSize(includeConvertedConics: Boolean): Int
 
     abstract fun hasNext(): Boolean
+
     abstract fun peek(): PathSegment.Type
+
     abstract fun next(points: FloatArray, offset: Int = 0): PathSegment.Type
 
     fun next(): PathSegment {
@@ -64,52 +66,50 @@ internal abstract class PathIteratorImpl(
     }
 
     /**
-     * Utility function to convert a FloatArray to an array of PointF objects, where
-     * every two Floats in the FloatArray correspond to a single PointF in the resulting
-     * point array. The FloatArray is used internally to process a next() call, the
-     * array of points is used to create a PathSegment from the operation.
+     * Utility function to convert a FloatArray to an array of PointF objects, where every two
+     * Floats in the FloatArray correspond to a single PointF in the resulting point array. The
+     * FloatArray is used internally to process a next() call, the array of points is used to create
+     * a PathSegment from the operation.
      */
     private fun floatsToPoints(pointsData: FloatArray, type: PathSegment.Type): Array<PointF> {
-        val points = when (type) {
-            PathSegment.Type.Move -> {
-                arrayOf(PointF(pointsData[0], pointsData[1]))
+        val points =
+            when (type) {
+                PathSegment.Type.Move -> {
+                    arrayOf(PointF(pointsData[0], pointsData[1]))
+                }
+                PathSegment.Type.Line -> {
+                    arrayOf(
+                        PointF(pointsData[0], pointsData[1]),
+                        PointF(pointsData[2], pointsData[3])
+                    )
+                }
+                PathSegment.Type.Quadratic,
+                PathSegment.Type.Conic -> {
+                    arrayOf(
+                        PointF(pointsData[0], pointsData[1]),
+                        PointF(pointsData[2], pointsData[3]),
+                        PointF(pointsData[4], pointsData[5])
+                    )
+                }
+                PathSegment.Type.Cubic -> {
+                    arrayOf(
+                        PointF(pointsData[0], pointsData[1]),
+                        PointF(pointsData[2], pointsData[3]),
+                        PointF(pointsData[4], pointsData[5]),
+                        PointF(pointsData[6], pointsData[7])
+                    )
+                }
+                // This should not happen because of the early returns above
+                else -> emptyArray()
             }
-
-            PathSegment.Type.Line -> {
-                arrayOf(
-                    PointF(pointsData[0], pointsData[1]),
-                    PointF(pointsData[2], pointsData[3])
-                )
-            }
-
-            PathSegment.Type.Quadratic,
-            PathSegment.Type.Conic -> {
-                arrayOf(
-                    PointF(pointsData[0], pointsData[1]),
-                    PointF(pointsData[2], pointsData[3]),
-                    PointF(pointsData[4], pointsData[5])
-                )
-            }
-
-            PathSegment.Type.Cubic -> {
-                arrayOf(
-                    PointF(pointsData[0], pointsData[1]),
-                    PointF(pointsData[2], pointsData[3]),
-                    PointF(pointsData[4], pointsData[5]),
-                    PointF(pointsData[6], pointsData[7])
-                )
-            }
-            // This should not happen because of the early returns above
-            else -> emptyArray()
-        }
         return points
     }
 }
 
 /**
- * In API level 34, we can use new platform functionality for most of what PathIterator does.
- * The exceptions are conic conversion (which is handled in the base impl class) and
- * [calculateSize], which is implemented here.
+ * In API level 34, we can use new platform functionality for most of what PathIterator does. The
+ * exceptions are conic conversion (which is handled in the base impl class) and [calculateSize],
+ * which is implemented here.
  */
 @RequiresApi(34)
 internal class PathIteratorApi34Impl(
@@ -118,16 +118,15 @@ internal class PathIteratorApi34Impl(
     tolerance: Float = 0.25f
 ) : PathIteratorImpl(path, conicEvaluation, tolerance) {
     /**
-     * The platform iterator handles most of what we need for iterating. We hold an instance
-     * of that object in this class.
+     * The platform iterator handles most of what we need for iterating. We hold an instance of that
+     * object in this class.
      */
     private val platformIterator = path.pathIterator
 
     /**
-     * An iterator's ConicConverter converts from a conic to a series of
-     * quadratics. It keeps track of the resulting quadratics and iterates through
-     * them on ensuing calls to next(). The converter is only ever called if
-     * [conicEvaluation] is set to [ConicEvaluation.AsQuadratics].
+     * An iterator's ConicConverter converts from a conic to a series of quadratics. It keeps track
+     * of the resulting quadratics and iterates through them on ensuing calls to next(). The
+     * converter is only ever called if [conicEvaluation] is set to [ConicEvaluation.AsQuadratics].
      */
     private val conicConverter = ConicConverter()
 
@@ -139,8 +138,8 @@ internal class PathIteratorApi34Impl(
      * those segments as well.
      */
     override fun calculateSize(includeConvertedConics: Boolean): Int {
-        val convertConics = includeConvertedConics &&
-            conicEvaluation == ConicEvaluation.AsQuadratics
+        val convertConics =
+            includeConvertedConics && conicEvaluation == ConicEvaluation.AsQuadratics
         var numVerbs = 0
         val tempIterator = path.pathIterator
         val tempFloats = FloatArray(8)
@@ -167,7 +166,7 @@ internal class PathIteratorApi34Impl(
             val typeValue = platformToAndroidXSegmentType(platformIterator.next(points, offset))
             if (
                 typeValue == PathSegment.Type.Conic &&
-                conicEvaluation == ConicEvaluation.AsQuadratics
+                    conicEvaluation == ConicEvaluation.AsQuadratics
             ) {
                 with(conicConverter) {
                     convert(points, points[6 + offset], tolerance, offset)
@@ -186,9 +185,7 @@ internal class PathIteratorApi34Impl(
     override fun peek() = platformToAndroidXSegmentType(platformIterator.peek())
 }
 
-/**
- * Callers need the AndroidX segment types, so we must convert from the platform types.
- */
+/** Callers need the AndroidX segment types, so we must convert from the platform types. */
 private fun platformToAndroidXSegmentType(platformType: Int): PathSegment.Type {
     return when (platformType) {
         PlatformPathIterator.VERB_CLOSE -> PathSegment.Type.Close
@@ -205,11 +202,11 @@ private fun platformToAndroidXSegmentType(platformType: Int): PathSegment.Type {
 }
 
 /**
- * Most of the functionality for pre-34 iteration is handled in the native code. The only
- * exception, similar to the API34 implementation, is the calculateSize(). There is a size()
- * function in native code which is very quick (it simply tracks the number of verbs in the native
- * structure). But if the caller wants conic conversion, then we need to iterate through
- * and convert appropriately, counting as we iterate.
+ * Most of the functionality for pre-34 iteration is handled in the native code. The only exception,
+ * similar to the API34 implementation, is the calculateSize(). There is a size() function in native
+ * code which is very quick (it simply tracks the number of verbs in the native structure). But if
+ * the caller wants conic conversion, then we need to iterate through and convert appropriately,
+ * counting as we iterate.
  */
 internal class PathIteratorPreApi34Impl(
     path: Path,
@@ -251,19 +248,17 @@ internal class PathIteratorPreApi34Impl(
     @FastNative
     private external fun internalPathIteratorSize(internalPathIterator: Long): Int
 
-    /**
-     * Defines the type of evaluation to apply to conic segments during iteration.
-     */
+    /** Defines the type of evaluation to apply to conic segments during iteration. */
     private val internalPathIterator =
         createInternalPathIterator(path, conicEvaluation.ordinal, tolerance)
 
     /**
      * Returns the number of verbs present in this iterator's path. If [includeConvertedConics]
      * property is false and the path has any conic elements, the returned size might be smaller
-     * than the number of calls to [next] required to fully iterate over the path. An accurate
-     * size can be computed by setting the parameter to true instead, at a performance cost.
-     * Including converted conics requires iterating through the entire path, including converting
-     * any conics along the way, to calculate the true size.
+     * than the number of calls to [next] required to fully iterate over the path. An accurate size
+     * can be computed by setting the parameter to true instead, at a performance cost. Including
+     * converted conics requires iterating through the entire path, including converting any conics
+     * along the way, to calculate the true size.
      */
     override fun calculateSize(includeConvertedConics: Boolean): Int =
         if (!includeConvertedConics || conicEvaluation == ConicEvaluation.AsConic) {
@@ -272,21 +267,19 @@ internal class PathIteratorPreApi34Impl(
             internalPathIteratorSize(internalPathIterator)
         }
 
-    /**
-     * Returns `true` if the iteration has more elements.
-     */
+    /** Returns `true` if the iteration has more elements. */
     override fun hasNext(): Boolean = internalPathIteratorHasNext(internalPathIterator)
 
     /**
-     * Returns the type of the current segment in the iteration, or [Done][PathSegment.Type.Done]
-     * if the iteration is finished.
+     * Returns the type of the current segment in the iteration, or [Done][PathSegment.Type.Done] if
+     * the iteration is finished.
      */
     override fun peek() = PathSegmentTypes[internalPathIteratorPeek(internalPathIterator)]
 
     /**
-     * This is where the actual work happens to get the next segment in the path, which happens
-     * in native code. This function is called by [next] in the base class, which then converts
-     * the resulting segment from conics to quadratics as necessary.
+     * This is where the actual work happens to get the next segment in the path, which happens in
+     * native code. This function is called by [next] in the base class, which then converts the
+     * resulting segment from conics to quadratics as necessary.
      */
     override fun next(points: FloatArray, offset: Int) =
         PathSegmentTypes[internalPathIteratorNext(internalPathIterator, points, offset)]
@@ -296,7 +289,5 @@ internal class PathIteratorPreApi34Impl(
     }
 }
 
-/**
- * Cache of [PathSegment.Type] values to avoid internal allocation on each use.
- */
+/** Cache of [PathSegment.Type] values to avoid internal allocation on each use. */
 private val PathSegmentTypes = PathSegment.Type.values()

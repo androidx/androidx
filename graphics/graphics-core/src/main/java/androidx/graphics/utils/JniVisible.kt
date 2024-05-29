@@ -17,7 +17,7 @@
 package androidx.graphics.utils
 
 /**
- * Annotation used to indicate that a class, method or field is referenced by
- * JNI and should be exempt from code obfuscation tools (ex. proguard/r8)
+ * Annotation used to indicate that a class, method or field is referenced by JNI and should be
+ * exempt from code obfuscation tools (ex. proguard/r8)
  */
 internal annotation class JniVisible()

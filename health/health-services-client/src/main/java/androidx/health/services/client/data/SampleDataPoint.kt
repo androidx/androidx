@@ -58,7 +58,7 @@ public class SampleDataPoint<T : Any>(
      * Returns the time [Instant] of this [DataPoint], knowing the time at which the system booted.
      *
      * @param bootInstant the [Instant] at which the system booted, this can be computed by
-     * `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
+     *   `Instant.ofEpochMilli(System.currentTimeMillis() - SystemClock.elapsedRealtime()) `
      */
     public fun getTimeInstant(bootInstant: Instant): Instant {
         return bootInstant.plus(timeDurationFromBoot)
@@ -94,11 +94,12 @@ public class SampleDataPoint<T : Any>(
                 dataType.toValueFromProto(proto.value),
                 Duration.ofMillis(proto.startDurationFromBootMs),
                 metadata = BundlesUtil.fromProto(proto.metaData),
-                accuracy = if (proto.hasAccuracy()) {
-                    DataPointAccuracy.fromProto(proto.accuracy)
-                } else {
-                    null
-                },
+                accuracy =
+                    if (proto.hasAccuracy()) {
+                        DataPointAccuracy.fromProto(proto.accuracy)
+                    } else {
+                        null
+                    },
             )
         }
     }

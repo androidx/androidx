@@ -21,19 +21,17 @@ import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
-/**
- * Internal parcelable for IPC calls.
- */
+/** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ReadExerciseRouteRequest(override val proto: RequestProto.ReadExerciseRouteRequest) :
-  ProtoParcelable<RequestProto.ReadExerciseRouteRequest>() {
+    ProtoParcelable<RequestProto.ReadExerciseRouteRequest>() {
 
-  companion object {
-    @JvmField
-    val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> =
-      ProtoParcelable.newCreator {
-        val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
-        ReadExerciseRouteRequest(proto)
-      }
-  }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
+                ReadExerciseRouteRequest(proto)
+            }
+    }
 }

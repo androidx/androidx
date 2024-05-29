@@ -51,17 +51,13 @@ import kotlin.math.min
 import kotlinx.coroutines.launch
 
 /**
- * This is a simple app showing how to use the startLocation parameter to change where a
- * pillStar shape starts from, then animating a stroked path from that starting point.
+ * This is a simple app showing how to use the startLocation parameter to change where a pillStar
+ * shape starts from, then animating a stroked path from that starting point.
  */
 class ProgressActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent(parent = null) {
-            MaterialTheme {
-                ProgressHolder()
-            }
-        }
+        setContent(parent = null) { MaterialTheme { ProgressHolder() } }
     }
 }
 
@@ -69,26 +65,25 @@ class ProgressActivity : FragmentActivity() {
 fun ProgressHolder() {
     val progress = remember { Animatable(1f) }
     val startLocation = remember { mutableFloatStateOf(0f) }
-    val pillStar = RoundedPolygon.pillStar(
-        numVerticesPerRadius = 16,
-        width = 1.8f, height = .4f, rounding = CornerRounding(1f),
-        startLocation = startLocation.floatValue
-    )
+    val pillStar =
+        RoundedPolygon.pillStar(
+            numVerticesPerRadius = 16,
+            width = 1.8f,
+            height = .4f,
+            rounding = CornerRounding(1f),
+            startLocation = startLocation.floatValue
+        )
     val scope = rememberCoroutineScope()
     val pathMeasure = PathMeasure()
     val pathSegment = Path()
 
     Column {
-        Slider(value = startLocation.floatValue.coerceIn(0f, 1f), onValueChange = {
-            startLocation.floatValue = it
-        })
+        Slider(
+            value = startLocation.floatValue.coerceIn(0f, 1f),
+            onValueChange = { startLocation.floatValue = it }
+        )
         Box(
-            Modifier
-                .clickable {
-                    scope.launch {
-                        doAnimation(progress)
-                    }
-                }
+            Modifier.clickable { scope.launch { doAnimation(progress) } }
                 .fillMaxSize()
                 .drawWithContent {
                     drawContent()
@@ -97,9 +92,7 @@ fun ProgressHolder() {
                     m.translate(size.width / 2, size.height / 2, 0f)
                     m.scale(scale, scale)
 
-                    val pillStarPath = pillStar
-                        .toPath()
-                        .asComposePath()
+                    val pillStarPath = pillStar.toPath().asComposePath()
                     pillStarPath.transform(m)
                     pathMeasure.setPath(pillStarPath, false)
                     val pathLength = pathMeasure.length
@@ -113,6 +106,8 @@ fun ProgressHolder() {
 
 private suspend fun doAnimation(progress: Animatable<Float, AnimationVector1D>) {
     progress.snapTo(0f)
-    progress.animateTo(1f, infiniteRepeatable(
-        tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse))
+    progress.animateTo(
+        1f,
+        infiniteRepeatable(tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse)
+    )
 }

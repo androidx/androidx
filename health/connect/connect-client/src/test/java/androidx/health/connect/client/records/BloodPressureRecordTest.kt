@@ -36,9 +36,7 @@ class BloodPressureRecordTest {
     @Test
     fun measurementLocationEnums_existInMapping() {
         val allEnums =
-            getAllIntDefEnums<BloodPressureRecord>(
-                """MEASUREMENT_LOCATION.*(?<!UNKNOWN)$"""
-            )
+            getAllIntDefEnums<BloodPressureRecord>("""MEASUREMENT_LOCATION.*(?<!UNKNOWN)$""")
 
         assertThat(BloodPressureRecord.MEASUREMENT_LOCATION_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

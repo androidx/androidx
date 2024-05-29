@@ -35,10 +35,9 @@ public suspend fun MeasureClient.unregisterMeasureCallback(
 /**
  * Returns the [MeasureCapabilities] of this client for the device.
  *
- * This can be used to determine what [DeltaDataType]s this device supports for live
- * measurement. Clients should use the capabilities to inform their requests since Health
- * Services will typically reject requests made for [DeltaDataType]s which are not enabled for
- * measurement.
+ * This can be used to determine what [DeltaDataType]s this device supports for live measurement.
+ * Clients should use the capabilities to inform their requests since Health Services will typically
+ * reject requests made for [DeltaDataType]s which are not enabled for measurement.
  *
  * @return a [MeasureCapabilities] for this device
  * @throws HealthServicesException if Health Service fails to process the call

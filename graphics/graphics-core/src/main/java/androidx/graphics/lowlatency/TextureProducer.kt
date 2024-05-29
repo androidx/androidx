@@ -30,15 +30,11 @@ import androidx.graphics.utils.post
 
 /**
  * Class responsible for the producing side of SurfaceTextures that are rendered with content
- * provided from a canvas. This class handles proxying all requests to an internal thread
- * as well as throttles production of frames based on consumption rate.
+ * provided from a canvas. This class handles proxying all requests to an internal thread as well as
+ * throttles production of frames based on consumption rate.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-internal class TextureProducer<T>(
-    val width: Int,
-    val height: Int,
-    val callbacks: Callbacks<T>
-) {
+internal class TextureProducer<T>(val width: Int, val height: Int, val callbacks: Callbacks<T>) {
 
     interface Callbacks<T> {
         fun onTextureAvailable(texture: SurfaceTexture)
@@ -52,9 +48,7 @@ internal class TextureProducer<T>(
     private val mProducerThread = HandlerThread("producerThread").apply { start() }
     private val mProducerHandler = Handler(mProducerThread.looper)
 
-    private val mCancelPendingRunnable = Runnable {
-        mParams.clear()
-    }
+    private val mCancelPendingRunnable = Runnable { mParams.clear() }
 
     @WorkerThread // ProducerThread
     private fun teardown(releaseCallback: (() -> Unit)? = null) {
@@ -66,14 +60,10 @@ internal class TextureProducer<T>(
     @WorkerThread // ProducerThread
     private fun isPendingRendering() = mParams.isNotEmpty() || mPendingRenders > 0
 
-    private val mRenderNode = RenderNode("node").apply {
-        setPosition(
-            0,
-            0,
-            this@TextureProducer.width,
-            this@TextureProducer.height
-        )
-    }
+    private val mRenderNode =
+        RenderNode("node").apply {
+            setPosition(0, 0, this@TextureProducer.width, this@TextureProducer.height)
+        }
 
     private inline fun RenderNode.record(block: (Canvas) -> Unit) {
         val canvas = beginRecording()
@@ -81,14 +71,10 @@ internal class TextureProducer<T>(
         endRecording()
     }
 
-    private val mSurfaceTextureRenderer = SurfaceTextureRenderer(
-        mRenderNode,
-        width,
-        height,
-        mProducerHandler
-    ) { texture ->
-        callbacks.onTextureAvailable(texture)
-    }
+    private val mSurfaceTextureRenderer =
+        SurfaceTextureRenderer(mRenderNode, width, height, mProducerHandler) { texture ->
+            callbacks.onTextureAvailable(texture)
+        }
 
     @WorkerThread // ProducerThread
     private fun doRender() {
@@ -159,14 +145,12 @@ internal class TextureProducer<T>(
 
     private companion object {
         /**
-         * Constant to indicate a request to render new content into a SurfaceTexture
-         * for consumption.
+         * Constant to indicate a request to render new content into a SurfaceTexture for
+         * consumption.
          */
         const val RENDER = 0
 
-        /**
-         * Constant to indicate that a previously produced frame has been consumed.
-         */
+        /** Constant to indicate that a previously produced frame has been consumed. */
         const val TEXTURE_CONSUMED = 1
 
         /**
@@ -175,15 +159,13 @@ internal class TextureProducer<T>(
          */
         const val CANCEL_PENDING = 2
 
-        /**
-         * Release the resources associated with this [TextureProducer] instance
-         */
+        /** Release the resources associated with this [TextureProducer] instance */
         const val RELEASE = 3
 
         /**
-         * Maximum number of frames to produce before the producer pauses. Subsequent attempts
-         * to render will batch parameters and continue to produce frames when the consumer
-         * signals that the corresponding textures have been consumed.
+         * Maximum number of frames to produce before the producer pauses. Subsequent attempts to
+         * render will batch parameters and continue to produce frames when the consumer signals
+         * that the corresponding textures have been consumed.
          */
         const val MAX_PENDING_RENDERS = 2
     }

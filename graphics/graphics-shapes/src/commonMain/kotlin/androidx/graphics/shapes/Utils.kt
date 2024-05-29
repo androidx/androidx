@@ -23,17 +23,12 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-/**
- * This class has all internal methods, used by Polygon, Morph, etc.
- */
-
+/** This class has all internal methods, used by Polygon, Morph, etc. */
 internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
 
 internal fun distanceSquared(x: Float, y: Float) = x * x + y * y
 
-/**
- * Returns unit vector representing the direction to this point from (0, 0)
- */
+/** Returns unit vector representing the direction to this point from (0, 0) */
 internal fun directionVector(x: Float, y: Float): Point {
     val d = distance(x, y)
     require(d > 0f) { "Required distance greater than zero" }
@@ -48,9 +43,9 @@ internal fun radialToCartesian(radius: Float, angleRadians: Float, center: Point
     directionVector(angleRadians) * radius + center
 
 /**
- * These epsilon values are used internally to determine when two points are the same, within
- * some reasonable roundoff error. The distance epsilon is smaller, with the intention that the
- * roundoff should not be larger than a pixel on any reasonable sized display.
+ * These epsilon values are used internally to determine when two points are the same, within some
+ * reasonable roundoff error. The distance epsilon is smaller, with the intention that the roundoff
+ * should not be larger than a pixel on any reasonable sized display.
  */
 internal const val DistanceEpsilon = 1e-4f
 internal const val AngleEpsilon = 1e-6f
@@ -65,9 +60,7 @@ internal val TwoPi: Float = 2 * Math.PI.toFloat()
 
 internal fun square(x: Float) = x * x
 
-/**
- * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
- */
+/** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
 internal fun interpolate(start: Float, stop: Float, fraction: Float): Float {
     return (1 - fraction) * start + fraction * stop
 }
@@ -101,9 +94,7 @@ internal fun findMinimum(
     return (a + b) / 2
 }
 
-/**
- * A functional interface for computing a Float value when finding the minimum at [findMinimum].
- */
+/** A functional interface for computing a Float value when finding the minimum at [findMinimum]. */
 internal fun interface FindMinimumFunction {
     fun invoke(value: Float): Float
 }

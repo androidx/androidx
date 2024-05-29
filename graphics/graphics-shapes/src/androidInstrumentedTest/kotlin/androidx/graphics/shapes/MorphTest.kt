@@ -37,8 +37,8 @@ class MorphTest {
     val morph12 = Morph(poly1, poly2)
 
     /**
-     * Simple test to verify that a Morph with the same start and end shape has curves
-     * equivalent to those in that shape.
+     * Simple test to verify that a Morph with the same start and end shape has curves equivalent to
+     * those in that shape.
      */
     @Test
     fun cubicsTest() {
@@ -64,10 +64,10 @@ class MorphTest {
     }
 
     /**
-     * This test checks to see whether a morph between two different polygons is correct
-     * at the start (progress 0) and end (progress 1). The actual cubics of the morph vs the
-     * polygons it was constructed from may differ, due to the way the morph is constructed,
-     * but the rendering result should be the same.
+     * This test checks to see whether a morph between two different polygons is correct at the
+     * start (progress 0) and end (progress 1). The actual cubics of the morph vs the polygons it
+     * was constructed from may differ, due to the way the morph is constructed, but the rendering
+     * result should be the same.
      */
     @Test
     fun morphDrawingTest() {
@@ -100,9 +100,7 @@ class MorphTest {
         assertBitmapsEqual(polyBitmap, morphBitmap)
     }
 
-    /**
-     * Utility function - Fill the canvas with black and draw the path in white.
-     */
+    /** Utility function - Fill the canvas with black and draw the path in white. */
     private fun drawTestPath(canvas: Canvas, path: Path) {
         canvas.drawColor(Color.BLACK)
         val paint = Paint()

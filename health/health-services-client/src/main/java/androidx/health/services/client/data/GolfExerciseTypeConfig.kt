@@ -27,7 +27,7 @@ import java.util.Objects
  * are not expected to receive or consume it from health-services.
  *
  * @property golfShotTrackingPlaceInfo location where user takes [DataType.GOLF_SHOT_COUNT] during
- * [ExerciseType.GOLF] activity
+ *   [ExerciseType.GOLF] activity
  */
 class GolfExerciseTypeConfig(
     val golfShotTrackingPlaceInfo: GolfShotTrackingPlaceInfo =
@@ -36,9 +36,7 @@ class GolfExerciseTypeConfig(
 
     internal constructor(
         proto: DataProto.ExerciseTypeConfig
-    ) : this (
-        GolfShotTrackingPlaceInfo.fromProto(proto.golfShotTrackingPlaceInfo)
-    )
+    ) : this(GolfShotTrackingPlaceInfo.fromProto(proto.golfShotTrackingPlaceInfo))
 
     override fun toString(): String =
         "GolfExerciseTypeConfig(golfShotTrackingPlaceInfo=$golfShotTrackingPlaceInfo)"
@@ -46,7 +44,6 @@ class GolfExerciseTypeConfig(
     /**
      * The tracking information for a golf shot used in [GolfExerciseTypeConfig]. It is the semantic
      * location of a user while golfing to assist golf swing activity recognition algorithms.
-     *
      */
     class GolfShotTrackingPlaceInfo private constructor(val placeInfoId: Int) {
         override fun equals(other: Any?): Boolean {
@@ -58,12 +55,13 @@ class GolfExerciseTypeConfig(
         }
 
         override fun toString(): String {
-            val name = when (placeInfoId) {
-                1 -> "GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY"
-                2 -> "GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN"
-                3 -> "GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX"
-                else -> "GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED"
-            }
+            val name =
+                when (placeInfoId) {
+                    1 -> "GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY"
+                    2 -> "GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN"
+                    3 -> "GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX"
+                    else -> "GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED"
+                }
             return "GolfShotTrackingPlaceInfo(placeInfoId=$placeInfoId):$name"
         }
 
@@ -72,57 +70,49 @@ class GolfExerciseTypeConfig(
                 DataProto.GolfShotTrackingPlaceInfoType =
                 when (this) {
                     GolfShotTrackingPlaceInfo(1) ->
-                        DataProto
-                            .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+                        DataProto.GolfShotTrackingPlaceInfoType
+                            .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
                     GolfShotTrackingPlaceInfo(2) ->
-                        DataProto
-                            .GolfShotTrackingPlaceInfoType
+                        DataProto.GolfShotTrackingPlaceInfoType
                             .GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN
                     GolfShotTrackingPlaceInfo(3) ->
-                        DataProto
-                            .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
+                        DataProto.GolfShotTrackingPlaceInfoType
+                            .GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
                     else ->
-                        DataProto
-                            .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED
+                        DataProto.GolfShotTrackingPlaceInfoType
+                            .GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED
                 }
+
             internal fun fromProto(
                 proto: DataProto.GolfShotTrackingPlaceInfoType
             ): GolfShotTrackingPlaceInfo =
                 when (proto) {
-                    DataProto
-                        .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-                    -> GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-                    DataProto
-                        .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN
-                    -> GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN
-                    DataProto
-                        .GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
-                    -> GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
+                    DataProto.GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY ->
+                        GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+                    DataProto.GolfShotTrackingPlaceInfoType
+                        .GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN ->
+                        GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN
+                    DataProto.GolfShotTrackingPlaceInfoType.GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX ->
+                        GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
                     else -> GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED
                 }
 
             /** The golf shot is being taken from an unspecified place. */
-            @JvmField
-            val GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED = GolfShotTrackingPlaceInfo(0)
+            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_UNSPECIFIED = GolfShotTrackingPlaceInfo(0)
 
             /** The golf shot is being taken from the fairway. */
-            @JvmField
-            val GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY = GolfShotTrackingPlaceInfo(1)
+            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY = GolfShotTrackingPlaceInfo(1)
 
             /** The golf shot is being taken from the putting green. */
-            @JvmField
-            val GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN = GolfShotTrackingPlaceInfo(2)
+            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_PUTTING_GREEN = GolfShotTrackingPlaceInfo(2)
 
             /** The golf shot is being taken from the tee box area. */
-            @JvmField
-            val GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX = GolfShotTrackingPlaceInfo(3)
+            @JvmField val GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX = GolfShotTrackingPlaceInfo(3)
         }
     }
 
     override fun toProto(): DataProto.ExerciseTypeConfig {
-        return DataProto
-            .ExerciseTypeConfig
-            .newBuilder()
+        return DataProto.ExerciseTypeConfig.newBuilder()
             .setGolfShotTrackingPlaceInfo(golfShotTrackingPlaceInfo.toProto())
             .build()
     }

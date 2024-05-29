@@ -26,25 +26,35 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class DebouncedGoalTest {
-  @Test
-  fun sampleDataType_protoRoundTrip() {
-    val debouncedDataTypeCondition = DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-      HEART_RATE_BPM, 120.0, GREATER_THAN, /* initialDelay= */ 60, /* durationAtThreshold= */ 5
-    )
-    val proto = (DebouncedGoal.createSampleDebouncedGoal(debouncedDataTypeCondition)).proto
-    val debouncedGoal = DebouncedGoal.fromProto(proto)
+    @Test
+    fun sampleDataType_protoRoundTrip() {
+        val debouncedDataTypeCondition =
+            DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
+                HEART_RATE_BPM,
+                120.0,
+                GREATER_THAN,
+                /* initialDelay= */ 60,
+                /* durationAtThreshold= */ 5
+            )
+        val proto = (DebouncedGoal.createSampleDebouncedGoal(debouncedDataTypeCondition)).proto
+        val debouncedGoal = DebouncedGoal.fromProto(proto)
 
-    assertThat(debouncedGoal.proto).isEqualTo(proto)
-  }
+        assertThat(debouncedGoal.proto).isEqualTo(proto)
+    }
 
-  @Test
-  fun aggregateDataType_protoRoundTrip() {
-    val debouncedDataTypeCondition = DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-      PACE_STATS, 4.0, GREATER_THAN, /* initialDelay= */ 60, /* durationAtThreshold= */ 5
-    )
-    val proto = (DebouncedGoal.createAggregateDebouncedGoal(debouncedDataTypeCondition)).proto
-    val debouncedGoal = DebouncedGoal.fromProto(proto)
+    @Test
+    fun aggregateDataType_protoRoundTrip() {
+        val debouncedDataTypeCondition =
+            DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
+                PACE_STATS,
+                4.0,
+                GREATER_THAN,
+                /* initialDelay= */ 60,
+                /* durationAtThreshold= */ 5
+            )
+        val proto = (DebouncedGoal.createAggregateDebouncedGoal(debouncedDataTypeCondition)).proto
+        val debouncedGoal = DebouncedGoal.fromProto(proto)
 
-    assertThat(debouncedGoal.proto).isEqualTo(proto)
-  }
+        assertThat(debouncedGoal.proto).isEqualTo(proto)
+    }
 }

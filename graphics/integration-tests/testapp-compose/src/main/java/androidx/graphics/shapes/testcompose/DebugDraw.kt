@@ -24,10 +24,15 @@ import androidx.graphics.shapes.Cubic
 
 internal fun Cubic.pointOnCurve(t: Float): Offset {
     val u = 1 - t
-    return Offset(anchor0X * (u * u * u) + control0X * (3 * t * u * u) +
-        control1X * (3 * t * t * u) + anchor1X * (t * t * t),
-    anchor0Y * (u * u * u) + control0Y * (3 * t * u * u) +
-        control1Y * (3 * t * t * u) + anchor1Y * (t * t * t)
+    return Offset(
+        anchor0X * (u * u * u) +
+            control0X * (3 * t * u * u) +
+            control1X * (3 * t * t * u) +
+            anchor1X * (t * t * t),
+        anchor0Y * (u * u * u) +
+            control0Y * (3 * t * u * u) +
+            control1Y * (3 * t * t * u) +
+            anchor1Y * (t * t * t)
     )
 }
 
@@ -55,6 +60,9 @@ internal fun DrawScope.debugDraw(bezier: Cubic) {
 }
 
 private fun Cubic.anchor0() = Offset(anchor0X, anchor0Y)
+
 private fun Cubic.control0() = Offset(control0X, control0Y)
+
 private fun Cubic.control1() = Offset(control1X, control1Y)
+
 private fun Cubic.anchor1() = Offset(anchor1X, anchor1Y)

@@ -24,20 +24,21 @@ import java.time.Duration
 
 /** Contains the latest exercise event for the current exercise. */
 public abstract class ExerciseEvent @RestrictTo(Scope.LIBRARY_GROUP) constructor() {
-  internal open fun toProto():
-    DataProto.ExerciseEvent = DataProto.ExerciseEvent.getDefaultInstance()
+    internal open fun toProto(): DataProto.ExerciseEvent =
+        DataProto.ExerciseEvent.getDefaultInstance()
 
-  public companion object {
-    @JvmStatic
-    internal fun fromProto(proto: DataProto.ExerciseEvent): ExerciseEvent =
-      when (proto.exerciseEventData.exerciseEventDataCase) {
-        ExerciseEventDataCase.GOLF_SHOT_DATA ->
-          GolfShotEvent(
-            Duration.ofMillis(proto.exerciseEventData.golfShotData.durationFromBootMs),
-            GolfShotEvent.GolfShotSwingType.fromProto(
-              proto.exerciseEventData.golfShotData.golfShotSwingType)
-          )
-        else -> throw IllegalStateException("Exercise event not set on $proto")
-      }
-  }
+    public companion object {
+        @JvmStatic
+        internal fun fromProto(proto: DataProto.ExerciseEvent): ExerciseEvent =
+            when (proto.exerciseEventData.exerciseEventDataCase) {
+                ExerciseEventDataCase.GOLF_SHOT_DATA ->
+                    GolfShotEvent(
+                        Duration.ofMillis(proto.exerciseEventData.golfShotData.durationFromBootMs),
+                        GolfShotEvent.GolfShotSwingType.fromProto(
+                            proto.exerciseEventData.golfShotData.golfShotSwingType
+                        )
+                    )
+                else -> throw IllegalStateException("Exercise event not set on $proto")
+            }
+    }
 }

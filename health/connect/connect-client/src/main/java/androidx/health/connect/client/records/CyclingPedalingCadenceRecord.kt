@@ -100,7 +100,6 @@ public class CyclingPedalingCadenceRecord(
      *
      * @param time The point in time when the measurement was taken.
      * @param revolutionsPerMinute Cycling revolutions per minute. Valid range: 0-10000.
-     *
      * @see CyclingPedalingCadenceRecord
      */
     public class Sample(

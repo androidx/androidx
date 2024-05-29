@@ -28,7 +28,8 @@ import java.time.Instant
 
 /** Contains the latest updated state and metrics for the current exercise. */
 @Suppress("ParcelCreator")
-public class ExerciseUpdate internal constructor(
+public class ExerciseUpdate
+internal constructor(
     /** Returns the list of the latest [DataPoint]s. */
     public val latestMetrics: DataPointContainer,
 
@@ -70,12 +71,9 @@ public class ExerciseUpdate internal constructor(
      * phase and hasn't started yet.
      */
     public val startTime: Instant? = null,
-
     internal val activeDurationLegacy: Duration,
 
-    /**
-     * Returns the latest [DebouncedGoal]s that have been achieved.
-     */
+    /** Returns the latest [DebouncedGoal]s that have been achieved. */
     public val latestAchievedDebouncedGoals: Set<DebouncedGoal<out Number>> = setOf(),
 ) {
     @RestrictTo(Scope.LIBRARY)
@@ -207,13 +205,18 @@ public class ExerciseUpdate internal constructor(
                         .map { it.proto }
                         // If we don't sort, equals() may not work.
                         .sortedBy { entry -> entry.statisticalDataPoint.dataType.name }
-                ).addAllLatestAggregateMetrics(latestMetrics.cumulativeDataPoints
-                    .map { it.proto }
-                    // If we don't sort, equals() may not work.
-                    .sortedBy { entry -> entry.cumulativeDataPoint.dataType.name })
-                .addAllLatestAchievedGoals(latestAchievedGoals.map {
-                    AchievedExerciseGoal.newBuilder().setExerciseGoal(it.proto).build()
-                })
+                )
+                .addAllLatestAggregateMetrics(
+                    latestMetrics.cumulativeDataPoints
+                        .map { it.proto }
+                        // If we don't sort, equals() may not work.
+                        .sortedBy { entry -> entry.cumulativeDataPoint.dataType.name }
+                )
+                .addAllLatestAchievedGoals(
+                    latestAchievedGoals.map {
+                        AchievedExerciseGoal.newBuilder().setExerciseGoal(it.proto).build()
+                    }
+                )
                 .addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
                 .addAllLatestAchievedDebouncedGoals(latestAchievedDebouncedGoals.map { it.proto })
                 .setExerciseEndReason((exerciseStateInfo.endReason).toProto())
@@ -234,13 +237,11 @@ public class ExerciseUpdate internal constructor(
      * Returns the duration since boot when this ExerciseUpdate was created.
      *
      * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
-     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
+     *   `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
     public fun getUpdateDurationFromBoot(): Duration =
         updateDurationFromBoot
-            ?: error(
-                "updateDurationFromBoot unavailable; is the Health Services APK out of date?"
-            )
+            ?: error("updateDurationFromBoot unavailable; is the Health Services APK out of date?")
 
     /**
      * Returns the ActiveDuration of the exercise at the time of the provided [IntervalDataPoint].
@@ -248,14 +249,14 @@ public class ExerciseUpdate internal constructor(
      *
      * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
      * @throws IllegalStateException if this [ExerciseUpdate] does not contain a valid
-     * `updateDurationFromBoot` which may happen if the Health Services app is out of date
+     *   `updateDurationFromBoot` which may happen if the Health Services app is out of date
      */
     public fun getActiveDurationAtDataPoint(dataPoint: IntervalDataPoint<*>): Duration =
         getActiveDurationAtDataPoint(dataPoint, dataPoint.endDurationFromBoot)
 
     /**
-     * Returns the ActiveDuration of the exercise at the time of the provided [SampleDataPoint].
-     * The provided [SampleDataPoint] should be present in this [ExerciseUpdate].
+     * Returns the ActiveDuration of the exercise at the time of the provided [SampleDataPoint]. The
+     * provided [SampleDataPoint] should be present in this [ExerciseUpdate].
      *
      * @throws IllegalArgumentException if [dataPoint] is not present in this [ExerciseUpdate]
      */
@@ -278,8 +279,9 @@ public class ExerciseUpdate internal constructor(
         }
 
         // If we are paused then the last active time applies to all updates.
-        if (exerciseStateInfo.state == ExerciseState.USER_PAUSED ||
-            exerciseStateInfo.state == ExerciseState.AUTO_PAUSED
+        if (
+            exerciseStateInfo.state == ExerciseState.USER_PAUSED ||
+                exerciseStateInfo.state == ExerciseState.AUTO_PAUSED
         ) {
             return activeDurationCheckpoint.activeDuration
         }
@@ -343,13 +345,8 @@ public class ExerciseUpdate internal constructor(
 
             proto.latestMetricsList
                 .flatMap { it.dataPointsList }
-                .forEach {
-                    dataPoints += DataPoint.fromProto(it)
-                }
-            proto.latestAggregateMetricsList
-                .forEach {
-                    dataPoints += DataPoint.fromProto(it)
-                }
+                .forEach { dataPoints += DataPoint.fromProto(it) }
+            proto.latestAggregateMetricsList.forEach { dataPoints += DataPoint.fromProto(it) }
 
             return DataPointContainer(dataPoints)
         }

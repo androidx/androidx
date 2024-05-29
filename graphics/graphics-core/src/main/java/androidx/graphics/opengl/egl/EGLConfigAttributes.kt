@@ -15,19 +15,19 @@
  */
 
 @file:Suppress("AcronymName")
+
 package androidx.graphics.opengl.egl
 
 import android.opengl.EGL14
 
 /**
- * Construct an instance of [EGLConfigAttributes] that includes a mapping of EGL attributes
- * to their corresponding value. The full set of attributes can be found here:
+ * Construct an instance of [EGLConfigAttributes] that includes a mapping of EGL attributes to their
+ * corresponding value. The full set of attributes can be found here:
  * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglChooseConfig.xhtml
  *
  * The resultant array of attributes automatically is terminated with EGL_NONE.
  *
  * For example to create an 8888 configuration, this can be done with the following:
- *
  * ```
  * EGLConfigAttributes {
  *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
@@ -50,16 +50,15 @@ inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): E
 
 /**
  * Class responsible for containing configuration parameters to be consumed by [EGLSpec.loadConfig]
- * This contains a mapping of key value pairs for attribute names to values. This handles
- * flattening the pairs into a single integer based array when passed to corresponding EGL based APIs
- * with alternating key/value pairs and ends with [EGL14.EGL_NONE]. Consumers can create
- * an instance by using [EGLConfigAttributes.Builder] or using the DSL based Kotlin API
- * [EGLConfigAttributes] factory method. [EGLConfigAttributes] also provides a few constants
- * for commonly used configurations such as [EGLConfigAttributes.RGBA_8888],
- * [EGLConfigAttributes.RGBA_1010102], or [EGLConfigAttributes.RGBA_F16]
+ * This contains a mapping of key value pairs for attribute names to values. This handles flattening
+ * the pairs into a single integer based array when passed to corresponding EGL based APIs with
+ * alternating key/value pairs and ends with [EGL14.EGL_NONE]. Consumers can create an instance by
+ * using [EGLConfigAttributes.Builder] or using the DSL based Kotlin API [EGLConfigAttributes]
+ * factory method. [EGLConfigAttributes] also provides a few constants for commonly used
+ * configurations such as [EGLConfigAttributes.RGBA_8888], [EGLConfigAttributes.RGBA_1010102], or
+ * [EGLConfigAttributes.RGBA_F16]
  *
  * For example from Java:
- *
  * ```
  * EGLConfigAttributes config = new EGLConfigAttributes.Builder()
  *   .setAttribute(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT)
@@ -76,7 +75,6 @@ inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): E
  * ```
  *
  * Or from the Kotlin factory method:
- *
  * ```
  * val config = EGLConfigAttributes {
  *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
@@ -92,29 +90,25 @@ inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): E
  * ```
  */
 @Suppress("AcronymName")
-class EGLConfigAttributes internal constructor(
-    @PublishedApi internal val attrs: IntArray
-) {
+class EGLConfigAttributes internal constructor(@PublishedApi internal val attrs: IntArray) {
 
     /**
-     * Return a copy of the created integer array used for EGL methods.
-     * Most consumers would pass the [EGLConfigAttributes] instance as a parameter instead, however,
-     * this method is provided as a convenience for debugging and testing purposes.
+     * Return a copy of the created integer array used for EGL methods. Most consumers would pass
+     * the [EGLConfigAttributes] instance as a parameter instead, however, this method is provided
+     * as a convenience for debugging and testing purposes.
      */
     fun toArray(): IntArray = attrs.clone()
 
     /**
-     * Builder used to create an instance of [EGLConfigAttributes]
-     * Allows for a mapping of EGL configuration attributes to their corresponding
-     * values as well as including a previously generated [EGLConfigAttributes]
-     * instance to be used as a template and conditionally update individual mapped values
+     * Builder used to create an instance of [EGLConfigAttributes] Allows for a mapping of EGL
+     * configuration attributes to their corresponding values as well as including a previously
+     * generated [EGLConfigAttributes] instance to be used as a template and conditionally update
+     * individual mapped values
      */
     class Builder {
         private val attrs = HashMap<Int, Int>()
 
-        /**
-         * Map a given EGL configuration attribute key to the given EGL configuration value
-         */
+        /** Map a given EGL configuration attribute key to the given EGL configuration value */
         @SuppressWarnings("BuilderSetStyle")
         @JvmSynthetic
         infix fun Int.to(that: Int) {
@@ -123,6 +117,7 @@ class EGLConfigAttributes internal constructor(
 
         /**
          * Map a given EGL configuration attribute key to the given EGL configuration value
+         *
          * @param attribute EGL attribute name such as [EGL14.EGL_RED_SIZE]
          * @param value Corresponding value for the [attribute]
          */
@@ -133,23 +128,18 @@ class EGLConfigAttributes internal constructor(
         }
 
         /**
-         * Include all the attributes of the given [EGLConfigAttributes] instance.
-         * This is useful for creating a new [EGLConfigAttributes] instance with all the same
-         * attributes as another, allowing for modification of attributes after the fact.
-         * For example, the following code snippet can be used to create an [EGLConfigAttributes]
-         * instance that has all the same configuration as [RGBA_8888] but with a
-         * 16 bit stencil buffer size:
-         *
+         * Include all the attributes of the given [EGLConfigAttributes] instance. This is useful
+         * for creating a new [EGLConfigAttributes] instance with all the same attributes as
+         * another, allowing for modification of attributes after the fact. For example, the
+         * following code snippet can be used to create an [EGLConfigAttributes] instance that has
+         * all the same configuration as [RGBA_8888] but with a 16 bit stencil buffer size:
          *
          * For example from Java:
          *
-         * new EglConfigAttributes.Builder()
-         *      .include(EGLConfigAttributes.RGBA_8888)
-         *      .setAttribute(EGL14.EGL_STENCIL_SIZE, 16)
-         *      .build()
+         * new EglConfigAttributes.Builder() .include(EGLConfigAttributes.RGBA_8888)
+         * .setAttribute(EGL14.EGL_STENCIL_SIZE, 16) .build()
          *
          * Or from the Kotlin factory method:
-         *
          * ```
          * EGLConfigAttributes {
          *      include(EGLConfigAttributes.RGBA_8888)
@@ -169,9 +159,9 @@ class EGLConfigAttributes internal constructor(
         }
 
         /**
-         * Construct an instance of [EGLConfigAttributes] with the mappings of integer keys
-         * to their respective values. This creates a flat integer array with alternating values
-         * for the key value pairs and ends with EGL_NONE
+         * Construct an instance of [EGLConfigAttributes] with the mappings of integer keys to their
+         * respective values. This creates a flat integer array with alternating values for the key
+         * value pairs and ends with EGL_NONE
          */
         fun build(): EGLConfigAttributes {
             val entries = attrs.entries
@@ -197,14 +187,10 @@ class EGLConfigAttributes internal constructor(
          */
         const val EGL_COLOR_COMPONENT_TYPE_EXT = 0x3339
 
-        /**
-         * EGL configuration attribute value that represents fixed point RGBA components
-         */
+        /** EGL configuration attribute value that represents fixed point RGBA components */
         const val EGL_COLOR_COMPONENT_TYPE_FIXED_EXT = 0x333A
 
-        /**
-         * EGL configuration attribute value that represents floating point RGBA components
-         */
+        /** EGL configuration attribute value that represents floating point RGBA components */
         const val EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT = 0x333B
 
         /**
@@ -226,8 +212,8 @@ class EGLConfigAttributes internal constructor(
         }
 
         /**
-         * EGL Attributes to create a 10 bit EGL config for red, green, blue, channels and a
-         * 2 bit alpha channels. This does not include any bits for depth and stencil buffers.
+         * EGL Attributes to create a 10 bit EGL config for red, green, blue, channels and a 2 bit
+         * alpha channels. This does not include any bits for depth and stencil buffers.
          */
         @Suppress("AcronymName")
         @JvmField

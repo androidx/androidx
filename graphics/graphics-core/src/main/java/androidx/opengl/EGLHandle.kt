@@ -16,14 +16,12 @@
 
 package androidx.opengl
 
-/**
- * Interface used to wrap native EGL objects to create type safe objects
- */
+/** Interface used to wrap native EGL objects to create type safe objects */
 @Suppress("AcronymName")
 interface EGLHandle {
     /**
-     * Returns the native handle of the wrapped EGL object. This handle can be
-     * cast to the corresponding native type on the native side.
+     * Returns the native handle of the wrapped EGL object. This handle can be cast to the
+     * corresponding native type on the native side.
      *
      * For example, EGLDisplay dpy = (EGLDisplay)handle;
      *

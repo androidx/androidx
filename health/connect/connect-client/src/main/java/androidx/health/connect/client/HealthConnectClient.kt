@@ -364,6 +364,7 @@ interface HealthConnectClient {
          * @param providerPackageName optional package provider to choose for backend implementation
          * @return One of [SDK_UNAVAILABLE], [SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED], or
          *   [SDK_AVAILABLE]
+         *
          * @sample androidx.health.connect.client.samples.AvailabilityCheckSamples
          */
         @JvmOverloads

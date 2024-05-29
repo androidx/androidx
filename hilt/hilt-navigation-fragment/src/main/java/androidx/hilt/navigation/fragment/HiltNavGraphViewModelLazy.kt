@@ -36,8 +36,8 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * }
  * ```
  *
- * This property can be accessed only after this NavGraph is on the NavController back stack,
- * and an attempt access prior to that will result in an IllegalArgumentException.
+ * This property can be accessed only after this NavGraph is on the NavController back stack, and an
+ * attempt access prior to that will result in an IllegalArgumentException.
  *
  * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
  */
@@ -46,14 +46,11 @@ import dagger.hilt.android.lifecycle.withCreationCallback
 public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int
 ): Lazy<VM> {
-    val backStackEntry by lazy {
-        findNavController().getBackStackEntry(navGraphId)
-    }
-    val storeProducer: () -> ViewModelStore = {
-        backStackEntry.viewModelStore
-    }
+    val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphId) }
+    val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
     return createViewModelLazy(
-        VM::class, storeProducer,
+        VM::class,
+        storeProducer,
         factoryProducer = {
             HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
         },
@@ -74,11 +71,12 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
  * }
  * ```
  *
- * This property can be accessed only after this NavGraph is on the NavController back stack,
- * and an attempt access prior to that will result in an IllegalArgumentException.
+ * This property can be accessed only after this NavGraph is on the NavController back stack, and an
+ * attempt access prior to that will result in an IllegalArgumentException.
  *
  * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
- * @param creationCallback callback that takes an @AssistedFactory-annotated factory and creates a HiltViewModel using @AssistedInject-annotated constructor.
+ * @param creationCallback callback that takes an @AssistedFactory-annotated factory and creates a
+ *   HiltViewModel using @AssistedInject-annotated constructor.
  */
 @MainThread
 @Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
@@ -86,12 +84,8 @@ public inline fun <reified VM : ViewModel, reified VMF : Any> Fragment.hiltNavGr
     @IdRes navGraphId: Int,
     noinline creationCallback: (VMF) -> VM
 ): Lazy<VM> {
-    val backStackEntry by lazy {
-        findNavController().getBackStackEntry(navGraphId)
-    }
-    val storeProducer: () -> ViewModelStore = {
-        backStackEntry.viewModelStore
-    }
+    val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphId) }
+    val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
     return createViewModelLazy(
         viewModelClass = VM::class,
         storeProducer = storeProducer,

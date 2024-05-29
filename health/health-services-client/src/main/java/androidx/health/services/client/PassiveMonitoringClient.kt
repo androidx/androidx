@@ -36,8 +36,8 @@ public interface PassiveMonitoringClient {
      *
      * Data updates will be batched and delivered from the point of initial registration and will
      * continue to be delivered until the [DataType] is unregistered, either by explicitly calling
-     * [clearPassiveListenerServiceAsync] or by registering again without that [DataType]
-     * included in the request. Higher frequency updates are available through [ExerciseClient] or
+     * [clearPassiveListenerServiceAsync] or by registering again without that [DataType] included
+     * in the request. Higher frequency updates are available through [ExerciseClient] or
      * [MeasureClient]. Any requested goal, user activity, or health event updates will not be
      * batched.
      *
@@ -57,8 +57,8 @@ public interface PassiveMonitoringClient {
      * @param service the [PassiveListenerService] to bind to
      * @param config the [PassiveListenerConfig] from the client
      * @return a [ListenableFuture] that completes when the registration succeeds in Health Services
-     * or fails when the request is not supported on the current device or the client does not have
-     * the required permissions for the request
+     *   or fails when the request is not supported on the current device or the client does not
+     *   have the required permissions for the request
      */
     public fun setPassiveListenerServiceAsync(
         service: Class<out PassiveListenerService>,
@@ -70,13 +70,13 @@ public interface PassiveMonitoringClient {
      *
      * Data updates are sent on generation (they will not be batched) and will be delivered until
      * the [DataType] is unregistered, either by explicitly calling
-     * [clearPassiveListenerCallbackAsync] or by registering again without that [DataType]
-     * included in the request. Higher frequency updates are available through [ExerciseClient] or
+     * [clearPassiveListenerCallbackAsync] or by registering again without that [DataType] included
+     * in the request. Higher frequency updates are available through [ExerciseClient] or
      * [MeasureClient].
      *
-     * The provided [callback] will take priority in receiving updates as long the
-     * app is alive and the callback can be successfully notified. Otherwise, the request will
-     * automatically be unregistered.
+     * The provided [callback] will take priority in receiving updates as long the app is alive and
+     * the callback can be successfully notified. Otherwise, the request will automatically be
+     * unregistered.
      *
      * This registration is unique per subscribing app and operates independently from
      * [setPassiveListenerServiceAsync] (each channel will receive its own stream of data).
@@ -103,13 +103,13 @@ public interface PassiveMonitoringClient {
      *
      * Data updates are sent on generation (they will not be batched) and will be delivered until
      * the [DataType] is unregistered, either by explicitly calling
-     * [clearPassiveListenerCallbackAsync] or by registering again without that [DataType]
-     * included in the request. Higher frequency updates are available through [ExerciseClient] or
+     * [clearPassiveListenerCallbackAsync] or by registering again without that [DataType] included
+     * in the request. Higher frequency updates are available through [ExerciseClient] or
      * [MeasureClient].
      *
-     * The provided [callback] will take priority in receiving updates as long the
-     * app is alive and the callback can be successfully notified. Otherwise, the request will
-     * automatically be unregistered.
+     * The provided [callback] will take priority in receiving updates as long the app is alive and
+     * the callback can be successfully notified. Otherwise, the request will automatically be
+     * unregistered.
      *
      * This registration is unique per subscribing app and operates independently from
      * [setPassiveListenerServiceAsync] (each channel will receive its own stream of data).
@@ -121,8 +121,7 @@ public interface PassiveMonitoringClient {
      *
      * This call completes when the registration succeeds in Health Services. If the request is not
      * supported on this device or the calling app lacks permissions, then
-     * [PassiveListenerCallback.onRegistrationFailed] will be invoked on the provided
-     * [callback].
+     * [PassiveListenerCallback.onRegistrationFailed] will be invoked on the provided [callback].
      *
      * @param callback the [PassiveListenerCallback] that will receive updates
      * @param executor the [Executor] on which the [callback] will be invoked
@@ -141,7 +140,7 @@ public interface PassiveMonitoringClient {
      * they should call flush before unregistering.
      *
      * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
-     * Services. This is a no-op if the callback has already been unregistered
+     *   Services. This is a no-op if the callback has already been unregistered
      */
     public fun clearPassiveListenerServiceAsync(): ListenableFuture<Void>
 
@@ -152,7 +151,7 @@ public interface PassiveMonitoringClient {
      * they should call flush before unregistering.
      *
      * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
-     * Services. This is a no-op if the callback has already been unregistered
+     *   Services. This is a no-op if the callback has already been unregistered
      */
     public fun clearPassiveListenerCallbackAsync(): ListenableFuture<Void>
 

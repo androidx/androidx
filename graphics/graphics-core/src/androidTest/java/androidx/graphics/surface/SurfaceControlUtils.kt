@@ -47,34 +47,35 @@ internal class SurfaceControlUtils {
             val setupLatch = CountDownLatch(1)
             var surfaceView: SurfaceView? = null
             val destroyLatch = CountDownLatch(1)
-            val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(
-                    Lifecycle.State.CREATED
-                ).onActivity {
-                    it.setDestroyCallback { destroyLatch.countDown() }
-                    val callback = object : SurfaceHolder.Callback {
-                        override fun surfaceCreated(sh: SurfaceHolder) {
-                            surfaceView = it.mSurfaceView
-                            onSurfaceCreated(surfaceView!!, setupLatch)
-                        }
+            val scenario =
+                ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        it.setDestroyCallback { destroyLatch.countDown() }
+                        val callback =
+                            object : SurfaceHolder.Callback {
+                                override fun surfaceCreated(sh: SurfaceHolder) {
+                                    surfaceView = it.mSurfaceView
+                                    onSurfaceCreated(surfaceView!!, setupLatch)
+                                }
 
-                        override fun surfaceChanged(
-                            holder: SurfaceHolder,
-                            format: Int,
-                            width: Int,
-                            height: Int
-                        ) {
-                            // NO-OP
-                        }
+                                override fun surfaceChanged(
+                                    holder: SurfaceHolder,
+                                    format: Int,
+                                    width: Int,
+                                    height: Int
+                                ) {
+                                    // NO-OP
+                                }
 
-                        override fun surfaceDestroyed(holder: SurfaceHolder) {
-                            // NO-OP
-                        }
+                                override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                    // NO-OP
+                                }
+                            }
+
+                        it.addSurface(it.mSurfaceView, callback)
+                        surfaceView = it.mSurfaceView
                     }
-
-                    it.addSurface(it.mSurfaceView, callback)
-                    surfaceView = it.mSurfaceView
-                }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
 
@@ -126,43 +127,36 @@ internal class SurfaceControlUtils {
             Assert.assertTrue(success)
         }
 
-        fun checkNullCrop(
-            bitmap: Bitmap,
-            coord: IntArray
-        ): Boolean {
+        fun checkNullCrop(bitmap: Bitmap, coord: IntArray): Boolean {
             // check top left
-            return Color.RED ==
-                bitmap.getPixel(coord[0], coord[1]) &&
+            return Color.RED == bitmap.getPixel(coord[0], coord[1]) &&
                 // check top right
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
-                    coord[1]
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
+                        coord[1]
+                    ) &&
                 // check  bottom right
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                    ) &&
                 // check bottom left
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0],
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
-                ) &&
+                    bitmap.getPixel(
+                        coord[0],
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                    ) &&
                 // check center
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                )
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    )
         }
 
-        fun checkStandardCrop(
-            bitmap: Bitmap,
-            coord: IntArray
-        ): Boolean {
+        fun checkStandardCrop(bitmap: Bitmap, coord: IntArray): Boolean {
             // check left crop
             return Color.BLACK ==
                 bitmap.getPixel(
@@ -170,43 +164,43 @@ internal class SurfaceControlUtils {
                     coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
                 ) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + 20,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + 20,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    ) &&
                 // check top crop
                 Color.BLACK ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    coord[1] + 29
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        coord[1] + 29
+                    ) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    coord[1] + 30
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        coord[1] + 30
+                    ) &&
                 // check right crop
                 Color.BLACK ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 10,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 10,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    ) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 11,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 11,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    ) &&
                 // check bottom crop
                 Color.BLACK ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 40
-                ) &&
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 40
+                    ) &&
                 Color.RED ==
-                bitmap.getPixel(
-                    coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 41
-                )
+                    bitmap.getPixel(
+                        coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 41
+                    )
         }
 
         fun getScreenshot(instrumentation: Instrumentation): Bitmap {
@@ -218,6 +212,7 @@ internal class SurfaceControlUtils {
         fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
             return nGetSolidBuffer(width, height, color)
         }
+
         fun getQuadrantBuffer(
             width: Int,
             height: Int,
@@ -237,6 +232,7 @@ internal class SurfaceControlUtils {
         }
 
         private external fun nGetSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer
+
         private external fun nGetQuadrantBuffer(
             width: Int,
             height: Int,
