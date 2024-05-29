@@ -818,13 +818,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun Variant.aotCompileMicrobenchmarks(project: Project) {
-        if (project.hasBenchmarkPlugin()) {
-            @Suppress("UnstableApiUsage") // usage of experimentalProperties
-            experimentalProperties.put("android.experimental.force-aot-compilation", true)
-        }
-    }
-
     @Suppress("UnstableApiUsage") // usage of experimentalProperties
     private fun Variant.configureLocalAsbSigning(keyStore: File) {
         experimentalProperties.put(ASB_SIGNING_CONFIG_PROPERTY_NAME, keyStore.absolutePath)
@@ -871,7 +864,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
             onVariants { variant ->
                 variant.configureTests()
-                variant.aotCompileMicrobenchmarks(project)
                 variant.enableLongMethodTracingInMicrobenchmark(project)
             }
         }
