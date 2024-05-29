@@ -175,6 +175,12 @@ class BinaryCompatibilityChecker(
             isBinaryCompatibleWith = { other, parentName, errs ->
                 isBinaryCompatibleWith(other, parentName, errs)
             },
+            isAllowedAddition = {
+                when {
+                    this is AbiFunction -> modality != AbiModality.ABSTRACT
+                    else -> true
+                }
+            },
             parentQualifiedName = qualifiedName.toString(),
             errors = errors
         )
