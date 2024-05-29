@@ -55,10 +55,13 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.util.Consumer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -132,6 +135,9 @@ public class SurfaceEdge {
     // Tombstone flag indicates whether the edge has been closed. Once closed, the edge should
     // never be used again.
     private boolean mIsClosed = false;
+
+    private final List<Consumer<TransformationInfo>> mTransformationUpdatesListeners =
+            new ArrayList<>();
 
     /**
      * Please see the getters to understand the parameters.
@@ -506,13 +512,33 @@ public class SurfaceEdge {
         });
     }
 
+    /**
+     * Adds a listener to receive transformation info updates.
+     */
+    public void addTransformationUpdateListener(@NonNull Consumer<TransformationInfo> consumer) {
+        checkNotNull(consumer);
+        mTransformationUpdatesListeners.add(consumer);
+    }
+
+    /**
+     * Removes a listener to stop receiving transformation info updates.
+     */
+    public void removeTransformationUpdateListener(@NonNull Consumer<TransformationInfo> consumer) {
+        checkNotNull(consumer);
+        mTransformationUpdatesListeners.remove(consumer);
+    }
+
     @MainThread
     private void notifyTransformationInfoUpdate() {
         checkMainThread();
+        TransformationInfo transformationInfo = TransformationInfo.of(
+                mCropRect, mRotationDegrees, mTargetRotation, hasCameraTransform(),
+                mSensorToBufferTransform, mMirroring);
         if (mProviderSurfaceRequest != null) {
-            mProviderSurfaceRequest.updateTransformationInfo(TransformationInfo.of(
-                    mCropRect, mRotationDegrees, mTargetRotation, hasCameraTransform(),
-                    mSensorToBufferTransform, mMirroring));
+            mProviderSurfaceRequest.updateTransformationInfo(transformationInfo);
+        }
+        for (Consumer<TransformationInfo> listener : mTransformationUpdatesListeners) {
+            listener.accept(transformationInfo);
         }
     }
 
