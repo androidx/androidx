@@ -46,6 +46,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -60,15 +61,15 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
 class GLFrontBufferedRendererTest {
 
     private val executor: Executor = Executors.newSingleThreadExecutor()
 
     companion object {
-        val TAG = "GLFrontBufferedRenderer"
+        const val TAG = "GLFrontBufferedRenderer"
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
         val renderLatch = CountDownLatch(1)
@@ -163,25 +164,21 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testInvalidWidth() {
         testRenderWithDimension(0, 200)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testInvalidHeight() {
         testRenderWithDimension(100, 0)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testNegativeWidth() {
         testRenderWithDimension(-19, 200)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testNegativeHeight() {
         testRenderWithDimension(100, -30)
@@ -275,7 +272,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDoubleBufferedLayerRender() {
         val commitLatch = AtomicReference<CountDownLatch?>()
@@ -368,7 +364,7 @@ class GLFrontBufferedRendererTest {
             }
 
             SurfaceControlUtils.validateOutput { bitmap ->
-                (Math.abs(
+                (abs(
                     Color.red(Color.BLUE) - Color.red(
                         bitmap.getPixel(
                             coords[0] + width / 2,
@@ -376,7 +372,7 @@ class GLFrontBufferedRendererTest {
                         )
                     )
                 ) < 2) &&
-                    (Math.abs(
+                    (abs(
                         Color.green(Color.BLUE) - Color.green(
                             bitmap.getPixel(
                                 coords[0] + width / 2,
@@ -384,7 +380,7 @@ class GLFrontBufferedRendererTest {
                             )
                         )
                     ) < 2) &&
-                    (Math.abs(
+                    (abs(
                         Color.blue(Color.BLUE) - Color.blue(
                             bitmap.getPixel(
                                 coords[0] + width / 2,
@@ -396,7 +392,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderDoubleBufferLayer() {
         val squareSize = 100f
@@ -514,7 +509,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testBufferRetargetingFrontBufferLayer() {
         val squareSize = 100f
@@ -651,7 +645,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testBufferRetargetingDoubleBufferedLayer() {
         val commitLatch = AtomicReference<CountDownLatch?>()
@@ -816,7 +809,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testCancelFrontBufferLayerRender() {
         val squareSize = 100f
@@ -938,7 +930,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testExecute() {
         val executeLatch = CountDownLatch(1)
@@ -1002,7 +993,6 @@ class GLFrontBufferedRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testBaseFlags() {
         assertNotEquals(
             0, FrontBufferUtils.BaseFlags and
@@ -1016,7 +1006,6 @@ class GLFrontBufferedRendererTest {
 
     @Ignore("b/324920812")
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderFrontBufferSeveralTimes() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
 
@@ -1089,7 +1078,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDoubleBufferedContentsNotPersisted() {
         val mOrthoMatrix = FloatArray(16)
@@ -1097,7 +1085,7 @@ class GLFrontBufferedRendererTest {
         val screenWidth = SurfaceViewTestActivity.WIDTH
         val rectWidth = 10f
 
-        var renderLatch = AtomicReference<CountDownLatch?>()
+        val renderLatch = AtomicReference<CountDownLatch?>()
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
             override fun onDrawFrontBufferedLayer(
                 eglManager: EGLManager,
@@ -1196,7 +1184,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderAfterPauseAndResume() {
         val renderLatch = CountDownLatch(2)
@@ -1298,7 +1285,6 @@ class GLFrontBufferedRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun test180DegreeRotationBufferTransform() {
         val initialFrontBufferLatch = CountDownLatch(1)
         val secondFrontBufferLatch = CountDownLatch(1)
@@ -1422,7 +1408,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testReleaseRemovedSurfaceCallbacks() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
@@ -1485,7 +1470,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSurfaceCallbackPreservedAfterResume() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
@@ -1568,7 +1552,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testGLFrontBufferedRendererCreationFromUnstartedGLRenderer() {
         val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
@@ -1607,7 +1590,6 @@ class GLFrontBufferedRendererTest {
         assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testMultiBufferedLayerRenderedOnSurfaceRedraw() {
         val renderLatch = CountDownLatch(1)
@@ -1642,7 +1624,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferClearAfterRender() {
         val frontLatch = AtomicReference<CountDownLatch?>()
@@ -1769,7 +1750,7 @@ class GLFrontBufferedRendererTest {
             }
 
             SurfaceControlUtils.validateOutput { bitmap ->
-                (Math.abs(
+                (abs(
                     Color.red(Color.BLUE) - Color.red(
                         bitmap.getPixel(
                             coords[0] + width / 2,
@@ -1777,7 +1758,7 @@ class GLFrontBufferedRendererTest {
                         )
                     )
                 ) < 2) &&
-                    (Math.abs(
+                    (abs(
                         Color.green(Color.BLUE) - Color.green(
                             bitmap.getPixel(
                                 coords[0] + width / 2,
@@ -1785,7 +1766,7 @@ class GLFrontBufferedRendererTest {
                             )
                         )
                     ) < 2) &&
-                    (Math.abs(
+                    (abs(
                         Color.blue(Color.BLUE) - Color.blue(
                             bitmap.getPixel(
                                 coords[0] + width / 2,
@@ -1797,7 +1778,6 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetPixelFormat() {
         val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
@@ -2057,7 +2037,7 @@ class GLFrontBufferedRendererTest {
                 .onActivity {
                     surfaceView = createSurfaceView(it)
                     configureSurfaceView(surfaceView!!)
-                    renderer = GLFrontBufferedRenderer<T>(surfaceView!!, wrappedCallbacks)
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, wrappedCallbacks)
                     it.setOnDestroyCallback { destroyLatch.countDown() }
                 }
 
