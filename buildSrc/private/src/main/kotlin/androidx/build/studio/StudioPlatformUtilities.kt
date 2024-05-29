@@ -52,18 +52,8 @@ sealed class StudioPlatformUtilities(val projectRoot: File, val studioInstallati
     /** Extracts an archive at [fromPath] with [archiveExtension] to [toPath] */
     abstract fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations)
 
-    /**
-     * Updates the Jvm heap size for this Studio installation.
-     *
-     * TODO: this is temporary until b/135183535 is fixed
-     */
-    abstract fun StudioTask.updateJvmHeapSize()
-
     /** Returns the PID of the process started by this task, or `null` if not running. */
     abstract fun findProcess(): Int?
-
-    /** Regex to match '-Xmx512m' or similar, so we can replace it with a larger heap size. */
-    protected val jvmHeapRegex = "-Xmx.*".toRegex()
 
     companion object {
         val osName =
@@ -142,12 +132,6 @@ private class MacOsUtilities(projectRoot: File, studioInstallationDir: File) :
         mountPoint.delete()
     }
 
-    override fun StudioTask.updateJvmHeapSize() {
-        val vmoptions = File(binaryDirectory, "Contents/bin/studio.vmoptions")
-        val newText = vmoptions.readText().replace(jvmHeapRegex, "-Xmx8g")
-        vmoptions.writeText(newText)
-    }
-
     override fun findProcess(): Int? {
         println("Detecting active managed Studio instances...")
         val process =
@@ -196,12 +180,6 @@ private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
                 args("-xf", fromPath, "-C", toPath)
             }
         }
-    }
-
-    override fun StudioTask.updateJvmHeapSize() {
-        val vmoptions64 = File(binaryDirectory, "bin/studio64.vmoptions")
-        val newText64 = vmoptions64.readText().replace(jvmHeapRegex, "-Xmx8g")
-        vmoptions64.writeText(newText64)
     }
 
     override fun findProcess(): Int? {

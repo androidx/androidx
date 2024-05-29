@@ -145,7 +145,6 @@ abstract class StudioTask : DefaultTask() {
             )
             println("Extracting archive...")
             extractStudioArchive()
-            with(platformUtilities) { updateJvmHeapSize() }
             // Finish install process
             successfulInstallFile.createNewFile()
         }
