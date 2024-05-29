@@ -76,3 +76,15 @@ fun OutlinedTextButtonSample() {
         Text(text = "ABC")
     }
 }
+
+@Sampled
+@Composable
+fun TextButtonWithOnLongClickSample(onLongClick: () -> Unit) {
+    TextButton(
+        onClick = { /* Do something for onClick*/ },
+        onLongClick = onLongClick,
+        onLongClickLabel = "OnLongClick action"
+    ) {
+        Text(text = "ABC")
+    }
+}

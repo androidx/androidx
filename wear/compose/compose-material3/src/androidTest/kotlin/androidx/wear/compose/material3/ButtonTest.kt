@@ -147,20 +147,7 @@ class ButtonTest {
     fun responds_to_long_click_when_enabled() {
         var longClicked = false
 
-        rule.setContentWithTheme {
-            Button(
-                onClick = { /* Do nothing */ },
-                onLongClick = { longClicked = true },
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-                Text("Test")
-            }
-        }
-
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
-
-        rule.runOnIdle { assertEquals(true, longClicked) }
+        responds_to_long_click(true, { longClicked = true }) { assertEquals(true, longClicked) }
     }
 
     @Test
@@ -183,21 +170,9 @@ class ButtonTest {
 
     @Test
     fun does_not_respond_to_click_when_disabled() {
-        var clicked = false
+        var longClicked = false
 
-        rule.setContentWithTheme {
-            Button(
-                onClick = { clicked = true },
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-                Text("Test")
-            }
-        }
-
-        rule.onNodeWithTag(TEST_TAG).performClick()
-
-        rule.runOnIdle { assertEquals(false, clicked) }
+        responds_to_long_click(false, { longClicked = true }) { assertEquals(false, longClicked) }
     }
 
     @Test
@@ -829,6 +804,28 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() }
         )
+    }
+
+    private fun responds_to_long_click(
+        enabled: Boolean,
+        onLongClick: () -> Unit,
+        assert: () -> Unit
+    ) {
+
+        rule.setContentWithTheme {
+            Button(
+                onClick = { /* Do nothing */ },
+                onLongClick = onLongClick,
+                enabled = enabled,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("Test")
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assert() }
     }
 }
 

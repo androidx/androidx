@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -37,11 +39,13 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FilledIconButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.wear.compose.material3.samples.IconButtonSample
+import androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedIconButtonSample
 import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun IconButtonDemo() {
+    val context = LocalContext.current
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,6 +86,12 @@ fun IconButtonDemo() {
                 OutlinedIconButton(onClick = {}, enabled = false) {
                     StandardIcon(ButtonDefaults.IconSize)
                 }
+            }
+        }
+        item { ListHeader { Text("With onLongClick") } }
+        item {
+            IconButtonWithOnLongClickSample {
+                Toast.makeText(context, "onLongClick triggered", Toast.LENGTH_SHORT).show()
             }
         }
         item { ListHeader { Text("Sizes") } }

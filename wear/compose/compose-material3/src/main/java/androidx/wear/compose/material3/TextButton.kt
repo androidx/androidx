@@ -61,8 +61,15 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
  *
  * @sample androidx.wear.compose.material3.samples.LargeFilledTonalTextButtonSample
  *
+ * Example of [TextButton] with onLongClick:
+ *
+ * @sample androidx.wear.compose.material3.samples.TextButtonWithOnLongClickSample
+ *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
+ * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
+ *   set, [onLongClickLabel] should be set as well.
+ * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
  *   clickable.
  * @param shape Defines the text button's shape. It is strongly recommended to use the default as
@@ -83,6 +90,8 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
 fun TextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     enabled: Boolean = true,
     shape: Shape = TextButtonDefaults.shape,
     colors: TextButtonColors = TextButtonDefaults.textButtonColors(),
@@ -90,9 +99,11 @@ fun TextButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    androidx.wear.compose.materialcore.RoundButton(
+    RoundButton(
         onClick = onClick,
         modifier.minimumInteractiveComponentSize(),
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
         enabled = enabled,
         backgroundColor = { colors.containerColor(enabled = it) },
         interactionSource = interactionSource,

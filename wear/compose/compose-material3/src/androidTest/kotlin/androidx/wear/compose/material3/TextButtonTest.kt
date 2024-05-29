@@ -42,9 +42,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.TextButtonDefaults.DefaultButtonSize
@@ -158,6 +160,44 @@ class TextButtonTest {
     }
 
     @Test
+    fun responds_to_long_click_when_enabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            TextButton(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = true,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("Test")
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(true, longClicked) }
+    }
+
+    @Test
+    fun onLongClickLabel_includedInSemantics() {
+        val testLabel = "Long click action"
+
+        rule.setContentWithTheme {
+            TextButton(
+                modifier = Modifier.testTag(TEST_TAG),
+                onClick = {},
+                onLongClick = {},
+                onLongClickLabel = testLabel
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).assertOnLongClickLabelMatches(testLabel)
+    }
+
+    @Test
     fun does_not_respond_to_click_when_disabled() {
         var clicked = false
 
@@ -174,6 +214,26 @@ class TextButtonTest {
         rule.onNodeWithTag(TEST_TAG).performClick()
 
         rule.runOnIdle { assertEquals(false, clicked) }
+    }
+
+    @Test
+    fun does_not_respond_to_long_click_when_disabled() {
+        var longClicked = false
+
+        rule.setContentWithTheme {
+            TextButton(
+                onClick = { /* Do nothing */ },
+                onLongClick = { longClicked = true },
+                enabled = false,
+                modifier = Modifier.testTag(TEST_TAG)
+            ) {
+                Text("Test")
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { longClick() }
+
+        rule.runOnIdle { assertEquals(false, longClicked) }
     }
 
     @Test
