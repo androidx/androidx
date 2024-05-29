@@ -71,6 +71,7 @@ val FoundationDemos = DemoCategory(
     listOf(
         DemoCategory("High-level Gestures", GestureDemos),
         DemoCategory("Drag and drop", DragAndDropDemos),
+        ComposableDemo("Combined clickable") { CombinedClickableDemo() },
         ComposableDemo("Overscroll") { OverscrollDemo() },
         ComposableDemo("Can scroll forward / backward") { CanScrollSample() },
         ComposableDemo("Vertical scroll") { VerticalScrollExample() },
