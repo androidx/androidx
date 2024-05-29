@@ -17,14 +17,13 @@
 package androidx.binarycompatibilityvalidator
 
 class Cursor
-private constructor(
-    private val lines: List<String>,
-    rowIndex: Int = 0,
-    private var columnIndex: Int = 0
-) {
+private constructor(private val lines: List<String>, rowIndex: Int = 0, columnIndex: Int = 0) {
     constructor(text: String) : this(text.split("\n"))
 
     var rowIndex: Int = rowIndex
+        private set
+
+    var columnIndex: Int = columnIndex
         private set
 
     val currentLine: String
