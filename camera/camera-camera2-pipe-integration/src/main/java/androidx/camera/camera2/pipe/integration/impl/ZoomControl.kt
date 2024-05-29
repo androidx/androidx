@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getLinearZoomF
 import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getZoomRatioFromLinearZoom
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,10 +36,8 @@ import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val DEFAULT_ZOOM_RATIO = 1.0f
 
@@ -92,11 +91,12 @@ constructor(
         applyZoomState(defaultZoomState)
     }
 
-    private suspend fun setZoomState(value: ZoomState) {
-        // TODO: camera-camera2 updates livedata with setValue if calling thread is main thread,
-        //  and updates with postValue otherwise. Need to consider if always using setValue
-        //  via main thread is alright in camera-pipe.
-        withContext(Dispatchers.Main) { _zoomState.value = value }
+    private fun setZoomState(value: ZoomState) {
+        if (Threads.isMainThread()) {
+            _zoomState.value = value
+        } else {
+            _zoomState.postValue(value)
+        }
     }
 
     fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {

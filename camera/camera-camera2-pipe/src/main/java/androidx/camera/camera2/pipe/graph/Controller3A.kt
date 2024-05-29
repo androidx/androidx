@@ -215,6 +215,7 @@ internal class Controller3A(
 
         val result = listener.result
         synchronized(this) {
+            debug { "Controller3A#update3A: cancelling previous request $lastUpdate3AResult" }
             lastUpdate3AResult?.cancel("A newer call for 3A state update initiated.")
             lastUpdate3AResult = result
         }
