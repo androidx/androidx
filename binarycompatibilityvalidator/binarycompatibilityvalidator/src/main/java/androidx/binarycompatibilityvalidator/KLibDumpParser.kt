@@ -47,7 +47,7 @@ class MutableAbiInfo(
 )
 
 @OptIn(ExperimentalLibraryAbiReader::class)
-class KlibDumpParser(klibDump: String) {
+class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
 
     /** Cursor to keep track of current location within the dump */
     private val cursor = Cursor(klibDump)
@@ -115,7 +115,7 @@ class KlibDumpParser(klibDump: String) {
                 cursor.parseSymbol("<")
                 val uniqueName =
                     cursor.parseSymbol("[a-zA-Z\\-\\.:]+")
-                        ?: throw ParseException(cursor, "Failed to parse library unique name")
+                        ?: throw parseException("Failed to parse library unique name")
                 currentTargets.forEach { it.uniqueName = uniqueName }
             }
             cursor.nextLine()
@@ -130,21 +130,19 @@ class KlibDumpParser(klibDump: String) {
         } else if (cursor.currentLine.isBlank()) {
             cursor.nextLine()
         } else {
-            throw ParseException(cursor, "Unknown declaration")
+            throw parseException("Failed to parse unknown declaration")
         }
         return null
     }
 
     internal fun parseClass(parentQualifiedName: AbiQualifiedName? = null): AbiClass {
         val modality =
-            cursor.parseAbiModality()
-                ?: throw ParseException(cursor, "Failed to parse class modality")
+            cursor.parseAbiModality() ?: throw parseException("Failed to parse class modality")
         val modifiers = cursor.parseClassModifiers()
         val isInner = modifiers.contains("inner")
         val isValue = modifiers.contains("value")
         val isFunction = modifiers.contains("fun")
-        val kind =
-            cursor.parseClassKind() ?: throw ParseException(cursor, "Failed to parse class kind")
+        val kind = cursor.parseClassKind() ?: throw parseException("Failed to parse class kind")
         val typeParams = cursor.parseTypeParams() ?: emptyList()
         // if we are a nested class the name won't be qualified and we will need to use the
         // [parentQualifiedName] to complete it
@@ -185,11 +183,7 @@ class KlibDumpParser(klibDump: String) {
                 parseNonConstructorFunction(
                     parentQualifiedName,
                     isGetterOrSetter,
-                    modality
-                        ?: throw ParseException(
-                            cursor,
-                            "Non constructor function must have modality"
-                        ),
+                    modality ?: throw parseException("Non constructor function must have modality"),
                 )
         }
     }
@@ -197,10 +191,9 @@ class KlibDumpParser(klibDump: String) {
     internal fun parseProperty(parentQualifiedName: AbiQualifiedName? = null): AbiProperty {
         val modality =
             cursor.parseAbiModality()
-                ?: throw ParseException(cursor, "Unable to parse modality for property")
+                ?: throw parseException("Unable to parse modality for property")
         val kind =
-            cursor.parsePropertyKind()
-                ?: throw ParseException(cursor, "Unable to parse kind for property")
+            cursor.parsePropertyKind() ?: throw parseException("Unable to parse kind for property")
         val qualifiedName = parseAbiQualifiedName(parentQualifiedName)
 
         cursor.nextLine()
@@ -229,11 +222,10 @@ class KlibDumpParser(klibDump: String) {
 
     internal fun parseEnumEntry(parentQualifiedName: AbiQualifiedName?): AbiEnumEntry {
         cursor.parseEnumEntryKind()
-        val enumName =
-            cursor.parseEnumName() ?: throw ParseException(cursor, "Failed to parse enum name")
+        val enumName = cursor.parseEnumName() ?: throw parseException("Failed to parse enum name")
         val relativeName =
             parentQualifiedName?.let { it.relativeName.value + "." + enumName }
-                ?: throw ParseException(cursor, "Enum entry must have parent qualified name")
+                ?: throw parseException("Enum entry must have parent qualified name")
         val qualifiedName =
             AbiQualifiedName(parentQualifiedName.packageName, AbiCompoundName(relativeName))
         cursor.nextLine()
@@ -276,8 +268,7 @@ class KlibDumpParser(klibDump: String) {
                 parseAbiQualifiedName(parentQualifiedName)
             }
         val valueParameters =
-            cursor.parseValueParameters()
-                ?: throw ParseException(cursor, "Couldn't parse value params")
+            cursor.parseValueParameters() ?: throw parseException("Couldn't parse value params")
         val allValueParameters =
             if (null != functionReceiver) {
                 val functionReceiverAsValueParam =
@@ -316,12 +307,12 @@ class KlibDumpParser(klibDump: String) {
                     parentQualifiedName.packageName,
                     AbiCompoundName(parentQualifiedName.relativeName.value + ".<init>")
                 )
-            } ?: throw ParseException(cursor, "Cannot parse constructor outside of class context")
+            } ?: throw parseException("Cannot parse constructor outside of class context")
         cursor.parseSymbol("constructor")
         cursor.parseSymbol("<init>")
         val valueParameters =
             cursor.parseValueParameters()
-                ?: throw ParseException(cursor, "Couldn't parse value parameters for constructor")
+                ?: throw parseException("Couldn't parse value parameters for constructor")
         cursor.nextLine()
         return AbiConstructorImpl(
             qualifiedName = abiQualifiedName,
@@ -339,7 +330,7 @@ class KlibDumpParser(klibDump: String) {
             cursor.parseAbiQualifiedName()!!
         } else {
             if (parentQualifiedName == null) {
-                throw ParseException(cursor, "Failed to parse qName")
+                throw parseException("Failed to parse qName")
             }
             val identifier = cursor.parseValidIdentifier()
             val relativeName = parentQualifiedName.relativeName.value + "." + identifier
@@ -351,13 +342,21 @@ class KlibDumpParser(klibDump: String) {
         parentQualifiedName: AbiQualifiedName?
     ): AbiQualifiedName {
         if (parentQualifiedName == null) {
-            throw ParseException(cursor, "Failed to parse qName")
+            throw parseException("Failed to parse qName")
         }
         val identifier =
-            cursor.parseGetterOrSetterName()
-                ?: throw ParseException(cursor, "Failed to parse qName")
+            cursor.parseGetterOrSetterName() ?: throw parseException("Failed to parse qName")
         val relativeName = parentQualifiedName.relativeName.value + "." + identifier
         return AbiQualifiedName(parentQualifiedName.packageName, AbiCompoundName(relativeName))
+    }
+
+    private fun parseException(message: String): ParseException =
+        ParseException(formatErrorMessage(message))
+
+    private fun formatErrorMessage(message: String): String {
+        val maybeFileName = fileName?.let { "$it:" } ?: ""
+        val location = "$maybeFileName${cursor.rowIndex}:${cursor.columnIndex}"
+        return "$message at $location: '${cursor.currentLine}'"
     }
 
     companion object {
@@ -368,5 +367,4 @@ class KlibDumpParser(klibDump: String) {
 }
 
 /** Exception which uses the cursor to include the location of the failure */
-class ParseException(cursor: Cursor, message: String) :
-    RuntimeException("$message ${cursor.rowIndex + 1}: ${cursor.currentLine}")
+class ParseException(message: String) : RuntimeException(message)

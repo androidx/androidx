@@ -53,16 +53,18 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        val previousApiDumpText = previousApiDump.get().readText()
-        val currentApiDumpText = currentApiDump.get().readText()
+        val (previousApiPath, previousApiDumpText) =
+            previousApiDump.get().let { it.path to it.readText() }
+        val (currentApiPath, currentApiDumpText) =
+            currentApiDump.get().let { it.path to it.readText() }
         val shouldFreeze =
             shouldFreezeApis(Version(referenceVersion.get()), Version(projectVersion.get()))
         if (shouldFreeze && previousApiDumpText != currentApiDumpText) {
             throw GradleException(frozenApiErrorMessage(referenceVersion.get()))
         }
 
-        val previousDump = KlibDumpParser(previousApiDumpText).parse()
-        val currentDump = KlibDumpParser(currentApiDumpText).parse()
+        val previousDump = KlibDumpParser(previousApiDumpText, previousApiPath).parse()
+        val currentDump = KlibDumpParser(currentApiDumpText, currentApiPath).parse()
 
         try {
             BinaryCompatibilityChecker.checkAllBinariesAreCompatible(currentDump, previousDump)
