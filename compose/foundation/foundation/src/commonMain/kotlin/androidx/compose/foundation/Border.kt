@@ -232,7 +232,10 @@ internal class BorderModifierNode(
             val colorFilter: ColorFilter?
             if (brush is SolidColor) {
                 config = ImageBitmapConfig.Alpha8
-                colorFilter = ColorFilter.tint(brush.value)
+                // The brush is drawn into the mask with the corresponding color including the
+                // alpha channel so when we tint we should not apply the alpha as it would end up
+                // modulating it twice
+                colorFilter = ColorFilter.tint(brush.value.copy(alpha = 1f))
             } else {
                 config = ImageBitmapConfig.Argb8888
                 colorFilter = null
