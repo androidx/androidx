@@ -139,6 +139,32 @@ abstract class BaseConformanceTest {
     }
 
     @Test
+    fun bindAndReadZeroLengthBlob() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (data BLOB)")
+        connection.prepare("INSERT INTO Test (data) VALUES (?)").use {
+            it.bindBlob(1, ByteArray(0))
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("SELECT * FROM Test").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.getBlob(0)).isEqualTo(ByteArray(0))
+        }
+    }
+
+    @Test
+    fun bindAndReadEmptyString() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (data TEXT)")
+        connection.prepare("INSERT INTO Test (data) VALUES (?)").use {
+            it.bindText(1, "")
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("SELECT * FROM Test").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.getText(0)).isEqualTo("")
+        }
+    }
+
+    @Test
     fun bindTextInExpression() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (date TEXT)")
         connection.prepare("INSERT INTO Test (date) VALUES (?)").use {
