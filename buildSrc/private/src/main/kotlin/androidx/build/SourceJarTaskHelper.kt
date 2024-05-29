@@ -278,16 +278,18 @@ private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<
         // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP
         // projects
         val publishingVariants = mutableListOf<String>()
-        if (hasAndroidMultiplatformPlugin()) {
-            publishingVariants.add(androidMultiplatformSourcesConfigurationName)
-        } else {
-            publishingVariants.add(sourcesConfigurationName)
-        }
-        project.multiplatformExtension?.let {
+        val hasAndroidMultiplatformPlugin = hasAndroidMultiplatformPlugin()
+        publishingVariants.add(sourcesConfigurationName)
+        project.multiplatformExtension?.let { ext ->
+            val hasAndroidJvmTarget =
+                ext.targets.any { target -> target.platformType == KotlinPlatformType.androidJvm }
             publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
-            if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
             // used for --android source jars of KMP projects
-            publishingVariants += "release" + sourcesConfigurationName.capitalize()
+            if (hasAndroidMultiplatformPlugin) {
+                publishingVariants += "$androidMultiplatformSourcesConfigurationName-published"
+            } else if (hasAndroidJvmTarget) {
+                publishingVariants += "release${sourcesConfigurationName.capitalize()}"
+            }
         }
         updateCopySampleSourceJarsTaskWithVariant(publishingVariants)
     }
@@ -299,6 +301,7 @@ private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<
  */
 private fun Project.updateCopySampleSourceJarsTaskWithVariant(publishingVariants: List<String>) {
     val copySampleJarTask = tasks.named("copySampleSourceJars", LazyInputsCopyTask::class.java)
+    val configuredVariants = mutableListOf<String>()
     configurations.configureEach { config ->
         if (config.name in publishingVariants) {
             // Register the sample source jar as an outgoing artifact of the publishing variant
@@ -307,6 +310,18 @@ private fun Project.updateCopySampleSourceJarsTaskWithVariant(publishingVariants
                 // source jars out in our AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
                 it.classifier = "samples-sources"
             }
+            configuredVariants.add(config.name)
+        }
+    }
+    // Check that all the variants are configured because we only configure when the name matches
+    // and could fail silently if we never see a matching configuration
+    gradle.taskGraph.whenReady {
+        if (!configuredVariants.containsAll(publishingVariants)) {
+            val unconfiguredVariants =
+                (publishingVariants.toSet() - configuredVariants.toSet()).joinToString(", ")
+            throw GradleException(
+                "Sample source jar tasks were not configured for $unconfiguredVariants"
+            )
         }
     }
 }
