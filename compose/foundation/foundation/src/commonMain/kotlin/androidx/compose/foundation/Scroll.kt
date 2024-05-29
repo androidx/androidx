@@ -48,6 +48,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -274,23 +275,21 @@ private fun Modifier.scroll(
     isVertical: Boolean
 ) = composed(
     factory = {
+        val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
+        val reverseDirection = ScrollableDefaults.reverseDirection(
+            LocalLayoutDirection.current,
+            orientation,
+            reverseScrolling
+        )
         Modifier
-            .then(
-                ScrollSemanticsElement(
-                    state = state,
-                    reverseScrolling = reverseScrolling,
-                    flingBehavior = flingBehavior,
-                    isScrollable = isScrollable,
-                    isVertical = isVertical,
-                )
-            )
             .scrollingContainer(
                 state = state,
-                orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
+                orientation = orientation,
                 enabled = isScrollable,
-                reverseScrolling = reverseScrolling,
+                reverseDirection = reverseDirection,
                 flingBehavior = flingBehavior,
-                interactionSource = state.internalInteractionSource
+                interactionSource = state.internalInteractionSource,
+                overscrollEffect = ScrollableDefaults.overscrollEffect()
             )
             .then(ScrollingLayoutElement(state, reverseScrolling, isVertical))
     },
@@ -304,78 +303,28 @@ private fun Modifier.scroll(
     }
 )
 
-private data class ScrollSemanticsElement(
-    val state: ScrollState,
-    val reverseScrolling: Boolean,
-    val flingBehavior: FlingBehavior?,
-    val isScrollable: Boolean,
-    val isVertical: Boolean
-) : ModifierNodeElement<ScrollSemanticsModifierNode>() {
-    override fun create(): ScrollSemanticsModifierNode = ScrollSemanticsModifierNode(
-        state = state,
-        reverseScrolling = reverseScrolling,
-        flingBehavior = flingBehavior,
-        isScrollable = isScrollable,
-        isVertical = isVertical,
-    )
-
-    override fun update(node: ScrollSemanticsModifierNode) {
-        node.state = state
-        node.reverseScrolling = reverseScrolling
-        node.flingBehavior = flingBehavior
-        node.isScrollable = isScrollable
-        node.isVertical = isVertical
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        // Not a public modifier.
-    }
-}
-
-private class ScrollSemanticsModifierNode(
-    var state: ScrollState,
-    var reverseScrolling: Boolean,
-    var flingBehavior: FlingBehavior?,
-    var isScrollable: Boolean,
-    var isVertical: Boolean
-) : Modifier.Node(), SemanticsModifierNode {
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        isTraversalGroup = true
-        val accessibilityScrollState = ScrollAxisRange(
-            value = { state.value.toFloat() },
-            maxValue = { state.maxValue.toFloat() },
-            reverseScrolling = reverseScrolling
-        )
-        if (isVertical) {
-            this.verticalScrollAxisRange = accessibilityScrollState
-        } else {
-            this.horizontalScrollAxisRange = accessibilityScrollState
-        }
-    }
-}
-
 internal class ScrollingLayoutElement(
     val scrollState: ScrollState,
-    val isReversed: Boolean,
+    val reverseScrolling: Boolean,
     val isVertical: Boolean
-) : ModifierNodeElement<ScrollingLayoutNode>() {
-    override fun create(): ScrollingLayoutNode {
-        return ScrollingLayoutNode(
-            scrollerState = scrollState,
-            isReversed = isReversed,
+) : ModifierNodeElement<ScrollNode>() {
+    override fun create(): ScrollNode {
+        return ScrollNode(
+            state = scrollState,
+            reverseScrolling = reverseScrolling,
             isVertical = isVertical
         )
     }
 
-    override fun update(node: ScrollingLayoutNode) {
-        node.scrollerState = scrollState
-        node.isReversed = isReversed
+    override fun update(node: ScrollNode) {
+        node.state = scrollState
+        node.reverseScrolling = reverseScrolling
         node.isVertical = isVertical
     }
 
     override fun hashCode(): Int {
         var result = scrollState.hashCode()
-        result = 31 * result + isReversed.hashCode()
+        result = 31 * result + reverseScrolling.hashCode()
         result = 31 * result + isVertical.hashCode()
         return result
     }
@@ -383,23 +332,23 @@ internal class ScrollingLayoutElement(
     override fun equals(other: Any?): Boolean {
         if (other !is ScrollingLayoutElement) return false
         return scrollState == other.scrollState &&
-            isReversed == other.isReversed &&
+            reverseScrolling == other.reverseScrolling &&
             isVertical == other.isVertical
     }
 
     override fun InspectorInfo.inspectableProperties() {
-        name = "layoutInScroll"
+        name = "scroll"
         properties["state"] = scrollState
-        properties["isReversed"] = isReversed
+        properties["reverseScrolling"] = reverseScrolling
         properties["isVertical"] = isVertical
     }
 }
 
-internal class ScrollingLayoutNode(
-    var scrollerState: ScrollState,
-    var isReversed: Boolean,
+internal class ScrollNode(
+    var state: ScrollState,
+    var reverseScrolling: Boolean,
     var isVertical: Boolean
-) : LayoutModifierNode, Modifier.Node() {
+) : LayoutModifierNode, SemanticsModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
@@ -423,11 +372,11 @@ internal class ScrollingLayoutNode(
         // chained RemeasurementModifiers that try to perform scrolling based on the new
         // measurements inside onRemeasured are able to scroll to the new max based on the newly-
         // measured size.
-        scrollerState.maxValue = side
-        scrollerState.viewportSize = if (isVertical) height else width
+        state.maxValue = side
+        state.viewportSize = if (isVertical) height else width
         return layout(width, height) {
-            val scroll = scrollerState.value.coerceIn(0, side)
-            val absScroll = if (isReversed) scroll - side else -scroll
+            val scroll = state.value.coerceIn(0, side)
+            val absScroll = if (reverseScrolling) scroll - side else -scroll
             val xOffset = if (isVertical) 0 else absScroll
             val yOffset = if (isVertical) absScroll else 0
 
@@ -481,6 +430,20 @@ internal class ScrollingLayoutNode(
             measurable.maxIntrinsicHeight(width)
         } else {
             measurable.maxIntrinsicHeight(Constraints.Infinity)
+        }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        isTraversalGroup = true
+        val accessibilityScrollState = ScrollAxisRange(
+            value = { state.value.toFloat() },
+            maxValue = { state.maxValue.toFloat() },
+            reverseScrolling = reverseScrolling
+        )
+        if (isVertical) {
+            this.verticalScrollAxisRange = accessibilityScrollState
+        } else {
+            this.horizontalScrollAxisRange = accessibilityScrollState
         }
     }
 }

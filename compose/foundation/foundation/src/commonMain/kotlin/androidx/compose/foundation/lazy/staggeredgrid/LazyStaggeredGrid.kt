@@ -76,6 +76,12 @@ internal fun LazyStaggeredGrid(
     )
     val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
+    val reverseDirection = ScrollableDefaults.reverseDirection(
+        LocalLayoutDirection.current,
+        orientation,
+        reverseLayout
+    )
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -100,9 +106,10 @@ internal fun LazyStaggeredGrid(
                 state = state,
                 orientation = orientation,
                 enabled = userScrollEnabled,
-                reverseScrolling = reverseLayout,
+                reverseDirection = reverseDirection,
                 flingBehavior = flingBehavior,
-                interactionSource = state.mutableInteractionSource
+                interactionSource = state.mutableInteractionSource,
+                overscrollEffect = ScrollableDefaults.overscrollEffect()
             ),
         prefetchState = state.prefetchState,
         itemProvider = itemProviderLambda,
