@@ -96,6 +96,12 @@ internal fun LazyGrid(
     )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
+    val reverseDirection = ScrollableDefaults.reverseDirection(
+        LocalLayoutDirection.current,
+        orientation,
+        reverseLayout
+    )
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -120,9 +126,10 @@ internal fun LazyGrid(
                 state = state,
                 orientation = orientation,
                 enabled = userScrollEnabled,
-                reverseScrolling = reverseLayout,
+                reverseDirection = reverseDirection,
                 flingBehavior = flingBehavior,
-                interactionSource = state.internalInteractionSource
+                interactionSource = state.internalInteractionSource,
+                overscrollEffect = ScrollableDefaults.overscrollEffect()
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
