@@ -39,12 +39,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraProviderExecutionState;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
 import androidx.camera.core.impl.MetadataHolderService;
+import androidx.camera.core.impl.QuirkSettings;
+import androidx.camera.core.impl.QuirkSettingsHolder;
+import androidx.camera.core.impl.QuirkSettingsLoader;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -83,7 +88,7 @@ public final class CameraX {
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
-    private RetryPolicy mRetryPolicy;
+    private final RetryPolicy mRetryPolicy;
     private final ListenableFuture<Void> mInitInternalFuture;
 
     @GuardedBy("mInitializeLock")
@@ -98,6 +103,12 @@ public final class CameraX {
 
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider) {
+        this(context, configProvider, new QuirkSettingsLoader());
+    }
+
+    @VisibleForTesting
+    CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider,
+            @NonNull Function<Context, QuirkSettings> quirkSettingsLoader) {
         if (configProvider != null) {
             mCameraXConfig = configProvider.getCameraXConfig();
         } else {
@@ -112,6 +123,8 @@ public final class CameraX {
 
             mCameraXConfig = provider.getCameraXConfig();
         }
+        // Update quirks settings as early as possible since device quirks are loaded statically.
+        updateQuirkSettings(context, mCameraXConfig.getQuirkSettings(), quirkSettingsLoader);
 
         Executor executor = mCameraXConfig.getCameraExecutor(null);
         Handler schedulerHandler = mCameraXConfig.getSchedulerHandler(null);
@@ -199,6 +212,48 @@ public final class CameraX {
         }
 
         return configProvider;
+    }
+
+    /**
+     * Updates the global {@link QuirkSettings} instance based on provided settings or
+     * application metadata.
+     *
+     * <p>This method determines the source of the quirk settings to be used:
+     *
+     * <ol>
+     *   <li>If `cameraXConfigQuirkSettings` is not null, those settings are used directly.</li>
+     *   <li>Otherwise, if the application's meta-data contains quirk settings, those are loaded
+     *       using {@link QuirkSettingsLoader}.</li>
+     *   <li>If neither of the above is available, the default {@link QuirkSettings} are used.</li>
+     * </ol>
+     *
+     * <p>The determined quirk settings are then set as the global instance in
+     * {@link QuirkSettingsHolder}.
+     *
+     * @param context                    The context used for loading quirk settings from app
+     *                                   metadata.
+     * @param cameraXConfigQuirkSettings Quirk settings provided through the CameraX configuration,
+     *                                   or null if not available.
+     * @param quirkSettingsLoader        Typically a {@link QuirkSettingsLoader} instance to load
+     *                                   settings from context. In unit tests, this may be an
+     *                                   fake implementation.
+     */
+    private static void updateQuirkSettings(@NonNull Context context,
+            @Nullable QuirkSettings cameraXConfigQuirkSettings,
+            @NonNull Function<Context, QuirkSettings> quirkSettingsLoader) {
+        QuirkSettings quirkSettings;
+        if (cameraXConfigQuirkSettings != null) {
+            quirkSettings = cameraXConfigQuirkSettings;
+            Logger.d(TAG, "QuirkSettings from CameraXConfig: " + quirkSettings);
+        } else {
+            quirkSettings = quirkSettingsLoader.apply(context);
+            Logger.d(TAG, "QuirkSettings from app metadata: " + quirkSettings);
+        }
+        if (quirkSettings == null) {
+            quirkSettings = QuirkSettingsHolder.DEFAULT;
+            Logger.d(TAG, "QuirkSettings by default: " + quirkSettings);
+        }
+        QuirkSettingsHolder.instance().set(quirkSettings);
     }
 
     /**
