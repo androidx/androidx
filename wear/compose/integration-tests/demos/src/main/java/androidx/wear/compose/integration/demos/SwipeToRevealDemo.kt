@@ -110,7 +110,6 @@ fun SwipeToRevealChips(
                         delay(2000)
                         if (revealState.currentValue == RevealValue.Revealed) {
                             revealState.animateTo(RevealValue.Covered)
-                            revealState.lastActionType = RevealActionType.None
                         }
                     }
                 }
@@ -119,7 +118,6 @@ fun SwipeToRevealChips(
                         coroutineScope.launch {
                             // reset the state when undo is clicked
                             revealState.animateTo(RevealValue.Covered)
-                            revealState.lastActionType = RevealActionType.None
                         }
                     }
                 }
@@ -128,7 +126,6 @@ fun SwipeToRevealChips(
                         itemCount--
                         // reset the state when undo is clicked
                         revealState.animateTo(RevealValue.Covered)
-                        revealState.lastActionType = RevealActionType.None
                     }
                 }
                 if (expanded) {
@@ -333,7 +330,6 @@ private fun SwipeToRevealCardExpandable(
                     coroutineScope.launch {
                         // reset the state when undo is clicked
                         revealState.animateTo(RevealValue.Covered)
-                        revealState.lastActionType = RevealActionType.None
                     }
                 }
             )
