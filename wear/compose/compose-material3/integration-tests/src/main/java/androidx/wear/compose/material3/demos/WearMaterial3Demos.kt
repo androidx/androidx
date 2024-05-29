@@ -57,8 +57,7 @@ val WearMaterial3Demos =
             ComposableDemo("Checkbox") { CheckboxDemos() },
             ComposableDemo("Switch") { SwitchDemos() },
             ComposableDemo("Radio Button") { RadioButtonDemo() },
-            ComposableDemo("Selectable Button") { SelectableButtonDemo() },
-            ComposableDemo("Split Selectable Button") { SplitSelectableButtonDemo() },
+            ComposableDemo("Split Radio Button") { SplitRadioButtonDemo() },
             ComposableDemo("Toggle Button") { ToggleButtonDemo() },
             ComposableDemo("Split Toggle Button") { SplitToggleButtonDemo() },
             DemoCategory(

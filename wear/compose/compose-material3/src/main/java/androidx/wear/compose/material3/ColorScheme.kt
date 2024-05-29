@@ -239,8 +239,8 @@ class ColorScheme(
     internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
 
     // Radio Button
-    internal var defaultSelectableButtonColorsCached: SelectableButtonColors? = null
-    internal var defaultSplitSelectableButtonColorsCached: SplitSelectableButtonColors? = null
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+    internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null
 
     // Progress Indicator
     internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null
