@@ -55,6 +55,12 @@ public actual constructor(
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
 
+
+    private var deepLinks = mutableListOf<NavDeepLink>()
+
+    public actual fun deepLink(uriPattern: String) {
+        deepLinks.add(NavDeepLink(uriPattern))
+    }
     /**
      * Build the NavDestination by calling [Navigator.createDestination].
      */
@@ -63,6 +69,9 @@ public actual constructor(
             destination.label = label
             arguments.forEach { (name, argument) ->
                 destination.addArgument(name, argument)
+            }
+            deepLinks.forEach { deepLink ->
+                destination.addDeepLink(deepLink)
             }
             if (route != null) {
                 destination.route = route

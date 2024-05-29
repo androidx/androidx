@@ -139,7 +139,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      * @param uriPattern The uri pattern to add as a deep link
      * @see deepLink
      */
-    public fun deepLink(uriPattern: String) {
+    public actual fun deepLink(uriPattern: String) {
         deepLinks.add(NavDeepLink(uriPattern))
     }
 
