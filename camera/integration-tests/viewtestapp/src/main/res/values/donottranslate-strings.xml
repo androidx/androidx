@@ -18,6 +18,7 @@ limitations under the License.
     <string name="app_name">CameraX Views Demo</string>
     <string name="app_name_stream_sharing">StreamSharing Test App</string>
     <string name="effects">Effects</string>
+    <string name="overlay_effect">Overlay Effect</string>
     <string name="preview">Preview</string>
     <string name="preview_and_video">Preview &amp; Video</string>
     <string name="surface_effect">Surface effect</string>
