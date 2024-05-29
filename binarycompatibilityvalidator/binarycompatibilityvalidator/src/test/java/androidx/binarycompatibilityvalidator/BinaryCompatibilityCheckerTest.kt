@@ -1001,6 +1001,28 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun addNewAbstractMethodToClass() {
+        val beforeText =
+            """
+        abstract class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+        }
+        """
+        val afterText =
+            """
+        abstract class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            abstract fun myFun(): kotlin/Int // my.lib/MyClass.myFun|myFun(){}[0]
+        }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Added declaration myFun() to my.lib/MyClass")
+        )
+    }
+
+    @Test
     fun interfaceToFunctionalInterface() {
         val beforeText =
             """
