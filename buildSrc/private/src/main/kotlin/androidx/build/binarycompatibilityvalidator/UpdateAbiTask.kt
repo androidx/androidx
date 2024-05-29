@@ -57,7 +57,7 @@ abstract class UpdateAbiTask : DefaultTask() {
             fileSystemOperations.copy {
                 it.from(inputApiLocation) {}
                 it.into(outputDir)
-                it.rename(CURRENT_API_FILE_NAME, version.get())
+                it.rename(CURRENT_API_FILE_NAME, "${version.get()}.txt")
             }
         }
     }

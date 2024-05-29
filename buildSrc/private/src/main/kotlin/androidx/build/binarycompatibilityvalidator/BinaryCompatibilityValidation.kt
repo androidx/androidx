@@ -50,13 +50,13 @@ import org.jetbrains.kotlin.konan.target.HostManager
 
 private const val GENERATE_NAME = "generateAbi"
 private const val CHECK_NAME = "checkAbi"
-private const val CHECK_RELEASE_NAME = "checkReleaseAbi"
+private const val CHECK_RELEASE_NAME = "checkAbiRelease"
 private const val UPDATE_NAME = "updateAbi"
-private const val MERGE_NAME = "mergeKlibs"
 private const val EXTRACT_NAME = "extractAbi"
+private const val EXTRACT_RELEASE_NAME = "extractAbiRelease"
 
 private const val KLIB_DUMPS_DIRECTORY = "klib"
-private const val KLIB_INFERRED_DUMPS_DIRECTORY = "klib-all"
+private const val KLIB_MERGE_DIRECTORY = "merged"
 private const val KLIB_EXTRACTED_DIRECTORY = "extracted"
 private const val NATIVE_SUFFIX = "native"
 internal const val CURRENT_API_FILE_NAME = "current.txt"
@@ -98,28 +98,29 @@ class BinaryCompatibilityValidation(
             }
 
         val projectBuildDir = project.layout.buildDirectory.asFile.get()
-        val klibMergeDir = projectBuildDir.resolve(KLIB_DUMPS_DIRECTORY)
+        val klibDumpDir = projectBuildDir.resolve(KLIB_DUMPS_DIRECTORY)
+        val klibMergeDir = klibDumpDir.resolve(KLIB_MERGE_DIRECTORY)
         val klibMergeFile = klibMergeDir.resolve(CURRENT_API_FILE_NAME)
-        val klibExtractedFileDir = klibMergeDir.resolve(KLIB_EXTRACTED_DIRECTORY)
+        val klibExtractedFileDir = klibDumpDir.resolve(KLIB_EXTRACTED_DIRECTORY)
 
-        val mergeKlibAbis = project.mergeKlibAbisTask(klibMergeFile)
+        val generateAbi = project.generateAbiTask(klibMergeFile)
         val updateKlibAbi =
             project.updateKlibAbiTask(
                 projectAbiDir,
-                mergeKlibAbis.map { it.mergedFile },
+                generateAbi.map { it.mergedFile },
                 projectVersion.toString()
             )
 
         val extractKlibAbi = project.extractKlibAbiTask(projectAbiDir.get(), klibExtractedFileDir)
         val checkKlibAbi =
             project.checkKlibAbiTask(extractKlibAbi.map { it.outputAbiFile }.get(), klibMergeFile)
-        // because extract takes a [File] instead of a provider we set up the dependency manually
-        checkKlibAbi.configure { it.dependsOn(extractKlibAbi) }
-        val checkKlibAbiRelease =
-            project.checkKlibAbiReleaseTask(
-                project.provider { klibExtractedFileDir },
-                klibMergeFile
-            )
+        // because extract/merge takes a [File] instead of a provider we set up the dependencies
+        // manually
+        checkKlibAbi.configure {
+            it.dependsOn(extractKlibAbi)
+            it.dependsOn(generateAbi)
+        }
+        val checkKlibAbiRelease = project.checkKlibAbiReleaseTask(generateAbi, klibExtractedFileDir)
 
         updateKlibAbi.configure { update ->
             checkKlibAbiRelease?.let { check -> update.dependsOn(check) }
@@ -132,7 +133,7 @@ class BinaryCompatibilityValidation(
 
         // configure the dump tasks for each individual target and set their output as inputs
         // to the merge task
-        project.configureKlibTargets(mergeKlibAbis, buildAbiDir)
+        project.configureKlibTargets(generateAbi, buildAbiDir)
     }
 
     /* Check that the current ABI definition is up to date. */
@@ -148,20 +149,35 @@ class BinaryCompatibilityValidation(
 
     /* Check that the current ABI definition is compatible with most recently released version */
     private fun Project.checkKlibAbiReleaseTask(
-        klibApiDir: Provider<File>,
-        klibMergeFile: File,
+        generateAbiTask: TaskProvider<KotlinKlibMergeAbiTask>,
+        klibExtractDir: File
     ) =
         project.getRequiredCompatibilityAbiLocation(NATIVE_SUFFIX)?.let { requiredCompatFile ->
-            project.tasks.register(
-                CHECK_RELEASE_NAME.appendCapitalized(NATIVE_SUFFIX),
-                CheckAbiIsCompatibleTask::class.java
-            ) {
-                it.currentApiDump = provider { klibApiDir.get().resolve(requiredCompatFile) }
-                it.previousApiDump = provider { klibMergeFile }
-                it.projectVersion = provider { projectVersion.toString() }
-                it.referenceVersion = provider { requiredCompatFile.nameWithoutExtension }
-                it.group = ABI_GROUP_NAME
-            }
+            val extractReleaseTask =
+                project.tasks.register(
+                    EXTRACT_RELEASE_NAME,
+                    KotlinKlibExtractSupportedTargetsAbiTask::class.java
+                ) {
+                    it.strictValidation = true
+                    it.supportedTargets = project.provider { supportedTargets() }
+                    it.inputAbiFile = requiredCompatFile
+                    it.outputAbiFile = klibExtractDir.resolve(requiredCompatFile.name)
+                    (it as DefaultTask).group = ABI_GROUP_NAME
+                }
+            project.tasks
+                .register(CHECK_RELEASE_NAME, CheckAbiIsCompatibleTask::class.java) {
+                    it.currentApiDump = generateAbiTask.map { merge -> merge.mergedFile }
+                    it.previousApiDump = extractReleaseTask.map { extract -> extract.outputAbiFile }
+                    it.projectVersion = provider { projectVersion.toString() }
+                    it.referenceVersion =
+                        extractReleaseTask.map { extract ->
+                            extract.outputAbiFile.nameWithoutExtension
+                        }
+                    it.group = ABI_GROUP_NAME
+                }
+                .also { checkRelease ->
+                    checkRelease.configure { it.dependsOn(extractReleaseTask) }
+                }
         }
 
     /* Updates the current abi file as well as the versioned abi file if appropriate */
@@ -196,8 +212,8 @@ class BinaryCompatibilityValidation(
         }
 
     /* Merge target specific dumps into single file located in [mergeDir] */
-    private fun Project.mergeKlibAbisTask(mergeFile: File) =
-        project.tasks.register(MERGE_NAME, KotlinKlibMergeAbiTask::class.java) {
+    private fun Project.generateAbiTask(mergeFile: File) =
+        project.tasks.register(GENERATE_NAME, KotlinKlibMergeAbiTask::class.java) {
             it.dumpFileName = CURRENT_API_FILE_NAME
             it.mergedFile = mergeFile
             (it as DefaultTask).group = ABI_GROUP_NAME
