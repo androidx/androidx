@@ -102,36 +102,30 @@ internal suspend fun HealthConnectClient.aggregateStepsCadence(
     }
 
 @VisibleForTesting
-internal suspend inline fun <reified R : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRecord(
-    recordType: KClass<R>,
+internal suspend fun <T : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRecord(
+    recordType: KClass<T>,
     aggregateMetrics: Set<AggregateMetric<*>>,
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>,
-    crossinline getSampleInfo: R.() -> List<SampleInfo>
+    getSampleInfo: T.() -> List<SampleInfo>
+) =
+    aggregateSeriesRecord(
+        recordType,
+        timeRangeFilter,
+        dataOriginFilter,
+        SeriesAggregator(recordType, aggregateMetrics),
+        getSampleInfo
+    )
+
+private suspend fun <T : SeriesRecord<*>> HealthConnectClient.aggregateSeriesRecord(
+    recordType: KClass<T>,
+    timeRangeFilter: TimeRangeFilter,
+    dataOriginFilter: Set<DataOrigin>,
+    aggregator: Aggregator<RecordInfo>,
+    getSampleInfo: T.() -> List<SampleInfo>
 ): AggregationResult {
-    val aggregateInfo =
-        RECORDS_TO_AGGREGATE_METRICS_INFO_MAP[recordType]
-            ?: throw IllegalArgumentException("Non supported fallback series record $recordType")
-
-    check(
-        setOf(aggregateInfo.averageMetric, aggregateInfo.minMetric, aggregateInfo.maxMetric)
-            .containsAll(aggregateMetrics)
-    ) {
-        "Invalid set of metrics ${aggregateMetrics.map { it.metricKey }}"
-    }
-
-    if (aggregateMetrics.isEmpty()) {
-        return emptyAggregationResult()
-    }
-
     val readRecordsFlow =
         readRecordsFlow(recordType, timeRangeFilter.withBufferedStart(), dataOriginFilter)
-
-    val avgData = AvgData()
-    var min: Double? = null
-    var max: Double? = null
-
-    val dataOrigins = mutableSetOf<DataOrigin>()
 
     readRecordsFlow.collect { records ->
         records
@@ -149,38 +143,58 @@ internal suspend inline fun <reified R : SeriesRecord<*>> HealthConnectClient.ag
                 )
             }
             .filter { it.samples.isNotEmpty() }
-            .forEach { recordInfo ->
-                recordInfo.samples.forEach {
-                    avgData += it.value
-                    min = min(min ?: it.value, it.value)
-                    max = max(max ?: it.value, it.value)
-                }
-                dataOrigins += recordInfo.dataOrigin
+            .forEach { recordInfo -> aggregator += recordInfo }
+    }
+
+    return aggregator.getResult()
+}
+
+private class SeriesAggregator<T : SeriesRecord<*>>(
+    recordType: KClass<T>,
+    val aggregateMetrics: Set<AggregateMetric<*>>
+) : Aggregator<RecordInfo> {
+
+    val avgData = AvgData()
+    var min: Double? = null
+    var max: Double? = null
+
+    override val dataOrigins = mutableSetOf<DataOrigin>()
+
+    override val doubleValues: Map<String, Double>
+        get() = buildMap {
+            for (metric in aggregateMetrics) {
+                val result =
+                    when (metric) {
+                        aggregateInfo.averageMetric -> avgData.average()
+                        aggregateInfo.maxMetric -> max!!
+                        aggregateInfo.minMetric -> min!!
+                        else -> error("Invalid fallback aggregation metric ${metric.metricKey}")
+                    }
+                put(metric.metricKey, result)
             }
-    }
+        }
 
-    if (dataOrigins.isEmpty()) {
-        return emptyAggregationResult()
-    }
+    val aggregateInfo =
+        RECORDS_TO_AGGREGATE_METRICS_INFO_MAP[recordType]
+            ?: throw IllegalArgumentException("Non supported fallback series record $recordType")
 
-    val doubleValues = buildMap {
-        for (metric in aggregateMetrics) {
-            val result =
-                when (metric) {
-                    aggregateInfo.averageMetric -> avgData.average()
-                    aggregateInfo.maxMetric -> max!!
-                    aggregateInfo.minMetric -> min!!
-                    else -> error("Invalid fallback aggregation metric ${metric.metricKey}")
-                }
-            put(metric.metricKey, result)
+    init {
+        check(
+            setOf(aggregateInfo.averageMetric, aggregateInfo.minMetric, aggregateInfo.maxMetric)
+                .containsAll(aggregateMetrics)
+        ) {
+            "Invalid set of metrics ${aggregateMetrics.map { it.metricKey }}"
         }
     }
 
-    return AggregationResult(
-        longValues = mapOf(),
-        doubleValues = doubleValues,
-        dataOrigins = dataOrigins
-    )
+    override fun plusAssign(value: RecordInfo) {
+        value.samples.forEach {
+            avgData += it.value
+            min = min(min ?: it.value, it.value)
+            max = max(max ?: it.value, it.value)
+        }
+        dataOrigins += value.dataOrigin
+    }
 }
 
 @VisibleForTesting
