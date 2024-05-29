@@ -51,171 +51,157 @@ class PagingDataAdapterTest {
     private val testScope = TestScope(StandardTestDispatcher())
 
     @get:Rule
-    val dispatcherRule = MainDispatcherRule(
-        testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
-    )
+    val dispatcherRule =
+        MainDispatcherRule(
+            testScope.coroutineContext[ContinuationInterceptor] as CoroutineDispatcher
+        )
 
     /*
      * Testing get(), size()
      */
     @Test
-    fun testGetItem() = testScope.runTest {
-        val pagingSource = TestPagingSource()
-        val pagingDataAdapter =
-            PagingDataAdapter(
-                diffCallback = DiffCallback,
-                workerDispatcher = Dispatchers.Main
-            )
-        val pager = Pager(
-            config = PagingConfig(
-                pageSize = 2,
-                prefetchDistance = 1,
-                enablePlaceholders = true,
-                initialLoadSize = 2
-            ),
-            initialKey = 50
-        ) {
-            pagingSource
+    fun testGetItem() =
+        testScope.runTest {
+            val pagingSource = TestPagingSource()
+            val pagingDataAdapter =
+                PagingDataAdapter(diffCallback = DiffCallback, workerDispatcher = Dispatchers.Main)
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 2,
+                            prefetchDistance = 1,
+                            enablePlaceholders = true,
+                            initialLoadSize = 2
+                        ),
+                    initialKey = 50
+                ) {
+                    pagingSource
+                }
+            val job = launch { pager.flow.collect { pagingDataAdapter.submitData(it) } }
+            testScheduler.advanceUntilIdle()
+            job.cancel()
+            assertEquals(null, pagingDataAdapter.get(90))
+            assertEquals(pagingSource.items.get(51), pagingDataAdapter.get(51))
+            assertEquals(pagingSource.items.size, pagingDataAdapter.size())
         }
-        val job = launch {
-            pager.flow.collect {
-                pagingDataAdapter.submitData(it)
-            }
-        }
-        testScheduler.advanceUntilIdle()
-        job.cancel()
-        assertEquals(null, pagingDataAdapter.get(90))
-        assertEquals(pagingSource.items.get(51), pagingDataAdapter.get(51))
-        assertEquals(pagingSource.items.size, pagingDataAdapter.size())
-    }
 
     /*
      * Testing loadStateListener callbacks
      */
     @Test
-    fun testLoadStateListenerCallbacks() = testScope.runTest {
-        val pagingDataAdapter =
-            PagingDataAdapter(
-                diffCallback = DiffCallback,
-                workerDispatcher = Dispatchers.Main
-            )
-        val loadEvents = mutableListOf<CombinedLoadStates>()
-        pagingDataAdapter.addLoadStateListener { loadEvents.add(it) }
-        val pager = Pager(
-            config = PagingConfig(
-                pageSize = 2,
-                prefetchDistance = 1,
-                enablePlaceholders = true,
-                initialLoadSize = 2
-            ),
-            initialKey = 50
-        ) {
-            TestPagingSource()
-        }
-        val job = launch {
-            pager.flow.collect {
-                pagingDataAdapter.submitData(it)
-            }
-        }
-        testScheduler.advanceUntilIdle()
-        // Assert that all load state updates are sent, even when differ enters fast path for
-        // empty previous list.
-        assertEvents(
-            listOf(
-                localLoadStatesOf(refreshLocal = LoadState.Loading),
-                localLoadStatesOf(
-                    refreshLocal = LoadState.NotLoading(endOfPaginationReached = false)
+    fun testLoadStateListenerCallbacks() =
+        testScope.runTest {
+            val pagingDataAdapter =
+                PagingDataAdapter(diffCallback = DiffCallback, workerDispatcher = Dispatchers.Main)
+            val loadEvents = mutableListOf<CombinedLoadStates>()
+            pagingDataAdapter.addLoadStateListener { loadEvents.add(it) }
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 2,
+                            prefetchDistance = 1,
+                            enablePlaceholders = true,
+                            initialLoadSize = 2
+                        ),
+                    initialKey = 50
+                ) {
+                    TestPagingSource()
+                }
+            val job = launch { pager.flow.collect { pagingDataAdapter.submitData(it) } }
+            testScheduler.advanceUntilIdle()
+            // Assert that all load state updates are sent, even when differ enters fast path for
+            // empty previous list.
+            assertEvents(
+                listOf(
+                    localLoadStatesOf(refreshLocal = LoadState.Loading),
+                    localLoadStatesOf(
+                        refreshLocal = LoadState.NotLoading(endOfPaginationReached = false)
+                    ),
                 ),
-            ),
-            loadEvents
-        )
-        loadEvents.clear()
-        job.cancel()
+                loadEvents
+            )
+            loadEvents.clear()
+            job.cancel()
 
-        pagingDataAdapter.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
-        testScheduler.advanceUntilIdle()
-        // Assert that all load state updates are sent, even when differ enters fast path for
-        // empty next list.
-        assertEvents(
-            expected = listOf(
-                localLoadStatesOf(
-                    refreshLocal = LoadState.NotLoading(endOfPaginationReached = false),
-                    prependLocal = LoadState.NotLoading(endOfPaginationReached = true),
-                    appendLocal = LoadState.NotLoading(endOfPaginationReached = true)
-                )
-            ),
-            actual = loadEvents
-        )
-    }
+            pagingDataAdapter.submitData(TestLifecycleOwner().lifecycle, PagingData.empty())
+            testScheduler.advanceUntilIdle()
+            // Assert that all load state updates are sent, even when differ enters fast path for
+            // empty next list.
+            assertEvents(
+                expected =
+                    listOf(
+                        localLoadStatesOf(
+                            refreshLocal = LoadState.NotLoading(endOfPaginationReached = false),
+                            prependLocal = LoadState.NotLoading(endOfPaginationReached = true),
+                            appendLocal = LoadState.NotLoading(endOfPaginationReached = true)
+                        )
+                    ),
+                actual = loadEvents
+            )
+        }
 
     @Test
-    fun snapshot() = testScope.runTest {
-        val pagingSource = TestPagingSource()
-        val pagingDataAdapter =
-            PagingDataAdapter(
-                diffCallback = DiffCallback,
-                workerDispatcher = Dispatchers.Main
+    fun snapshot() =
+        testScope.runTest {
+            val pagingSource = TestPagingSource()
+            val pagingDataAdapter =
+                PagingDataAdapter(diffCallback = DiffCallback, workerDispatcher = Dispatchers.Main)
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 2,
+                            prefetchDistance = 1,
+                            enablePlaceholders = true,
+                            initialLoadSize = 2
+                        ),
+                    initialKey = 50
+                ) {
+                    pagingSource
+                }
+            val job = launch { pager.flow.collectLatest { pagingDataAdapter.submitData(it) } }
+
+            assertEquals(listOf(), pagingDataAdapter.snapshot())
+
+            testScheduler.advanceUntilIdle()
+            assertEquals(
+                List(50) { null } + listOf(50, 51) + List(48) { null },
+                pagingDataAdapter.snapshot()
             )
-        val pager = Pager(
-            config = PagingConfig(
-                pageSize = 2,
-                prefetchDistance = 1,
-                enablePlaceholders = true,
-                initialLoadSize = 2
-            ),
-            initialKey = 50
-        ) {
-            pagingSource
+
+            job.cancel()
         }
-        val job = launch {
-            pager.flow.collectLatest {
-                pagingDataAdapter.submitData(it)
-            }
-        }
-
-        assertEquals(listOf(), pagingDataAdapter.snapshot())
-
-        testScheduler.advanceUntilIdle()
-        assertEquals(
-            List(50) { null } + listOf(50, 51) + List(48) { null },
-            pagingDataAdapter.snapshot()
-        )
-
-        job.cancel()
-    }
 
     @Test
-    fun peek() = testScope.runTest {
-        val pagingSource = TestPagingSource()
-        val pagingDataAdapter =
-            PagingDataAdapter(
-                diffCallback = DiffCallback,
-                workerDispatcher = Dispatchers.Main
-            )
-        val pager = Pager(
-            config = PagingConfig(
-                pageSize = 2,
-                prefetchDistance = 1,
-                enablePlaceholders = true,
-                initialLoadSize = 2
-            ),
-            initialKey = 50
-        ) {
-            pagingSource
-        }
-        val job = launch {
-            pager.flow.collectLatest {
-                pagingDataAdapter.submitData(it)
-            }
-        }
+    fun peek() =
+        testScope.runTest {
+            val pagingSource = TestPagingSource()
+            val pagingDataAdapter =
+                PagingDataAdapter(diffCallback = DiffCallback, workerDispatcher = Dispatchers.Main)
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 2,
+                            prefetchDistance = 1,
+                            enablePlaceholders = true,
+                            initialLoadSize = 2
+                        ),
+                    initialKey = 50
+                ) {
+                    pagingSource
+                }
+            val job = launch { pager.flow.collectLatest { pagingDataAdapter.submitData(it) } }
 
-        testScheduler.advanceUntilIdle()
-        assertEquals(null, pagingDataAdapter.peek(0))
-        assertEquals(50, pagingDataAdapter.peek(50))
-        assertEquals(null, pagingDataAdapter.peek(99))
+            testScheduler.advanceUntilIdle()
+            assertEquals(null, pagingDataAdapter.peek(0))
+            assertEquals(50, pagingDataAdapter.peek(50))
+            assertEquals(null, pagingDataAdapter.peek(99))
 
-        job.cancel()
-    }
+            job.cancel()
+        }
 }
 
 private object DiffCallback : DiffUtil.ItemCallback<Int>() {

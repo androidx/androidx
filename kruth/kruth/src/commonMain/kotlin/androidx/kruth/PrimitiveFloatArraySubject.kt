@@ -16,10 +16,9 @@
 
 package androidx.kruth
 
-/**
- * A Subject for [Char] arrays.
- */
-class PrimitiveFloatArraySubject internal constructor(
+/** A Subject for [Char] arrays. */
+class PrimitiveFloatArraySubject
+internal constructor(
     actual: FloatArray?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<FloatArray?>(actual, metadata = metadata, typeDescriptionOverride = "array") {
@@ -45,11 +44,10 @@ class PrimitiveFloatArraySubject internal constructor(
      * precision for the intermediate result.) This method is recommended when the code under test
      * is specified as either copying values without modification from its input or returning
      * well-defined literal or constant values.
-     *
-     * - It considers [Float.POSITIVE_INFINITY], [Float.NEGATIVE_INFINITY], and
-     * [Float.NaN] to be equal to themselves (contrast with `usingTolerance(0.0)` which does not).
+     * - It considers [Float.POSITIVE_INFINITY], [Float.NEGATIVE_INFINITY], and [Float.NaN] to be
+     *   equal to themselves (contrast with `usingTolerance(0.0)` which does not).
      * - It does *not* consider `-0.0` to be equal to `0.0` (contrast with `usingTolerance(0.0)`
-     * which does).
+     *   which does).
      */
     @Suppress("RedundantOverride") // Documented
     override fun isEqualTo(expected: Any?) {
@@ -62,9 +60,8 @@ class PrimitiveFloatArraySubject internal constructor(
      * actual array, and in the same position, with element equality defined the same way that
      * [Float.equals] define it (which is different to the way that the `==` operator on primitive
      * [Float] defines it). See [isEqualTo] for advice on when exact equality is recommended.
-     *
      * - It considers [Float.POSITIVE_INFINITY], [Float.NEGATIVE_INFINITY], and [Float.NaN] to be
-     * equal to themselves.
+     *   equal to themselves.
      * - It does *not* consider `-0.0` to be equal to `0.0`.
      */
     @Suppress("RedundantOverride") // Documented
@@ -91,7 +88,7 @@ class PrimitiveFloatArraySubject internal constructor(
         helper.hasLength(length)
     }
 
-    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject].*/
+    /** Converts this [PrimitiveBooleanArraySubject] to [IterableSubject]. */
     fun asList(): IterableSubject<Float> {
         requireNonNull(actual)
         return IterableSubject(actual = actual.asList(), metadata = metadata)

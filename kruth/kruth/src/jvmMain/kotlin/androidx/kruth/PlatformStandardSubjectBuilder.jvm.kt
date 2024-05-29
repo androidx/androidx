@@ -25,14 +25,20 @@ import java.math.BigDecimal
 internal actual interface PlatformStandardSubjectBuilder {
 
     fun that(actual: Class<*>): ClassSubject
+
     fun <T : Any> that(actual: Optional<T>): GuavaOptionalSubject<T>
+
     fun that(actual: BigDecimal): BigDecimalSubject
+
     fun <T> that(actual: Multiset<T>): MultisetSubject<T>
+
     fun <K, V> that(actual: Multimap<K, V>): MultimapSubject<K, V>
+
     fun <R, C, V> that(actual: Table<R, C, V>): TableSubject<R, C, V>
 }
 
-internal actual class PlatformStandardSubjectBuilderImpl actual constructor(
+internal actual class PlatformStandardSubjectBuilderImpl
+actual constructor(
     private val metadata: FailureMetadata,
 ) : PlatformStandardSubjectBuilder {
 

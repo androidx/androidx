@@ -24,9 +24,11 @@ import java.util.ArrayList
 import kotlin.math.ceil
 import kotlin.math.floor
 
-/** One [MotionEvent] approximately every 10 milliseconds. We care about this frequency because a
- * standard touchscreen operates at 100 Hz and therefore produces about one touch event every
- * 10 milliseconds.  We want to produce a similar frequency to emulate real world input events.*/
+/**
+ * One [MotionEvent] approximately every 10 milliseconds. We care about this frequency because a
+ * standard touchscreen operates at 100 Hz and therefore produces about one touch event every 10
+ * milliseconds. We want to produce a similar frequency to emulate real world input events.
+ */
 const val MOTION_EVENT_INTERVAL_MILLIS: Int = 10
 
 /**
@@ -39,9 +41,7 @@ const val MOTION_EVENT_INTERVAL_MILLIS: Int = 10
  */
 data class FlingData(val distance: Float, val time: Int) {
 
-    /**
-     * @property velocity Velocity of fling in pixels per millisecond.
-     */
+    /** @property velocity Velocity of fling in pixels per millisecond. */
     val velocity: Float = distance / time
 }
 
@@ -54,24 +54,28 @@ data class MotionEventData(
 )
 
 enum class Direction {
-    UP, DOWN, LEFT, RIGHT
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT
 }
 
-fun MotionEventData.toMotionEvent(downTime: Long): MotionEvent = MotionEvent.obtain(
-    downTime,
-    this.eventTimeDelta + downTime,
-    this.action,
-    this.x,
-    this.y,
-    this.metaState
-)
+fun MotionEventData.toMotionEvent(downTime: Long): MotionEvent =
+    MotionEvent.obtain(
+        downTime,
+        this.eventTimeDelta + downTime,
+        this.action,
+        this.x,
+        this.y,
+        this.metaState
+    )
 
 /**
  * Constructs a [FlingData] from a [Context] and [velocityPixelsPerSecond].
  *
  * [velocityPixelsPerSecond] must between [ViewConfiguration.getScaledMinimumFlingVelocity] * 1.1
- * and [ViewConfiguration.getScaledMaximumFlingVelocity] * .9, inclusive.  Losses of precision do
- * not allow the simulated fling to be super precise.
+ * and [ViewConfiguration.getScaledMaximumFlingVelocity] * .9, inclusive. Losses of precision do not
+ * allow the simulated fling to be super precise.
  */
 @JvmOverloads
 fun generateFlingData(context: Context, velocityPixelsPerSecond: Float? = null): FlingData {
@@ -82,8 +86,9 @@ fun generateFlingData(context: Context, velocityPixelsPerSecond: Float? = null):
 
     val targetPixelsPerMilli =
         if (velocityPixelsPerSecond != null) {
-            if (velocityPixelsPerSecond < minimumVelocity * 1.1 - .001f ||
-                velocityPixelsPerSecond > maximumVelocity * .9 + .001f
+            if (
+                velocityPixelsPerSecond < minimumVelocity * 1.1 - .001f ||
+                    velocityPixelsPerSecond > maximumVelocity * .9 + .001f
             ) {
                 throw IllegalArgumentException(
                     "velocityPixelsPerSecond must be between " +
@@ -106,9 +111,7 @@ fun generateFlingData(context: Context, velocityPixelsPerSecond: Float? = null):
     return FlingData(targetDistancePixels.toFloat(), targetMillisPassed)
 }
 
-/**
- *  Returns [value] rounded up to the closest [interval] * N, where N is a Integer.
- */
+/** Returns [value] rounded up to the closest [interval] * N, where N is a Integer. */
 private fun ceilToInterval(value: Int, interval: Int): Int =
     ceil(value.toFloat() / interval).toInt() * interval
 
@@ -120,51 +123,51 @@ fun FlingData.generateFlingMotionEventData(
     originX: Float,
     originY: Float,
     fingerDirection: Direction
-):
-    List<MotionEventData> {
+): List<MotionEventData> {
 
-        // Ceiling the time and distance to match up with motion event intervals.
-        val time: Int = ceilToInterval(this.time, MOTION_EVENT_INTERVAL_MILLIS)
-        val distance: Float = velocity * time
+    // Ceiling the time and distance to match up with motion event intervals.
+    val time: Int = ceilToInterval(this.time, MOTION_EVENT_INTERVAL_MILLIS)
+    val distance: Float = velocity * time
 
-        val dx: Float = when (fingerDirection) {
+    val dx: Float =
+        when (fingerDirection) {
             Direction.LEFT -> -distance
             Direction.RIGHT -> distance
             else -> 0f
         }
-        val dy: Float = when (fingerDirection) {
+    val dy: Float =
+        when (fingerDirection) {
             Direction.UP -> -distance
             Direction.DOWN -> distance
             else -> 0f
         }
-        val toX = originX + dx
-        val toY = originY + dy
+    val toX = originX + dx
+    val toY = originY + dy
 
-        val numberOfInnerEvents = (time / MOTION_EVENT_INTERVAL_MILLIS) - 1
-        val dxIncrement = dx / (numberOfInnerEvents + 1)
-        val dyIncrement = dy / (numberOfInnerEvents + 1)
+    val numberOfInnerEvents = (time / MOTION_EVENT_INTERVAL_MILLIS) - 1
+    val dxIncrement = dx / (numberOfInnerEvents + 1)
+    val dyIncrement = dy / (numberOfInnerEvents + 1)
 
-        val motionEventData = ArrayList<MotionEventData>()
-        motionEventData.add(MotionEventData(0, MotionEvent.ACTION_DOWN, originX, originY, 0))
-        for (i in 1..(numberOfInnerEvents)) {
-            val timeDelta = i * MOTION_EVENT_INTERVAL_MILLIS
-            val x = originX + (i * dxIncrement)
-            val y = originY + (i * dyIncrement)
-            motionEventData.add(MotionEventData(timeDelta, MotionEvent.ACTION_MOVE, x, y, 0))
-        }
-        motionEventData.add(MotionEventData(time, MotionEvent.ACTION_MOVE, toX, toY, 0))
-        motionEventData.add(MotionEventData(time, MotionEvent.ACTION_UP, toX, toY, 0))
-
-        return motionEventData
+    val motionEventData = ArrayList<MotionEventData>()
+    motionEventData.add(MotionEventData(0, MotionEvent.ACTION_DOWN, originX, originY, 0))
+    for (i in 1..(numberOfInnerEvents)) {
+        val timeDelta = i * MOTION_EVENT_INTERVAL_MILLIS
+        val x = originX + (i * dxIncrement)
+        val y = originY + (i * dyIncrement)
+        motionEventData.add(MotionEventData(timeDelta, MotionEvent.ACTION_MOVE, x, y, 0))
     }
+    motionEventData.add(MotionEventData(time, MotionEvent.ACTION_MOVE, toX, toY, 0))
+    motionEventData.add(MotionEventData(time, MotionEvent.ACTION_UP, toX, toY, 0))
+
+    return motionEventData
+}
 
 /**
  * Dispatches an array of [MotionEvent] to a [View].
  *
- * The MotionEvents will start at [downTime] and will be generated from the [motionEventData].
- * The MotionEvents will be dispatched synchronously, one after the other, with no gaps of time
- * in between each [MotionEvent].
- *
+ * The MotionEvents will start at [downTime] and will be generated from the [motionEventData]. The
+ * MotionEvents will be dispatched synchronously, one after the other, with no gaps of time in
+ * between each [MotionEvent].
  */
 fun View.dispatchTouchEvents(downTime: Long, motionEventData: List<MotionEventData>) {
     for (motionEventDataItem in motionEventData) {
@@ -175,7 +178,7 @@ fun View.dispatchTouchEvents(downTime: Long, motionEventData: List<MotionEventDa
 /**
  * Simulates a fling on a [View].
  *
- * Convenience method that calls other public api.  See documentation of those functions for more
+ * Convenience method that calls other public api. See documentation of those functions for more
  * detail.
  *
  * @see [generateFlingData]

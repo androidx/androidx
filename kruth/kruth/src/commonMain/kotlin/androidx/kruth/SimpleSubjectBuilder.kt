@@ -17,8 +17,8 @@
 package androidx.kruth
 
 /**
- * In a fluent assertion chain, exposes the most common [SimpleSubjectBuilder.that] method,
- * which accepts a value under test and returns a [Subject].
+ * In a fluent assertion chain, exposes the most common [SimpleSubjectBuilder.that] method, which
+ * accepts a value under test and returns a [Subject].
  *
  * For more information about the methods in this class, see
  * [this FAQ entry](https://truth.dev/faq#full-chain).
@@ -29,7 +29,8 @@ package androidx.kruth
  * [our doc on extensions](https://truth.dev/extension). It explains where [Subject.Factory] fits
  * into the process.
  */
-class SimpleSubjectBuilder<out S : Subject<T>, T> internal constructor(
+class SimpleSubjectBuilder<out S : Subject<T>, T>
+internal constructor(
     private val metadata: FailureMetadata,
     private val subjectFactory: Subject.Factory<S, T>,
 ) {

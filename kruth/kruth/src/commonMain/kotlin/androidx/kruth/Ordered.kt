@@ -17,9 +17,9 @@
 package androidx.kruth
 
 /**
- * Returned by calls like [IterableSubject.containsExactly], [Ordered] lets the caller
- * additionally check that the expected elements were present in the order they were passed to the
- * previous calls.
+ * Returned by calls like [IterableSubject.containsExactly], [Ordered] lets the caller additionally
+ * check that the expected elements were present in the order they were passed to the previous
+ * calls.
  *
  * ```
  * assertThat(supportedCharsets).containsExactly("UTF-8", "US-ASCII"); // does not check order

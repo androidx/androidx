@@ -30,16 +30,12 @@ class GuavaOptionalSubjectTest {
 
     @Test
     fun isPresentFailing() {
-        assertFailsWith<AssertionError> {
-            assertThat(Optional.absent()).isPresent()
-        }
+        assertFailsWith<AssertionError> { assertThat(Optional.absent()).isPresent() }
     }
 
     @Test
     fun isPresentFailingNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(null as Optional<Any>?).isPresent()
-        }
+        assertFailsWith<AssertionError> { assertThat(null as Optional<Any>?).isPresent() }
     }
 
     @Test
@@ -49,16 +45,12 @@ class GuavaOptionalSubjectTest {
 
     @Test
     fun isAbsentFailing() {
-        assertFailsWith<AssertionError> {
-            assertThat(Optional.of("foo")).isAbsent()
-        }
+        assertFailsWith<AssertionError> { assertThat(Optional.of("foo")).isAbsent() }
     }
 
     @Test
     fun isAbsentFailingNull() {
-        assertFailsWith<AssertionError> {
-            assertThat(null as Optional<Any>?).isAbsent()
-        }
+        assertFailsWith<AssertionError> { assertThat(null as Optional<Any>?).isAbsent() }
     }
 
     @Test
@@ -68,9 +60,7 @@ class GuavaOptionalSubjectTest {
 
     @Test
     fun hasValue_failingWithAbsent() {
-        assertFailsWith<AssertionError> {
-            assertThat(Optional.absent()).hasValue("foo")
-        }
+        assertFailsWith<AssertionError> { assertThat(Optional.absent()).hasValue("foo") }
     }
 
     @Test
@@ -85,8 +75,6 @@ class GuavaOptionalSubjectTest {
 
     @Test
     fun hasValue_failingWithWrongValue() {
-        assertFailsWith<AssertionError> {
-            assertThat(Optional.of("foo")).hasValue("boo")
-        }
+        assertFailsWith<AssertionError> { assertThat(Optional.of("foo")).hasValue("boo") }
     }
 }

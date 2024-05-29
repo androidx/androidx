@@ -18,7 +18,8 @@ package androidx.kruth
 
 internal actual interface PlatformStringSubject
 
-internal actual class PlatformStringSubjectImpl actual constructor(
+internal actual class PlatformStringSubjectImpl
+actual constructor(
     actual: String?,
     metadata: FailureMetadata,
 ) : Subject<String>(actual, metadata, typeDescriptionOverride = null), PlatformStringSubject

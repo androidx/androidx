@@ -24,11 +24,10 @@ import java.io.File
 import java.io.IOException
 import kotlin.reflect.KClass
 
-class FileTestIO : TestIO<JavaIOFile, IOException>(
-    getTmpDir = {
-        File(System.getProperty("java.io.tmpdir")).toJavaFile()
-    }
-) {
+class FileTestIO :
+    TestIO<JavaIOFile, IOException>(
+        getTmpDir = { File(System.getProperty("java.io.tmpdir")).toJavaFile() }
+    ) {
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
@@ -43,8 +42,7 @@ class FileTestIO : TestIO<JavaIOFile, IOException>(
         return IOException(message)
     }
 
-    override fun ioExceptionClass(): KClass<IOException> =
-        IOException::class
+    override fun ioExceptionClass(): KClass<IOException> = IOException::class
 }
 
 class JavaIOFile(val file: File) : TestFile<JavaIOFile>() {
@@ -65,14 +63,10 @@ class JavaIOFile(val file: File) : TestFile<JavaIOFile>() {
 
     override fun mkdirs(mustCreate: Boolean) {
         if (file.exists()) {
-            check(!mustCreate) {
-                "file $file already exists"
-            }
+            check(!mustCreate) { "file $file already exists" }
         }
         file.mkdirs()
-        check(file.isDirectory) {
-            "Failed to create directories for $file"
-        }
+        check(file.isDirectory) { "Failed to create directories for $file" }
     }
 
     override fun isRegularFile(): Boolean {

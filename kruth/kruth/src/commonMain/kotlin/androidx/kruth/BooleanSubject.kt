@@ -16,24 +16,19 @@
 
 package androidx.kruth
 
-/**
- * Propositions for boolean subjects.
- */
-class BooleanSubject internal constructor(
+/** Propositions for boolean subjects. */
+class BooleanSubject
+internal constructor(
     actual: Boolean?,
     metadata: FailureMetadata = FailureMetadata(),
 ) : Subject<Boolean>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
-    /**
-     * Fails if the subject is false or `null`.
-     */
+    /** Fails if the subject is false or `null`. */
     fun isFalse() {
         metadata.assertTrue(actual == false) { "expected to be false, but was $actual" }
     }
 
-    /**
-     * Fails if the subject is true or `null`.
-     */
+    /** Fails if the subject is true or `null`. */
     fun isTrue() {
         metadata.assertTrue(actual == true) { "expected to be true, but was $actual" }
     }

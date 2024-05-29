@@ -28,9 +28,7 @@ class StringSubjectJvmTest {
 
     @Test
     fun stringMatchesPatternWithFail() {
-        assertFailsWith<AssertionError> {
-            assertThat("abcaqadev").matches(".*aaa.*".toPattern())
-        }
+        assertFailsWith<AssertionError> { assertThat("abcaqadev").matches(".*aaa.*".toPattern()) }
     }
 
     @Test
@@ -42,9 +40,7 @@ class StringSubjectJvmTest {
 
     @Test
     fun stringMatchesPatternLiteralFail() {
-        assertFailsWith<AssertionError> {
-            assertThat("\$abc").matches("\$abc".toPattern())
-        }
+        assertFailsWith<AssertionError> { assertThat("\$abc").matches("\$abc".toPattern()) }
     }
 
     @Test
@@ -75,9 +71,7 @@ class StringSubjectJvmTest {
     @Test
     fun stringContainsMatchPattern() {
         assertThat("aba").containsMatch(".*b.*".toPattern())
-        assertFailsWith<AssertionError> {
-            assertThat("aaa").containsMatch(".*b.*".toPattern())
-        }
+        assertFailsWith<AssertionError> { assertThat("aaa").containsMatch(".*b.*".toPattern()) }
     }
 
     @Test

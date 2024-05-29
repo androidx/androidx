@@ -22,8 +22,8 @@ import android.util.AttributeSet
 import androidx.annotation.LayoutRes
 
 /**
- * This fragment watches its primary lifecycle events and throws IllegalStateException
- * if any of them are called out of order or from a bad/unexpected state.
+ * This fragment watches its primary lifecycle events and throws IllegalStateException if any of
+ * them are called out of order or from a bad/unexpected state.
  */
 open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(contentLayoutId) {
     var currentState: State = State.DETACHED
@@ -46,9 +46,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     }
 
     fun checkGetActivity() {
-        checkNotNull(activity) {
-            "getActivity() returned null at unexpected time"
-        }
+        checkNotNull(activity) { "getActivity() returned null at unexpected time" }
     }
 
     fun checkActivityNotDestroyed() {
@@ -69,16 +67,14 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
             expectString.append(" or ").append(expected[i])
         }
         throw IllegalStateException(
-            "$caller called while fragment was $currentState; " +
-                "expected $expectString"
+            "$caller called while fragment was $currentState; " + "expected $expectString"
         )
     }
 
     fun checkStateAtLeast(caller: String, minState: State) {
         if (currentState < minState) {
             throw IllegalStateException(
-                "$caller called while fragment was $currentState; " +
-                    "expected at least $minState"
+                "$caller called while fragment was $currentState; " + "expected at least $minState"
             )
         }
     }

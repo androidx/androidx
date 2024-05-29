@@ -37,8 +37,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 /**
- * An [ObjectAdapter] implemented with an [AsyncPagingDataDiffer].
- * It is an analogue of [androidx.paging.PagingDataAdapter] for leanback widgets.
+ * An [ObjectAdapter] implemented with an [AsyncPagingDataDiffer]. It is an analogue of
+ * [androidx.paging.PagingDataAdapter] for leanback widgets.
+ *
  * @param T Type of the item in the list.
  */
 class PagingDataAdapter<T : Any> : ObjectAdapter {
@@ -61,17 +62,14 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
                 notifyItemMoved(fromPosition, toPosition)
             }
 
-            override fun onChanged(
-                position: Int,
-                count: Int,
-                payload: Any?
-            ) {
+            override fun onChanged(position: Int, count: Int, payload: Any?) {
                 notifyItemRangeChanged(position, count, payload)
             }
         }
 
     /**
      * Constructs an adapter
+     *
      * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      * @param mainDispatcher The [CoroutineDispatcher] to be used for foreground operations
      * @param workerDispatcher The [CoroutineDispatcher] to be used for computing diff
@@ -86,16 +84,18 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         this.diffCallback = diffCallback
         this.mainDispatcher = mainDispatcher
         this.workerDispatcher = workerDispatcher
-        this.differ = AsyncPagingDataDiffer<T>(
-            diffCallback = diffCallback,
-            updateCallback = listUpdateCallback,
-            mainDispatcher = mainDispatcher,
-            workerDispatcher = workerDispatcher
-        )
+        this.differ =
+            AsyncPagingDataDiffer<T>(
+                diffCallback = diffCallback,
+                updateCallback = listUpdateCallback,
+                mainDispatcher = mainDispatcher,
+                workerDispatcher = workerDispatcher
+            )
     }
 
     /**
      * Constructs an adapter
+     *
      * @param presenter [Presenter]
      * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      * @param mainDispatcher The [CoroutineDispatcher] to be used for foreground operations
@@ -112,16 +112,18 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         this.diffCallback = diffCallback
         this.mainDispatcher = mainDispatcher
         this.workerDispatcher = workerDispatcher
-        this.differ = AsyncPagingDataDiffer<T>(
-            diffCallback = diffCallback,
-            updateCallback = listUpdateCallback,
-            mainDispatcher = mainDispatcher,
-            workerDispatcher = workerDispatcher
-        )
+        this.differ =
+            AsyncPagingDataDiffer<T>(
+                diffCallback = diffCallback,
+                updateCallback = listUpdateCallback,
+                mainDispatcher = mainDispatcher,
+                workerDispatcher = workerDispatcher
+            )
     }
 
     /**
      * Constructs an adapter
+     *
      * @param presenterSelector [PresenterSelector]
      * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      * @param mainDispatcher The [CoroutineDispatcher] to be used for foreground operations
@@ -138,12 +140,13 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         this.diffCallback = diffCallback
         this.mainDispatcher = mainDispatcher
         this.workerDispatcher = workerDispatcher
-        this.differ = AsyncPagingDataDiffer<T>(
-            diffCallback = diffCallback,
-            updateCallback = listUpdateCallback,
-            mainDispatcher = mainDispatcher,
-            workerDispatcher = workerDispatcher
-        )
+        this.differ =
+            AsyncPagingDataDiffer<T>(
+                diffCallback = diffCallback,
+                updateCallback = listUpdateCallback,
+                mainDispatcher = mainDispatcher,
+                workerDispatcher = workerDispatcher
+            )
     }
 
     /**
@@ -184,11 +187,11 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
     /**
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
      *
-     *  [PagingDataAdapter].
+     * [PagingDataAdapter].
      *
-     * [LoadState.Error] can be generated from two types of load requests:
-     * [PagingSource.load] returning [PagingSource.LoadResult.Error]
-     * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     * [LoadState.Error] can be generated from two types of load requests: [PagingSource.load]
+     * returning [PagingSource.LoadResult.Error] [RemoteMediator.load] returning
+     * [RemoteMediator.MediatorResult.Error]
      */
     fun retry() {
         differ.retry()
@@ -207,7 +210,6 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * [PagingSource.invalidate].
      *
      * @see PagingSource.invalidate
-     *
      */
     fun refresh() {
         differ.refresh()
@@ -232,8 +234,8 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
      * current [PagingData] changes.
      *
-     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
-     * immediately delivers the current load states on collection.
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and immediately
+     * delivers the current load states on collection.
      */
     val loadStateFlow: Flow<CombinedLoadStates>
         get() = differ.loadStateFlow
@@ -245,7 +247,6 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
      * reflect the current [CombinedLoadStates].
      *
      * @param listener [CombinedLoadStates] listener to receive updates.
-     *
      * @see removeLoadStateListener
      */
     fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
@@ -262,16 +263,14 @@ class PagingDataAdapter<T : Any> : ObjectAdapter {
         differ.removeLoadStateListener(listener)
     }
 
-    /**
-     * @return Total number of presented items, including placeholders.
-     */
+    /** @return Total number of presented items, including placeholders. */
     override fun size(): Int {
         return differ.itemCount
     }
 
     /**
-     * Returns the item for the given position. It will return null
-     * if placeholders are enabled and data is not yet loaded.
+     * Returns the item for the given position. It will return null if placeholders are enabled and
+     * data is not yet loaded.
      */
     override fun get(position: Int): T? {
         return differ.getItem(position)

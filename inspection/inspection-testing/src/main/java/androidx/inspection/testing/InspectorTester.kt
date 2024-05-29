@@ -45,14 +45,14 @@ import kotlinx.coroutines.withContext
 // dispose inspector;
 /**
  * Instantiate an inspector with the given [inspectorId] and all operations such as creation,
- * command dispatching are happening in the context of executors passed within [environment].
- * It is caller responsibility to shutdown those executors if the environment argument is passed.
- * If [environment] is unspecified or null, then [DefaultTestInspectorEnvironment] is used and
+ * command dispatching are happening in the context of executors passed within [environment]. It is
+ * caller responsibility to shutdown those executors if the environment argument is passed. If
+ * [environment] is unspecified or null, then [DefaultTestInspectorEnvironment] is used and
  * automatically disposed with [InspectorTester].
  *
  * You can pass [factoryOverride] to construct your inspector. This allows you to inject test
  * dependencies into the inspector, otherwise a factory for the given [inspectorId] will be looked
- * up in classpath and  [java.lang.AssertionError] will be thrown if it couldn't be found.
+ * up in classpath and [java.lang.AssertionError] will be thrown if it couldn't be found.
  */
 suspend fun InspectorTester(
     inspectorId: String,
@@ -60,17 +60,20 @@ suspend fun InspectorTester(
     factoryOverride: InspectorFactory<*>? = null
 ): InspectorTester {
     val inspectorTesterJob = Job()
-    val resolved = environment ?: DefaultTestInspectorEnvironment(
-        TestInspectorExecutors(inspectorTesterJob),
-        DefaultArtTooling(inspectorId).apply {
-            inspectorTesterJob.invokeOnCompletion { unregisterHooks() }
-        }
-    )
+    val resolved =
+        environment
+            ?: DefaultTestInspectorEnvironment(
+                TestInspectorExecutors(inspectorTesterJob),
+                DefaultArtTooling(inspectorId).apply {
+                    inspectorTesterJob.invokeOnCompletion { unregisterHooks() }
+                }
+            )
     val dispatcher = resolved.executors().primary().asCoroutineDispatcher()
     return withContext(dispatcher) {
         val loader = ServiceLoader.load(InspectorFactory::class.java)
         val factory =
-            factoryOverride ?: loader.iterator().asSequence().find { it.inspectorId == inspectorId }
+            factoryOverride
+                ?: loader.iterator().asSequence().find { it.inspectorId == inspectorId }
                 ?: throw AssertionError("Failed to find with inspector with $inspectorId")
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         val scope = CoroutineScope(dispatcher + inspectorTesterJob)
@@ -79,7 +82,8 @@ suspend fun InspectorTester(
     }
 }
 
-class InspectorTester internal constructor(
+class InspectorTester
+internal constructor(
     private val scope: CoroutineScope,
     private val inspector: Inspector,
     val channel: ReceiveChannel<ByteArray>
@@ -102,16 +106,18 @@ class InspectorTester internal constructor(
         // will be completed and once it is completed we can receive signal in async block and
         // cancel it.
         // More context at: https://github.com/Kotlin/kotlinx.coroutines/issues/1001
-        return scope.async {
-            callerJob.invokeOnCompletion {
-                if (it is CancellationException) {
-                    this.cancel()
+        return scope
+            .async {
+                callerJob.invokeOnCompletion {
+                    if (it is CancellationException) {
+                        this.cancel()
+                    }
+                }
+                suspendCancellableCoroutine<ByteArray> { cont ->
+                    inspector.onReceiveCommand(array, CommandCallbackImpl(cont))
                 }
             }
-            suspendCancellableCoroutine<ByteArray> { cont ->
-                inspector.onReceiveCommand(array, CommandCallbackImpl(cont))
-            }
-        }.await()
+            .await()
     }
 
     fun dispose() {
@@ -120,26 +126,23 @@ class InspectorTester internal constructor(
     }
 }
 
-internal class CommandCallbackImpl(
-    private val cont: CancellableContinuation<ByteArray>
-) : Inspector.CommandCallback {
+internal class CommandCallbackImpl(private val cont: CancellableContinuation<ByteArray>) :
+    Inspector.CommandCallback {
     override fun reply(response: ByteArray) {
         cont.resume(response)
     }
 
     override fun addCancellationListener(executor: Executor, runnable: Runnable) {
-        cont.invokeOnCancellation {
-            executor.execute(runnable)
-        }
+        cont.invokeOnCancellation { executor.execute(runnable) }
     }
 }
 
 /**
  * Default test implementation of InspectorEnvironment.
  *
- * It will use either [testInspectorExecutors] that are passed in constructor,
- * or create [TestInspectorExecutors] scoped to given job, than those executors will be shutdown
- * once job is complete.
+ * It will use either [testInspectorExecutors] that are passed in constructor, or create
+ * [TestInspectorExecutors] scoped to given job, than those executors will be shutdown once job is
+ * complete.
  */
 class DefaultTestInspectorEnvironment(
     private val testInspectorExecutors: InspectorExecutors,
@@ -172,13 +175,9 @@ class FakeArtTooling : ArtTooling {
     }
 }
 
-private class ConnectionImpl(
-    val scope: CoroutineScope,
-    val channel: SendChannel<ByteArray>
-) : Connection() {
+private class ConnectionImpl(val scope: CoroutineScope, val channel: SendChannel<ByteArray>) :
+    Connection() {
     override fun sendEvent(data: ByteArray) {
-        scope.launch {
-            channel.send(data)
-        }
+        scope.launch { channel.send(data) }
     }
 }

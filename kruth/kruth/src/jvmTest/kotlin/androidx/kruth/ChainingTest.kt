@@ -40,8 +40,7 @@ import org.junit.Test
 
 /** Tests for chained subjects (produced with [Subject.check], etc.). */
 class ChainingTest {
-    @get:Rule
-    val expectFailure = ExpectFailure()
+    @get:Rule val expectFailure = ExpectFailure()
 
     private val throwable = Throwable("root")
 
@@ -226,18 +225,18 @@ class ChainingTest {
 
     @Test
     fun badFormat() {
-        val stringSubjectWithBadFormat = object : StringSubject("root", FailureMetadata()) {
-            fun checkWithBadFormat() {
-                check("%s %s", 1, 2, 3)
+        val stringSubjectWithBadFormat =
+            object : StringSubject("root", FailureMetadata()) {
+                fun checkWithBadFormat() {
+                    check("%s %s", 1, 2, 3)
+                }
             }
-        }
 
         try {
             @Suppress("LenientFormatStringValidation") // Intentional for testing.
             stringSubjectWithBadFormat.checkWithBadFormat()
             assert_().fail()
-        } catch (expected: IllegalArgumentException) {
-        }
+        } catch (expected: IllegalArgumentException) {}
     }
 
     /*
@@ -245,10 +244,8 @@ class ChainingTest {
      *  pulling the type from the right link in the chain. But we get some coverage of that from
      *  other tests like MultimapSubjectTest.
      */
-    private class MyObjectSubject(
-        metadata: FailureMetadata,
-        actual: Any?
-    ) : Subject<Any>(metadata, actual) {
+    private class MyObjectSubject(metadata: FailureMetadata, actual: Any?) :
+        Subject<Any>(metadata, actual) {
         companion object {
             private val FACTORY: Factory<MyObjectSubject, Any> = Factory { metadata, actual ->
                 MyObjectSubject(metadata, actual)
@@ -288,10 +285,7 @@ class ChainingTest {
             return check(name).about(myObjects()).that(actual)
         }
 
-        fun delegatingToNamedNoNeedToDisplayBoth(
-            actual: Any,
-            name: String
-        ): MyObjectSubject {
+        fun delegatingToNamedNoNeedToDisplayBoth(actual: Any, name: String): MyObjectSubject {
             return checkNoNeedToDisplayBothValues(name).about(myObjects()).that(actual)
         }
     }

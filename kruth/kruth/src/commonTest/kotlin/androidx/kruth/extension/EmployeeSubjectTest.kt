@@ -46,9 +46,7 @@ class EmployeeSubjectTest {
 
     @Test
     fun locationEqualsFails() {
-        assertFailsWith<AssertionError> {
-            assertThat(employee).hasLocation(Location.MTV)
-        }
+        assertFailsWith<AssertionError> { assertThat(employee).hasLocation(Location.MTV) }
     }
 
     @Test
@@ -58,8 +56,6 @@ class EmployeeSubjectTest {
 
     @Test
     fun isCeoTrueFails() {
-        assertFailsWith<AssertionError> {
-            assertThat(employee).isCeo()
-        }
+        assertFailsWith<AssertionError> { assertThat(employee).isCeo() }
     }
 }

@@ -39,47 +39,47 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * Generates a file into META-INF/ folder that has version of androidx.inspection used
- * during complication. Android Studio checks compatibility of its version with version required
- * by inspector.
+ * Generates a file into META-INF/ folder that has version of androidx.inspection used during
+ * complication. Android Studio checks compatibility of its version with version required by
+ * inspector.
  */
 @DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     // ArtCollection can't be exposed as input as it is, so below there is "getCompileInputs"
     // that adds it properly as input.
-    @get:Internal
-    abstract var compileClasspath: ArtifactCollection
+    @get:Internal abstract var compileClasspath: ArtifactCollection
 
     @PathSensitive(PathSensitivity.NONE)
     @InputFiles
     fun getCompileInputs(): FileCollection = compileClasspath.artifactFiles
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @Input
     fun getVersion(): String {
         val artifacts = compileClasspath.artifacts
-        val projectDep = artifacts.any {
-            (it.id.componentIdentifier as? ProjectComponentIdentifier)?.projectPath ==
-                ":inspection:inspection"
-        }
+        val projectDep =
+            artifacts.any {
+                (it.id.componentIdentifier as? ProjectComponentIdentifier)?.projectPath ==
+                    ":inspection:inspection"
+            }
 
-        val prebuiltVersion = artifacts.mapNotNull {
-            it.id.componentIdentifier as? ModuleComponentIdentifier
-        }.firstOrNull { id ->
-            id.group == "androidx.inspection" && id.module == "inspection"
-        }?.version
+        val prebuiltVersion =
+            artifacts
+                .mapNotNull { it.id.componentIdentifier as? ModuleComponentIdentifier }
+                .firstOrNull { id ->
+                    id.group == "androidx.inspection" && id.module == "inspection"
+                }
+                ?.version
 
         return if (projectDep) {
             inspectionProjectVersion.get()
-        } else prebuiltVersion ?: throw GradleException(
-            "Inspector must have a dependency on androidx.inspection"
-        )
+        } else
+            prebuiltVersion
+                ?: throw GradleException("Inspector must have a dependency on androidx.inspection")
     }
 
-    @get:Internal
-    abstract val inspectionProjectVersion: Property<String>
+    @get:Internal abstract val inspectionProjectVersion: Property<String>
 
     @TaskAction
     fun exec() {
@@ -95,16 +95,20 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
     val name = variant.taskName("generateInspectionPlatformVersion")
     return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) { task ->
         @Suppress("UnstableApiUsage")
-        task.compileClasspath = variant.compileConfiguration.incoming.artifactView { artifact ->
-            artifact.attributes {
-                it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")
-            }
-        }.artifacts
+        task.compileClasspath =
+            variant.compileConfiguration.incoming
+                .artifactView { artifact ->
+                    artifact.attributes {
+                        it.attribute(
+                            Attribute.of("artifactType", String::class.java),
+                            "android-classes"
+                        )
+                    }
+                }
+                .artifacts
         task.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
         task.inspectionProjectVersion.set(
-            project.provider {
-                project.project(":inspection:inspection").version.toString()
-            }
+            project.provider { project.project(":inspection:inspection").version.toString() }
         )
     }
 }

@@ -29,7 +29,6 @@ import org.junit.runners.model.Statement
  * utility to assert about parts of the resulting failure messages.
  *
  * Usage:
- *
  * ```
  * val failure: AssertionError = expectFailure {
  *   whenTesting -> whenTesting.that(cancelButton).isVisible()
@@ -64,7 +63,7 @@ import org.junit.runners.model.Statement
  * [FailureStrategy.fail] only once.
  *
  * @constructor Creates a new instance for use as a `Rule`. See the class documentation for details,
- * and consider using [the lambda version][expectFailure] instead.
+ *   and consider using [the lambda version][expectFailure] instead.
  */
 class ExpectFailure : TestRule {
     private var inRuleContext = false
@@ -75,8 +74,8 @@ class ExpectFailure : TestRule {
      * Returns a test verb that expects the chained assertion to fail, and makes the failure
      * available via [getFailure].
      *
-     * An instance of [ExpectFailure] supports only one [whenTesting] call per test method.
-     * The static [expectFailure] method, by contrast, does not have this limitation.
+     * An instance of [ExpectFailure] supports only one [whenTesting] call per test method. The
+     * static [expectFailure] method, by contrast, does not have this limitation.
      */
     fun whenTesting(): StandardSubjectBuilder {
         require(inRuleContext) { "ExpectFailure must be used as a JUnit @Rule" }
@@ -113,9 +112,7 @@ class ExpectFailure : TestRule {
      */
     internal fun ensureFailureCaught() {
         if (failureExpected && failure == null) {
-            throw AssertionError(
-                "ExpectFailure.whenTesting() invoked, but no failure was caught."
-            )
+            throw AssertionError("ExpectFailure.whenTesting() invoked, but no failure was caught.")
         }
     }
 
@@ -134,7 +131,8 @@ class ExpectFailure : TestRule {
             throw AssertionError(
                 lenientFormat(
                     "ExpectFailure.whenTesting() caught multiple failures:\n\n%s\n\n%s\n",
-                    getStackTraceAsString(failure), getStackTraceAsString(captured)
+                    getStackTraceAsString(failure),
+                    getStackTraceAsString(captured)
                 )
             )
         }
@@ -145,7 +143,6 @@ class ExpectFailure : TestRule {
         /**
          * Static alternative that directly returns the triggered failure. This is intended to be
          * used in Java 8+ tests similar to `expectThrows`:
-         *
          * ```
          * val failure: AssertionError = expectFailure { whenTesting ->
          *   whenTesting.that(4).isNotEqualTo(4)
@@ -163,7 +160,6 @@ class ExpectFailure : TestRule {
         /**
          * Static alternative that directly returns the triggered failure. This is intended to be
          * used in Java 8+ tests similar to `expectThrows`:
-         *
          * ```
          * val failure: AssertionError = expectFailureAbout(myTypes()) { whenTesting ->
          *   whenTesting.that(myType).hasProperty()

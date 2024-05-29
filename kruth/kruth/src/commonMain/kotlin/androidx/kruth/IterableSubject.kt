@@ -23,19 +23,19 @@ import androidx.kruth.Fact.Companion.simpleFact
  * Propositions for [Iterable] subjects.
  *
  * **Note:**
- *
- * - Assertions may iterate through the given [Iterable] more than once. If you have an
- * unusual implementation of [Iterable] which does not support multiple iterations
- * (sometimes known as a "one-shot iterable"), you must copy your iterable into a collection
- * which does (e.g. `iterable.toList()`). If you don't, you may see surprising failures.
- * - Assertions may also require that the elements in the given [Iterable] implement
- * [Any.hashCode] correctly.
+ * - Assertions may iterate through the given [Iterable] more than once. If you have an unusual
+ *   implementation of [Iterable] which does not support multiple iterations (sometimes known as a
+ *   "one-shot iterable"), you must copy your iterable into a collection which does (e.g.
+ *   `iterable.toList()`). If you don't, you may see surprising failures.
+ * - Assertions may also require that the elements in the given [Iterable] implement [Any.hashCode]
+ *   correctly.
  *
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
- * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
 // Can't be final since MultisetSubject and SortedSetSubject extend it
-open class IterableSubject<T> protected constructor(
+open class IterableSubject<T>
+protected constructor(
     metadata: FailureMetadata,
     actual: Iterable<T>?,
 ) : Subject<Iterable<T>>(actual, metadata = metadata, typeDescriptionOverride = null) {
@@ -52,11 +52,10 @@ open class IterableSubject<T> protected constructor(
         when {
             (actual is List<*>) && (expected is List<*>) ->
                 containsExactlyElementsIn(expected).inOrder()
+            (actual is Set<*>) && (expected is Set<*>) -> containsExactlyElementsIn(expected)
 
-            (actual is Set<*>) && (expected is Set<*>) ->
-                containsExactlyElementsIn(expected)
-
-            // TODO(b/18430105): Consider a special message if comparing incompatible collection types
+            // TODO(b/18430105): Consider a special message if comparing incompatible collection
+            // types
             else -> super.isEqualTo(expected)
         }
     }
@@ -158,8 +157,8 @@ open class IterableSubject<T> protected constructor(
     }
 
     /**
-     * Checks that the subject contains at least one of the objects contained in the provided array or
-     * fails.
+     * Checks that the subject contains at least one of the objects contained in the provided array
+     * or fails.
      */
     fun containsAnyIn(expected: Array<out Any?>?) {
         containsAnyIn(requireNonNull(expected).asList())
@@ -178,8 +177,7 @@ open class IterableSubject<T> protected constructor(
         firstExpected: Any?,
         secondExpected: Any?,
         vararg restOfExpected: Any?,
-    ): Ordered =
-        containsAtLeastElementsIn(listOf(firstExpected, secondExpected, *restOfExpected))
+    ): Ordered = containsAtLeastElementsIn(listOf(firstExpected, secondExpected, *restOfExpected))
 
     /**
      * Checks that the actual iterable contains at least all of the expected elements or fails. If
@@ -203,9 +201,7 @@ open class IterableSubject<T> protected constructor(
             val index = actualList.indexOf(e)
             if (index != -1) { // if we find the element in the actual list...
                 // drain all the elements that come before that element into actualNotInOrder
-                repeat(index) {
-                    actualNotInOrder += actualList.removeAt(0)
-                }
+                repeat(index) { actualNotInOrder += actualList.removeAt(0) }
 
                 // and remove the element from the actual list
                 actualList.removeAt(0)
@@ -255,10 +251,9 @@ open class IterableSubject<T> protected constructor(
      * an element appears more than once in the expected elements then it must appear at least that
      * number of times in the actual elements.
      *
-     *
-     * To also test that the contents appear in the given order, make a call to `inOrder()`
-     * on the object returned by this method. The expected elements must appear in the given order
-     * within the actual elements, but they are not required to be consecutive.
+     * To also test that the contents appear in the given order, make a call to `inOrder()` on the
+     * object returned by this method. The expected elements must appear in the given order within
+     * the actual elements, but they are not required to be consecutive.
      */
     fun containsAtLeastElementsIn(expected: Array<out Any?>?): Ordered =
         containsAtLeastElementsIn(expected?.asList())
@@ -267,10 +262,11 @@ open class IterableSubject<T> protected constructor(
      * Checks that a subject contains exactly the provided objects or fails.
      *
      * Multiplicity is respected. For example, an object duplicated exactly 3 times in the
-     * parameters asserts that the object must likewise be duplicated exactly 3 times in the subject.
+     * parameters asserts that the object must likewise be duplicated exactly 3 times in the
+     * subject.
      *
-     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder]
-     * on the object returned by this method.
+     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder] on
+     * the object returned by this method.
      *
      * To test that the iterable contains the same elements as an array, prefer
      * [containsExactlyElementsIn]. It makes clear that the given array is a list of elements, not
@@ -286,8 +282,8 @@ open class IterableSubject<T> protected constructor(
      * [Iterable] parameter asserts that the object must likewise be duplicated exactly 3 times in
      * the subject.
      *
-     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder]
-     * on the object returned by this method.
+     * To also test that the contents appear in the given order, make a call to [Ordered.inOrder] on
+     * the object returned by this method.
      */
     fun containsExactlyElementsIn(required: Iterable<*>?): Ordered {
         val actualIter = requireNonNull(actual).iterator()
@@ -370,7 +366,8 @@ open class IterableSubject<T> protected constructor(
                              Contents match. Expected the order to also match, but was not.
                              Expected: $required.
                              Actual: $actual.
-                        """.trimIndent()
+                        """
+                            .trimIndent()
                     }
                 }
 
@@ -416,13 +413,11 @@ open class IterableSubject<T> protected constructor(
     /**
      * Checks that a subject contains exactly the [expected] objects or fails.
      *
-     *
      * Multiplicity is respected. For example, an object duplicated exactly 3 times in the array
      * parameter asserts that the object must likewise be duplicated exactly 3 times in the subject.
      *
-     *
-     * To also test that the contents appear in the given order, make a call to `inOrder()`
-     * on the object returned by this method.
+     * To also test that the contents appear in the given order, make a call to `inOrder()` on the
+     * object returned by this method.
      */
     fun containsExactlyElementsIn(expected: Array<out Any?>?): Ordered =
         containsExactlyElementsIn(expected?.asList())
@@ -479,16 +474,15 @@ open class IterableSubject<T> protected constructor(
 
     /**
      * Fails if the iterable is not strictly ordered, according to the given [comparator]. Strictly
-     * ordered means that each element in the iterable is *strictly* greater than the element
-     * that preceded it.
+     * ordered means that each element in the iterable is *strictly* greater than the element that
+     * preceded it.
      *
      * Note: star-projection in `Comparator<*>` is for compatibility with Truth.
      *
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      */
     fun isInStrictOrder(comparator: Comparator<*>?) {
-        @Suppress("UNCHECKED_CAST")
-        val cmp = requireNonNull(comparator) as Comparator<in Any?>
+        @Suppress("UNCHECKED_CAST") val cmp = requireNonNull(comparator) as Comparator<in Any?>
 
         verifyInOrder(
             predicate = { a, b -> cmp.compare(a, b) < 0 },
@@ -515,8 +509,7 @@ open class IterableSubject<T> protected constructor(
      * @throws ClassCastException if any pair of elements is not mutually Comparable
      */
     fun isInOrder(comparator: Comparator<*>?) {
-        @Suppress("UNCHECKED_CAST")
-        val cmp = requireNonNull(comparator) as Comparator<in Any?>
+        @Suppress("UNCHECKED_CAST") val cmp = requireNonNull(comparator) as Comparator<in Any?>
 
         verifyInOrder(
             predicate = { a, b -> cmp.compare(a, b) <= 0 },
@@ -528,14 +521,11 @@ open class IterableSubject<T> protected constructor(
         predicate: (a: Any?, b: Any?) -> Boolean,
         message: (a: Any?, b: Any?) -> String,
     ) {
-        requireNonNull(actual)
-            .asSequence()
-            .zipWithNext(::Pair)
-            .forEach { (a, b) ->
-                if (!predicate(a, b)) {
-                    failWithActual(simpleFact(message(a, b)))
-                }
+        requireNonNull(actual).asSequence().zipWithNext(::Pair).forEach { (a, b) ->
+            if (!predicate(a, b)) {
+                failWithActual(simpleFact(message(a, b)))
             }
+        }
     }
 
     @Deprecated(

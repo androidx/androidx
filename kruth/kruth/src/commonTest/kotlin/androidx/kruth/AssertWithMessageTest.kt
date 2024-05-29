@@ -28,16 +28,12 @@ class AssertWithMessageTest {
 
     @Test
     fun that_customObjects_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.that(Some(value = 0)).isEqualTo(Some(value = 1))
-        }
+        assertFailsWithMessage { assert.that(Some(value = 0)).isEqualTo(Some(value = 1)) }
     }
 
     @Test
     fun that_comparable_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.that(1).isLessThan(0)
-        }
+        assertFailsWithMessage { assert.that(1).isLessThan(0) }
     }
 
     @Test
@@ -49,30 +45,22 @@ class AssertWithMessageTest {
 
     @Test
     fun that_boolean_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.that(false).isTrue()
-        }
+        assertFailsWithMessage { assert.that(false).isTrue() }
     }
 
     @Test
     fun that_string_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.that("Str").contains("NonExistentString")
-        }
+        assertFailsWithMessage { assert.that("Str").contains("NonExistentString") }
     }
 
     @Test
     fun that_iterable_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.that(listOf(1, 2, 3)).contains(4)
-        }
+        assertFailsWithMessage { assert.that(listOf(1, 2, 3)).contains(4) }
     }
 
     @Test
     fun fail_errorContainsMessage() {
-        assertFailsWithMessage {
-            assert.fail()
-        }
+        assertFailsWithMessage { assert.fail() }
     }
 
     private fun assertFailsWithMessage(block: () -> Unit) {

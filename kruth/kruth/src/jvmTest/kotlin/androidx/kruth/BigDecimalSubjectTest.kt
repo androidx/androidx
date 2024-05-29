@@ -40,27 +40,21 @@ class BigDecimalSubjectTest {
         assertThat(TEN).isEqualToIgnoringScale(TEN)
         assertThat(TEN).isEqualToIgnoringScale(BigDecimal(10))
 
-        assertFailsWith<AssertionError> {
-            assertThat(TEN).isEqualToIgnoringScale(BigDecimal(3))
-        }
+        assertFailsWith<AssertionError> { assertThat(TEN).isEqualToIgnoringScale(BigDecimal(3)) }
     }
 
     @Test
     fun isEqualToIgnoringScale_int() {
         assertThat(TEN).isEqualToIgnoringScale(10)
 
-        assertFailsWith<AssertionError> {
-            assertThat(TEN).isEqualToIgnoringScale(3)
-        }
+        assertFailsWith<AssertionError> { assertThat(TEN).isEqualToIgnoringScale(3) }
     }
 
     @Test
     fun isEqualToIgnoringScale_long() {
         assertThat(TEN).isEqualToIgnoringScale(10L)
 
-        assertFailsWith<AssertionError> {
-            assertThat(TEN).isEqualToIgnoringScale(3L)
-        }
+        assertFailsWith<AssertionError> { assertThat(TEN).isEqualToIgnoringScale(3L) }
     }
 
     @Test
@@ -70,8 +64,6 @@ class BigDecimalSubjectTest {
         assertThat(TEN).isEqualToIgnoringScale("10.0")
         assertThat(TEN).isEqualToIgnoringScale("10.00")
 
-        assertFailsWith<AssertionError> {
-            assertThat(TEN).isEqualToIgnoringScale("3")
-        }
+        assertFailsWith<AssertionError> { assertThat(TEN).isEqualToIgnoringScale("3") }
     }
 }

@@ -32,9 +32,7 @@ class TableSubjectTest {
     @Test
     fun tableIsEmptyWithFailure() {
         val table = ImmutableTable.of(1, 5, 7)
-        assertFailsWith<AssertionError> {
-            assertThat(table).isEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(table).isEmpty() }
     }
 
     @Test
@@ -46,9 +44,7 @@ class TableSubjectTest {
     @Test
     fun tableIsNotEmptyWithFailure() {
         val table = ImmutableTable.of<Int, Int, Int>()
-        assertFailsWith<AssertionError> {
-            assertThat(table).isNotEmpty()
-        }
+        assertFailsWith<AssertionError> { assertThat(table).isNotEmpty() }
     }
 
     @Test
@@ -78,9 +74,7 @@ class TableSubjectTest {
     fun containsFailure() {
         val table = ImmutableTable.of("row", "col", "val")
 
-        assertFailsWith<AssertionError> {
-            assertThat(table).contains("row", "otherCol")
-        }
+        assertFailsWith<AssertionError> { assertThat(table).contains("row", "otherCol") }
     }
 
     @Test
@@ -95,9 +89,7 @@ class TableSubjectTest {
     @Test
     fun doesNotContainFailure() {
         val table = ImmutableTable.of("row", "col", "val")
-        assertFailsWith<AssertionError> {
-            assertThat(table).doesNotContain("row", "col")
-        }
+        assertFailsWith<AssertionError> { assertThat(table).doesNotContain("row", "col") }
     }
 
     @Test
@@ -110,9 +102,7 @@ class TableSubjectTest {
     @Test
     fun containsCellFailure() {
         val table = ImmutableTable.of("row", "col", "val")
-        assertFailsWith<AssertionError> {
-            assertThat(table).containsCell("row", "row", "val")
-        }
+        assertFailsWith<AssertionError> { assertThat(table).containsCell("row", "row", "val") }
     }
 
     @Test

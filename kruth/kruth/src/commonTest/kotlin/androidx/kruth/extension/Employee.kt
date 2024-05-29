@@ -16,9 +16,7 @@
 
 package androidx.kruth.extension
 
-/**
- * Example custom subject class.
- */
+/** Example custom subject class. */
 class Employee(
     val username: String,
     val id: String,
@@ -27,6 +25,9 @@ class Employee(
     val isCeo: Boolean,
 ) {
     enum class Location {
-        MTV, PIT, CHI, NYC
+        MTV,
+        PIT,
+        CHI,
+        NYC
     }
 }

@@ -27,66 +27,50 @@ import androidx.navigation.get
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
+/** Construct a new [TestNavigator.Destination] */
 inline fun NavGraphBuilder.test(@IdRes id: Int) = test(id) {}
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
+/** Construct a new [TestNavigator.Destination] */
 inline fun NavGraphBuilder.test(route: String) = test(route) {}
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
-inline fun <reified T : Any> NavGraphBuilder.test(
-    typeMap: Map<KType, NavType<*>> = emptyMap()
-) = test<T>(typeMap) {}
+/** Construct a new [TestNavigator.Destination] */
+inline fun <reified T : Any> NavGraphBuilder.test(typeMap: Map<KType, NavType<*>> = emptyMap()) =
+    test<T>(typeMap) {}
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
+/** Construct a new [TestNavigator.Destination] */
 @Suppress("DEPRECATION")
 inline fun NavGraphBuilder.test(
     @IdRes id: Int,
     builder: TestNavigatorDestinationBuilder.() -> Unit
-) = destination(
-    TestNavigatorDestinationBuilder(
-        provider[TestNavigator::class],
-        id
-    ).apply(builder)
-)
+) = destination(TestNavigatorDestinationBuilder(provider[TestNavigator::class], id).apply(builder))
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
+/** Construct a new [TestNavigator.Destination] */
 inline fun NavGraphBuilder.test(
     route: String,
     builder: TestNavigatorDestinationBuilder.() -> Unit
-) = destination(
-    TestNavigatorDestinationBuilder(provider[TestNavigator::class], route).apply(builder)
-)
+) =
+    destination(
+        TestNavigatorDestinationBuilder(provider[TestNavigator::class], route).apply(builder)
+    )
 
-/**
- * Construct a new [TestNavigator.Destination]
- */
+/** Construct a new [TestNavigator.Destination] */
 inline fun <reified T : Any> NavGraphBuilder.test(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: TestNavigatorDestinationBuilder.() -> Unit
-) = destination(
-    TestNavigatorDestinationBuilder(provider[TestNavigator::class], T::class, typeMap)
-        .apply(builder)
-)
+) =
+    destination(
+        TestNavigatorDestinationBuilder(provider[TestNavigator::class], T::class, typeMap)
+            .apply(builder)
+    )
 
-/**
- * DSL for constructing a new [TestNavigator.Destination]
- */
+/** DSL for constructing a new [TestNavigator.Destination] */
 @NavDestinationDsl
 class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Destination> {
     @Suppress("DEPRECATION")
     constructor(navigator: TestNavigator, @IdRes id: Int = 0) : super(navigator, id)
+
     constructor(navigator: TestNavigator, route: String) : super(navigator, route)
+
     constructor(
         navigator: TestNavigator,
         route: KClass<*>,

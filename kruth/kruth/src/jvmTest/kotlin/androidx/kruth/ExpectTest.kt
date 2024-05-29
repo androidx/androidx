@@ -32,16 +32,14 @@ import org.junit.rules.ExpectedException
 import org.junit.rules.TestRule
 import org.junit.runners.model.Statement
 
-/**
- * Tests (and effectively sample code) for the Expect verb (implemented as a rule)
- */
+/** Tests (and effectively sample code) for the Expect verb (implemented as a rule) */
 class ExpectTest {
     private val oopsNotARule: Expect = Expect.create()
     private val expect: Expect = Expect.create()
 
-    // We use ExpectedException so that we can test our code that runs after the test method completes.
-    @Suppress("DEPRECATION")
-    private val thrown: ExpectedException = ExpectedException.none()
+    // We use ExpectedException so that we can test our code that runs after the test method
+    // completes.
+    @Suppress("DEPRECATION") private val thrown: ExpectedException = ExpectedException.none()
     private val postTestWait: TestRule = TestRule { base, _ ->
         object : Statement() {
             override fun evaluate() {
@@ -54,7 +52,8 @@ class ExpectTest {
     private val testMethodComplete: CountDownLatch = CountDownLatch(1)
 
     /**
-     * A task that the main thread will await, to be provided by tests that do work in other threads.
+     * A task that the main thread will await, to be provided by tests that do work in other
+     * threads.
      */
     private var taskToAwait: Future<*> = immediateFuture(null)
 
@@ -94,9 +93,7 @@ class ExpectTest {
         thrown.expectMessage("10 expectations failed:")
         thrown.expectMessage(" 1. x")
         thrown.expectMessage("10. x")
-        repeat(10) {
-            expect.withMessage("x").fail()
-        }
+        repeat(10) { expect.withMessage("x").fail() }
     }
 
     @Test
@@ -104,9 +101,7 @@ class ExpectTest {
         thrown.expectMessage("10 expectations failed:")
         thrown.expectMessage(" 1. abc\n      xyz")
         thrown.expectMessage("10. abc\n      xyz")
-        repeat(10) {
-            expect.withMessage("abc\nxyz").fail()
-        }
+        repeat(10) { expect.withMessage("abc\nxyz").fail() }
     }
 
     @Test
@@ -154,9 +149,7 @@ class ExpectTest {
     @Test
     fun bash() = runTest {
         val results = mutableListOf<Deferred<*>>()
-        repeat(500) {
-            results.add(async { expect.that(3).isEqualTo(4) })
-        }
+        repeat(500) { results.add(async { expect.that(3).isEqualTo(4) }) }
         results.awaitAll()
         thrown.expectMessage("500 expectations failed:")
     }
@@ -164,12 +157,11 @@ class ExpectTest {
     @Test
     fun failWhenCallingThatAfterTest() {
         val executor = newSingleThreadExecutor()
-        taskToAwait = executor.submit {
-            awaitUninterruptibly(testMethodComplete)
-            assertFailsWith<IllegalStateException> {
-                expect.that(3)
+        taskToAwait =
+            executor.submit {
+                awaitUninterruptibly(testMethodComplete)
+                assertFailsWith<IllegalStateException> { expect.that(3) }
             }
-        }
         executor.shutdown()
     }
 
@@ -182,13 +174,13 @@ class ExpectTest {
          * IllegalStateException, not record a "failure" that we never read.
          */
         val expectThat3 = expect.that(3)
-        taskToAwait = executor.submit {
-            awaitUninterruptibly(testMethodComplete)
-            val expectedException = assertFailsWith<IllegalStateException> {
-                expectThat3.isEqualTo(4)
+        taskToAwait =
+            executor.submit {
+                awaitUninterruptibly(testMethodComplete)
+                val expectedException =
+                    assertFailsWith<IllegalStateException> { expectThat3.isEqualTo(4) }
+                assertThat(expectedException).hasCauseThat().isInstanceOf<AssertionError>()
             }
-            assertThat(expectedException).hasCauseThat().isInstanceOf<AssertionError>()
-        }
         executor.shutdown()
     }
 }
