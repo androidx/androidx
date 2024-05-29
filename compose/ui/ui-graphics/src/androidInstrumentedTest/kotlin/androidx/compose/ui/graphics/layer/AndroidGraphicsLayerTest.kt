@@ -762,6 +762,88 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testShadowColors() {
+        var layer: GraphicsLayer? = null
+        var left = 0
+        var top = 0
+        var right = 0
+        var bottom = 0
+        val targetColor = Color.White
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val halfSize = IntSize(
+                    (this.size.width / 2f).toInt(),
+                    (this.size.height / 2f).toInt()
+                )
+
+                layer = graphicsContext.createGraphicsLayer().apply {
+                    record(halfSize) {
+                        drawRect(targetColor)
+                    }
+                    shadowElevation = 10f
+                    spotShadowColor = Color.Red
+                    ambientShadowColor = Color.Blue
+                }
+                drawRect(targetColor)
+
+                left = (this.size.width / 4f).toInt()
+                top = (this.size.width / 4f).toInt()
+                right = left + halfSize.width
+                bottom = top + halfSize.height
+                translate(this.size.width / 4, this.size.height / 4) {
+                    drawLayer(layer!!)
+                }
+            },
+            verify = { pixmap ->
+                var shadowPixelCount = 0
+                var redCount = 0
+                var blueCount = 0
+                val ambientShadowColor: Color
+                val spotShadowColor: Color
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ambientShadowColor = Color.Blue
+                    spotShadowColor = Color.Red
+                } else {
+                    ambientShadowColor = Color.Black
+                    spotShadowColor = Color.Black
+                }
+
+                // Verify the correct shadow color behavior on the supported platform version
+                assertEquals(layer!!.spotShadowColor, spotShadowColor)
+                assertEquals(layer!!.ambientShadowColor, ambientShadowColor)
+
+                // Shadow verification requires the PixelCopy API which is only introduced
+                // in Android O.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    with(pixmap) {
+                        for (x in left until right) {
+                            for (y in top until bottom) {
+                                if (this[x, y] != targetColor) {
+                                    shadowPixelCount++
+                                    if (this[x, y].red >= 0f) {
+                                        redCount++
+                                    }
+                                    if (this[x, y].blue >= 0f) {
+                                        blueCount++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    assertTrue(shadowPixelCount > 0)
+                    // Colored shadows are only supported on Android P and above
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        assertTrue(redCount > 0)
+                        assertTrue(blueCount > 0)
+                    }
+                }
+            },
+            usePixelCopy = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+        )
+    }
+
     // Test requires validation of elevation shadows which require readback operations from
     // the PixelCopy APIs
     @Test

@@ -802,11 +802,11 @@ actual class GraphicsLayer internal constructor(
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var ambientShadowColor: Color = Color.Black
+    actual var ambientShadowColor: Color
+        get() = impl.ambientShadowColor
         set(value) {
-            if (field != value) {
+            if (value != impl.ambientShadowColor) {
                 impl.ambientShadowColor = value
-                field = value
             }
         }
 
@@ -823,11 +823,11 @@ actual class GraphicsLayer internal constructor(
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var spotShadowColor: Color = Color.Black
+    actual var spotShadowColor: Color
+        get() = impl.spotShadowColor
         set(value) {
-            if (field != value) {
+            if (value != impl.spotShadowColor) {
                 impl.spotShadowColor = value
-                field = value
             }
         }
 
