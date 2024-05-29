@@ -252,7 +252,7 @@ public final class Preview extends UseCase {
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
+            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(mCameraEdge, camera));
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
             mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
         } else {
@@ -279,12 +279,11 @@ public final class Preview extends UseCase {
     }
 
     @MainThread
-    private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge,
+    private void onAppEdgeInvalidated(@NonNull SurfaceEdge cameraEdge,
             @NonNull CameraInternal camera) {
         checkMainThread();
         if (camera == getCamera()) {
-            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
-            sendSurfaceRequest();
+            cameraEdge.invalidate();
         }
     }
 
@@ -687,7 +686,6 @@ public final class Preview extends UseCase {
      * {@link DynamicRange#UNSPECIFIED}
      *
      * @return the dynamic range set for this {@code Preview} use case.
-     *
      * @see Preview.Builder#setDynamicRange(DynamicRange)
      */
     // Internal implementation note: this method should not be used to retrieve the dynamic range
@@ -1349,7 +1347,6 @@ public final class Preview extends UseCase {
          *
          * @param enabled True if enable, otherwise false.
          * @return the current Builder.
-         *
          * @see PreviewCapabilities#isStabilizationSupported()
          */
         @NonNull

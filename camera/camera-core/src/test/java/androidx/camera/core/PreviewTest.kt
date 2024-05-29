@@ -465,14 +465,14 @@ class PreviewTest {
     }
 
     @Test
-    fun invalidateAppSurfaceRequestWithProcessing_cameraNotReset() {
+    fun invalidateAppSurfaceRequestWithProcessing_cameraReset() {
         // Arrange: create Preview with processing.
         val surfaceRequest = createPreview(effect).mCurrentSurfaceRequest
         // Act: invalidate.
         surfaceRequest!!.invalidate()
         shadowOf(getMainLooper()).idle()
         // Assert: preview is not reset.
-        assertThat(backCamera.useCaseResetHistory).isEmpty()
+        assertThat(backCamera.useCaseResetHistory).containsExactly(previewToDetach)
     }
 
     @Test
