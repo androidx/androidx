@@ -283,7 +283,12 @@ abstract class StudioTask : DefaultTask() {
         filename: String,
         destinationPath: String
     ) {
-        val url = "https://dl.google.com/dl/android/studio/ide-zips/$studioVersion/$filename"
+        val url =
+            if (filename.contains("-mac")) {
+                "https://dl.google.com/dl/android/studio/install/$studioVersion/$filename"
+            } else {
+                "https://dl.google.com/dl/android/studio/ide-zips/$studioVersion/$filename"
+            }
         val tmpDownloadPath = File("$destinationPath.tmp").absolutePath
         println("Downloading $url to $tmpDownloadPath")
         execOperations.exec { execSpec ->
@@ -301,9 +306,7 @@ abstract class StudioTask : DefaultTask() {
         val fromPath = studioArchivePath
         val toPath = studioInstallationDir.absolutePath
         println("Extracting to $toPath...")
-        execOperations.exec { execSpec ->
-            platformUtilities.extractArchive(fromPath, toPath, execSpec)
-        }
+        platformUtilities.extractArchive(fromPath, toPath, execOperations)
         // Remove studio archive once done
         File(studioArchivePath).delete()
     }

@@ -18,7 +18,7 @@ package androidx.build.studio
 
 import java.io.File
 import java.util.Locale
-import org.gradle.process.ExecSpec
+import org.gradle.process.ExecOperations
 
 /**
  * Utility class containing helper functions and values that change between Linux and OSX
@@ -50,7 +50,7 @@ sealed class StudioPlatformUtilities(val projectRoot: File, val studioInstallati
     abstract val StudioTask.licensePath: String
 
     /** Extracts an archive at [fromPath] with [archiveExtension] to [toPath] */
-    abstract fun extractArchive(fromPath: String, toPath: String, execSpec: ExecSpec)
+    abstract fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations)
 
     /**
      * Updates the Jvm heap size for this Studio installation.
@@ -91,7 +91,7 @@ sealed class StudioPlatformUtilities(val projectRoot: File, val studioInstallati
 private class MacOsUtilities(projectRoot: File, studioInstallationDir: File) :
     StudioPlatformUtilities(projectRoot, studioInstallationDir) {
     override val archiveExtension: String
-        get() = ".zip"
+        get() = ".dmg"
 
     override val StudioTask.binaryDirectory: File
         get() {
@@ -118,11 +118,28 @@ private class MacOsUtilities(projectRoot: File, studioInstallationDir: File) :
     override val StudioTask.licensePath: String
         get() = File(binaryDirectory, "Contents/Resources/LICENSE.txt").absolutePath
 
-    override fun extractArchive(fromPath: String, toPath: String, execSpec: ExecSpec) {
-        with(execSpec) {
-            executable("unzip")
-            args(fromPath, "-d", toPath)
+    override fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations) {
+        val mountPoint = File.createTempFile("mount", null)
+        mountPoint.delete()
+        mountPoint.mkdir()
+        execOperations.exec { execOperation ->
+            with(execOperation) {
+                executable("hdiutil")
+                args("attach", fromPath, "-noverify", "-mountpoint", mountPoint.absolutePath)
+            }
         }
+        execOperations.exec { execOperation ->
+            with(execOperation) {
+                commandLine("sh", "-c", "cp -R ${mountPoint.absolutePath}/*.app $toPath")
+            }
+        }
+        execOperations.exec { execOperation ->
+            with(execOperation) {
+                executable("hdiutil")
+                args("detach", mountPoint.absolutePath)
+            }
+        }
+        mountPoint.delete()
     }
 
     override fun StudioTask.updateJvmHeapSize() {
@@ -172,10 +189,12 @@ private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
     override val StudioTask.licensePath: String
         get() = File(binaryDirectory, "LICENSE.txt").absolutePath
 
-    override fun extractArchive(fromPath: String, toPath: String, execSpec: ExecSpec) {
-        with(execSpec) {
-            executable("tar")
-            args("-xf", fromPath, "-C", toPath)
+    override fun extractArchive(fromPath: String, toPath: String, execOperations: ExecOperations) {
+        execOperations.exec { execOperation ->
+            with(execOperation) {
+                executable("tar")
+                args("-xf", fromPath, "-C", toPath)
+            }
         }
     }
 
