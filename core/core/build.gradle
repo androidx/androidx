@@ -108,4 +108,5 @@ androidx {
             "features."
     failOnDeprecationWarnings = false
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

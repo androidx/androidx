@@ -46,6 +46,7 @@ androidx {
     inceptionYear = "2019"
     description = "AndroidX Autofill"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

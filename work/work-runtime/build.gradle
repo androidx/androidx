@@ -109,4 +109,5 @@ androidx {
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

@@ -93,6 +93,7 @@ androidx {
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

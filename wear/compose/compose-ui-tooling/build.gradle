@@ -48,5 +48,6 @@ androidx {
     inceptionYear = "2023"
     description = "Tools for Wear Composable"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:compose:compose-material-samples"))
 }

@@ -70,4 +70,5 @@ androidx {
     inceptionYear = "2021"
     description = "AndroidX RemoteViews Support"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

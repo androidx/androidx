@@ -40,6 +40,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata-core' artifact"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

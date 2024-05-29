@@ -37,5 +37,6 @@ androidx {
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 

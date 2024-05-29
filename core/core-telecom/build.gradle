@@ -66,4 +66,5 @@ androidx {
     inceptionYear = "2023"
     description = "Integrate VoIP calls with the Telecom framework."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

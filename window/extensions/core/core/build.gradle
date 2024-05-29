@@ -57,4 +57,5 @@ androidx {
     inceptionYear = "2022"
     description = "The Core APIs for Window Manager Library Extensions"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

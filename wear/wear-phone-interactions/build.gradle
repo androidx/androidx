@@ -78,5 +78,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Phone Interactions"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:wear-phone-interactions-samples"))
 }
