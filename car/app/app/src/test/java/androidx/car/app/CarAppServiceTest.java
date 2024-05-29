@@ -81,7 +81,7 @@ public final class CarAppServiceTest {
     }
 
     @Test
-    public void onUnbind_destroysSession() {
+    public void onUnbind_destroysSessionAndRemovesReferenceToService() {
         Intent bindIntent = new Intent();
         SessionInfo clusterSessionInfo = new SessionInfo(DISPLAY_TYPE_CLUSTER, "test-id");
         SessionInfoIntentEncoder.encode(clusterSessionInfo, bindIntent);
@@ -89,9 +89,11 @@ public final class CarAppServiceTest {
 
         assertThat(binder.getCurrentSession()).isNotNull();
         assertThat(mCarAppService.getSession(clusterSessionInfo)).isNotNull();
+        assertThat(binder.getCarAppService()).isNotNull();
         assertThat(mCarAppService.onUnbind(bindIntent)).isTrue();
 
         assertThat(binder.getCurrentSession()).isNull();
+        assertThat(binder.getCarAppService()).isNull();
         assertThat(mCarAppService.getSession(clusterSessionInfo)).isNull();
     }
 
