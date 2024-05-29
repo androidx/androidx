@@ -62,6 +62,10 @@ internal class LayoutTreeConsistencyChecker(
                 // `onRequestMeasure` will be called for all items in `postponedMeasureRequests`
                 return true
             }
+            if (isDeactivated) {
+                // remeasure/relayout requests for deactivated nodes are ignored
+                return true
+            }
             // remeasure or relayout is scheduled
             if (measurePending) {
                 return relayoutNodes.contains(this) ||
