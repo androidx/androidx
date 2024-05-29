@@ -16,8 +16,8 @@
 
 package androidx.navigation.serialization
 
-import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import kotlinx.serialization.KSerializer

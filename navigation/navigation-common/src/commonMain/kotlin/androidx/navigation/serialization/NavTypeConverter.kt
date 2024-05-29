@@ -18,7 +18,7 @@
 
 package androidx.navigation.serialization
 
-import android.os.Bundle
+import androidx.core.bundle.Bundle
 import androidx.navigation.NavType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi

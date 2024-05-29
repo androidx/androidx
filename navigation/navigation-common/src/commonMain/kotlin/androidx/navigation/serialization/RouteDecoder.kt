@@ -16,8 +16,8 @@
 
 package androidx.navigation.serialization
 
-import android.os.Bundle
-import androidx.core.os.bundleOf
+import androidx.core.bundle.Bundle
+import androidx.core.bundle.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import kotlinx.serialization.DeserializationStrategy
