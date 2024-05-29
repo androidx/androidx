@@ -18,14 +18,16 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.util.Collections.emptyList;
+
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
-import android.view.Surface;
 
+import androidx.camera.camera2.internal.compat.workaround.TemplateParamsOverride;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.Quirks;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,9 +46,11 @@ public class Camera2CaptureRequestBuilderTest {
     public void buildCaptureRequestWithNullCameraDevice() throws CameraAccessException {
         CameraDevice cameraDevice = null;
         CaptureConfig captureConfig = new CaptureConfig.Builder().build();
+        TemplateParamsOverride noOpTemplateParamsOverride = new TemplateParamsOverride(
+                new Quirks(emptyList()));
 
         CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(captureConfig,
-                cameraDevice, new HashMap<DeferrableSurface, Surface>(), true);
+                cameraDevice, new HashMap<>(), true, noOpTemplateParamsOverride);
 
         assertThat(captureRequest).isNull();
     }

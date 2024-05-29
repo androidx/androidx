@@ -40,6 +40,7 @@ import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat
 import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
 import androidx.camera.camera2.internal.compat.workaround.RequestMonitor;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
+import androidx.camera.camera2.internal.compat.workaround.TemplateParamsOverride;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.DynamicRange;
@@ -121,6 +122,7 @@ final class CaptureSession implements CaptureSessionInterface {
     private final TorchStateReset mTorchStateReset = new TorchStateReset();
     private final RequestMonitor mRequestMonitor;
     private final DynamicRangesCompat mDynamicRangesCompat;
+    private final TemplateParamsOverride mTemplateParamsOverride;
 
     /**
      * Constructor for CaptureSession without CameraQuirk.
@@ -139,6 +141,7 @@ final class CaptureSession implements CaptureSessionInterface {
         mCaptureSessionStateCallback = new StateCallback();
         mRequestMonitor = new RequestMonitor(
                 cameraQuirks != null && cameraQuirks.contains(CaptureNoResponseQuirk.class));
+        mTemplateParamsOverride = new TemplateParamsOverride(cameraQuirks);
     }
 
     @Override
@@ -336,7 +339,8 @@ final class CaptureSession implements CaptureSessionInterface {
                     try {
                         CaptureRequest captureRequest =
                                 Camera2CaptureRequestBuilder.buildWithoutTarget(
-                                        sessionParameterConfigBuilder.build(), cameraDevice);
+                                        sessionParameterConfigBuilder.build(), cameraDevice,
+                                        mTemplateParamsOverride);
                         if (captureRequest != null) {
                             sessionConfigCompat.setSessionParameters(captureRequest);
                         }
@@ -647,7 +651,7 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.d(TAG, "Issuing request for session.");
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfig, mSynchronizedCaptureSession.getDevice(),
-                        mConfiguredSurfaceMap, true);
+                        mConfiguredSurfaceMap, true, mTemplateParamsOverride);
                 if (captureRequest == null) {
                     Logger.d(TAG, "Skipping issuing empty request for session.");
                     return -1;
@@ -757,7 +761,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                             captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
-                            mConfiguredSurfaceMap, false);
+                            mConfiguredSurfaceMap, false, mTemplateParamsOverride);
                     if (captureRequest == null) {
                         Logger.d(TAG, "Skipping issuing request without surface.");
                         return -1;

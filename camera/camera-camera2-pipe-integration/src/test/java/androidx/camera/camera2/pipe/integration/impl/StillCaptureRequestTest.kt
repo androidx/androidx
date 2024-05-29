@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -420,6 +421,7 @@ class StillCaptureRequestTest {
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
                 threads = fakeUseCaseThreads,
                 sessionProcessorManager = null,
+                templateParamsOverride = NoOpTemplateParamsOverride,
             )
         val torchControl =
             TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads)

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.Preview
@@ -64,6 +65,7 @@ constructor(
     useCaseGraphConfig: UseCaseGraphConfig,
     private val threads: UseCaseThreads,
     private val sessionProcessorManager: SessionProcessorManager?,
+    private val templateParamsOverride: TemplateParamsOverride,
 ) {
     private val lock = Any()
 
@@ -276,7 +278,9 @@ constructor(
                                 Request(
                                     template = currentTemplate,
                                     streams = currentStreams.toList(),
-                                    parameters = currentParameters.toMap(),
+                                    parameters =
+                                        templateParamsOverride.getOverrideParams(currentTemplate) +
+                                            currentParameters.toMap(),
                                     extras =
                                         currentInternalParameters.toMutableMap().also { parameters
                                             ->
