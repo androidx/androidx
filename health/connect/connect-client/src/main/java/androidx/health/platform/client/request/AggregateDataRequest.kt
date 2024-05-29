@@ -21,9 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
-/**
- * Internal wrapper to help transfer protos over ipc.
- */
+/** Internal wrapper to help transfer protos over ipc. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class AggregateDataRequest(override val proto: RequestProto.AggregateDataRequest) :
     ProtoParcelable<RequestProto.AggregateDataRequest>() {

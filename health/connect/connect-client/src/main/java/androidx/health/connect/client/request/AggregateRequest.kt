@@ -26,7 +26,6 @@ import androidx.health.connect.client.time.TimeRangeFilter
  * @param metrics Set of [AggregateMetric]s to aggregate.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
- *
  * @see HealthConnectClient.aggregate
  */
 class AggregateRequest(

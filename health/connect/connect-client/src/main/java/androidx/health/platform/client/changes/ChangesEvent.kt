@@ -21,9 +21,7 @@ import androidx.health.platform.client.impl.OnChangesListenerProxy
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ChangeProto
 
-/**
- * Returned via [OnChangesListenerProxy].
- */
+/** Returned via [OnChangesListenerProxy]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ChangesEvent(override val proto: ChangeProto.ChangesEvent) :
     ProtoParcelable<ChangeProto.ChangesEvent>() {

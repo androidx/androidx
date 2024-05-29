@@ -68,9 +68,8 @@ public class MenstruationFlowRecord(
         val FLOW_TYPE_INT_TO_STRING_MAP: Map<Int, String> =
             FLOW_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
-    /**
-     * How heavy the user's menstruation flow was.
-     */
+
+    /** How heavy the user's menstruation flow was. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [FLOW_UNKNOWN, FLOW_LIGHT, FLOW_MEDIUM, FLOW_HEAVY])
     @RestrictTo(RestrictTo.Scope.LIBRARY)

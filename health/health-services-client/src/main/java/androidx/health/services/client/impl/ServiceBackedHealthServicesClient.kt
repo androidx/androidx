@@ -41,8 +41,10 @@ internal class ServiceBackedHealthServicesClient(context: Context) :
 
     override val exerciseClient: ExerciseClient
         get() = ServiceBackedExerciseClient(applicationContext)
+
     override val passiveMonitoringClient: PassiveMonitoringClient
         get() = ServiceBackedPassiveMonitoringClient(applicationContext)
+
     override val measureClient: MeasureClient
         get() = ServiceBackedMeasureClient(applicationContext)
 

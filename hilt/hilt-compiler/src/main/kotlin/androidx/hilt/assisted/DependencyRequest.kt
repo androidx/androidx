@@ -24,9 +24,7 @@ import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 
-/**
- * Data class that represents a binding request for an assisted injected type.
- */
+/** Data class that represents a binding request for an assisted injected type. */
 internal data class DependencyRequest(
     val name: String,
     val type: TypeName,
@@ -36,14 +34,12 @@ internal data class DependencyRequest(
     val isProvider = type is ParameterizedTypeName && type.rawType == ClassNames.PROVIDER
 
     val providerTypeName: TypeName = let {
-        val type = if (isProvider) {
-            type // Do not wrap a Provider inside another Provider.
-        } else {
-            ParameterizedTypeName.get(
-                ClassNames.PROVIDER,
-                type.box()
-            )
-        }
+        val type =
+            if (isProvider) {
+                type // Do not wrap a Provider inside another Provider.
+            } else {
+                ParameterizedTypeName.get(ClassNames.PROVIDER, type.box())
+            }
         if (qualifier != null) {
             type.annotated(qualifier)
         } else {
@@ -53,16 +49,16 @@ internal data class DependencyRequest(
 }
 
 internal fun XVariableElement.toDependencyRequest(): DependencyRequest {
-    val qualifier = getAllAnnotations().find {
-        it.qualifiedName == "javax.inject.Qualifier"
-    }?.toAnnotationSpec(includeDefaultValues = false)
+    val qualifier =
+        getAllAnnotations()
+            .find { it.qualifiedName == "javax.inject.Qualifier" }
+            ?.toAnnotationSpec(includeDefaultValues = false)
     return DependencyRequest(
         name = this.name,
         type = this.type.asTypeName().toJavaPoet(),
-        isAssisted = (
-            this.hasAnnotation(ClassNames.ANDROIDX_ASSISTED) ||
-                this.hasAnnotation(ClassNames.ASSISTED)
-            ) && qualifier == null,
+        isAssisted =
+            (this.hasAnnotation(ClassNames.ANDROIDX_ASSISTED) ||
+                this.hasAnnotation(ClassNames.ASSISTED)) && qualifier == null,
         qualifier = qualifier
     )
 }

@@ -27,20 +27,17 @@ import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV19
 import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
-/**
- * Utility class that provides some helper methods for interacting EGL Extension APIs
- */
+/** Utility class that provides some helper methods for interacting EGL Extension APIs */
 @Suppress("AcronymName")
 class EGLExt private constructor() {
 
     companion object {
 
         /**
-         * Determines if applications can query the age of the back buffer contents for an
-         * EGL surface as the number of frames elapsed since the contents were recently defined
+         * Determines if applications can query the age of the back buffer contents for an EGL
+         * surface as the number of frames elapsed since the contents were recently defined
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_buffer_age.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_buffer_age.txt
          */
         const val EGL_EXT_BUFFER_AGE = "EGL_EXT_buffer_age"
 
@@ -48,8 +45,7 @@ class EGLExt private constructor() {
          * Allows for efficient partial updates to an area of a **buffer** that has changed since
          * the last time the buffer was used
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
          */
         const val EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update"
 
@@ -64,36 +60,32 @@ class EGLExt private constructor() {
         const val EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage"
 
         /**
-         * Determines whether to use sRGB format default framebuffers to render sRGB
-         * content to display devices. Supports creation of EGLSurfaces which will be rendered to in
-         * sRGB by OpenGL contexts supporting that capability.
+         * Determines whether to use sRGB format default framebuffers to render sRGB content to
+         * display devices. Supports creation of EGLSurfaces which will be rendered to in sRGB by
+         * OpenGL contexts supporting that capability.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
          */
         const val EGL_KHR_GL_COLORSPACE = "EGL_KHR_gl_colorspace"
 
         /**
          * Determines whether creation of GL and ES contexts without an EGLConfig is allowed
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_no_config_context.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_no_config_context.txt
          */
         const val EGL_KHR_NO_CONFIG_CONTEXT = "EGL_KHR_no_config_context"
 
         /**
          * Determines whether floating point RGBA components are supported
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_pixel_format_float.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_pixel_format_float.txt
          */
         const val EGL_EXT_PIXEL_FORMAT_FLOAT = "EGL_EXT_pixel_format_float"
 
         /**
          * Determines whether extended sRGB color spaces are supported options for EGL Surfaces
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_scrgb.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_scrgb.txt
          */
         const val EGL_EXT_GL_COLORSPACE_SCRGB = "EGL_EXT_gl_colorspace_scrgb"
 
@@ -120,19 +112,17 @@ class EGLExt private constructor() {
          * Determines whether an EGLContext can be created with a priority hint. Not all
          * implementations are guaranteed to honor the hint.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/IMG/EGL_IMG_context_priority.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/IMG/EGL_IMG_context_priority.txt
          */
         const val EGL_IMG_CONTEXT_PRIORITY = "EGL_IMG_context_priority"
 
         /**
-         * Determines whether creation of an EGL Context without a surface is supported.
-         * This is useful for applications that only want to render to client API targets (such as
-         * OpenGL framebuffer objects) and avoid the need to a throw-away EGL surface just to get
-         * a current context.
+         * Determines whether creation of an EGL Context without a surface is supported. This is
+         * useful for applications that only want to render to client API targets (such as OpenGL
+         * framebuffer objects) and avoid the need to a throw-away EGL surface just to get a current
+         * context.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
          */
         const val EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context"
 
@@ -140,19 +130,17 @@ class EGLExt private constructor() {
          * Determines whether sync objects are supported. Sync objects are synchronization
          * primitives that represent events whose completion can be tested or waited upon.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
         const val EGL_KHR_FENCE_SYNC = "EGL_KHR_fence_sync"
 
         /**
          * Determines whether waiting for signaling of sync objects is supported. This form of wait
          * does not necessarily block the application thread which issued the wait. Therefore
-         * applications may continue to issue commands to the client API or perform other work
-         * in parallel leading to increased performance.
+         * applications may continue to issue commands to the client API or perform other work in
+         * parallel leading to increased performance.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_wait_sync.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_wait_sync.txt
          */
         const val EGL_KHR_WAIT_SYNC = "EGL_KHR_wait_sync"
 
@@ -169,70 +157,64 @@ class EGLExt private constructor() {
         /**
          * Enables using an Android window buffer (struct ANativeWindowBuffer) as an EGLImage source
          *
-         * See: https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_image_native_buffer.txt
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_image_native_buffer.txt
          */
         const val EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer"
 
         /**
-         * Extension for supporting a new EGL resource type that is suitable for
-         * sharing 2D arrays of image data between client APIs, the EGLImage.
-         * Although the intended purpose is sharing 2D image data, the
-         * underlying interface makes no assumptions about the format or
-         * purpose of the resource being shared, leaving those decisions to
-         * the application and associated client APIs.
+         * Extension for supporting a new EGL resource type that is suitable for sharing 2D arrays
+         * of image data between client APIs, the EGLImage. Although the intended purpose is sharing
+         * 2D image data, the underlying interface makes no assumptions about the format or purpose
+         * of the resource being shared, leaving those decisions to the application and associated
+         * client APIs.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
          */
         const val EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base"
 
         /**
-         * Extension that allows creating an EGLClientBuffer from an Android [HardwareBuffer]
-         * object which can later be used to create an [EGLImageKHR] instance.
-         * See:
+         * Extension that allows creating an EGLClientBuffer from an Android [HardwareBuffer] object
+         * which can later be used to create an [EGLImageKHR] instance. See:
          * https://registry.khronos.org/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
          */
         const val EGL_ANDROID_CLIENT_BUFFER = "EGL_ANDROID_get_native_client_buffer"
 
         /**
-         * Extension that defines a new EGL resource type that is suitable for
-         * sharing 2D arrays of image data between client APIs, the EGLImage,
-         * and allows creating EGLImages from EGL native pixmaps.
+         * Extension that defines a new EGL resource type that is suitable for sharing 2D arrays of
+         * image data between client APIs, the EGLImage, and allows creating EGLImages from EGL
+         * native pixmaps.
          *
-         * See:
-         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image.txt
+         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image.txt
          */
         const val EGL_KHR_IMAGE = "EGL_KHR_image"
 
-        /**
-         * Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR]
-         */
+        /** Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
         annotation class EGLSyncAttribute
 
         /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * The results can be either [EGL_SYNC_FENCE_KHR] or [EGL_SYNC_NATIVE_FENCE_ANDROID].
+         * Attribute that can be queried in [eglGetSyncAttribKHR]. The results can be either
+         * [EGL_SYNC_FENCE_KHR] or [EGL_SYNC_NATIVE_FENCE_ANDROID].
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
         const val EGL_SYNC_TYPE_KHR = 0x30F7
 
         /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * The results can be either [EGL_SIGNALED_KHR] or [EGL_UNSIGNALED_KHR] representing
-         * whether or not the sync object has been signalled or not.
-         * This can be queried on all sync object types.
+         * Attribute that can be queried in [eglGetSyncAttribKHR]. The results can be either
+         * [EGL_SIGNALED_KHR] or [EGL_UNSIGNALED_KHR] representing whether or not the sync object
+         * has been signalled or not. This can be queried on all sync object types.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
         const val EGL_SYNC_STATUS_KHR = 0x30F1
 
         /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * This attribute can only be queried on sync objects of the type [EGL_SYNC_FENCE_KHR].
+         * Attribute that can be queried in [eglGetSyncAttribKHR]. This attribute can only be
+         * queried on sync objects of the type [EGL_SYNC_FENCE_KHR].
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
@@ -255,45 +237,41 @@ class EGLExt private constructor() {
         const val EGL_UNSIGNALED_KHR = 0x30F3
 
         /**
-         * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_CONDITION_KHR].
-         * This indicates that the sync object will signal on the condition of the completion
-         * of the fence command on the corresponding sync object and all preceding commands
-         * in th EGL client API's command stream.
+         * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_CONDITION_KHR]. This
+         * indicates that the sync object will signal on the condition of the completion of the
+         * fence command on the corresponding sync object and all preceding commands in th EGL
+         * client API's command stream.
          */
         const val EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 0x30F0
 
-        /**
-         * Specifies the type of fence to create in [eglCreateSyncKHR]
-         */
+        /** Specifies the type of fence to create in [eglCreateSyncKHR] */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Suppress("AcronymName")
         @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
         annotation class EGLFenceType
 
         /**
-         * Create an EGL fence sync object for signalling one time events. The fence object
-         * created is not associated with the Android Sync fence object and is not recommended
-         * for waiting for events in a portable manner across Android/EGL boundaries but rather
-         * other EGL primitives.
+         * Create an EGL fence sync object for signalling one time events. The fence object created
+         * is not associated with the Android Sync fence object and is not recommended for waiting
+         * for events in a portable manner across Android/EGL boundaries but rather other EGL
+         * primitives.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          */
         const val EGL_SYNC_FENCE_KHR = 0x30F9
 
         /**
-         * This extension enables the creation of EGL fence sync objects that are
-         * associated with a native synchronization fence object that is referenced
-         * using a file descriptor.  These EGL fence sync objects have nearly
-         * identical semantics to those defined by the KHR_fence_sync extension,
-         * except that they have an additional attribute storing the file descriptor
-         * referring to the native fence object. This differs from EGL_SYNC_FENCE_KHR
-         * as the fence sync object is associated with an Android Sync HAL fence object.
+         * This extension enables the creation of EGL fence sync objects that are associated with a
+         * native synchronization fence object that is referenced using a file descriptor. These EGL
+         * fence sync objects have nearly identical semantics to those defined by the KHR_fence_sync
+         * extension, except that they have an additional attribute storing the file descriptor
+         * referring to the native fence object. This differs from EGL_SYNC_FENCE_KHR as the fence
+         * sync object is associated with an Android Sync HAL fence object.
          *
-         * This extension assumes the existence of a native fence synchronization
-         * object that behaves similarly to an EGL fence sync object.  These native
-         * objects must have a signal status like that of an EGLSyncKHR object that
-         * indicates whether the fence has ever been signaled.  Once signaled the
-         * native object's signal status may not change again.
+         * This extension assumes the existence of a native fence synchronization object that
+         * behaves similarly to an EGL fence sync object. These native objects must have a signal
+         * status like that of an EGLSyncKHR object that indicates whether the fence has ever been
+         * signaled. Once signaled the native object's signal status may not change again.
          *
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
@@ -301,17 +279,15 @@ class EGLExt private constructor() {
         const val EGL_SYNC_NATIVE_FENCE_ANDROID = 0x3144
 
         /**
-         * Value that can be sent as the timeoutNanos parameter of [eglClientWaitSyncKHR]
-         * indicating that waiting on the sync object to signal will never time out.
+         * Value that can be sent as the timeoutNanos parameter of [eglClientWaitSyncKHR] indicating
+         * that waiting on the sync object to signal will never time out.
          */
         // Note EGL has EGL_FOREVER_KHR defined as 0xFFFFFFFFFFFFFFFFuL. However, Java does not
         // support unsigned long types. So use -1 as the constant value here as it will be casted
         // as an EGLTimeKHR type which is uint64 in the corresponding JNI method
         const val EGL_FOREVER_KHR = -1L
 
-        /**
-         * Specifies various return values for the [eglClientWaitSyncKHR] method
-         */
+        /** Specifies various return values for the [eglClientWaitSyncKHR] method */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.TYPE)
         @Suppress("AcronymName")
@@ -338,29 +314,24 @@ class EGLExt private constructor() {
          */
         const val EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 0x0001
 
-        /**
-         * Constant indicating true within EGL. This is often returned in success cases.
-         */
+        /** Constant indicating true within EGL. This is often returned in success cases. */
         const val EGL_TRUE = 1
 
-        /**
-         * Constant indicating false within EGL. This is often returned in failure cases.
-         */
+        /** Constant indicating false within EGL. This is often returned in failure cases. */
         const val EGL_FALSE = 0
 
         /**
-         * Creates an EGLImage from the provided [HardwareBuffer]. This handles
-         * internally creating an EGLClientBuffer and an [EGLImageKHR] from the client buffer.
+         * Creates an EGLImage from the provided [HardwareBuffer]. This handles internally creating
+         * an EGLClientBuffer and an [EGLImageKHR] from the client buffer.
          *
-         * When this [EGLImageKHR] instance is no longer necessary, consumers should be sure to
-         * call the corresponding method [eglDestroyImageKHR] to deallocate the resource.
+         * When this [EGLImageKHR] instance is no longer necessary, consumers should be sure to call
+         * the corresponding method [eglDestroyImageKHR] to deallocate the resource.
          *
          * @param eglDisplay EGLDisplay connection associated with the EGLImage to create
          * @param hardwareBuffer Backing [HardwareBuffer] for the generated EGLImage instance
-         *
          * @return an [EGLImageKHR] instance representing the [EGLImageKHR] created from the
-         * HardwareBuffer. Because this is created internally through EGL's eglCreateImageKR method,
-         * this has the KHR suffix.
+         *   HardwareBuffer. Because this is created internally through EGL's eglCreateImageKR
+         *   method, this has the KHR suffix.
          *
          * This can return null if the EGL_ANDROID_image_native_buffer and EGL_KHR_image_base
          * extensions are not supported or if allocation of the buffer fails.
@@ -374,9 +345,8 @@ class EGLExt private constructor() {
             eglDisplay: EGLDisplay,
             hardwareBuffer: HardwareBuffer
         ): EGLImageKHR? {
-            val handle = EGLBindings.nCreateImageFromHardwareBuffer(
-                eglDisplay.nativeHandle, hardwareBuffer
-            )
+            val handle =
+                EGLBindings.nCreateImageFromHardwareBuffer(eglDisplay.nativeHandle, hardwareBuffer)
             return if (handle == 0L) {
                 null
             } else {
@@ -387,26 +357,20 @@ class EGLExt private constructor() {
         /**
          * Destroy the given [EGLImageKHR] instance. Once destroyed, the image may not be used to
          * create any additional [EGLImageKHR] target resources within any client API contexts,
-         * although existing [EGLImageKHR] siblings may continue to be used. `True` is returned
-         * if DestroyImageKHR succeeds, `false` indicates failure. This can return `false` if
-         * the [EGLImageKHR] is not associated with the default display.
+         * although existing [EGLImageKHR] siblings may continue to be used. `True` is returned if
+         * DestroyImageKHR succeeds, `false` indicates failure. This can return `false` if the
+         * [EGLImageKHR] is not associated with the default display.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
          *
          * @param eglDisplay EGLDisplay that this EGLImage is connected to
          * @param image EGLImageKHR to be destroyed
-         *
          * @return True if the destruction of the EGLImageKHR object was successful, false otherwise
          */
         @JvmStatic
         @Suppress("AcronymName")
-        fun eglDestroyImageKHR(
-            eglDisplay: EGLDisplay,
-            image: EGLImageKHR
-        ): Boolean = EGLBindings.nDestroyImageKHR(
-            eglDisplay.nativeHandle,
-            image.nativeHandle
-        )
+        fun eglDestroyImageKHR(eglDisplay: EGLDisplay, image: EGLImageKHR): Boolean =
+            EGLBindings.nDestroyImageKHR(eglDisplay.nativeHandle, image.nativeHandle)
 
         /**
          * Upload a given EGLImage to the currently bound GLTexture
@@ -423,10 +387,9 @@ class EGLExt private constructor() {
         }
 
         /**
-         * Creates a sync object of the specified type associated with the
-         * specified display, and returns a handle to the new object.
-         * The configuration of the returned [EGLSyncKHR] object is specified by the provided
-         * attributes.
+         * Creates a sync object of the specified type associated with the specified display, and
+         * returns a handle to the new object. The configuration of the returned [EGLSyncKHR] object
+         * is specified by the provided attributes.
          *
          * Consumers should ensure that the EGL_KHR_fence_sync EGL extension is supported before
          * invoking this method otherwise a null EGLSyncFenceKHR object is returned.
@@ -439,9 +402,8 @@ class EGLExt private constructor() {
          * @param eglDisplay EGLDisplay to associate the sync object with
          * @param type Indicates the type of sync object that is returned
          * @param attributes Specifies the configuration of the sync object returned
-         *
-         * @return the EGLSyncKHR object to be used as a fence or null if this extension
-         * is not supported
+         * @return the EGLSyncKHR object to be used as a fence or null if this extension is not
+         *   supported
          */
         @JvmStatic
         @Suppress("AcronymName")
@@ -450,9 +412,8 @@ class EGLExt private constructor() {
             @EGLFenceType type: Int,
             attributes: EGLConfigAttributes?
         ): EGLSyncKHR? {
-            val handle = EGLBindings.nCreateSyncKHR(
-                eglDisplay.nativeHandle, type, attributes?.attrs
-            )
+            val handle =
+                EGLBindings.nCreateSyncKHR(eglDisplay.nativeHandle, type, attributes?.attrs)
             return if (handle == 0L) {
                 null
             } else {
@@ -461,10 +422,10 @@ class EGLExt private constructor() {
         }
 
         /**
-         * Query attributes of the provided sync object. Accepted attributes to query depend
-         * on the type of sync object. If no errors are generated, this returns true and the
-         * value of the queried attribute is stored in the value array at the offset position.
-         * If this method returns false, the provided value array is unmodified.
+         * Query attributes of the provided sync object. Accepted attributes to query depend on the
+         * type of sync object. If no errors are generated, this returns true and the value of the
+         * queried attribute is stored in the value array at the offset position. If this method
+         * returns false, the provided value array is unmodified.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          *
@@ -473,11 +434,11 @@ class EGLExt private constructor() {
          * @param attribute Corresponding EGLSyncKHR attribute to query on [sync]
          * @param value Integer array used to store the result of the query
          * @param offset Index within the value array to store the result of the attribute query
-         *
          * @return True if the attribute was queried successfully, false otherwise. Failure cases
-         * include attempting to call this method on an invalid sync object, or the display provided
-         * not matching the display that was used to create this sync object. Additionally if the
-         * queried attribute is not supported for the sync object, false is returned.
+         *   include attempting to call this method on an invalid sync object, or the display
+         *   provided not matching the display that was used to create this sync object.
+         *   Additionally if the queried attribute is not supported for the sync object, false is
+         *   returned.
          */
         @JvmStatic
         @Suppress("AcronymName")
@@ -498,11 +459,10 @@ class EGLExt private constructor() {
 
         /**
          * Blocks the calling thread until the specified sync object is signalled or until
-         * [timeoutNanos] nanoseconds have passed.
-         * More than one [eglClientWaitSyncKHR] may be outstanding on the same [sync] at any given
-         * time. When there are multiple threads blocked on the same [sync] and the [sync] object
-         * has signalled, all such threads are released, but the order in which they are released is
-         * not defined.
+         * [timeoutNanos] nanoseconds have passed. More than one [eglClientWaitSyncKHR] may be
+         * outstanding on the same [sync] at any given time. When there are multiple threads blocked
+         * on the same [sync] and the [sync] object has signalled, all such threads are released,
+         * but the order in which they are released is not defined.
          *
          * If the value of [timeoutNanos] is zero, then [eglClientWaitSyncKHR] simply tests the
          * current status of sync. If the value of [timeoutNanos] is the special value
@@ -518,25 +478,24 @@ class EGLExt private constructor() {
          * when [sync] was already signaled when [eglClientWaitSyncKHR] was called. If an error
          * occurs then an error is generated and [EGL_FALSE] is returned.
          *
-         * If the sync object being blocked upon will not be signaled in finite time (for example
-         * by an associated fence command issued previously, but not yet flushed to the graphics
+         * If the sync object being blocked upon will not be signaled in finite time (for example by
+         * an associated fence command issued previously, but not yet flushed to the graphics
          * pipeline), then [eglClientWaitSyncKHR] may wait forever. To help prevent this behavior,
          * if the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] is set on the flags parameter and the [sync] is
          * unsignaled when [eglClientWaitSyncKHR] is called, then the equivalent flush will be
-         * performed for the current EGL context before blocking on sync. If no context is
-         * current bound for the API, the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] bit is ignored.
+         * performed for the current EGL context before blocking on sync. If no context is current
+         * bound for the API, the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] bit is ignored.
          *
          * @param eglDisplay EGLDisplay to associate the sync object with
          * @param sync EGLSyncKHR object to wait on
          * @param flags Optional flags to provide to handle flushing of pending commands
          * @param timeoutNanos Optional timeout value to wait before this method returns, measured
-         * in nanoseconds. This value is always consumed as an unsigned long value so even negative
-         * values will be converted to their unsigned equivalent.
-         *
+         *   in nanoseconds. This value is always consumed as an unsigned long value so even
+         *   negative values will be converted to their unsigned equivalent.
          * @return Result code indicating the status of the wait request. Either
-         * [EGL_CONDITION_SATISFIED_KHR], if the sync did signal within the specified timeout,
-         * [EGL_TIMEOUT_EXPIRED_KHR] if the sync did not signal within the specified timeout,
-         * or [EGL_FALSE] if an error occurs.
+         *   [EGL_CONDITION_SATISFIED_KHR], if the sync did signal within the specified timeout,
+         *   [EGL_TIMEOUT_EXPIRED_KHR] if the sync did not signal within the specified timeout, or
+         *   [EGL_FALSE] if an error occurs.
          */
         @JvmStatic
         @Suppress("AcronymName")
@@ -554,22 +513,20 @@ class EGLExt private constructor() {
             )
 
         /**
-         * Creates a native synchronization fence referenced through a file descriptor
-         * that is associated with an EGL fence sync object.
+         * Creates a native synchronization fence referenced through a file descriptor that is
+         * associated with an EGL fence sync object.
          *
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
          *
          * @param display The EGLDisplay connection
          * @param sync The EGLSyncKHR to fetch the [SyncFenceCompat] from
-         * @return A [SyncFenceCompat] representing the native fence.
-         *  If [sync] is not a valid sync object for [display], an invalid [SyncFenceCompat]
-         *  instance is returned and an EGL_BAD_PARAMETER error is generated.
-         *  If the EGL_SYNC_NATIVE_FENCE_FD_ANDROID attribute of [sync] is
-         *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFenceCompat] is
-         *  returned and an EGL_BAD_PARAMETER error is generated.
-         *  If [display] does not match the display passed to [eglCreateSyncKHR]
-         *  when [sync] was created, the behavior is undefined.
+         * @return A [SyncFenceCompat] representing the native fence. If [sync] is not a valid sync
+         *   object for [display], an invalid [SyncFenceCompat] instance is returned and an
+         *   EGL_BAD_PARAMETER error is generated. If the EGL_SYNC_NATIVE_FENCE_FD_ANDROID attribute
+         *   of [sync] is EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFenceCompat] is returned
+         *   and an EGL_BAD_PARAMETER error is generated. If [display] does not match the display
+         *   passed to [eglCreateSyncKHR] when [sync] was created, the behavior is undefined.
          */
         @JvmStatic
         @Suppress("AcronymName")
@@ -577,10 +534,7 @@ class EGLExt private constructor() {
             display: EGLDisplay,
             sync: EGLSyncKHR
         ): SyncFenceCompat {
-            val fd = EGLBindings.nDupNativeFenceFDANDROID(
-                display.nativeHandle,
-                sync.nativeHandle
-            )
+            val fd = EGLBindings.nDupNativeFenceFDANDROID(display.nativeHandle, sync.nativeHandle)
             return if (fd >= 0) {
                 SyncFenceCompat(SyncFenceV19(fd))
             } else {
@@ -592,30 +546,24 @@ class EGLExt private constructor() {
          * Destroys the given sync object associated with the specified display
          *
          * Consumers should ensure that the EGL_KHR_fence_sync EGL extension is supported before
-         * invoking this method otherwise a null EGLSyncFenceKHR object is returned.
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
+         * invoking this method otherwise a null EGLSyncFenceKHR object is returned. See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          *
          * @param eglDisplay EGLDisplay instance associated with the fence
          * @param eglSync Fence object to be destroyed
-         *
          * @return true if the EGLSyncKHR object was destroyed successfully false otherwise. This
-         * can return false if the sync object is not a valid sync object for the provided display
-         * or if the display provided in this method does not match the display used to create this
-         * sync in eglCreateSyncKHR.
+         *   can return false if the sync object is not a valid sync object for the provided display
+         *   or if the display provided in this method does not match the display used to create
+         *   this sync in eglCreateSyncKHR.
          */
         @JvmStatic
         @Suppress("AcronymName")
-        fun eglDestroySyncKHR(
-            eglDisplay: EGLDisplay,
-            eglSync: EGLSyncKHR
-        ): Boolean = EGLBindings.nDestroySyncKHR(
-            eglDisplay.nativeHandle,
-            eglSync.nativeHandle
-        )
+        fun eglDestroySyncKHR(eglDisplay: EGLDisplay, eglSync: EGLSyncKHR): Boolean =
+            EGLBindings.nDestroySyncKHR(eglDisplay.nativeHandle, eglSync.nativeHandle)
 
         /**
-         * Returns a set of supported supported extensions from a space separated string
-         * that represents the set of OpenGL extensions supported
+         * Returns a set of supported supported extensions from a space separated string that
+         * represents the set of OpenGL extensions supported
          */
         @JvmStatic
         fun parseExtensions(queryString: String): Set<String> =
@@ -624,9 +572,9 @@ class EGLExt private constructor() {
 }
 
 /**
- * Helper class to configure JNI bindings to be invoked within the EGLUtils
- * public API. This class is provided to separate responsibilities of jni method registration
- * and helps to avoid synthetic accessor warnings
+ * Helper class to configure JNI bindings to be invoked within the EGLUtils public API. This class
+ * is provided to separate responsibilities of jni method registration and helps to avoid synthetic
+ * accessor warnings
  */
 @JniVisible
 internal class EGLBindings {
@@ -640,9 +588,7 @@ internal class EGLBindings {
 
         // Note this API is explicitly a GL API and not an EGL API which is the reason
         // why this has the GL prefix vs EGL
-        @JvmStatic
-        @JniVisible
-        external fun nImageTargetTexture2DOES(target: Int, eglImagePtr: Long)
+        @JvmStatic @JniVisible external fun nImageTargetTexture2DOES(target: Int, eglImagePtr: Long)
 
         @JvmStatic
         @JniVisible
@@ -674,45 +620,28 @@ internal class EGLBindings {
         @JvmStatic
         @JniVisible
         external fun nDestroySyncKHR(eglDisplayPtr: Long, syncPtr: Long): Boolean
+
         @JvmStatic
         @JniVisible
         external fun nDestroyImageKHR(eglDisplayPtr: Long, eglImagePtr: Long): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglGetNativeClientBufferAndroid(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglGetNativeClientBufferAndroid(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsDupNativeFenceFDANDROID(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsDupNativeFenceFDANDROID(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglCreateImageKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglCreateImageKHR(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglDestroyImageKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglDestroyImageKHR(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsGlImageTargetTexture2DOES(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsGlImageTargetTexture2DOES(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglCreateSyncKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglCreateSyncKHR(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglGetSyncAttribKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglGetSyncAttribKHR(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglClientWaitSyncKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglClientWaitSyncKHR(): Boolean
 
-        @JvmStatic
-        @JniVisible
-        external fun nSupportsEglDestroySyncKHR(): Boolean
+        @JvmStatic @JniVisible external fun nSupportsEglDestroySyncKHR(): Boolean
 
         @JvmStatic
         @JniVisible

@@ -29,10 +29,7 @@ public object AccessTypes {
     const val WRITE = 2
 }
 
-/**
- * Type of access to health data: read or write.
- *
- */
+/** Type of access to health data: read or write. */
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
     value =

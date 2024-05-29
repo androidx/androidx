@@ -32,9 +32,9 @@ class StatisticalDataPoint<T : Number>(
     val max: T,
     /** The average observed value between [start] and [end]. */
     val average: T,
-    /** The beginning of time this point covers.  */
+    /** The beginning of time this point covers. */
     val start: Instant,
-    /** The end time this point covers.  */
+    /** The end time this point covers. */
     val end: Instant
 ) : DataPoint<T>(dataType) {
 
@@ -48,7 +48,8 @@ class StatisticalDataPoint<T : Number>(
                     .setAvgValue(dataType.toProtoFromValue(average))
                     .setStartTimeEpochMs(start.toEpochMilli())
                     .setEndTimeEpochMs(end.toEpochMilli())
-            ).build()
+            )
+            .build()
 
     companion object {
         @Suppress("UNCHECKED_CAST")

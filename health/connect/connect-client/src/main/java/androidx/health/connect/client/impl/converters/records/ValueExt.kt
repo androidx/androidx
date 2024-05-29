@@ -20,9 +20,7 @@ package androidx.health.connect.client.impl.converters.records
 import androidx.annotation.RestrictTo
 import androidx.health.platform.client.proto.DataProto
 
-/**
- * Provides conversion to proto value objects.
- */
+/** Provides conversion to proto value objects. */
 internal fun longVal(value: Long): DataProto.Value =
     DataProto.Value.newBuilder().setLongVal(value).build()
 

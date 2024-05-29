@@ -35,9 +35,7 @@ class SimpleActivity : FragmentActivity() {
         Log.d("SimpleActivity", simpleViewModel.hi())
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.container, SimpleFragment())
-                .commit()
+            supportFragmentManager.beginTransaction().add(R.id.container, SimpleFragment()).commit()
         }
     }
 }

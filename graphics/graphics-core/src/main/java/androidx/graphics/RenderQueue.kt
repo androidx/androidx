@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Helper class to handle processing of event queues between the provided [HandlerThreadExecutor]
  * and the [FrameProducer] which may be executing on different threads. This provides helper
- * facilities to guarantee cancellation of requests and proper queueing of pending requests
- * while the [FrameProducer] is in the middle of generating a frame.
+ * facilities to guarantee cancellation of requests and proper queueing of pending requests while
+ * the [FrameProducer] is in the middle of generating a frame.
  */
 internal class RenderQueue(
     private val handlerThread: HandlerThreadExecutor,
@@ -36,8 +36,8 @@ internal class RenderQueue(
 ) {
 
     /**
-     * Callbacks invoked when new frames are produced or if a frame is generated for a request
-     * that has been cancelled.
+     * Callbacks invoked when new frames are produced or if a frame is generated for a request that
+     * has been cancelled.
      */
     interface FrameCallback {
         fun onFrameComplete(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?)
@@ -47,8 +47,8 @@ internal class RenderQueue(
 
     /**
      * Interface to represent a [FrameProducer] this can either be backed by a
-     * [android.graphics.HardwareRenderer] or [android.graphics.HardwareBufferRenderer] depending
-     * on the API level.
+     * [android.graphics.HardwareRenderer] or [android.graphics.HardwareBufferRenderer] depending on
+     * the API level.
      */
     interface FrameProducer {
         fun renderFrame(
@@ -58,73 +58,55 @@ internal class RenderQueue(
     }
 
     /**
-     * Request to be executed by the [RenderQueue] this provides callbacks that are invoked
-     * when the request is initially queued as well as when to be executed before a frame is
-     * generated. This supports batching operations if the [FrameProducer] is busy.
+     * Request to be executed by the [RenderQueue] this provides callbacks that are invoked when the
+     * request is initially queued as well as when to be executed before a frame is generated. This
+     * supports batching operations if the [FrameProducer] is busy.
      */
     interface Request {
 
-        /**
-         * Callback invoked when the request is enqueued but before a frame is generated
-         */
-        @WorkerThread
-        fun onEnqueued() {}
+        /** Callback invoked when the request is enqueued but before a frame is generated */
+        @WorkerThread fun onEnqueued() {}
 
         /**
-         * Callback invoked when the request is about to be processed as part of a the next
-         * frame
+         * Callback invoked when the request is about to be processed as part of a the next frame
          */
-        @WorkerThread
-        fun execute()
+        @WorkerThread fun execute()
+
+        /** Callback invoked when the request is completed */
+        @WorkerThread fun onComplete()
 
         /**
-         * Callback invoked when the request is completed
-         */
-        @WorkerThread
-        fun onComplete()
-
-        /**
-         * Flag to determine if multiple requests of the same type can be merged together.
-         * If a request is mergeable and the [id] mattches then subsequent
+         * Flag to determine if multiple requests of the same type can be merged together. If a
+         * request is mergeable and the [id] mattches then subsequent
          */
         fun isMergeable(): Boolean = true
 
-        /**
-         * Identifier for a request type to determine if the request can be batched
-         */
+        /** Identifier for a request type to determine if the request can be batched */
         val id: Int
     }
 
-    /**
-     * Flag to determine if all pending requests should be cancelled
-     */
+    /** Flag to determine if all pending requests should be cancelled */
     private val mIsCancelling = AtomicBoolean(false)
 
-    /**
-     * Queue of pending requests that are executed whenever the [FrameProducer] is idle
-     */
+    /** Queue of pending requests that are executed whenever the [FrameProducer] is idle */
     private val mRequests = ArrayDeque<Request>()
 
     /**
-     * Determines if the [FrameProducer] is in the middle of rendering a frame.
-     * This is accessed on the underlying HandlerThread only
+     * Determines if the [FrameProducer] is in the middle of rendering a frame. This is accessed on
+     * the underlying HandlerThread only
      */
     private var mRequestPending = false
 
     /**
-     * Callback invoked when the [RenderQueue] is to be released. This will be invoked when
-     * there are no more pending requests to process
+     * Callback invoked when the [RenderQueue] is to be released. This will be invoked when there
+     * are no more pending requests to process
      */
     private var mReleaseCallback: (() -> Unit)? = null
 
-    /**
-     * Flag to determine if we are in the middle of releasing the [RenderQueue]
-     */
+    /** Flag to determine if we are in the middle of releasing the [RenderQueue] */
     private val mIsReleasing = AtomicBoolean(false)
 
-    /**
-     * Enqueues a request to be executed by the provided [FrameProducer]
-     */
+    /** Enqueues a request to be executed by the provided [FrameProducer] */
     fun enqueue(request: Request) {
         if (!mIsReleasing.get()) {
             handlerThread.post(this) {
@@ -147,11 +129,10 @@ internal class RenderQueue(
     }
 
     /**
-     * Configures a release callback to be invoked. If there are no pending requests, this
-     * will get invoked immediately on the [HandlerThreadExecutor]. Otherwise the callback is
-     * preserved and invoked after there are no more pending requests.
-     * After this method is invoked, no subsequent requests will be processed and this [RenderQueue]
-     * instance can no longer be used.
+     * Configures a release callback to be invoked. If there are no pending requests, this will get
+     * invoked immediately on the [HandlerThreadExecutor]. Otherwise the callback is preserved and
+     * invoked after there are no more pending requests. After this method is invoked, no subsequent
+     * requests will be processed and this [RenderQueue] instance can no longer be used.
      */
     fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)?) {
         if (!mIsReleasing.get()) {
@@ -169,15 +150,13 @@ internal class RenderQueue(
         }
     }
 
-    /**
-     * Determines if there are any pending requests or a frame is waiting to be produced
-     */
+    /** Determines if there are any pending requests or a frame is waiting to be produced */
     private fun isPendingRequest() = mRequestPending || mRequests.isNotEmpty()
 
     /**
      * Helper method that will execute a request on the [FrameProducer] if there is not a previous
-     * request pending. If there is a pending request, this will add it to an internal queue
-     * that will be dequeued when the request is completed.
+     * request pending. If there is a pending request, this will add it to an internal queue that
+     * will be dequeued when the request is completed.
      */
     @WorkerThread
     private fun executeRequest(request: Request) {
@@ -204,31 +183,24 @@ internal class RenderQueue(
             // If the last request matches the type that we are adding, then batch the request
             // i.e. don't add it to the queue as the previous request will handle batching.
             val pendingRequest = mRequests.lastOrNull()
-            if (!request.isMergeable() ||
-                pendingRequest == null ||
-                pendingRequest.id != request.id
+            if (
+                !request.isMergeable() || pendingRequest == null || pendingRequest.id != request.id
             ) {
                 mRequests.add(request)
             }
         }
     }
 
-    /**
-     * Returns true if [release] has been invoked
-     */
+    /** Returns true if [release] has been invoked */
     fun isReleased(): Boolean = mIsReleasing.get()
 
-    /**
-     * Invokes the release callback if one is previously configured and discards it
-     */
+    /** Invokes the release callback if one is previously configured and discards it */
     private fun executeReleaseCallback() {
         mReleaseCallback?.invoke()
         mReleaseCallback = null
     }
 
-    /**
-     * Runnable executed when requests are to be cancelled
-     */
+    /** Runnable executed when requests are to be cancelled */
     private val cancelRequestsRunnable = Runnable {
         mRequests.clear()
         // Only reset the cancel flag if there is no current frame render request pending

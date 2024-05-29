@@ -24,31 +24,28 @@ import androidx.room.compiler.processing.XTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
-/**
- * Data class that represents a Hilt injected Worker
- */
+/** Data class that represents a Hilt injected Worker */
 internal data class WorkerElement(
     val typeElement: XTypeElement,
     val constructorElement: XConstructorElement
 ) {
     val className = typeElement.asClassName().toJavaPoet()
 
-    val factoryClassName = ClassName.get(
-        typeElement.packageName,
-        "${className.simpleNames().joinToString("_")}_AssistedFactory"
-    )
+    val factoryClassName =
+        ClassName.get(
+            typeElement.packageName,
+            "${className.simpleNames().joinToString("_")}_AssistedFactory"
+        )
 
-    val factorySuperTypeName = ParameterizedTypeName.get(
-        ClassNames.WORKER_ASSISTED_FACTORY,
-        className
-    )
+    val factorySuperTypeName =
+        ParameterizedTypeName.get(ClassNames.WORKER_ASSISTED_FACTORY, className)
 
-    val moduleClassName = ClassName.get(
-        typeElement.packageName,
-        "${className.simpleNames().joinToString("_")}_HiltModule"
-    )
+    val moduleClassName =
+        ClassName.get(
+            typeElement.packageName,
+            "${className.simpleNames().joinToString("_")}_HiltModule"
+        )
 
-    val dependencyRequests = constructorElement.parameters.map { constructorArg ->
-        constructorArg.toDependencyRequest()
-    }
+    val dependencyRequests =
+        constructorElement.parameters.map { constructorArg -> constructorArg.toDependencyRequest() }
 }

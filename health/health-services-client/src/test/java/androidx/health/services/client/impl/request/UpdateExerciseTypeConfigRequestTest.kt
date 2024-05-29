@@ -31,8 +31,8 @@ class UpdateExerciseTypeConfigRequestTest {
             UpdateExerciseTypeConfigRequest(
                 "package",
                 GolfExerciseTypeConfig(
-                    GolfExerciseTypeConfig
-                        .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
+                    GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
+                        .GOLF_SHOT_TRACKING_PLACE_INFO_TEE_BOX
                 )
             )
         val parcel = Parcel.obtain()

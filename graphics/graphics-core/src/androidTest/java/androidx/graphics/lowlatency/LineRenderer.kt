@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -23,9 +22,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
-/**
- * OpenGL Renderer class responsible for drawing lines
- */
+/** OpenGL Renderer class responsible for drawing lines */
 class LineRenderer {
 
     private var mVertexShader: Int = -1
@@ -63,10 +60,11 @@ class LineRenderer {
         bb.order(ByteOrder.nativeOrder())
 
         // create a floating point buffer from the ByteBuffer
-        mVertexBuffer = bb.asFloatBuffer().apply {
-            put(mLineCoords)
-            position(0)
-        }
+        mVertexBuffer =
+            bb.asFloatBuffer().apply {
+                put(mLineCoords)
+                position(0)
+            }
 
         mPositionHandle = GLES20.glGetAttribLocation(mGlProgram, vPosition)
         mMvpMatrixHandle = GLES20.glGetUniformLocation(mGlProgram, uMVPMatrix)
@@ -121,9 +119,12 @@ class LineRenderer {
 
             // Prepare the triangle coordinate data
             GLES20.glVertexAttribPointer(
-                mPositionHandle, CoordsPerVertex,
-                GLES20.GL_FLOAT, false,
-                VertexStride, buffer
+                mPositionHandle,
+                CoordsPerVertex,
+                GLES20.GL_FLOAT,
+                false,
+                VertexStride,
+                buffer
             )
             GLES20.glDrawArrays(GLES20.GL_LINES, 0, VertexCount)
         }

@@ -82,9 +82,7 @@ public class SexualActivityRecord(
         const val UNPROTECTED = "unprotected"
     }
 
-    /**
-     * Whether protection was used during sexual activity.
-     */
+    /** Whether protection was used during sexual activity. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value =

@@ -29,14 +29,16 @@ internal class StatisticalDataPointTest {
 
     @Test
     fun protoRoundTrip() {
-        val proto = StatisticalDataPoint(
-            dataType = HEART_RATE_BPM_STATS,
-            min = 100.0,
-            max = 175.5,
-            average = 155.0,
-            start = 10.instant(),
-            end = 99.instant(),
-        ).proto
+        val proto =
+            StatisticalDataPoint(
+                    dataType = HEART_RATE_BPM_STATS,
+                    min = 100.0,
+                    max = 175.5,
+                    average = 155.0,
+                    start = 10.instant(),
+                    end = 99.instant(),
+                )
+                .proto
 
         val dataPoint = StatisticalDataPoint.fromProto(proto.statisticalDataPoint)
 

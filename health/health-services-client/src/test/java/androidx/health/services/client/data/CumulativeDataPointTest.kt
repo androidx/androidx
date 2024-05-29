@@ -28,12 +28,14 @@ internal class CumulativeDataPointTest {
 
     @Test
     fun protoRoundTrip() {
-        val proto = CumulativeDataPoint(
-            dataType = DataType.CALORIES_TOTAL,
-            total = 100.0,
-            start = 10.instant(),
-            end = 99.instant(),
-        ).proto
+        val proto =
+            CumulativeDataPoint(
+                    dataType = DataType.CALORIES_TOTAL,
+                    total = 100.0,
+                    start = 10.instant(),
+                    end = 99.instant(),
+                )
+                .proto
 
         val dataPoint = CumulativeDataPoint.fromProto(proto.cumulativeDataPoint)
 

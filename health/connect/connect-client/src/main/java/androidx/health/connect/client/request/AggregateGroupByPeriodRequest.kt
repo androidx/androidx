@@ -31,7 +31,7 @@ import java.time.Period
  * @param metrics Set of [AggregateMetric]s to aggregate.
  * @param timeRangeFilter The [TimeRangeFilter] to read from.
  * @param timeRangeSlicer The bucket size of each returned aggregate row. [timeRangeFilter] will be
- * sliced into several equal-sized time buckets (except for the last one).
+ *   sliced into several equal-sized time buckets (except for the last one).
  * @param dataOriginFilter Set of [DataOrigin]s to read from, or empty for no filter.
  */
 class AggregateGroupByPeriodRequest(

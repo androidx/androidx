@@ -33,8 +33,8 @@ import androidx.graphics.utils.post
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Thread responsible for management of EGL dependencies, setup and teardown
- * of EGLSurface instances as well as delivering callbacks to draw a frame
+ * Thread responsible for management of EGL dependencies, setup and teardown of EGLSurface instances
+ * as well as delivering callbacks to draw a frame
  */
 internal class GLThread(
     name: String = "GLThread",
@@ -51,24 +51,26 @@ internal class GLThread(
 
     override fun start() {
         super.start()
-        mHandler = Handler(looper).apply {
-            // Create an EGLContext right after starting in order to have one ready on a call to
-            // GLRenderer#execute
-            post { obtainEGLManager() }
-        }
+        mHandler =
+            Handler(looper).apply {
+                // Create an EGLContext right after starting in order to have one ready on a call to
+                // GLRenderer#execute
+                post { obtainEGLManager() }
+            }
     }
 
     /**
-     * Adds the given [android.view.Surface] to be managed by the GLThread.
-     * A corresponding [EGLSurface] is created on the GLThread as well as a callback
-     * for rendering into the surface through [RenderCallback].
+     * Adds the given [android.view.Surface] to be managed by the GLThread. A corresponding
+     * [EGLSurface] is created on the GLThread as well as a callback for rendering into the surface
+     * through [RenderCallback].
+     *
      * @param surface intended to be be rendered into on the GLThread
      * @param width Desired width of the [surface]
      * @param height Desired height of the [surface]
-     * @param renderer callbacks used to create a corresponding [EGLSurface] from the
-     * given surface as well as render content into the created [EGLSurface]
-     * @return Identifier used for subsequent requests to communicate
-     * with the provided Surface (ex. [requestRender] or [detachSurface]
+     * @param renderer callbacks used to create a corresponding [EGLSurface] from the given surface
+     *   as well as render content into the created [EGLSurface]
+     * @return Identifier used for subsequent requests to communicate with the provided Surface (ex.
+     *   [requestRender] or [detachSurface]
      */
     @AnyThread
     fun attachSurface(
@@ -122,53 +124,40 @@ internal class GLThread(
                 mEglContextCallback.add(callbacks)
                 // If EGL dependencies are already initialized, immediately invoke
                 // the added callback
-                mEglManager?.let {
-                    callbacks.onEGLContextCreated(it)
-                }
+                mEglManager?.let { callbacks.onEGLContextCreated(it) }
             }
         }
     }
 
     @AnyThread
     fun removeEGLCallback(callbacks: EGLContextCallback) {
-        withHandler {
-            post {
-                mEglContextCallback.remove(callbacks)
-            }
-        }
+        withHandler { post { mEglContextCallback.remove(callbacks) } }
     }
 
-    @AnyThread
-    fun execute(runnable: Runnable) = withHandler { post(runnable) }
+    @AnyThread fun execute(runnable: Runnable) = withHandler { post(runnable) }
 
     /**
-     * Removes the corresponding [android.view.Surface] from management of the GLThread.
-     * This destroys the EGLSurface associated with this surface and subsequent requests
-     * to render into the surface with the provided token are ignored. Any queued request
-     * to render to the corresponding [SurfaceSession] that has not started yet is cancelled.
-     * However, if this is invoked in the middle of the frame being rendered, it will continue to
-     * process the current frame.
+     * Removes the corresponding [android.view.Surface] from management of the GLThread. This
+     * destroys the EGLSurface associated with this surface and subsequent requests to render into
+     * the surface with the provided token are ignored. Any queued request to render to the
+     * corresponding [SurfaceSession] that has not started yet is cancelled. However, if this is
+     * invoked in the middle of the frame being rendered, it will continue to process the current
+     * frame.
      */
     @AnyThread
-    fun detachSurface(
-        token: Int,
-        cancelPending: Boolean,
-        callback: Runnable?
-    ) {
+    fun detachSurface(token: Int, cancelPending: Boolean, callback: Runnable?) {
         log("dispatching request to detach surface w/ token: $token")
         withHandler {
             if (cancelPending) {
                 removeCallbacksAndMessages(token)
             }
-            post(token) {
-                detachSurfaceSessionInternal(token, callback)
-            }
+            post(token) { detachSurfaceSessionInternal(token, callback) }
         }
     }
 
     /**
-     * Cancel all pending requests to all currently managed [SurfaceSession] instances,
-     * destroy all EGLSurfaces, teardown EGLManager and quit this thread
+     * Cancel all pending requests to all currently managed [SurfaceSession] instances, destroy all
+     * EGLSurfaces, teardown EGLManager and quit this thread
      */
     @AnyThread
     fun tearDown(cancelPending: Boolean, callback: Runnable?) {
@@ -176,18 +165,15 @@ internal class GLThread(
             if (cancelPending) {
                 removeCallbacksAndMessages(null)
             }
-            post {
-                releaseResourcesInternalAndQuit(callback)
-            }
+            post { releaseResourcesInternalAndQuit(callback) }
             mIsTearingDown.set(true)
         }
     }
 
     /**
-     * Mark the corresponding surface session with the given token as dirty
-     * to schedule a call to [RenderCallback#onDrawFrame].
-     * If there is already a queued request to render into the provided surface with
-     * the specified token, this request is ignored.
+     * Mark the corresponding surface session with the given token as dirty to schedule a call to
+     * [RenderCallback#onDrawFrame]. If there is already a queued request to render into the
+     * provided surface with the specified token, this request is ignored.
      */
     @AnyThread
     fun requestRender(token: Int, callback: Runnable? = null) {
@@ -201,21 +187,21 @@ internal class GLThread(
     }
 
     /**
-     * Lazily creates an [EGLManager] instance from the given [mEglSpecFactory]
-     * used to determine the configuration. This result is cached across calls
-     * unless [tearDown] has been called.
+     * Lazily creates an [EGLManager] instance from the given [mEglSpecFactory] used to determine
+     * the configuration. This result is cached across calls unless [tearDown] has been called.
      */
     @WorkerThread
     fun obtainEGLManager(): EGLManager =
-        mEglManager ?: EGLManager(mEglSpecFactory.invoke()).also {
-            it.initialize()
-            val config = mEglConfigFactory.invoke(it)
-            it.createContext(config)
-            for (callback in mEglContextCallback) {
-                callback.onEGLContextCreated(it)
+        mEglManager
+            ?: EGLManager(mEglSpecFactory.invoke()).also {
+                it.initialize()
+                val config = mEglConfigFactory.invoke(it)
+                it.createContext(config)
+                for (callback in mEglContextCallback) {
+                    callback.onEGLContextCreated(it)
+                }
+                mEglManager = it
             }
-            mEglManager = it
-        }
 
     @WorkerThread
     private fun disposeSurfaceSession(session: SurfaceSession) {
@@ -227,8 +213,8 @@ internal class GLThread(
     }
 
     /**
-     * Helper method to obtain the cached EGLSurface for the given [SurfaceSession],
-     * creating one if it does not previously exist
+     * Helper method to obtain the cached EGLSurface for the given [SurfaceSession], creating one if
+     * it does not previously exist
      */
     @WorkerThread
     private fun obtainEGLSurfaceForSession(session: SurfaceSession): EGLSurface? {
@@ -236,13 +222,12 @@ internal class GLThread(
             session.eglSurface
         } else {
             createEGLSurfaceForSession(
-                session.surface,
-                session.width,
-                session.height,
-                session.surfaceRenderer
-            ).also {
-                session.eglSurface = it
-            }
+                    session.surface,
+                    session.width,
+                    session.height,
+                    session.surfaceRenderer
+                )
+                .also { session.eglSurface = it }
         }
     }
 
@@ -320,11 +305,7 @@ internal class GLThread(
     }
 
     @WorkerThread
-    private fun resizeSurfaceSessionInternal(
-        token: Int,
-        width: Int,
-        height: Int
-    ) {
+    private fun resizeSurfaceSessionInternal(token: Int, width: Int, height: Int) {
         mSurfaceSessions[token]?.let { surfaceSession ->
             surfaceSession.apply {
                 this.width = width
@@ -345,14 +326,13 @@ internal class GLThread(
     }
 
     /**
-     * Helper method that issues a callback on the handler instance for this thread
-     * ensuring proper nullability checks are handled.
-     * This assumes that that [GLRenderer.start] has been called before attempts
-     * to interact with the corresponding Handler are made with this method
+     * Helper method that issues a callback on the handler instance for this thread ensuring proper
+     * nullability checks are handled. This assumes that that [GLRenderer.start] has been called
+     * before attempts to interact with the corresponding Handler are made with this method
      */
     private inline fun withHandler(block: Handler.() -> Unit) {
-        val handler = mHandler
-            ?: throw IllegalStateException("Did you forget to call GLThread.start()?")
+        val handler =
+            mHandler ?: throw IllegalStateException("Did you forget to call GLThread.start()?")
         if (!mIsTearingDown.get()) {
             block(handler)
         }
@@ -362,6 +342,7 @@ internal class GLThread(
 
         private const val DEBUG = true
         private const val TAG = "GLThread"
+
         internal fun log(msg: String) {
             if (DEBUG) {
                 Log.v(TAG, msg)
@@ -371,39 +352,35 @@ internal class GLThread(
 
     private class SurfaceSession(
         /**
-         * Identifier used to lookup the mapping of this surface session.
-         * Consumers are expected to provide this identifier to operate on the corresponding
-         * surface to either request a frame be rendered or to remove this Surface
+         * Identifier used to lookup the mapping of this surface session. Consumers are expected to
+         * provide this identifier to operate on the corresponding surface to either request a frame
+         * be rendered or to remove this Surface
          */
         val surfaceToken: Int,
 
         /**
-         * Target surface to render into. Can be null for situations where GL is used to render
-         * into a frame buffer object provided from an AHardwareBuffer instance.
-         * In these cases the actual surface is never used.
+         * Target surface to render into. Can be null for situations where GL is used to render into
+         * a frame buffer object provided from an AHardwareBuffer instance. In these cases the
+         * actual surface is never used.
          */
         val surface: Surface?,
 
         /**
-         * Callback used to create an EGLSurface from the provided surface as well as
-         * render content to the surface
+         * Callback used to create an EGLSurface from the provided surface as well as render content
+         * to the surface
          */
         val surfaceRenderer: RenderCallback
     ) {
         /**
-         * Lazily created + cached [EGLSurface] after [RenderCallback.onSurfaceCreated]
-         * is invoked. This is  only modified on the backing thread
+         * Lazily created + cached [EGLSurface] after [RenderCallback.onSurfaceCreated] is invoked.
+         * This is only modified on the backing thread
          */
         var eglSurface: EGLSurface? = null
 
-        /**
-         * Target width of the [surface]. This is only modified on the backing thread
-         */
+        /** Target width of the [surface]. This is only modified on the backing thread */
         var width: Int = 0
 
-        /**
-         * Target height of the [surface]. This is only modified on the backing thread
-         */
+        /** Target height of the [surface]. This is only modified on the backing thread */
         var height: Int = 0
     }
 }

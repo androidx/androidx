@@ -19,7 +19,9 @@ package androidx.health.connect.client.records
 internal inline fun <reified T> getAllIntDefEnums(pattern: String): Collection<Int> {
     val regex = pattern.toRegex()
 
-    return T::class.java.fields
+    return T::class
+        .java
+        .fields
         .asSequence()
         .filter { it.name.matches(regex) }
         .filter { it.type == Int::class.javaPrimitiveType }

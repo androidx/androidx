@@ -59,21 +59,20 @@ val shapeColor2 = Color.Red
 class SimpleMorph : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent(parent = null) {
-            MaterialTheme {
-                ShapeViewer()
-            }
-        }
+        setContent(parent = null) { MaterialTheme { ShapeViewer() } }
     }
 }
 
 @Composable
 fun ShapeViewer() {
     val shape1 = RoundedPolygon.star(5)
-    val shape2 = RoundedPolygon.pillStar(
-        numVerticesPerRadius = 8, width = 2f, height = .4f,
-        rounding = CornerRounding(.5f)
-    )
+    val shape2 =
+        RoundedPolygon.pillStar(
+            numVerticesPerRadius = 8,
+            width = 2f,
+            height = .4f,
+            rounding = CornerRounding(.5f)
+        )
     val morph = Morph(shape1, shape2)
     val progress = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -81,23 +80,17 @@ fun ShapeViewer() {
     Column {
         Row {
             ShapeView(
-                shape1, modifier =
-                Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(horizontal = 5.dp)
-                    .clickable {
+                shape1,
+                modifier =
+                    Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp).clickable {
                         scope.launch { doAnimation(progress, reverse = true) }
                     },
                 shapeColor1
             )
             ShapeView(
-                shape2, modifier =
-                Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(horizontal = 5.dp)
-                    .clickable {
+                shape2,
+                modifier =
+                    Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp).clickable {
                         scope.launch { doAnimation(progress) }
                     },
                 shapeColor2
@@ -105,30 +98,22 @@ fun ShapeViewer() {
         }
         Row {
             MorphView(
-                modifier =
-                Modifier
-                    .weight(1f)
-                    .aspectRatio(1f)
-                    .padding(horizontal = 5.dp),
-                morph = morph, progress = progress.value
+                modifier = Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp),
+                morph = morph,
+                progress = progress.value
             )
         }
         Row {
             Box {
                 val hexagon = remember {
-                    RoundedPolygon.star(
-                        numVerticesPerRadius = 6,
-                        rounding = CornerRounding(0.2f)
-                    )
+                    RoundedPolygon.star(numVerticesPerRadius = 6, rounding = CornerRounding(0.2f))
                 }
-                val clip = remember(hexagon) {
-                    RoundedPolygonShape(polygon = hexagon)
-                }
+                val clip = remember(hexagon) { RoundedPolygonShape(polygon = hexagon) }
                 Box(
-                    modifier = Modifier
-                        .clip(clip)
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .size(200.dp)
+                    modifier =
+                        Modifier.clip(clip)
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .size(200.dp)
                 ) {
                     Text(
                         "Hello Compose",
@@ -140,10 +125,10 @@ fun ShapeViewer() {
             Box {
                 val clip = MorphShape(morph = morph, progress = progress.value)
                 Box(
-                    modifier = Modifier
-                        .clip(clip)
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .size(200.dp)
+                    modifier =
+                        Modifier.clip(clip)
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .size(200.dp)
                 ) {
                     Text(
                         "Hello Compose",
@@ -158,10 +143,12 @@ fun ShapeViewer() {
 
 @Composable
 fun ShapeView(shape: RoundedPolygon, modifier: Modifier, color: Color) {
-    Box(modifier.drawWithContent {
-        drawContent()
-        drawRoundedPolygon(shape, color)
-    })
+    Box(
+        modifier.drawWithContent {
+            drawContent()
+            drawRoundedPolygon(shape, color)
+        }
+    )
 }
 
 fun DrawScope.drawMorph(morph: Morph, progress: Float) {
@@ -189,15 +176,13 @@ fun DrawScope.drawRoundedPolygon(shape: RoundedPolygon, color: Color) {
 }
 
 @Composable
-fun MorphView(
-    morph: Morph,
-    modifier: Modifier = Modifier,
-    progress: Float
-) {
-    Box(modifier.drawWithContent {
-        drawContent()
-        drawMorph(morph, progress)
-    })
+fun MorphView(morph: Morph, modifier: Modifier = Modifier, progress: Float) {
+    Box(
+        modifier.drawWithContent {
+            drawContent()
+            drawMorph(morph, progress)
+        }
+    )
 }
 
 private suspend fun doAnimation(

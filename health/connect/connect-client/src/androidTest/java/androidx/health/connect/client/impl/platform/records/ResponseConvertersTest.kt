@@ -64,10 +64,8 @@ class ResponseConvertersTest {
     fun buildAggregationResult() {
         val aggregationResult =
             buildAggregationResult(
-                metrics = setOf(
-                    HeartRateRecord.BPM_MIN,
-                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL
-                ),
+                metrics =
+                    setOf(HeartRateRecord.BPM_MIN, ExerciseSessionRecord.EXERCISE_DURATION_TOTAL),
                 aggregationValueGetter = { aggregationType ->
                     when (aggregationType) {
                         PlatformHeartRateRecord.BPM_MIN -> 53L
@@ -82,10 +80,8 @@ class ResponseConvertersTest {
                                 PlatformDataOriginBuilder().setPackageName("HR App1").build(),
                                 PlatformDataOriginBuilder().setPackageName("HR App2").build()
                             )
-
                         PlatformExerciseSessionRecord.EXERCISE_DURATION_TOTAL ->
                             setOf(PlatformDataOriginBuilder().setPackageName("Workout app").build())
-
                         else -> emptySet()
                     }
                 }
@@ -172,11 +168,13 @@ class ResponseConvertersTest {
 
     @Test
     fun getDoubleMetricValue_convertsMassToKilograms() {
-        val metricValues = getDoubleMetricValues(
-            mapOf(
-                WeightRecord.WEIGHT_MAX as AggregateMetric<Any> to PlatformMass.fromGrams(100_000.0)
+        val metricValues =
+            getDoubleMetricValues(
+                mapOf(
+                    WeightRecord.WEIGHT_MAX as AggregateMetric<Any> to
+                        PlatformMass.fromGrams(100_000.0)
+                )
             )
-        )
 
         assertThat(metricValues).containsExactly(WeightRecord.WEIGHT_MAX.metricKey, 100.0)
     }
@@ -195,14 +193,13 @@ class ResponseConvertersTest {
     @Test
     fun getDoubleMetricValues_convertsPressureToMillimetersOfMercury() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
-        val metricValues = getDoubleMetricValues(
-            mapOf(
-                BloodPressureRecord.SYSTOLIC_MAX as AggregateMetric<Any> to
-                    PlatformPressure.fromMillimetersOfMercury(
-                        120.0
-                    )
+        val metricValues =
+            getDoubleMetricValues(
+                mapOf(
+                    BloodPressureRecord.SYSTOLIC_MAX as AggregateMetric<Any> to
+                        PlatformPressure.fromMillimetersOfMercury(120.0)
+                )
             )
-        )
 
         assertThat(metricValues).containsExactly(BloodPressureRecord.SYSTOLIC_MAX.metricKey, 120.0)
     }
@@ -210,12 +207,13 @@ class ResponseConvertersTest {
     @Test
     fun getDoubleMetricValues_convertsVelocityToMetersPerSecond() {
         assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
-        val metricValues = getDoubleMetricValues(
-            mapOf(
-                SpeedRecord.SPEED_AVG as AggregateMetric<Any> to
-                    PlatformVelocity.fromMetersPerSecond(2.8)
+        val metricValues =
+            getDoubleMetricValues(
+                mapOf(
+                    SpeedRecord.SPEED_AVG as AggregateMetric<Any> to
+                        PlatformVelocity.fromMetersPerSecond(2.8)
+                )
             )
-        )
 
         assertThat(metricValues).containsExactly(SpeedRecord.SPEED_AVG.metricKey, 2.8)
     }

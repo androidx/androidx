@@ -59,47 +59,50 @@ class GLFrameBufferRendererTest {
     fun testSetSyncStrategy() {
         val latch = CountDownLatch(1)
 
-        val syncStrategy = object : SyncStrategy {
-            override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
-                return SyncStrategy.ALWAYS.createSyncFence(eglSpec)
+        val syncStrategy =
+            object : SyncStrategy {
+                override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
+                    return SyncStrategy.ALWAYS.createSyncFence(eglSpec)
+                }
             }
-        }
         var fence: SyncFenceCompat? = null
         var supportsNativeFence = false
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                supportsNativeFence = eglManager.supportsNativeAndroidFence()
-            }
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    supportsNativeFence = eglManager.supportsNativeAndroidFence()
+                }
 
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                fence = syncFence
-                latch.countDown()
+                override fun onDrawComplete(
+                    targetSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction,
+                    frameBuffer: FrameBuffer,
+                    syncFence: SyncFenceCompat?
+                ) {
+                    fence = syncFence
+                    latch.countDown()
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setSyncStrategy(syncStrategy)
-                        .build().also { fbr ->
-                            fbr.render()
-                        }
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        surfaceView = it.getSurfaceView()
+                        renderer =
+                            GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
+                                .setSyncStrategy(syncStrategy)
+                                .build()
+                                .also { fbr -> fbr.render() }
+                    }
             scenario.moveToState(Lifecycle.State.RESUMED)
 
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
@@ -120,17 +123,18 @@ class GLFrameBufferRendererTest {
     @Test
     fun testSetGLRenderer() {
         val glRenderer = GLRenderer().apply { start() }
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                // NO-OP
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    // NO-OP
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
@@ -139,9 +143,10 @@ class GLFrameBufferRendererTest {
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setGLRenderer(glRenderer)
-                        .build()
+                    renderer =
+                        GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
+                            .setGLRenderer(glRenderer)
+                            .build()
                     createLatch.countDown()
                 }
 
@@ -158,17 +163,18 @@ class GLFrameBufferRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetMaxBuffers() {
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                // NO-OP
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    // NO-OP
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
@@ -177,9 +183,10 @@ class GLFrameBufferRendererTest {
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
                     surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setMaxBuffers(5)
-                        .build()
+                    renderer =
+                        GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
+                            .setMaxBuffers(5)
+                            .build()
                     createLatch.countDown()
                 }
 
@@ -195,52 +202,56 @@ class GLFrameBufferRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetPixelFormat() {
-        val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
+        val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
         // First verify if another format other than RGBA_8888 is supported
-        if (!HardwareBuffer.isSupported(
+        if (
+            !HardwareBuffer.isSupported(
                 1, // width
                 1, // height
                 HardwareBuffer.RGBA_FP16, // format
                 1, // layers
                 flags // flags
-            )) {
+            )
+        ) {
             return
         }
         var pixelFormat = -1
         val latch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                // NO-OP
-            }
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    // NO-OP
+                }
 
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                pixelFormat = frameBuffer.hardwareBuffer.format
-                latch.countDown()
+                override fun onDrawComplete(
+                    targetSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction,
+                    frameBuffer: FrameBuffer,
+                    syncFence: SyncFenceCompat?
+                ) {
+                    pixelFormat = frameBuffer.hardwareBuffer.format
+                    latch.countDown()
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setBufferFormat(HardwareBuffer.RGBA_FP16)
-                        .build()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        surfaceView = it.getSurfaceView()
+                        renderer =
+                            GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
+                                .setBufferFormat(HardwareBuffer.RGBA_FP16)
+                                .build()
+                    }
             scenario.moveToState(Lifecycle.State.RESUMED)
 
             assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
@@ -256,52 +267,50 @@ class GLFrameBufferRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetUsageFlags() {
-        val expectedFlags = HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
-            HardwareBuffer.USAGE_CPU_READ_RARELY
-        if (!HardwareBuffer.isSupported(
-                1,
-                1,
-                HardwareBuffer.RGBA_8888,
-                1,
-                expectedFlags)) {
+        val expectedFlags =
+            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or HardwareBuffer.USAGE_CPU_READ_RARELY
+        if (!HardwareBuffer.isSupported(1, 1, HardwareBuffer.RGBA_8888, 1, expectedFlags)) {
             return
         }
         val latch = CountDownLatch(1)
         var actualUsageFlags = -1L
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                // NO-OP
-            }
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    // NO-OP
+                }
 
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                actualUsageFlags = frameBuffer.hardwareBuffer.usage
-                latch.countDown()
+                override fun onDrawComplete(
+                    targetSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction,
+                    frameBuffer: FrameBuffer,
+                    syncFence: SyncFenceCompat?
+                ) {
+                    actualUsageFlags = frameBuffer.hardwareBuffer.usage
+                    latch.countDown()
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
             val createLatch = CountDownLatch(1)
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
-                        .setUsageFlags(expectedFlags)
-                        .build()
-                    createLatch.countDown()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        surfaceView = it.getSurfaceView()
+                        renderer =
+                            GLFrameBufferRenderer.Builder(surfaceView!!, callbacks)
+                                .setUsageFlags(expectedFlags)
+                                .build()
+                        createLatch.countDown()
+                    }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
 
@@ -321,32 +330,32 @@ class GLFrameBufferRendererTest {
     @Test
     fun testExecute() {
         val executeLatch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray,
-            ) {
-                // NO-OP
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                ) {
+                    // NO-OP
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        surfaceView = it.getSurfaceView()
+                        renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
+                    }
 
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer?.execute {
-                    executeLatch.countDown()
-                }
+                renderer?.execute { executeLatch.countDown() }
             }
 
             assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -361,89 +370,92 @@ class GLFrameBufferRendererTest {
         val renderLatch = CountDownLatch(1)
         var surfaceWidth = 0
         var surfaceHeight = 0
-        val callbacks = object : GLFrameBufferRenderer.Callback {
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
 
-            val mProjectionMatrix = FloatArray(16)
-            val mOrthoMatrix = FloatArray(16)
+                val mProjectionMatrix = FloatArray(16)
+                val mOrthoMatrix = FloatArray(16)
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                assertEquals(surfaceWidth, width)
-                assertEquals(surfaceHeight, height)
-                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-                Matrix.orthoM(
-                    mOrthoMatrix,
-                    0,
-                    0f,
-                    bufferInfo.width.toFloat(),
-                    0f,
-                    bufferInfo.height.toFloat(),
-                    -1f,
-                    1f
-                )
-                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
-            }
-
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    transaction.addTransactionCommittedListener(
-                        Executors.newSingleThreadExecutor(),
-                        object : SurfaceControlCompat.TransactionCommittedListener {
-                            override fun onTransactionCommitted() {
-                                renderLatch.countDown()
-                            }
-                        }
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    assertEquals(surfaceWidth, width)
+                    assertEquals(surfaceHeight, height)
+                    GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                    Matrix.orthoM(
+                        mOrthoMatrix,
+                        0,
+                        0f,
+                        bufferInfo.width.toFloat(),
+                        0f,
+                        bufferInfo.height.toFloat(),
+                        -1f,
+                        1f
                     )
-                } else {
-                    renderLatch.countDown()
+                    Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                    Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+                }
+
+                override fun onDrawComplete(
+                    targetSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction,
+                    frameBuffer: FrameBuffer,
+                    syncFence: SyncFenceCompat?
+                ) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        transaction.addTransactionCommittedListener(
+                            Executors.newSingleThreadExecutor(),
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    renderLatch.countDown()
+                                }
+                            }
+                        )
+                    } else {
+                        renderLatch.countDown()
+                    }
                 }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView? = null
 
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    surfaceView = it.getSurfaceView().apply {
-                        holder.addCallback(object : SurfaceHolder.Callback {
-                            override fun surfaceCreated(holder: SurfaceHolder) {
-                                // no-op
-                            }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        surfaceView =
+                            it.getSurfaceView().apply {
+                                holder.addCallback(
+                                    object : SurfaceHolder.Callback {
+                                        override fun surfaceCreated(holder: SurfaceHolder) {
+                                            // no-op
+                                        }
 
-                            override fun surfaceChanged(
-                                holder: SurfaceHolder,
-                                format: Int,
-                                width: Int,
-                                height: Int
-                            ) {
-                                surfaceWidth = width
-                                surfaceHeight = height
-                            }
+                                        override fun surfaceChanged(
+                                            holder: SurfaceHolder,
+                                            format: Int,
+                                            width: Int,
+                                            height: Int
+                                        ) {
+                                            surfaceWidth = width
+                                            surfaceHeight = height
+                                        }
 
-                            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                                // no-op
+                                        override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                            // no-op
+                                        }
+                                    }
+                                )
                             }
-                        })
+                        renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
                     }
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
 
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer?.render()
-            }
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity { renderer?.render() }
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
@@ -456,8 +468,7 @@ class GLFrameBufferRendererTest {
             }
 
             SurfaceControlUtils.validateOutput { bitmap ->
-                Color.RED ==
-                    bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
+                Color.RED == bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
             }
         } finally {
             renderer.blockingRelease()
@@ -491,65 +502,70 @@ class GLFrameBufferRendererTest {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun testRenderWithDimensions(renderWidth: Int, renderHeight: Int) {
         val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
 
-            val mProjectionMatrix = FloatArray(16)
-            val mOrthoMatrix = FloatArray(16)
+                val mProjectionMatrix = FloatArray(16)
+                val mOrthoMatrix = FloatArray(16)
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-                Matrix.orthoM(
-                    mOrthoMatrix,
-                    0,
-                    0f,
-                    bufferInfo.width.toFloat(),
-                    0f,
-                    bufferInfo.height.toFloat(),
-                    -1f,
-                    1f
-                )
-                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
-            }
-
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    transaction.addTransactionCommittedListener(
-                        Executors.newSingleThreadExecutor(),
-                        object : SurfaceControlCompat.TransactionCommittedListener {
-                            override fun onTransactionCommitted() {
-                                renderLatch.countDown()
-                            }
-                        }
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
+                    Matrix.orthoM(
+                        mOrthoMatrix,
+                        0,
+                        0f,
+                        bufferInfo.width.toFloat(),
+                        0f,
+                        bufferInfo.height.toFloat(),
+                        -1f,
+                        1f
                     )
-                } else {
-                    renderLatch.countDown()
+                    Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
+                    Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
+                }
+
+                override fun onDrawComplete(
+                    targetSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction,
+                    frameBuffer: FrameBuffer,
+                    syncFence: SyncFenceCompat?
+                ) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        transaction.addTransactionCommittedListener(
+                            Executors.newSingleThreadExecutor(),
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    renderLatch.countDown()
+                                }
+                            }
+                        )
+                    } else {
+                        renderLatch.countDown()
+                    }
                 }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
 
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    val target = SurfaceView(it)
-                    surfaceView = target
-                    it.setContentView(target, FrameLayout.LayoutParams(renderWidth, renderHeight))
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        val target = SurfaceView(it)
+                        surfaceView = target
+                        it.setContentView(
+                            target,
+                            FrameLayout.LayoutParams(renderWidth, renderHeight)
+                        )
+                        renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
+                    }
 
             val resumeLatch = CountDownLatch(1)
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
@@ -568,37 +584,37 @@ class GLFrameBufferRendererTest {
     @Test
     fun testRenderedOnSurfaceRedraw() {
         val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                renderLatch.countDown()
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    renderLatch.countDown()
+                }
             }
-        }
         var activity: SurfaceViewTestActivity? = null
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    activity = it
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        activity = it
+                        surfaceView = it.getSurfaceView()
+                        renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
+                    }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             val destroyLatch = CountDownLatch(1)
-            activity?.setOnDestroyCallback {
-                destroyLatch.countDown()
-            }
+            activity?.setOnDestroyCallback { destroyLatch.countDown() }
             scenario.moveToState(Lifecycle.State.DESTROYED)
             assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
         } finally {
@@ -611,36 +627,38 @@ class GLFrameBufferRendererTest {
     fun testBufferReleaseCallbackInvoked() {
         val renderLatch = CountDownLatch(1)
         val bufferReleasedLatch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
+        val callbacks =
+            object : GLFrameBufferRenderer.Callback {
 
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                renderLatch.countDown()
-            }
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    renderLatch.countDown()
+                }
 
-            override fun onBufferReleased(
-                frameBuffer: FrameBuffer,
-                releaseFence: SyncFenceCompat?
-            ) {
-                bufferReleasedLatch.countDown()
+                override fun onBufferReleased(
+                    frameBuffer: FrameBuffer,
+                    releaseFence: SyncFenceCompat?
+                ) {
+                    bufferReleasedLatch.countDown()
+                }
             }
-        }
         var activity: SurfaceViewTestActivity? = null
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceView?
         try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    activity = it
-                    surfaceView = it.getSurfaceView()
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
+            val scenario =
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        activity = it
+                        surfaceView = it.getSurfaceView()
+                        renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
+                    }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
@@ -650,9 +668,7 @@ class GLFrameBufferRendererTest {
             assertTrue(bufferReleasedLatch.await(3000, TimeUnit.MILLISECONDS))
 
             val destroyLatch = CountDownLatch(1)
-            activity?.setOnDestroyCallback {
-                destroyLatch.countDown()
-            }
+            activity?.setOnDestroyCallback { destroyLatch.countDown() }
             scenario.moveToState(Lifecycle.State.DESTROYED)
             assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
         } finally {
@@ -663,17 +679,18 @@ class GLFrameBufferRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testReleaseRemovedSurfaceCallbacks() {
-        val callback = object : GLFrameBufferRenderer.Callback {
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                // NO-OP
+        val callback =
+            object : GLFrameBufferRenderer.Callback {
+                override fun onDrawFrame(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray
+                ) {
+                    // NO-OP
+                }
             }
-        }
         var renderer: GLFrameBufferRenderer? = null
         var surfaceView: SurfaceViewTestActivity.TestSurfaceView? = null
         val createLatch = CountDownLatch(1)
@@ -692,9 +709,7 @@ class GLFrameBufferRendererTest {
             if (resolvedSurfaceView != null) {
                 assertEquals(1, resolvedSurfaceView.getCallbackCount())
                 val releaseLatch = CountDownLatch(1)
-                renderer!!.release(true) {
-                    releaseLatch.countDown()
-                }
+                renderer!!.release(true) { releaseLatch.countDown() }
                 assertTrue(releaseLatch.await(3000, TimeUnit.MILLISECONDS))
                 assertEquals(0, resolvedSurfaceView.getCallbackCount())
                 renderer = null
@@ -710,9 +725,7 @@ class GLFrameBufferRendererTest {
     private fun GLFrameBufferRenderer?.blockingRelease(timeoutMillis: Long = 3000) {
         if (this != null) {
             val destroyLatch = CountDownLatch(1)
-            release(false) {
-                destroyLatch.countDown()
-            }
+            release(false) { destroyLatch.countDown() }
             assertTrue(destroyLatch.await(timeoutMillis, TimeUnit.MILLISECONDS))
             assertFalse(isValid())
         }

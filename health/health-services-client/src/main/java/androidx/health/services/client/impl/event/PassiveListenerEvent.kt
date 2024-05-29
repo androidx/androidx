@@ -27,10 +27,7 @@ import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResp
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent as EventProto
 import androidx.health.services.client.proto.ResponsesProto.PermissionLostResponse
 
-/**
- * An event representing a [PassiveListenerCallback] or [PassiveListenerService] invocation.
- *
- */
+/** An event representing a [PassiveListenerCallback] or [PassiveListenerService] invocation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class PassiveListenerEvent(public override val proto: EventProto) :
     ProtoParcelable<EventProto>() {

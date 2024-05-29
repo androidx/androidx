@@ -27,21 +27,24 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 internal class DataPointTest {
     fun Int.duration() = Duration.ofSeconds(toLong())
+
     fun Int.instant() = Instant.ofEpochMilli(toLong())
 
     @Test
     fun intervalDataPointProtoRoundTrip() {
-        val proto = IntervalDataPoint(
-            DataType.CALORIES,
-            value = 130.0,
-            startDurationFromBoot = 10.duration(),
-            endDurationFromBoot = 20.duration(),
-            Bundle().apply {
-                putInt("int", 5)
-                putString("string", "value")
-            },
-            accuracy = null // No interval DataPoints have an accuracy component
-        ).proto
+        val proto =
+            IntervalDataPoint(
+                    DataType.CALORIES,
+                    value = 130.0,
+                    startDurationFromBoot = 10.duration(),
+                    endDurationFromBoot = 20.duration(),
+                    Bundle().apply {
+                        putInt("int", 5)
+                        putString("string", "value")
+                    },
+                    accuracy = null // No interval DataPoints have an accuracy component
+                )
+                .proto
 
         val dataPoint = DataPoint.fromProto(proto) as IntervalDataPoint
 
@@ -56,16 +59,18 @@ internal class DataPointTest {
 
     @Test
     fun sampleDataPointProtoRoundTrip() {
-        val proto = SampleDataPoint(
-            DataType.HEART_RATE_BPM,
-            130.0,
-            20.duration(),
-            Bundle().apply {
-                putInt("int", 5)
-                putString("string", "value")
-            },
-            HeartRateAccuracy(HeartRateAccuracy.SensorStatus.ACCURACY_HIGH)
-        ).proto
+        val proto =
+            SampleDataPoint(
+                    DataType.HEART_RATE_BPM,
+                    130.0,
+                    20.duration(),
+                    Bundle().apply {
+                        putInt("int", 5)
+                        putString("string", "value")
+                    },
+                    HeartRateAccuracy(HeartRateAccuracy.SensorStatus.ACCURACY_HIGH)
+                )
+                .proto
 
         val dataPoint = DataPoint.fromProto(proto) as SampleDataPoint
 
@@ -80,12 +85,14 @@ internal class DataPointTest {
 
     @Test
     fun cumulativeDataPointProtoRoundTrip() {
-        val proto = CumulativeDataPoint(
-            dataType = DataType.CALORIES_TOTAL,
-            total = 100.0,
-            start = 10.instant(),
-            end = 99.instant(),
-        ).proto
+        val proto =
+            CumulativeDataPoint(
+                    dataType = DataType.CALORIES_TOTAL,
+                    total = 100.0,
+                    start = 10.instant(),
+                    end = 99.instant(),
+                )
+                .proto
 
         val dataPoint = DataPoint.fromProto(proto) as CumulativeDataPoint
 
@@ -97,14 +104,16 @@ internal class DataPointTest {
 
     @Test
     fun statisticalDataPointProtoRoundTrip() {
-        val proto = StatisticalDataPoint(
-            dataType = DataType.HEART_RATE_BPM_STATS,
-            min = 100.0,
-            max = 175.5,
-            average = 155.0,
-            start = 10.instant(),
-            end = 99.instant(),
-        ).proto
+        val proto =
+            StatisticalDataPoint(
+                    dataType = DataType.HEART_RATE_BPM_STATS,
+                    min = 100.0,
+                    max = 175.5,
+                    average = 155.0,
+                    start = 10.instant(),
+                    end = 99.instant(),
+                )
+                .proto
 
         val dataPoint = DataPoint.fromProto(proto) as StatisticalDataPoint
 
@@ -173,8 +182,7 @@ internal class DataPointTest {
 
     @Test
     fun rangeValidationWithDistanceTotal_success() {
-        val distanceTotal =
-            DataPoints.distanceTotal(12.0, getStartInstant(), getEndInstant())
+        val distanceTotal = DataPoints.distanceTotal(12.0, getStartInstant(), getEndInstant())
 
         Truth.assertThat(distanceTotal).isNotNull()
     }
@@ -202,11 +210,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidElevationGain_throwsNoException() {
         val negativeOutOfRangeElevationGain =
             DataPoints.elevationGain(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeElevationGain = DataPoints.elevationGain(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeElevationGain =
+            DataPoints.elevationGain(
+                1000000.1,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeElevationGain).isNotNull()
         Truth.assertThat(positiveOutOfRangeElevationGain).isNotNull()
@@ -224,11 +233,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidElevationLoss_throwsNoException() {
         val negativeOutOfRangeElevationLoss =
             DataPoints.elevationLoss(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeElevationLoss = DataPoints.elevationLoss(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeElevationLoss =
+            DataPoints.elevationLoss(
+                1000000.1,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeElevationLoss).isNotNull()
         Truth.assertThat(positiveOutOfRangeElevationLoss).isNotNull()
@@ -236,8 +246,7 @@ internal class DataPointTest {
 
     @Test
     fun rangeValidationWithAbsoluteElevation_success() {
-        val absoluteElevation =
-            DataPoints.absoluteElevation(12.0, getStartDurationFromBoot())
+        val absoluteElevation = DataPoints.absoluteElevation(12.0, getStartDurationFromBoot())
         val nagativeAbsoluteElevation =
             DataPoints.absoluteElevation(-12.0, getStartDurationFromBoot())
 
@@ -272,48 +281,54 @@ internal class DataPointTest {
 
     @Test
     fun rangeValidationWithInvalidAbsoluteElevationStats_throwsNoException() {
-        val negativeOutOfRangeMinAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            -1000000.1,
-            240.0,
-            120.0,
-            getStartInstant(),
-            getEndInstant()
-        )
-        val negativeOutOfRangeMaxAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            12.0,
-            -1000000.1,
-            120.0,
-            getStartInstant(),
-            getEndInstant()
-        )
-        val negativeOutOfRangeAvgAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            12.0,
-            240.0,
-            -1000000.1,
-            getStartInstant(),
-            getEndInstant()
-        )
-        val positiveOutOfRangeMinAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            1000001.0,
-            240.0,
-            120.0,
-            getStartInstant(),
-            getEndInstant()
-        )
-        val positiveOutOfRangeMaxAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            12.0,
-            1000001.0,
-            120.0,
-            getStartInstant(),
-            getEndInstant()
-        )
-        val positiveOutOfRangeAvgAbsoluteElevationStats = DataPoints.absoluteElevationStats(
-            12.0,
-            240.0,
-            1000001.0,
-            getStartInstant(),
-            getEndInstant()
-        )
+        val negativeOutOfRangeMinAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                -1000000.1,
+                240.0,
+                120.0,
+                getStartInstant(),
+                getEndInstant()
+            )
+        val negativeOutOfRangeMaxAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                12.0,
+                -1000000.1,
+                120.0,
+                getStartInstant(),
+                getEndInstant()
+            )
+        val negativeOutOfRangeAvgAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                12.0,
+                240.0,
+                -1000000.1,
+                getStartInstant(),
+                getEndInstant()
+            )
+        val positiveOutOfRangeMinAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                1000001.0,
+                240.0,
+                120.0,
+                getStartInstant(),
+                getEndInstant()
+            )
+        val positiveOutOfRangeMaxAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                12.0,
+                1000001.0,
+                120.0,
+                getStartInstant(),
+                getEndInstant()
+            )
+        val positiveOutOfRangeAvgAbsoluteElevationStats =
+            DataPoints.absoluteElevationStats(
+                12.0,
+                240.0,
+                1000001.0,
+                getStartInstant(),
+                getEndInstant()
+            )
 
         Truth.assertThat(negativeOutOfRangeMinAbsoluteElevationStats).isNotNull()
         Truth.assertThat(negativeOutOfRangeMaxAbsoluteElevationStats).isNotNull()
@@ -390,11 +405,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidSwimmingStrokes_throwsNoException() {
         val negativeOutOfRangeSwimmingStrokes =
             DataPoints.swimmingStrokes(-1, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeSwimmingStrokes = DataPoints.swimmingStrokes(
-            1000001,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeSwimmingStrokes =
+            DataPoints.swimmingStrokes(
+                1000001,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeSwimmingStrokes).isNotNull()
         Truth.assertThat(positiveOutOfRangeSwimmingStrokes).isNotNull()
@@ -561,11 +577,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidDailyCalories_throwsNoException() {
         val negativeOutOfRangeDailyCalories =
             DataPoints.dailyCalories(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeDailyCalories = DataPoints.dailyCalories(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeDailyCalories =
+            DataPoints.dailyCalories(
+                1000000.1,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeDailyCalories).isNotNull()
         Truth.assertThat(positiveOutOfRangeDailyCalories).isNotNull()
@@ -583,11 +600,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidDailyDistance_throwsNoException() {
         val negativeOutOfRangeDailyDistance =
             DataPoints.dailyDistance(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeDailyDistance = DataPoints.dailyDistance(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeDailyDistance =
+            DataPoints.dailyDistance(
+                1000000.1,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeDailyDistance).isNotNull()
         Truth.assertThat(positiveOutOfRangeDailyDistance).isNotNull()
@@ -605,11 +623,12 @@ internal class DataPointTest {
     fun rangeValidationWithInvalidDailyElevationGain_throwsNoException() {
         val negativeOutOfRangeDailyElevationGain =
             DataPoints.dailyDistance(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeDailyElevationGain = DataPoints.dailyElevationGain(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
+        val positiveOutOfRangeDailyElevationGain =
+            DataPoints.dailyElevationGain(
+                1000000.1,
+                getStartDurationFromBoot(),
+                getEndDurationFromBoot()
+            )
 
         Truth.assertThat(negativeOutOfRangeDailyElevationGain).isNotNull()
         Truth.assertThat(positiveOutOfRangeDailyElevationGain).isNotNull()

@@ -32,71 +32,47 @@ internal class QuadTextureRenderer {
 
     private var mSurfaceTexture: SurfaceTexture? = null
 
-    /**
-     * Array used to store 4 vertices of x and y coordinates
-     */
+    /** Array used to store 4 vertices of x and y coordinates */
     private val mQuadCoords = FloatArray(8)
 
-    /**
-     * Transform to apply to the corresponding texture source
-     */
+    /** Transform to apply to the corresponding texture source */
     private val mTextureTransform = FloatArray(16)
 
-    /**
-     * Handle to the quad position attribute
-     */
+    /** Handle to the quad position attribute */
     private var mQuadPositionHandle = -1
 
-    /**
-     * Handle to the texture coordinate attribute
-     */
+    /** Handle to the texture coordinate attribute */
     private var mTexPositionHandle = -1
 
-    /**
-     * Handle to the texture sampler uniform
-     */
+    /** Handle to the texture sampler uniform */
     private var mTextureUniformHandle: Int = -1
 
-    /**
-     * Handle to the MVP matrix uniform
-     */
+    /** Handle to the MVP matrix uniform */
     private var mViewProjectionMatrixHandle: Int = -1
 
-    /**
-     * Handle to texture transform matrix
-     */
+    /** Handle to texture transform matrix */
     private var mTextureTransformHandle: Int = -1
 
-    /**
-     * GL Program used for rendering a quad with a texture
-     */
+    /** GL Program used for rendering a quad with a texture */
     private var mProgram: Int = -1
 
-    /**
-     * Handle to the vertex shader
-     */
+    /** Handle to the vertex shader */
     private var mVertexShader = -1
 
-    /**
-     * Handle to the fragment shader
-     */
+    /** Handle to the fragment shader */
     private var mFragmentShader = -1
 
     /**
-     * Flag to indicate the resources associated with the shaders/texture has been
-     * released. If this is true all subsequent attempts to draw should be ignored
+     * Flag to indicate the resources associated with the shaders/texture has been released. If this
+     * is true all subsequent attempts to draw should be ignored
      */
     private var mIsReleased = false
 
-    /**
-     * FloatBuffer used to specify quad coordinates
-     */
+    /** FloatBuffer used to specify quad coordinates */
     private val mQuadrantCoordinatesBuffer: FloatBuffer =
         ByteBuffer.allocateDirect(mQuadCoords.size * 4).run {
             order(ByteOrder.nativeOrder())
-            asFloatBuffer().apply {
-                position(0)
-            }
+            asFloatBuffer().apply { position(0) }
         }
 
     init {
@@ -145,16 +121,18 @@ internal class QuadTextureRenderer {
 
     private fun configureQuad(width: Float, height: Float): FloatBuffer =
         mQuadrantCoordinatesBuffer.apply {
-            put(mQuadCoords.apply {
-                this[0] = 0f // top left
-                this[1] = height
-                this[2] = 0f // bottom left
-                this[3] = 0f
-                this[4] = width // top right
-                this[5] = 0f
-                this[6] = width // bottom right
-                this[7] = height
-            })
+            put(
+                mQuadCoords.apply {
+                    this[0] = 0f // top left
+                    this[1] = height
+                    this[2] = 0f // bottom left
+                    this[3] = 0f
+                    this[4] = width // top right
+                    this[5] = 0f
+                    this[6] = width // bottom right
+                    this[7] = height
+                }
+            )
             position(0)
         }
 
@@ -162,11 +140,7 @@ internal class QuadTextureRenderer {
         mSurfaceTexture = surfaceTexture
     }
 
-    fun draw(
-        mvpMatrix: FloatArray,
-        width: Float,
-        height: Float
-    ) {
+    fun draw(mvpMatrix: FloatArray, width: Float, height: Float) {
         if (mIsReleased) {
             Log.w(TAG, "Attempt to render when TextureRenderer has been released")
             return
@@ -181,27 +155,26 @@ internal class QuadTextureRenderer {
         GLES20.glUseProgram(mProgram)
         textureSource.updateTexImage()
 
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
-            GLES20.GL_LINEAR)
-        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
-            GLES20.GL_LINEAR)
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_MIN_FILTER,
+            GLES20.GL_LINEAR
+        )
+        GLES20.glTexParameteri(
+            GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
+            GLES20.GL_TEXTURE_MAG_FILTER,
+            GLES20.GL_LINEAR
+        )
 
         GLES20.glUniform1i(mTextureUniformHandle, 0)
 
-        GLES20.glUniformMatrix4fv(
-            mViewProjectionMatrixHandle,
-            1,
-            false,
-            mvpMatrix,
-            0)
+        GLES20.glUniformMatrix4fv(mViewProjectionMatrixHandle, 1, false, mvpMatrix, 0)
 
         GLES20.glUniformMatrix4fv(
             mTextureTransformHandle,
             1,
             false,
-            mTextureTransform.apply {
-                textureSource.getTransformMatrix(this)
-            },
+            mTextureTransform.apply { textureSource.getTransformMatrix(this) },
             0
         )
 
@@ -281,17 +254,20 @@ internal class QuadTextureRenderer {
         internal const val CoordsPerVertex = 2
         internal const val VertexStride = 4 * CoordsPerVertex
 
-        private val TextureCoordinates = floatArrayOf(
-            // x,    y
-            0.0f, 1.0f, // top left
-            0.0f, 0.0f, // bottom left
-            1.0f, 0.0f, // bottom right
-            1.0f, 1.0f, // top right
-        )
+        private val TextureCoordinates =
+            floatArrayOf(
+                // x,    y
+                0.0f,
+                1.0f, // top left
+                0.0f,
+                0.0f, // bottom left
+                1.0f,
+                0.0f, // bottom right
+                1.0f,
+                1.0f, // top right
+            )
 
-        /**
-         * FloatBuffer used to specify the texture coordinates
-         */
+        /** FloatBuffer used to specify the texture coordinates */
         private val TextureCoordinatesBuffer: FloatBuffer =
             ByteBuffer.allocateDirect(TextureCoordinates.size * 4).run {
                 order(ByteOrder.nativeOrder())
@@ -303,9 +279,7 @@ internal class QuadTextureRenderer {
 
         private val DrawOrder = shortArrayOf(0, 1, 2, 0, 2, 3)
 
-        /**
-         * Convert short array to short buffer
-         */
+        /** Convert short array to short buffer */
         private val DrawOrderBuffer: ShortBuffer =
             ByteBuffer.allocateDirect(DrawOrder.size * 2).run {
                 order(ByteOrder.nativeOrder())

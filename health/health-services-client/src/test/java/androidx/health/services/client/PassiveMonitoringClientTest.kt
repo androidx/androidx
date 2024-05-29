@@ -64,29 +64,35 @@ class PassiveMonitoringClientTest {
 
     private lateinit var client: PassiveMonitoringClient
     private lateinit var service: FakeServiceStub
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    private fun TestScope.advanceMainLooperIdle() =
-        launch { Shadows.shadowOf(Looper.getMainLooper()).idle() }
 
-    private fun CoroutineScope.advanceMainLooperIdle() =
-        launch { Shadows.shadowOf(Looper.getMainLooper()).idle() }
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private fun TestScope.advanceMainLooperIdle() = launch {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+    }
+
+    private fun CoroutineScope.advanceMainLooperIdle() = launch {
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+    }
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        client = ServiceBackedPassiveMonitoringClient(
-            context, ConnectionManager(context, context.mainLooper)
-        )
+        client =
+            ServiceBackedPassiveMonitoringClient(
+                context,
+                ConnectionManager(context, context.mainLooper)
+            )
         service = FakeServiceStub()
 
         val packageName =
             ServiceBackedPassiveMonitoringClient.CLIENT_CONFIGURATION.servicePackageName
         val action = ServiceBackedPassiveMonitoringClient.CLIENT_CONFIGURATION.bindAction
-        Shadows.shadowOf(context).setComponentNameAndServiceForBindServiceForIntent(
-            Intent().setPackage(packageName).setAction(action),
-            ComponentName(packageName, ServiceBackedPassiveMonitoringClient.CLIENT),
-            service
-        )
+        Shadows.shadowOf(context)
+            .setComponentNameAndServiceForBindServiceForIntent(
+                Intent().setPackage(packageName).setAction(action),
+                ComponentName(packageName, ServiceBackedPassiveMonitoringClient.CLIENT),
+                service
+            )
     }
 
     @After
@@ -103,20 +109,20 @@ class PassiveMonitoringClientTest {
     @Test
     fun registersPassiveListenerServiceSynchronously() = runTest {
         launch {
-            val config = PassiveListenerConfig(
-                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-                shouldUserActivityInfoBeRequested = true,
-                dailyGoals = setOf(),
-                healthEventTypes = setOf()
-            )
+            val config =
+                PassiveListenerConfig(
+                    dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                    shouldUserActivityInfoBeRequested = true,
+                    dailyGoals = setOf(),
+                    healthEventTypes = setOf()
+                )
 
             client.setPassiveListenerService(FakeListenerService::class.java, config)
             val request = service.registerServiceRequests[0]
 
             Truth.assertThat(service.registerServiceRequests).hasSize(1)
-            Truth.assertThat(request.passiveListenerConfig.dataTypes).containsExactly(
-                STEPS_DAILY, CALORIES_DAILY
-            )
+            Truth.assertThat(request.passiveListenerConfig.dataTypes)
+                .containsExactly(STEPS_DAILY, CALORIES_DAILY)
             Truth.assertThat(request.passiveListenerConfig.shouldUserActivityInfoBeRequested)
                 .isTrue()
             Truth.assertThat(request.packageName).isEqualTo("androidx.health.services.client.test")
@@ -128,12 +134,13 @@ class PassiveMonitoringClientTest {
     @Test
     fun registersPassiveListenerServiceSynchronously_throwsSecurityException() = runTest {
         launch {
-            val config = PassiveListenerConfig(
-                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-                shouldUserActivityInfoBeRequested = true,
-                dailyGoals = setOf(),
-                healthEventTypes = setOf()
-            )
+            val config =
+                PassiveListenerConfig(
+                    dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                    shouldUserActivityInfoBeRequested = true,
+                    dailyGoals = setOf(),
+                    healthEventTypes = setOf()
+                )
 
             var exception: Exception? = null
             service.callingAppHasPermissions = false
@@ -153,12 +160,13 @@ class PassiveMonitoringClientTest {
     @Test
     fun flushSynchronously() = runTest {
         launch {
-            val config = PassiveListenerConfig(
-                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-                shouldUserActivityInfoBeRequested = true,
-                dailyGoals = setOf(),
-                healthEventTypes = setOf()
-            )
+            val config =
+                PassiveListenerConfig(
+                    dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                    shouldUserActivityInfoBeRequested = true,
+                    dailyGoals = setOf(),
+                    healthEventTypes = setOf()
+                )
             val callback = FakeCallback()
             client.setPassiveListenerCallback(config, callback)
 
@@ -173,12 +181,13 @@ class PassiveMonitoringClientTest {
     @Test
     fun getCapabilitiesSynchronously() = runTest {
         launch {
-            val config = PassiveListenerConfig(
-                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-                shouldUserActivityInfoBeRequested = true,
-                dailyGoals = setOf(),
-                healthEventTypes = setOf()
-            )
+            val config =
+                PassiveListenerConfig(
+                    dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                    shouldUserActivityInfoBeRequested = true,
+                    dailyGoals = setOf(),
+                    healthEventTypes = setOf()
+                )
             val callback = FakeCallback()
             client.setPassiveListenerCallback(config, callback)
 
@@ -195,22 +204,19 @@ class PassiveMonitoringClientTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun getCapabilitiesSynchronously_cancelled() = runTest {
-        val config = PassiveListenerConfig(
-            dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-            shouldUserActivityInfoBeRequested = true,
-            dailyGoals = setOf(),
-            healthEventTypes = setOf()
-        )
+        val config =
+            PassiveListenerConfig(
+                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                shouldUserActivityInfoBeRequested = true,
+                dailyGoals = setOf(),
+                healthEventTypes = setOf()
+            )
         val callback = FakeCallback()
         client.setPassiveListenerCallback(config, callback)
         var isCancellationException = false
 
-        val deferred = async {
-            client.getCapabilities()
-        }
-        val cancellationDeferred = async {
-            deferred.cancel(CancellationException())
-        }
+        val deferred = async { client.getCapabilities() }
+        val cancellationDeferred = async { deferred.cancel(CancellationException()) }
         try {
             deferred.await()
         } catch (e: CancellationException) {
@@ -224,12 +230,13 @@ class PassiveMonitoringClientTest {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun getCapabilitiesSynchronously_Exception() = runTest {
-        val config = PassiveListenerConfig(
-            dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
-            shouldUserActivityInfoBeRequested = true,
-            dailyGoals = setOf(),
-            healthEventTypes = setOf()
-        )
+        val config =
+            PassiveListenerConfig(
+                dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
+                shouldUserActivityInfoBeRequested = true,
+                dailyGoals = setOf(),
+                healthEventTypes = setOf()
+            )
         val callback = FakeCallback()
         client.setPassiveListenerCallback(config, callback)
         var isExceptionCaught = false
@@ -289,8 +296,7 @@ class PassiveMonitoringClientTest {
     }
 
     internal class FakeServiceStub : IPassiveMonitoringApiService.Stub() {
-        @JvmField
-        var apiVersion = 42
+        @JvmField var apiVersion = 42
 
         private var statusCallbackAction: (IStatusCallback?) -> Unit = { it!!.onSuccess() }
         val registerServiceRequests = mutableListOf<PassiveListenerServiceRegistrationRequest>()

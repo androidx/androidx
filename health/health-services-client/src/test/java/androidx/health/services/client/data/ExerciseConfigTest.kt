@@ -31,46 +31,51 @@ import org.robolectric.RobolectricTestRunner
 class ExerciseConfigTest {
     @Test
     fun protoRoundTrip() {
-        val proto = ExerciseConfig(
-            ExerciseType.RUNNING,
-            setOf(LOCATION, DISTANCE_TOTAL, HEART_RATE_BPM),
-            isAutoPauseAndResumeEnabled = true,
-            isGpsEnabled = true,
-            exerciseGoals = listOf(
-                ExerciseGoal.createOneTimeGoal(
-                    DataTypeCondition(DISTANCE_TOTAL, 50.0, GREATER_THAN)
-                ),
-                ExerciseGoal.createOneTimeGoal(
-                    DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
-                ),
-            ),
-            exerciseTypeConfig = GolfExerciseTypeConfig(
-                GolfExerciseTypeConfig
-                    .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-            ),
-            batchingModeOverrides = setOf(BatchingMode.HEART_RATE_5_SECONDS),
-            exerciseEventTypes = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
-            debouncedGoals = listOf(
-                DebouncedGoal.createSampleDebouncedGoal(
-                    DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                        HEART_RATE_BPM,
-                        120.0,
-                        GREATER_THAN,
-                        /* initialDelay= */ 60,
-                        /* durationAtThreshold= */ 5
-                    )
-                ),
-                DebouncedGoal.createAggregateDebouncedGoal(
-                    DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                        HEART_RATE_BPM_STATS,
-                        120.0,
-                        GREATER_THAN,
-                        /* initialDelay= */60,
-                        /* durationAtThreshold= */ 5
-                    )
-                ),
-            ),
-        ).toProto()
+        val proto =
+            ExerciseConfig(
+                    ExerciseType.RUNNING,
+                    setOf(LOCATION, DISTANCE_TOTAL, HEART_RATE_BPM),
+                    isAutoPauseAndResumeEnabled = true,
+                    isGpsEnabled = true,
+                    exerciseGoals =
+                        listOf(
+                            ExerciseGoal.createOneTimeGoal(
+                                DataTypeCondition(DISTANCE_TOTAL, 50.0, GREATER_THAN)
+                            ),
+                            ExerciseGoal.createOneTimeGoal(
+                                DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
+                            ),
+                        ),
+                    exerciseTypeConfig =
+                        GolfExerciseTypeConfig(
+                            GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
+                                .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+                        ),
+                    batchingModeOverrides = setOf(BatchingMode.HEART_RATE_5_SECONDS),
+                    exerciseEventTypes = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
+                    debouncedGoals =
+                        listOf(
+                            DebouncedGoal.createSampleDebouncedGoal(
+                                DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
+                                    HEART_RATE_BPM,
+                                    120.0,
+                                    GREATER_THAN,
+                                    /* initialDelay= */ 60,
+                                    /* durationAtThreshold= */ 5
+                                )
+                            ),
+                            DebouncedGoal.createAggregateDebouncedGoal(
+                                DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
+                                    HEART_RATE_BPM_STATS,
+                                    120.0,
+                                    GREATER_THAN,
+                                    /* initialDelay= */ 60,
+                                    /* durationAtThreshold= */ 5
+                                )
+                            ),
+                        ),
+                )
+                .toProto()
 
         val config = ExerciseConfig(proto)
 
@@ -86,17 +91,18 @@ class ExerciseConfigTest {
         assertThat(config.exerciseGoals[1].dataTypeCondition.comparisonType).isEqualTo(GREATER_THAN)
         assertThat(config.exerciseTypeConfig!!).isInstanceOf(GolfExerciseTypeConfig::class.java)
         assertThat(
-            (config.exerciseTypeConfig!! as GolfExerciseTypeConfig)
-            .golfShotTrackingPlaceInfo
-        ).isEqualTo(GolfExerciseTypeConfig
-            .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
+                (config.exerciseTypeConfig!! as GolfExerciseTypeConfig).golfShotTrackingPlaceInfo
+            )
+            .isEqualTo(
+                GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
+                    .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+            )
         assertThat(config.batchingModeOverrides).containsExactly(BatchingMode.HEART_RATE_5_SECONDS)
         assertThat(config.exerciseEventTypes).containsExactly(ExerciseEventType.GOLF_SHOT_EVENT)
         assertThat(config.isGpsEnabled).isEqualTo(true)
         assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.dataType)
             .isEqualTo(HEART_RATE_BPM)
-        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.threshold)
-            .isEqualTo(120.0)
+        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.threshold).isEqualTo(120.0)
         assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.comparisonType)
             .isEqualTo(GREATER_THAN)
         assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.initialDelaySeconds)
@@ -105,8 +111,7 @@ class ExerciseConfigTest {
             .isEqualTo(5)
         assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.dataType)
             .isEqualTo(HEART_RATE_BPM_STATS)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.threshold)
-            .isEqualTo(120.0)
+        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.threshold).isEqualTo(120.0)
         assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.comparisonType)
             .isEqualTo(GREATER_THAN)
         assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.initialDelaySeconds)
@@ -117,20 +122,23 @@ class ExerciseConfigTest {
 
     @Test
     fun protoRoundTrip_emptyExerciseTypeConfigAndBatchingModes() {
-        val proto = ExerciseConfig(
-            ExerciseType.RUNNING,
-            setOf(LOCATION, DISTANCE_TOTAL, HEART_RATE_BPM),
-            isAutoPauseAndResumeEnabled = true,
-            isGpsEnabled = true,
-            exerciseGoals = listOf(
-                ExerciseGoal.createOneTimeGoal(
-                    DataTypeCondition(DISTANCE_TOTAL, 50.0, GREATER_THAN)
-                ),
-                ExerciseGoal.createOneTimeGoal(
-                    DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
-                ),
-            )
-        ).toProto()
+        val proto =
+            ExerciseConfig(
+                    ExerciseType.RUNNING,
+                    setOf(LOCATION, DISTANCE_TOTAL, HEART_RATE_BPM),
+                    isAutoPauseAndResumeEnabled = true,
+                    isGpsEnabled = true,
+                    exerciseGoals =
+                        listOf(
+                            ExerciseGoal.createOneTimeGoal(
+                                DataTypeCondition(DISTANCE_TOTAL, 50.0, GREATER_THAN)
+                            ),
+                            ExerciseGoal.createOneTimeGoal(
+                                DataTypeCondition(DISTANCE_TOTAL, 150.0, GREATER_THAN)
+                            ),
+                        )
+                )
+                .toProto()
 
         val config = ExerciseConfig(proto)
 

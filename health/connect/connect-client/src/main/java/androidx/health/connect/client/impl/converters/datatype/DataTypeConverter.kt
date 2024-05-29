@@ -22,10 +22,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.platform.client.proto.DataProto.DataType
 import kotlin.reflect.KClass
 
-/**
- * Converts public API object into internal proto for ipc.
- *
- */
+/** Converts public API object into internal proto for ipc. */
 fun KClass<out Record>.toDataTypeName(): String =
     RECORDS_CLASS_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
 

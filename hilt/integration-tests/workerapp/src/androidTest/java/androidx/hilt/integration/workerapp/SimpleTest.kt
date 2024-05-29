@@ -41,11 +41,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class SimpleTest {
 
-    @get:Rule
-    val testRule = HiltAndroidRule(this)
+    @get:Rule val testRule = HiltAndroidRule(this)
 
-    @Inject
-    lateinit var hiltWorkerFactory: HiltWorkerFactory
+    @Inject lateinit var hiltWorkerFactory: HiltWorkerFactory
 
     @Before
     fun setup() {
@@ -55,9 +53,10 @@ class SimpleTest {
     @Test
     fun testWorkerInject() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val worker = TestListenableWorkerBuilder<SimpleWorker>(context).apply {
-            setWorkerFactory(hiltWorkerFactory)
-        }.build()
+        val worker =
+            TestListenableWorkerBuilder<SimpleWorker>(context)
+                .apply { setWorkerFactory(hiltWorkerFactory) }
+                .build()
         val result = worker.doWork()
         assertThat(result).isEqualTo(ListenableWorker.Result.success())
     }
@@ -65,9 +64,10 @@ class SimpleTest {
     @Test
     fun testCoroutineWorkerInject() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val worker = TestListenableWorkerBuilder<SimpleCoroutineWorker>(context).apply {
-            setWorkerFactory(hiltWorkerFactory)
-        }.build()
+        val worker =
+            TestListenableWorkerBuilder<SimpleCoroutineWorker>(context)
+                .apply { setWorkerFactory(hiltWorkerFactory) }
+                .build()
         runBlocking {
             val result = worker.doWork()
             assertThat(result).isEqualTo(ListenableWorker.Result.success())
@@ -77,9 +77,10 @@ class SimpleTest {
     @Test
     fun testNestedWorkerInject() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val worker = TestListenableWorkerBuilder<TopClass.NestedWorker>(context).apply {
-            setWorkerFactory(hiltWorkerFactory)
-        }.build()
+        val worker =
+            TestListenableWorkerBuilder<TopClass.NestedWorker>(context)
+                .apply { setWorkerFactory(hiltWorkerFactory) }
+                .build()
         val result = worker.doWork()
         assertThat(result).isEqualTo(ListenableWorker.Result.success())
     }

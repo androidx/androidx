@@ -33,28 +33,31 @@ class ExerciseLapSummaryTest {
     fun protoRoundTrip() {
         val startTime = Instant.parse("2021-03-02T14:00:00.00Z")
         val endTime = Instant.parse("2021-03-02T14:12:00.00Z").truncatedTo(ChronoUnit.SECONDS)
-        val proto = ExerciseLapSummary(
-            lapCount = 1,
-            startTime = startTime,
-            endTime = endTime,
-            activeDuration = Duration.ofMinutes(10),
-            lapMetrics = DataPointContainer(
-                listOf(
-                    DataPoints.caloriesTotal(
-                        kilocalories = 1000.0,
-                        startTime = startTime,
-                        endTime = endTime
-                    ),
-                    DataPoints.heartRateStats(
-                        minBpm = 50.0,
-                        maxBpm = 150.0,
-                        averageBpm = 100.0,
-                        startTime = startTime,
-                        endTime = endTime
-                    )
+        val proto =
+            ExerciseLapSummary(
+                    lapCount = 1,
+                    startTime = startTime,
+                    endTime = endTime,
+                    activeDuration = Duration.ofMinutes(10),
+                    lapMetrics =
+                        DataPointContainer(
+                            listOf(
+                                DataPoints.caloriesTotal(
+                                    kilocalories = 1000.0,
+                                    startTime = startTime,
+                                    endTime = endTime
+                                ),
+                                DataPoints.heartRateStats(
+                                    minBpm = 50.0,
+                                    maxBpm = 150.0,
+                                    averageBpm = 100.0,
+                                    startTime = startTime,
+                                    endTime = endTime
+                                )
+                            )
+                        )
                 )
-            )
-        ).proto
+                .proto
 
         val summary = ExerciseLapSummary(proto)
 

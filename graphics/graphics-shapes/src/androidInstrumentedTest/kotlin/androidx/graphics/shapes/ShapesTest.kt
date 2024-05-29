@@ -24,9 +24,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 
-/**
- * Tests the utility shape-creating functions like Circle and Star
- */
+/** Tests the utility shape-creating functions like Circle and Star */
 @SmallTest
 class ShapesTest {
 
@@ -39,8 +37,8 @@ class ShapesTest {
     }
 
     /**
-     * Test that the given point is radius distance away from [center]. If two radii are provided
-     * it is sufficient to lie on either one (used for testing points on stars).
+     * Test that the given point is radius distance away from [center]. If two radii are provided it
+     * is sufficient to lie on either one (used for testing points on stars).
      */
     private fun assertPointOnRadii(
         point: Point,
@@ -89,9 +87,7 @@ class ShapesTest {
 
     @Test
     fun circleTest() {
-        Assert.assertThrows(IllegalArgumentException::class.java) {
-            RoundedPolygon.circle(2)
-        }
+        Assert.assertThrows(IllegalArgumentException::class.java) { RoundedPolygon.circle(2) }
 
         val circle = RoundedPolygon.circle()
         assertCircleShape(circle.cubics)
@@ -111,9 +107,9 @@ class ShapesTest {
     }
 
     /**
-     * Stars are complicated. For the unrounded version, we can check whether the vertices
-     * are the right distance from the center. For the rounded versions, just check that the
-     * shape is within the appropriate bounds.
+     * Stars are complicated. For the unrounded version, we can check whether the vertices are the
+     * right distance from the center. For the rounded versions, just check that the shape is within
+     * the appropriate bounds.
      */
     @Test
     fun starTest() {
@@ -126,8 +122,13 @@ class ShapesTest {
         }
 
         val center = Point(1f, 2f)
-        star = RoundedPolygon.star(4, innerRadius = innerRadius,
-            centerX = center.x, centerY = center.y)
+        star =
+            RoundedPolygon.star(
+                4,
+                innerRadius = innerRadius,
+                centerX = center.x,
+                centerY = center.y
+            )
         shape = star.cubics
         for (cubic in shape) {
             assertCubicOnRadii(cubic, radius, innerRadius, center)
@@ -146,8 +147,17 @@ class ShapesTest {
     fun roundedStarTest() {
         val rounding = CornerRounding(.1f)
         val innerRounding = CornerRounding(.2f)
-        val perVtxRounded = listOf<CornerRounding>(rounding, innerRounding, rounding, innerRounding,
-            rounding, innerRounding, rounding, innerRounding)
+        val perVtxRounded =
+            listOf<CornerRounding>(
+                rounding,
+                innerRounding,
+                rounding,
+                innerRounding,
+                rounding,
+                innerRounding,
+                rounding,
+                innerRounding
+            )
 
         var star = RoundedPolygon.star(4, innerRadius = .5f, rounding = rounding)
         val min = Point(-1f, -1f)
@@ -157,20 +167,20 @@ class ShapesTest {
         star = RoundedPolygon.star(4, innerRadius = .5f, innerRounding = innerRounding)
         assertInBounds(star.cubics, min, max)
 
-        star = RoundedPolygon.star(
-            4, innerRadius = .5f, rounding = rounding,
-            innerRounding = innerRounding
-        )
+        star =
+            RoundedPolygon.star(
+                4,
+                innerRadius = .5f,
+                rounding = rounding,
+                innerRounding = innerRounding
+            )
         assertInBounds(star.cubics, min, max)
 
         star = RoundedPolygon.star(4, innerRadius = .5f, perVertexRounding = perVtxRounded)
         assertInBounds(star.cubics, min, max)
 
         assertThrows(IllegalArgumentException::class.java) {
-            star = RoundedPolygon.star(
-                6, innerRadius = .5f,
-                perVertexRounding = perVtxRounded
-            )
+            star = RoundedPolygon.star(6, innerRadius = .5f, perVertexRounding = perVtxRounded)
         }
     }
 }

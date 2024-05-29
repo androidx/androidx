@@ -47,14 +47,22 @@ internal fun cubicsEqualish(c0: Cubic, c1: Cubic): Boolean {
 }
 
 internal fun assertCubicsEqualish(expected: Cubic, actual: Cubic) {
-    assertPointsEqualish(Point(expected.anchor0X, expected.anchor0Y),
-        Point(actual.anchor0X, actual.anchor0Y))
-    assertPointsEqualish(Point(expected.control0X, expected.control0Y),
-        Point(actual.control0X, actual.control0Y))
-    assertPointsEqualish(Point(expected.control1X, expected.control1Y),
-        Point(actual.control1X, actual.control1Y))
-    assertPointsEqualish(Point(expected.anchor1X, expected.anchor1Y),
-        Point(actual.anchor1X, actual.anchor1Y))
+    assertPointsEqualish(
+        Point(expected.anchor0X, expected.anchor0Y),
+        Point(actual.anchor0X, actual.anchor0Y)
+    )
+    assertPointsEqualish(
+        Point(expected.control0X, expected.control0Y),
+        Point(actual.control0X, actual.control0Y)
+    )
+    assertPointsEqualish(
+        Point(expected.control1X, expected.control1Y),
+        Point(actual.control1X, actual.control1Y)
+    )
+    assertPointsEqualish(
+        Point(expected.anchor1X, expected.anchor1Y),
+        Point(actual.anchor1X, actual.anchor1Y)
+    )
 }
 
 internal fun assertCubicListsEqualish(expected: List<Cubic>, actual: List<Cubic>) {
@@ -93,12 +101,12 @@ internal fun assertInBounds(shape: List<Cubic>, minPoint: Point, maxPoint: Point
 
 internal fun identityTransform() = PointTransformer { x, y -> TransformResult(x, y) }
 
-internal fun scaleTransform(sx: Float, sy: Float) = PointTransformer {
-    x, y -> TransformResult(x * sx, y * sy)
+internal fun scaleTransform(sx: Float, sy: Float) = PointTransformer { x, y ->
+    TransformResult(x * sx, y * sy)
 }
 
-internal fun translateTransform(dx: Float, dy: Float) = PointTransformer {
-    x, y -> TransformResult(x + dx, y + dy)
+internal fun translateTransform(dx: Float, dy: Float) = PointTransformer { x, y ->
+    TransformResult(x + dx, y + dy)
 }
 
 internal fun assertBitmapsEqual(b0: Bitmap, b1: Bitmap) {

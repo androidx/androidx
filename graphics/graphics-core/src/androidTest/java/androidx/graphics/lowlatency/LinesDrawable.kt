@@ -25,9 +25,7 @@ import android.graphics.drawable.Drawable
 class LinesDrawable : Drawable() {
 
     private var mLines: FloatArray? = null
-    private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        strokeWidth = 5f
-    }
+    private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeWidth = 5f }
 
     var strokeWidth: Float
         get() = mPaint.strokeWidth
@@ -38,13 +36,7 @@ class LinesDrawable : Drawable() {
     override fun draw(canvas: Canvas) {
         mLines?.let { lines ->
             for (i in lines.indices step 4) {
-                canvas.drawLine(
-                    lines[i],
-                    lines[i + 1],
-                    lines[i + 2],
-                    lines[i + 3],
-                    mPaint
-                )
+                canvas.drawLine(lines[i], lines[i + 1], lines[i + 2], lines[i + 3], mPaint)
             }
         }
     }

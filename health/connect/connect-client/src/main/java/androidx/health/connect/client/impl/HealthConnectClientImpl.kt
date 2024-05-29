@@ -60,41 +60,36 @@ import kotlinx.coroutines.guava.await
 /**
  * Kotlin extension implementation that exposes kotlin coroutines rather than guava
  * ListenableFutures.
- *
  */
 class HealthConnectClientImpl
 internal constructor(
     private val delegate: HealthDataAsyncClient,
-    private val allPermissions: List<String> =
-        buildList {
-            addAll(
-                HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
-                    listOf(
-                        HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
-                        HealthPermission.READ_PERMISSION_PREFIX + it.value
-                    )
-                }
-            )
-            add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
-            add(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
-        },
+    private val allPermissions: List<String> = buildList {
+        addAll(
+            HealthPermission.RECORD_TYPE_TO_PERMISSION.flatMap {
+                listOf(
+                    HealthPermission.WRITE_PERMISSION_PREFIX + it.value,
+                    HealthPermission.READ_PERMISSION_PREFIX + it.value
+                )
+            }
+        )
+        add(HealthPermission.PERMISSION_WRITE_EXERCISE_ROUTE)
+        add(HealthPermission.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+    },
 ) : HealthConnectClient, PermissionController {
 
     override suspend fun getGrantedPermissions(): Set<String> {
-        val grantedPermissions =
-            wrapRemoteException {
-                delegate
-                    .filterGrantedPermissions(
-                        allPermissions
-                            .map {
-                                PermissionProto.Permission.newBuilder().setPermission(it).build()
-                            }
-                            .toSet()
-                    )
-                    .await()
-                    .map { it.permission }
-                    .toSet()
-            }
+        val grantedPermissions = wrapRemoteException {
+            delegate
+                .filterGrantedPermissions(
+                    allPermissions
+                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                        .toSet()
+                )
+                .await()
+                .map { it.permission }
+                .toSet()
+        }
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
             "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
@@ -103,9 +98,7 @@ internal constructor(
     }
 
     override suspend fun revokeAllPermissions() {
-        wrapRemoteException {
-            delegate.revokeAllPermissions().await()
-        }
+        wrapRemoteException { delegate.revokeAllPermissions().await() }
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Revoked all permissions.")
     }
 
@@ -113,18 +106,15 @@ internal constructor(
         get() = this
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
-        val uidList =
-            wrapRemoteException {
-                delegate.insertData(records.map { it.toProto() }).await()
-            }
+        val uidList = wrapRemoteException {
+            delegate.insertData(records.map { it.toProto() }).await()
+        }
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records inserted.")
         return InsertRecordsResponse(recordIdsList = uidList)
     }
 
     override suspend fun updateRecords(records: List<Record>) {
-        wrapRemoteException {
-            delegate.updateData(records.map { it.toProto() }).await()
-        }
+        wrapRemoteException { delegate.updateData(records.map { it.toProto() }).await() }
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "${records.size} records updated.")
     }
 
@@ -152,7 +142,8 @@ internal constructor(
         timeRangeFilter: TimeRangeFilter,
     ) {
         wrapRemoteException {
-            delegate.deleteDataRange(toDeleteDataRangeRequestProto(recordType, timeRangeFilter))
+            delegate
+                .deleteDataRange(toDeleteDataRangeRequestProto(recordType, timeRangeFilter))
                 .await()
         }
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Records deletion successful.")
@@ -172,39 +163,37 @@ internal constructor(
     }
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
-        val proto =
-            wrapRemoteException {
-                delegate
-                    .getChangesToken(
-                        RequestProto.GetChangesTokenRequest.newBuilder()
-                            .addAllDataType(request.recordTypes.map { it.toDataType() })
-                            .addAllDataOriginFilters(
-                                request.dataOriginFilters.map {
-                                    DataProto.DataOrigin.newBuilder()
-                                        .setApplicationId(it.packageName)
-                                        .build()
-                                }
-                            )
-                            .build()
-                    )
-                    .await()
-            }
+        val proto = wrapRemoteException {
+            delegate
+                .getChangesToken(
+                    RequestProto.GetChangesTokenRequest.newBuilder()
+                        .addAllDataType(request.recordTypes.map { it.toDataType() })
+                        .addAllDataOriginFilters(
+                            request.dataOriginFilters.map {
+                                DataProto.DataOrigin.newBuilder()
+                                    .setApplicationId(it.packageName)
+                                    .build()
+                            }
+                        )
+                        .build()
+                )
+                .await()
+        }
         val changeToken = proto.changesToken
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieved change token $changeToken.")
         return changeToken
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
-        val proto =
-            wrapRemoteException {
-                delegate
-                    .getChanges(
-                        RequestProto.GetChangesRequest.newBuilder()
-                            .setChangesToken(changesToken)
-                            .build()
-                    )
-                    .await()
-            }
+        val proto = wrapRemoteException {
+            delegate
+                .getChanges(
+                    RequestProto.GetChangesRequest.newBuilder()
+                        .setChangesToken(changesToken)
+                        .build()
+                )
+                .await()
+        }
         val nextToken = proto.nextChangesToken
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
@@ -216,20 +205,16 @@ internal constructor(
     override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>,
     ): ReadRecordsResponse<T> {
-        val proto =
-            wrapRemoteException {
-                delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
-            }
+        val proto = wrapRemoteException {
+            delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
+        }
         val response = toReadRecordsResponse<T>(proto)
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieve records successful.")
         return response
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
-        val responseProto =
-            wrapRemoteException {
-                delegate.aggregate(request.toProto()).await()
-            }
+        val responseProto = wrapRemoteException { delegate.aggregate(request.toProto()).await() }
         val result = responseProto.rowsList.first().retrieveAggregateDataRow()
         val numberOfMetrics = result.longValues.size + result.doubleValues.size
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Retrieved $numberOfMetrics metrics.")
@@ -239,10 +224,7 @@ internal constructor(
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest,
     ): List<AggregationResultGroupedByDuration> {
-        val responseProto =
-            wrapRemoteException {
-                delegate.aggregate(request.toProto()).await()
-            }
+        val responseProto = wrapRemoteException { delegate.aggregate(request.toProto()).await() }
         val result = responseProto.rowsList.map { it.toAggregateDataRowGroupByDuration() }.toList()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
@@ -254,10 +236,7 @@ internal constructor(
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
-        val responseProto =
-            wrapRemoteException {
-                delegate.aggregate(request.toProto()).await()
-            }
+        val responseProto = wrapRemoteException { delegate.aggregate(request.toProto()).await() }
         val result = responseProto.rowsList.map { it.toAggregateDataRowGroupByPeriod() }.toList()
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
@@ -274,11 +253,12 @@ internal constructor(
         try {
             return function()
         } catch (e: RemoteException) {
-            val wrapper = when (e) {
-                is DeadObjectException -> DeadObjectException(e.message)
-                is TransactionTooLargeException -> TransactionTooLargeException(e.message)
-                else -> RemoteException(e.message)
-            }
+            val wrapper =
+                when (e) {
+                    is DeadObjectException -> DeadObjectException(e.message)
+                    is TransactionTooLargeException -> TransactionTooLargeException(e.message)
+                    else -> RemoteException(e.message)
+                }
             wrapper.initCause(e)
             throw wrapper
         }

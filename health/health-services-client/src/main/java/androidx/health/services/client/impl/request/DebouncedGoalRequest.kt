@@ -25,19 +25,19 @@ import androidx.health.services.client.proto.RequestsProto
 /** Request for adding or removing a [DebouncedGoal] for an exercise. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 data class DebouncedGoalRequest(val packageName: String, val debouncedGoal: DebouncedGoal<*>) :
-  ProtoParcelable<RequestsProto.DebouncedGoalRequest>() {
-  override val proto: RequestsProto.DebouncedGoalRequest
-    get() =
-      RequestsProto.DebouncedGoalRequest.newBuilder()
-        .setPackageName(packageName)
-        .setDebouncedGoal(debouncedGoal.proto)
-        .build()
+    ProtoParcelable<RequestsProto.DebouncedGoalRequest>() {
+    override val proto: RequestsProto.DebouncedGoalRequest
+        get() =
+            RequestsProto.DebouncedGoalRequest.newBuilder()
+                .setPackageName(packageName)
+                .setDebouncedGoal(debouncedGoal.proto)
+                .build()
 
-  companion object {
-    @JvmField
-    val CREATOR: Parcelable.Creator<DebouncedGoalRequest> = newCreator { bytes ->
-      val proto = RequestsProto.DebouncedGoalRequest.parseFrom(bytes)
-      DebouncedGoalRequest(proto.packageName, DebouncedGoal.fromProto(proto.debouncedGoal))
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<DebouncedGoalRequest> = newCreator { bytes ->
+            val proto = RequestsProto.DebouncedGoalRequest.parseFrom(bytes)
+            DebouncedGoalRequest(proto.packageName, DebouncedGoal.fromProto(proto.debouncedGoal))
+        }
     }
-  }
 }

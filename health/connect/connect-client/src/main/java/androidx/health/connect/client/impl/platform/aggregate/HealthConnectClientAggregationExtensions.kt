@@ -49,25 +49,28 @@ import kotlinx.coroutines.flow.flow
 // Max buffer to account for overlapping records that have startTime < timeRangeFilter.startTime
 val RECORD_START_TIME_BUFFER: Duration = Duration.ofDays(1)
 
-private val AGGREGATION_FALLBACK_RECORD_TYPES = setOf(
-    BloodPressureRecord::class,
-    CyclingPedalingCadenceRecord::class,
-    NutritionRecord::class,
-    SpeedRecord::class,
-    StepsCadenceRecord::class
-)
+private val AGGREGATION_FALLBACK_RECORD_TYPES =
+    setOf(
+        BloodPressureRecord::class,
+        CyclingPedalingCadenceRecord::class,
+        NutritionRecord::class,
+        SpeedRecord::class,
+        StepsCadenceRecord::class
+    )
 
-internal suspend fun HealthConnectClient.aggregateFallback(request: AggregateRequest):
-    AggregationResult {
+internal suspend fun HealthConnectClient.aggregateFallback(
+    request: AggregateRequest
+): AggregationResult {
     var aggregationResult = emptyAggregationResult()
 
     for (recordType in AGGREGATION_FALLBACK_RECORD_TYPES) {
-        aggregationResult += aggregate(
-            recordType,
-            request.fallbackMetrics,
-            request.timeRangeFilter,
-            request.dataOriginFilter
-        )
+        aggregationResult +=
+            aggregate(
+                recordType,
+                request.fallbackMetrics,
+                request.timeRangeFilter,
+                request.dataOriginFilter
+            )
     }
 
     return aggregationResult
@@ -87,12 +90,8 @@ private suspend fun <T : Record> HealthConnectClient.aggregate(
     }
 
     return when (recordType) {
-        BloodPressureRecord::class -> aggregateBloodPressure(
-            recordTypeMetrics,
-            timeRangeFilter,
-            dataOriginFilter
-        )
-
+        BloodPressureRecord::class ->
+            aggregateBloodPressure(recordTypeMetrics, timeRangeFilter, dataOriginFilter)
         CyclingPedalingCadenceRecord::class -> TODO(reason = "b/326414908")
         NutritionRecord::class -> aggregateNutritionTransFatTotal(timeRangeFilter, dataOriginFilter)
         SpeedRecord::class -> TODO(reason = "b/326414908")
@@ -110,14 +109,15 @@ suspend fun <T : Record> HealthConnectClient.readRecordsFlow(
     return flow {
         var pageToken: String? = null
         do {
-            val response = readRecords(
-                ReadRecordsRequest(
-                    recordType = recordType,
-                    timeRangeFilter = timeRangeFilter,
-                    dataOriginFilter = dataOriginFilter,
-                    pageToken = pageToken
+            val response =
+                readRecords(
+                    ReadRecordsRequest(
+                        recordType = recordType,
+                        timeRangeFilter = timeRangeFilter,
+                        dataOriginFilter = dataOriginFilter,
+                        pageToken = pageToken
+                    )
                 )
-            )
             emit(response.records)
             pageToken = response.pageToken
         } while (pageToken != null)
@@ -128,19 +128,21 @@ internal fun IntervalRecord.overlaps(timeRangeFilter: TimeRangeFilter): Boolean 
     val startTimeOverlaps: Boolean
     val endTimeOverlaps: Boolean
     if (timeRangeFilter.useLocalTime()) {
-        startTimeOverlaps = timeRangeFilter.localEndTime == null ||
-            startTime.isBefore(
-                timeRangeFilter.localEndTime.toInstantWithDefaultZoneFallback(startZoneOffset)
-            )
-        endTimeOverlaps = timeRangeFilter.localStartTime == null ||
-            endTime.isAfter(
-                timeRangeFilter.localStartTime.toInstantWithDefaultZoneFallback(endZoneOffset)
-            )
+        startTimeOverlaps =
+            timeRangeFilter.localEndTime == null ||
+                startTime.isBefore(
+                    timeRangeFilter.localEndTime.toInstantWithDefaultZoneFallback(startZoneOffset)
+                )
+        endTimeOverlaps =
+            timeRangeFilter.localStartTime == null ||
+                endTime.isAfter(
+                    timeRangeFilter.localStartTime.toInstantWithDefaultZoneFallback(endZoneOffset)
+                )
     } else {
-        startTimeOverlaps = timeRangeFilter.endTime == null ||
-            startTime.isBefore(timeRangeFilter.endTime)
-        endTimeOverlaps = timeRangeFilter.startTime == null ||
-            endTime.isAfter(timeRangeFilter.startTime)
+        startTimeOverlaps =
+            timeRangeFilter.endTime == null || startTime.isBefore(timeRangeFilter.endTime)
+        endTimeOverlaps =
+            timeRangeFilter.startTime == null || endTime.isAfter(timeRangeFilter.startTime)
     }
     return startTimeOverlaps && endTimeOverlaps
 }
@@ -176,7 +178,4 @@ internal fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilt
 internal fun emptyAggregationResult() =
     AggregationResult(longValues = mapOf(), doubleValues = mapOf(), dataOrigins = setOf())
 
-class AggregatedData<T>(
-    var value: T,
-    var dataOrigins: MutableSet<DataOrigin> = mutableSetOf()
-)
+class AggregatedData<T>(var value: T, var dataOrigins: MutableSet<DataOrigin> = mutableSetOf())

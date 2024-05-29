@@ -170,10 +170,10 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(
-            healthConnectClient
-                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                .records
-        )
+                healthConnectClient
+                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                    .records
+            )
             .containsExactly(initialRecords[0])
     }
 
@@ -211,10 +211,10 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(
-            healthConnectClient
-                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                .records
-        )
+                healthConnectClient
+                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                    .records
+            )
             .containsExactly(initialRecords[1])
     }
 
@@ -339,10 +339,10 @@ class HealthConnectClientUpsideDownImplTest {
                     endTime = START_TIME + 30.seconds,
                     endZoneOffset = ZoneOffset.UTC,
                     samples =
-                    listOf(
-                        HeartRateRecord.Sample(START_TIME, 57L),
-                        HeartRateRecord.Sample(START_TIME + 15.seconds, 120L)
-                    )
+                        listOf(
+                            HeartRateRecord.Sample(START_TIME, 57L),
+                            HeartRateRecord.Sample(START_TIME + 15.seconds, 120L)
+                        )
                 ),
                 HeartRateRecord(
                     startTime = START_TIME + 1.minutes,
@@ -350,10 +350,10 @@ class HealthConnectClientUpsideDownImplTest {
                     endTime = START_TIME + 1.minutes + 30.seconds,
                     endZoneOffset = ZoneOffset.UTC,
                     samples =
-                    listOf(
-                        HeartRateRecord.Sample(START_TIME + 1.minutes, 47L),
-                        HeartRateRecord.Sample(START_TIME + 1.minutes + 15.seconds, 48L)
-                    )
+                        listOf(
+                            HeartRateRecord.Sample(START_TIME + 1.minutes, 47L),
+                            HeartRateRecord.Sample(START_TIME + 1.minutes + 15.seconds, 48L)
+                        )
                 ),
                 NutritionRecord(
                     startTime = START_TIME,
@@ -420,35 +420,30 @@ class HealthConnectClientUpsideDownImplTest {
             )
         )
 
-        val aggregateResponse = healthConnectClient.aggregate(
-            AggregateRequest(
-                setOf(
-                    BloodPressureRecord.DIASTOLIC_AVG,
-                    BloodPressureRecord.DIASTOLIC_MAX,
-                    BloodPressureRecord.DIASTOLIC_MIN,
-                    BloodPressureRecord.SYSTOLIC_AVG,
-                    BloodPressureRecord.SYSTOLIC_MAX,
-                    BloodPressureRecord.SYSTOLIC_MIN,
-                    NutritionRecord.TRANS_FAT_TOTAL
-                ),
-                TimeRangeFilter.none()
+        val aggregateResponse =
+            healthConnectClient.aggregate(
+                AggregateRequest(
+                    setOf(
+                        BloodPressureRecord.DIASTOLIC_AVG,
+                        BloodPressureRecord.DIASTOLIC_MAX,
+                        BloodPressureRecord.DIASTOLIC_MIN,
+                        BloodPressureRecord.SYSTOLIC_AVG,
+                        BloodPressureRecord.SYSTOLIC_MAX,
+                        BloodPressureRecord.SYSTOLIC_MIN,
+                        NutritionRecord.TRANS_FAT_TOTAL
+                    ),
+                    TimeRangeFilter.none()
+                )
             )
-        )
 
         assertEquals(
             aggregateResponse[NutritionRecord.TRANS_FAT_TOTAL] to 0.5.grams,
-            aggregateResponse[BloodPressureRecord.SYSTOLIC_AVG] to
-                120.millimetersOfMercury,
-            aggregateResponse[BloodPressureRecord.SYSTOLIC_MAX] to
-                120.millimetersOfMercury,
-            aggregateResponse[BloodPressureRecord.SYSTOLIC_MIN] to
-                120.millimetersOfMercury,
-            aggregateResponse[BloodPressureRecord.DIASTOLIC_AVG] to
-                80.millimetersOfMercury,
-            aggregateResponse[BloodPressureRecord.DIASTOLIC_MAX] to
-                80.millimetersOfMercury,
-            aggregateResponse[BloodPressureRecord.DIASTOLIC_MIN] to
-                80.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_AVG] to 120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_MAX] to 120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_MIN] to 120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_AVG] to 80.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_MAX] to 80.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_MIN] to 80.millimetersOfMercury,
         )
     }
 

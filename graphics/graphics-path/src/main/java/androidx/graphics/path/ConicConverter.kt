@@ -17,40 +17,36 @@
 package androidx.graphics.path
 
 /**
- * This class converts a given Conic object to the equivalent set of Quadratic objects.
- * It stores all quadratics from a conversion in the call to [convert], but returns only
- * one at a time, from nextQuadratic(), storing the rest for later retrieval (since a
- * PathIterator only retrieves one object at a time).
+ * This class converts a given Conic object to the equivalent set of Quadratic objects. It stores
+ * all quadratics from a conversion in the call to [convert], but returns only one at a time, from
+ * nextQuadratic(), storing the rest for later retrieval (since a PathIterator only retrieves one
+ * object at a time).
  *
- * This object is stateful, using quadraticCount, currentQuadratic, and quadraticData
- * to send back the next quadratic when requested, in [nextQuadratic].
+ * This object is stateful, using quadraticCount, currentQuadratic, and quadraticData to send back
+ * the next quadratic when requested, in [nextQuadratic].
  */
 internal class ConicConverter {
-    /**
-     * The total number of quadratics currently stored in the converter
-     */
+    /** The total number of quadratics currently stored in the converter */
     var quadraticCount: Int = 0
         private set
 
     /**
-     * The index of the current Quadratic; this is the next quadratic to be returned
-     * in the call to nextQuadratic().
+     * The index of the current Quadratic; this is the next quadratic to be returned in the call to
+     * nextQuadratic().
      */
     var currentQuadratic = 0
 
     /**
-     * Storage for all quadratics for a particular conic. Set to reasonable
-     * default size, will need to resize if we ever get a return count larger
-     * than the current size.
-     * Initial size holds up to 5 quadratic subdivisions:
-     * 2^5 quadratics, with 3 points per quadratic, and 2 floats per point,
-     * where all quadratics overlap in one point except the ends.
+     * Storage for all quadratics for a particular conic. Set to reasonable default size, will need
+     * to resize if we ever get a return count larger than the current size. Initial size holds up
+     * to 5 quadratic subdivisions: 2^5 quadratics, with 3 points per quadratic, and 2 floats per
+     * point, where all quadratics overlap in one point except the ends.
      */
     private var quadraticData = FloatArray(32 * 2 * 2 + 2)
 
     /**
-     * This function stores the next converted quadratic in the given points array,
-     * returning true if this happened, false if there was no quadratic to be returned.
+     * This function stores the next converted quadratic in the given points array, returning true
+     * if this happened, false if there was no quadratic to be returned.
      */
     fun nextQuadratic(points: FloatArray, offset: Int = 0): Boolean {
         if (currentQuadratic < quadraticCount) {
@@ -67,18 +63,15 @@ internal class ConicConverter {
         return false
     }
 
-    /**
-     * Converts the conic in [points] to a series of quadratics, which will all be stored
-     */
+    /** Converts the conic in [points] to a series of quadratics, which will all be stored */
     fun convert(points: FloatArray, weight: Float, tolerance: Float, offset: Int = 0) {
         quadraticCount = internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
         // 3 points per quadratic, 2 floats per point, with one point of overlap
         val newDataSize = quadraticCount * 2 * 2 + 2
         if (newDataSize > quadraticData.size) {
             quadraticData = FloatArray(newDataSize)
-            quadraticCount = internalConicToQuadratics(
-                points, offset, quadraticData, weight, tolerance
-            )
+            quadraticCount =
+                internalConicToQuadratics(points, offset, quadraticData, weight, tolerance)
         }
         currentQuadratic = 0
     }

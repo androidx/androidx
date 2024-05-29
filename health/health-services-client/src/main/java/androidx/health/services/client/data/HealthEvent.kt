@@ -35,7 +35,9 @@ public class HealthEvent(
 ) {
 
     /** Health event types. */
-    public class Type @RestrictTo(Scope.LIBRARY) constructor(
+    public class Type
+    @RestrictTo(Scope.LIBRARY)
+    constructor(
         /** Returns a unique identifier for the [Type], as an `int`. */
         public val id: Int,
 
@@ -63,15 +65,12 @@ public class HealthEvent(
              * The Health Event is unknown, or is represented by a value too new for this library
              * version to parse.
              */
-            @JvmField
-            public val UNKNOWN: Type = Type(0, "UNKNOWN")
+            @JvmField public val UNKNOWN: Type = Type(0, "UNKNOWN")
 
             /** Health Event signifying the device detected that the user fell. */
-            @JvmField
-            public val FALL_DETECTED: Type = Type(3, "FALL_DETECTED")
+            @JvmField public val FALL_DETECTED: Type = Type(3, "FALL_DETECTED")
 
-            @JvmField
-            internal val VALUES: List<Type> = listOf(UNKNOWN, FALL_DETECTED)
+            @JvmField internal val VALUES: List<Type> = listOf(UNKNOWN, FALL_DETECTED)
 
             internal fun fromProto(proto: DataProto.HealthEvent.HealthEventType): Type =
                 VALUES.firstOrNull { it.id == proto.number } ?: UNKNOWN
@@ -142,9 +141,9 @@ public class HealthEvent(
                         list.add(
                             MetricsEntry.newBuilder()
                                 .setDataType(entry.key.proto)
-                                .addAllDataPoints(entry.value.map {
-                                    (it as IntervalDataPoint).proto
-                                })
+                                .addAllDataPoints(
+                                    entry.value.map { (it as IntervalDataPoint).proto }
+                                )
                                 .build()
                         )
                     }
@@ -153,14 +152,11 @@ public class HealthEvent(
             return list.sortedBy { it.dataType.name } // Required to ensure equals() works
         }
 
-        internal fun fromHealthEventProto(
-            proto: DataProto.HealthEvent
-        ): DataPointContainer {
+        internal fun fromHealthEventProto(proto: DataProto.HealthEvent): DataPointContainer {
             val dataTypeToDataPoints: Map<DataType<*, *>, List<DataPoint<*>>> =
                 proto.metricsList.associate { entry ->
-                    DataType.deltaFromProto(entry.dataType) to entry.dataPointsList.map {
-                        DataPoint.fromProto(it)
-                    }
+                    DataType.deltaFromProto(entry.dataType) to
+                        entry.dataPointsList.map { DataPoint.fromProto(it) }
                 }
             return DataPointContainer(dataTypeToDataPoints)
         }

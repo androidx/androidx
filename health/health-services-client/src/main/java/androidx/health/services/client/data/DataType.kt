@@ -96,36 +96,35 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         override fun toString(): String = name
 
-        internal fun toProto(): DataProto.DataType.TimeType = when (this) {
-            INTERVAL -> TIME_TYPE_INTERVAL
-            SAMPLE -> TIME_TYPE_SAMPLE
-            else -> TIME_TYPE_UNKNOWN
-        }
+        internal fun toProto(): DataProto.DataType.TimeType =
+            when (this) {
+                INTERVAL -> TIME_TYPE_INTERVAL
+                SAMPLE -> TIME_TYPE_SAMPLE
+                else -> TIME_TYPE_UNKNOWN
+            }
 
         companion object {
             /** The [TimeType] is unknown or this library is too old to know about it. */
-            @JvmField
-            val UNKNOWN: TimeType = TimeType(0, "UNKNOWN")
+            @JvmField val UNKNOWN: TimeType = TimeType(0, "UNKNOWN")
 
             /**
              * TimeType that indicates the DataType has a value that represents an interval of time
              * with a beginning and end. For example, number of steps taken over a span of time.
              */
-            @JvmField
-            val INTERVAL: TimeType = TimeType(1, "INTERVAL")
+            @JvmField val INTERVAL: TimeType = TimeType(1, "INTERVAL")
 
             /**
              * TimeType that indicates the DataType has a value that represents a single point in
              * time. For example, heart rate reading at a specific time.
              */
-            @JvmField
-            val SAMPLE: TimeType = TimeType(2, "SAMPLE")
+            @JvmField val SAMPLE: TimeType = TimeType(2, "SAMPLE")
 
-            internal fun fromProto(proto: DataProto.DataType.TimeType): TimeType = when (proto) {
-                TIME_TYPE_INTERVAL -> INTERVAL
-                TIME_TYPE_SAMPLE -> SAMPLE
-                TIME_TYPE_UNKNOWN -> UNKNOWN
-            }
+            internal fun fromProto(proto: DataProto.DataType.TimeType): TimeType =
+                when (proto) {
+                    TIME_TYPE_INTERVAL -> INTERVAL
+                    TIME_TYPE_SAMPLE -> SAMPLE
+                    TIME_TYPE_UNKNOWN -> UNKNOWN
+                }
         }
     }
 
@@ -134,11 +133,15 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             "name=$name," +
             " timeType=$timeType," +
             " class=${valueClass.simpleName}," +
-            " isAggregate=$isAggregate" + ")"
+            " isAggregate=$isAggregate" +
+            ")"
 
     internal val proto: DataProto.DataType =
-        DataProto.DataType.newBuilder().setName(name).setTimeType(timeType.toProto())
-            .setFormat(classToValueFormat()).build()
+        DataProto.DataType.newBuilder()
+            .setName(name)
+            .setTimeType(timeType.toProto())
+            .setFormat(classToValueFormat())
+            .build()
 
     internal fun toProtoFromValue(
         value: T,
@@ -149,8 +152,11 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             Double::class -> builder.doubleVal = value as Double
             Boolean::class -> builder.boolVal = value as Boolean
             ByteArray::class -> builder.byteArrayVal = ByteString.copyFrom(value as ByteArray)
-            DoubleArray::class -> builder.doubleArrayVal = DataProto.Value.DoubleArray.newBuilder()
-                .addAllDoubleArray((value as DoubleArray).toList()).build()
+            DoubleArray::class ->
+                builder.doubleArrayVal =
+                    DataProto.Value.DoubleArray.newBuilder()
+                        .addAllDoubleArray((value as DoubleArray).toList())
+                        .build()
             LocationData::class -> (value as LocationData).addToValueProtoBuilder(builder)
             else -> Log.w(TAG, "Unexpected value class ${valueClass.simpleName}")
         }
@@ -168,7 +174,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             DoubleArray::class -> proto.doubleArrayVal
             LocationData::class -> LocationData.fromDataProtoValue(proto)
             else -> throw UnsupportedOperationException("Cannot retrieve value for $valueClass")
-        } as T
+        }
+            as T
     }
 
     private fun classToValueFormat(): Int {
@@ -214,9 +221,8 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         private inline fun <reified T : Number> createSampleDataType(
             name: String
-        ): DeltaDataType<T, SampleDataPoint<T>> = DeltaDataType(
-            name, TimeType.SAMPLE, T::class.java
-        )
+        ): DeltaDataType<T, SampleDataPoint<T>> =
+            DeltaDataType(name, TimeType.SAMPLE, T::class.java)
 
         private inline fun <reified T : Number> createStatsDataType(
             name: String
@@ -435,8 +441,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /** Speed at a specific point in time, expressed as meters/second. */
         @JvmField
-        val SPEED: DeltaDataType<Double, SampleDataPoint<Double>> =
-            createSampleDataType("Speed")
+        val SPEED: DeltaDataType<Double, SampleDataPoint<Double>> = createSampleDataType("Speed")
 
         /**
          * Statistics on speed since the start of the active exercise, expressed in meters/second.
@@ -463,8 +468,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /** Number of steps taken since the last update. */
         @JvmField
-        val STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> =
-            createIntervalDataType("Steps")
+        val STEPS: DeltaDataType<Long, IntervalDataPoint<Long>> = createIntervalDataType("Steps")
 
         /** Total steps taken since the start of the active exercise. */
         @JvmField
@@ -536,8 +540,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
          * will be in milliseconds/kilometer.
          */
         @JvmField
-        val PACE: DeltaDataType<Double, SampleDataPoint<Double>> =
-            createSampleDataType("Pace")
+        val PACE: DeltaDataType<Double, SampleDataPoint<Double>> = createSampleDataType("Pace")
 
         /**
          * Statistics on pace since the start of the current exercise. A value of 0 indicates the
@@ -554,9 +557,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         val RESTING_EXERCISE_DURATION: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Resting Exercise Duration")
 
-        /**
-         * The total number of seconds the user has been resting during the active exercise.
-         */
+        /** The total number of seconds the user has been resting during the active exercise. */
         @JvmField
         val RESTING_EXERCISE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
             createCumulativeDataType("Resting Exercise Duration")
@@ -564,10 +565,10 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         /**
          * The total time the Exercise was [ExerciseState.ACTIVE] in seconds.
          *
-         * **_Note_: this [DataType] is only intended to be used in conjunction with exercise
-         * goals. [DataPoint]s will not be delivered for this [DataType]. If you want to query the
-         * active duration, you should use [ExerciseUpdate.activeDuration] which is available in
-         * every [ExerciseUpdate].**
+         * **_Note_: this [DataType] is only intended to be used in conjunction with exercise goals.
+         * [DataPoint]s will not be delivered for this [DataType]. If you want to query the active
+         * duration, you should use [ExerciseUpdate.activeDuration] which is available in every
+         * [ExerciseUpdate].**
          */
         @JvmField
         val ACTIVE_EXERCISE_DURATION_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
@@ -699,84 +700,86 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             createIntervalDataType("Daily Calories")
 
         /**
-         * The total distance over a day, where the previous day ends and a new day begins at
-         * 12:00 AM local time. Each DataPoint of this type will cover the interval from the start
-         * of day to now. In the event of time-zone shifts, the interval may be greater than 24hrs.
+         * The total distance over a day, where the previous day ends and a new day begins at 12:00
+         * AM local time. Each DataPoint of this type will cover the interval from the start of day
+         * to now. In the event of time-zone shifts, the interval may be greater than 24hrs.
          */
         @JvmField
         val DISTANCE_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
             createIntervalDataType("Daily Distance")
 
-        internal val deltaDataTypes: Set<DeltaDataType<*, *>> = setOf(
-            ABSOLUTE_ELEVATION,
-            CALORIES,
-            CALORIES_DAILY,
-            DISTANCE_DAILY,
-            ELEVATION_GAIN_DAILY,
-            FLOORS_DAILY,
-            STEPS_DAILY,
-            DECLINE_DISTANCE,
-            DECLINE_DURATION,
-            DISTANCE,
-            ELEVATION_GAIN,
-            ELEVATION_LOSS,
-            FLAT_GROUND_DISTANCE,
-            FLAT_GROUND_DURATION,
-            FLOORS,
-            GOLF_SHOT_COUNT,
-            GROUND_CONTACT_TIME,
-            HEART_RATE_BPM,
-            INCLINE_DISTANCE,
-            INCLINE_DURATION,
-            LOCATION,
-            PACE,
-            REP_COUNT,
-            RESTING_EXERCISE_DURATION,
-            RUNNING_STEPS,
-            SPEED,
-            STEPS,
-            STEPS_PER_MINUTE,
-            STRIDE_LENGTH,
-            SWIMMING_LAP_COUNT,
-            SWIMMING_STROKES,
-            VERTICAL_OSCILLATION,
-            VERTICAL_RATIO,
-            VO2_MAX,
-            WALKING_STEPS,
-        )
+        internal val deltaDataTypes: Set<DeltaDataType<*, *>> =
+            setOf(
+                ABSOLUTE_ELEVATION,
+                CALORIES,
+                CALORIES_DAILY,
+                DISTANCE_DAILY,
+                ELEVATION_GAIN_DAILY,
+                FLOORS_DAILY,
+                STEPS_DAILY,
+                DECLINE_DISTANCE,
+                DECLINE_DURATION,
+                DISTANCE,
+                ELEVATION_GAIN,
+                ELEVATION_LOSS,
+                FLAT_GROUND_DISTANCE,
+                FLAT_GROUND_DURATION,
+                FLOORS,
+                GOLF_SHOT_COUNT,
+                GROUND_CONTACT_TIME,
+                HEART_RATE_BPM,
+                INCLINE_DISTANCE,
+                INCLINE_DURATION,
+                LOCATION,
+                PACE,
+                REP_COUNT,
+                RESTING_EXERCISE_DURATION,
+                RUNNING_STEPS,
+                SPEED,
+                STEPS,
+                STEPS_PER_MINUTE,
+                STRIDE_LENGTH,
+                SWIMMING_LAP_COUNT,
+                SWIMMING_STROKES,
+                VERTICAL_OSCILLATION,
+                VERTICAL_RATIO,
+                VO2_MAX,
+                WALKING_STEPS,
+            )
 
-        internal val aggregateDataTypes: Set<AggregateDataType<*, *>> = setOf(
-            ABSOLUTE_ELEVATION_STATS,
-            ACTIVE_EXERCISE_DURATION_TOTAL,
-            CALORIES_TOTAL,
-            DECLINE_DISTANCE_TOTAL,
-            DECLINE_DURATION_TOTAL,
-            DISTANCE_TOTAL,
-            ELEVATION_GAIN_TOTAL,
-            ELEVATION_LOSS_TOTAL,
-            FLAT_GROUND_DISTANCE_TOTAL,
-            FLAT_GROUND_DURATION_TOTAL,
-            FLOORS_TOTAL,
-            GOLF_SHOT_COUNT_TOTAL,
-            GROUND_CONTACT_TIME_STATS,
-            HEART_RATE_BPM_STATS,
-            INCLINE_DISTANCE_TOTAL,
-            INCLINE_DURATION_TOTAL,
-            PACE_STATS,
-            REP_COUNT_TOTAL,
-            RESTING_EXERCISE_DURATION_TOTAL,
-            RUNNING_STEPS_TOTAL,
-            SPEED_STATS,
-            STEPS_PER_MINUTE_STATS,
-            STEPS_TOTAL,
-            STRIDE_LENGTH_STATS,
-            SWIMMING_LAP_COUNT_TOTAL,
-            SWIMMING_STROKES_TOTAL,
-            VERTICAL_OSCILLATION_STATS,
-            VERTICAL_RATIO_STATS,
-            VO2_MAX_STATS,
-            WALKING_STEPS_TOTAL,
-        )
+        internal val aggregateDataTypes: Set<AggregateDataType<*, *>> =
+            setOf(
+                ABSOLUTE_ELEVATION_STATS,
+                ACTIVE_EXERCISE_DURATION_TOTAL,
+                CALORIES_TOTAL,
+                DECLINE_DISTANCE_TOTAL,
+                DECLINE_DURATION_TOTAL,
+                DISTANCE_TOTAL,
+                ELEVATION_GAIN_TOTAL,
+                ELEVATION_LOSS_TOTAL,
+                FLAT_GROUND_DISTANCE_TOTAL,
+                FLAT_GROUND_DURATION_TOTAL,
+                FLOORS_TOTAL,
+                GOLF_SHOT_COUNT_TOTAL,
+                GROUND_CONTACT_TIME_STATS,
+                HEART_RATE_BPM_STATS,
+                INCLINE_DISTANCE_TOTAL,
+                INCLINE_DURATION_TOTAL,
+                PACE_STATS,
+                REP_COUNT_TOTAL,
+                RESTING_EXERCISE_DURATION_TOTAL,
+                RUNNING_STEPS_TOTAL,
+                SPEED_STATS,
+                STEPS_PER_MINUTE_STATS,
+                STEPS_TOTAL,
+                STRIDE_LENGTH_STATS,
+                SWIMMING_LAP_COUNT_TOTAL,
+                SWIMMING_STROKES_TOTAL,
+                VERTICAL_OSCILLATION_STATS,
+                VERTICAL_RATIO_STATS,
+                VO2_MAX_STATS,
+                WALKING_STEPS_TOTAL,
+            )
 
         private val namesOfDeltasWithNoAggregate =
             deltaDataTypes.map { it.name } subtract aggregateDataTypes.map { it.name }.toSet()
@@ -806,18 +809,22 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         internal fun aggregateFromProto(
             proto: DataProto.DataType
         ): AggregateDataType<out Number, out DataPoint<out Number>> =
-            aggregateDataTypes.firstOrNull { it.name == proto.name } ?: AggregateDataType(
-                proto.name,
-                TimeType.fromProto(proto.timeType),
-                protoDataTypeToClass(proto) as Class<Number>
-            )
+            aggregateDataTypes.firstOrNull { it.name == proto.name }
+                ?: AggregateDataType(
+                    proto.name,
+                    TimeType.fromProto(proto.timeType),
+                    protoDataTypeToClass(proto) as Class<Number>
+                )
 
         internal fun deltaFromProto(
             proto: DataProto.DataType
         ): DeltaDataType<out Any, out DataPoint<out Any>> =
-            deltaDataTypes.firstOrNull { it.name == proto.name } ?: DeltaDataType(
-                proto.name, TimeType.fromProto(proto.timeType), protoDataTypeToClass(proto)
-            )
+            deltaDataTypes.firstOrNull { it.name == proto.name }
+                ?: DeltaDataType(
+                    proto.name,
+                    TimeType.fromProto(proto.timeType),
+                    protoDataTypeToClass(proto)
+                )
 
         internal fun deltaAndAggregateFromProto(
             proto: DataProto.DataType
@@ -836,16 +843,17 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             return list
         }
 
-        private fun protoDataTypeToClass(proto: DataProto.DataType) = when (proto.format) {
-            FORMAT_DOUBLE -> Double::class.java
-            FORMAT_LONG -> Long::class.java
-            FORMAT_BOOLEAN -> Boolean::class.java
-            FORMAT_DOUBLE_ARRAY -> {
-                if (proto.name == LOCATION.name) LOCATION.valueClass
-                else DoubleArray::class.java
+        private fun protoDataTypeToClass(proto: DataProto.DataType) =
+            when (proto.format) {
+                FORMAT_DOUBLE -> Double::class.java
+                FORMAT_LONG -> Long::class.java
+                FORMAT_BOOLEAN -> Boolean::class.java
+                FORMAT_DOUBLE_ARRAY -> {
+                    if (proto.name == LOCATION.name) LOCATION.valueClass
+                    else DoubleArray::class.java
+                }
+                FORMAT_BYTE_ARRAY -> ByteArray::class.java
+                else -> Nothing::class.java
             }
-            FORMAT_BYTE_ARRAY -> ByteArray::class.java
-            else -> Nothing::class.java
-        }
     }
 }

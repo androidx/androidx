@@ -22,33 +22,31 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 
-/**
- * Internal parcelable for IPC calls.
- */
+/** Internal parcelable for IPC calls. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.DataPoint) :
-  ProtoParcelable<RequestProto.UpsertExerciseRouteRequest>() {
-  override val proto: RequestProto.UpsertExerciseRouteRequest
-    get() {
-      val obj = this
-      return RequestProto.UpsertExerciseRouteRequest.newBuilder()
-        .setSessionUid(obj.sessionUid)
-        .setExerciseRoute(obj.route)
-        .build()
-    }
+    ProtoParcelable<RequestProto.UpsertExerciseRouteRequest>() {
+    override val proto: RequestProto.UpsertExerciseRouteRequest
+        get() {
+            val obj = this
+            return RequestProto.UpsertExerciseRouteRequest.newBuilder()
+                .setSessionUid(obj.sessionUid)
+                .setExerciseRoute(obj.route)
+                .build()
+        }
 
-  companion object {
-    @JvmField
-    val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> =
-      ProtoParcelable.newCreator {
-        val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
-        fromProto(proto)
-      }
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> =
+            ProtoParcelable.newCreator {
+                val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
+                fromProto(proto)
+            }
 
-    internal fun fromProto(
-      proto: RequestProto.UpsertExerciseRouteRequest,
-    ): UpsertExerciseRouteRequest {
-      return UpsertExerciseRouteRequest(proto.sessionUid, proto.exerciseRoute)
+        internal fun fromProto(
+            proto: RequestProto.UpsertExerciseRouteRequest,
+        ): UpsertExerciseRouteRequest {
+            return UpsertExerciseRouteRequest(proto.sessionUid, proto.exerciseRoute)
+        }
     }
-  }
 }

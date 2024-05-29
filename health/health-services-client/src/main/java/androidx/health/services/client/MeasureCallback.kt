@@ -50,7 +50,7 @@ public interface MeasureCallback {
      * Called when new data is available. Data may be batched.
      *
      * @param data the (potentially batched) set of measured [DataPoint]s corresponding to one or
-     * more of the requested [DeltaDataType]s
+     *   more of the requested [DeltaDataType]s
      */
     public fun onDataReceived(data: DataPointContainer)
 }

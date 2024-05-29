@@ -67,7 +67,8 @@ internal class PassiveListenerCallbackStub(
             PERMISSION_LOST_RESPONSE -> {
                 callback.onPermissionLost()
             }
-            null, EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
+            null,
+            EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
         }
     }
 
@@ -81,8 +82,7 @@ internal class PassiveListenerCallbackStub(
     internal class PassiveListenerCallbackCache private constructor() {
         private val listenerLock = Any()
 
-        @GuardedBy("listenerLock")
-        private var listener: PassiveListenerCallbackStub? = null
+        @GuardedBy("listenerLock") private var listener: PassiveListenerCallbackStub? = null
 
         public fun create(
             packageName: String,
@@ -90,9 +90,9 @@ internal class PassiveListenerCallbackStub(
             callback: PassiveListenerCallback
         ): PassiveListenerCallbackStub {
             synchronized(listenerLock) {
-               val stub = PassiveListenerCallbackStub(packageName, executor, callback)
-               listener = stub
-               return stub
+                val stub = PassiveListenerCallbackStub(packageName, executor, callback)
+                listener = stub
+                return stub
             }
         }
 

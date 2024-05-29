@@ -52,21 +52,23 @@ internal class CanvasBufferedRendererV29(
 
     private val mPreservedRenderStrategy = createPreservationStrategy(preservationStrategy)
 
-    private val mImageReader = ImageReader.newInstance(
-        mWidth,
-        mHeight,
-        format,
-        // If the device does not support preserving contents when we are rendering to a single
-        // buffer, use the fallback of leveraging 2 but redrawing the contents from the previous
-        // frame into the next frame
-        if (mMaxBuffers == 1) mPreservedRenderStrategy.maxImages else mMaxBuffers,
-        usage
-    )
+    private val mImageReader =
+        ImageReader.newInstance(
+            mWidth,
+            mHeight,
+            format,
+            // If the device does not support preserving contents when we are rendering to a single
+            // buffer, use the fallback of leveraging 2 but redrawing the contents from the previous
+            // frame into the next frame
+            if (mMaxBuffers == 1) mPreservedRenderStrategy.maxImages else mMaxBuffers,
+            usage
+        )
 
-    private val mRootRenderNode = RenderNode("rootNode").apply {
-        setPosition(0, 0, mWidth, mHeight)
-        clipToBounds = false
-    }
+    private val mRootRenderNode =
+        RenderNode("rootNode").apply {
+            setPosition(0, 0, mWidth, mHeight)
+            clipToBounds = false
+        }
 
     private var mContentRoot: RenderNode? = null
 
@@ -81,9 +83,7 @@ internal class CanvasBufferedRendererV29(
      */
     private val mBufferLock = ReentrantLock()
 
-    /**
-     * Condition used to signal when an Image is available after it was previously released
-     */
+    /** Condition used to signal when an Image is available after it was previously released */
     private val mBufferSignal = mBufferLock.newCondition()
 
     /**
@@ -95,23 +95,25 @@ internal class CanvasBufferedRendererV29(
      */
     private val mAllocatedBuffers = HashMap<HardwareBuffer, Image>()
 
-    private var mHardwareRenderer: HardwareRenderer? = HardwareRenderer().apply {
-        // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
-        // otherwise it will clear contents across subsequent renders
-        isOpaque = true
-        setContentRoot(mRootRenderNode)
-        setSurface(mImageReader.surface)
-        start()
-    }
-
-    private fun closeBuffers() = mBufferLock.withLock {
-        for (entry in mAllocatedBuffers) {
-            entry.key.close() // HardwareBuffer
-            entry.value.waitAndClose() // Image
+    private var mHardwareRenderer: HardwareRenderer? =
+        HardwareRenderer().apply {
+            // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
+            // otherwise it will clear contents across subsequent renders
+            isOpaque = true
+            setContentRoot(mRootRenderNode)
+            setSurface(mImageReader.surface)
+            start()
         }
-        mAllocatedBuffers.clear()
-        mBufferSignal.signal()
-    }
+
+    private fun closeBuffers() =
+        mBufferLock.withLock {
+            for (entry in mAllocatedBuffers) {
+                entry.key.close() // HardwareBuffer
+                entry.value.waitAndClose() // Image
+            }
+            mAllocatedBuffers.clear()
+            mBufferSignal.signal()
+        }
 
     override fun close() {
         closeBuffers()
@@ -136,8 +138,8 @@ internal class CanvasBufferedRendererV29(
         // If we are redrawing contents from the previous scene then we must re-record the drawing
         // drawing instructions to draw the updated bitmap
         val forceRedraw = request.preserveContents || mPreserveContents
-        val shouldRedraw = !mRootRenderNode.hasDisplayList() || transform != mBufferTransform ||
-            forceRedraw
+        val shouldRedraw =
+            !mRootRenderNode.hasDisplayList() || transform != mBufferTransform || forceRedraw
         if (shouldRedraw && content != null) {
             recordContent(content, updateTransform(transform), request.preserveContents)
         }
@@ -146,8 +148,8 @@ internal class CanvasBufferedRendererV29(
         if (renderer != null && !isClosed()) {
             with(renderer) {
                 var result = 0
-                val renderRequest = createRenderRequest()
-                    .setFrameCommitCallback(executor) {
+                val renderRequest =
+                    createRenderRequest().setFrameCommitCallback(executor) {
                         acquireBuffer { buffer, fence ->
                             executor.execute {
                                 mPreservedRenderStrategy.onRenderComplete(buffer, fence)
@@ -176,8 +178,7 @@ internal class CanvasBufferedRendererV29(
      * successful. In this case we wait for the next buffer even if we miss the vsync.
      */
     private fun isSuccess(result: Int) =
-        result == HardwareRenderer.SYNC_OK ||
-        result == HardwareRenderer.SYNC_FRAME_DROPPED
+        result == HardwareRenderer.SYNC_OK || result == HardwareRenderer.SYNC_FRAME_DROPPED
 
     private fun updateTransform(transform: Int): Matrix {
         mBufferTransform = transform
@@ -218,10 +219,10 @@ internal class CanvasBufferedRendererV29(
     }
 
     /**
-     * Acquires the next [Image] from the [ImageReader]. This method will block until the
-     * number of outstanding [Image]s acquired is below the maximum number of buffers specified
-     * by maxImages. This is because [ImageReader] will throw exceptions if an additional
-     * [Image] is acquired beyond the maximum amount of buffers.
+     * Acquires the next [Image] from the [ImageReader]. This method will block until the number of
+     * outstanding [Image]s acquired is below the maximum number of buffers specified by maxImages.
+     * This is because [ImageReader] will throw exceptions if an additional [Image] is acquired
+     * beyond the maximum amount of buffers.
      */
     private inline fun acquireBuffer(block: (HardwareBuffer, SyncFenceCompat?) -> Unit) {
         mBufferLock.withLock {
@@ -231,7 +232,8 @@ internal class CanvasBufferedRendererV29(
             }
             val image = mImageReader.acquireNextImage()
             if (image != null) {
-                // Be sure to call Image#getHardwareBuffer once as each call creates a new java object
+                // Be sure to call Image#getHardwareBuffer once as each call creates a new java
+                // object
                 // and we are relying on referential equality to map the HardwareBuffer back to the
                 // Image that it came from in order to close the Image when the buffer is released
                 val buffer = image.hardwareBuffer
@@ -300,10 +302,7 @@ internal class CanvasBufferedRendererV29(
 
         fun restoreContents(canvas: Canvas)
 
-        fun onRenderComplete(
-            hardwareBuffer: HardwareBuffer,
-            fence: SyncFenceCompat?
-        )
+        fun onRenderComplete(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?)
     }
 
     internal class SingleBufferedStrategy : PreservedRenderStrategy {
@@ -313,10 +312,7 @@ internal class CanvasBufferedRendererV29(
             // NO-OP HWUI preserves contents
         }
 
-        override fun onRenderComplete(
-            hardwareBuffer: HardwareBuffer,
-            fence: SyncFenceCompat?
-        ) {
+        override fun onRenderComplete(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
             // NO-OP
         }
     }
@@ -338,10 +334,8 @@ internal class CanvasBufferedRendererV29(
             }
             mHardwareBuffer?.let { buffer ->
                 mFence?.awaitForever()
-                val bitmap = Bitmap.wrapHardwareBuffer(
-                    buffer,
-                    CanvasBufferedRenderer.DefaultColorSpace
-                )
+                val bitmap =
+                    Bitmap.wrapHardwareBuffer(buffer, CanvasBufferedRenderer.DefaultColorSpace)
                 if (bitmap != null) {
                     canvas.save()
                     canvas.drawBitmap(bitmap, 0f, 0f, null)
@@ -350,10 +344,7 @@ internal class CanvasBufferedRendererV29(
             }
         }
 
-        override fun onRenderComplete(
-            hardwareBuffer: HardwareBuffer,
-            fence: SyncFenceCompat?
-        ) {
+        override fun onRenderComplete(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
             mHardwareBuffer = hardwareBuffer
             mFence = fence
         }
@@ -371,8 +362,10 @@ internal class CanvasBufferedRendererV29(
                     SingleBufferedStrategy()
                 }
                 CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW -> {
-                    Log.v(TAG, "Explicit usage of double buffered redraw strategy " +
-                        "with force clear")
+                    Log.v(
+                        TAG,
+                        "Explicit usage of double buffered redraw strategy " + "with force clear"
+                    )
                     RedrawBufferStrategy(true)
                 }
                 else -> {
@@ -394,9 +387,7 @@ internal class CanvasBufferedRendererV29(
     }
 }
 
-/**
- * Helper class to avoid class verification failures
- */
+/** Helper class to avoid class verification failures */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class ImageVerificationHelper private constructor() {
     companion object {

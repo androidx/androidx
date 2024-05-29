@@ -55,15 +55,17 @@ class TimeExtensionsTest {
     fun useLocalTime() {
         assertThat(TimeRangeFilter.none().useLocalTime()).isFalse()
         assertThat(
-            TimeRangeFilter.between(Instant.now(), Instant.now().plusSeconds(2)).useLocalTime()
-        ).isFalse()
+                TimeRangeFilter.between(Instant.now(), Instant.now().plusSeconds(2)).useLocalTime()
+            )
+            .isFalse()
         assertThat(TimeRangeFilter.after(Instant.now()).useLocalTime()).isFalse()
         assertThat(TimeRangeFilter.before(Instant.now()).useLocalTime()).isFalse()
 
         assertThat(
-            TimeRangeFilter.between(LocalDateTime.now(), LocalDateTime.now().plusSeconds(2))
-                .useLocalTime()
-        ).isTrue()
+                TimeRangeFilter.between(LocalDateTime.now(), LocalDateTime.now().plusSeconds(2))
+                    .useLocalTime()
+            )
+            .isTrue()
         assertThat(TimeRangeFilter.after(LocalDateTime.now()).useLocalTime()).isTrue()
         assertThat(TimeRangeFilter.before(LocalDateTime.now()).useLocalTime()).isTrue()
     }
@@ -74,7 +76,7 @@ class TimeExtensionsTest {
         val localDateTime = LocalDateTime.ofInstant(instant, ZoneOffset.UTC)
 
         assertThat(localDateTime.toInstantWithDefaultZoneFallback(ZoneOffset.UTC))
-        .isEqualTo(instant)
+            .isEqualTo(instant)
         assertThat(localDateTime.toInstantWithDefaultZoneFallback(ZoneOffset.ofHours(2)))
             .isEqualTo(instant - Duration.ofHours(2))
     }
@@ -82,12 +84,13 @@ class TimeExtensionsTest {
     @Test
     fun intervalRecord_duration() {
         val startTime = Instant.now()
-        val nutritionRecord = NutritionRecord(
-            startTime = startTime,
-            endTime = startTime.plusSeconds(10),
-            startZoneOffset = null,
-            endZoneOffset = null
-        )
+        val nutritionRecord =
+            NutritionRecord(
+                startTime = startTime,
+                endTime = startTime.plusSeconds(10),
+                startZoneOffset = null,
+                endZoneOffset = null
+            )
         assertThat(nutritionRecord.duration).isEqualTo(Duration.ofSeconds(10))
     }
 }

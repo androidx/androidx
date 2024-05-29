@@ -22,10 +22,8 @@ import androidx.health.services.client.proto.DataProto.Availability.LocationAvai
 import androidx.health.services.client.proto.DataProto.Availability.LocationAvailability.LOCATION_AVAILABILITY_UNKNOWN
 
 /** Availability of a [DataType.LOCATION] data type. */
-public class LocationAvailability private constructor(
-    public override val id: Int,
-    public val name: String
-) : Availability {
+public class LocationAvailability
+private constructor(public override val id: Int, public val name: String) : Availability {
 
     override fun toString(): String = name
 

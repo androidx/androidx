@@ -21,10 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.ProtoParcelable
 import androidx.health.services.client.proto.RequestsProto
 
-/**
- * Request for enabling/disabling auto pause/resume.
- *
- */
+/** Request for enabling/disabling auto pause/resume. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AutoPauseAndResumeConfigRequest(
     public val packageName: String,

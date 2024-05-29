@@ -119,7 +119,6 @@ public class SpeedRecord(
      *
      * @param time The point in time when the measurement was taken.
      * @param speed Speed in [Velocity] unit. Valid range: 0-1000000 meters/sec.
-     *
      * @see SpeedRecord
      */
     public class Sample(

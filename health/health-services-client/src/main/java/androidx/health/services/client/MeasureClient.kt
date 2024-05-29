@@ -78,7 +78,7 @@ public interface MeasureClient {
      * @param dataType the [DeltaDataType] that needs to be unregistered
      * @param callback the [MeasureCallback] which was used in registration
      * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
-     * Services. This is a no-op if the callback has already been unregistered.
+     *   Services. This is a no-op if the callback has already been unregistered.
      */
     public fun unregisterMeasureCallbackAsync(
         dataType: DeltaDataType<*, *>,

@@ -24,23 +24,21 @@ import androidx.health.services.client.data.PassiveMonitoringCapabilities
  *
  * Data updates will be batched and delivered from the point of initial registration and will
  * continue to be delivered until the [DataType] is unregistered, either by explicitly calling
- * [clearPassiveListenerService] or by registering again without that [DataType]
- * included in the request. Higher frequency updates are available through [ExerciseClient] or
- * [MeasureClient]. Any requested goal, user activity, or health event updates will not be
- * batched.
+ * [clearPassiveListenerService] or by registering again without that [DataType] included in the
+ * request. Higher frequency updates are available through [ExerciseClient] or [MeasureClient]. Any
+ * requested goal, user activity, or health event updates will not be batched.
  *
  * Health Services will automatically bind to the provided [PassiveListenerService] to send the
- * update. Clients are responsible for defining the service in their app manifest. They should
- * also require the `com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING`
- * permission in their app manifest service definition in order to ensure that Health Services
- * is the source of the binding.
+ * update. Clients are responsible for defining the service in their app manifest. They should also
+ * require the `com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING`
+ * permission in their app manifest service definition in order to ensure that Health Services is
+ * the source of the binding.
  *
  * This registration is unique per subscribing app. Subsequent registrations will replace the
- * previous registration, if one had been made. The client is responsible for ensuring that
- * their requested [PassiveListenerConfig] is supported on this device by checking the
- * [PassiveMonitoringCapabilities]. The returned future will fail if the request is not
- * supported on the current device or the client does not have the required permissions for the
- * request.
+ * previous registration, if one had been made. The client is responsible for ensuring that their
+ * requested [PassiveListenerConfig] is supported on this device by checking the
+ * [PassiveMonitoringCapabilities]. The returned future will fail if the request is not supported on
+ * the current device or the client does not have the required permissions for the request.
  *
  * @param service the [PassiveListenerService] to bind to
  * @param config the [PassiveListenerConfig] from the client
@@ -56,8 +54,8 @@ public suspend fun PassiveMonitoringClient.setPassiveListenerService(
 /**
  * Unregisters the subscription made by [setPassiveListenerService].
  *
- * Data will not be delivered after this call so if clients care about any pending batched data
- * they should call flush before unregistering.
+ * Data will not be delivered after this call so if clients care about any pending batched data they
+ * should call flush before unregistering.
  *
  * @throws HealthServicesException if Health Service fails to process the call
  */
@@ -68,8 +66,8 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerService() =
 /**
  * Unregisters the subscription made by [PassiveMonitoringClient.setPassiveListenerCallback].
  *
- * Data will not be delivered after this call so if clients care about any pending batched data
- * they should call flush before unregistering.
+ * Data will not be delivered after this call so if clients care about any pending batched data they
+ * should call flush before unregistering.
  *
  * @throws HealthServicesException if Health Service fails to process the call
  */
@@ -80,8 +78,8 @@ public suspend fun PassiveMonitoringClient.clearPassiveListenerCallback() =
 /**
  * Flushes the sensors for the registered [DataType]s.
  *
- * If no listener has been registered by this client, this will be a no-op. This call should be
- * used sparingly and will be subject to throttling by Health Services.
+ * If no listener has been registered by this client, this will be a no-op. This call should be used
+ * sparingly and will be subject to throttling by Health Services.
  *
  * @throws HealthServicesException if Health Service fails to process the call
  */
@@ -91,9 +89,9 @@ public suspend fun PassiveMonitoringClient.flush() = flushAsync().awaitWithExcep
 /**
  * Returns the [PassiveMonitoringCapabilities] of this client for this device.
  *
- * This can be used to determine what [DataType]s this device supports for passive monitoring
- * and goals. Clients should use the capabilities to inform their requests since Health Services
- * will typically reject requests made for [DataType]s which are not supported.
+ * This can be used to determine what [DataType]s this device supports for passive monitoring and
+ * goals. Clients should use the capabilities to inform their requests since Health Services will
+ * typically reject requests made for [DataType]s which are not supported.
  *
  * @return a [PassiveMonitoringCapabilities] for this device
  * @throws HealthServicesException if Health Service fails to process the call

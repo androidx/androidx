@@ -27,9 +27,11 @@ class ExerciseTypeConfigTest {
     @Test
     fun protoRoundTrip() {
         val proto =
-            GolfExerciseTypeConfig(GolfExerciseTypeConfig
-                .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-            ).toProto()
+            GolfExerciseTypeConfig(
+                    GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
+                        .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
+                )
+                .toProto()
         val config = ExerciseTypeConfig.fromProto(proto)
 
         assertThat(config.toProto()).isEqualTo(proto)

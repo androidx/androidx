@@ -24,37 +24,38 @@ import java.util.Objects
 
 /** Contains the Golf Shot capabilities specific to the associated [GolfShotEvent]. */
 public class GolfShotEventCapabilities(
-  /** Whether the device has the capability of supporting [GolfShotEvent]. */
-  override val isSupported: Boolean,
-  /** Whether the device has the capability of supporting [GolfShotSwingType]. */
-  public val isSwingTypeClassificationSupported: Boolean,
+    /** Whether the device has the capability of supporting [GolfShotEvent]. */
+    override val isSupported: Boolean,
+    /** Whether the device has the capability of supporting [GolfShotSwingType]. */
+    public val isSwingTypeClassificationSupported: Boolean,
 ) : ExerciseEventCapabilities() {
-  internal constructor(
-    proto: DataProto.ExerciseEventCapabilities.GolfShotCapabilities
-  ) : this(proto.isSupported, proto.isSwingTypeClassificationSupported)
+    internal constructor(
+        proto: DataProto.ExerciseEventCapabilities.GolfShotCapabilities
+    ) : this(proto.isSupported, proto.isSwingTypeClassificationSupported)
 
-  @RestrictTo(RestrictTo.Scope.LIBRARY)
-  override fun toProto(): DataProto.ExerciseEventCapabilities =
-    DataProto.ExerciseEventCapabilities.newBuilder()
-      .setExerciseEventType(EXERCISE_EVENT_TYPE_GOLF_SHOT)
-      .setGolfShotCapabilities(
-        GolfShotCapabilities.newBuilder()
-          .setIsSupported(this.isSupported)
-          .setIsSwingTypeClassificationSupported(this.isSwingTypeClassificationSupported)
-          .build()
-      )
-      .build()
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    override fun toProto(): DataProto.ExerciseEventCapabilities =
+        DataProto.ExerciseEventCapabilities.newBuilder()
+            .setExerciseEventType(EXERCISE_EVENT_TYPE_GOLF_SHOT)
+            .setGolfShotCapabilities(
+                GolfShotCapabilities.newBuilder()
+                    .setIsSupported(this.isSupported)
+                    .setIsSwingTypeClassificationSupported(this.isSwingTypeClassificationSupported)
+                    .build()
+            )
+            .build()
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is GolfShotEventCapabilities) return false
-    if (isSupported != other.isSupported) return false
-    if (isSwingTypeClassificationSupported != other.isSwingTypeClassificationSupported) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is GolfShotEventCapabilities) return false
+        if (isSupported != other.isSupported) return false
+        if (isSwingTypeClassificationSupported != other.isSwingTypeClassificationSupported)
+            return false
 
-    return true
-  }
+        return true
+    }
 
-  override fun hashCode(): Int {
-    return Objects.hash(isSupported, isSwingTypeClassificationSupported)
-  }
+    override fun hashCode(): Int {
+        return Objects.hash(isSupported, isSwingTypeClassificationSupported)
+    }
 }

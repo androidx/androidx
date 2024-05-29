@@ -37,10 +37,8 @@ class MyInjectedViewModel @Inject constructor(foo: Foo) : ViewModel()
 
 @Suppress("UNUSED_PARAMETER")
 @HiltViewModel(assistedFactory = MyAssistedInjectedViewModel.Factory::class)
-class MyAssistedInjectedViewModel @AssistedInject constructor(
-    foo: Foo,
-    @Assisted val bar: Int
-) : ViewModel() {
+class MyAssistedInjectedViewModel @AssistedInject constructor(foo: Foo, @Assisted val bar: Int) :
+    ViewModel() {
     @AssistedFactory
     interface Factory {
         fun create(bar: Int): MyAssistedInjectedViewModel

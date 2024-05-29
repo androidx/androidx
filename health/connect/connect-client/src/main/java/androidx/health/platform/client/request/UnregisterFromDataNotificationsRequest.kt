@@ -28,11 +28,10 @@ class UnregisterFromDataNotificationsRequest(
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<UnregisterFromDataNotificationsRequest> =
-            newCreator {
-                UnregisterFromDataNotificationsRequest(
-                    RequestProto.UnregisterFromDataNotificationsRequest.parseFrom(it)
-                )
-            }
+        val CREATOR: Parcelable.Creator<UnregisterFromDataNotificationsRequest> = newCreator {
+            UnregisterFromDataNotificationsRequest(
+                RequestProto.UnregisterFromDataNotificationsRequest.parseFrom(it)
+            )
+        }
     }
 }

@@ -65,47 +65,54 @@ fun PanZoomRotateBox(
         Box(modifier = modifier) {
             Box(
                 Modifier.pointerInput(Unit) {
-                    detectTransformGestures(
-                        onGesture = { centroid, pan, gestureZoom, gestureRotate ->
-                            val actualRotation = if (allowRotation) gestureRotate else 0f
-                            val oldScale = zoom.value
-                            val newScale = zoom.value * if (allowZoom) gestureZoom else 1f
+                        detectTransformGestures(
+                            onGesture = { centroid, pan, gestureZoom, gestureRotate ->
+                                val actualRotation = if (allowRotation) gestureRotate else 0f
+                                val oldScale = zoom.value
+                                val newScale = zoom.value * if (allowZoom) gestureZoom else 1f
 
-                            // For natural zooming and rotating, the centroid of the gesture should
-                            // be the fixed point where zooming and rotating occurs.
-                            // We compute where the centroid was (in the pre-transformed coordinate
-                            // space), and then compute where it will be after this delta.
-                            // We then compute what the new offset should be to keep the centroid
-                            // visually stationary for rotating and zooming, and also apply the pan.
-                            offset.value =
-                                (offset.value + centroid / oldScale)
-                                    .rotate(actualRotation.toRadians()) -
-                                    (centroid / newScale +
-                                        (if (allowPan) pan else Offset.Zero) / oldScale)
-                            zoom.value = newScale
-                            angle.value += actualRotation
-                        }
-                    )
-                }
-                .graphicsLayer {
-                    translationX = -offset.value.x * zoom.value
-                    translationY = -offset.value.y * zoom.value
-                    scaleX = zoom.value
-                    scaleY = zoom.value
-                    rotationZ = angle.value
-                    transformOrigin = TransformOrigin(0f, 0f)
-                },
-            content = content)
-            Button(onClick = { model.reset() }) {
-                Text("Reset View")
-            }
+                                // For natural zooming and rotating, the centroid of the gesture
+                                // should
+                                // be the fixed point where zooming and rotating occurs.
+                                // We compute where the centroid was (in the pre-transformed
+                                // coordinate
+                                // space), and then compute where it will be after this delta.
+                                // We then compute what the new offset should be to keep the
+                                // centroid
+                                // visually stationary for rotating and zooming, and also apply the
+                                // pan.
+                                offset.value =
+                                    (offset.value + centroid / oldScale).rotate(
+                                        actualRotation.toRadians()
+                                    ) -
+                                        (centroid / newScale +
+                                            (if (allowPan) pan else Offset.Zero) / oldScale)
+                                zoom.value = newScale
+                                angle.value += actualRotation
+                            }
+                        )
+                    }
+                    .graphicsLayer {
+                        translationX = -offset.value.x * zoom.value
+                        translationY = -offset.value.y * zoom.value
+                        scaleX = zoom.value
+                        scaleY = zoom.value
+                        rotationZ = angle.value
+                        transformOrigin = TransformOrigin(0f, 0f)
+                    },
+                content = content
+            )
+            Button(onClick = { model.reset() }) { Text("Reset View") }
         }
     }
 }
 
 internal fun Float.toRadians() = this * PI.toFloat() / 180f
+
 private fun Offset.rotate90() = Offset(-y, x)
+
 internal fun directionVector(angleRadians: Float) = Offset(cos(angleRadians), sin(angleRadians))
+
 private fun Offset.rotate(angleRadians: Float): Offset {
     val vec = directionVector(angleRadians)
     return vec * x + vec.rotate90() * y

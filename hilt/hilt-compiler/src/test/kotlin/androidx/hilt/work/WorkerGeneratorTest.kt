@@ -30,18 +30,20 @@ class WorkerGeneratorTest {
 
     @Test
     fun verifyAssistedFactory_mixedArgs() {
-        val foo = Source.java(
-            "androidx.hilt.work.test.Foo",
-            """
+        val foo =
+            Source.java(
+                "androidx.hilt.work.test.Foo",
+                """
             package androidx.hilt.work.test;
 
             public class Foo { }
             """
-        )
+            )
 
-        val myWorker = Source.java(
-            "androidx.hilt.work.test.MyWorker",
-            """
+        val myWorker =
+            Source.java(
+                "androidx.hilt.work.test.MyWorker",
+                """
             package androidx.hilt.work.test;
 
             import android.content.Context;
@@ -61,11 +63,12 @@ class WorkerGeneratorTest {
                 }
             }
             """
-        )
+            )
 
-        val expected = Source.java(
-            "androidx.hilt.work.test.MyWorker_AssistedFactory",
-            """
+        val expected =
+            Source.java(
+                "androidx.hilt.work.test.MyWorker_AssistedFactory",
+                """
             package androidx.hilt.work.test;
 
             import androidx.hilt.work.WorkerAssistedFactory;
@@ -77,13 +80,17 @@ class WorkerGeneratorTest {
             public interface MyWorker_AssistedFactory extends WorkerAssistedFactory<MyWorker> {
             }
             """
-        )
+            )
 
         runProcessorTest(
-            sources = listOf(
-                foo, myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER,
-                Sources.WORKER_PARAMETERS
-            ),
+            sources =
+                listOf(
+                    foo,
+                    myWorker,
+                    Sources.LISTENABLE_WORKER,
+                    Sources.WORKER,
+                    Sources.WORKER_PARAMETERS
+                ),
             createProcessingSteps = { listOf(WorkerStep()) }
         ) {
             it.generatedSource(expected)
@@ -92,9 +99,10 @@ class WorkerGeneratorTest {
 
     @Test
     fun verifyMultibindModule() {
-        val myWorker = Source.java(
-            "androidx.hilt.work.test.MyWorker",
-            """
+        val myWorker =
+            Source.java(
+                "androidx.hilt.work.test.MyWorker",
+                """
             package androidx.hilt.work.test;
 
             import android.content.Context;
@@ -112,11 +120,12 @@ class WorkerGeneratorTest {
                 }
             }
             """
-        )
+            )
 
-        val expected = Source.java(
-            "androidx.hilt.work.test.MyWorker_HiltModule",
-            """
+        val expected =
+            Source.java(
+                "androidx.hilt.work.test.MyWorker_HiltModule",
+                """
             package androidx.hilt.work.test;
 
             import androidx.hilt.work.WorkerAssistedFactory;
@@ -143,12 +152,16 @@ class WorkerGeneratorTest {
                 WorkerAssistedFactory<? extends ListenableWorker> bind(MyWorker_AssistedFactory factory);
             }
             """
-        )
+            )
 
         runProcessorTest(
-            sources = listOf(
-                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
-            ),
+            sources =
+                listOf(
+                    myWorker,
+                    Sources.LISTENABLE_WORKER,
+                    Sources.WORKER,
+                    Sources.WORKER_PARAMETERS
+                ),
             createProcessingSteps = { listOf(WorkerStep()) }
         ) {
             it.generatedSource(expected)

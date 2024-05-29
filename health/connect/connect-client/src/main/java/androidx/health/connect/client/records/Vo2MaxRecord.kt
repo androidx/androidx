@@ -45,6 +45,7 @@ public class Vo2MaxRecord(
             name = "vo2MillilitersPerMinuteKilogram"
         )
     }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Vo2MaxRecord) return false
@@ -105,9 +106,7 @@ public class Vo2MaxRecord(
         const val OTHER = "other"
     }
 
-    /**
-     * VO2 max (maximal aerobic capacity) measurement method.
-     */
+    /** VO2 max (maximal aerobic capacity) measurement method. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         value =
