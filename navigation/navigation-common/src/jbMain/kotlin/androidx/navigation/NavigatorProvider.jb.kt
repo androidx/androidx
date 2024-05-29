@@ -14,24 +14,51 @@
  * limitations under the License.
  */
 
+@file:JvmName("NavigatorProviderKt")
+@file:JvmMultifileClass
+
 package androidx.navigation
 
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 public actual open class NavigatorProvider {
-    private val _navigators: MutableMap<String, Navigator<out NavDestination>> = mutableMapOf()
+    private val _typeNavigators = mutableMapOf<KClass<*>, Navigator<out NavDestination>>()
+    private val _namedNavigators = mutableMapOf<String, Navigator<out NavDestination>>()
+
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual val navigators: Map<String, Navigator<out NavDestination>>
-        get() = _navigators.toMap()
+        get() = _namedNavigators
+
+    /**
+     * Retrieves a registered [Navigator] using class.
+     *
+     * @param navigatorClass class of the navigator to return
+     * @return the registered navigator with the given [KClass]
+     *
+     * @throws IllegalStateException if the Navigator has not been added
+     *
+     * @see NavigatorProvider.addNavigator
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun <T : Navigator<*>> getNavigator(navigatorClass: KClass<T>): T {
+        val navigator = _typeNavigators[navigatorClass]
+            ?: throw IllegalStateException(
+                "Could not find Navigator with class \"$navigatorClass\". You must call " +
+                    "NavController.addNavigator() for each navigation type."
+            )
+        return navigator as T
+    }
 
     @Suppress("UNCHECKED_CAST")
     @CallSuper
     public actual open fun <T : Navigator<*>> getNavigator(name: String): T {
         require(validateName(name)) { "navigator name cannot be an empty string" }
-        val navigator = _navigators[name]
+        val navigator = _namedNavigators[name]
             ?: throw IllegalStateException(
                 "Could not find Navigator with name \"$name\". You must call " +
                     "NavController.addNavigator() for each navigation type."
@@ -42,16 +69,7 @@ public actual open class NavigatorProvider {
     public actual fun addNavigator(
         navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>? {
-        return addNavigator(navigator.name, navigator)
-    }
-
-    @CallSuper
-    public actual open fun addNavigator(
-        name: String,
-        navigator: Navigator<out NavDestination>
-    ): Navigator<out NavDestination>? {
-        require(validateName(name)) { "navigator name cannot be an empty string" }
-        val previousNavigator = _navigators[name]
+        val previousNavigator = _typeNavigators[navigator::class]
         if (previousNavigator == navigator) {
             return navigator
         }
@@ -61,7 +79,32 @@ public actual open class NavigatorProvider {
         check(!navigator.isAttached) {
             "Navigator $navigator is already attached to another NavController"
         }
-        return _navigators.put(name, navigator)
+
+        _typeNavigators[navigator::class] = navigator
+        return if (navigator.name != null) {
+            addNavigator(navigator.name, navigator)
+        } else {
+            navigator
+        }
+    }
+
+    @CallSuper
+    public actual open fun addNavigator(
+        name: String,
+        navigator: Navigator<out NavDestination>
+    ): Navigator<out NavDestination>? {
+        require(validateName(name)) { "Navigator name cannot be an empty string" }
+        val previousNavigator = _namedNavigators[name]
+        if (previousNavigator == navigator) {
+            return navigator
+        }
+        check(previousNavigator?.isAttached != true) {
+            "Navigator $navigator is replacing an already attached $previousNavigator"
+        }
+        check(!navigator.isAttached) {
+            "Navigator $navigator is already attached to another NavController"
+        }
+        return _namedNavigators.put(name, navigator)
     }
 
     internal companion object {
@@ -71,18 +114,6 @@ public actual open class NavigatorProvider {
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
 public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
-    name: String
-): T = getNavigator(name)
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavigatorProvider.set(
-    name: String,
-    navigator: Navigator<out NavDestination>
-): Navigator<out NavDestination>? = addNavigator(name, navigator)
-
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
-    addNavigator(navigator)
-}
+    clazz: KClass<T>
+): T = getNavigator(clazz)

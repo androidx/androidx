@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 public actual open class NavGraphNavigator actual constructor(
     private val navigatorProvider: NavigatorProvider
-) : Navigator<NavGraph>(Companion.name) {
+) : Navigator<NavGraph>(NAME) {
 
     /**
      * Gets the backstack of [NavBackStackEntry] associated with this Navigator
@@ -81,6 +81,6 @@ public actual open class NavGraphNavigator actual constructor(
     }
 
     internal companion object {
-        internal const val name = "navigation"
+        internal const val NAME = "navigation"
     }
 }

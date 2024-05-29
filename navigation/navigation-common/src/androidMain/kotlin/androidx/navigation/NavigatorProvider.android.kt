@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("NavigatorProviderKt")
+@file:JvmMultifileClass
 
 package androidx.navigation
 
@@ -143,43 +144,12 @@ public actual open class NavigatorProvider {
 }
 
 /**
- * Retrieves a registered [Navigator] by name.
- *
- * @throws IllegalStateException if the Navigator has not been added
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
-    name: String
-): T = getNavigator(name)
-
-/**
  * Retrieves a registered [Navigator] using the name provided by the
  * [Navigator.Name annotation][Navigator.Name].
  *
  * @throws IllegalStateException if the Navigator has not been added
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     clazz: KClass<T>
 ): T = getNavigator(clazz.java)
-
-/**
- * Register a [Navigator] by name. If a navigator by this name is already
- * registered, this new navigator will replace it.
- *
- * @return the previously added [Navigator] for the given name, if any
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavigatorProvider.set(
-    name: String,
-    navigator: Navigator<out NavDestination>
-): Navigator<out NavDestination>? = addNavigator(name, navigator)
-
-/**
- * Register a navigator using the name provided by the
- * [Navigator.Name annotation][Navigator.Name].
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
-    addNavigator(navigator)
-}

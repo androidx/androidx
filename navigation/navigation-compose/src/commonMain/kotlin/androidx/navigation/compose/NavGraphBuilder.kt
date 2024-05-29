@@ -50,7 +50,7 @@ public fun NavGraphBuilder.composable(
     content: @Composable (NavBackStackEntry) -> Unit
 ) {
     addDestination(
-        ComposeNavigator.Destination(provider[ComposeNavigator.NAME]) {
+        ComposeNavigator.Destination(provider[ComposeNavigator::class]) {
                 entry ->
             content(entry)
         }.apply {
@@ -99,7 +99,7 @@ public fun NavGraphBuilder.composable(
 ) {
     destination(
         ComposeNavigatorDestinationBuilder(
-            provider[ComposeNavigator.NAME],
+            provider[ComposeNavigator::class],
             route,
             content
         ).apply {
@@ -150,7 +150,7 @@ public fun NavGraphBuilder.composable(
 ) {
     destination(
         ComposeNavigatorDestinationBuilder(
-            provider[ComposeNavigator.NAME],
+            provider[ComposeNavigator::class],
             route,
             content
         ).apply {
@@ -316,7 +316,7 @@ public fun NavGraphBuilder.dialog(
 ) {
     destination(
         DialogNavigatorDestinationBuilder(
-            provider[DialogNavigator.NAME],
+            provider[DialogNavigator::class],
             route,
             dialogProperties,
             content

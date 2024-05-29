@@ -40,7 +40,7 @@ import androidx.navigation.Navigator.Name
  * Examples include information about an intent to navigate to other activities,
  * or a fragment class name to instantiate and swap to a new fragment.
  */
-public actual abstract class Navigator<D : NavDestination> {
+public actual abstract class Navigator<D : NavDestination> actual constructor() {
     /**
      * This annotation should be added to each Navigator subclass to denote the default name used
      * to register the Navigator with a [NavigatorProvider].

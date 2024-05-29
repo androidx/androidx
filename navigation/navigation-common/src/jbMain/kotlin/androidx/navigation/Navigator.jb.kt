@@ -17,11 +17,26 @@
 package androidx.navigation
 
 import androidx.annotation.CallSuper
+import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 
-public actual abstract class Navigator<D : NavDestination>(
-    public val name: String
-) {
+public actual abstract class Navigator<D : NavDestination> {
+    public actual constructor() {
+        _name = null
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        name: String
+    ) {
+        _name = name
+    }
+
+    private val _name: String?
+
+    internal val name: String
+        get() = _name ?: this::class.simpleName!!.removeSuffix("Navigator")
+
     private var _state: NavigatorState? = null
 
     protected actual val state: NavigatorState

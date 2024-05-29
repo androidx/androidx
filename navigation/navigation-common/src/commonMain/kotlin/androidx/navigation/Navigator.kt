@@ -32,7 +32,7 @@ import androidx.core.bundle.Bundle
  * Examples include information about an intent to navigate to other activities,
  * or a fragment class name to instantiate and swap to a new fragment.
  */
-public expect abstract class Navigator<D : NavDestination> {
+public expect abstract class Navigator<D : NavDestination>() {
     /**
      * The state of the Navigator is the communication conduit between the Navigator
      * and the [NavController] that has called [onAttach].
