@@ -115,7 +115,7 @@ value class Offset internal constructor(internal val packedValue: Long) {
     fun isValid(): Boolean {
         // Take the unsigned packed floats and see if they are < InfinityBase + 1 (first NaN)
         val v = packedValue and DualUnsignedFloatMask
-        return (v - DualFirstNaN) and v.inv() and Uint64High32 == Uint64High32
+        return (v - DualFirstNaN) and Uint64High32 == Uint64High32
     }
 
     /**
@@ -285,7 +285,7 @@ val Offset.isFinite: Boolean get() {
     // against the "infinity base" mask (to check whether each packed float
     // is infinite or not).
     val v = (packedValue and DualFloatInfinityBase) xor DualFloatInfinityBase
-    return (v - Uint64Low32) and v.inv() and Uint64High32 == 0L
+    return (v - Uint64Low32) and Uint64High32 == 0L
 }
 
 /**
