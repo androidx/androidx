@@ -49,6 +49,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSession
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.DisableAbortCapturesOnStopWithSessionProcessorQuirk
+import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
@@ -124,6 +125,7 @@ constructor(
     private val cameraInternal: Provider<CameraInternal>,
     private val useCaseThreads: Provider<UseCaseThreads>,
     private val cameraInfoInternal: Provider<CameraInfoInternal>,
+    private val templateParamsOverride: TemplateParamsOverride,
     context: Context,
     cameraProperties: CameraProperties,
     displayInfoManager: DisplayInfoManager,
@@ -588,6 +590,7 @@ constructor(
             cameraQuirks,
             cameraGraphFlags,
             zslControl,
+            templateParamsOverride,
             isExtensions,
         )
     }
@@ -698,6 +701,7 @@ constructor(
             cameraQuirks: CameraQuirks,
             cameraGraphFlags: CameraGraph.Flags?,
             zslControl: ZslControl,
+            templateParamsOverride: TemplateParamsOverride,
             isExtensions: Boolean = false,
         ): CameraGraph.Config {
             var containsVideo = false
@@ -717,6 +721,7 @@ constructor(
                 if (sessionConfig.templateType != CaptureConfig.TEMPLATE_TYPE_NONE) {
                     sessionTemplate = RequestTemplate(sessionConfig.templateType)
                 }
+                sessionParameters.putAll(templateParamsOverride.getOverrideParams(sessionTemplate))
                 sessionParameters.putAll(sessionConfig.implementationOptions.toParameters())
 
                 val physicalCameraIdForAllStreams =

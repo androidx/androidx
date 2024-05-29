@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,5 +97,11 @@ public class Quirks {
         }
 
         return false;
+    }
+
+    /** Adds an extra quirk. */
+    @VisibleForTesting
+    public void addQuirkForTesting(@NonNull Quirk quirk) {
+        mQuirks.add(quirk);
     }
 }
