@@ -538,6 +538,50 @@ Fix for src/sample/optin/RegressionTestKotlin298322402.kt line 22: Add '@sample.
         check(*input).expectFixDiffs(expectedFix).expect(expected)
     }
 
+    @Test
+    fun useJavaExperimentalWithMessageFromJava() {
+        val input =
+            arrayOf(
+                javaSample("sample.optin.AnnotatedJavaClassWithMessage"),
+                javaSample("sample.optin.ExperimentalJavaAnnotationWithMessage"),
+                javaSample("sample.optin.UseJavaExperimentalWithMessageFromJava")
+            )
+
+        /* ktlint-disable max-line-length */
+        val expected =
+            """
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:28: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:28: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();
+                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:29: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        return experimentalObject.field;
+                                  ~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:36: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:36: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();
+                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:37: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        return experimentalObject.method();
+                                  ~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:44: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        return AnnotatedJavaClassWithMessage.FIELD_STATIC;
+                                             ~~~~~~~~~~~~
+src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't use this API, it's experimental [UnsafeOptInUsageError]
+        return AnnotatedJavaClassWithMessage.methodStatic();
+                                             ~~~~~~~~~~~~
+8 errors, 0 warnings
+        """
+                .trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
     /* ktlint-disable max-line-length */
     companion object {
         /**

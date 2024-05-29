@@ -535,28 +535,28 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // possible that we'll fail to read the level for other reasons, but the safest
         // fallback is `ERROR` either way.
         val level = annotation.extractAttribute(context, "level", "ERROR")
-        if (level != null) {
-            report(
-                context,
-                usage,
-                annotationFqName,
-                "This declaration is opt-in and its usage should be marked with " +
-                    "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`",
-                level
-            )
-        } else {
-            // This is a more serious failure where we obtained a representation that we
-            // couldn't understand.
-            report(
-                context,
-                usage,
-                annotationFqName,
-                "Failed to read `level` from `@$annotationFqName` -- assuming `ERROR`. " +
-                    "This declaration is opt-in and its usage should be marked with " +
-                    "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`",
-                "ERROR"
-            )
-        }
+
+        // Building default strings.
+        val missingLevelErrorPrefix =
+            "Failed to read `level` from `@$annotationFqName` -- assuming `ERROR`. "
+        val defaultMessage =
+            "This declaration is opt-in and its usage should be marked with " +
+                "`@$annotationFqName` or `@OptIn(markerClass = $annotationFqName.class)`"
+
+        // Retrieve the message attribute from the annotation.
+        var message: String? = annotation.extractAttribute(context, "message", defaultMessage)
+
+        // Fallback to the default message if we couldn't retrieve the message attribute or if
+        // the user didn't add change it, the default value is set to empty string.
+        if (message.isNullOrEmpty()) message = defaultMessage
+
+        report(
+            context,
+            usage,
+            annotationFqName,
+            if (level == null) missingLevelErrorPrefix + message else message,
+            level ?: "ERROR"
+        )
     }
 
     /**
