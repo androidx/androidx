@@ -19,6 +19,7 @@ package androidx.webkit;
 import android.os.Handler;
 import android.webkit.WebMessagePort;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -55,6 +56,7 @@ import java.lang.reflect.InvocationHandler;
  * <p>It is possible to transfer both ports of a channel to JS, for example for
  * communication between subframes.
  */
+@AnyThread
 public abstract class WebMessagePortCompat {
     /**
      * The listener for handling MessagePort events. The message callback

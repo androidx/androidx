@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
@@ -49,6 +50,7 @@ import java.util.concurrent.Executor;
  * ProxyController.getInstance().clearProxyOverride(executor, listener);
  * </pre>
  */
+@AnyThread
 public abstract class ProxyController {
     /**
      */

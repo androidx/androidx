@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
@@ -38,6 +39,7 @@ import androidx.webkit.internal.ServiceWorkerControllerImpl;
  * });
  * </pre>
  */
+@AnyThread
 public abstract class ServiceWorkerControllerCompat {
     /**
      *
