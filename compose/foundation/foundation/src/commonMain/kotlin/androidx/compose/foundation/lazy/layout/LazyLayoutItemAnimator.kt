@@ -121,7 +121,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
                     val newItemInfo = ItemInfo()
-                    newItemInfo.updateAnimation(item, coroutineScope, graphicsContext)
+                    newItemInfo.updateAnimation(item, coroutineScope, graphicsContext, item.crossAxisOffset)
                     keyToItemInfoMap[item.key] = newItemInfo
                     if (item.index != previousIndex && previousIndex != -1) {
                         if (previousIndex < previousFirstVisibleIndex) {
@@ -144,7 +144,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     }
                 } else {
                     if (shouldSetupAnimation) {
-                        itemInfo.updateAnimation(item, coroutineScope, graphicsContext)
+                        itemInfo.updateAnimation(item, coroutineScope, graphicsContext, item.crossAxisOffset)
                         itemInfo.animations.forEach { animation ->
                             if (animation != null &&
                                 animation.rawOffset != LazyLayoutItemAnimation.NotInitialized
@@ -459,7 +459,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             positionedItem: T,
             coroutineScope: CoroutineScope,
             graphicsContext: GraphicsContext,
-            crossAxisOffset: Int = positionedItem.crossAxisOffset
+            crossAxisOffset: Int
         ) {
             for (i in positionedItem.placeablesCount until animations.size) {
                 animations[i]?.release()
