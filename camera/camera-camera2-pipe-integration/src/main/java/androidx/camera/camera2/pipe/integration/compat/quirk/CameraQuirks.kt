@@ -20,7 +20,9 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.Logger
 import androidx.camera.core.impl.Quirk
+import androidx.camera.core.impl.QuirkSettingsHolder
 import androidx.camera.core.impl.Quirks
 import javax.inject.Inject
 
@@ -32,12 +34,12 @@ constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) {
-
     /**
      * Goes through all defined camera specific quirks, then filters them to retrieve quirks
      * required for the camera identified by the provided [CameraMetadata].
      */
     val quirks: Quirks by lazy {
+        val quirkSettings = QuirkSettingsHolder.instance().get()
         val quirks: MutableList<Quirk> = mutableListOf()
         if (cameraMetadata == null) {
             Log.error { "Failed to enable quirks: camera metadata injection failed" }
@@ -46,83 +48,207 @@ constructor(
 
         // Go through all defined camera quirks in lexicographical order,
         // and add them to `quirks` if they should be loaded
-        if (AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                AeFpsRangeLegacyQuirk::class.java,
+                AeFpsRangeLegacyQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(AeFpsRangeLegacyQuirk(cameraMetadata))
         }
-        if (AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                AfRegionFlipHorizontallyQuirk::class.java,
+                AfRegionFlipHorizontallyQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(AfRegionFlipHorizontallyQuirk())
         }
-        if (AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                AspectRatioLegacyApi21Quirk::class.java,
+                AspectRatioLegacyApi21Quirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(AspectRatioLegacyApi21Quirk())
         }
-        if (CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                CamcorderProfileResolutionQuirk::class.java,
+                CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(CamcorderProfileResolutionQuirk(streamConfigurationMapCompat))
         }
-        if (CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                CameraNoResponseWhenEnablingFlashQuirk::class.java,
+                CameraNoResponseWhenEnablingFlashQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(CameraNoResponseWhenEnablingFlashQuirk())
         }
-        if (CaptureSessionStuckQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                CaptureSessionStuckQuirk::class.java,
+                CaptureSessionStuckQuirk.isEnabled()
+            )
+        ) {
             quirks.add(CaptureSessionStuckQuirk())
         }
-        if (CloseCaptureSessionOnVideoQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                CloseCaptureSessionOnVideoQuirk::class.java,
+                CloseCaptureSessionOnVideoQuirk.isEnabled()
+            )
+        ) {
             quirks.add(CloseCaptureSessionOnVideoQuirk())
         }
-        if (ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ConfigureSurfaceToSecondarySessionFailQuirk::class.java,
+                ConfigureSurfaceToSecondarySessionFailQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(ConfigureSurfaceToSecondarySessionFailQuirk())
         }
-        if (FinalizeSessionOnCloseQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                FinalizeSessionOnCloseQuirk::class.java,
+                FinalizeSessionOnCloseQuirk.isEnabled()
+            )
+        ) {
             quirks.add(FinalizeSessionOnCloseQuirk())
         }
-        if (FlashTooSlowQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                FlashTooSlowQuirk::class.java,
+                FlashTooSlowQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(FlashTooSlowQuirk())
         }
-        if (ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureFailWithAutoFlashQuirk::class.java,
+                ImageCaptureFailWithAutoFlashQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(ImageCaptureFailWithAutoFlashQuirk())
         }
-        if (ImageCaptureFlashNotFireQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureFlashNotFireQuirk::class.java,
+                ImageCaptureFlashNotFireQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(ImageCaptureFlashNotFireQuirk())
         }
-        if (ImageCaptureWashedOutImageQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureWashedOutImageQuirk::class.java,
+                ImageCaptureWashedOutImageQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(ImageCaptureWashedOutImageQuirk())
         }
-        if (ImageCaptureWithFlashUnderexposureQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureWithFlashUnderexposureQuirk::class.java,
+                ImageCaptureWithFlashUnderexposureQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(ImageCaptureWithFlashUnderexposureQuirk())
         }
-        if (JpegHalCorruptImageQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                JpegHalCorruptImageQuirk::class.java,
+                JpegHalCorruptImageQuirk.isEnabled()
+            )
+        ) {
             quirks.add(JpegHalCorruptImageQuirk())
         }
-        if (PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                PreviewOrientationIncorrectQuirk::class.java,
+                PreviewOrientationIncorrectQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(PreviewOrientationIncorrectQuirk())
         }
-        if (TextureViewIsClosedQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                TextureViewIsClosedQuirk::class.java,
+                TextureViewIsClosedQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(TextureViewIsClosedQuirk())
         }
-        if (TorchFlashRequiredFor3aUpdateQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                TorchFlashRequiredFor3aUpdateQuirk::class.java,
+                TorchFlashRequiredFor3aUpdateQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(TorchFlashRequiredFor3aUpdateQuirk(cameraMetadata))
         }
-        if (YuvImageOnePixelShiftQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                YuvImageOnePixelShiftQuirk::class.java,
+                YuvImageOnePixelShiftQuirk.isEnabled()
+            )
+        ) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }
-        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                PreviewStretchWhenVideoCaptureIsBoundQuirk::class.java,
+                PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled()
+            )
+        ) {
             quirks.add(PreviewStretchWhenVideoCaptureIsBoundQuirk())
         }
-        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                PreviewDelayWhenVideoCaptureIsBoundQuirk::class.java,
+                PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled()
+            )
+        ) {
             quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
         }
-        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk::class.java,
+                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()
+            )
+        ) {
             quirks.add(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk())
         }
-        if (TemporalNoiseQuirk.isEnabled(cameraMetadata)) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                TemporalNoiseQuirk::class.java,
+                TemporalNoiseQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
             quirks.add(TemporalNoiseQuirk())
         }
-        if (ImageCaptureFailedForVideoSnapshotQuirk.isEnabled()) {
+        if (
+            quirkSettings.shouldEnableQuirk(
+                ImageCaptureFailedForVideoSnapshotQuirk::class.java,
+                ImageCaptureFailedForVideoSnapshotQuirk.isEnabled()
+            )
+        ) {
             quirks.add(ImageCaptureFailedForVideoSnapshotQuirk())
         }
 
-        Quirks(quirks)
+        Quirks(quirks).also {
+            Logger.d(TAG, "camera2-pipe-integration CameraQuirks = " + Quirks.toString(it))
+        }
     }
 
     companion object {
+        private const val TAG = "CameraQuirks"
+
         fun isImmediateSurfaceReleaseAllowed(): Boolean {
             // TODO(b/285956022): Releasing a Surface too early turns out to cause memory leaks
             //  where an Image may not be eventually closed. When the issue is resolved on an

@@ -16,8 +16,11 @@
 
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
+import androidx.camera.core.Logger
 import androidx.camera.core.impl.Quirk
+import androidx.camera.core.impl.QuirkSettingsHolder
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 
 /**
  * Provider of device specific quirks, which are used for device specific workarounds.
@@ -29,9 +32,18 @@ import androidx.camera.core.impl.Quirks
  * Device specific quirks are lazily loaded, i.e. They are loaded the first time they're needed.
  */
 object DeviceQuirks {
+    private const val TAG = "DeviceQuirks"
 
     /** Returns all device specific quirks loaded on the current device. */
-    val all: Quirks by lazy { Quirks(DeviceQuirksLoader.loadQuirks()) }
+    @Volatile lateinit var all: Quirks
+
+    init {
+        // Direct executor will initialize quirks immediately, guaranteeing it's never null.
+        QuirkSettingsHolder.instance().observe(directExecutor()) { quirkSettings ->
+            all = Quirks(DeviceQuirksLoader.loadQuirks(quirkSettings))
+            Logger.d(TAG, "camera2-pipe-integration DeviceQuirks = " + Quirks.toString(all))
+        }
+    }
 
     /**
      * Retrieves a specific device [Quirk] instance given its type.

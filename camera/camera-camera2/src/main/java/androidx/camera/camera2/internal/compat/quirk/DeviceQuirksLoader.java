@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,62 +36,98 @@ public class DeviceQuirksLoader {
      * on the current device.
      */
     @NonNull
-    static List<Quirk> loadQuirks() {
+    static List<Quirk> loadQuirks(@NonNull QuirkSettings quirkSettings) {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all device specific quirks
-        if (ImageCapturePixelHDRPlusQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ImageCapturePixelHDRPlusQuirk.class,
+                ImageCapturePixelHDRPlusQuirk.load())) {
             quirks.add(new ImageCapturePixelHDRPlusQuirk());
         }
-        if (ExtraCroppingQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExtraCroppingQuirk.class,
+                ExtraCroppingQuirk.load())) {
             quirks.add(new ExtraCroppingQuirk());
         }
-        if (Nexus4AndroidLTargetAspectRatioQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                Nexus4AndroidLTargetAspectRatioQuirk.class,
+                Nexus4AndroidLTargetAspectRatioQuirk.load())) {
             quirks.add(new Nexus4AndroidLTargetAspectRatioQuirk());
         }
-        if (ExcludedSupportedSizesQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExcludedSupportedSizesQuirk.class,
+                ExcludedSupportedSizesQuirk.load())) {
             quirks.add(new ExcludedSupportedSizesQuirk());
         }
-        if (CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class,
+                CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.load())) {
             quirks.add(new CrashWhenTakingPhotoWithAutoFlashAEModeQuirk());
         }
-        if (PreviewPixelHDRnetQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                PreviewPixelHDRnetQuirk.class,
+                PreviewPixelHDRnetQuirk.load())) {
             quirks.add(new PreviewPixelHDRnetQuirk());
         }
-        if (StillCaptureFlashStopRepeatingQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                StillCaptureFlashStopRepeatingQuirk.class,
+                StillCaptureFlashStopRepeatingQuirk.load())) {
             quirks.add(new StillCaptureFlashStopRepeatingQuirk());
         }
-        if (ExtraSupportedSurfaceCombinationsQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExtraSupportedSurfaceCombinationsQuirk.class,
+                ExtraSupportedSurfaceCombinationsQuirk.load())) {
             quirks.add(new ExtraSupportedSurfaceCombinationsQuirk());
         }
-        if (FlashAvailabilityBufferUnderflowQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                FlashAvailabilityBufferUnderflowQuirk.class,
+                FlashAvailabilityBufferUnderflowQuirk.load())) {
             quirks.add(new FlashAvailabilityBufferUnderflowQuirk());
         }
-        if (RepeatingStreamConstraintForVideoRecordingQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                RepeatingStreamConstraintForVideoRecordingQuirk.class,
+                RepeatingStreamConstraintForVideoRecordingQuirk.load())) {
             quirks.add(new RepeatingStreamConstraintForVideoRecordingQuirk());
         }
-        if (TextureViewIsClosedQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                TextureViewIsClosedQuirk.class,
+                TextureViewIsClosedQuirk.load())) {
             quirks.add(new TextureViewIsClosedQuirk());
         }
-        if (CaptureSessionOnClosedNotCalledQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                CaptureSessionOnClosedNotCalledQuirk.class,
+                CaptureSessionOnClosedNotCalledQuirk.load())) {
             quirks.add(new CaptureSessionOnClosedNotCalledQuirk());
         }
-        if (TorchIsClosedAfterImageCapturingQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                TorchIsClosedAfterImageCapturingQuirk.class,
+                TorchIsClosedAfterImageCapturingQuirk.load())) {
             quirks.add(new TorchIsClosedAfterImageCapturingQuirk());
         }
-        if (ZslDisablerQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ZslDisablerQuirk.class,
+                ZslDisablerQuirk.load())) {
             quirks.add(new ZslDisablerQuirk());
         }
-        if (ExtraSupportedOutputSizeQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExtraSupportedOutputSizeQuirk.class,
+                ExtraSupportedOutputSizeQuirk.load())) {
             quirks.add(new ExtraSupportedOutputSizeQuirk());
         }
-        if (InvalidVideoProfilesQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                InvalidVideoProfilesQuirk.class,
+                InvalidVideoProfilesQuirk.load())) {
             quirks.add(new InvalidVideoProfilesQuirk());
         }
-        if (Preview3AThreadCrashQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                Preview3AThreadCrashQuirk.class,
+                Preview3AThreadCrashQuirk.load())) {
             quirks.add(new Preview3AThreadCrashQuirk());
         }
-        if (SmallDisplaySizeQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                SmallDisplaySizeQuirk.class,
+                SmallDisplaySizeQuirk.load())) {
             quirks.add(new SmallDisplaySizeQuirk());
         }
 

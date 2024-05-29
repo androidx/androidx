@@ -20,7 +20,10 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettings;
+import androidx.camera.core.impl.QuirkSettingsHolder;
 import androidx.camera.core.impl.Quirks;
 
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import java.util.List;
 
 /** Provider of camera specific quirks. */
 public class CameraQuirks {
+    private static final String TAG = "CameraQuirks";
 
     private CameraQuirks() {
     }
@@ -45,87 +49,121 @@ public class CameraQuirks {
     @NonNull
     public static Quirks get(@NonNull final String cameraId,
             @NonNull final CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+        QuirkSettings quirkSettings = QuirkSettingsHolder.instance().get();
         final List<Quirk> quirks = new ArrayList<>();
         // Go through all defined camera quirks, and add them to `quirks` if they should be loaded
-        if (AeFpsRangeLegacyQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(AeFpsRangeLegacyQuirk.class,
+                AeFpsRangeLegacyQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new AeFpsRangeLegacyQuirk(cameraCharacteristicsCompat));
         }
-        if (AspectRatioLegacyApi21Quirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(AspectRatioLegacyApi21Quirk.class,
+                AspectRatioLegacyApi21Quirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new AspectRatioLegacyApi21Quirk());
         }
-        if (JpegHalCorruptImageQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(JpegHalCorruptImageQuirk.class,
+                JpegHalCorruptImageQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new JpegHalCorruptImageQuirk());
         }
-        if (JpegCaptureDownsizingQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(JpegCaptureDownsizingQuirk.class,
+                JpegCaptureDownsizingQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new JpegCaptureDownsizingQuirk());
         }
-        if (CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(CamcorderProfileResolutionQuirk.class,
+                CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new CamcorderProfileResolutionQuirk(cameraCharacteristicsCompat));
         }
-        if (CaptureNoResponseQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(CaptureNoResponseQuirk.class,
+                CaptureNoResponseQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new CaptureNoResponseQuirk());
         }
-        if (LegacyCameraOutputConfigNullPointerQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(
+                LegacyCameraOutputConfigNullPointerQuirk.class,
+                LegacyCameraOutputConfigNullPointerQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new LegacyCameraOutputConfigNullPointerQuirk());
         }
-        if (LegacyCameraSurfaceCleanupQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(LegacyCameraSurfaceCleanupQuirk.class,
+                LegacyCameraSurfaceCleanupQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new LegacyCameraSurfaceCleanupQuirk());
         }
-        if (ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureWashedOutImageQuirk.class,
+                ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new ImageCaptureWashedOutImageQuirk());
         }
-        if (CameraNoResponseWhenEnablingFlashQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(CameraNoResponseWhenEnablingFlashQuirk.class,
+                CameraNoResponseWhenEnablingFlashQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new CameraNoResponseWhenEnablingFlashQuirk());
         }
-        if (YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(YuvImageOnePixelShiftQuirk.class,
+                YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new YuvImageOnePixelShiftQuirk());
         }
-        if (FlashTooSlowQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(FlashTooSlowQuirk.class,
+                FlashTooSlowQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new FlashTooSlowQuirk());
         }
-        if (AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(AfRegionFlipHorizontallyQuirk.class,
+                AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new AfRegionFlipHorizontallyQuirk());
         }
-        if (ConfigureSurfaceToSecondarySessionFailQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(
+                ConfigureSurfaceToSecondarySessionFailQuirk.class,
+                ConfigureSurfaceToSecondarySessionFailQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new ConfigureSurfaceToSecondarySessionFailQuirk());
         }
-        if (PreviewOrientationIncorrectQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(PreviewOrientationIncorrectQuirk.class,
+                PreviewOrientationIncorrectQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new PreviewOrientationIncorrectQuirk());
         }
-        if (CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(CaptureSessionStuckQuirk.class,
+                CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new CaptureSessionStuckQuirk());
         }
-        if (ImageCaptureFlashNotFireQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureFlashNotFireQuirk.class,
+                ImageCaptureFlashNotFireQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new ImageCaptureFlashNotFireQuirk());
         }
-        if (ImageCaptureWithFlashUnderexposureQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureWithFlashUnderexposureQuirk.class,
+                ImageCaptureWithFlashUnderexposureQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new ImageCaptureWithFlashUnderexposureQuirk());
         }
-        if (ImageCaptureFailWithAutoFlashQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureFailWithAutoFlashQuirk.class,
+                ImageCaptureFailWithAutoFlashQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new ImageCaptureFailWithAutoFlashQuirk());
         }
-        if (IncorrectCaptureStateQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(IncorrectCaptureStateQuirk.class,
+                IncorrectCaptureStateQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new IncorrectCaptureStateQuirk());
         }
-        if (TorchFlashRequiredFor3aUpdateQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(TorchFlashRequiredFor3aUpdateQuirk.class,
+                TorchFlashRequiredFor3aUpdateQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristicsCompat));
         }
-        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                PreviewStretchWhenVideoCaptureIsBoundQuirk.class,
+                PreviewStretchWhenVideoCaptureIsBoundQuirk.load())) {
             quirks.add(new PreviewStretchWhenVideoCaptureIsBoundQuirk());
         }
-        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                PreviewDelayWhenVideoCaptureIsBoundQuirk.class,
+                PreviewDelayWhenVideoCaptureIsBoundQuirk.load())) {
             quirks.add(new PreviewDelayWhenVideoCaptureIsBoundQuirk());
         }
-        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class,
+                ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.load())) {
             quirks.add(new ImageCaptureFailedWhenVideoCaptureIsBoundQuirk());
         }
-        if (TemporalNoiseQuirk.load(cameraCharacteristicsCompat)) {
+        if (quirkSettings.shouldEnableQuirk(TemporalNoiseQuirk.class,
+                TemporalNoiseQuirk.load(cameraCharacteristicsCompat))) {
             quirks.add(new TemporalNoiseQuirk());
         }
-        if (ImageCaptureFailedForVideoSnapshotQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureFailedForVideoSnapshotQuirk.class,
+                ImageCaptureFailedForVideoSnapshotQuirk.load())) {
             quirks.add(new ImageCaptureFailedForVideoSnapshotQuirk());
         }
 
-        return new Quirks(quirks);
+        Quirks cameraQuirks = new Quirks(quirks);
+        Logger.d(TAG, "camera2 CameraQuirks = " + Quirks.toString(cameraQuirks));
+        return cameraQuirks;
     }
 }

@@ -18,6 +18,7 @@ package androidx.camera.view.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +36,16 @@ public class DeviceQuirksLoader {
      * on the current device.
      */
     @NonNull
-    static List<Quirk> loadQuirks() {
+    static List<Quirk> loadQuirks(@NonNull QuirkSettings quirkSettings) {
         final List<Quirk> quirks = new ArrayList<>();
 
-        if (SurfaceViewStretchedQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(SurfaceViewStretchedQuirk.class,
+                SurfaceViewStretchedQuirk.load())) {
             quirks.add(new SurfaceViewStretchedQuirk());
         }
 
-        if (SurfaceViewNotCroppedByParentQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(SurfaceViewNotCroppedByParentQuirk.class,
+                SurfaceViewNotCroppedByParentQuirk.load())) {
             quirks.add(new SurfaceViewNotCroppedByParentQuirk());
         }
 
