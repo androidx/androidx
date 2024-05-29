@@ -59,7 +59,10 @@ class ListDelegateTest {
     }
 
     private fun requestItemRange(startIndex: Int, endIndex: Int): List<Int> {
-        listDelegate.requestItemRange(startIndex, endIndex, onDoneCallback)
+        // Serialize and deserialize the ListDelegate
+        val remoteListDelegate = Bundler.fromBundle(Bundler.toBundle(listDelegate)) as ListDelegate
+
+        remoteListDelegate.requestItemRange(startIndex, endIndex, onDoneCallback)
 
         verify(onDoneCallback, atLeastOnce()).onSuccess(resultCaptor.capture())
 

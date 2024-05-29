@@ -29,11 +29,11 @@ import androidx.car.app.utils.RemoteUtils
 @CarProtocol
 @KeepFields
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ListDelegateImpl<T> : ListDelegate<T> {
+class ListDelegateImpl : ListDelegate {
     private var _size: Int = -1
     private lateinit var mStub: IRemoteList
 
-    constructor(content: List<T>) {
+    constructor(content: List<*>) {
         _size = content.size
         mStub = RemoteListStub(content)
     }
@@ -60,7 +60,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
         }
     }
 
-    private class RemoteListStub<T>(private val mContent: List<T>) : IRemoteList.Stub() {
+    private class RemoteListStub(private val mContent: List<*>) : IRemoteList.Stub() {
         @Throws(RemoteException::class)
         override fun requestItemRange(startIndex: Int, endIndex: Int, callback: IOnDoneCallback) {
             RemoteUtils.dispatchCallFromHost(callback, "lazy load content") {
