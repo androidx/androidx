@@ -20,11 +20,14 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -36,8 +39,11 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -305,6 +311,31 @@ class DatePickerTest {
             .assertDoesNotExist()
         rule.onNodeWithContentDescription(label = "previous", substring = true, ignoreCase = true)
             .assertDoesNotExist()
+    }
+
+    @Test
+    fun datePicker_swipeLeft_goesToNextMonth() {
+        val day = dayInUtcMilliseconds(year = 2018, month = 1, dayOfMonth = 1)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            DatePicker(
+                modifier = Modifier.testTag("datePicker"),
+                state = rememberDatePickerState(
+                    initialSelectedDateMillis = day,
+                    yearRange = IntRange(2016, 2019)
+                )
+            )
+        }
+
+        rule.onAllNodes(hasText("Feb", substring = true)).assertCountEquals(0)
+
+        rule.onNodeWithTag("datePicker").performTouchInput {
+            swipeLeft(center.x, centerLeft.x)
+        }
+
+        rule.onAllNodes(hasText("Feb", substring = true))
+            .onFirst()
+            .assertIsDisplayed()
     }
 
     @Test
