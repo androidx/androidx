@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
  * @param includes List of include directories containing .h files for the compilation.
  * @param linkedObjects List of object files that should be dynamically linked in the final shared
  *   object output.
+ * @param linkerArgs Arguments that will be passed into linker when creating a shared library.
  * @param freeArgs Arguments that will be passed into clang for compilation.
  */
 class NativeTargetCompilation
@@ -51,6 +52,8 @@ internal constructor(
     val sources: ConfigurableFileCollection,
     val includes: ConfigurableFileCollection,
     val linkedObjects: ConfigurableFileCollection,
+    @Suppress("unused") // used via build.gradle
+    val linkerArgs: ListProperty<String>,
     @Suppress("unused") // used via build.gradle
     val freeArgs: ListProperty<String>
 ) : Named {

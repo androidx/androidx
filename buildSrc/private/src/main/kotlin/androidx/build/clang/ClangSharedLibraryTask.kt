@@ -20,6 +20,7 @@ import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.ServiceReference
 import org.gradle.api.tasks.CacheableTask
@@ -81,6 +82,9 @@ abstract class ClangSharedLibraryParameters {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     abstract val linkedObjects: ConfigurableFileCollection
+
+    /** List of arguments that will be passed into linker when creating a shared library. */
+    @get:Input abstract val linkerArgs: ListProperty<String>
 }
 
 private abstract class ClangSharedLibraryWorker : WorkAction<ClangSharedLibraryWorker.Params> {
