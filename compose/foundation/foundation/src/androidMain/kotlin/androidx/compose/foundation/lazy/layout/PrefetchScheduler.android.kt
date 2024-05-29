@@ -25,7 +25,6 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalView
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 @ExperimentalFoundationApi
@@ -108,6 +107,8 @@ internal class AndroidPrefetchScheduler(
     /** Is true when LazyList was composed and not yet disposed. */
     private var isActive = false
 
+    private var frameStartTimeNanos = 0L
+
     init {
         calculateFrameIntervalIfNeeded(view)
     }
@@ -124,8 +125,7 @@ internal class AndroidPrefetchScheduler(
             prefetchScheduled = false
             return
         }
-        val latestFrameVsyncNs = TimeUnit.MILLISECONDS.toNanos(view.drawingTime)
-        val nextFrameNs = latestFrameVsyncNs + frameIntervalNs
+        val nextFrameNs = frameStartTimeNanos + frameIntervalNs
         val scope = PrefetchRequestScopeImpl(nextFrameNs)
         var scheduleForNextFrame = false
         while (prefetchRequests.isNotEmpty() && !scheduleForNextFrame) {
@@ -158,6 +158,7 @@ internal class AndroidPrefetchScheduler(
      */
     override fun doFrame(frameTimeNanos: Long) {
         if (isActive) {
+            frameStartTimeNanos = frameTimeNanos
             view.post(this)
         }
     }
