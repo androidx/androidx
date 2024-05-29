@@ -275,7 +275,7 @@ public final class DividerAttributes {
 
         private @ColorInt int mDividerColor = Color.BLACK;
 
-        private boolean mIsDraggingToFullscreenAllowed = true;
+        private boolean mIsDraggingToFullscreenAllowed = false;
 
         /**
          * The {@link DividerAttributes} builder constructor.
