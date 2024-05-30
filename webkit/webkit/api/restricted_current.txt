@@ -235,6 +235,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static java.util.Set<java.lang.String!> getRequestedWithHeaderOriginAllowList(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method @SuppressCompatibility @RequiresFeature(name="SPECULATIVE_LOADING_STATUS", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static int getSpeculativeLoadingStatus(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.UserAgentMetadata getUserAgentMetadata(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_AUTHENTICATION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getWebAuthenticationSupport(android.webkit.WebSettings);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus(android.webkit.WebSettings);
@@ -248,6 +249,7 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
     method @RequiresFeature(name="REQUESTED_WITH_HEADER_ALLOW_LIST", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setRequestedWithHeaderOriginAllowList(android.webkit.WebSettings, java.util.Set<java.lang.String!>);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
+    method @SuppressCompatibility @RequiresFeature(name="SPECULATIVE_LOADING_STATUS", enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static void setSpeculativeLoadingStatus(android.webkit.WebSettings, @SuppressCompatibility int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.USER_AGENT_METADATA, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setUserAgentMetadata(android.webkit.WebSettings, androidx.webkit.UserAgentMetadata);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_AUTHENTICATION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebAuthenticationSupport(android.webkit.WebSettings, int);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setWebViewMediaIntegrityApiStatus(android.webkit.WebSettings, androidx.webkit.WebViewMediaIntegrityApiStatusConfig);
@@ -261,9 +263,14 @@ package androidx.webkit {
     field @Deprecated public static final int FORCE_DARK_AUTO = 1; // 0x1
     field @Deprecated public static final int FORCE_DARK_OFF = 0; // 0x0
     field @Deprecated public static final int FORCE_DARK_ON = 2; // 0x2
+    field @SuppressCompatibility @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static final int SPECULATIVE_LOADING_DISABLED = 0; // 0x0
+    field @SuppressCompatibility @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static final int SPECULATIVE_LOADING_PRERENDER_ENABLED = 1; // 0x1
     field public static final int WEB_AUTHENTICATION_SUPPORT_FOR_APP = 1; // 0x1
     field public static final int WEB_AUTHENTICATION_SUPPORT_FOR_BROWSER = 2; // 0x2
     field public static final int WEB_AUTHENTICATION_SUPPORT_NONE = 0; // 0x0
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.TYPE}) public static @interface WebSettingsCompat.ExperimentalSpeculativeLoading {
   }
 
   public final class WebViewAssetLoader {
