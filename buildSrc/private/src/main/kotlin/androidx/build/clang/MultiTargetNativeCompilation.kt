@@ -167,11 +167,17 @@ class MultiTargetNativeCompilation(
             val sources = project.objects.fileCollection()
             val freeArgs = project.objects.listProperty<String>()
             val linkedObjects = project.objects.fileCollection()
+            val linkerArgs = project.objects.listProperty<String>()
             val compileTask =
                 createCompileTask(serializableKonanTarget, includes, sources, freeArgs)
             val archiveTask = createArchiveTask(serializableKonanTarget, compileTask)
             val sharedLibTask =
-                createSharedLibraryTask(serializableKonanTarget, compileTask, linkedObjects)
+                createSharedLibraryTask(
+                    serializableKonanTarget,
+                    compileTask,
+                    linkedObjects,
+                    linkerArgs
+                )
             return NativeTargetCompilation(
                 project = project,
                 konanTarget = serializableKonanTarget.asKonanTarget,
@@ -181,6 +187,7 @@ class MultiTargetNativeCompilation(
                 sources = sources,
                 includes = includes,
                 linkedObjects = linkedObjects,
+                linkerArgs = linkerArgs,
                 freeArgs = freeArgs
             )
         }
@@ -243,6 +250,7 @@ class MultiTargetNativeCompilation(
             serializableKonanTarget: SerializableKonanTarget,
             compileTask: TaskProvider<ClangCompileTask>,
             linkedObjects: ConfigurableFileCollection,
+            linkerArgs: ListProperty<String>
         ): TaskProvider<ClangSharedLibraryTask> {
             val archiveTaskName =
                 taskPrefix.appendCapitalized("createSharedLibrary", serializableKonanTarget.name)
@@ -267,6 +275,7 @@ class MultiTargetNativeCompilation(
                         clang.konanTarget.set(serializableKonanTarget)
                         clang.objectFiles.from(compileTask.map { it.clangParameters.output })
                         clang.linkedObjects.from(linkedObjects)
+                        clang.linkerArgs.addAll(linkerArgs)
                     }
                 }
             return archiveTask
