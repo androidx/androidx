@@ -354,30 +354,40 @@ private fun Emittable.hasBuiltinRipple() =
         // rounded corners and an EmittableText in R- versions.
         (this is EmittableButton && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
 
-private data class ExtractedSizeModifiers(
-    val sizeModifiers: GlanceModifier = GlanceModifier,
-    val nonSizeModifiers: GlanceModifier = GlanceModifier,
+private data class ExtractedSizeAndCornerModifiers(
+    val sizeAndCornerModifiers: GlanceModifier = GlanceModifier,
+    val nonSizeOrCornerModifiers: GlanceModifier = GlanceModifier,
 )
 
 /**
- * Split the [GlanceModifier] into one that contains the [WidthModifier]s, [HeightModifier]s and
- * [CornerRadiusModifier]s and one that contains the rest.
+ * Split the [GlanceModifier] into one that contains the [WidthModifier]s, [HeightModifier]s,
+ * [CornerRadiusModifier]s, [AppWidgetBackgroundModifier] and one that contains the rest.
+ *
+ * The [AppWidgetBackgroundModifier] is relevant to corner radius.
  */
 private fun GlanceModifier.extractSizeAndCornerRadiusModifiers() =
-    if (any { it is WidthModifier || it is HeightModifier || it is CornerRadiusModifier }) {
-        foldIn(ExtractedSizeModifiers()) { acc, modifier ->
+    if (
+        any {
+            it is WidthModifier ||
+                it is HeightModifier ||
+                it is CornerRadiusModifier ||
+                it is AppWidgetBackgroundModifier
+        }
+    ) {
+        foldIn(ExtractedSizeAndCornerModifiers()) { acc, modifier ->
             if (
                 modifier is WidthModifier ||
                     modifier is HeightModifier ||
-                    modifier is CornerRadiusModifier
+                    modifier is CornerRadiusModifier ||
+                    modifier is AppWidgetBackgroundModifier
             ) {
-                acc.copy(sizeModifiers = acc.sizeModifiers.then(modifier))
+                acc.copy(sizeAndCornerModifiers = acc.sizeAndCornerModifiers.then(modifier))
             } else {
-                acc.copy(nonSizeModifiers = acc.nonSizeModifiers.then(modifier))
+                acc.copy(nonSizeOrCornerModifiers = acc.nonSizeOrCornerModifiers.then(modifier))
             }
         }
     } else {
-        ExtractedSizeModifiers(nonSizeModifiers = this)
+        ExtractedSizeAndCornerModifiers(nonSizeOrCornerModifiers = this)
     }
 
 private fun GlanceModifier.warnIfMultipleClickableActions() {
