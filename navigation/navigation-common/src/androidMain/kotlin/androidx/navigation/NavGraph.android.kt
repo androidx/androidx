@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("NavGraphKt")
+@file:JvmMultifileClass
 
 package androidx.navigation
 
@@ -196,7 +197,7 @@ public actual open class NavGraph actual constructor(
      * @return the node with route - the node must have been created with a route from [KClass]
      */
     @OptIn(InternalSerializationApi::class)
-    public inline fun <reified T> findNode(): NavDestination? {
+    public actual inline fun <reified T> findNode(): NavDestination? {
         return findNode(serializer<T>().hashCode())
     }
 
@@ -209,7 +210,7 @@ public actual open class NavGraph actual constructor(
      */
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-    public fun <T> findNode(route: T?): NavDestination? {
+    public actual fun <T> findNode(route: T?): NavDestination? {
         return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
     }
 
@@ -529,16 +530,6 @@ public inline operator fun NavGraph.get(@IdRes id: Int): NavDestination =
     findNode(id) ?: throw IllegalArgumentException("No destination for $id was found in $this")
 
 /**
- * Returns the destination with `route`.
- *
- * @throws IllegalArgumentException if no destination is found with that route.
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.get(route: String): NavDestination =
-    findNode(route)
-        ?: throw IllegalArgumentException("No destination for $route was found in $this")
-
-/**
  * Returns the destination with `route` from [KClass].
  *
  * @throws IllegalArgumentException if no destination is found with that route.
@@ -563,45 +554,9 @@ public inline operator fun <T : Any> NavGraph.get(route: T): NavDestination =
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
-public actual operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
-
-/** Returns `true` if a destination with `route` is found in this navigation graph. */
 @Suppress("UNUSED_PARAMETER")
 public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
     findNode<T>() != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 public operator fun <T : Any> NavGraph.contains(route: T): Boolean = findNode(route) != null
-
-/**
- * Adds a destination to this NavGraph. The destination must have an
- * [id][NavDestination.id] set.
- *
- * The destination must not have a [parent][NavDestination.parent] set. If
- * the destination is already part of a [NavGraph], call
- * [NavGraph.remove] before calling this method.</p>
- *
- * @param node destination to add
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.plusAssign(node: NavDestination) {
-    addDestination(node)
-}
-
-/**
- * Add all destinations from another collection to this one. As each destination has at most
- * one parent, the destinations will be removed from the given NavGraph.
- *
- * @param other collection of destinations to add. All destinations will be removed from the
- * parameter graph after being added to this graph.
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.plusAssign(other: NavGraph) {
-    addAll(other)
-}
-
-/** Removes `node` from this navigation graph. */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.minusAssign(node: NavDestination) {
-    remove(node)
-}
