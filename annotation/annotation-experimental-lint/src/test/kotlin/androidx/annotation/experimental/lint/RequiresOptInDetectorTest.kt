@@ -582,6 +582,61 @@ src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't us
         check(*input).expect(expected)
     }
 
+    /**
+     * Regression test for b/313686921 where warnings were not shown for usages of
+     * experimentally-annotated annotations.
+     */
+    @Test
+    fun regressionTestJava313686921() {
+        val input =
+            arrayOf(
+                javaSample("sample.optin.ExperimentalJavaAnnotation"),
+                javaSample("sample.optin.RegressionTestJava313686921")
+            )
+
+        /* ktlint-disable max-line-length */
+        val expected =
+            """
+src/sample/optin/RegressionTestJava313686921.java:31: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        return param;
+               ~~~~~
+src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+        unsafeAnnotatedAnnotationUsageOnMethod("param");
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors, 0 warnings
+        """
+                .trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    /**
+     * Regression test for b/313686921 where warnings were not shown for usages of
+     * experimentally-annotated annotations.
+     */
+    @Test
+    fun regressionTestKotlin313686921() {
+        val input =
+            arrayOf(
+                javaSample("sample.optin.ExperimentalJavaAnnotation"),
+                ktSample("sample.optin.RegressionTestKotlin313686921")
+            )
+
+        /* ktlint-disable max-line-length */
+        val expected =
+            """
+src/sample/optin/AnnotatedKotlinAnnotation.kt:22: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+    return param
+           ~~~~~
+1 errors, 0 warnings
+        """
+                .trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
     /* ktlint-disable max-line-length */
     companion object {
         /**
