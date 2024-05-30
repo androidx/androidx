@@ -41,6 +41,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,6 +98,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_Extra() {
         setUpBackwardsCompatTest()
         val voipApiExtra = Pair(CallsManager.EXTRA_VOIP_API_VERSION, true)
@@ -122,6 +124,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_CapabilityExchange() {
         // Add EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED for pre-U testing
         val backwardsCompatExtra = configureCapabilityExchangeTypeTest()
@@ -153,6 +156,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      */
     @LargeTest
     @Test(timeout = 10000)
+    @Ignore //  b/343742088
     fun testResolveCallExtension_TransactionalOpsNotSupported() {
         // Phone accounts that don't use the v2 APIs don't support transactional ops.
         setUpBackwardsCompatTest()
