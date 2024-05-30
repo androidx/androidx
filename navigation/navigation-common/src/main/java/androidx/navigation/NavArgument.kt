@@ -21,10 +21,11 @@ import androidx.annotation.RestrictTo
 /**
  * NavArgument denotes an argument that is supported by a [NavDestination].
  *
- * A NavArgument has a type and optionally a default value, that are used to read/write
- * it in a Bundle. It can also be nullable if the type supports it.
+ * A NavArgument has a type and optionally a default value, that are used to read/write it in a
+ * Bundle. It can also be nullable if the type supports it.
  */
-public class NavArgument internal constructor(
+public class NavArgument
+internal constructor(
     type: NavType<Any?>,
     isNullable: Boolean,
     defaultValue: Any?,
@@ -33,12 +34,14 @@ public class NavArgument internal constructor(
 ) {
     /**
      * The type of this NavArgument.
+     *
      * @return the NavType object denoting the type that can be help in this argument.
      */
     public val type: NavType<Any?>
 
     /**
      * Whether this argument allows passing a `null` value.
+     *
      * @return true if `null` is allowed, false otherwise
      */
     public val isNullable: Boolean
@@ -46,20 +49,22 @@ public class NavArgument internal constructor(
     /**
      * Used to distinguish between a default value of `null` and an argument without an explicit
      * default value.
-     * @return true if this argument has a default value (even if that value is set to null),
-     * false otherwise
+     *
+     * @return true if this argument has a default value (even if that value is set to null), false
+     *   otherwise
      */
     public val isDefaultValuePresent: Boolean
 
     /**
-     * Indicates whether the default value (if present) is unknown (i.e. safe args where
-     * default value is declared in KClass but not stored in [defaultValue]).
+     * Indicates whether the default value (if present) is unknown (i.e. safe args where default
+     * value is declared in KClass but not stored in [defaultValue]).
      */
     internal val isDefaultValueUnknown: Boolean
 
     /**
-     * The default value of this argument or `null` if it doesn't have a default value.
-     * Use [isDefaultValuePresent] to distinguish between `null` and absence of a value.
+     * The default value of this argument or `null` if it doesn't have a default value. Use
+     * [isDefaultValuePresent] to distinguish between `null` and absence of a value.
+     *
      * @return The default value assigned to this argument.
      */
     public val defaultValue: Any?
@@ -121,9 +126,7 @@ public class NavArgument internal constructor(
         return result
     }
 
-    /**
-     * A builder for constructing [NavArgument] instances.
-     */
+    /** A builder for constructing [NavArgument] instances. */
     @Suppress("UNCHECKED_CAST")
     public class Builder {
         private var type: NavType<Any?>? = null
@@ -134,6 +137,7 @@ public class NavArgument internal constructor(
 
         /**
          * Set the type of the argument.
+         *
          * @param type Type of the argument.
          * @return This builder.
          */
@@ -143,8 +147,9 @@ public class NavArgument internal constructor(
         }
 
         /**
-         * Specify if the argument is nullable.
-         * The NavType you set for this argument must allow nullable values.
+         * Specify if the argument is nullable. The NavType you set for this argument must allow
+         * nullable values.
+         *
          * @param isNullable Argument will be nullable if true.
          * @return This builder.
          * @see NavType.isNullableAllowed
@@ -157,8 +162,9 @@ public class NavArgument internal constructor(
         /**
          * Specify the default value for an argument. Calling this at least once will cause the
          * argument to have a default value, even if it is set to null.
-         * @param defaultValue Default value for this argument.
-         * Must match NavType if it is specified.
+         *
+         * @param defaultValue Default value for this argument. Must match NavType if it is
+         *   specified.
          * @return This builder.
          */
         public fun setDefaultValue(defaultValue: Any?): Builder {
@@ -170,9 +176,8 @@ public class NavArgument internal constructor(
         /**
          * Set whether there is an unknown default value present.
          *
-         * Use with caution!! In general you should let [setDefaultValue] to automatically set
-         * this state. This state should be set to true only if all these conditions are met:
-         *
+         * Use with caution!! In general you should let [setDefaultValue] to automatically set this
+         * state. This state should be set to true only if all these conditions are met:
          * 1. There is default value present
          * 2. You do not have access to actual default value (thus you can't use [defaultValue])
          * 3. You know the default value will never ever be null if [isNullable] is true.
@@ -183,9 +188,10 @@ public class NavArgument internal constructor(
         }
 
         /**
-         * Build the NavArgument specified by this builder.
-         * If the type is not set, the builder will infer the type from the default argument value.
-         * If there is no default value, the type will be unspecified.
+         * Build the NavArgument specified by this builder. If the type is not set, the builder will
+         * infer the type from the default argument value. If there is no default value, the type
+         * will be unspecified.
+         *
          * @return the newly constructed NavArgument.
          */
         public fun build(): NavArgument {
@@ -216,18 +222,16 @@ public class NavArgument internal constructor(
 }
 
 /**
- * Returns a list of NavArgument keys where required NavArguments with that key
- * returns false for the predicate `isArgumentMissing`.
+ * Returns a list of NavArgument keys where required NavArguments with that key returns false for
+ * the predicate `isArgumentMissing`.
  *
- * @param [isArgumentMissing] predicate that returns true if the key of a required NavArgument
- * is missing from a Bundle that is expected to contain it.
+ * @param [isArgumentMissing] predicate that returns true if the key of a required NavArgument is
+ *   missing from a Bundle that is expected to contain it.
  */
 internal fun Map<String, NavArgument?>.missingRequiredArguments(
     isArgumentMissing: (key: String) -> Boolean
 ): List<String> {
-    val requiredArgumentKeys = filterValues {
-        !it?.isNullable!! && !it.isDefaultValuePresent
-    }.keys
+    val requiredArgumentKeys = filterValues { !it?.isNullable!! && !it.isDefaultValuePresent }.keys
 
     return requiredArgumentKeys.filter { key -> isArgumentMissing(key) }
 }

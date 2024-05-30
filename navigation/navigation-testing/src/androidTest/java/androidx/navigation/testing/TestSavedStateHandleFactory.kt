@@ -36,8 +36,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun primitiveArgument() {
-        @Serializable
-        class TestClass(val arg: Int)
+        @Serializable class TestClass(val arg: Int)
 
         val handle = SavedStateHandle(TestClass(12))
         assertThat(handle.contains("arg")).isTrue()
@@ -47,13 +46,10 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun complexPathArgument() {
-        @Serializable
-        class TestClass(val arg: TestType)
+        @Serializable class TestClass(val arg: TestType)
 
         val typeMap = mapOf(typeOf<TestType>() to testNavType)
-        val handle = SavedStateHandle(
-            TestClass(TestType("test", 1)), typeMap
-        )
+        val handle = SavedStateHandle(TestClass(TestType("test", 1)), typeMap)
         assertThat(handle.contains("arg")).isTrue()
         val arg = handle.get<String>("arg")
         assertThat(arg).isEqualTo("1.test")
@@ -61,8 +57,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun complexQueryArgument() {
-        @Serializable
-        class TestClass(val arg: List<TestType>)
+        @Serializable class TestClass(val arg: List<TestType>)
 
         val arg = listOf(TestType("test", 1), TestType("test2", 2))
         val typeMap = mapOf(typeOf<List<TestType>>() to testCollectionNavType)
@@ -74,8 +69,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun multipleArgument() {
-        @Serializable
-        class TestClass(val arg: Boolean, val arg2: Float)
+        @Serializable class TestClass(val arg: Boolean, val arg2: Float)
 
         val handle = SavedStateHandle(TestClass(true, 1.0F))
         assertThat(handle.contains("arg")).isTrue()
@@ -90,8 +84,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun nullArgument() {
-        @Serializable
-        class TestClass(val arg: String?)
+        @Serializable class TestClass(val arg: String?)
 
         val handle = SavedStateHandle(TestClass(null))
         assertThat(handle.contains("arg")).isTrue()
@@ -101,8 +94,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun nullLiteralArgument() {
-        @Serializable
-        class TestClass(val arg: String)
+        @Serializable class TestClass(val arg: String)
 
         val handle = SavedStateHandle(TestClass("null"))
         assertThat(handle.contains("arg")).isTrue()
@@ -112,22 +104,19 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun emptyStringArgument() {
-        @Serializable
-        class TestClass(val arg: String)
+        @Serializable class TestClass(val arg: String)
 
-        val exception = assertFailsWith<IllegalStateException> {
-            SavedStateHandle(TestClass(""))
-        }
-        assertThat(exception.message).isEqualTo(
-            "Cannot match route [androidx.navigation.testing." +
-                "TestSavedStateHandleBuilder.emptyStringArgument.TestClass/] to [TestClass]"
-        )
+        val exception = assertFailsWith<IllegalStateException> { SavedStateHandle(TestClass("")) }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot match route [androidx.navigation.testing." +
+                    "TestSavedStateHandleBuilder.emptyStringArgument.TestClass/] to [TestClass]"
+            )
     }
 
     @Test
     fun defaultPrimitiveArgument() {
-        @Serializable
-        class TestClass(val arg: Int = 1)
+        @Serializable class TestClass(val arg: Int = 1)
 
         val handle = SavedStateHandle(TestClass())
         assertThat(handle.contains("arg")).isTrue()
@@ -137,8 +126,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun defaultComplexArgument() {
-        @Serializable
-        class TestClass(val arg: TestType = TestType("test", 1))
+        @Serializable class TestClass(val arg: TestType = TestType("test", 1))
 
         val typeMap = mapOf(typeOf<TestType>() to testNavType)
         val handle = SavedStateHandle(TestClass(), typeMap)
@@ -149,13 +137,10 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun handleToRoutePathArg() {
-        @Serializable
-        class TestClass(val arg: TestType)
+        @Serializable class TestClass(val arg: TestType)
 
         val typeMap = mapOf(typeOf<TestType>() to testNavType)
-        val handle = SavedStateHandle(
-            TestClass(TestType("test", 1)), typeMap
-        )
+        val handle = SavedStateHandle(TestClass(TestType("test", 1)), typeMap)
 
         val route = handle.toRoute<TestClass>(typeMap)
         assertThat(route.arg.name).isEqualTo("test")
@@ -164,8 +149,7 @@ class TestSavedStateHandleBuilder {
 
     @Test
     fun handleToRouteQueryArg() {
-        @Serializable
-        class TestClass(val arg: List<TestType>)
+        @Serializable class TestClass(val arg: List<TestType>)
 
         val arg = listOf(TestType("test", 1), TestType("test2", 2))
         val typeMap = mapOf(typeOf<List<TestType>>() to testCollectionNavType)
@@ -175,23 +159,24 @@ class TestSavedStateHandleBuilder {
     }
 }
 
-@Serializable
-private data class TestType(val name: String, val id: Int)
+@Serializable private data class TestType(val name: String, val id: Int)
 
-private val testNavType = object : NavType<TestType>(false) {
-    override fun put(bundle: Bundle, key: String, value: TestType) {
-        bundle.putString(key, serializeAsValue(value))
+private val testNavType =
+    object : NavType<TestType>(false) {
+        override fun put(bundle: Bundle, key: String, value: TestType) {
+            bundle.putString(key, serializeAsValue(value))
+        }
+
+        override fun get(bundle: Bundle, key: String): TestType =
+            parseValue(bundle.getString(key) as String)
+
+        override fun parseValue(value: String): TestType {
+            val args = value.split(".")
+            return TestType(id = args.first().toInt(), name = args.last())
+        }
+
+        override fun serializeAsValue(value: TestType) = "${value.id}.${value.name}"
     }
-
-    override fun get(bundle: Bundle, key: String): TestType =
-        parseValue(bundle.getString(key) as String)
-
-    override fun parseValue(value: String): TestType {
-        val args = value.split(".")
-        return TestType(id = args.first().toInt(), name = args.last())
-    }
-    override fun serializeAsValue(value: TestType) = "${value.id}.${value.name}"
-}
 
 private val testCollectionNavType: NavType<List<TestType>> =
     object : CollectionNavType<List<TestType>>(false) {
@@ -213,4 +198,4 @@ private val testCollectionNavType: NavType<List<TestType>> =
 
         override fun parseValue(value: String, previousValue: List<TestType>): List<TestType> =
             previousValue.plus(testNavType.parseValue(value))
-}
+    }

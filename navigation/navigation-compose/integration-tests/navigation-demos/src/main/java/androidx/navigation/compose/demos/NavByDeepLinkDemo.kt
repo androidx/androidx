@@ -48,12 +48,7 @@ fun NavByDeepLinkDemo() {
     val navController = rememberNavController()
     val basePath = "https://example.com"
     NavHost(navController, startDestination = Profile) {
-        composable<Profile> {
-            ProfileWithDeepLink(
-                navController,
-                "$basePath?userId="
-            )
-        }
+        composable<Profile> { ProfileWithDeepLink(navController, "$basePath?userId=") }
         composable<Dashboard>(
             // use the same args from Destination.Dashboard with custom uri base path
             deepLinks = listOf(navDeepLink<Dashboard>(basePath))

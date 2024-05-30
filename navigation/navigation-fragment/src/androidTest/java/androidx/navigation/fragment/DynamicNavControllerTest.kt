@@ -25,9 +25,8 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class DynamicNavControllerTest : BaseNavControllerTest<DynamicNavigationActivity>(
-    DynamicNavigationActivity::class.java
-)
+class DynamicNavControllerTest :
+    BaseNavControllerTest<DynamicNavigationActivity>(DynamicNavigationActivity::class.java)
 
 /**
  * Test Navigation Activity that dynamically adds the [NavHostFragment].
@@ -42,7 +41,8 @@ class DynamicNavigationActivity : BaseNavigationActivity() {
 
         if (savedInstanceState == null) {
             val finalHost = NavHostFragment()
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .replace(R.id.nav_host, finalHost)
                 .setPrimaryNavigationFragment(finalHost)
                 .commit()

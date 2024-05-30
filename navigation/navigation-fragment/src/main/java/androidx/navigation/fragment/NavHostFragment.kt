@@ -39,9 +39,8 @@ import androidx.navigation.plusAssign
 /**
  * NavHostFragment provides an area within your layout for self-contained navigation to occur.
  *
- * NavHostFragment is intended to be used as the content area within a layout resource
- * defining your app's chrome around it, e.g.:
- *
+ * NavHostFragment is intended to be used as the content area within a layout resource defining your
+ * app's chrome around it, e.g.:
  * ```
  * <androidx.drawerlayout.widget.DrawerLayout
  * xmlns:android="http://schemas.android.com/apk/res/android"
@@ -62,23 +61,22 @@ import androidx.navigation.plusAssign
  * </androidx.drawerlayout.widget.DrawerLayout>
  * ```
  *
- * Each NavHostFragment has a [NavController] that defines valid navigation within
- * the navigation host. This includes the [navigation graph][NavGraph] as well as navigation
- * state such as current location and back stack that will be saved and restored along with the
- * NavHostFragment itself.
+ * Each NavHostFragment has a [NavController] that defines valid navigation within the navigation
+ * host. This includes the [navigation graph][NavGraph] as well as navigation state such as current
+ * location and back stack that will be saved and restored along with the NavHostFragment itself.
  *
- * NavHostFragments register their navigation controller at the root of their view subtree
- * such that any descendant can obtain the controller instance through the [Navigation]
- * helper class's methods such as [Navigation.findNavController]. View event listener
- * implementations such as [android.view.View.OnClickListener] within navigation destination
- * fragments can use these helpers to navigate based on user interaction without creating a tight
- * coupling to the navigation host.
+ * NavHostFragments register their navigation controller at the root of their view subtree such that
+ * any descendant can obtain the controller instance through the [Navigation] helper class's methods
+ * such as [Navigation.findNavController]. View event listener implementations such as
+ * [android.view.View.OnClickListener] within navigation destination fragments can use these helpers
+ * to navigate based on user interaction without creating a tight coupling to the navigation host.
  */
 public open class NavHostFragment : Fragment(), NavHost {
     internal val navHostController: NavHostController by lazy {
-        val context = checkNotNull(context) {
-            "NavController cannot be created before the fragment is attached"
-        }
+        val context =
+            checkNotNull(context) {
+                "NavController cannot be created before the fragment is attached"
+            }
         NavHostController(context).apply {
             setLifecycleOwner(this@NavHostFragment)
             setViewModelStore(viewModelStore)
@@ -120,9 +118,9 @@ public open class NavHostFragment : Fragment(), NavHost {
     private var defaultNavHost = false
 
     /**
-     * The [navigation controller][NavController] for this navigation host.
-     * This method will return null until this host fragment's [onCreate]
-     * has been called and it has had an opportunity to restore from a previous instance state.
+     * The [navigation controller][NavController] for this navigation host. This method will return
+     * null until this host fragment's [onCreate] has been called and it has had an opportunity to
+     * restore from a previous instance state.
      *
      * @return this host's navigation controller
      * @throws IllegalStateException if called before [onCreate]
@@ -138,9 +136,7 @@ public open class NavHostFragment : Fragment(), NavHost {
         // but it can stay here until we can add the necessary attr resources to
         // the fragment lib.
         if (defaultNavHost) {
-            parentFragmentManager.beginTransaction()
-                .setPrimaryNavigationFragment(this)
-                .commit()
+            parentFragmentManager.beginTransaction().setPrimaryNavigationFragment(this).commit()
         }
     }
 
@@ -151,9 +147,7 @@ public open class NavHostFragment : Fragment(), NavHost {
         if (savedInstanceState != null) {
             if (savedInstanceState.getBoolean(KEY_DEFAULT_NAV_HOST, false)) {
                 defaultNavHost = true
-                parentFragmentManager.beginTransaction()
-                    .setPrimaryNavigationFragment(this)
-                    .commit()
+                parentFragmentManager.beginTransaction().setPrimaryNavigationFragment(this).commit()
             }
         }
 
@@ -164,13 +158,12 @@ public open class NavHostFragment : Fragment(), NavHost {
     }
 
     /**
-     * Callback for when the [NavHostController] is created. If you
-     * support any custom destination types, their [Navigator] should be added here to
-     * ensure it is available before the navigation graph is inflated / set.
+     * Callback for when the [NavHostController] is created. If you support any custom destination
+     * types, their [Navigator] should be added here to ensure it is available before the navigation
+     * graph is inflated / set.
      *
-     * This provides direct access to the host specific methods available on
-     * [NavHostController] such as
-     * [NavHostController.setOnBackPressedDispatcher].
+     * This provides direct access to the host specific methods available on [NavHostController]
+     * such as [NavHostController.setOnBackPressedDispatcher].
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
@@ -178,8 +171,8 @@ public open class NavHostFragment : Fragment(), NavHost {
      * if the navController has not yet been called. This should not be called directly by
      * subclasses.
      *
-     * @param navHostController The newly created [NavHostController] that will be
-     * returned by [getNavController] after
+     * @param navHostController The newly created [NavHostController] that will be returned by
+     *   [getNavController] after
      */
     @Suppress("DEPRECATION")
     @CallSuper
@@ -188,9 +181,9 @@ public open class NavHostFragment : Fragment(), NavHost {
     }
 
     /**
-     * Callback for when the [NavController][getNavController] is created. If you
-     * support any custom destination types, their [Navigator] should be added here to
-     * ensure it is available before the navigation graph is inflated / set.
+     * Callback for when the [NavController][getNavController] is created. If you support any custom
+     * destination types, their [Navigator] should be added here to ensure it is available before
+     * the navigation graph is inflated / set.
      *
      * By default, this adds a [DialogFragmentNavigator] and [FragmentNavigator].
      *
@@ -216,8 +209,8 @@ public open class NavHostFragment : Fragment(), NavHost {
      * Create the FragmentNavigator that this NavHostFragment will use. By default, this uses
      * [FragmentNavigator], which replaces the entire contents of the NavHostFragment.
      *
-     * This is only called once in [onCreate] and should not be called directly by
-     * subclasses.
+     * This is only called once in [onCreate] and should not be called directly by subclasses.
+     *
      * @return a new instance of a FragmentNavigator
      */
     @Deprecated("Use {@link #onCreateNavController(NavController)}")
@@ -241,8 +234,8 @@ public open class NavHostFragment : Fragment(), NavHost {
 
     /**
      * We specifically can't use [View.NO_ID] as the container ID (as we use
-     * [androidx.fragment.app.FragmentTransaction.add] under the hood),
-     * so we need to make sure we return a valid ID when asked for the container ID.
+     * [androidx.fragment.app.FragmentTransaction.add] under the hood), so we need to make sure we
+     * return a valid ID when asked for the container ID.
      *
      * @return a valid ID to be used to contain child fragments
      */
@@ -277,13 +270,9 @@ public open class NavHostFragment : Fragment(), NavHost {
         savedInstanceState: Bundle?
     ) {
         super.onInflate(context, attrs, savedInstanceState)
-        context.obtainStyledAttributes(
-            attrs,
-            androidx.navigation.R.styleable.NavHost
-        ).use { navHost ->
-            val graphId = navHost.getResourceId(
-                androidx.navigation.R.styleable.NavHost_navGraph, 0
-            )
+        context.obtainStyledAttributes(attrs, androidx.navigation.R.styleable.NavHost).use { navHost
+            ->
+            val graphId = navHost.getResourceId(androidx.navigation.R.styleable.NavHost_navGraph, 0)
             if (graphId != 0) {
                 this.graphId = graphId
             }
@@ -315,13 +304,11 @@ public open class NavHostFragment : Fragment(), NavHost {
     }
 
     public companion object {
-        /**
-         */
+        /**  */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_GRAPH_ID: String = "android-support-nav:fragment:graphId"
 
-        /**
-         */
+        /**  */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_START_DESTINATION_ARGS: String =
             "android-support-nav:fragment:startDestinationArgs"
@@ -332,16 +319,15 @@ public open class NavHostFragment : Fragment(), NavHost {
         /**
          * Find a [NavController] given a local [Fragment].
          *
-         * This method will locate the [NavController] associated with this Fragment,
-         * looking first for a [NavHostFragment] along the given Fragment's parent chain.
-         * If a [NavController] is not found, this method will look for one along this
-         * Fragment's [view hierarchy][Fragment.getView] as specified by
-         * [Navigation.findNavController].
+         * This method will locate the [NavController] associated with this Fragment, looking first
+         * for a [NavHostFragment] along the given Fragment's parent chain. If a [NavController] is
+         * not found, this method will look for one along this Fragment's
+         * [view hierarchy][Fragment.getView] as specified by [Navigation.findNavController].
          *
          * @param fragment the locally scoped Fragment for navigation
          * @return the locally scoped [NavController] for navigating from this [Fragment]
-         * @throws IllegalStateException if the given Fragment does not correspond with a
-         * [NavHost] or is not within a NavHost.
+         * @throws IllegalStateException if the given Fragment does not correspond with a [NavHost]
+         *   or is not within a NavHost.
          */
         @JvmStatic
         public fun findNavController(fragment: Fragment): NavController {
@@ -350,8 +336,8 @@ public open class NavHostFragment : Fragment(), NavHost {
                 if (findFragment is NavHostFragment) {
                     return findFragment.navHostController
                 }
-                val primaryNavFragment = findFragment.parentFragmentManager
-                    .primaryNavigationFragment
+                val primaryNavFragment =
+                    findFragment.parentFragmentManager.primaryNavigationFragment
                 if (primaryNavFragment is NavHostFragment) {
                     return primaryNavFragment.navHostController
                 }

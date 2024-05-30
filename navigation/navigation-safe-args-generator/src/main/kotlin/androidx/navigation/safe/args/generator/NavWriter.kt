@@ -19,10 +19,7 @@ package androidx.navigation.safe.args.generator
 import androidx.navigation.safe.args.generator.models.Destination
 
 interface NavWriter<T : CodeFile> {
-    fun generateDirectionsCodeFile(
-        destination: Destination,
-        parentDirectionsFileList: List<T>
-    ): T
+    fun generateDirectionsCodeFile(destination: Destination, parentDirectionsFileList: List<T>): T
 
     fun generateArgsCodeFile(destination: Destination): T
 }

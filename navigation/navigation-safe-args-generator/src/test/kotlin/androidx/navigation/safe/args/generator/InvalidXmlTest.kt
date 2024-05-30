@@ -41,57 +41,78 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "({0})")
-        fun data() = listOf(
-            ErrorMessage("unnamed_destination_with_action.xml", 25, 5, UNNAMED_DESTINATION),
-            ErrorMessage(
-                "invalid_default_value_reference.xml", 23, 9,
-                invalidDefaultValueReference("foo/")
-            ),
-            ErrorMessage(
-                "null_default_value_reference.xml", 23, 9,
-                nullDefaultValueReference("myarg1")
-            ),
-            ErrorMessage(
-                "invalid_default_value_int.xml", 24, 9,
-                invalidDefaultValue("101034f", IntType)
-            ),
-            ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
-            ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
-            ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id")),
-            ErrorMessage(
-                "same_name_args.xml", 23, 9,
-                sameSanitizedNameArguments(
-                    "myArg",
-                    listOf(
-                        Argument("my_arg", StringType), Argument("my.arg", StringType)
+        fun data() =
+            listOf(
+                ErrorMessage("unnamed_destination_with_action.xml", 25, 5, UNNAMED_DESTINATION),
+                ErrorMessage(
+                    "invalid_default_value_reference.xml",
+                    23,
+                    9,
+                    invalidDefaultValueReference("foo/")
+                ),
+                ErrorMessage(
+                    "null_default_value_reference.xml",
+                    23,
+                    9,
+                    nullDefaultValueReference("myarg1")
+                ),
+                ErrorMessage(
+                    "invalid_default_value_int.xml",
+                    24,
+                    9,
+                    invalidDefaultValue("101034f", IntType)
+                ),
+                ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
+                ErrorMessage("invalid_id_destination.xml", 17, 1, invalidId("@1234234+id/foo")),
+                ErrorMessage("action_no_id.xml", 22, 5, mandatoryAttrMissingError("action", "id")),
+                ErrorMessage(
+                    "same_name_args.xml",
+                    23,
+                    9,
+                    sameSanitizedNameArguments(
+                        "myArg",
+                        listOf(Argument("my_arg", StringType), Argument("my.arg", StringType))
                     )
-                )
-            ),
-            ErrorMessage(
-                "same_name_actions.xml", 22, 5,
-                sameSanitizedNameActions(
-                    "NextAction",
-                    listOf(
-                        Action(
-                            ResReference("a.b", "id", "next_action"),
-                            ResReference("a.b", "id", "first_screen")
-                        ),
-                        Action(
-                            ResReference("a.b", "id", "nextAction"),
-                            ResReference("a.b", "id", "first_screen")
+                ),
+                ErrorMessage(
+                    "same_name_actions.xml",
+                    22,
+                    5,
+                    sameSanitizedNameActions(
+                        "NextAction",
+                        listOf(
+                            Action(
+                                ResReference("a.b", "id", "next_action"),
+                                ResReference("a.b", "id", "first_screen")
+                            ),
+                            Action(
+                                ResReference("a.b", "id", "nextAction"),
+                                ResReference("a.b", "id", "first_screen")
+                            )
                         )
                     )
+                ),
+                ErrorMessage(
+                    "null_but_not_nullable.xml",
+                    24,
+                    13,
+                    defaultNullButNotNullable("myArg")
+                ),
+                ErrorMessage("type_is_not_nullable.xml", 24, 13, typeIsNotNullable("integer")),
+                ErrorMessage(
+                    "invalid_deprecated_type.xml",
+                    24,
+                    9,
+                    deprecatedTypeAttrUsed("myarg1")
+                ),
+                ErrorMessage("invalid_include_tag.xml", 30, 5, NavParserErrors.MISSING_GRAPH_ATTR),
+                ErrorMessage(
+                    "invalid_include_graph_attr.xml",
+                    30,
+                    5,
+                    invalidNavReference("to_include_login_test")
                 )
-            ),
-            ErrorMessage("null_but_not_nullable.xml", 24, 13, defaultNullButNotNullable("myArg")),
-            ErrorMessage("type_is_not_nullable.xml", 24, 13, typeIsNotNullable("integer")),
-            ErrorMessage("invalid_deprecated_type.xml", 24, 9, deprecatedTypeAttrUsed("myarg1")),
-            ErrorMessage("invalid_include_tag.xml", 30, 5, NavParserErrors.MISSING_GRAPH_ATTR),
-            ErrorMessage(
-                "invalid_include_graph_attr.xml", 30, 5,
-                invalidNavReference("to_include_login_test")
             )
-        )
     }
 
     @Test

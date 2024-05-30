@@ -39,9 +39,7 @@ import org.jetbrains.uast.UCallExpression
  * Composable body, they are `remember`ed with a `NavBackStackEntry` as a key.
  */
 class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        GetBackStackEntry.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> = listOf(GetBackStackEntry.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(PackageName)) return
@@ -58,23 +56,26 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val UnrememberedGetBackStackEntry = Issue.create(
-            "UnrememberedGetBackStackEntry",
-            "Calling getBackStackEntry during composition without using `remember`" +
-                "with a NavBackStackEntry key",
-            "Backstack entries retrieved during composition need to be `remember`ed, otherwise " +
-                "they will be retrieved from the navController again, and be changed. You also " +
-                "need to pass in a key of a NavBackStackEntry to the remember call or they will " +
-                "not be updated properly. If this is in a `NavGraphBuilder.composable` scope, " +
-                "you should pass in the lambda's given entry as the key. Either hoist the state " +
-                "to an object that is not created during composition, or wrap the state in a " +
-                "call to `remember` with a `NavBackStackEntry` as a key.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                UnrememberedGetBackStackEntryDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UnrememberedGetBackStackEntry =
+            Issue.create(
+                "UnrememberedGetBackStackEntry",
+                "Calling getBackStackEntry during composition without using `remember`" +
+                    "with a NavBackStackEntry key",
+                "Backstack entries retrieved during composition need to be `remember`ed, otherwise " +
+                    "they will be retrieved from the navController again, and be changed. You also " +
+                    "need to pass in a key of a NavBackStackEntry to the remember call or they will " +
+                    "not be updated properly. If this is in a `NavGraphBuilder.composable` scope, " +
+                    "you should pass in the lambda's given entry as the key. Either hoist the state " +
+                    "to an object that is not created during composition, or wrap the state in a " +
+                    "call to `remember` with a `NavBackStackEntry` as a key.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    UnrememberedGetBackStackEntryDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

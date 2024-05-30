@@ -18,18 +18,11 @@ package androidx.navigation
 import android.os.Bundle
 import androidx.annotation.IdRes
 
-/**
- * An interface that describes a navigation operation: action's id and arguments
- */
+/** An interface that describes a navigation operation: action's id and arguments */
 public interface NavDirections {
-    /**
-     * An action id to navigate with.
-     */
-    @get:IdRes
-    public val actionId: Int
+    /** An action id to navigate with. */
+    @get:IdRes public val actionId: Int
 
-    /**
-     * Arguments to pass to the destination
-     */
+    /** Arguments to pass to the destination */
     public val arguments: Bundle
 }

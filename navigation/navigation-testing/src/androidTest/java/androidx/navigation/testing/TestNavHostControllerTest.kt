@@ -81,14 +81,13 @@ class TestNavHostControllerTest {
     @Test
     fun testDsl() {
         navController.navigatorProvider += NoOpActivityNavigator()
-        navController.graph = navController.createGraph(R.id.test_graph, R.id.start_test) {
-            activity(R.id.start_test) {
+        navController.graph =
+            navController.createGraph(R.id.test_graph, R.id.start_test) {
+                activity(R.id.start_test) {}
             }
-        }
         val backStack = navController.backStack
         assertThat(backStack).hasSize(2)
-        assertThat(backStack[1].destination)
-            .isInstanceOf(ActivityNavigator.Destination::class.java)
+        assertThat(backStack[1].destination).isInstanceOf(ActivityNavigator.Destination::class.java)
     }
 
     @UiThreadTest
@@ -107,9 +106,7 @@ class TestNavHostControllerTest {
     @Test
     fun testSetDestinationWithArgs() {
         navController.setGraph(R.navigation.test_graph)
-        val args = Bundle().apply {
-            putString("arg", "test")
-        }
+        val args = Bundle().apply { putString("arg", "test") }
         navController.setCurrentDestination(R.id.third_test, args)
         assertThat(navController.currentDestination?.id).isEqualTo(R.id.third_test)
         val actualArgs = navController.backStack.last().arguments
@@ -120,9 +117,7 @@ class TestNavHostControllerTest {
 }
 
 @Navigator.Name("activity")
-class NoOpActivityNavigator : ActivityNavigator(
-    ApplicationProvider.getApplicationContext()
-) {
+class NoOpActivityNavigator : ActivityNavigator(ApplicationProvider.getApplicationContext()) {
     override fun popBackStack() = true
 
     override fun navigate(

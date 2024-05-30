@@ -19,20 +19,23 @@ package androidx.navigation
 import androidx.core.app.ActivityOptionsCompat
 
 /**
- * Create a new [ActivityNavigator.Extras] instance with a specific [ActivityOptionsCompat]
- * instance and/or any `Intent.FLAG_ACTIVITY_` flags.
+ * Create a new [ActivityNavigator.Extras] instance with a specific [ActivityOptionsCompat] instance
+ * and/or any `Intent.FLAG_ACTIVITY_` flags.
  *
  * @param activityOptions Optional [ActivityOptionsCompat] to pass through to
- * [androidx.core.app.ActivityCompat.startActivity].
+ *   [androidx.core.app.ActivityCompat.startActivity].
  * @param flags `Intent.FLAG_ACTIVITY_` flags to add to the Intent.
  */
 @Suppress("FunctionName")
 public fun ActivityNavigatorExtras(
     activityOptions: ActivityOptionsCompat? = null,
     flags: Int = 0
-): ActivityNavigator.Extras = ActivityNavigator.Extras.Builder().apply {
-    if (activityOptions != null) {
-        setActivityOptions(activityOptions)
-    }
-    addFlags(flags)
-}.build()
+): ActivityNavigator.Extras =
+    ActivityNavigator.Extras.Builder()
+        .apply {
+            if (activityOptions != null) {
+                setActivityOptions(activityOptions)
+            }
+            addFlags(flags)
+        }
+        .build()

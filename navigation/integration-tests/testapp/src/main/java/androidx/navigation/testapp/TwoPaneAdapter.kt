@@ -32,25 +32,17 @@ class TwoPaneAdapter(
         val textView: TextView = view.findViewById(R.id.list_pane_row_item)
 
         init {
-            textView.setOnClickListener {
-                onClick(textView.text)
-            }
+            textView.setOnClickListener { onClick(textView.text) }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TwoPaneAdapter
-    .ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.list_pane_row_item, parent,
-            false
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TwoPaneAdapter.ViewHolder {
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.list_pane_row_item, parent, false)
         return ViewHolder(view, onClick)
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int
-    ) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.textView.text = dataSet[position]
     }
 

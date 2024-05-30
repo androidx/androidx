@@ -51,20 +51,17 @@ class NavigationUITest {
         val startDestination = "start_destination"
         val endDestination = "end_destination"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test("$endDestination/{test}") {
-                label = "{test}"
-                argument(name = "test") {
-                    type = NavType.ReferenceType
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test("$endDestination/{test}") {
+                    label = "{test}"
+                    argument(name = "test") { type = NavType.ReferenceType }
                 }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
-        navController.navigate(
-            endDestination + "/${R.string.dest_title}"
-        )
+        navController.navigate(endDestination + "/${R.string.dest_title}")
 
         val expected = "${context.resources.getString(R.string.dest_title)}"
         assertThat(toolbar.title.toString()).isEqualTo(expected)
@@ -80,20 +77,17 @@ class NavigationUITest {
         val startDestination = "start_destination"
         val endDestination = "end_destination"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test("$endDestination/{test}") {
-                label = "start/{test}/end/{test}"
-                argument(name = "test") {
-                    type = NavType.ReferenceType
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test("$endDestination/{test}") {
+                    label = "start/{test}/end/{test}"
+                    argument(name = "test") { type = NavType.ReferenceType }
                 }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
-        navController.navigate(
-            endDestination + "/${R.string.dest_title}"
-        )
+        navController.navigate(endDestination + "/${R.string.dest_title}")
 
         val argString = context.resources.getString(R.string.dest_title)
         val expected = "start/$argString/end/$argString"
@@ -111,19 +105,22 @@ class NavigationUITest {
         val endDestination = "end_destination"
         val labelString = "end/{test}"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test(endDestination) {
-                label = labelString
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test(endDestination) { label = labelString }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
 
         // empty bundle
-        val testListener = createToolbarOnDestinationChangedListener(
-            toolbar = toolbar, bundle = Bundle(), context = context, navController = navController
-        )
+        val testListener =
+            createToolbarOnDestinationChangedListener(
+                toolbar = toolbar,
+                bundle = Bundle(),
+                context = context,
+                navController = navController
+            )
 
         // navigate to destination. Since the argument {test} is not present in the bundle,
         // this should throw an IllegalArgumentException
@@ -144,22 +141,25 @@ class NavigationUITest {
         val endDestination = "end_destination"
         val labelString = "end/{test}"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test("$endDestination/{test}") {
-                label = labelString
-                argument(name = "test") {
-                    type = NavType.ReferenceType
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test("$endDestination/{test}") {
+                    label = labelString
+                    argument(name = "test") { type = NavType.ReferenceType }
                 }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
 
         // null Bundle
-        val testListener = createToolbarOnDestinationChangedListener(
-            toolbar = toolbar, bundle = null, context = context, navController = navController
-        )
+        val testListener =
+            createToolbarOnDestinationChangedListener(
+                toolbar = toolbar,
+                bundle = null,
+                context = context,
+                navController = navController
+            )
 
         // navigate to destination, should throw due to template found but null bundle
         navController.apply {
@@ -179,12 +179,11 @@ class NavigationUITest {
         val endDestination = "end_destination"
         val labelString = "end/test"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test(endDestination) {
-                label = labelString
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test(endDestination) { label = labelString }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
 
@@ -203,15 +202,14 @@ class NavigationUITest {
         val startDestination = "start_destination"
         val endDestination = "end_destination"
 
-        navController.graph = navController.createGraph(startDestination = startDestination) {
-            test(startDestination)
-            test("$endDestination/{test}") {
-                label = "{test}"
-                argument(name = "test") {
-                    type = NavType.LongType
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test("$endDestination/{test}") {
+                    label = "{test}"
+                    argument(name = "test") { type = NavType.LongType }
                 }
             }
-        }
 
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
         navController.navigate("$endDestination/123")
@@ -226,9 +224,11 @@ class NavigationUITest {
         context: Context,
         navController: NavController
     ): NavController.OnDestinationChangedListener {
-       return object : AbstractAppBarOnDestinationChangedListener(
-            context, AppBarConfiguration.Builder(navController.graph).build()
-        ) {
+        return object :
+            AbstractAppBarOnDestinationChangedListener(
+                context,
+                AppBarConfiguration.Builder(navController.graph).build()
+            ) {
             override fun setTitle(title: CharSequence?) {
                 toolbar.title = title
             }

@@ -23,8 +23,7 @@ import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
-@DslMarker
-public annotation class NavDeepLinkDsl
+@DslMarker public annotation class NavDeepLinkDsl
 
 /**
  * Construct a new [NavDeepLink]
@@ -37,22 +36,22 @@ public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDe
 /**
  * Construct a new [NavDeepLink]
  *
- * Extracts deeplink arguments from [T] and appends it to the [basePath]. The base path
- * & generated arguments form the final uri pattern for the deeplink.
+ * Extracts deeplink arguments from [T] and appends it to the [basePath]. The base path & generated
+ * arguments form the final uri pattern for the deeplink.
  *
- * See docs on the safe args version of [NavDeepLink.Builder.setUriPattern] for the
- * final uriPattern's generation logic.
+ * See docs on the safe args version of [NavDeepLink.Builder.setUriPattern] for the final
+ * uriPattern's generation logic.
  *
  * @param T The deepLink KClass to extract arguments from
  * @param basePath The base uri path to append arguments onto
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. May be empty if [T] does not use custom NavTypes.
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param deepLinkBuilder the builder used to construct the deeplink
  */
 public inline fun <reified T : Any> navDeepLink(
     basePath: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    noinline deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit = { }
+    noinline deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit = {}
 ): NavDeepLink = navDeepLink(basePath, T::class, typeMap, deepLinkBuilder)
 
 // public delegation for reified version to call internal build()
@@ -64,9 +63,7 @@ public fun <T : Any> navDeepLink(
     deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit
 ): NavDeepLink = NavDeepLinkDslBuilder(basePath, route, typeMap).apply(deepLinkBuilder).build()
 
-/**
- * DSL for constructing a new [NavDeepLink]
- */
+/** DSL for constructing a new [NavDeepLink] */
 @NavDeepLinkDsl
 public class NavDeepLinkDslBuilder {
     private val builder = NavDeepLink.Builder()
@@ -79,16 +76,16 @@ public class NavDeepLinkDslBuilder {
     /**
      * DSl for constructing a new [NavDeepLink] with a route
      *
-     * Extracts deeplink arguments from [route] and appends it to the [basePath]. The base path
-     * & generated arguments form the final uri pattern for the deeplink.
+     * Extracts deeplink arguments from [route] and appends it to the [basePath]. The base path &
+     * generated arguments form the final uri pattern for the deeplink.
      *
-     * See docs on the safe args version of [NavDeepLink.Builder.setUriPattern] for the
-     * final uriPattern's generation logic.
+     * See docs on the safe args version of [NavDeepLink.Builder.setUriPattern] for the final
+     * uriPattern's generation logic.
      *
      * @param basePath The base uri path to append arguments onto
      * @param route The deepLink KClass to extract arguments from
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     *   [NavType]. May be empty if [route] does not use custom NavTypes.
      */
     @OptIn(InternalSerializationApi::class)
     internal constructor(
@@ -126,17 +123,18 @@ public class NavDeepLinkDslBuilder {
             field = p
         }
 
-    /**
-     * MimeType for the deep link
-     */
+    /** MimeType for the deep link */
     public var mimeType: String? = null
 
-    internal fun build() = builder.apply {
-        check(!(uriPattern == null && action == null && mimeType == null)) {
-            ("The NavDeepLink must have an uri, action, and/or mimeType.")
-        }
-        uriPattern?.let { setUriPattern(it) }
-        action?.let { setAction(it) }
-        mimeType?.let { setMimeType(it) }
-    }.build()
+    internal fun build() =
+        builder
+            .apply {
+                check(!(uriPattern == null && action == null && mimeType == null)) {
+                    ("The NavDeepLink must have an uri, action, and/or mimeType.")
+                }
+                uriPattern?.let { setUriPattern(it) }
+                action?.let { setAction(it) }
+                mimeType?.let { setMimeType(it) }
+            }
+            .build()
 }

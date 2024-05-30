@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComposableNavHostFragmentTest {
 
-    @get:Rule
-    val testRule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val testRule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun create() {
@@ -48,9 +47,10 @@ class ComposableNavHostFragmentTest {
         testRule.waitForIdle()
 
         val childFragmentManager = navHostFragment.childFragmentManager
-        val currentFragment = requireNotNull(childFragmentManager.primaryNavigationFragment) {
-            "Primary Navigation Fragment should be non-null"
-        }
+        val currentFragment =
+            requireNotNull(childFragmentManager.primaryNavigationFragment) {
+                "Primary Navigation Fragment should be non-null"
+            }
         assertWithMessage("Current Fragment should be a ComposableFragment instance")
             .that(currentFragment)
             .isInstanceOf(ComposableFragment::class.java)

@@ -21,8 +21,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
 
 /**
- * NavControllerViewModel is the always up to date view of the NavController's
- * non configuration state
+ * NavControllerViewModel is the always up to date view of the NavController's non configuration
+ * state
  */
 internal class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
     private val viewModelStores = mutableMapOf<String, ViewModelStore>()
@@ -65,12 +65,13 @@ internal class NavControllerViewModel : ViewModel(), NavViewModelStoreProvider {
     }
 
     companion object {
-        private val FACTORY: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return NavControllerViewModel() as T
+        private val FACTORY: ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return NavControllerViewModel() as T
+                }
             }
-        }
 
         @JvmStatic
         fun getInstance(viewModelStore: ViewModelStore): NavControllerViewModel {

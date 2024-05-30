@@ -32,26 +32,26 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.ULambdaExpression
 
 /**
- * Lint for checking for empty construction of NavDeepLink in the Kotlin DSL,
- * i.e. navDeepLink { }
+ * Lint for checking for empty construction of NavDeepLink in the Kotlin DSL, i.e. navDeepLink { }
  */
 class EmptyNavDeepLinkDetector : Detector(), SourceCodeScanner {
     companion object {
-        val EmptyNavDeepLink = Issue.create(
-            id = "EmptyNavDeepLink",
-            briefDescription = "NavDeepLink must define an uri, action, and/or mimetype to be " +
-                "valid.",
-            explanation = "Attempting to create an empty NavDeepLink will result in an " +
-                "IllegalStateException at runtime. You may set these arguments within the lambda " +
-                "of the call to navDeepLink.",
-            category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                EmptyNavDeepLinkDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val EmptyNavDeepLink =
+            Issue.create(
+                id = "EmptyNavDeepLink",
+                briefDescription =
+                    "NavDeepLink must define an uri, action, and/or mimetype to be " + "valid.",
+                explanation =
+                    "Attempting to create an empty NavDeepLink will result in an " +
+                        "IllegalStateException at runtime. You may set these arguments within the lambda " +
+                        "of the call to navDeepLink.",
+                category = Category.CORRECTNESS,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(EmptyNavDeepLinkDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
+
     override fun getApplicableMethodNames(): List<String> = listOf("navDeepLink")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {

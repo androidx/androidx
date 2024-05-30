@@ -31,33 +31,29 @@ import kotlin.reflect.KType
  * Returns a [SavedStateHandle] populated with arguments from [route].
  *
  * @param route The route to extract argument values from
- * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if
- * [route] does not use custom NavTypes.
+ * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
+ *   does not use custom NavTypes.
  */
 @Suppress("DEPRECATION")
 public operator fun SavedStateHandle.Companion.invoke(
     route: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
 ): SavedStateHandle {
-    val dest = NavDestinationBuilder(
-        TestNavigatorProvider().get<Navigator<NavDestination>>("test"),
-        route::class,
-        typeMap
-    ).build()
+    val dest =
+        NavDestinationBuilder(
+                TestNavigatorProvider().get<Navigator<NavDestination>>("test"),
+                route::class,
+                typeMap
+            )
+            .build()
     val map = dest.arguments.mapValues { it.value.type }
     val deeplink = generateRouteWithArgs(route, map)
     val matching = dest.matchDeepLink(deeplink)
-    checkNotNull(matching) {
-        "Cannot match route [$deeplink] to [${route::class.simpleName}]"
-    }
+    checkNotNull(matching) { "Cannot match route [$deeplink] to [${route::class.simpleName}]" }
     if (dest.arguments.isNotEmpty()) {
-        checkNotNull(matching.matchingArgs) {
-            "Missing arguments from route [$deeplink]"
-        }
+        checkNotNull(matching.matchingArgs) { "Missing arguments from route [$deeplink]" }
     }
     val finalMap: MutableMap<String, Any?> = mutableMapOf()
-    matching.matchingArgs?.keySet()?.forEach { key ->
-        finalMap[key] = matching.matchingArgs!![key]
-    }
+    matching.matchingArgs?.keySet()?.forEach { key -> finalMap[key] = matching.matchingArgs!![key] }
     return SavedStateHandle(finalMap)
 }

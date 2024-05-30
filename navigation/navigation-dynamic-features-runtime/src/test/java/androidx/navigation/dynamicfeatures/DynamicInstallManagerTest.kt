@@ -30,10 +30,7 @@ import org.mockito.Mockito.`when` as mockWhen
 public class DynamicInstallManagerTest {
 
     private val splitInstallManager = mock(SplitInstallManager::class.java)
-    private var manager = DynamicInstallManager(
-        spy(Context::class.java),
-        splitInstallManager
-    )
+    private var manager = DynamicInstallManager(spy(Context::class.java), splitInstallManager)
 
     @Test
     public fun testNeedsInstall_InstallNeeded() {

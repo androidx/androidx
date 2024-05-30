@@ -36,22 +36,25 @@ fun String.toCamelCaseAsVar(): String {
 // as a.b.OuterClass$InnerClass, useful for then building a javapoet or kotlinpoet ClassName.
 fun String.toClassNameParts(): Triple<String, String, Array<String>> {
     val packageName = substringBeforeLast('.', "")
-    val (simpleName, innerNames) = substringAfterLast('.').let {
-        val simpleName = it.substringBefore("$")
-        val innerNames = it.substringAfter("$", "").let { innerName ->
-            if (innerName.isNotEmpty()) {
-                innerName.split("$")
-            } else {
-                emptyList()
-            }
+    val (simpleName, innerNames) =
+        substringAfterLast('.').let {
+            val simpleName = it.substringBefore("$")
+            val innerNames =
+                it.substringAfter("$", "").let { innerName ->
+                    if (innerName.isNotEmpty()) {
+                        innerName.split("$")
+                    } else {
+                        emptyList()
+                    }
+                }
+            simpleName to innerNames
         }
-        simpleName to innerNames
-    }
     return Triple(packageName, simpleName, innerNames.toTypedArray())
 }
 
-fun String.capitalize(locale: Locale): String = if (isNotEmpty() && this[0].isLowerCase()) {
-    substring(0, 1).uppercase(locale) + substring(1)
-} else {
-    this
-}
+fun String.capitalize(locale: Locale): String =
+    if (isNotEmpty() && this[0].isLowerCase()) {
+        substring(0, 1).uppercase(locale) + substring(1)
+    } else {
+        this
+    }

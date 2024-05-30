@@ -31,43 +31,30 @@ class FragmentNavigatorExtrasTest {
     @Test
     fun testAddSharedElement() {
         val view = View(InstrumentationRegistry.getInstrumentation().targetContext)
-        val extras = FragmentNavigator.Extras.Builder()
-            .addSharedElement(view, "test")
-            .build()
+        val extras = FragmentNavigator.Extras.Builder().addSharedElement(view, "test").build()
         val sharedElements = extras.sharedElements
-        assertWithMessage("Should be one shared element")
-            .that(sharedElements.size)
-            .isEqualTo(1)
+        assertWithMessage("Should be one shared element").that(sharedElements.size).isEqualTo(1)
         val name = sharedElements[view]
-        assertWithMessage("Shared element should exist in the map")
-            .that(name)
-            .isNotNull()
-        assertWithMessage("Shared element's name should match")
-            .that(name)
-            .isEqualTo("test")
+        assertWithMessage("Shared element should exist in the map").that(name).isNotNull()
+        assertWithMessage("Shared element's name should match").that(name).isEqualTo("test")
     }
 
     @Test
     fun testAddSharedElements() {
-        val map = mapOf(
-            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test1",
-            View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2"
-        )
-        val extras = FragmentNavigator.Extras.Builder()
-            .addSharedElements(map)
-            .build()
+        val map =
+            mapOf(
+                View(InstrumentationRegistry.getInstrumentation().targetContext) to "test1",
+                View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2"
+            )
+        val extras = FragmentNavigator.Extras.Builder().addSharedElements(map).build()
         val sharedElements = extras.sharedElements
         assertWithMessage("Should be ${map.size} shared elements")
             .that(sharedElements.size)
             .isEqualTo(map.size)
         map.forEach { (view, expected) ->
             val name = sharedElements[view]
-            assertWithMessage("Shared element should exist in the map")
-                .that(name)
-                .isNotNull()
-            assertWithMessage("Shared element's name should match")
-                .that(name)
-                .isEqualTo(expected)
+            assertWithMessage("Shared element should exist in the map").that(name).isNotNull()
+            assertWithMessage("Shared element's name should match").that(name).isEqualTo(expected)
         }
     }
 
@@ -78,22 +65,12 @@ class FragmentNavigatorExtrasTest {
         val extras = FragmentNavigatorExtras(view1 to "test1", view2 to "test2")
         val sharedElements = extras.sharedElements
 
-        assertWithMessage("Should be 2 shared elements")
-            .that(sharedElements.size)
-            .isEqualTo(2)
+        assertWithMessage("Should be 2 shared elements").that(sharedElements.size).isEqualTo(2)
         val name1 = sharedElements[view1]
-        assertWithMessage("Shared element should exist in the map")
-            .that(name1)
-            .isNotNull()
-        assertWithMessage("Shared element's name should match")
-            .that(name1)
-            .isEqualTo("test1")
+        assertWithMessage("Shared element should exist in the map").that(name1).isNotNull()
+        assertWithMessage("Shared element's name should match").that(name1).isEqualTo("test1")
         val name2 = sharedElements[view2]
-        assertWithMessage("Shared element should exist in the map")
-            .that(name2)
-            .isNotNull()
-        assertWithMessage("Shared element's name should match")
-            .that(name2)
-            .isEqualTo("test2")
+        assertWithMessage("Shared element should exist in the map").that(name2).isNotNull()
+        assertWithMessage("Shared element's name should match").that(name2).isEqualTo("test2")
     }
 }

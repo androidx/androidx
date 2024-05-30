@@ -28,12 +28,11 @@ import java.lang.IllegalStateException
  */
 internal class TestNavigatorProvider : NavigatorProvider() {
 
-    /**
-     * A [Navigator] that only supports creating destinations.
-     */
-    private val navigator = object : Navigator<NavDestination>() {
-        override fun createDestination() = NavDestination("test")
-    }
+    /** A [Navigator] that only supports creating destinations. */
+    private val navigator =
+        object : Navigator<NavDestination>() {
+            override fun createDestination() = NavDestination("test")
+        }
 
     init {
         addNavigator(NavGraphNavigator(this))
