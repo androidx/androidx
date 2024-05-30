@@ -20,7 +20,6 @@ import androidx.annotation.RestrictTo
 import androidx.navigation.serialization.generateRoutePattern
 import androidx.navigation.serialization.generateRouteWithArgs
 import kotlin.jvm.JvmStatic
-import kotlin.reflect.KClass
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -88,6 +87,19 @@ public actual open class NavGraph actual constructor(
 
     public actual fun findNode(route: String?): NavDestination? {
         return if (!route.isNullOrBlank()) findNode(route, true) else null
+    }
+
+    public actual inline fun <reified T> findNode(): NavDestination? {
+        // TODO: Usage generateRoutePattern inside inline function forces publishing this API
+        return findNode(serializer<T>().generateRoutePattern())
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    public actual fun <T> findNode(route: T?): NavDestination? {
+        return if (route != null) {
+            findNode(route!!::class.serializer().generateRoutePattern())
+        } else null
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -163,7 +175,6 @@ public actual open class NavGraph actual constructor(
     }
 
     @OptIn(InternalSerializationApi::class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun <T : Any> setStartDestination(startDestRoute: T) {
         setStartDestination(startDestRoute::class.serializer()) { startDestination ->
             val args = startDestination.arguments.mapValues {
@@ -184,7 +195,7 @@ public actual open class NavGraph actual constructor(
         val startDest = findNode(route)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
-                "Ensure the starting NavDestination was added via KClass."
+                "Ensure the starting NavDestination was added with route from KClass."
         }
         // when dest id is based on serializer, we expect the dest route to have been generated
         // and set
@@ -235,49 +246,4 @@ public actual open class NavGraph actual constructor(
                 }
             }.last()
     }
-}
-
-/**
- * Returns the destination with `route`.
- *
- * @throws IllegalArgumentException if no destination is found with that route.
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.get(route: String): NavDestination =
-    findNode(route)
-        ?: throw IllegalArgumentException("No destination for $route was found in $this")
-
-/** Returns `true` if a destination with `route` is found in this navigation graph. */
-public actual operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
-
-/**
- * Adds a destination to this NavGraph. The destination must have a route set.
- *
- * The destination must not have a [parent][NavDestination.parent] set. If
- * the destination is already part of a [NavGraph], call
- * [NavGraph.remove] before calling this method.</p>
- *
- * @param node destination to add
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.plusAssign(node: NavDestination) {
-    addDestination(node)
-}
-
-/**
- * Add all destinations from another collection to this one. As each destination has at most
- * one parent, the destinations will be removed from the given NavGraph.
- *
- * @param other collection of destinations to add. All destinations will be removed from the
- * parameter graph after being added to this graph.
- */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.plusAssign(other: NavGraph) {
-    addAll(other)
-}
-
-/** Removes `node` from this navigation graph. */
-@Suppress("NOTHING_TO_INLINE")
-public actual inline operator fun NavGraph.minusAssign(node: NavDestination) {
-    remove(node)
 }

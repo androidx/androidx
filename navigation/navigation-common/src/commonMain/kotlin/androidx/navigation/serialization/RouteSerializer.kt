@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package androidx.navigation.serialization
 
@@ -23,6 +23,7 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import kotlin.reflect.KType
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
@@ -43,6 +44,7 @@ import kotlinx.serialization.serializer
  * @param [path] The base path to append arguments to. If null, base path defaults to
  * [KSerializer.descriptor].serialName.
  */
+@PublishedApi // FIXME: Do not publish this function
 internal fun <T> KSerializer<T>.generateRoutePattern(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
     path: String? = null,
