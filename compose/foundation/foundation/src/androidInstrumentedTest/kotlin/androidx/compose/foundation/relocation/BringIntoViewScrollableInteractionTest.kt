@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollingLayoutElement
@@ -1208,8 +1206,6 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
 
         val expectedContainerSize = with(rule.density) { containerSize.roundToPx() }
         val customBringIntoViewSpec = object : BringIntoViewSpec {
-            override val scrollAnimationSpec: AnimationSpec<Float> = spring()
-
             override fun calculateScrollDistance(
                 offset: Float,
                 size: Float,
@@ -1254,9 +1250,6 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         var requestsFulfilledScroll = 0
         val customBringIntoViewSpec = object : BringIntoViewSpec {
             var index = 0
-
-            override val scrollAnimationSpec: AnimationSpec<Float> = spring()
-
             override fun calculateScrollDistance(
                 offset: Float,
                 size: Float,

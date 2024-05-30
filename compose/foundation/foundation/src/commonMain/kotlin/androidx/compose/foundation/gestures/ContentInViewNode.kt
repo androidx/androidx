@@ -186,7 +186,7 @@ internal class ContentInViewNode(
         check(!isAnimationRunning) { "launchAnimation called when previous animation was running" }
 
         if (DEBUG) println("[$TAG] launchAnimation")
-        val animationState = UpdatableAnimationState(bringIntoViewSpec.scrollAnimationSpec)
+        val animationState = UpdatableAnimationState(BringIntoViewSpec.DefaultScrollAnimationSpec)
         coroutineScope.launch(start = CoroutineStart.UNDISPATCHED) {
             var cancellationException: CancellationException? = null
             val animationJob = coroutineContext.job
