@@ -20,6 +20,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.FqNameMatcher
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.k1.ComposeDescriptorSerializerContext
 import androidx.compose.compiler.plugins.kotlin.lower.ClassStabilityTransformer
+import androidx.compose.compiler.plugins.kotlin.lower.ComposableDefaultParamLowering
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableFunInterfaceLowering
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableFunctionBodyTransformer
 import androidx.compose.compiler.plugins.kotlin.lower.ComposableLambdaAnnotator
@@ -150,6 +151,19 @@ class ComposeIrGenerationExtension(
 
         functionKeyTransformer.lower(moduleFragment)
 
+        if (!useK2) {
+            CopyDefaultValuesFromExpectLowering(pluginContext).lower(moduleFragment)
+        }
+
+        // Generate default wrappers for virtual functions
+        ComposableDefaultParamLowering(
+            pluginContext,
+            symbolRemapper,
+            metrics,
+            stabilityInferencer,
+            featureFlags
+        ).lower(moduleFragment)
+
         // Memoize normal lambdas and wrap composable lambdas
         ComposerLambdaMemoization(
             pluginContext,
@@ -158,10 +172,6 @@ class ComposeIrGenerationExtension(
             stabilityInferencer,
             featureFlags,
         ).lower(moduleFragment)
-
-        if (!useK2) {
-            CopyDefaultValuesFromExpectLowering(pluginContext).lower(moduleFragment)
-        }
 
         val mangler = when {
             pluginContext.platform.isJs() -> JsManglerIr
