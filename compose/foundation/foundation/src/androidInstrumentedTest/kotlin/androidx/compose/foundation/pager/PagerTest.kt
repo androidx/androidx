@@ -25,7 +25,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -465,6 +468,28 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         )
 
         assertThat(pagerState.pageSize).isEqualTo(0)
+    }
+
+    @Test
+    fun snapshotFlowIsNotifiedAboutNewOffsetOnSmallScrolls() {
+        var firstItemOffset = 0
+
+        createPager(
+            modifier = Modifier.requiredSize(15.dp),
+            pageSize = { PageSize.Fixed(10.dp) },
+            additionalContent = {
+                LaunchedEffect(pagerState) {
+                    snapshotFlow { pagerState.layoutInfo }
+                        .collectLatest {
+                            firstItemOffset = it.visiblePagesInfo.firstOrNull()?.offset ?: 0
+                        }
+                }
+            }
+        )
+
+        rule.runOnIdle { runBlocking { pagerState.scrollBy(1f) } }
+
+        rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
     }
 
     companion object {

@@ -247,10 +247,13 @@ internal constructor(
         }
 
         /** Apply the scroll delta */
-        val layoutInfo = pagerLayoutInfoState.value
-        if (layoutInfo.tryToApplyScrollWithoutRemeasure(-scrollDelta.toInt())) {
+        val scrolledLayoutInfo =
+            pagerLayoutInfoState.value.copyWithScrollDeltaWithoutRemeasure(
+                delta = -scrollDelta.toInt()
+            )
+        if (scrolledLayoutInfo != null) {
             debugLog { "Will Apply Without Remeasure" }
-            applyMeasureResult(result = layoutInfo, visibleItemsStayedTheSame = true)
+            applyMeasureResult(result = scrolledLayoutInfo, visibleItemsStayedTheSame = true)
             // we don't need to remeasure, so we only trigger re-placement:
             placementScopeInvalidator.invalidateScope()
             layoutWithoutMeasurement++

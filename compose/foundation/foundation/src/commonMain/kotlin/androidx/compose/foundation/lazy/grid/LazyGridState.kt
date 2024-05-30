@@ -393,15 +393,19 @@ constructor(
         // inside measuring we do scrollToBeConsumed.roundToInt() so there will be no scroll if
         // we have less than 0.5 pixels
         if (abs(scrollToBeConsumed) > 0.5f) {
-            val layoutInfo = layoutInfoState.value
             val preScrollToBeConsumed = scrollToBeConsumed
             val intDelta = scrollToBeConsumed.roundToInt()
-            if (layoutInfo.tryToApplyScrollWithoutRemeasure(intDelta)) {
-                applyMeasureResult(result = layoutInfo, visibleItemsStayedTheSame = true)
+            val scrolledLayoutInfo =
+                layoutInfoState.value.copyWithScrollDeltaWithoutRemeasure(delta = intDelta)
+            if (scrolledLayoutInfo != null) {
+                applyMeasureResult(result = scrolledLayoutInfo, visibleItemsStayedTheSame = true)
                 // we don't need to remeasure, so we only trigger re-placement:
                 placementScopeInvalidator.invalidateScope()
 
-                notifyPrefetchOnScroll(preScrollToBeConsumed - scrollToBeConsumed, layoutInfo)
+                notifyPrefetchOnScroll(
+                    preScrollToBeConsumed - scrollToBeConsumed,
+                    scrolledLayoutInfo
+                )
             } else {
                 remeasurement?.forceRemeasure()
                 notifyPrefetchOnScroll(preScrollToBeConsumed - scrollToBeConsumed, this.layoutInfo)
