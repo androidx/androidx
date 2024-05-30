@@ -92,7 +92,7 @@ public class NavOptions internal constructor(
      * @see isPopUpToInclusive
      * @see shouldPopUpToSaveState
      */
-    public var popUpToRoute: String? = null
+    public actual var popUpToRoute: String? = null
         private set
 
     /**
@@ -104,7 +104,7 @@ public class NavOptions internal constructor(
      * @see isPopUpToInclusive
      * @see shouldPopUpToSaveState
      */
-    public var popUpToRouteClass: KClass<*>? = null
+    public actual var popUpToRouteClass: KClass<*>? = null
         private set
 
     /**
@@ -116,7 +116,7 @@ public class NavOptions internal constructor(
      * @see isPopUpToInclusive
      * @see shouldPopUpToSaveState
      */
-    public var popUpToRouteObject: Any? = null
+    public actual var popUpToRouteObject: Any? = null
         private set
 
     /**
@@ -359,7 +359,7 @@ public class NavOptions internal constructor(
          *
          * @param singleTop true to launch as single-top
          */
-        public fun setLaunchSingleTop(singleTop: Boolean): Builder {
+        public actual fun setLaunchSingleTop(singleTop: Boolean): Builder {
             this.singleTop = singleTop
             return this
         }
@@ -370,7 +370,7 @@ public class NavOptions internal constructor(
          * previously saved with the destination ID being navigated to, this has no effect.
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        public fun setRestoreState(restoreState: Boolean): Builder {
+        public actual fun setRestoreState(restoreState: Boolean): Builder {
             this.restoreState = restoreState
             return this
         }
@@ -421,10 +421,10 @@ public class NavOptions internal constructor(
          * @see NavOptions.isPopUpToInclusive
          */
         @JvmOverloads
-        public fun setPopUpTo(
+        public actual fun setPopUpTo(
             route: String?,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean
         ): Builder {
             popUpToRoute = route
             popUpToId = -1
@@ -452,9 +452,9 @@ public class NavOptions internal constructor(
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
-        public inline fun <reified T : Any> setPopUpTo(
+        public actual inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean
         ): Builder {
             setPopUpTo(T::class, inclusive, saveState)
             return this
@@ -463,10 +463,10 @@ public class NavOptions internal constructor(
         // this restricted public is needed so that the public reified [popUpTo] can call
         // private popUpToRouteClass setter
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun setPopUpTo(
+        public actual fun setPopUpTo(
             klass: KClass<*>,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean
         ): Builder {
             popUpToRouteClass = klass
             popUpToId = -1
@@ -495,10 +495,10 @@ public class NavOptions internal constructor(
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder")
         @OptIn(InternalSerializationApi::class)
-        public fun <T : Any> setPopUpTo(
+        public actual fun <T : Any> setPopUpTo(
             route: T,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean
         ): Builder {
             popUpToRouteObject = route
             setPopUpTo(route::class.serializer().hashCode(), inclusive, saveState)
