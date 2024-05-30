@@ -24,8 +24,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import kotlin.reflect.KClass
+import kotlinx.serialization.serializer
 
 /**
  * Representation of an entry in the back stack of a [androidx.navigation.NavController]. The
@@ -88,4 +91,21 @@ public expect class NavBackStackEntry :
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun saveState(outBundle: Bundle)
+}
+
+/**
+ * Returns route as an object of type [T]
+ *
+ * Extrapolates arguments from [NavBackStackEntry.arguments] and recreates object [T]
+ *
+ * @param [T] the entry's [NavDestination.route] as a [KClass]
+ *
+ * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
+ */
+public inline fun <reified T> NavBackStackEntry.toRoute(): T {
+    val bundle = arguments ?: Bundle()
+    val typeMap = destination.arguments.mapValues {
+        it.value.type
+    }
+    return serializer<T>().decodeArguments(bundle, typeMap)
 }

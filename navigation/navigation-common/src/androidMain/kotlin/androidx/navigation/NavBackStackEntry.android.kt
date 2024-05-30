@@ -293,20 +293,3 @@ private constructor(
 
     private class SavedStateViewModel(val handle: SavedStateHandle) : ViewModel()
 }
-
-/**
- * Returns route as an object of type [T]
- *
- * Extrapolates arguments from [NavBackStackEntry.arguments] and recreates object [T]
- *
- * @param [T] the entry's [NavDestination.route] as a [KClass]
- *
- * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
- */
-public inline fun <reified T> NavBackStackEntry.toRoute(): T {
-    val bundle = arguments ?: Bundle()
-    val typeMap = destination.arguments.mapValues {
-        it.value.type
-    }
-    return serializer<T>().decodeArguments(bundle, typeMap)
-}
