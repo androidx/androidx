@@ -54,9 +54,9 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         route: KClass<*>?,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
-        this.provider = provider
-        this.startDestinationObject = startDestination
-    }
+            this.provider = provider
+            this.startDestinationObject = startDestination
+        }
 
     private val destinations = mutableListOf<NavDestination>()
 
