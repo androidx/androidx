@@ -17,6 +17,8 @@ plugins {
     id("androidx.baselineprofile")
 }
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     android()
     desktop()
     mac()
