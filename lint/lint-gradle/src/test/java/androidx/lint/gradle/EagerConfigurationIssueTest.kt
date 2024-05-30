@@ -21,42 +21,50 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class EagerConfigurationIssueTest : GradleLintDetectorTest(
-    detector = DiscouragedGradleMethodDetector(),
-    issues = listOf(DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE)
-) {
+class EagerConfigurationIssueTest :
+    GradleLintDetectorTest(
+        detector = DiscouragedGradleMethodDetector(),
+        issues = listOf(DiscouragedGradleMethodDetector.EAGER_CONFIGURATION_ISSUE)
+    ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.create("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Use register instead of create [EagerGradleConfiguration]
                 project.tasks.create("example")
                               ~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 4: Replace with register:
             @@ -4 +4
             -     project.tasks.create("example")
             +     project.tasks.register("example")
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of unrelated create method`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 interface Bar
                 class Foo : Bar {
                     fun create() = Unit
@@ -64,43 +72,51 @@ class EagerConfigurationIssueTest : GradleLintDetectorTest(
                 fun foo() {
                     Foo().create()
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         check(input).expectClean()
     }
 
     @Test
     fun `Test usage of TaskContainer#getByName`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.getByName("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Use named instead of getByName [EagerGradleConfiguration]
                 project.tasks.getByName("example")
                               ~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 4: Replace with named:
             @@ -4 +4
             -     project.tasks.getByName("example")
             +     project.tasks.named("example")
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of DomainObjectCollection#all`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Action
                 import org.gradle.api.Project
                 import org.gradle.api.Task
@@ -108,29 +124,35 @@ class EagerConfigurationIssueTest : GradleLintDetectorTest(
                 fun configure(project: Project, action: Action<Task>) {
                     project.tasks.all(action)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:6: Error: Use configureEach instead of all [EagerGradleConfiguration]
                 project.tasks.all(action)
                               ~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 6: Replace with configureEach:
             @@ -6 +6
             -     project.tasks.all(action)
             +     project.tasks.configureEach(action)
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of TaskContainer#whenTaskAdded`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Action
                 import org.gradle.api.Project
                 import org.gradle.api.Task
@@ -138,29 +160,35 @@ class EagerConfigurationIssueTest : GradleLintDetectorTest(
                 fun configure(project: Project, action: Action<Task>) {
                     project.tasks.whenTaskAdded(action)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:6: Error: Use configureEach instead of whenTaskAdded [EagerGradleConfiguration]
                 project.tasks.whenTaskAdded(action)
                               ~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 6: Replace with configureEach:
             @@ -6 +6
             -     project.tasks.whenTaskAdded(action)
             +     project.tasks.configureEach(action)
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of DomainObjectCollection#whenObjectAdded`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Action
                 import org.gradle.api.Project
                 import org.gradle.api.Task
@@ -168,249 +196,296 @@ class EagerConfigurationIssueTest : GradleLintDetectorTest(
                 fun configure(project: Project, action: Action<Task>) {
                     project.tasks.whenObjectAdded(action)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:6: Error: Use configureEach instead of whenObjectAdded [EagerGradleConfiguration]
                 project.tasks.whenObjectAdded(action)
                               ~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 6: Replace with configureEach:
             @@ -6 +6
             -     project.tasks.whenObjectAdded(action)
             +     project.tasks.configureEach(action)
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of TaskCollection#getAt`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.getAt("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Use named instead of getAt [EagerGradleConfiguration]
                 project.tasks.getAt("example")
                               ~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 4: Replace with named:
             @@ -4 +4
             -     project.tasks.getAt("example")
             +     project.tasks.named("example")
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 
     @Test
     fun `Test usage of TaskContainer#getByPath`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.getByPath("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method getByPath [EagerGradleConfiguration]
                 project.tasks.getByPath("example")
                               ~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskContainer#findByName`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.findByName("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method findByName [EagerGradleConfiguration]
                 project.tasks.findByName("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskContainer#findByPath`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.findByPath("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method findByPath [EagerGradleConfiguration]
                 project.tasks.findByPath("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskContainer#replace`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.replace("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method replace [EagerGradleConfiguration]
                 project.tasks.replace("example")
                               ~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskContainer#remove`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project, task: Task) {
                     project.tasks.remove(task)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method remove [EagerGradleConfiguration]
                 project.tasks.remove(task)
                               ~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskContainer#iterator`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.findByPath("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method findByPath [EagerGradleConfiguration]
                 project.tasks.findByPath("example")
                               ~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of NamedDomainObjectCollection#findAll`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import groovy.lang.Closure
                 import org.gradle.api.Project
 
                 fun configure(project: Project, closure: Closure) {
                     project.tasks.findAll(closure)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:5: Error: Avoid using method findAll [EagerGradleConfiguration]
                 project.tasks.findAll(closure)
                               ~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskCollection#matching`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import groovy.lang.Closure
                 import org.gradle.api.Project
 
                 fun configure(project: Project, closure: Closure) {
                     project.tasks.matching(closure)
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:5: Error: Avoid using method matching [EagerGradleConfiguration]
                 project.tasks.matching(closure)
                               ~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
 
     @Test
     fun `Test usage of TaskProvider#get`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.register("example").get()
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Avoid using method get [EagerGradleConfiguration]
                 project.tasks.register("example").get()
                                                   ~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }

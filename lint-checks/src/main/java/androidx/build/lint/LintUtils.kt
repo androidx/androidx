@@ -32,7 +32,6 @@ internal fun PsiElement.getFqName(): String? =
                 val prefix = element.containingClass?.qualifiedName
                 (if (prefix != null) "$prefix.$name" else name)
             }
-
         is KtNamedDeclaration -> element.fqName.toString()
         else -> null
     }

@@ -32,87 +32,90 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UImportStatement
 
 class InternalApiUsageDetector : Detector(), Detector.UastScanner {
-    override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
-        UImportStatement::class.java,
-    )
+    override fun getApplicableUastTypes(): List<Class<out UElement>> =
+        listOf(
+            UImportStatement::class.java,
+        )
 
-    override fun createUastHandler(context: JavaContext): UElementHandler = object :
-        UElementHandler() {
-        override fun visitImportStatement(node: UImportStatement) {
-            if (node.importReference != null) {
-                var resolved = node.resolve()
-                if (resolved is PsiField) {
-                    resolved = resolved.containingClass
-                } else if (resolved is PsiMethod) {
-                    resolved = resolved.containingClass
-                }
+    override fun createUastHandler(context: JavaContext): UElementHandler =
+        object : UElementHandler() {
+            override fun visitImportStatement(node: UImportStatement) {
+                if (node.importReference != null) {
+                    var resolved = node.resolve()
+                    if (resolved is PsiField) {
+                        resolved = resolved.containingClass
+                    } else if (resolved is PsiMethod) {
+                        resolved = resolved.containingClass
+                    }
 
-                if (resolved is PsiClass) {
-                    if (resolved.isInternalGradleApi()) {
-                        reportIncidentForNode(
-                            INTERNAL_GRADLE_ISSUE,
-                            node,
-                            "Avoid using internal Gradle APIs"
-                        )
-                    } else if (resolved.isInternalAgpApi()) {
-                        reportIncidentForNode(
-                            INTERNAL_AGP_ISSUE,
-                            node,
-                            "Avoid using internal Android Gradle Plugin APIs"
-                        )
+                    if (resolved is PsiClass) {
+                        if (resolved.isInternalGradleApi()) {
+                            reportIncidentForNode(
+                                INTERNAL_GRADLE_ISSUE,
+                                node,
+                                "Avoid using internal Gradle APIs"
+                            )
+                        } else if (resolved.isInternalAgpApi()) {
+                            reportIncidentForNode(
+                                INTERNAL_AGP_ISSUE,
+                                node,
+                                "Avoid using internal Android Gradle Plugin APIs"
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        private fun reportIncidentForNode(issue: Issue, node: UElement, message: String) {
-            val incident = Incident(context)
-                .issue(issue)
-                .location(context.getLocation(node))
-                .message(message)
-                .scope(node)
-            context.report(incident)
-        }
+            private fun reportIncidentForNode(issue: Issue, node: UElement, message: String) {
+                val incident =
+                    Incident(context)
+                        .issue(issue)
+                        .location(context.getLocation(node))
+                        .message(message)
+                        .scope(node)
+                context.report(incident)
+            }
 
-        private fun PsiClass.isInternalGradleApi(): Boolean {
-            val className = qualifiedName ?: return false
-            return className.startsWith("org.gradle.") && className.contains(".internal.")
-        }
+            private fun PsiClass.isInternalGradleApi(): Boolean {
+                val className = qualifiedName ?: return false
+                return className.startsWith("org.gradle.") && className.contains(".internal.")
+            }
 
-        private fun PsiClass.isInternalAgpApi(): Boolean {
-            val className = qualifiedName ?: return false
-            return className.startsWith("com.android.build.") && className.contains(".internal.")
+            private fun PsiClass.isInternalAgpApi(): Boolean {
+                val className = qualifiedName ?: return false
+                return className.startsWith("com.android.build.") &&
+                    className.contains(".internal.")
+            }
         }
-    }
 
     companion object {
-        val INTERNAL_GRADLE_ISSUE = Issue.create(
-            "InternalGradleApiUsage",
-            "Avoid using internal Gradle APIs",
-            """
+        val INTERNAL_GRADLE_ISSUE =
+            Issue.create(
+                "InternalGradleApiUsage",
+                "Avoid using internal Gradle APIs",
+                """
                 Using internal APIs results in fragile plugin behavior as these types have no binary
                 compatibility guarantees. It is best to create a feature request to open up these
                 APIs if you find them useful.
             """,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                InternalApiUsageDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(InternalApiUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
-        val INTERNAL_AGP_ISSUE = Issue.create(
-            "InternalAgpApiUsage",
-            "Avoid using internal Android Gradle Plugin APIs",
-            """
+        val INTERNAL_AGP_ISSUE =
+            Issue.create(
+                "InternalAgpApiUsage",
+                "Avoid using internal Android Gradle Plugin APIs",
+                """
                 Using internal APIs results in fragile plugin behavior as these types have no binary
                 compatibility guarantees. It is best to create a feature request to open up these
                 APIs if you find them useful.
             """,
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                InternalApiUsageDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(InternalApiUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }

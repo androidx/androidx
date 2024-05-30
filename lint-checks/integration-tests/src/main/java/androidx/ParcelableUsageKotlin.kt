@@ -25,8 +25,7 @@ open class ParcelableUsageKotlin protected constructor(parcel: Parcel) : Parcela
         return 0
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-    }
+    override fun writeToParcel(dest: Parcel, flags: Int) {}
 
     companion object CREATOR : Parcelable.Creator<ParcelableUsageKotlin> {
         override fun createFromParcel(parcel: Parcel): ParcelableUsageKotlin {

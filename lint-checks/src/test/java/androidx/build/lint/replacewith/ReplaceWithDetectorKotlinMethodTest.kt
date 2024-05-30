@@ -25,25 +25,30 @@ class ReplaceWithDetectorKotlinMethodTest {
 
     @Test
     fun staticMethodExplicitClass() {
-        val input = arrayOf(
-            ktSample("replacewith.ReplaceWithUsageKotlin"),
-            javaSample("replacewith.StaticKotlinMethodExplicitClassJava")
-        )
+        val input =
+            arrayOf(
+                ktSample("replacewith.ReplaceWithUsageKotlin"),
+                javaSample("replacewith.StaticKotlinMethodExplicitClassJava")
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageKotlin.toString(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replace with `this.toString()`:
 @@ -25 +25
 -         ReplaceWithUsageKotlin.toString(this);
 +         this.toString();
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -51,15 +56,18 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replac
 
     @Test
     fun staticMethodExplicitClass_withKotlinSource_hasNoWarnings() {
-        val input = arrayOf(
-            ktSample("replacewith.ReplaceWithUsageKotlin"),
-            ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin")
-        )
+        val input =
+            arrayOf(
+                ktSample("replacewith.ReplaceWithUsageKotlin"),
+                ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin")
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 No warnings.
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)

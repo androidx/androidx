@@ -40,9 +40,10 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
     }
 
     override fun visitClass(context: JavaContext, declaration: UClass) {
-        if (declaration.isInterface ||
-            declaration.hasModifierProperty(PsiModifier.ABSTRACT) ||
-            declaration is UAnonymousClass
+        if (
+            declaration.isInterface ||
+                declaration.hasModifierProperty(PsiModifier.ABSTRACT) ||
+                declaration is UAnonymousClass
         ) {
             return
         }
@@ -50,24 +51,28 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
         // lint will also examine the entire inheritance and implementation chain.
         for (superclass in declaration.uastSuperTypes) {
             if (superclass.type.canonicalText == PARCELABLE_INTERFACE_CANONICAL_NAME) {
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .location(context.getNameLocation(declaration))
-                    .message("Class implements android.os.Parcelable")
-                    .scope(declaration)
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getNameLocation(declaration))
+                        .message("Class implements android.os.Parcelable")
+                        .scope(declaration)
                 context.report(incident)
             }
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "BanParcelableUsage",
-            "Class implements android.os.Parcelable",
-            "Use of Parcelable is no longer recommended," +
-                " please use VersionedParcelable instead.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "BanParcelableUsage",
+                "Class implements android.os.Parcelable",
+                "Use of Parcelable is no longer recommended," +
+                    " please use VersionedParcelable instead.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

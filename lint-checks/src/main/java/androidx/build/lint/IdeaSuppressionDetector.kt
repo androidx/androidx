@@ -115,9 +115,9 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
     /**
      * Checks the text in [source].
      *
-     * If it finds matches in the string, it will report errors into the
-     * given context. The associated AST [element] is used to look look
-     * up suppress annotations and to find the right error range.
+     * If it finds matches in the string, it will report errors into the given context. The
+     * associated AST [element] is used to look look up suppress annotations and to find the right
+     * error range.
      */
     private fun visitComment(
         context: JavaContext,
@@ -128,12 +128,15 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
             val warnings = source.split(" ").drop(1).filter { JAVA_WARNINGS.contains(it) }
             if (warnings.isNotEmpty()) {
                 val args = warnings.joinToString(", ") { "\"$it\"" }
-                val incident = Incident(context)
-                    .issue(ISSUE)
-                    .location(context.getNameLocation(element))
-                    .message("Uses IntelliJ-specific suppression, should use" +
-                        " `@SuppressWarnings($args)`")
-                    .scope(element)
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getNameLocation(element))
+                        .message(
+                            "Uses IntelliJ-specific suppression, should use" +
+                                " `@SuppressWarnings($args)`"
+                        )
+                        .scope(element)
                 context.report(incident)
             }
         }
@@ -141,18 +144,19 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
 
     companion object {
         // Warnings that the Java compiler cares about and should not be suppressed inline.
-        private val JAVA_WARNINGS = listOf(
-            "deprecation"
-        )
+        private val JAVA_WARNINGS = listOf("deprecation")
 
-        val ISSUE = Issue.create(
-            "IdeaSuppression",
-            "Suppression using `//noinspection` is not supported by the Java compiler",
-            "Per-line suppression using `//noinspection` is not supported by the Java compiler " +
-                "and will not suppress build-time warnings. Instead, use the `@SuppressWarnings` " +
-                "annotation on the containing method or class.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(IdeaSuppressionDetector::class.java, Scope.JAVA_FILE_SCOPE),
-        )
+        val ISSUE =
+            Issue.create(
+                "IdeaSuppression",
+                "Suppression using `//noinspection` is not supported by the Java compiler",
+                "Per-line suppression using `//noinspection` is not supported by the Java compiler " +
+                    "and will not suppress build-time warnings. Instead, use the `@SuppressWarnings` " +
+                    "annotation on the containing method or class.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(IdeaSuppressionDetector::class.java, Scope.JAVA_FILE_SCOPE),
+            )
     }
 }

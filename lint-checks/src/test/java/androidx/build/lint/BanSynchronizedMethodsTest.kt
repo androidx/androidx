@@ -23,31 +23,36 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class BanSynchronizedMethodsTest : AbstractLintDetectorTest(
-    useDetector = BanSynchronizedMethods(),
-    useIssues = listOf(BanSynchronizedMethods.ISSUE),
-) {
+class BanSynchronizedMethodsTest :
+    AbstractLintDetectorTest(
+        useDetector = BanSynchronizedMethods(),
+        useIssues = listOf(BanSynchronizedMethods.ISSUE),
+    ) {
 
     @Test
     fun `Detection of synchronized methods in Java sources`() {
-        val input = java(
-            "src/androidx/SynchronizedMethodJava.java",
-            """
+        val input =
+            java(
+                "src/androidx/SynchronizedMethodJava.java",
+                """
                 public class SynchronizedMethodJava {
 
                     public synchronized void someMethod() {
                     }
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
     public synchronized void someMethod() {
     ^
 1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(input).expect(expected)
@@ -55,24 +60,28 @@ src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods i
 
     @Test
     fun `Detection of synchronized methods in Kotlin sources`() {
-        val input = kotlin(
-            "src/androidx/SynchronizedMethodKotlin.kt",
-            """
+        val input =
+            kotlin(
+                "src/androidx/SynchronizedMethodKotlin.kt",
+                """
                 class SynchronizedMethodKotlin {
 
                     @Synchronized
                     fun someMethod() {}
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
     @Synchronized
     ^
 1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(input).expect(expected)

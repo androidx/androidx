@@ -46,10 +46,8 @@ object ListViewCompatKotlin {
     /**
      * Check if the items in the list can be scrolled in a certain direction.
      *
-     * @param direction Negative to check scrolling up, positive to check
-     * scrolling down.
-     * @return true if the list can be scrolled in the specified direction,
-     * false otherwise.
+     * @param direction Negative to check scrolling up, positive to check scrolling down.
+     * @return true if the list can be scrolled in the specified direction, false otherwise.
      * @see .scrollListBy
      */
     fun canScrollList(listView: ListView, direction: Int): Boolean {

@@ -23,19 +23,22 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class TargetApiAnnotationDetectorTest : AbstractLintDetectorTest(
-    useDetector = TargetApiAnnotationUsageDetector(),
-    useIssues = listOf(TargetApiAnnotationUsageDetector.ISSUE),
-) {
+class TargetApiAnnotationDetectorTest :
+    AbstractLintDetectorTest(
+        useDetector = TargetApiAnnotationUsageDetector(),
+        useIssues = listOf(TargetApiAnnotationUsageDetector.ISSUE),
+    ) {
 
     @Test
     fun `Detection of TargetApi usage in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.TargetApiUsageJava"),
-        )
+        val input =
+            arrayOf(
+                javaSample("androidx.TargetApiUsageJava"),
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/TargetApiUsageJava.java:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
 @TargetApi(29)
 ~~~~~~~~~~~~~~
@@ -43,7 +46,8 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
     @TargetApi(30)
     ~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -51,20 +55,23 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
 
     @Test
     fun `Detection of TargetApi usage in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.TargetApiUsageKotlin"),
-        )
+        val input =
+            arrayOf(
+                ktSample("androidx.TargetApiUsageKotlin"),
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/androidx/TargetApiUsageKotlin.kt:22: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
 @TargetApi(29)
 ~~~~~~~~~~~~~~
 src/androidx/TargetApiUsageKotlin.kt:25: Error: Use @RequiresApi instead of @TargetApi [BanTargetApiAnnotation]
-    @TargetApi(30)
+    @TargetApi(30) fun someMethod() {}
     ~~~~~~~~~~~~~~
 2 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
