@@ -23,8 +23,6 @@ import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirFunctionChecker
 import org.jetbrains.kotlin.fir.analysis.diagnostics.FirErrors
 import org.jetbrains.kotlin.fir.declarations.FirFunction
 import org.jetbrains.kotlin.fir.declarations.getSingleExpectForActualOrNull
-import org.jetbrains.kotlin.fir.declarations.utils.isAbstract
-import org.jetbrains.kotlin.fir.declarations.utils.isOpen
 import org.jetbrains.kotlin.fir.declarations.utils.isOperator
 import org.jetbrains.kotlin.fir.declarations.utils.isSuspend
 import org.jetbrains.kotlin.fir.declarations.utils.nameOrSpecialName
@@ -68,18 +66,6 @@ object ComposableFunctionChecker : FirFunctionChecker() {
         // Composable suspend functions are unsupported
         if (declaration.isSuspend) {
             reporter.reportOn(declaration.source, ComposeErrors.COMPOSABLE_SUSPEND_FUN, context)
-        }
-
-        // Check that there are no default arguments in abstract composable functions
-        if (declaration.isAbstract || declaration.isOpen) {
-            for (valueParameter in declaration.valueParameters) {
-                val defaultValue = valueParameter.defaultValue ?: continue
-                reporter.reportOn(
-                    defaultValue.source,
-                    ComposeErrors.ABSTRACT_COMPOSABLE_DEFAULT_PARAMETER_VALUE,
-                    context
-                )
-            }
         }
 
         // Composable main functions are not allowed.
