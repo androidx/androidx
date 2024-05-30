@@ -22,10 +22,10 @@ import androidx.annotation.MainThread
 /**
  * Returns a [Lazy] delegate to access the Activity's extras as an [Args] instance.
  *
- * It is strongly recommended that this method only be used when the Activity is started
- * by [androidx.navigation.NavController.navigate] with the corresponding
- * [androidx.navigation.NavDirections] object, which ensures that the required
- * arguments are present.
+ * It is strongly recommended that this method only be used when the Activity is started by
+ * [androidx.navigation.NavController.navigate] with the corresponding
+ * [androidx.navigation.NavDirections] object, which ensures that the required arguments are
+ * present.
  *
  * ```
  * class MyActivity : Activity() {
@@ -33,8 +33,8 @@ import androidx.annotation.MainThread
  * }
  * ```
  *
- * This property can be accessed only after the Activity is attached to the Application,
- * and access prior to that will result in IllegalStateException.
+ * This property can be accessed only after the Activity is attached to the Application, and access
+ * prior to that will result in IllegalStateException.
  */
 @MainThread
 public inline fun <reified Args : NavArgs> Activity.navArgs(): NavArgsLazy<Args> =

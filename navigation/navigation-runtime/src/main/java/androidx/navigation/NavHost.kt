@@ -24,37 +24,30 @@ import kotlin.reflect.KType
  * A host is a single context or container for navigation via a [NavController].
  *
  * It is strongly recommended to construct the nav controller by instantiating a
- * [NavHostController], which offers additional APIs specifically for a NavHost.
- * The NavHostController should still only be externally accessible as a [NavController],
- * rather than directly exposing it as a [NavHostController].
+ * [NavHostController], which offers additional APIs specifically for a NavHost. The
+ * NavHostController should still only be externally accessible as a [NavController], rather than
+ * directly exposing it as a [NavHostController].
  *
  * Navigation hosts must:
- *
- *  * Handle [saving][NavController.saveState] and
- * [restoring][NavController.restoreState] their controller's state
- *  * Call [Navigation.setViewNavController] on their root view
- *  * Route system Back button events to the NavController either by manually calling
- * [NavController.popBackStack] or by calling
- * [NavHostController.setOnBackPressedDispatcher]
- * when constructing the NavController.
+ * * Handle [saving][NavController.saveState] and [restoring][NavController.restoreState] their
+ *   controller's state
+ * * Call [Navigation.setViewNavController] on their root view
+ * * Route system Back button events to the NavController either by manually calling
+ *   [NavController.popBackStack] or by calling [NavHostController.setOnBackPressedDispatcher] when
+ *   constructing the NavController.
  *
  * Optionally, a navigation host should consider calling:
- *
- *  * Call [NavHostController.setLifecycleOwner] to associate the
- * NavController with a specific Lifecycle.
- *  * Call [NavHostController.setViewModelStore] to enable usage of
- * [NavController.getViewModelStoreOwner] and navigation graph scoped ViewModels.
+ * * Call [NavHostController.setLifecycleOwner] to associate the NavController with a specific
+ *   Lifecycle.
+ * * Call [NavHostController.setViewModelStore] to enable usage of
+ *   [NavController.getViewModelStoreOwner] and navigation graph scoped ViewModels.
  */
 public interface NavHost {
-    /**
-     * The [navigation controller][NavController] for this navigation host.
-     */
+    /** The [navigation controller][NavController] for this navigation host. */
     public val navController: NavController
 }
 
-/**
- * Construct a new [NavGraph]
- */
+/** Construct a new [NavGraph] */
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your NavGraph instead",
@@ -69,9 +62,7 @@ public inline fun NavHost.createGraph(
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navController.createGraph(id, startDestination, builder)
 
-/**
- * Construct a new [NavGraph]
- */
+/** Construct a new [NavGraph] */
 public inline fun NavHost.createGraph(
     startDestination: String,
     route: String? = null,
@@ -82,10 +73,10 @@ public inline fun NavHost.createGraph(
  * Construct a new [NavGraph]
  *
  * @param startDestination the starting destination's route from a [KClass] for this NavGraph. The
- * respective NavDestination must be added as a [KClass] in order to match.
+ *   respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
- * does not use custom NavTypes.
+ *   does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 public inline fun NavHost.createGraph(
@@ -99,10 +90,10 @@ public inline fun NavHost.createGraph(
  * Construct a new [NavGraph]
  *
  * @param startDestination the starting destination's route from an Object for this NavGraph. The
- * respective NavDestination must be added as a [KClass] in order to match.
+ *   respective NavDestination must be added as a [KClass] in order to match.
  * @param route the graph's unique route from a [KClass]
  * @param typeMap A mapping of KType to custom NavType<*> in the [route]. May be empty if [route]
- * does not use custom NavTypes.
+ *   does not use custom NavTypes.
  * @param builder the builder used to construct the graph
  */
 public inline fun NavHost.createGraph(

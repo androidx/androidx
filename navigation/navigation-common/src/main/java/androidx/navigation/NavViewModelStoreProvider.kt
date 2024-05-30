@@ -20,8 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.lifecycle.ViewModelStore
 
 /**
- * Interface that allows you to retrieve a [ViewModelStore] associated with a
- * particular [NavBackStackEntry.id].
+ * Interface that allows you to retrieve a [ViewModelStore] associated with a particular
+ * [NavBackStackEntry.id].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NavViewModelStoreProvider {

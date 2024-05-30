@@ -31,9 +31,8 @@ import kotlinx.serialization.serializer
  * Extrapolates arguments from [SavedStateHandle] and recreates object [T]
  *
  * @param [T] the entry's [NavDestination.route] as a [KClass]
- * @param typeMap A mapping of KType to custom NavType<*> in [T]. May be empty if
- * [T] does not use custom NavTypes.
- *
+ * @param typeMap A mapping of KType to custom NavType<*> in [T]. May be empty if [T] does not use
+ *   custom NavTypes.
  * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
  */
 public inline fun <reified T : Any> SavedStateHandle.toRoute(
@@ -48,8 +47,6 @@ public fun <T : Any> SavedStateHandle.internalToRoute(
 ): T {
     val map: MutableMap<String, NavType<*>> = mutableMapOf()
     val serializer = route.serializer()
-    serializer.generateNavArguments(typeMap).onEach {
-        map[it.name] = it.argument.type
-    }
+    serializer.generateNavArguments(typeMap).onEach { map[it.name] = it.argument.type }
     return serializer.decodeArguments(this, map)
 }

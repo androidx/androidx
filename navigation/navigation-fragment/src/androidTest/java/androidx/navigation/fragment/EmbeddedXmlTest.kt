@@ -38,20 +38,14 @@ class EmbeddedXmlTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    var activityRule = androidx.test.rule.ActivityTestRule(
-        EmbeddedXmlActivity::class.java,
-        false,
-        false
-    )
+    var activityRule =
+        androidx.test.rule.ActivityTestRule(EmbeddedXmlActivity::class.java, false, false)
 
     @Test
     @Throws(Throwable::class)
     fun testRecreate() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent = Intent(
-            instrumentation.context,
-            EmbeddedXmlActivity::class.java
-        )
+        val intent = Intent(instrumentation.context, EmbeddedXmlActivity::class.java)
 
         val activity = activityRule.launchActivity(intent)
         instrumentation.waitForIdleSync()
@@ -62,9 +56,7 @@ class EmbeddedXmlTest {
 /**
  * Test Navigation Activity that dynamically adds the [NavHostFragment].
  *
- *
- * You must call [NavController.setGraph]
- * to set the appropriate graph for your test.
+ * You must call [NavController.setGraph] to set the appropriate graph for your test.
  */
 class EmbeddedXmlActivity : FragmentActivity() {
 
@@ -74,7 +66,8 @@ class EmbeddedXmlActivity : FragmentActivity() {
 
         if (savedInstanceState == null) {
             val embeddedFragment = EmbeddedXmlFragment()
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .replace(R.id.container, embeddedFragment)
                 .setPrimaryNavigationFragment(embeddedFragment)
                 .commit()

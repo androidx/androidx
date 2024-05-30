@@ -24,31 +24,27 @@ import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 
 /**
- * Monitor installation progress of dynamic feature modules.
- * This class enables you to subscribe to the current installation state via [getStatus].
- * You also can perform various checks on installation state directly through this monitor.
+ * Monitor installation progress of dynamic feature modules. This class enables you to subscribe to
+ * the current installation state via [getStatus]. You also can perform various checks on
+ * installation state directly through this monitor.
  *
- * In order to enable installation and monitoring of progress you'll have to provide an instance
- * of this class to [DynamicExtras].
+ * In order to enable installation and monitoring of progress you'll have to provide an instance of
+ * this class to [DynamicExtras].
  */
 public class DynamicInstallMonitor {
 
-    /**
-     * The occurred exception, if any.
-     */
+    /** The occurred exception, if any. */
     public var exception: Exception? = null
         internal set
 
-    /**
-     * Get a LiveData of [SplitInstallSessionStatus] with updates on the installation progress.
-     */
+    /** Get a LiveData of [SplitInstallSessionStatus] with updates on the installation progress. */
     public val status: LiveData<SplitInstallSessionState> = MutableLiveData()
 
     /**
      * Check whether an installation is required.
      *
-     * If this returns `true`, you should observe the LiveData returned by
-     * [status] for installation updates and handle them accordingly.
+     * If this returns `true`, you should observe the LiveData returned by [status] for installation
+     * updates and handle them accordingly.
      *
      * @return `true` if installation is required, `false` otherwise.
      */
@@ -60,29 +56,20 @@ public class DynamicInstallMonitor {
             }
         }
 
-    /**
-     * The session id from Play Core for this installation session.
-     */
+    /** The session id from Play Core for this installation session. */
     public var sessionId: Int = 0
         internal set
 
-    /**
-     * The [SplitInstallManager] used to monitor the installation if any was set.
-     */
+    /** The [SplitInstallManager] used to monitor the installation if any was set. */
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var splitInstallManager: SplitInstallManager? = null
 
-    /**
-     * `true` if the monitor has been used to request an install, else
-     * `false`.
-     */
+    /** `true` if the monitor has been used to request an install, else `false`. */
     internal var isUsed = false
         private set
 
-    /**
-     * Cancel the current split installation session in the SplitInstallManager.
-     */
+    /** Cancel the current split installation session in the SplitInstallManager. */
     public fun cancelInstall() {
         val splitInstallManager = splitInstallManager
         if (splitInstallManager != null && sessionId != 0) {

@@ -36,238 +36,208 @@ public class DynamicActivityNavigatorDestinationBuilderTest {
 
     private val navController =
         NavController(context).also { controller ->
-            val installManager = DynamicInstallManager(
-                context,
-                SplitInstallManagerFactory.create(context)
-            )
+            val installManager =
+                DynamicInstallManager(context, SplitInstallManagerFactory.create(context))
             val navigatorProvider = controller.navigatorProvider
-            navigatorProvider += DynamicActivityNavigator(
-                context,
-                installManager
-            )
+            navigatorProvider += DynamicActivityNavigator(context, installManager)
         }
 
     @Suppress("DEPRECATION")
     @Test
     public fun module() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
-            activity(DESTINATION_ID) {
-                moduleName = MODULE_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ID) {
+                activity(DESTINATION_ID) { moduleName = MODULE_NAME }
             }
-        }
 
         assertThat(
-            (graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination).moduleName
-        )
+                (graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination).moduleName
+            )
             .isEqualTo(MODULE_NAME)
     }
 
     @Suppress("DEPRECATION")
     @Test
     public fun noModule() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
-            activity(DESTINATION_ID) {
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ID) {
+                activity(DESTINATION_ID) {}
             }
-        }
         assertThat(
-            (graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination).moduleName
-        ).isNull()
+                (graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination).moduleName
+            )
+            .isNull()
     }
 
     @Suppress("DEPRECATION")
     @Test
     public fun activity() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
-            activity(DESTINATION_ID) {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ID) {
+                activity(DESTINATION_ID) {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                }
             }
-        }
         val destination = graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isEqualTo(
-            ComponentName(
-                context,
-                CLASS_NAME
-            )
-        )
+        assertThat(destination.component).isEqualTo(ComponentName(context, CLASS_NAME))
     }
 
     @Suppress("DEPRECATION")
     @Test
     public fun noActivity() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
-            activity(DESTINATION_ID) {
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ID) {
+                activity(DESTINATION_ID) {}
             }
-        }
         val destination = graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isNull()
+        assertThat(destination.component).isNull()
     }
 
     @Suppress("DEPRECATION")
     @Test
     public fun modulePackage() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ID) {
-            activity(DESTINATION_ID) {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
-                targetPackage = PACKAGE_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ID) {
+                activity(DESTINATION_ID) {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                    targetPackage = PACKAGE_NAME
+                }
             }
-        }
         val destination = graph.findNode(DESTINATION_ID) as DynamicActivityNavigator.Destination
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
     }
 
     @Test
     public fun moduleRoute() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
-            activity(DESTINATION_ROUTE) {
-                moduleName = MODULE_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ROUTE) {
+                activity(DESTINATION_ROUTE) { moduleName = MODULE_NAME }
             }
-        }
 
         assertThat(
-            (graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination).moduleName
-        )
+                (graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination)
+                    .moduleName
+            )
             .isEqualTo(MODULE_NAME)
     }
 
     @Test
     public fun noModuleRoute() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
-            activity(DESTINATION_ROUTE) {
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ROUTE) {
+                activity(DESTINATION_ROUTE) {}
             }
-        }
         assertThat(
-            (graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination).moduleName
-        ).isNull()
+                (graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination)
+                    .moduleName
+            )
+            .isNull()
     }
 
     @Test
     public fun activityRoute() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
-            activity(DESTINATION_ROUTE) {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ROUTE) {
+                activity(DESTINATION_ROUTE) {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                }
             }
-        }
         val destination = graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isEqualTo(
-            ComponentName(
-                context,
-                CLASS_NAME
-            )
-        )
+        assertThat(destination.component).isEqualTo(ComponentName(context, CLASS_NAME))
     }
 
     @Test
     public fun noActivityRoute() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
-            activity(DESTINATION_ROUTE) {
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ROUTE) {
+                activity(DESTINATION_ROUTE) {}
             }
-        }
         val destination = graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isNull()
+        assertThat(destination.component).isNull()
     }
 
     @Test
     public fun modulePackageRoute() {
-        val graph = navController.createGraph(startDestination = DESTINATION_ROUTE) {
-            activity(DESTINATION_ROUTE) {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
-                targetPackage = PACKAGE_NAME
+        val graph =
+            navController.createGraph(startDestination = DESTINATION_ROUTE) {
+                activity(DESTINATION_ROUTE) {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                    targetPackage = PACKAGE_NAME
+                }
             }
-        }
         val destination = graph.findNode(DESTINATION_ROUTE) as DynamicActivityNavigator.Destination
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
     }
 
     @Test
     public fun moduleKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
+        val graph =
+            navController.createGraph(startDestination = TestClass::class) {
+                activity<TestClass> { moduleName = MODULE_NAME }
             }
-        }
 
-        assertThat(
-            (graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName
-        )
+        assertThat((graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName)
             .isEqualTo(MODULE_NAME)
     }
 
     @Test
     public fun noModuleKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
+        val graph =
+            navController.createGraph(startDestination = TestClass::class) {
+                activity<TestClass> {}
             }
-        }
-        assertThat(
-            (graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName
-        ).isNull()
+        assertThat((graph.findNode<TestClass>() as DynamicActivityNavigator.Destination).moduleName)
+            .isNull()
     }
 
     @Test
     public fun activityKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
+        val graph =
+            navController.createGraph(startDestination = TestClass::class) {
+                activity<TestClass> {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                }
             }
-        }
         val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isEqualTo(
-            ComponentName(
-                context,
-                CLASS_NAME
-            )
-        )
+        assertThat(destination.component).isEqualTo(ComponentName(context, CLASS_NAME))
     }
 
     @Test
     public fun noActivityKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
+        val graph =
+            navController.createGraph(startDestination = TestClass::class) {
+                activity<TestClass> {}
             }
-        }
         val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
-        assertThat(
-            destination.component
-        ).isNull()
+        assertThat(destination.component).isNull()
     }
 
     @Test
     public fun modulePackageKClass() {
-        val graph = navController.createGraph(startDestination = TestClass::class) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
-                activityClassName = CLASS_NAME
-                targetPackage = PACKAGE_NAME
+        val graph =
+            navController.createGraph(startDestination = TestClass::class) {
+                activity<TestClass> {
+                    moduleName = MODULE_NAME
+                    activityClassName = CLASS_NAME
+                    targetPackage = PACKAGE_NAME
+                }
             }
-        }
         val destination = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
         assertThat(destination.component).isEqualTo(ComponentName(PACKAGE_NAME, CLASS_NAME))
     }
 
     @Test
     public fun moduleObject() {
-        @Serializable
-        class TestClass(val arg: Int)
-        val graph = navController.createGraph(startDestination = TestClass(0)) {
-            activity<TestClass> {
-                moduleName = MODULE_NAME
+        @Serializable class TestClass(val arg: Int)
+        val graph =
+            navController.createGraph(startDestination = TestClass(0)) {
+                activity<TestClass> { moduleName = MODULE_NAME }
             }
-        }
 
         val dest = graph.findNode<TestClass>() as DynamicActivityNavigator.Destination
         assertThat(dest.moduleName).isEqualTo(MODULE_NAME)

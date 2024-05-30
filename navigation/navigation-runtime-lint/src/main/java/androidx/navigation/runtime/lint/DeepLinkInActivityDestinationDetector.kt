@@ -32,9 +32,7 @@ import com.android.tools.lint.detector.api.XmlContext
 import java.util.Collections
 import org.w3c.dom.Element
 
-/**
- * Lint check for detecting use of <deeplink> inside of <activity>.
- */
+/** Lint check for detecting use of <deeplink> inside of <activity>. */
 class DeepLinkInActivityDestinationDetector : ResourceXmlDetector() {
 
     override fun appliesTo(folderType: ResourceFolderType): Boolean {
@@ -45,33 +43,41 @@ class DeepLinkInActivityDestinationDetector : ResourceXmlDetector() {
 
     override fun visitElement(context: XmlContext, element: Element) {
         if (element.parentNode?.nodeName == TAG_ACTIVITY) {
-            val incident = Incident(context)
-                .issue(DeepLinkInActivityDestination)
-                .location(context.getLocation(element))
-                .message("Do not attach a <deeplink> to an <activity> destination. " +
-                    "Attach the deeplink directly to the second activity or the start " +
-                    "destination of a nav host in the second activity instead.")
+            val incident =
+                Incident(context)
+                    .issue(DeepLinkInActivityDestination)
+                    .location(context.getLocation(element))
+                    .message(
+                        "Do not attach a <deeplink> to an <activity> destination. " +
+                            "Attach the deeplink directly to the second activity or the start " +
+                            "destination of a nav host in the second activity instead."
+                    )
             context.report(incident)
         }
     }
 
     companion object {
-        val DeepLinkInActivityDestination = Issue.create(
-            id = "DeepLinkInActivityDestination",
-            briefDescription = "A <deeplink> should not be attached to an <activity> destination",
-            explanation = """Attaching a <deeplink> to an <activity> destination will never give \
+        val DeepLinkInActivityDestination =
+            Issue.create(
+                id = "DeepLinkInActivityDestination",
+                briefDescription =
+                    "A <deeplink> should not be attached to an <activity> destination",
+                explanation =
+                    """Attaching a <deeplink> to an <activity> destination will never give \
                 the right behavior when using an implicit deep link on another app's task \
                 (where the system back should immediately take the user back to the app that \
                 triggered the deep link). Instead, attach the deep link directly to \
                 the second activity (either by manually writing the appropriate <intent-filter> \
                 or by adding the <deeplink> to the start destination of a nav host in that second \
                 activity).""",
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                DeepLinkInActivityDestinationDetector::class.java, Scope.RESOURCE_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        DeepLinkInActivityDestinationDetector::class.java,
+                        Scope.RESOURCE_FILE_SCOPE
+                    ),
+                androidSpecific = true
+            )
     }
 }

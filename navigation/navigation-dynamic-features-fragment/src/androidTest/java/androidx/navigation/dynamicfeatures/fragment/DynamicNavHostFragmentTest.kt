@@ -36,9 +36,8 @@ import org.junit.runner.RunWith
 public class DynamicNavHostFragmentTest {
 
     @get:Rule
-    public val rule: ActivityScenarioRule<NavigationActivity> = ActivityScenarioRule(
-        NavigationActivity::class.java
-    )
+    public val rule: ActivityScenarioRule<NavigationActivity> =
+        ActivityScenarioRule(NavigationActivity::class.java)
 
     @Test
     public fun createSplitInstallManager() {
@@ -46,7 +45,8 @@ public class DynamicNavHostFragmentTest {
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
                 fragment = TestDynamicNavHostFragment()
-                supportFragmentManager.beginTransaction()
+                supportFragmentManager
+                    .beginTransaction()
                     .add(R.id.nav_host, fragment, null)
                     .setPrimaryNavigationFragment(fragment)
                     .commitNow()
@@ -66,12 +66,8 @@ public class DynamicNavHostFragmentTest {
     @UiThreadTest
     @Test
     public fun create_withArgs() {
-        val fragment = DynamicNavHostFragment.create(
-            R.id.nav_host,
-            Bundle().apply {
-                putInt("Test", 1)
-            }
-        )
+        val fragment =
+            DynamicNavHostFragment.create(R.id.nav_host, Bundle().apply { putInt("Test", 1) })
         assertThat(fragment.arguments!!.size()).isEqualTo(2)
     }
 }

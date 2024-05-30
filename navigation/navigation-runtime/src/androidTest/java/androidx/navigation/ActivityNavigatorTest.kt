@@ -74,9 +74,7 @@ class ActivityNavigatorTest {
 
     @After
     fun cleanup() {
-        TargetActivity.instances.forEach { activity ->
-            activity.finish()
-        }
+        TargetActivity.instances.forEach { activity -> activity.finish() }
     }
 
     @Test(expected = UnsupportedOperationException::class)
@@ -87,10 +85,11 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigate() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(targetDestination, null, null, null)
 
         val targetActivity = waitForActivity()
@@ -106,10 +105,11 @@ class ActivityNavigatorTest {
         // Create using the applicationContext
         val activityNavigator = ActivityNavigator(activityRule.activity.applicationContext)
 
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(targetDestination, null, null, null)
 
         val targetActivity = waitForActivity()
@@ -122,15 +122,15 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateSingleTop() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(
-            targetDestination, null,
-            navOptions {
-                launchSingleTop = true
-            },
+            targetDestination,
+            null,
+            navOptions { launchSingleTop = true },
             null
         )
 
@@ -144,14 +144,13 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateWithArgs() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
 
-        val args = Bundle().apply {
-            putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE)
-        }
+        val args = Bundle().apply { putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE) }
         activityNavigator.navigate(targetDestination, args, null, null)
 
         val targetActivity = waitForActivity()
@@ -164,11 +163,12 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateAction() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setAction(TARGET_ACTION)
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setAction(TARGET_ACTION)
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(targetDestination, null, null, null)
 
         val targetActivity = waitForActivity()
@@ -181,31 +181,29 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateData() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setData(TARGET_DATA)
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setData(TARGET_DATA)
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(targetDestination, null, null, null)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
         assertThat(intent).isNotNull()
-        assertWithMessage("Intent should have data set")
-            .that(intent.data)
-            .isEqualTo(TARGET_DATA)
+        assertWithMessage("Intent should have data set").that(intent.data).isEqualTo(TARGET_DATA)
     }
 
     @Test
     fun navigateDataPattern() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setDataPattern(TARGET_DATA_PATTERN)
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val args = Bundle().apply {
-            putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE)
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setDataPattern(TARGET_DATA_PATTERN)
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val args = Bundle().apply { putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE) }
         activityNavigator.navigate(targetDestination, args, null, null)
 
         val targetActivity = waitForActivity()
@@ -214,10 +212,7 @@ class ActivityNavigatorTest {
         assertWithMessage("Intent should have data set with argument filled in")
             .that(intent.data?.toString())
             .isEqualTo(
-                TARGET_DATA_PATTERN.replace(
-                    "{$TARGET_ARGUMENT_NAME}",
-                    TARGET_ARGUMENT_VALUE
-                )
+                TARGET_DATA_PATTERN.replace("{$TARGET_ARGUMENT_NAME}", TARGET_ARGUMENT_VALUE)
             )
         assertWithMessage("Intent should have its arguments in its extras")
             .that(intent.getStringExtra(TARGET_ARGUMENT_NAME))
@@ -226,14 +221,13 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateDataPatternInt() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setDataPattern(TARGET_DATA_PATTERN)
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val args = Bundle().apply {
-            putInt(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_INT_VALUE)
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setDataPattern(TARGET_DATA_PATTERN)
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val args = Bundle().apply { putInt(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_INT_VALUE) }
         activityNavigator.navigate(targetDestination, args, null, null)
 
         val targetActivity = waitForActivity()
@@ -254,11 +248,12 @@ class ActivityNavigatorTest {
 
     @Test
     fun navigateDataPatternMissingArgument() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setDataPattern(TARGET_DATA_PATTERN)
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setDataPattern(TARGET_DATA_PATTERN)
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         try {
             val args = Bundle()
             activityNavigator.navigate(targetDestination, args, null, null)
@@ -275,138 +270,141 @@ class ActivityNavigatorTest {
         val context = mock(Context::class.java)
         val view = mock(View::class.java)
         val activityNavigator = ActivityNavigator(context)
-        val activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            activityRule.activity,
-            view,
-            "test"
-        )
+        val activityOptions =
+            ActivityOptionsCompat.makeSceneTransitionAnimation(activityRule.activity, view, "test")
         val flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val extras = ActivityNavigator.Extras.Builder()
-            .setActivityOptions(activityOptions)
-            .addFlags(flags)
-            .build()
+        val extras =
+            ActivityNavigator.Extras.Builder()
+                .setActivityOptions(activityOptions)
+                .addFlags(flags)
+                .build()
 
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         activityNavigator.navigate(targetDestination, null, null, extras)
         // Just verify that the ActivityOptions got passed through, there's
         // CTS tests to ensure that the ActivityOptions do the right thing
-        verify(context).startActivity(
-            argThat { intent ->
-                intent.flags and flags != 0
-            },
-            refEq(activityOptions.toBundle())
-        )
+        verify(context)
+            .startActivity(
+                argThat { intent -> intent.flags and flags != 0 },
+                refEq(activityOptions.toBundle())
+            )
     }
 
     @Test
     fun testEquals() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val firstDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val secondDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         assertThat(firstDestination).isEqualTo(secondDestination)
     }
 
     @Test
     fun testFilterEquals() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-            intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val firstDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val secondDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+                intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         assertThat(firstDestination).isEqualTo(secondDestination)
     }
 
     @Test
     fun testEqualsBothIntentNull() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-        }
+        val firstDestination = activityNavigator.createDestination().apply { id = TARGET_ID }
+        val secondDestination = activityNavigator.createDestination().apply { id = TARGET_ID }
         assertThat(firstDestination).isEqualTo(secondDestination)
     }
 
     @Test
     fun testNotEquals() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-            setAction(TARGET_ACTION)
-        }
+        val firstDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val secondDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+                setAction(TARGET_ACTION)
+            }
         assertThat(firstDestination).isNotEqualTo(secondDestination)
     }
 
     @Test
     fun testNotEqualsFirstIntentNull() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
+        val firstDestination = activityNavigator.createDestination().apply { id = TARGET_ID }
+        val secondDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
         assertThat(firstDestination).isNotEqualTo(secondDestination)
     }
 
     @Test
     fun testNotEqualsSecondIntentNull() {
-        val firstDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val secondDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-        }
+        val firstDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val secondDestination = activityNavigator.createDestination().apply { id = TARGET_ID }
         assertThat(firstDestination).isNotEqualTo(secondDestination)
     }
 
     @Test
     fun testToString() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            label = TARGET_LABEL
-            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
-        }
-        val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
-            "class=${TargetActivity::class.java.name}"
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                label = TARGET_LABEL
+                setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+            }
+        val expected =
+            "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
+                "class=${TargetActivity::class.java.name}"
         assertThat(targetDestination.toString()).isEqualTo(expected)
     }
 
     @Test
     fun testToStringNoClass() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            label = TARGET_LABEL
-            setAction(TARGET_ACTION)
-        }
-        val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
-            "action=$TARGET_ACTION"
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                label = TARGET_LABEL
+                setAction(TARGET_ACTION)
+            }
+        val expected =
+            "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL " +
+                "action=$TARGET_ACTION"
         assertThat(targetDestination.toString()).isEqualTo(expected)
     }
 
     @Test
     fun testToStringNoClassOrAction() {
-        val targetDestination = activityNavigator.createDestination().apply {
-            id = TARGET_ID
-            label = TARGET_LABEL
-        }
+        val targetDestination =
+            activityNavigator.createDestination().apply {
+                id = TARGET_ID
+                label = TARGET_LABEL
+            }
         val expected = "Destination(0x${TARGET_ID.toString(16)}) label=$TARGET_LABEL"
         assertThat(targetDestination.toString()).isEqualTo(expected)
     }
@@ -415,9 +413,7 @@ class ActivityNavigatorTest {
         verify(TargetActivity.instances, timeout(3000)).add(any())
         verifyNoMoreInteractions(TargetActivity.instances)
         val targetActivity: ArrayList<TargetActivity> = ArrayList()
-        activityRule.runOnUiThread {
-            targetActivity.addAll(TargetActivity.instances)
-        }
+        activityRule.runOnUiThread { targetActivity.addAll(TargetActivity.instances) }
         assertWithMessage("Only expected a single TargetActivity")
             .that(targetActivity.size == 1)
             .isTrue()
@@ -426,6 +422,7 @@ class ActivityNavigatorTest {
 }
 
 class ActivityNavigatorActivity : Activity()
+
 class TargetActivity : Activity() {
     companion object {
         var instances: ArrayList<TargetActivity> = spy(ArrayList())

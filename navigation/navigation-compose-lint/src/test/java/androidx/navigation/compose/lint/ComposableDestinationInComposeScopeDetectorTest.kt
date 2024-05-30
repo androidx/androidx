@@ -29,9 +29,7 @@ import org.junit.runners.JUnit4
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [ComposableDestinationInComposeScopeDetector].
- */
+/** Test for [ComposableDestinationInComposeScopeDetector]. */
 class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = ComposableDestinationInComposeScopeDetector()
 
@@ -43,9 +41,10 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
 
     @Test
     fun expectPass() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -65,23 +64,24 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            NAV_BACK_STACK_ENTRY,
-            NAV_CONTROLLER,
-            NAV_GRAPH_BUILDER,
-            NAV_GRAPH_COMPOSABLE,
-            NAV_HOST
-        )
+                ),
+                Stubs.Composable,
+                NAV_BACK_STACK_ENTRY,
+                NAV_CONTROLLER,
+                NAV_GRAPH_BUILDER,
+                NAV_GRAPH_COMPOSABLE,
+                NAV_HOST
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun nestedComposableBuilders() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -98,14 +98,14 @@ class ComposableDestinationInComposeScopeDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            NAV_BACK_STACK_ENTRY,
-            NAV_CONTROLLER,
-            NAV_GRAPH_BUILDER,
-            NAV_GRAPH_COMPOSABLE,
-            NAV_HOST
-        )
+                ),
+                Stubs.Composable,
+                NAV_BACK_STACK_ENTRY,
+                NAV_CONTROLLER,
+                NAV_GRAPH_BUILDER,
+                NAV_GRAPH_COMPOSABLE,
+                NAV_HOST
+            )
             .run()
             .expect(
                 """
@@ -119,9 +119,10 @@ src/com/example/test.kt:13: Error: Using composable inside of a compose scope [C
 
     @Test
     fun navigationBuilderInsideComposable() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -139,14 +140,14 @@ src/com/example/test.kt:13: Error: Using composable inside of a compose scope [C
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            NAV_BACK_STACK_ENTRY,
-            NAV_CONTROLLER,
-            NAV_GRAPH_BUILDER,
-            NAV_GRAPH_COMPOSABLE,
-            NAV_HOST
-        )
+                ),
+                Stubs.Composable,
+                NAV_BACK_STACK_ENTRY,
+                NAV_CONTROLLER,
+                NAV_GRAPH_BUILDER,
+                NAV_GRAPH_COMPOSABLE,
+                NAV_HOST
+            )
             .run()
             .expect(
                 """

@@ -30,8 +30,7 @@ import org.junit.runner.RunWith
 @LargeTest
 class NavInflaterBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 

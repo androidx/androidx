@@ -26,14 +26,15 @@ fun resolveArguments(rootDestination: Destination): Destination {
     fun dfs(dest: Destination): Destination {
         val nested = dest.nested.filter { it.id != null }.associateBy { it.id!! }
         destinations.putAll(nested)
-        val resolvedActions = dest.actions.map { action ->
-            val actionDestination = destinations[action.destination]
-            if (actionDestination != null) {
-                action.copy(args = mergeArguments(action.args, actionDestination.args))
-            } else {
-                action
+        val resolvedActions =
+            dest.actions.map { action ->
+                val actionDestination = destinations[action.destination]
+                if (actionDestination != null) {
+                    action.copy(args = mergeArguments(action.args, actionDestination.args))
+                } else {
+                    action
+                }
             }
-        }
         val result = dest.copy(nested = dest.nested.map(::dfs), actions = resolvedActions)
         nested.keys.forEach { id -> destinations.remove(id) }
         return result

@@ -18,9 +18,7 @@ package androidx.navigation
 import android.os.Bundle
 import androidx.annotation.RestrictTo
 
-/**
- * A [Navigator] that only supports creating destinations.
- */
+/** A [Navigator] that only supports creating destinations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Navigator.Name("NoOp")
 public class NoOpNavigator : Navigator<NavDestination>() {

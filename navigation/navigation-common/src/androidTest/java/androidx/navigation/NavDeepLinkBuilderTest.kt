@@ -58,9 +58,8 @@ class NavDeepLinkBuilderTest {
             fail("NavDeepLink must throw when attempting to build an empty builder.")
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains(
-                    "The NavDeepLink must have an uri, action, and/or mimeType."
-                )
+                .hasMessageThat()
+                .contains("The NavDeepLink must have an uri, action, and/or mimeType.")
         }
     }
 
@@ -70,10 +69,7 @@ class NavDeepLinkBuilderTest {
             navDeepLink { action = "" }
             fail("NavDeepLink must throw when attempting to build with an empty action.")
         } catch (e: IllegalArgumentException) {
-            assertThat(e)
-                .hasMessageThat().contains(
-                    "The NavDeepLink cannot have an empty action."
-                )
+            assertThat(e).hasMessageThat().contains("The NavDeepLink cannot have an empty action.")
         }
     }
 
@@ -89,9 +85,7 @@ class NavDeepLinkBuilderTest {
         assertWithMessage("NavDeepLink should have uri pattern set")
             .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
-        assertWithMessage("NavDeepLink should have action set")
-            .that(navDeepLink.action)
-            .isNull()
+        assertWithMessage("NavDeepLink should have action set").that(navDeepLink.action).isNull()
     }
 
     @Test
@@ -99,10 +93,11 @@ class NavDeepLinkBuilderTest {
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
-            action = expectedAction
-            mimeType = expectedMimeType
-        }
+        val navDeepLink =
+            navDeepLink<TestClass>(expectedUri) {
+                action = expectedAction
+                mimeType = expectedMimeType
+            }
         assertWithMessage("NavDeepLink should have uri pattern set")
             .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
@@ -116,16 +111,16 @@ class NavDeepLinkBuilderTest {
 
     @Test
     fun buildDeepLinkAllSetKClassWithPathArgs() {
-        @Serializable
-        class TestClass(val arg: Int, val arg2: String)
+        @Serializable class TestClass(val arg: Int, val arg2: String)
 
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
-            action = expectedAction
-            mimeType = expectedMimeType
-        }
+        val navDeepLink =
+            navDeepLink<TestClass>(expectedUri) {
+                action = expectedAction
+                mimeType = expectedMimeType
+            }
         assertWithMessage("NavDeepLink should have uri pattern set")
             .that(navDeepLink.uriPattern)
             .isEqualTo("$expectedUri/{arg}/{arg2}")
@@ -139,16 +134,16 @@ class NavDeepLinkBuilderTest {
 
     @Test
     fun buildDeepLinkAllSetKClassWithQueryArgs() {
-        @Serializable
-        class TestClass(val arg: Int, val arg2: String = "default")
+        @Serializable class TestClass(val arg: Int, val arg2: String = "default")
 
         val expectedUri = "example.com"
         val expectedAction = "test.action"
         val expectedMimeType = "test/type"
-        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
-            action = expectedAction
-            mimeType = expectedMimeType
-        }
+        val navDeepLink =
+            navDeepLink<TestClass>(expectedUri) {
+                action = expectedAction
+                mimeType = expectedMimeType
+            }
         assertWithMessage("NavDeepLink should have uri pattern set")
             .that(navDeepLink.uriPattern)
             .isEqualTo("$expectedUri/{arg}?arg2={arg2}")
@@ -182,23 +177,21 @@ class NavDeepLinkBuilderTest {
         } catch (e: IllegalArgumentException) {
             exception = e
         }
-        assertThat(exception?.message)
-            .isEqualTo("The NavDeepLink cannot have an empty action.")
+        assertThat(exception?.message).isEqualTo("The NavDeepLink cannot have an empty action.")
     }
 
     @Test
     fun buildDeepLinkDoubleActionSetNullKClass() {
         val expectedUri = "www.example.com"
-        val navDeepLink = navDeepLink<TestClass>(expectedUri) {
-            action = "blah"
-            action = null
-        }
+        val navDeepLink =
+            navDeepLink<TestClass>(expectedUri) {
+                action = "blah"
+                action = null
+            }
 
         assertWithMessage("NavDeepLink should have uri pattern set")
             .that(navDeepLink.uriPattern)
             .isEqualTo(expectedUri)
-        assertWithMessage("NavDeepLink should have action set")
-            .that(navDeepLink.action)
-            .isNull()
+        assertWithMessage("NavDeepLink should have action set").that(navDeepLink.action).isNull()
     }
 }

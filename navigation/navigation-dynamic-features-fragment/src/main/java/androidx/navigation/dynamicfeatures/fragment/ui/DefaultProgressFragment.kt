@@ -33,8 +33,8 @@ import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 /**
  * The default [androidx.fragment.app.Fragment] to display during installation progress.
  *
- * This `Fragment` provides a default UI and handles split install state changes so you don't
- * have to deal with this.
+ * This `Fragment` provides a default UI and handles split install state changes so you don't have
+ * to deal with this.
  *
  * To create a custom progress fragment, extend [AbstractProgressFragment].
  */
@@ -69,11 +69,12 @@ public class DefaultProgressFragment :
 
     private fun setActivityIcon(activityIcon: ImageView) {
         with(requireContext().packageManager) {
-            val icon = try {
-                getActivityIcon(ComponentName(requireContext(), requireActivity().javaClass))
-            } catch (e: PackageManager.NameNotFoundException) {
-                defaultActivityIcon
-            }
+            val icon =
+                try {
+                    getActivityIcon(ComponentName(requireContext(), requireActivity().javaClass))
+                } catch (e: PackageManager.NameNotFoundException) {
+                    defaultActivityIcon
+                }
             activityIcon.setImageDrawable(icon)
         }
     }
@@ -101,23 +102,17 @@ public class DefaultProgressFragment :
         displayAction(R.string.ok) { findNavController().popBackStack() }
     }
 
-    /**
-     * Display an error state message.
-     */
+    /** Display an error state message. */
     private fun displayErrorState(@StringRes text: Int) {
         title?.setText(text)
         progressBar?.visibility = View.INVISIBLE
     }
 
-    /**
-     * Display the action button and assign `onClick` behavior.
-     */
+    /** Display the action button and assign `onClick` behavior. */
     private fun displayAction(@StringRes text: Int, onClick: () -> Unit) {
         action?.run {
             setText(text)
-            setOnClickListener {
-                onClick()
-            }
+            setOnClickListener { onClick() }
             visibility = View.VISIBLE
         }
     }

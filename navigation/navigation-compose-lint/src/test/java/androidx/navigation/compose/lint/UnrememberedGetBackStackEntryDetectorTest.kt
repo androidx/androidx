@@ -30,9 +30,7 @@ import org.junit.runners.JUnit4
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [UnrememberedGetBackStackEntryDetector].
- */
+/** Test for [UnrememberedGetBackStackEntryDetector]. */
 class UnrememberedGetBackStackEntryDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = UnrememberedGetBackStackEntryDetector()
 
@@ -41,9 +39,10 @@ class UnrememberedGetBackStackEntryDetectorTest : LintDetectorTest() {
 
     @Test
     fun notRemembered() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -100,10 +99,10 @@ class UnrememberedGetBackStackEntryDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            NAV_CONTROLLER
-        )
+                ),
+                Stubs.Composable,
+                NAV_CONTROLLER
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -139,9 +138,10 @@ src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition wit
 
     @Test
     fun rememberedInsideComposableBodyWithoutEntryKey() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -190,12 +190,12 @@ src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition wit
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember,
-            NAV_CONTROLLER,
-            NAV_BACK_STACK_ENTRY
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember,
+                NAV_CONTROLLER,
+                NAV_BACK_STACK_ENTRY
+            )
             .run()
             .expect(
                 """
@@ -227,9 +227,10 @@ src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition 
 
     @Test
     fun rememberedInsideComposableBodyWithEntryKey() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -286,21 +287,22 @@ src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember,
-            NAV_BACK_STACK_ENTRY,
-            NAV_CONTROLLER
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember,
+                NAV_BACK_STACK_ENTRY,
+                NAV_CONTROLLER
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.*
@@ -366,12 +368,12 @@ src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.Remember,
-            NAV_CONTROLLER,
-            NAV_BACK_STACK_ENTRY
-        )
+                ),
+                Stubs.Composable,
+                Stubs.Remember,
+                NAV_CONTROLLER,
+                NAV_BACK_STACK_ENTRY
+            )
             .run()
             .expectClean()
     }

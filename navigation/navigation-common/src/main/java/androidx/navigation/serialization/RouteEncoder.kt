@@ -25,9 +25,7 @@ import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
-/**
- * Encodes KClass of type T into a route filled with arguments
- */
+/** Encodes KClass of type T into a route filled with arguments */
 @OptIn(ExperimentalSerializationApi::class)
 internal class RouteEncoder<T : Any>(
     private val serializer: KSerializer<T>,
@@ -41,8 +39,8 @@ internal class RouteEncoder<T : Any>(
      *
      * The default entry point is [encodeSerializableValue] but we need to override it to handle
      * primitive and non-primitive values by converting them directly to string (instead of the
-     * default implementation which further serializes nested non-primitive values). So we
-     * delegate to the default entry by directly calling [super.encodeSerializableValue].
+     * default implementation which further serializes nested non-primitive values). So we delegate
+     * to the default entry by directly calling [super.encodeSerializableValue].
      */
     @Suppress("UNCHECKED_CAST")
     fun encodeRouteWithArgs(value: Any): String {
@@ -67,9 +65,7 @@ internal class RouteEncoder<T : Any>(
         }
     }
 
-    /**
-     * Essentially called for every single argument.
-     */
+    /** Essentially called for every single argument. */
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         builder.setElementIndex(index)
         return true
@@ -88,9 +84,7 @@ internal class RouteEncoder<T : Any>(
         }
     }
 
-    /**
-     * Called for primitive / non-primitives of null value
-     */
+    /** Called for primitive / non-primitives of null value */
     override fun encodeNull() {
         builder.addNull(null)
     }

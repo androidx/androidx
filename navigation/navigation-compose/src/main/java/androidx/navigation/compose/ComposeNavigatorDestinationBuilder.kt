@@ -29,9 +29,7 @@ import androidx.navigation.NavType
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-/**
- * DSL for constructing a new [ComposeNavigator.Destination]
- */
+/** DSL for constructing a new [ComposeNavigator.Destination] */
 @NavDestinationDsl
 public class ComposeNavigatorDestinationBuilder :
     NavDestinationBuilder<ComposeNavigator.Destination> {
@@ -39,20 +37,30 @@ public class ComposeNavigatorDestinationBuilder :
     private val composeNavigator: ComposeNavigator
     private val content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
 
-    var enterTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+    var enterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+        null
 
-    var exitTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+    var exitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+        null
 
-    var popEnterTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+    var popEnterTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+        null
 
-    var popExitTransition: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+    var popExitTransition:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+        null
 
-    var sizeTransform: (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
+    var sizeTransform:
+        (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+        null
 
     /**
      * DSL for constructing a new [ComposeNavigator.Destination]
@@ -76,7 +84,7 @@ public class ComposeNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the destination's unique route from a [KClass]
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     *   [NavType]. May be empty if [route] does not use custom NavTypes.
      * @param content composable for the destination
      */
     public constructor(

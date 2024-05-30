@@ -50,49 +50,53 @@ class AddInDefaultArgsTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "arguments={0}, bundle={1}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            arrayOf(
-                // Test with an empty set of arguments
-                mapOf(),
-                // Test with an argument with no default value
-                mapOf(stringArgumentWithoutDefault),
-                // Test with arguments where only some have default values
-                mapOf(stringArgumentWithoutDefault, intArgumentWithDefault),
-                // Test with arguments that have default values (int)
-                mapOf(stringArgumentWithDefault, intArgumentWithDefault),
-                // Test with arguments that have default values (float)
-                mapOf(stringArgumentWithDefault, longArgumentWithDefault),
-                // Test with arguments that have default values (long)
-                mapOf(stringArgumentWithDefault, floatArgumentWithDefault),
-                // Test with arguments that have default values (reference)
-                mapOf(stringArgumentWithDefault, referenceArgumentWithDefault),
-                // Test with arguments that have default values (string array)
-                mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault),
-                // Test with argument that only have unknown default value
-                mapOf(intArgumentWithUnknownDefault),
-                // Test with arguments where only some have unknown default values
-                mapOf(intArgumentWithUnknownDefault, stringArgumentWithDefault)
-
-            ).forEach { arguments: Map<String, NavArgument> ->
-                // Run with a null Bundle
-                add(arrayOf(arguments, Bundle.EMPTY))
-                // Run with a Bundle with a different argument
-                add(arrayOf(arguments, Bundle().apply { putString("customArg", "custom") }))
-                // Run with a Bundle with an overriding argument
-                add(arrayOf(arguments, Bundle().apply { putString("stringArg", "bbb") }))
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                arrayOf(
+                        // Test with an empty set of arguments
+                        mapOf(),
+                        // Test with an argument with no default value
+                        mapOf(stringArgumentWithoutDefault),
+                        // Test with arguments where only some have default values
+                        mapOf(stringArgumentWithoutDefault, intArgumentWithDefault),
+                        // Test with arguments that have default values (int)
+                        mapOf(stringArgumentWithDefault, intArgumentWithDefault),
+                        // Test with arguments that have default values (float)
+                        mapOf(stringArgumentWithDefault, longArgumentWithDefault),
+                        // Test with arguments that have default values (long)
+                        mapOf(stringArgumentWithDefault, floatArgumentWithDefault),
+                        // Test with arguments that have default values (reference)
+                        mapOf(stringArgumentWithDefault, referenceArgumentWithDefault),
+                        // Test with arguments that have default values (string array)
+                        mapOf(stringArgumentWithDefault, stringArrayArgumentWithDefault),
+                        // Test with argument that only have unknown default value
+                        mapOf(intArgumentWithUnknownDefault),
+                        // Test with arguments where only some have unknown default values
+                        mapOf(intArgumentWithUnknownDefault, stringArgumentWithDefault)
+                    )
+                    .forEach { arguments: Map<String, NavArgument> ->
+                        // Run with a null Bundle
+                        add(arrayOf(arguments, Bundle.EMPTY))
+                        // Run with a Bundle with a different argument
+                        add(arrayOf(arguments, Bundle().apply { putString("customArg", "custom") }))
+                        // Run with a Bundle with an overriding argument
+                        add(arrayOf(arguments, Bundle().apply { putString("stringArg", "bbb") }))
+                    }
             }
-        }
     }
 
     @Test
     @Suppress("DEPRECATION")
     fun addInDefaultArgs() {
         val destination = NoOpNavigator().createDestination()
-        arguments.forEach { entry ->
-            destination.addArgument(entry.key, entry.value)
-        }
+        arguments.forEach { entry -> destination.addArgument(entry.key, entry.value) }
 
-        val nullableArgs = if (args != Bundle.EMPTY) { args } else { null }
+        val nullableArgs =
+            if (args != Bundle.EMPTY) {
+                args
+            } else {
+                null
+            }
         val bundle = destination.addInDefaultArgs(nullableArgs)
 
         if (args == Bundle.EMPTY && arguments.isEmpty()) {
@@ -100,21 +104,16 @@ class AddInDefaultArgsTest(
                 .that(bundle)
                 .isNull()
         } else {
-            assertThat(bundle)
-                .isNotNull()
+            assertThat(bundle).isNotNull()
             // Assert that the args take precedence
-            args.keySet()?.forEach { key ->
-                assertThat(bundle!![key])
-                    .isEqualTo(args[key])
-            }
+            args.keySet()?.forEach { key -> assertThat(bundle!![key]).isEqualTo(args[key]) }
             // Assert that arguments with default values not in the args
             // are present in the Bundle
             arguments
                 .filterKeys { !args.containsKey(it) }
                 .filterValues { it.isDefaultValuePresent }
                 .forEach { entry ->
-                    assertThat(bundle!![entry.key])
-                        .isEqualTo(entry.value.defaultValue)
+                    assertThat(bundle!![entry.key]).isEqualTo(entry.value.defaultValue)
                 }
         }
     }

@@ -24,10 +24,8 @@ import kotlinx.serialization.KSerializer
 
 // public due to reified toRoute()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> KSerializer<T>.decodeArguments(
-    bundle: Bundle,
-    typeMap: Map<String, NavType<*>>
-): T = RouteDecoder(bundle, typeMap).decodeRouteWithArgs(this)
+public fun <T> KSerializer<T>.decodeArguments(bundle: Bundle, typeMap: Map<String, NavType<*>>): T =
+    RouteDecoder(bundle, typeMap).decodeRouteWithArgs(this)
 
 // public due to reified toRoute()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

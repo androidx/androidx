@@ -37,30 +37,26 @@ import kotlinx.serialization.serializer
 /**
  * NavDestination represents one node within an overall navigation graph.
  *
- * Each destination is associated with a [Navigator] which knows how to navigate to this
- * particular destination.
+ * Each destination is associated with a [Navigator] which knows how to navigate to this particular
+ * destination.
  *
- * Destinations declare a set of [actions][putAction] that they
- * support. These actions form a navigation API for the destination; the same actions declared
- * on different destinations that fill similar roles allow application code to navigate based
- * on semantic intent.
+ * Destinations declare a set of [actions][putAction] that they support. These actions form a
+ * navigation API for the destination; the same actions declared on different destinations that fill
+ * similar roles allow application code to navigate based on semantic intent.
  *
- * Each destination has a set of [arguments][arguments] that will
- * be applied when [navigating][NavController.navigate] to that destination.
- * Any default values for those arguments can be overridden at the time of navigation.
+ * Each destination has a set of [arguments][arguments] that will be applied when
+ * [navigating][NavController.navigate] to that destination. Any default values for those arguments
+ * can be overridden at the time of navigation.
  *
  * NavDestinations should be created via [Navigator.createDestination].
  */
 public open class NavDestination(
-    /**
-     * The name associated with this destination's [Navigator].
-     */
+    /** The name associated with this destination's [Navigator]. */
     public val navigatorName: String
 ) {
     /**
-     * This optional annotation allows tooling to offer auto-complete for the
-     * `android:name` attribute. This should match the class type passed to
-     * [parseClassFromName] when parsing the
+     * This optional annotation allows tooling to offer auto-complete for the `android:name`
+     * attribute. This should match the class type passed to [parseClassFromName] when parsing the
      * `android:name` attribute.
      */
     @kotlin.annotation.Retention(AnnotationRetention.BINARY)
@@ -113,17 +109,17 @@ public open class NavDestination(
         }
 
         /**
-         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within
-         * the [arguments].
+         * Returns true if all args from [DeepLinkMatch.matchingArgs] can be found within the
+         * [arguments].
          *
          * This returns true in these edge cases:
          * 1. If the [arguments] contain more args than [DeepLinkMatch.matchingArgs].
          * 2. If [DeepLinkMatch.matchingArgs] is empty
-         * 3. Argument has null value in both [DeepLinkMatch.matchingArgs] and [arguments]
-         * i.e. arguments/params with nullable values
+         * 3. Argument has null value in both [DeepLinkMatch.matchingArgs] and [arguments] i.e.
+         *    arguments/params with nullable values
          *
          * @param [arguments] The arguments to match with the matchingArgs stored in this
-         * DeepLinkMatch.
+         *   DeepLinkMatch.
          */
         public fun hasMatchingArgs(arguments: Bundle?): Boolean {
             if (arguments == null || matchingArgs == null) return false
@@ -144,17 +140,15 @@ public open class NavDestination(
     }
 
     /**
-     * Gets the [NavGraph] that contains this destination. This will be set when a
-     * destination is added to a NavGraph via [NavGraph.addDestination].
+     * Gets the [NavGraph] that contains this destination. This will be set when a destination is
+     * added to a NavGraph via [NavGraph.addDestination].
      */
     public var parent: NavGraph? = null
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public set
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public set
+
     private var idName: String? = null
 
-    /**
-     * The descriptive label of this destination.
-     */
+    /** The descriptive label of this destination. */
     public var label: CharSequence? = null
     private val deepLinks = mutableListOf<NavDeepLink>()
     private val actions: SparseArrayCompat<NavAction> = SparseArrayCompat()
@@ -162,12 +156,12 @@ public open class NavDestination(
     private var _arguments: MutableMap<String, NavArgument> = mutableMapOf()
 
     /**
-     * The arguments supported by this destination. Returns a read-only map of argument names
-     * to [NavArgument] objects that can be used to check the type, default value
-     * and nullability of the argument.
+     * The arguments supported by this destination. Returns a read-only map of argument names to
+     * [NavArgument] objects that can be used to check the type, default value and nullability of
+     * the argument.
      *
-     * To add and remove arguments for this NavDestination
-     * use [addArgument] and [removeArgument].
+     * To add and remove arguments for this NavDestination use [addArgument] and [removeArgument].
+     *
      * @return Read-only map of argument names to arguments.
      */
     public val arguments: Map<String, NavArgument>
@@ -178,11 +172,9 @@ public open class NavDestination(
      *
      * This constructor requires that the given Navigator has a [Navigator.Name] annotation.
      */
-    public constructor(navigator: Navigator<out NavDestination>) : this(
-        NavigatorProvider.getNameForNavigator(
-            navigator.javaClass
-        )
-    )
+    public constructor(
+        navigator: Navigator<out NavDestination>
+    ) : this(NavigatorProvider.getNameForNavigator(navigator.javaClass))
 
     /**
      * Called when inflating a destination from a resource.
@@ -204,11 +196,11 @@ public open class NavDestination(
     }
 
     /**
-     * The destination's unique ID. This should be an ID resource generated by
-     * the Android resource system.
+     * The destination's unique ID. This should be an ID resource generated by the Android resource
+     * system.
      *
-     * If using safe args, setting this manually will override the ID that was set based
-     * on route from KClass.
+     * If using safe args, setting this manually will override the ID that was set based on route
+     * from KClass.
      */
     @get:IdRes
     public var id: Int = 0
@@ -218,11 +210,10 @@ public open class NavDestination(
         }
 
     /**
-     * The destination's unique route. Setting this will also update the [id] of the destinations
-     * so custom destination ids should only be set after setting the route.
+     * The destination's unique route. Setting this will also update the [id] of the destinations so
+     * custom destination ids should only be set after setting the route.
      *
      * @return this destination's route, or null if no route is set
-     *
      * @throws IllegalArgumentException is the given route is empty
      */
     public var route: String? = null
@@ -240,16 +231,15 @@ public open class NavDestination(
         }
 
     public open val displayName: String
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get() = idName ?: id.toString()
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = idName ?: id.toString()
 
     /**
-     * Checks the given deep link [Uri], and determines whether it matches a Uri pattern added
-     * to the destination by a call to [addDeepLink] . It returns `true`
-     * if the deep link is a valid match, and `false` otherwise.
+     * Checks the given deep link [Uri], and determines whether it matches a Uri pattern added to
+     * the destination by a call to [addDeepLink] . It returns `true` if the deep link is a valid
+     * match, and `false` otherwise.
      *
-     * This should be called prior to [NavController.navigate] to ensure the deep link
-     * can be navigated to.
+     * This should be called prior to [NavController.navigate] to ensure the deep link can be
+     * navigated to.
      *
      * @param deepLink to the destination reachable from the current NavGraph
      * @return True if the deepLink exists for the destination.
@@ -262,13 +252,12 @@ public open class NavDestination(
     }
 
     /**
-     * Checks the given [NavDeepLinkRequest], and determines whether it matches a
-     * [NavDeepLink] added to the destination by a call to
-     * [addDeepLink]. It returns `true` if the request is a valid
-     * match, and `false` otherwise.
+     * Checks the given [NavDeepLinkRequest], and determines whether it matches a [NavDeepLink]
+     * added to the destination by a call to [addDeepLink]. It returns `true` if the request is a
+     * valid match, and `false` otherwise.
      *
-     * This should be called prior to [NavController.navigate] to
-     * ensure the deep link can be navigated to.
+     * This should be called prior to [NavController.navigate] to ensure the deep link can be
+     * navigated to.
      *
      * @param deepLinkRequest to the destination reachable from the current NavGraph
      * @return True if the deepLink exists for the destination.
@@ -280,30 +269,25 @@ public open class NavDestination(
     }
 
     /**
-     * Add a deep link to this destination. Matching Uris sent to
-     * [NavController.handleDeepLink] or [NavController.navigate] will
-     * trigger navigating to this destination.
+     * Add a deep link to this destination. Matching Uris sent to [NavController.handleDeepLink] or
+     * [NavController.navigate] will trigger navigating to this destination.
      *
      * In addition to a direct Uri match, the following features are supported:
-     *
-     * - Uris without a scheme are assumed as http and https. For example,
-     * `www.example.com` will match `http://www.example.com` and
-     * `https://www.example.com`.
-     * - Placeholders in the form of `{placeholder_name}` matches 1 or more
-     * characters. The parsed value of the placeholder will be available in the arguments
-     * [Bundle] with a key of the same name. For example,
-     * `http://www.example.com/users/{id}` will match
-     * `http://www.example.com/users/4`.
+     * - Uris without a scheme are assumed as http and https. For example, `www.example.com` will
+     *   match `http://www.example.com` and `https://www.example.com`.
+     * - Placeholders in the form of `{placeholder_name}` matches 1 or more characters. The parsed
+     *   value of the placeholder will be available in the arguments [Bundle] with a key of the same
+     *   name. For example, `http://www.example.com/users/{id}` will match
+     *   `http://www.example.com/users/4`.
      * - The `.*` wildcard can be used to match 0 or more characters.
      *
-     * These Uris can be declared in your navigation XML files by adding one or more
-     * `<deepLink app:uri="uriPattern" />` elements as
-     * a child to your destination.
+     * These Uris can be declared in your navigation XML files by adding one or more `<deepLink
+     * app:uri="uriPattern" />` elements as a child to your destination.
      *
      * Deep links added in navigation XML files will automatically replace instances of
-     * `${applicationId}` with the applicationId of your app.
-     * Programmatically added deep links should use [Context.getPackageName] directly
-     * when constructing the uriPattern.
+     * `${applicationId}` with the applicationId of your app. Programmatically added deep links
+     * should use [Context.getPackageName] directly when constructing the uriPattern.
+     *
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController.handleDeepLink
      * @see NavController.navigate
@@ -314,50 +298,44 @@ public open class NavDestination(
     }
 
     /**
-     * Add a deep link to this destination. Uris that match the given [NavDeepLink] uri
-     * sent to [NavController.handleDeepLink] or
-     * [NavController.navigate] will trigger navigating to this
+     * Add a deep link to this destination. Uris that match the given [NavDeepLink] uri sent to
+     * [NavController.handleDeepLink] or [NavController.navigate] will trigger navigating to this
      * destination.
      *
      * In addition to a direct Uri match, the following features are supported:
      *
-     * Uris without a scheme are assumed as http and https. For example,
-     * `www.example.com` will match `http://www.example.com` and
-     * `https://www.example.com`.
-     * Placeholders in the form of `{placeholder_name}` matches 1 or more
-     * characters. The String value of the placeholder will be available in the arguments
-     * [Bundle] with a key of the same name. For example,
-     * `http://www.example.com/users/{id}` will match
-     * `http://www.example.com/users/4`.
-     * The `.*` wildcard can be used to match 0 or more characters.
+     * Uris without a scheme are assumed as http and https. For example, `www.example.com` will
+     * match `http://www.example.com` and `https://www.example.com`. Placeholders in the form of
+     * `{placeholder_name}` matches 1 or more characters. The String value of the placeholder will
+     * be available in the arguments [Bundle] with a key of the same name. For example,
+     * `http://www.example.com/users/{id}` will match `http://www.example.com/users/4`. The `.*`
+     * wildcard can be used to match 0 or more characters.
      *
-     * These Uris can be declared in your navigation XML files by adding one or more
-     * `<deepLink app:uri="uriPattern" />` elements as
-     * a child to your destination.
+     * These Uris can be declared in your navigation XML files by adding one or more `<deepLink
+     * app:uri="uriPattern" />` elements as a child to your destination.
      *
-     * Custom actions and mimetypes are also supported by [NavDeepLink] and can be declared
-     * in your navigation XML files by adding
-     * `<app:action="android.intent.action.SOME_ACTION" />` or
+     * Custom actions and mimetypes are also supported by [NavDeepLink] and can be declared in your
+     * navigation XML files by adding `<app:action="android.intent.action.SOME_ACTION" />` or
      * `<app:mimetype="type/subtype" />` as part of your deepLink declaration.
      *
      * Deep link Uris, actions, and mimetypes added in navigation XML files will automatically
-     * replace instances of `${applicationId}` with the applicationId of your app.
-     * Programmatically added deep links should use [Context.getPackageName] directly
-     * when constructing the uriPattern.
+     * replace instances of `${applicationId}` with the applicationId of your app. Programmatically
+     * added deep links should use [Context.getPackageName] directly when constructing the
+     * uriPattern.
      *
      * When matching deep links for calls to [NavController.handleDeepLink] or
-     * [NavController.navigate] the order of precedence is as follows:
-     * the deep link with the most matching arguments will be chosen, followed by the deep link
-     * with a matching action, followed by the best matching mimeType (e.i. when matching
-     * mimeType image/jpg: image/ * > *\/jpg > *\/ *).
+     * [NavController.navigate] the order of precedence is as follows: the deep link with the most
+     * matching arguments will be chosen, followed by the deep link with a matching action, followed
+     * by the best matching mimeType (e.i. when matching mimeType image/jpg: image/ * > *\/jpg > *\/
+     * *).
+     *
      * @param navDeepLink The NavDeepLink to add as a deep link
      * @see NavController.handleDeepLink
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
-            key !in navDeepLink.argumentsNames
-        }
+        val missingRequiredArguments =
+            _arguments.missingRequiredArguments { key -> key !in navDeepLink.argumentsNames }
         require(missingRequiredArguments.isEmpty()) {
             "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
                 "Following required arguments are missing: $missingRequiredArguments"
@@ -375,20 +353,21 @@ public open class NavDestination(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun matchDeepLink(route: String): DeepLinkMatch? {
         val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
-        val matchingDeepLink = if (this is NavGraph) {
-            matchDeepLinkExcludingChildren(request)
-        } else {
-            matchDeepLink(request)
-        }
+        val matchingDeepLink =
+            if (this is NavGraph) {
+                matchDeepLinkExcludingChildren(request)
+            } else {
+                matchDeepLink(request)
+            }
         return matchingDeepLink
     }
 
     /**
      * Determines if this NavDestination has a deep link matching the given Uri.
-     * @param navDeepLinkRequest The request to match against all deep links added in
-     * [addDeepLink]
-     * @return The matching [NavDestination] and the appropriate [Bundle] of arguments
-     * extracted from the Uri, or null if no match was found.
+     *
+     * @param navDeepLinkRequest The request to match against all deep links added in [addDeepLink]
+     * @return The matching [NavDestination] and the appropriate [Bundle] of arguments extracted
+     *   from the Uri, or null if no match was found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
@@ -403,19 +382,24 @@ public open class NavDestination(
                 if (uri != null) deepLink.getMatchingArguments(uri, _arguments) else null
             val matchingPathSegments = deepLink.calculateMatchingPathSegments(uri)
             val requestAction = navDeepLinkRequest.action
-            val matchingAction = requestAction != null && requestAction ==
-                deepLink.action
+            val matchingAction = requestAction != null && requestAction == deepLink.action
             val mimeType = navDeepLinkRequest.mimeType
             val mimeTypeMatchLevel =
                 if (mimeType != null) deepLink.getMimeTypeMatchRating(mimeType) else -1
-            if (matchingArguments != null || ((matchingAction || mimeTypeMatchLevel > -1) &&
-                    hasRequiredArguments(deepLink, uri, _arguments))
+            if (
+                matchingArguments != null ||
+                    ((matchingAction || mimeTypeMatchLevel > -1) &&
+                        hasRequiredArguments(deepLink, uri, _arguments))
             ) {
-                val newMatch = DeepLinkMatch(
-                    this, matchingArguments,
-                    deepLink.isExactDeepLink, matchingPathSegments, matchingAction,
-                    mimeTypeMatchLevel
-                )
+                val newMatch =
+                    DeepLinkMatch(
+                        this,
+                        matchingArguments,
+                        deepLink.isExactDeepLink,
+                        matchingPathSegments,
+                        matchingAction,
+                        mimeTypeMatchLevel
+                    )
                 if (bestMatch == null || newMatch > bestMatch) {
                     bestMatch = newMatch
                 }
@@ -430,9 +414,8 @@ public open class NavDestination(
         arguments: Map<String, NavArgument>
     ): Boolean {
         val matchingArgs = deepLink.getMatchingPathAndQueryArgs(uri, arguments)
-        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
-            !matchingArgs.containsKey(key)
-        }
+        val missingRequiredArguments =
+            arguments.missingRequiredArguments { key -> !matchingArgs.containsKey(key) }
         return missingRequiredArguments.isEmpty()
     }
 
@@ -440,8 +423,8 @@ public open class NavDestination(
      * Build an array containing the hierarchy from the root down to this destination.
      *
      * @param previousDestination the previous destination we are starting at
-     * @return An array containing all of the ids from the previous destination (or the root of
-     * the graph if null) to this destination
+     * @return An array containing all of the ids from the previous destination (or the root of the
+     *   graph if null) to this destination
      */
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -453,7 +436,7 @@ public open class NavDestination(
             if (
                 // If the current destination is a sibling of the previous, just add it straightaway
                 previousDestination?.parent != null &&
-                previousDestination.parent!!.findNode(current.id) === current
+                    previousDestination.parent!!.findNode(current.id) === current
             ) {
                 hierarchy.addFirst(current)
                 break
@@ -478,13 +461,12 @@ public open class NavDestination(
      * 3. a route containing arguments where some or all arguments are filled in
      * 4. a partial route
      *
-     * In the case of 3., it will only match if the entry arguments
-     * match exactly with the arguments that were filled in inside the route.
+     * In the case of 3., it will only match if the entry arguments match exactly with the arguments
+     * that were filled in inside the route.
      *
      * @param [route] The route to match with the route of this destination
-     *
-     * @param [arguments] The [NavBackStackEntry.arguments] that was used to navigate
-     * to this destination
+     * @param [arguments] The [NavBackStackEntry.arguments] that was used to navigate to this
+     *   destination
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun hasRoute(route: String, arguments: Bundle?): Boolean {
@@ -514,8 +496,8 @@ public open class NavDestination(
 
     /**
      * Returns the [NavAction] for the given action ID. This will recursively check the
-     * [parent][getParent] of this destination if the action destination is not found in
-     * this destination.
+     * [parent][getParent] of this destination if the action destination is not found in this
+     * destination.
      *
      * @param id action ID to fetch
      * @return the [NavAction] mapped to the given action id, or null if one has not been set
@@ -542,7 +524,7 @@ public open class NavDestination(
      * @param actionId action ID to bind
      * @param action action to associate with this action ID
      * @throws UnsupportedOperationException this destination is considered a terminal destination
-     * and does not support actions
+     *   and does not support actions
      */
     public fun putAction(@IdRes actionId: Int, action: NavAction) {
         if (!supportsActions()) {
@@ -585,9 +567,8 @@ public open class NavDestination(
     }
 
     /**
-     * Combines the default arguments for this destination with the arguments provided
-     * to construct the final set of arguments that should be used to navigate
-     * to this destination.
+     * Combines the default arguments for this destination with the arguments provided to construct
+     * the final set of arguments that should be used to navigate to this destination.
      */
     @Suppress("NullableCollection") // Needed for nullable bundle
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -618,8 +599,8 @@ public open class NavDestination(
     /**
      * Parses a dynamic label containing arguments into a String.
      *
-     * Supports String Resource arguments by parsing `R.string` values of `ReferenceType`
-     * arguments found in `android:label` into their String values.
+     * Supports String Resource arguments by parsing `R.string` values of `ReferenceType` arguments
+     * found in `android:label` into their String values.
      *
      * Returns `null` if label is null.
      *
@@ -628,8 +609,8 @@ public open class NavDestination(
      * @param context Context used to resolve a resource's name
      * @param bundle Bundle containing the arguments used in the label
      * @return The parsed string or null if the label is null
-     * @throws IllegalArgumentException if an argument provided in the label cannot be found in
-     * the bundle, or if the label contains a string template but the bundle is null
+     * @throws IllegalArgumentException if an argument provided in the label cannot be found in the
+     *   bundle, or if the label contains a string template but the bundle is null
      */
     public fun fillInLabel(context: Context, bundle: Bundle?): String? {
         val label = label ?: return null
@@ -647,8 +628,7 @@ public open class NavDestination(
                     val value = context.getString(bundle.getInt(argName))
                     builder.append(value)
                 } else {
-                    @Suppress("DEPRECATION")
-                    builder.append(bundle[argName].toString())
+                    @Suppress("DEPRECATION") builder.append(bundle[argName].toString())
                 }
             } else {
                 throw IllegalArgumentException(
@@ -688,14 +668,15 @@ public open class NavDestination(
 
         val equalDeepLinks = deepLinks == other.deepLinks
 
-        val equalActions = actions.size() == other.actions.size() &&
-            actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
+        val equalActions =
+            actions.size() == other.actions.size() &&
+                actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
 
-        val equalArguments = _arguments.size == other._arguments.size &&
-            _arguments.asSequence().all {
-                other._arguments.containsKey(it.key) &&
-                    other._arguments[it.key] == it.value
-            }
+        val equalArguments =
+            _arguments.size == other._arguments.size &&
+                _arguments.asSequence().all {
+                    other._arguments.containsKey(it.key) && other._arguments[it.key] == it.value
+                }
 
         return id == other.id &&
             route == other.route &&
@@ -732,21 +713,21 @@ public open class NavDestination(
 
         /**
          * Parse the class associated with this destination from a raw name, generally extracted
-         * from the `android:name` attribute added to the destination's XML. This should
-         * be the class providing the visual representation of the destination that the
-         * user sees after navigating to this destination.
+         * from the `android:name` attribute added to the destination's XML. This should be the
+         * class providing the visual representation of the destination that the user sees after
+         * navigating to this destination.
          *
          * This method does name -> Class caching and should be strongly preferred over doing your
-         * own parsing if your [Navigator] supports the `android:name` attribute to
-         * give consistent behavior across all Navigators.
+         * own parsing if your [Navigator] supports the `android:name` attribute to give consistent
+         * behavior across all Navigators.
          *
-         * @param context Context providing the package name for use with relative class names and the
-         * ClassLoader
+         * @param context Context providing the package name for use with relative class names and
+         *   the ClassLoader
          * @param name Absolute or relative class name. Null names will be ignored.
          * @param expectedClassType The expected class type
          * @return The parsed class
          * @throws IllegalArgumentException if the class is not found in the provided Context's
-         * ClassLoader or if the class is not of the expected type
+         *   ClassLoader or if the class is not of the expected type
          */
         @Suppress("UNCHECKED_CAST")
         @JvmStatic
@@ -774,9 +755,7 @@ public open class NavDestination(
             return clazz as Class<out C?>
         }
 
-        /**
-         * Used internally for NavDestinationTest
-         */
+        /** Used internally for NavDestinationTest */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun <C> parseClassFromNameInternal(
@@ -789,10 +768,11 @@ public open class NavDestination(
 
         /**
          * Retrieve a suitable display name for a given id.
+         *
          * @param context Context used to resolve a resource's name
          * @param id The id to get a display name for
-         * @return The resource's name if it is a valid id or just the id itself if it is not
-         * a valid resource
+         * @return The resource's name if it is a valid id or just the id itself if it is not a
+         *   valid resource
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -801,11 +781,12 @@ public open class NavDestination(
             // so anything below that cannot be a valid resource id
             return if (id <= 0x00FFFFFF) {
                 id.toString()
-            } else try {
-                context.resources.getResourceName(id)
-            } catch (e: Resources.NotFoundException) {
-                id.toString()
-            }
+            } else
+                try {
+                    context.resources.getResourceName(id)
+                } catch (e: Resources.NotFoundException) {
+                    id.toString()
+                }
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -814,8 +795,9 @@ public open class NavDestination(
 
         /**
          * Provides a sequence of the NavDestination's hierarchy. The hierarchy starts with this
-         * destination itself and is then followed by this destination's [NavDestination.parent], then that
-         * graph's parent, and up the hierarchy until you've reached the root navigation graph.
+         * destination itself and is then followed by this destination's [NavDestination.parent],
+         * then that graph's parent, and up the hierarchy until you've reached the root navigation
+         * graph.
          */
         @JvmStatic
         public val NavDestination.hierarchy: Sequence<NavDestination>

@@ -21,23 +21,23 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 
 /**
- * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use
- * with a [NavController].
+ * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use with a
+ * [NavController].
  *
- * By calling this method, the title in the action bar will automatically be updated when
- * the destination changes (assuming there is a valid
+ * By calling this method, the title in the action bar will automatically be updated when the
+ * destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.label]).
  *
- * The start destination of your navigation graph is considered the only top level
- * destination. On the start destination of your navigation graph, the ActionBar will show
- * the drawer icon if the given `drawerLayout` is non null. On all other destinations,
- * the ActionBar will show the Up button.
+ * The start destination of your navigation graph is considered the only top level destination. On
+ * the start destination of your navigation graph, the ActionBar will show the drawer icon if the
+ * given `drawerLayout` is non null. On all other destinations, the ActionBar will show the Up
+ * button.
  *
  * You are responsible for calling [NavController.navigateUp] to handle the Navigation button.
  * Typically this is done in [AppCompatActivity.onSupportNavigateUp].
  *
- * @param navController The NavController whose navigation actions will be reflected
- *                      in the title of the action bar.
+ * @param navController The NavController whose navigation actions will be reflected in the title of
+ *   the action bar.
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
  */
 public fun AppCompatActivity.setupActionBarWithNavController(
@@ -45,29 +45,29 @@ public fun AppCompatActivity.setupActionBarWithNavController(
     drawerLayout: DrawerLayout?
 ) {
     NavigationUI.setupActionBarWithNavController(
-        this, navController,
+        this,
+        navController,
         AppBarConfiguration(navController.graph, drawerLayout)
     )
 }
 
 /**
- * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use
- * with a [NavController].
+ * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use with a
+ * [NavController].
  *
- * By calling this method, the title in the action bar will automatically be updated when
- * the destination changes (assuming there is a valid
+ * By calling this method, the title in the action bar will automatically be updated when the
+ * destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.label]).
  *
- * The [AppBarConfiguration] you provide controls how the Navigation button is
- * displayed.
+ * The [AppBarConfiguration] you provide controls how the Navigation button is displayed.
  *
  * You are responsible for calling [NavController.navigateUp] to handle the Navigation button.
  * Typically this is done in [AppCompatActivity.onSupportNavigateUp].
  *
- * @param navController The NavController whose navigation actions will be reflected
- *                      in the title of the action bar.
+ * @param navController The NavController whose navigation actions will be reflected in the title of
+ *   the action bar.
  * @param configuration Additional configuration options for customizing the behavior of the
- *                      ActionBar
+ *   ActionBar
  */
 public fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,

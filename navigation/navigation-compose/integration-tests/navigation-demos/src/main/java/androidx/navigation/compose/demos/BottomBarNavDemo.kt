@@ -45,11 +45,12 @@ import androidx.navigation.compose.samples.Scrollable
 fun BottomBarNavDemo() {
     val navController = rememberNavController()
 
-    val items = listOf(
-        stringResource(R.string.profile) to Profile,
-        stringResource(R.string.dashboard) to Dashboard(),
-        stringResource(R.string.scrollable) to Scrollable
-    )
+    val items =
+        listOf(
+            stringResource(R.string.profile) to Profile,
+            stringResource(R.string.dashboard) to Dashboard(),
+            stringResource(R.string.scrollable) to Scrollable
+        )
 
     Scaffold(
         bottomBar = {
@@ -60,9 +61,10 @@ fun BottomBarNavDemo() {
                     BottomNavigationItem(
                         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         label = { Text(name) },
-                        selected = currentDestination?.hierarchy?.any {
-                            it.hasRoute(destination::class)
-                        } == true,
+                        selected =
+                            currentDestination?.hierarchy?.any {
+                                it.hasRoute(destination::class)
+                            } == true,
                         onClick = {
                             navController.navigate(destination) {
                                 launchSingleTop = true

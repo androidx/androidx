@@ -29,9 +29,7 @@ import androidx.navigation.plusAssign
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 
-/**
- * The [NavHostFragment] for dynamic features.
- */
+/** The [NavHostFragment] for dynamic features. */
 public open class DynamicNavHostFragment : NavHostFragment() {
 
     override fun onCreateNavHostController(navHostController: NavHostController) {
@@ -42,16 +40,11 @@ public open class DynamicNavHostFragment : NavHostFragment() {
 
         navigatorProvider += DynamicActivityNavigator(requireActivity(), installManager)
 
-        val fragmentNavigator = DynamicFragmentNavigator(
-            requireContext(),
-            childFragmentManager, id, installManager
-        )
+        val fragmentNavigator =
+            DynamicFragmentNavigator(requireContext(), childFragmentManager, id, installManager)
         navigatorProvider += fragmentNavigator
 
-        val graphNavigator = DynamicGraphNavigator(
-            navigatorProvider,
-            installManager
-        )
+        val graphNavigator = DynamicGraphNavigator(navigatorProvider, installManager)
         graphNavigator.installDefaultProgressDestination {
             fragmentNavigator.createDestination().apply {
                 setClassName(DefaultProgressFragment::class.java.name)
@@ -60,15 +53,16 @@ public open class DynamicNavHostFragment : NavHostFragment() {
         }
         navigatorProvider += graphNavigator
 
-        navigatorProvider += DynamicIncludeGraphNavigator(
-            requireContext(),
-            navigatorProvider, navHostController.navInflater, installManager
-        )
+        navigatorProvider +=
+            DynamicIncludeGraphNavigator(
+                requireContext(),
+                navigatorProvider,
+                navHostController.navInflater,
+                installManager
+            )
     }
 
-    /**
-     * Create a new [SplitInstallManager].
-     */
+    /** Create a new [SplitInstallManager]. */
     protected open fun createSplitInstallManager(): SplitInstallManager =
         SplitInstallManagerFactory.create(requireContext())
 
@@ -76,7 +70,8 @@ public open class DynamicNavHostFragment : NavHostFragment() {
     public companion object {
 
         /**
-         * Create a new [DynamicNavHostFragment] instance with an inflated {@link NavGraph} resource.
+         * Create a new [DynamicNavHostFragment] instance with an inflated {@link NavGraph}
+         * resource.
          *
          * @param graphResId Resource id of the navigation graph to inflate.
          * @param startDestinationArgs Arguments to send to the start destination of the graph.
@@ -89,16 +84,17 @@ public open class DynamicNavHostFragment : NavHostFragment() {
             startDestinationArgs: Bundle? = null
         ): DynamicNavHostFragment {
             return DynamicNavHostFragment().apply {
-                arguments = if (graphResId != 0 || startDestinationArgs != null) {
-                    Bundle().apply {
-                        if (graphResId != 0) {
-                            putInt(KEY_GRAPH_ID, graphResId)
+                arguments =
+                    if (graphResId != 0 || startDestinationArgs != null) {
+                        Bundle().apply {
+                            if (graphResId != 0) {
+                                putInt(KEY_GRAPH_ID, graphResId)
+                            }
+                            if (startDestinationArgs != null) {
+                                putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs)
+                            }
                         }
-                        if (startDestinationArgs != null) {
-                            putBundle(KEY_START_DESTINATION_ARGS, startDestinationArgs)
-                        }
-                    }
-                } else null
+                    } else null
             }
         }
     }

@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 
 /**
- * A NavigationProvider stores a set of [Navigator]s that are valid ways to navigate
- * to a destination.
+ * A NavigationProvider stores a set of [Navigator]s that are valid ways to navigate to a
+ * destination.
  */
 @SuppressLint("TypeParameterUnusedInFormals")
 public open class NavigatorProvider {
@@ -37,11 +37,9 @@ public open class NavigatorProvider {
      *
      * @param navigatorClass class of the navigator to return
      * @return the registered navigator with the given [Navigator.Name]
-     *
      * @throws IllegalArgumentException if the Navigator does not have a
-     * [Navigator.Name annotation][Navigator.Name]
+     *   [Navigator.Name annotation][Navigator.Name]
      * @throws IllegalStateException if the Navigator has not been added
-     *
      * @see NavigatorProvider.addNavigator
      */
     public fun <T : Navigator<*>> getNavigator(navigatorClass: Class<T>): T {
@@ -54,32 +52,31 @@ public open class NavigatorProvider {
      *
      * @param name name of the navigator to return
      * @return the registered navigator with the given name
-     *
      * @throws IllegalStateException if the Navigator has not been added
-     *
      * @see NavigatorProvider.addNavigator
      */
     @Suppress("UNCHECKED_CAST")
     @CallSuper
     public open fun <T : Navigator<*>> getNavigator(name: String): T {
         require(validateName(name)) { "navigator name cannot be an empty string" }
-        val navigator = _navigators[name]
-            ?: throw IllegalStateException(
-                "Could not find Navigator with name \"$name\". You must call " +
-                    "NavController.addNavigator() for each navigation type."
-            )
+        val navigator =
+            _navigators[name]
+                ?: throw IllegalStateException(
+                    "Could not find Navigator with name \"$name\". You must call " +
+                        "NavController.addNavigator() for each navigation type."
+                )
         return navigator as T
     }
 
     /**
      * Register a navigator using the name provided by the
-     * [Navigator.Name annotation][Navigator.Name]. [destinations][NavDestination] may
-     * refer to any registered navigator by name for inflation. If a navigator by this name is
-     * already registered, this new navigator will replace it.
+     * [Navigator.Name annotation][Navigator.Name]. [destinations][NavDestination] may refer to any
+     * registered navigator by name for inflation. If a navigator by this name is already
+     * registered, this new navigator will replace it.
      *
      * @param navigator navigator to add
      * @return the previously added Navigator for the name provided by the
-     * [Navigator.Name annotation][Navigator.Name], if any
+     *   [Navigator.Name annotation][Navigator.Name], if any
      */
     public fun addNavigator(
         navigator: Navigator<out NavDestination>
@@ -88,9 +85,9 @@ public open class NavigatorProvider {
     }
 
     /**
-     * Register a navigator by name. [destinations][NavDestination] may refer to any
-     * registered navigator by name for inflation. If a navigator by this name is already
-     * registered, this new navigator will replace it.
+     * Register a navigator by name. [destinations][NavDestination] may refer to any registered
+     * navigator by name for inflation. If a navigator by this name is already registered, this new
+     * navigator will replace it.
      *
      * @param name name for this navigator
      * @param navigator navigator to add
@@ -117,6 +114,7 @@ public open class NavigatorProvider {
 
     internal companion object {
         private val annotationNames = mutableMapOf<Class<*>, String?>()
+
         internal fun validateName(name: String?): Boolean {
             return name != null && name.isNotEmpty()
         }
@@ -125,9 +123,7 @@ public open class NavigatorProvider {
         internal fun getNameForNavigator(navigatorClass: Class<out Navigator<*>>): String {
             var name = annotationNames[navigatorClass]
             if (name == null) {
-                val annotation = navigatorClass.getAnnotation(
-                    Navigator.Name::class.java
-                )
+                val annotation = navigatorClass.getAnnotation(Navigator.Name::class.java)
                 name = annotation?.value
                 require(validateName(name)) {
                     "No @Navigator.Name annotation found for ${navigatorClass.simpleName}"
@@ -161,8 +157,8 @@ public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider
 ): T = getNavigator(clazz.java)
 
 /**
- * Register a [Navigator] by name. If a navigator by this name is already
- * registered, this new navigator will replace it.
+ * Register a [Navigator] by name. If a navigator by this name is already registered, this new
+ * navigator will replace it.
  *
  * @return the previously added [Navigator] for the given name, if any
  */
@@ -173,8 +169,7 @@ public inline operator fun NavigatorProvider.set(
 ): Navigator<out NavDestination>? = addNavigator(name, navigator)
 
 /**
- * Register a navigator using the name provided by the
- * [Navigator.Name annotation][Navigator.Name].
+ * Register a navigator using the name provided by the [Navigator.Name annotation][Navigator.Name].
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {

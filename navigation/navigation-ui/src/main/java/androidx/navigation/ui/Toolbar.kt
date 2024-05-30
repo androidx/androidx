@@ -23,19 +23,18 @@ import androidx.navigation.NavController
 /**
  * Sets up a [Toolbar] for use with a [NavController].
  *
- * By calling this method, the title in the Toolbar will automatically be updated when
- * the destination changes (assuming there is a valid
+ * By calling this method, the title in the Toolbar will automatically be updated when the
+ * destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.label]).
  *
- * The start destination of your navigation graph is considered the only top level
- * destination. On the start destination of your navigation graph, the Toolbar will show
- * the drawer icon if the given `drawerLayout` is non null. On all other destinations,
- * the Toolbar will show the Up button.
+ * The start destination of your navigation graph is considered the only top level destination. On
+ * the start destination of your navigation graph, the Toolbar will show the drawer icon if the
+ * given `drawerLayout` is non null. On all other destinations, the Toolbar will show the Up button.
  *
  * This method will call [NavController.navigateUp] when the navigation icon is clicked.
  *
- * @param navController The NavController whose navigation actions will be reflected
- *                      in the title of the Toolbar.
+ * @param navController The NavController whose navigation actions will be reflected in the title of
+ *   the Toolbar.
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
  */
 public fun Toolbar.setupWithNavController(
@@ -43,7 +42,8 @@ public fun Toolbar.setupWithNavController(
     drawerLayout: DrawerLayout?
 ) {
     NavigationUI.setupWithNavController(
-        this, navController,
+        this,
+        navController,
         AppBarConfiguration(navController.graph, drawerLayout)
     )
 }
@@ -51,19 +51,18 @@ public fun Toolbar.setupWithNavController(
 /**
  * Sets up a [Toolbar] for use with a [NavController].
  *
- * By calling this method, the title in the Toolbar will automatically be updated when
- * the destination changes (assuming there is a valid
+ * By calling this method, the title in the Toolbar will automatically be updated when the
+ * destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.label]).
  *
- * The [AppBarConfiguration] you provide controls how the Navigation button is
- * displayed and what action is triggered when the Navigation button is tapped.
+ * The [AppBarConfiguration] you provide controls how the Navigation button is displayed and what
+ * action is triggered when the Navigation button is tapped.
  *
  * This method will call [NavController.navigateUp] when the navigation icon is clicked.
  *
- * @param navController The NavController whose navigation actions will be reflected
- *                      in the title of the Toolbar.
- * @param configuration Additional configuration options for customizing the behavior of the
- *                      Toolbar
+ * @param navController The NavController whose navigation actions will be reflected in the title of
+ *   the Toolbar.
+ * @param configuration Additional configuration options for customizing the behavior of the Toolbar
  */
 public fun Toolbar.setupWithNavController(
     navController: NavController,
