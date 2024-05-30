@@ -178,7 +178,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      */
     @Suppress("BuilderSetStyle")
     @JvmName("deepLinkSafeArgs")
-    public inline fun <reified T : Any> deepLink(
+    public actual inline fun <reified T : Any> deepLink(
         basePath: String,
     ) {
         deepLink(basePath, T::class) { }
@@ -201,7 +201,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      *
      * @param navDeepLink the NavDeepLink to be added to this destination
      */
-    public fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
+    public actual fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
         deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
     }
 
@@ -227,7 +227,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      * generation logic.
      */
     @Suppress("BuilderSetStyle")
-    public inline fun <reified T : Any> deepLink(
+    public actual inline fun <reified T : Any> deepLink(
         basePath: String,
         noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
     ) {
@@ -251,7 +251,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      */
     @OptIn(InternalSerializationApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : Any> deepLink(
+    public actual fun <T : Any> deepLink(
         basePath: String,
         route: KClass<T>,
         navDeepLink: NavDeepLinkDslBuilder.() -> Unit

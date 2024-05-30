@@ -16,8 +16,10 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import androidx.navigation.serialization.generateNavArguments
 import androidx.navigation.serialization.generateRoutePattern
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -63,7 +65,10 @@ public actual constructor(
                 arguments[it.name] = it.argument
             }
         }
+        this.typeMap = typeMap
     }
+
+    private lateinit var typeMap: Map<KType, NavType<*>>
 
     /**
      * The descriptive label of the destination
@@ -88,6 +93,53 @@ public actual constructor(
 
     public actual fun deepLink(uriPattern: String) {
         deepLinks.add(NavDeepLink(uriPattern))
+    }
+
+    @Suppress("BuilderSetStyle")
+    @JvmName("deepLinkSafeArgs")
+    public actual inline fun <reified T : Any> deepLink(
+        basePath: String,
+    ) {
+        deepLink(basePath, T::class) { }
+    }
+
+    public actual fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
+        deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
+    }
+
+    @Suppress("BuilderSetStyle")
+    public actual inline fun <reified T : Any> deepLink(
+        basePath: String,
+        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+    ) {
+        deepLink(basePath, T::class, navDeepLink)
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual fun <T : Any> deepLink(
+        basePath: String,
+        route: KClass<T>,
+        navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+    ) {
+        // make sure they used the safe args constructors which automatically adds
+        // argument to the destination
+        check(this::typeMap.isInitialized) {
+            "Cannot add deeplink from KClass [$route]. Use the NavDestinationBuilder " +
+                "constructor that takes a KClass with the same arguments."
+        }
+        val deepLinkArgs = route.serializer().generateNavArguments(typeMap)
+        deepLinkArgs.forEach {
+            val arg = arguments[it.name]
+            // make sure deep link doesn't contain extra arguments not present in the route KClass
+            // and that it doesn't contain different arg type
+            require(arg != null && arg.type == it.argument.type) {
+                "Cannot add deeplink from KClass [$route]. DeepLink contains unknown argument " +
+                    "[${it.name}]. Ensure deeplink arguments matches the destination's " +
+                    "route from KClass"
+            }
+        }
+        deepLink(navDeepLink(basePath, route, typeMap, navDeepLink))
     }
 
     @Suppress("BuilderSetStyle")

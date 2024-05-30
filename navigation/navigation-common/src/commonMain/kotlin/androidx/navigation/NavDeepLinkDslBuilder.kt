@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-@file:JvmName("NavDeepLinkDslBuilderKt")
-
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.navigation.serialization.generateRoutePattern
+import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
