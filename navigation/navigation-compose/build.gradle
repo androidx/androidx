@@ -27,12 +27,12 @@ plugins {
 dependencies {
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:foundation:foundation-layout"))
     api("androidx.activity:activity-compose:1.8.0")
-    api(project(":compose:animation:animation"))
-    api(project(":compose:runtime:runtime"))
-    api(project(":compose:runtime:runtime-saveable"))
-    api(project(":compose:ui:ui"))
+    api("androidx.compose.animation:animation:1.7.0-beta02")
+    implementation("androidx.compose.foundation:foundation-layout:1.7.0-beta02")
+    api("androidx.compose.runtime:runtime:1.7.0-beta02")
+    api("androidx.compose.runtime:runtime-saveable:1.7.0-beta02")
+    api("androidx.compose.ui:ui:1.7.0-beta02")
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
     implementation(libs.kotlinSerializationCore)
