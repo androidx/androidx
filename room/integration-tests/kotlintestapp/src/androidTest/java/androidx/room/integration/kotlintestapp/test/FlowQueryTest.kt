@@ -353,19 +353,19 @@ class FlowQueryTest : TestDatabaseTest() {
         val musicDao = database.musicDao()
         val song1 = Song(
             1,
-            "I Know Places",
-            "Taylor Swift",
-            "1989",
-            195,
-            2014
+            "Thriller",
+            "Michael Jackson",
+            "Thriller",
+            357,
+            1982
         );
         val song2 = Song(
             2,
-            "Blank Space",
-            "Taylor Swift",
-            "1989",
-            241,
-            2014
+            "Billie Jean",
+            "Michael Jackson",
+            "Thriller",
+            297,
+            1982
         )
         musicDao.addSongs(song1, song2)
         musicDao.addPlaylists(
