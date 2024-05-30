@@ -59,3 +59,11 @@ fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp

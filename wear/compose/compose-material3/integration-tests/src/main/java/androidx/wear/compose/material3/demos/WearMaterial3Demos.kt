@@ -81,6 +81,7 @@ val WearMaterial3Demos =
             Material3DemoCategory("Slider", SliderDemos),
             Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),
             Material3DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
+            Material3DemoCategory("Placeholder", PlaceholderDemos),
             ComposableDemo(title = "Fixed Font Size") { Centralize { FixedFontSize() } },
             Material3DemoCategory(
                 title = "Swipe To Dismiss",
