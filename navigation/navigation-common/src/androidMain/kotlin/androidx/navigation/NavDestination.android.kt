@@ -829,7 +829,8 @@ public actual open class NavDestination actual constructor(
          * @param T the route from KClass
          */
         @JvmStatic
-        public inline fun <reified T : Any> NavDestination.hasRoute() = hasRoute(T::class)
+        public actual inline fun <reified T : Any> NavDestination.hasRoute(): Boolean =
+            hasRoute(T::class)
 
         /**
          * Checks if the NavDestination's route was generated from [T]
@@ -840,7 +841,7 @@ public actual open class NavDestination actual constructor(
          */
         @OptIn(InternalSerializationApi::class)
         @JvmStatic
-        public fun <T : Any> NavDestination.hasRoute(route: KClass<T>) =
+        public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
             route.serializer().hashCode() == id
     }
 }

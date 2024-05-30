@@ -59,6 +59,10 @@ public actual class NavDeepLink internal actual constructor(
         fragRegex?.let { Regex(it, RegexOption.IGNORE_CASE) }
     }
 
+    /** Arguments present in the deep link, including both path and query arguments. */
+    internal val argumentsNames: List<String>
+        get() = pathArgs + queryArgsMap.values.flatMap { it.arguments } + fragArgs
+
     public actual var isExactDeepLink: Boolean = false
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get

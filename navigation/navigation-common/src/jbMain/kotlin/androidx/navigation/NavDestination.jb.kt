@@ -18,7 +18,11 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
+import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 public actual open class NavDestination actual constructor(
     public actual val navigatorName: String
@@ -89,7 +93,8 @@ public actual open class NavDestination actual constructor(
             if (field == route) return
             require(route == null || route.isNotBlank()) { "Cannot have an empty route" }
             deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
-            addDeepLink(createRoute(route))
+            val internalRoute = createRoute(route)
+            addDeepLink(internalRoute)
             field = route
         }
 
@@ -102,6 +107,14 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual fun addDeepLink(navDeepLink: NavDeepLink) {
+        val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
+            key !in navDeepLink.argumentsNames
+        }
+        require(missingRequiredArguments.isEmpty()) {
+            "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
+                "Following required arguments are missing: $missingRequiredArguments"
+        }
+
         deepLinks.add(navDeepLink)
     }
 
@@ -232,5 +245,14 @@ public actual open class NavDestination actual constructor(
         @JvmStatic
         public actual val NavDestination.hierarchy: Sequence<NavDestination>
             get() = generateSequence(this) { it.parent }
+
+        @JvmStatic
+        public actual inline fun <reified T : Any> NavDestination.hasRoute(): Boolean =
+            hasRoute(T::class)
+
+        @OptIn(InternalSerializationApi::class)
+        @JvmStatic
+        public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
+            route.serializer().generateRoutePattern() == this.route
     }
 }
