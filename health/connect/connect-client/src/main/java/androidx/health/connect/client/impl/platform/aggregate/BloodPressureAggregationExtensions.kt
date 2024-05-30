@@ -45,7 +45,7 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
     dataOriginFilter: Set<DataOrigin>
 ): AggregationResult {
     check(BLOOD_PRESSURE_METRICS.containsAll(bloodPressureMetrics)) {
-        "Invalid set of blood pressure metrics $bloodPressureMetrics"
+        "Invalid set of blood pressure fallback aggregation metrics ${bloodPressureMetrics.map { it.metricKey }}"
     }
 
     if (bloodPressureMetrics.isEmpty()) {
@@ -66,7 +66,7 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
             BloodPressureRecord.DIASTOLIC_MIN,
             BloodPressureRecord.SYSTOLIC_MAX,
             BloodPressureRecord.SYSTOLIC_MIN -> minMaxMap[metric] = null
-            else -> error("Invalid blood pressure fallback aggregation type ${metric.metricKey}")
+            else -> error("Invalid blood pressure fallback aggregation metric ${metric.metricKey}")
         }
     }
 
@@ -125,13 +125,4 @@ internal suspend fun HealthConnectClient.aggregateBloodPressure(
         doubleValues = doubleValues,
         dataOrigins = dataOrigins
     )
-}
-
-private data class AvgData(var count: Int = 0, var total: Double = 0.0) {
-    operator fun plusAssign(value: Double) {
-        count++
-        total += value
-    }
-
-    fun average() = total / count
 }

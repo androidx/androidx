@@ -35,7 +35,7 @@ internal val AggregateRequest.platformMetrics: Set<AggregateMetric<*>>
         if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
             return metrics
         }
-        return metrics.filterNot { it in SDK_EXT_10_AGGREGATE_METRICS }.toSet()
+        return metrics.filterNot { it in AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10 }.toSet()
     }
 
 internal val AggregateRequest.fallbackMetrics: Set<AggregateMetric<*>>
@@ -43,7 +43,7 @@ internal val AggregateRequest.fallbackMetrics: Set<AggregateMetric<*>>
         if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
             return emptySet()
         }
-        return metrics.filter { it in SDK_EXT_10_AGGREGATE_METRICS }.toSet()
+        return metrics.filter { it in AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10 }.toSet()
     }
 
 internal operator fun AggregationResult.plus(other: AggregationResult): AggregationResult {
@@ -54,7 +54,7 @@ internal operator fun AggregationResult.plus(other: AggregationResult): Aggregat
     )
 }
 
-internal val SDK_EXT_10_AGGREGATE_METRICS: Set<AggregateMetric<*>> =
+internal val AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10: Set<AggregateMetric<*>> =
     setOf(
         BloodPressureRecord.DIASTOLIC_AVG,
         BloodPressureRecord.DIASTOLIC_MAX,
