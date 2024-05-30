@@ -22,7 +22,9 @@ import androidx.compose.material3.tokens.DefaultTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -37,6 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.unit.isUnspecified
+import androidx.compose.ui.unit.sp
 
 /**
  * High level element that displays text and provides semantics / accessibility information.
@@ -108,7 +113,7 @@ fun Text(
     onTextLayout: ((TextLayoutResult) -> Unit)? = null,
     style: TextStyle = LocalTextStyle.current
 ) {
-
+    val fixedLetterSpacing = rememberFixedLetterSpacing(text, letterSpacing, style.letterSpacing)
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
             LocalContentColor.current
@@ -127,7 +132,7 @@ fun Text(
             fontFamily = fontFamily,
             textDecoration = textDecoration,
             fontStyle = fontStyle,
-            letterSpacing = letterSpacing
+            letterSpacing = fixedLetterSpacing
         ),
         onTextLayout,
         overflow,
@@ -257,6 +262,7 @@ fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
+    val fixedLetterSpacing = rememberFixedLetterSpacing(text.text, letterSpacing, style.letterSpacing)
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
             LocalContentColor.current
@@ -275,7 +281,7 @@ fun Text(
             fontFamily = fontFamily,
             textDecoration = textDecoration,
             fontStyle = fontStyle,
-            letterSpacing = letterSpacing
+            letterSpacing = fixedLetterSpacing
         ),
         onTextLayout = onTextLayout,
         overflow = overflow,
@@ -353,4 +359,63 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
+}
+
+/**
+ * Letter spacing doesn't play well with cursive writing systems, as it can break the connection
+ * between letters and make the text fragmented. A simple and performant solution to this problem is
+ * to find the first "letter" character in the text (using `isLetter()`) and set `letterSpacing` to
+ * 0 if that character belongs to a cursive writing system and `letterSpacing` is greater than 0.
+ */
+@Composable
+private fun rememberFixedLetterSpacing(
+    text: String,
+    letterSpacing: TextUnit,
+    styleLetterSpacing: TextUnit,
+) = remember(text, letterSpacing, styleLetterSpacing) {
+    when (letterSpacing.isSpecified) {
+        true -> {
+            when (letterSpacing.value == 0f) {
+                true -> letterSpacing
+                false -> if (text.isFirstLetterCursive()) 0f.sp else letterSpacing
+            }
+        }
+        false -> {
+            when (styleLetterSpacing.let { it.isUnspecified || it.value == 0f }) {
+                true -> TextUnit.Unspecified
+                false -> if (text.isFirstLetterCursive()) 0f.sp else styleLetterSpacing
+            }
+        }
+    }
+}
+
+/**
+ * Returns **`true`** if the first letter of the string belongs to a cursive writing system. A good
+ * example is the Persian language. Letter spacing doesn't play well with cursive writing systems,
+ * as it can break the connection between letters and make the text fragmented.
+ */
+@Stable
+private fun String.isFirstLetterCursive(): Boolean {
+    for (char in this) {
+        if (!char.isLetter()) continue
+        val c = char.code
+        if (c < 1536) return false
+        if (c < 1920) return true
+        if (c < 1984) return false
+        if (c < 2048) return true
+        if (c < 2144) return false
+        if (c < 2304) return true
+        if (c < 4096) return false
+        if (c < 4256) return true
+        if (c < 43488) return false
+        if (c < 43520) return true
+        if (c < 43616) return false
+        if (c < 43648) return true
+        if (c < 64336) return false
+        if (c < 65024) return true
+        if (c < 65136) return false
+        if (c < 65280) return true
+        return false
+    }
+    return false
 }
