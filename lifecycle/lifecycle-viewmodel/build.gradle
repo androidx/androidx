@@ -34,6 +34,8 @@ plugins {
 }
 
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     android()
     desktop()
     mac()
