@@ -16,9 +16,6 @@
 
 package androidx.tv.foundation
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
@@ -83,11 +80,6 @@ private class TvBringIntoViewSpec(
     val pivotOffsets: PivotOffsets,
     val userScrollEnabled: Boolean
 ) : BringIntoViewSpec {
-
-    override val scrollAnimationSpec: AnimationSpec<Float> = tween<Float>(
-        durationMillis = 125,
-        easing = CubicBezierEasing(0.25f, 0.1f, .25f, 1f)
-    )
 
     override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
         if (!userScrollEnabled) return 0f

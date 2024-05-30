@@ -48,6 +48,8 @@ interface BringIntoViewSpec {
     /**
      * An Animation Spec to be used as the animation to run to fulfill the BringIntoView requests.
      */
+    @Deprecated("Animation spec customization is no longer supported.")
+    @get:Deprecated("Animation spec customization is no longer supported.")
     val scrollAnimationSpec: AnimationSpec<Float> get() = DefaultScrollAnimationSpec
 
     /**
@@ -75,7 +77,7 @@ interface BringIntoViewSpec {
         /**
          * The default animation spec used by [Modifier.scrollable] to run Bring Into View requests.
          */
-        val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
+        internal val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
 
         internal val DefaultBringIntoViewSpec = object : BringIntoViewSpec {}
 

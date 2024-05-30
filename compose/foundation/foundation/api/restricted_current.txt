@@ -442,14 +442,12 @@ package androidx.compose.foundation.gestures {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public interface BringIntoViewSpec {
     method public default float calculateScrollDistance(float offset, float size, float containerSize);
-    method public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> getScrollAnimationSpec();
-    property public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> scrollAnimationSpec;
+    method @Deprecated public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> getScrollAnimationSpec();
+    property @Deprecated public default androidx.compose.animation.core.AnimationSpec<java.lang.Float> scrollAnimationSpec;
     field public static final androidx.compose.foundation.gestures.BringIntoViewSpec.Companion Companion;
   }
 
   public static final class BringIntoViewSpec.Companion {
-    method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getDefaultScrollAnimationSpec();
-    property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> DefaultScrollAnimationSpec;
   }
 
   public final class BringIntoViewSpec_androidKt {

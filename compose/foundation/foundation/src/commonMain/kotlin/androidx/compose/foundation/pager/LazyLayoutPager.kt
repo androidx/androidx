@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.FlingBehavior
@@ -313,9 +312,6 @@ private class PagerBringIntoViewSpec(
     val pagerState: PagerState,
     val defaultBringIntoViewSpec: BringIntoViewSpec
 ) : BringIntoViewSpec {
-
-    override val scrollAnimationSpec: AnimationSpec<Float> =
-        defaultBringIntoViewSpec.scrollAnimationSpec
 
     /**
      * [calculateScrollDistance] for Pager behaves differently than in a normal list. We must

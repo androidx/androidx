@@ -17,9 +17,6 @@
 package androidx.compose.foundation.gestures
 
 import android.content.pm.PackageManager.FEATURE_LEANBACK
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec.Companion.DefaultBringIntoViewSpec
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -51,10 +48,6 @@ actual val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
 internal val PivotBringIntoViewSpec = object : BringIntoViewSpec {
     val parentFraction = 0.3f
     val childFraction = 0f
-    override val scrollAnimationSpec: AnimationSpec<Float> = tween<Float>(
-        durationMillis = 125,
-        easing = CubicBezierEasing(0.25f, 0.1f, .25f, 1f)
-    )
 
     override fun calculateScrollDistance(
         offset: Float,
