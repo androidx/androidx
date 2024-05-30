@@ -128,6 +128,12 @@ interface SampleDao {
     )
     suspend fun getMapWithDupeColumns(): Map<SampleEntity, SampleEntityCopy>
 
+    @Query("SELECT * FROM SampleEntity JOIN SampleEntity2 ON SampleEntity.pk = SampleEntity2.pk2")
+    suspend fun getMapReturnTypeWithList(): Map<SampleEntity, List<SampleEntity2>>
+
+    @Query("SELECT * FROM SampleEntity JOIN SampleEntity2 ON SampleEntity.pk = SampleEntity2.pk2")
+    suspend fun getMapReturnTypeWithSet(): Map<SampleEntity, Set<SampleEntity2>>
+
     @Query(
         """
         SELECT * FROM SampleEntity

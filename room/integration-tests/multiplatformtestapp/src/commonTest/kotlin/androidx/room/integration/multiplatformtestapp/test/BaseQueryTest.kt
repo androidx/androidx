@@ -199,6 +199,34 @@ abstract class BaseQueryTest {
     }
 
     @Test
+    fun insertListMap() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getMapReturnTypeWithList()
+        assertThat(map[sampleEntity1]).isEqualTo(listOf(sampleEntity2))
+    }
+
+    @Test
+    fun insertSetMap() = runTest {
+        val sampleEntity1 = SampleEntity(1, 1)
+        val sampleEntity2 = SampleEntity2(1, 2)
+        val dao = getRoomDatabase().dao()
+
+        dao.insert(sampleEntity1)
+        dao.insert(sampleEntity2)
+        assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
+
+        val map = dao.getMapReturnTypeWithSet()
+        assertThat(map[sampleEntity1]).isEqualTo(setOf(sampleEntity2))
+    }
+
+    @Test
     fun mapWithDupeColumns() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntityCopy(1, 2)
