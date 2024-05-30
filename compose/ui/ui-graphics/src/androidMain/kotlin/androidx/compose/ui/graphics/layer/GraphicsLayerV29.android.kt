@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.toSize
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class GraphicsLayerV29(
-    override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
     private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : GraphicsLayerImpl {
