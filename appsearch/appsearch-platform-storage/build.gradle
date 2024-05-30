@@ -52,6 +52,6 @@ androidx {
 }
 
 android {
-    compileSdkPreview "VanillaIceCream"
+    compileSdk = 35
     namespace "androidx.appsearch.platformstorage"
 }

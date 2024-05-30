@@ -71,7 +71,7 @@ dependencies {
 }
 
 android {
-    compileSdkPreview "VanillaIceCream"
+    compileSdk = 35
     buildFeatures {
         aidl = true
     }
