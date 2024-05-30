@@ -19,6 +19,7 @@ package androidx.core.telecom
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build.VERSION_CODES
+import android.os.Bundle
 import android.os.OutcomeReceiver
 import android.os.Process
 import android.telecom.CallControl
@@ -225,6 +226,8 @@ class CallsManager constructor(context: Context) {
 
         // remap and set capabilities
         phoneAccountBuilder.setCapabilities(remapJetpackCapsToPlatformCaps(capabilities))
+        // see b/343674176. Some OEMs expect the PhoneAccount.getExtras() to be non-null
+        phoneAccountBuilder.setExtras(Bundle())
 
         // build and register the PhoneAccount via the Platform API
         mPhoneAccount = phoneAccountBuilder.build()
