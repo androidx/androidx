@@ -128,9 +128,12 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
 
         // Specify max-page-size to align ELF regions to 16kb
         val linkerFlags =
-            if (parameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
-                listOf("-z", "max-page-size=16384")
-            } else emptyList()
+            parameters.linkerArgs.get() +
+                if (parameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
+                    listOf("-z", "max-page-size=16384")
+                } else {
+                    emptyList()
+                }
 
         val objectFiles = parameters.objectFiles.regularFilePaths()
         val linkedObjectFiles = parameters.linkedObjects.regularFilePaths()

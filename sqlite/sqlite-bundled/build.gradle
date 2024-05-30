@@ -159,6 +159,10 @@ androidXMultiplatform {
             )
             // statically include the output of SQLite compilation
             nativeCompilation.include(sqliteCompilation)
+            if (nativeCompilation.konanTarget.family == Family.ANDROID) {
+                // b/341639198: Link to Android's Atomic lib, important for older ARM devices
+                nativeCompilation.linkerArgs.add("-latomic")
+            }
             if (nativeCompilation.konanTarget.family == Family.OSX) {
                 // KT-57848
                 nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
