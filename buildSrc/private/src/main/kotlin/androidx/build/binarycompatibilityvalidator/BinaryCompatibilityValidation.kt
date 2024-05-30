@@ -159,7 +159,7 @@ class BinaryCompatibilityValidation(
                     KotlinKlibExtractSupportedTargetsAbiTask::class.java
                 ) {
                     it.strictValidation = true
-                    it.supportedTargets = project.provider { supportedTargets() }
+                    it.supportedTargets = project.provider { supportedNativeTargetNames() }
                     it.inputAbiFile = requiredCompatFile
                     it.outputAbiFile = klibExtractDir.resolve(requiredCompatFile.name)
                     (it as DefaultTask).group = ABI_GROUP_NAME
@@ -195,6 +195,7 @@ class BinaryCompatibilityValidation(
             it.version.set(projectVersion)
             it.shouldWriteVersionedApiFile.set(project.shouldWriteVersionedApiFile())
             it.group = ABI_GROUP_NAME
+            it.unsupportedNativeTargetNames.set(unsupportedNativeTargetNames())
         }
 
     /**
@@ -205,7 +206,7 @@ class BinaryCompatibilityValidation(
     private fun Project.extractKlibAbiTask(klibApiDir: File, extractDir: File) =
         project.tasks.register(EXTRACT_NAME, KotlinKlibExtractSupportedTargetsAbiTask::class.java) {
             it.strictValidation = true
-            it.supportedTargets = project.provider { supportedTargets() }
+            it.supportedTargets = project.provider { supportedNativeTargetNames() }
             it.inputAbiFile = klibApiDir.resolve(CURRENT_API_FILE_NAME)
             it.outputAbiFile = extractDir.resolve(CURRENT_API_FILE_NAME)
             (it as DefaultTask).group = ABI_GROUP_NAME
@@ -247,18 +248,20 @@ class BinaryCompatibilityValidation(
         }
     }
 
-    private fun supportedTargets(): Set<String> {
+    private fun supportedNativeTargetNames(): Set<String> {
         val hostManager = HostManager()
-        return kotlinMultiplatformExtension.targets
-            .matching { it.platformType == KotlinPlatformType.native }
-            .asSequence()
-            .filterIsInstance<KotlinNativeTarget>()
+        return kotlinMultiplatformExtension
+            .nativeTargets()
             .filter { hostManager.isEnabled(it.konanTarget) }
-            .map {
-                KlibTarget(it.targetName, konanTargetNameMapping[it.konanTarget.name]!!).toString()
-            }
+            .map { it.klibTargetName() }
             .toSet()
     }
+
+    private fun allNativeTargetNames(): Set<String> =
+        kotlinMultiplatformExtension.nativeTargets().map { it.klibTargetName() }.toSet()
+
+    private fun unsupportedNativeTargetNames(): Set<String> =
+        allNativeTargetNames() - supportedNativeTargetNames()
 
     private fun Project.configureKlibCompilation(
         compilation: KotlinCompilation<KotlinCommonOptions>,
@@ -289,4 +292,9 @@ private fun Project.getRequiredCompatibilityAbiLocation(suffix: String) =
     )
 
 private fun KotlinMultiplatformExtension.nativeTargets() =
-    targets.matching { it.platformType == KotlinPlatformType.native }
+    targets.withType(KotlinNativeTarget::class.java).matching {
+        it.platformType == KotlinPlatformType.native
+    }
+
+private fun KotlinNativeTarget.klibTargetName(): String =
+    KlibTarget(targetName, konanTargetNameMapping[konanTarget.name]!!).toString()

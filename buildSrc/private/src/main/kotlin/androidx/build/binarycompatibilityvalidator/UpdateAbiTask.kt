@@ -19,7 +19,9 @@ package androidx.build.binarycompatibilityvalidator
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
@@ -39,6 +41,8 @@ abstract class UpdateAbiTask : DefaultTask() {
 
     @get:Input abstract val shouldWriteVersionedApiFile: Property<Boolean>
 
+    @get:Input abstract val unsupportedNativeTargetNames: ListProperty<String>
+
     /** Text file from which API signatures will be read. */
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
@@ -49,6 +53,14 @@ abstract class UpdateAbiTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+        unsupportedNativeTargetNames.get().let { targets ->
+            if (targets.isNotEmpty()) {
+                throw GradleException(
+                    "Cannot update API files because the current host doesn't support the " +
+                        "following targets: ${targets.joinToString(", ")}"
+                )
+            }
+        }
         fileSystemOperations.copy {
             it.from(inputApiLocation)
             it.into(outputDir)
