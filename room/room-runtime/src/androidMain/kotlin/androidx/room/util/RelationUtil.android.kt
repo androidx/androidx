@@ -21,7 +21,6 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.collection.ArrayMap
-import androidx.collection.LongSparseArray
 import androidx.room.RoomDatabase
 
 /**
@@ -65,43 +64,6 @@ fun <K : Any, V> recursiveFetchHashMap(
         // load the last batch
         fetchBlock(tmpMap)
         // for non collection relation, put the last batch in the original map
-        if (!isRelationCollection) {
-            map.putAll(tmpMap)
-        }
-    }
-}
-
-/** Same as [recursiveFetchHashMap] but for [LongSparseArray]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun <V> recursiveFetchLongSparseArray(
-    map: LongSparseArray<V>,
-    isRelationCollection: Boolean,
-    fetchBlock: (LongSparseArray<V>) -> Unit
-) {
-    val tmpMap = LongSparseArray<V>(RoomDatabase.MAX_BIND_PARAMETER_CNT)
-    var count = 0
-    var mapIndex = 0
-    val limit = map.size()
-    while (mapIndex < limit) {
-        if (isRelationCollection) {
-            tmpMap.put(map.keyAt(mapIndex), map.valueAt(mapIndex))
-        } else {
-            // Safe because `V` is a nullable type arg when isRelationCollection == false
-            @Suppress("UNCHECKED_CAST") tmpMap.put(map.keyAt(mapIndex), null as V)
-        }
-        mapIndex++
-        count++
-        if (count == RoomDatabase.MAX_BIND_PARAMETER_CNT) {
-            fetchBlock(tmpMap)
-            if (!isRelationCollection) {
-                map.putAll(tmpMap)
-            }
-            tmpMap.clear()
-            count = 0
-        }
-    }
-    if (count > 0) {
-        fetchBlock(tmpMap)
         if (!isRelationCollection) {
             map.putAll(tmpMap)
         }
