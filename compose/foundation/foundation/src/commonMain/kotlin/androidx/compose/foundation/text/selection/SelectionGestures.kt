@@ -217,7 +217,7 @@ internal suspend fun PointerInputScope.selectionGesturePointerInputBtf2(
     val clicksCounter = ClicksCounter(viewConfiguration)
     awaitEachGesture {
         val downEvent = awaitDown()
-        clicksCounter.update(downEvent)
+        clicksCounter.update(downEvent.changes[0])
         val isPrecise = downEvent.isPrecisePointer
         if (
             isPrecise &&
@@ -353,7 +353,7 @@ private suspend fun AwaitPointerEventScope.mouseSelectionBtf2(
     down: PointerEvent
 ) {
     val downChange = down.changes[0]
-    if (down.isShiftPressed) {
+    if (down.keyboardModifiers.isShiftPressed) {
         val started = observer.onExtend(downChange.position)
         if (started) {
             try {
