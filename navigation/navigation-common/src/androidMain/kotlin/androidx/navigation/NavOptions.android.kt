@@ -251,6 +251,7 @@ public class NavOptions internal constructor(
             popUpToId == other.popUpToId &&
             popUpToRoute == other.popUpToRoute &&
             popUpToRouteClass == other.popUpToRouteClass &&
+            popUpToRouteObject == other.popUpToRouteObject &&
             popUpToInclusive == other.popUpToInclusive &&
             popUpToSaveState == other.popUpToSaveState &&
             enterAnim == other.enterAnim &&
@@ -265,6 +266,7 @@ public class NavOptions internal constructor(
         result = 31 * result + popUpToId
         result = 31 * result + popUpToRoute.hashCode()
         result = 31 * result + popUpToRouteClass.hashCode()
+        result = 31 * result + popUpToRouteObject.hashCode()
         result = 31 * result + if (isPopUpToInclusive()) 1 else 0
         result = 31 * result + if (shouldPopUpToSaveState()) 1 else 0
         result = 31 * result + enterAnim
@@ -291,6 +293,8 @@ public class NavOptions internal constructor(
                 sb.append(popUpToRoute)
             } else if (popUpToRouteClass != null) {
                 sb.append(popUpToRouteClass)
+            } else if (popUpToRouteObject != null) {
+                sb.append(popUpToRouteObject)
             } else {
                 sb.append("0x")
                 sb.append(Integer.toHexString(popUpToId))

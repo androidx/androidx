@@ -162,6 +162,7 @@ public actual abstract class Navigator<D : NavDestination> actual constructor() 
      * where the destination is already on top of the back stack).
      */
     // TODO Deprecate this method once all call sites are removed
+    @Suppress("UNUSED_PARAMETER", "RedundantNullableReturnType")
     public actual open fun navigate(
         destination: D,
         args: Bundle?,
@@ -179,6 +180,7 @@ public actual abstract class Navigator<D : NavDestination> actual constructor() 
      * @param savedState whether any Navigator specific state associated with [popUpTo] should
      * be saved to later be restored by a call to [navigate] with [NavOptions.shouldRestoreState].
      */
+    @Suppress("UNUSED_PARAMETER")
     public actual open fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
         val backStack = state.backStack.value
         check(backStack.contains(popUpTo)) {

@@ -54,7 +54,7 @@ public actual open class NavGraph actual constructor(
     navGraphNavigator: Navigator<out NavGraph>
 ) : NavDestination(navGraphNavigator), Iterable<NavDestination> {
 
-    public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat()
+    public val nodes: SparseArrayCompat<NavDestination> = SparseArrayCompat<NavDestination>()
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get
     private var startDestId = 0
@@ -404,7 +404,6 @@ public actual open class NavGraph actual constructor(
      * to this NavGraph.
      */
     @OptIn(InternalSerializationApi::class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun <T : Any> setStartDestination(startDestRoute: T) {
         setStartDestination(startDestRoute::class.serializer()) { startDestination ->
             val args = startDestination.arguments.mapValues {
@@ -425,7 +424,7 @@ public actual open class NavGraph actual constructor(
         val startDest = findNode(id)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
-                "Ensure the starting NavDestination was added via KClass."
+                "Ensure the starting NavDestination was added with route from KClass."
         }
         // when dest id is based on serializer, we expect the dest route to have been generated
         // and set

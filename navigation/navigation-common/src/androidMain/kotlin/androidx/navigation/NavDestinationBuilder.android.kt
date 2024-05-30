@@ -47,6 +47,7 @@ public actual open class NavDestinationBuilder<out D : NavDestination> internal 
      */
     public actual val route: String?
 ) {
+
     /**
      * DSL for constructing a new [NavDestination] with a unique id.
      *
