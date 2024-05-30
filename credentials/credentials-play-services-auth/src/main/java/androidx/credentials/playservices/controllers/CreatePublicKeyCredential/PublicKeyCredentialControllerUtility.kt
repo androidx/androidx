@@ -295,7 +295,7 @@ internal class PublicKeyCredentialControllerUtility {
           // does not change its error message, but is the only viable solution
           // because there's no other differentiator.
           if (
-            code == ErrorCode.CONSTRAINT_ERR && msg?.contains("Unable to get sync account") == true
+            code == ErrorCode.NOT_ALLOWED_ERR && msg?.contains("Unable to get sync account") == true
           ) {
             exception =
               CreateCredentialCancellationException(
@@ -328,7 +328,7 @@ internal class PublicKeyCredentialControllerUtility {
         // does not change its error message, but is the only viable solution
         // because there's no other differentiator.
         if (
-          code == ErrorCode.CONSTRAINT_ERR && msg?.contains("Unable to get sync account") == true
+          code == ErrorCode.NOT_ALLOWED_ERR && msg?.contains("Unable to get sync account") == true
         ) {
           exception =
             GetCredentialCancellationException("Passkey retrieval was cancelled by the user.")
