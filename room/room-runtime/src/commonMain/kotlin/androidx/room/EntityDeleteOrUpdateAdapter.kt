@@ -57,8 +57,9 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      */
     fun handle(
         connection: SQLiteConnection,
-        entity: T
+        entity: T?
     ): Int {
+        if (entity == null) return 0
         connection.prepare(createQuery()).use { stmt ->
             bind(stmt, entity)
             stmt.step()
@@ -74,11 +75,13 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      */
     fun handleMultiple(
         connection: SQLiteConnection,
-        entities: Iterable<T>
+        entities: Iterable<T?>?
     ): Int {
+        if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->
-            entities.forEach { entity ->
+            for (entity in entities) {
+                if (entity == null) continue
                 bind(stmt, entity)
                 stmt.step()
                 stmt.reset()
@@ -96,11 +99,13 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      */
     fun handleMultiple(
         connection: SQLiteConnection,
-        entities: Array<out T>
+        entities: Array<out T?>?
     ): Int {
+        if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->
-            entities.forEach { entity ->
+            for (entity in entities) {
+                if (entity == null) continue
                 bind(stmt, entity)
                 stmt.step()
                 stmt.reset()

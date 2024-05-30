@@ -200,6 +200,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         onTextField.performTouchInput {
             repeat(4) {
                 swipe(start = centerRight, end = centerLeft)
+                advanceEventTime(1_000) // avoid these counting as a multi-tap
             }
         }
 
@@ -291,6 +292,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         onTextField.performTouchInput {
             repeat(4) {
                 swipe(start = bottomCenter, end = topCenter)
+                advanceEventTime(1_000) // avoid these counting as a multi-tap
             }
         }
 

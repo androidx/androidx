@@ -486,7 +486,7 @@ private fun SampleThreePaneScaffoldDenseMode() {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-private fun SampleThreePaneScaffoldWithPaneExpansion(
+internal fun SampleThreePaneScaffoldWithPaneExpansion(
     paneExpansionState: PaneExpansionState,
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
 ) {
@@ -509,6 +509,6 @@ private fun SampleThreePaneScaffoldWithPaneExpansion(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-private fun MockDragHandle(state: PaneExpansionState) {
+internal fun MockDragHandle(state: PaneExpansionState) {
     PaneExpansionDragHandle(state, MaterialTheme.colorScheme.outline)
 }

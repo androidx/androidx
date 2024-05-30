@@ -367,7 +367,11 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     private fun updateMatrix() = with(graphicsLayer) {
-        val pivot = if (pivotOffset.isUnspecified) size.center.toOffset() else pivotOffset
+        val pivot = if (pivotOffset.isUnspecified) {
+            this@GraphicsLayerOwnerLayer.size.center.toOffset()
+        } else {
+            pivotOffset
+        }
 
         matrixCache.reset()
         matrixCache *= Matrix().apply {

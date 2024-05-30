@@ -25,7 +25,6 @@ import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.TargetConfig;
-import androidx.camera.core.internal.UseCaseEventConfig;
 
 /**
  * Configuration containing options for use cases.
@@ -33,8 +32,7 @@ import androidx.camera.core.internal.UseCaseEventConfig;
  * @param <T> The use case being configured.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCaseEventConfig,
-        ImageInputConfig {
+public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, ImageInputConfig {
     // Option Declarations:
     // *********************************************************************************************
 
@@ -341,7 +339,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * @param <B> The top level builder type for which this builder is composed with.
      */
     interface Builder<T extends UseCase, C extends UseCaseConfig<T>, B> extends
-            TargetConfig.Builder<T, B>, ExtendableBuilder<T>, UseCaseEventConfig.Builder<B> {
+            TargetConfig.Builder<T, B>, ExtendableBuilder<T> {
 
         /**
          * Sets the default session configuration for this use case.

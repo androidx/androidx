@@ -451,6 +451,7 @@ internal constructor(
     private var disconnectReason: Int? = null
     private var closed = false
     private var overrideSlotIdToComplicationData = HashMap<Int, ComplicationData>()
+    private val apiVersion by lazy { iInteractiveWatchFace.apiVersion }
 
     private val iWatchFaceListener =
         object : IWatchfaceListener.Stub() {
@@ -494,7 +495,7 @@ internal constructor(
             .asBinder()
             .linkToDeath({ sendDisconnectNotification(DisconnectReasons.ENGINE_DIED) }, 0)
 
-        if (iInteractiveWatchFace.apiVersion >= 6) {
+        if (apiVersion >= 6) {
             iInteractiveWatchFace.addWatchFaceListener(iWatchFaceListener)
         }
     }
@@ -524,7 +525,7 @@ internal constructor(
         }
 
     override fun overrideComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>) {
-        if (iInteractiveWatchFace.apiVersion >= 11) {
+        if (apiVersion >= 12) {
             iInteractiveWatchFace.overrideComplicationData(
                 slotIdToComplicationData.map {
                     IdAndComplicationDataWireFormat(
@@ -541,7 +542,7 @@ internal constructor(
     }
 
     override fun clearComplicationDataOverride() {
-        if (iInteractiveWatchFace.apiVersion >= 11) {
+        if (apiVersion >= 12) {
             iInteractiveWatchFace.clearComplicationDataOverride()
         } else {
             overrideSlotIdToComplicationData.clear()
@@ -562,7 +563,7 @@ internal constructor(
                         renderParameters.toWireFormat(),
                         instant.toEpochMilli(),
                         userStyle?.toWireFormat(),
-                        if (iInteractiveWatchFace.apiVersion >= 11) {
+                        if (apiVersion >= 12) {
                             idAndComplicationData
                         } else {
                             mergeWithOverrideComplicationData(idAndComplicationData)
@@ -598,7 +599,7 @@ internal constructor(
         return merged
     }
 
-    override val isRemoteWatchFaceViewHostSupported = iInteractiveWatchFace.apiVersion >= 9
+    override val isRemoteWatchFaceViewHostSupported = apiVersion >= 9
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun createRemoteWatchFaceViewHost(
@@ -606,7 +607,7 @@ internal constructor(
         @Px width: Int,
         @Px height: Int
     ): RemoteWatchFaceViewHost? {
-        if (iInteractiveWatchFace.apiVersion < 8) {
+        if (apiVersion < 8) {
             throw UnsupportedOperationException()
         }
         val remoteWatchFaceView =
@@ -650,7 +651,7 @@ internal constructor(
     @Deprecated("OverlayStyle will be removed in a future release.")
     override val overlayStyle: OverlayStyle
         get() {
-            if (iInteractiveWatchFace.apiVersion >= 4) {
+            if (apiVersion >= 4) {
                 iInteractiveWatchFace.watchFaceOverlayStyle?.let {
                     return OverlayStyle(it.backgroundColor, it.foregroundColor)
                 }
@@ -660,7 +661,17 @@ internal constructor(
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyle) =
         TraceEvent("InteractiveWatchFaceClientImpl.updateInstance").use {
-            iInteractiveWatchFace.updateWatchfaceInstance(newInstanceId, userStyle.toWireFormat())
+            if (apiVersion >= 13) {
+                iInteractiveWatchFace.updateWatchfaceInstanceSync(
+                    newInstanceId,
+                    userStyle.toWireFormat()
+                )
+            } else {
+                iInteractiveWatchFace.updateWatchfaceInstance(
+                    newInstanceId,
+                    userStyle.toWireFormat()
+                )
+            }
         }
 
     override fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData) =
@@ -683,7 +694,7 @@ internal constructor(
 
     override fun close() =
         TraceEvent("InteractiveWatchFaceClientImpl.close").use {
-            if (iInteractiveWatchFace.apiVersion >= 6) {
+            if (apiVersion >= 6) {
                 iInteractiveWatchFace.removeWatchFaceListener(iWatchFaceListener)
             }
             iInteractiveWatchFace.release()
@@ -744,8 +755,8 @@ internal constructor(
         }
         when {
             // From version 6 we want to use IWatchFaceListener instead.
-            iInteractiveWatchFace.apiVersion >= 6 -> return
-            iInteractiveWatchFace.apiVersion >= 2 -> {
+            apiVersion >= 6 -> return
+            apiVersion >= 2 -> {
                 iInteractiveWatchFace.addWatchfaceReadyListener(
                     object : IWatchfaceReadyListener.Stub() {
                         override fun getApiVersion(): Int =
@@ -838,7 +849,7 @@ internal constructor(
 
     override fun getComplicationIdAt(@Px x: Int, @Px y: Int): Int? =
         TraceEvent("getComplicationIdAt").use {
-            if (iInteractiveWatchFace.apiVersion >= 7) {
+            if (apiVersion >= 7) {
                 val longId = iInteractiveWatchFace.getComplicationIdAt(x, y)
                 if (longId == Long.MIN_VALUE) {
                     null
@@ -863,14 +874,14 @@ internal constructor(
         }
 
     override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
-        if (iInteractiveWatchFace.apiVersion >= 10) {
+        if (apiVersion >= 10) {
             UserStyleFlavors(iInteractiveWatchFace.userStyleFlavors)
         } else {
             UserStyleFlavors()
         }
     }
 
-    override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 8
+    override fun isComplicationDisplayPolicySupported() = apiVersion >= 8
 
     companion object {
         private const val TAG = "InteractiveWatchFaceClientImpl"

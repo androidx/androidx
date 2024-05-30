@@ -58,12 +58,8 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 public int getId() { return id; }
                 public void setId(int id) { this.id = id; }
                 """.trimIndent(),
-            output = { isKsp ->
-                fun stringAdapterCode(out: String, indexVar: String) = if (isKsp) {
-                    """
-                    $out = cursor.getString($indexVar);
-                    """.trimIndent()
-                } else {
+            output = {
+                fun stringAdapterCode(out: String, indexVar: String) =
                     """
                     if (cursor.isNull($indexVar)) {
                       $out = null;
@@ -71,7 +67,6 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                       $out = cursor.getString($indexVar);
                     }
                     """.trimIndent()
-                }
                 """
                 |private MyEntity __entityCursorConverter_fooBarMyEntity(@NonNull final Cursor cursor) {
                 |  final MyEntity _entity;

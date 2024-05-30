@@ -631,10 +631,12 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
             list = listOf(0, 8, 2, 3, 4, 5, 6, 7, 1, 9)
         }
 
+        val afterLastVisibleItem = itemSize * 3 + spacing * 3
         onAnimationFrame { fraction ->
             // item 1 moves to and item 8 moves from `gridSize`, right after the end edge
-            val item1Offset = AxisOffset(itemSize, gridSize * fraction)
-            val item8Offset = AxisOffset(itemSize, gridSize - gridSize * fraction)
+            val item1Offset = AxisOffset(itemSize, afterLastVisibleItem * fraction)
+            val item8Offset =
+                AxisOffset(itemSize, afterLastVisibleItem - afterLastVisibleItem * fraction)
             val screenSize = itemSize * 3 + spacing * 2
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 add(0 to AxisOffset(0f, 0f))
@@ -815,11 +817,11 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
         rule.runOnUiThread {
             list = listOf(0, 1, 8, 3, 4, 5, 6, 7, 2, 9, 10, 11)
         }
-
+        val afterLastVisibleItem = itemSize2 * 3
         onAnimationFrame { fraction ->
             // item 8 moves from and item 2 moves to `gridSize`, right after the end edge
-            val startItem8Offset = gridSize
-            val endItem2Offset = gridSize
+            val startItem8Offset = afterLastVisibleItem
+            val endItem2Offset = afterLastVisibleItem
             val item2Offset =
                 item1Size + (endItem2Offset - item1Size) * fraction
             val item8Offset =
@@ -827,13 +829,13 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 add(0 to AxisOffset(0f, 0f))
                 add(1 to AxisOffset(itemSize, 0f))
-                if (item8Offset < gridSize) {
+                if (item8Offset < afterLastVisibleItem) {
                     add(8 to AxisOffset(itemSize, item8Offset))
                 } else {
                     rule.onNodeWithTag("8").assertIsNotDisplayed()
                 }
                 add(3 to AxisOffset(0f, item0Size))
-                if (item2Offset < gridSize) {
+                if (item2Offset < afterLastVisibleItem) {
                     add(2 to AxisOffset(itemSize, item2Offset))
                 } else {
                     rule.onNodeWithTag("2").assertIsNotDisplayed()

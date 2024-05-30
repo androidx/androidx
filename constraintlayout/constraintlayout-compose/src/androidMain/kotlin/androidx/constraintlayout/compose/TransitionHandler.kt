@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Velocity
  * Helper class that handles the interactions between Compose and
  * [androidx.constraintlayout.core.state.Transition].
  */
+@ExperimentalMotionApi
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,
     private val motionProgress: MutableFloatState
@@ -58,7 +59,7 @@ internal class TransitionHandler(
 
     /**
      * Called when a swipe event ends, sets up the underlying Transition with the [velocity] of the
-     * swipe at the next frame..
+     * swipe at the next frame.
      */
     suspend fun onTouchUp(velocity: Velocity) {
         withFrameNanos { timeNanos ->

@@ -180,7 +180,7 @@ abstract class CreateCredentialRequest internal constructor(
              */
             @JvmStatic
             @RequiresApi(23)
-            fun parseFromCredentialDataBundle(from: Bundle): DisplayInfo {
+            fun createFrom(from: Bundle): DisplayInfo {
                 return try {
                     val displayInfoBundle = from.getBundle(BUNDLE_KEY_REQUEST_DISPLAY_INFO)!!
                     val userId = displayInfoBundle.getCharSequence(BUNDLE_KEY_USER_ID)
@@ -255,7 +255,7 @@ abstract class CreateCredentialRequest internal constructor(
                     credentialData,
                     candidateQueryData,
                     requireSystemProvider,
-                    DisplayInfo.parseFromCredentialDataBundle(
+                    DisplayInfo.createFrom(
                         credentialData
                     ),
                     credentialData.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),

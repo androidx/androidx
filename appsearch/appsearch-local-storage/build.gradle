@@ -34,7 +34,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
         //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.
         //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the

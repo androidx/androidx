@@ -132,11 +132,9 @@ internal class FocusOwnerImpl(
      * [FocusTargetNode] was found or if the focus search was cancelled.
      */
     override fun takeFocus(focusDirection: FocusDirection, previouslyFocusedRect: Rect?): Boolean {
-        return focusTransactionManager.withExistingTransaction {
-            focusSearch(focusDirection, previouslyFocusedRect) {
-                it.requestFocus(focusDirection) ?: false
-            } ?: false
-        }
+        return focusSearch(focusDirection, previouslyFocusedRect) {
+            it.requestFocus(focusDirection) ?: false
+        } ?: false
     }
 
     /**

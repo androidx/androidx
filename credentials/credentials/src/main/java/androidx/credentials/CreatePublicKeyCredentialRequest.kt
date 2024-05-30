@@ -212,7 +212,7 @@ class CreatePublicKeyCredentialRequest private constructor(
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
                 val displayInfo = try {
-                    DisplayInfo.parseFromCredentialDataBundle(data)
+                    DisplayInfo.createFrom(data)
                 } catch (e: IllegalArgumentException) {
                     getRequestDisplayInfo(requestJson)
                 }

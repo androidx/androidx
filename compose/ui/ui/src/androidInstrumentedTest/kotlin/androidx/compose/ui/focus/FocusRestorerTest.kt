@@ -18,21 +18,34 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+// TODO: Move these tests to foundation after saveFocusedChild and restoreFocusedChild are stable.
 @ExperimentalFoundationApi
 @OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
@@ -176,6 +189,57 @@ class FocusRestorerTest {
             assertThat(childState.isFocused).isTrue()
             assertThat(grandChildState.isFocused).isFalse()
         }
+    }
+
+    @Test
+    fun restorationOfItemBeyondVisibleBounds() {
+        // Arrange.
+        val parent = FocusRequester()
+        lateinit var focusManager: FocusManager
+        lateinit var lazyListState: LazyListState
+        lateinit var coroutineScope: CoroutineScope
+        rule.setFocusableContent {
+            focusManager = LocalFocusManager.current
+            lazyListState = rememberLazyListState()
+            coroutineScope = rememberCoroutineScope()
+            LazyColumn(
+                modifier = Modifier
+                    .size(100.dp)
+                    .focusRequester(parent)
+                    .focusRestorer(),
+                state = lazyListState
+            ) {
+                items(100) { item ->
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            .testTag("item $item")
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        // Focus on first item and scroll out of view.
+        rule.onNodeWithTag("item 0").apply {
+            requestFocus()
+            assertIsFocused()
+        }
+        rule.runOnIdle {
+            coroutineScope.launch { lazyListState.scrollToItem(50) }
+        }
+
+        // Act.
+        rule.runOnIdle { focusManager.clearFocus() }
+
+        // Assert - Focused item was not disposed.
+        rule.onNodeWithTag("item 0").assertExists().assertIsNotFocused()
+
+        // Act.
+        rule.runOnIdle { parent.requestFocus() }
+
+        // Assert - We can restore focus to an item that is beyond visible bounds.
+        rule.onNodeWithTag("item 0").assertIsFocused()
     }
 
     @Test

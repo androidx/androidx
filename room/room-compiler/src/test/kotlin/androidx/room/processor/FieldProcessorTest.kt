@@ -302,7 +302,10 @@ class FieldProcessorTest {
                 )
                 assertThat(
                     field.type.asTypeName(),
-                    `is`(XTypeName.getArrayName(boxedPrimitive))
+                    `is`(
+                        XTypeName.getArrayName(boxedPrimitive.copy(nullable = true))
+                            .copy(nullable = true)
+                    )
                 )
             }
         }

@@ -119,10 +119,7 @@ fun ToggleButton(
         },
         selectionControl = null,
         modifier = modifier
-            .defaultMinSize(
-                minHeight = if (secondaryLabel == null) MIN_HEIGHT_WITHOUT_SECONDARY_LABEL
-                else MIN_HEIGHT
-            )
+            .defaultMinSize(minHeight = MIN_HEIGHT)
             .height(IntrinsicSize.Min),
         icon = provideNullableScopeContent(
             contentColor = colors.iconColor(enabled = enabled, checked),
@@ -682,6 +679,32 @@ class ToggleButtonColors constructor(
             .takeOrElse { this.disabledUncheckedIconColor },
     )
 
+    /** Copy function for [IconToggleButton] and [TextToggleButton]. */
+    internal fun copy(
+        checkedContainerColor: Color,
+        checkedContentColor: Color,
+        uncheckedContainerColor: Color,
+        uncheckedContentColor: Color,
+        disabledCheckedContainerColor: Color,
+        disabledCheckedContentColor: Color,
+        disabledUncheckedContainerColor: Color,
+        disabledUncheckedContentColor: Color,
+    ): ToggleButtonColors = ToggleButtonColors(
+        checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },
+        checkedContentColor = checkedContentColor.takeOrElse { this.checkedContentColor },
+        uncheckedContainerColor = uncheckedContainerColor
+            .takeOrElse { this.uncheckedContainerColor },
+        uncheckedContentColor = uncheckedContentColor.takeOrElse { this.uncheckedContentColor },
+        disabledCheckedContainerColor = disabledCheckedContainerColor
+            .takeOrElse { this.disabledCheckedContainerColor },
+        disabledCheckedContentColor = disabledCheckedContentColor
+            .takeOrElse { this.disabledCheckedContentColor },
+        disabledUncheckedContainerColor = disabledUncheckedContainerColor
+            .takeOrElse { this.disabledUncheckedContainerColor },
+        disabledUncheckedContentColor = disabledUncheckedContentColor
+            .takeOrElse { this.disabledUncheckedContentColor },
+    )
+
     /**
      * Determines the container color based on whether the toggle button is [enabled]
      * and [checked].
@@ -1062,7 +1085,6 @@ private val TOGGLE_CONTROL_HEIGHT = 24.dp
 private val TOGGLE_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
-private val MIN_HEIGHT_WITHOUT_SECONDARY_LABEL = 48.dp
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)

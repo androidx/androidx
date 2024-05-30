@@ -21,7 +21,6 @@ public class MyDao_Impl(
 
   public override val entities: List<MyEntity>
     get() = getEntities()
-
   init {
     this.__db = __db
   }

@@ -35,8 +35,8 @@ import java.util.Set;
 @SmallTest
 public class GetPasswordOptionJavaTest {
 
-    private static final @PriorityHints int EXPECTED_PASSWORD_PRIORITY =
-            PriorityHints.PRIORITY_PASSWORD_OR_SIMILAR;
+    private static final int EXPECTED_PASSWORD_PRIORITY =
+            CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR;
 
     @Test
     public void emptyConstructor_success() {

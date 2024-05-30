@@ -50,8 +50,16 @@ public final class UpdateDao_Impl implements UpdateDao {
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -66,8 +74,16 @@ public final class UpdateDao_Impl implements UpdateDao {
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -83,8 +99,16 @@ public final class UpdateDao_Impl implements UpdateDao {
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindString(2, entity.name);
-        statement.bindString(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindString(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindString(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }
@@ -273,7 +297,11 @@ public final class UpdateDao_Impl implements UpdateDao {
       final SQLiteStatement _stmt = _connection.prepare(_sql);
       try {
         int _argIndex = 1;
-        _stmt.bindText(_argIndex, uid);
+        if (uid == null) {
+          _stmt.bindNull(_argIndex);
+        } else {
+          _stmt.bindText(_argIndex, uid);
+        }
         _stmt.step();
         return null;
       } finally {

@@ -33,13 +33,13 @@ import android.os.Bundle
  * The [typePriorityHint] bit helps decide where the credential will be displayed on the
  * selector. It is used with more importance than signals like 'last recently used' but with less
  * importance than other signals, such as the ordering of displayed accounts.
- * It is expected to be one of the defined [PriorityHints] constants. By default,
- * [GetCustomCredentialOption] will have [PriorityHints.PRIORITY_DEFAULT], [GetPasswordOption] will
- * have [PriorityHints.PRIORITY_PASSWORD_OR_SIMILAR] and [GetPublicKeyCredentialOption] will have
- * [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that [GetCustomCredentialOption]
- * types will remain unchanged unless strong reasons arise and cannot ever have
- * [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security threats that
- * other credentials do not, we enforce that nothing is shown higher than
+ * It is expected to be one of the defined `CredentialOption.PRIORITY_*` constants. By default,
+ * [GetCustomCredentialOption] will have [CredentialOption.PRIORITY_DEFAULT], [GetPasswordOption]
+ * will have [CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR] and [GetPublicKeyCredentialOption]
+ * will have [CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that
+ * [GetCustomCredentialOption] types will remain unchanged unless strong reasons arise and cannot
+ * ever have [CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security
+ * threats that other credentials do not, we enforce that nothing is shown higher than
  * passkey types in order to provide end users with the safest credentials first. See the spec
  * [here](https://w3c.github.io/webauthn/) for more information on passkeys.
  *
@@ -61,8 +61,7 @@ import android.os.Bundle
  * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  * @property typePriorityHint sets the priority of this entry, which defines how it appears in
  * the credential selector amongst the signals used to order the entries, set to
- * [PriorityHints.PRIORITY_DEFAULT] by default; see [PriorityHints] and
- * [CredentialOption] for more information
+ * [CredentialOption.PRIORITY_DEFAULT] by default; see [CredentialOption] for more information
  */
 open class GetCustomCredentialOption internal constructor(
     requestData: Bundle,
@@ -71,8 +70,7 @@ open class GetCustomCredentialOption internal constructor(
     isSystemProviderRequired: Boolean,
     isAutoSelectAllowed: Boolean = false,
     allowedProviders: Set<ComponentName> = emptySet(),
-    typePriorityHint: @PriorityHints Int =
-        CUSTOM_OPTION_PRIORITY_CATEGORY
+    typePriorityHint: @PriorityHints Int = PRIORITY_DEFAULT
 ) : CredentialOption(
     type = type,
     requestData = requestData,
@@ -86,7 +84,7 @@ open class GetCustomCredentialOption internal constructor(
 
     init {
         require(type.isNotEmpty()) { "type should not be empty" }
-        require(typePriorityHint != PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR) {
+        require(typePriorityHint != CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR) {
             "Custom types should not have passkey level priority." }
     }
 
@@ -145,7 +143,8 @@ open class GetCustomCredentialOption internal constructor(
      *
      * The [typePriorityHint] bit helps decide where the credential will be displayed on the
      * selector. It is expected that [GetCustomCredentialOption] types will remain unchanged
-     * unless strong reasons arise and cannot ever have [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR].
+     * unless strong reasons arise and cannot ever have
+     * [CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR].
      * Given passkeys prevent many security threats that other credentials do not, we enforce that
      * nothing is shown higher than passkey types in order to provide end users with the safest
      * credentials first. See the spec [here](https://w3c.github.io/webauthn/) for more information
@@ -171,7 +170,7 @@ open class GetCustomCredentialOption internal constructor(
      * [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
      * @param typePriorityHint sets the priority of this entry, which defines how it appears in the
      * credential selector, with less precedence than account ordering but more precedence than last
-     * used time; see [PriorityHints] and [CredentialOption] for more information
+     * used time; see [CredentialOption] and [CredentialOption] for more information
      * @throws IllegalArgumentException If [type] is empty
      * @throws NullPointerException If [requestData] or [type] is null
      */
@@ -182,12 +181,7 @@ open class GetCustomCredentialOption internal constructor(
         isSystemProviderRequired: Boolean,
         isAutoSelectAllowed: Boolean = false,
         allowedProviders: Set<ComponentName> = emptySet(),
-        typePriorityHint: @PriorityHints Int =
-            CUSTOM_OPTION_PRIORITY_CATEGORY,
+        typePriorityHint: @PriorityHints Int = PRIORITY_DEFAULT,
     ) : this(requestData, type, candidateQueryData, isSystemProviderRequired, isAutoSelectAllowed,
         allowedProviders, typePriorityHint)
-
-    internal companion object {
-        internal const val CUSTOM_OPTION_PRIORITY_CATEGORY = PriorityHints.PRIORITY_DEFAULT
-    }
 }

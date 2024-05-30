@@ -28,16 +28,17 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -57,6 +58,21 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
 
     @Test
+    fun scrollBySemantics_shouldScrollCorrectly() {
+        createPager(initialPage = 5)
+
+        assertThat(pagerState.currentPage).isEqualTo(5)
+
+        rule.onNodeWithTag(PagerTestTag).performSemanticsAction(ScrollBy) {
+            it.invoke(100f, 100f)
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPageOffsetFraction).isWithin(0.001f).of(100f / pageSize)
+        }
+    }
+
+    @Test
     fun accessibilityScroll_scrollToPage() {
         createPager(beyondViewportPageCount = 1)
 
@@ -71,7 +87,6 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
     }
 
-    @Ignore
     @Test
     fun accessibilityPaging_animateScrollToPage() {
         createPager(initialPage = 5, pageCount = { DefaultPageCount })
@@ -119,7 +134,6 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
     }
 
-    @Ignore
     @Test
     fun userScrollEnabledIsOff_shouldNotAllowPageAccessibilityActions() {
         // Arrange
@@ -352,6 +366,58 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
             assertThat(pagerState.currentPage).isEqualTo(5)
             assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
             assertThat(focused).containsExactly(5)
+        }
+    }
+
+    @Test
+    fun accessibilityScroll_alwaysScrollsFullPage_forward() {
+        createPager()
+
+        assertThat(pagerState.currentPage).isEqualTo(0)
+
+        val actionBackward = if (vertical) {
+            android.R.id.accessibilityActionScrollDown
+        } else {
+            android.R.id.accessibilityActionScrollRight
+        }
+
+        rule.onNodeWithTag(PagerTestTag).withSemanticsNode {
+            accessibilityNodeProvider.performAction(
+                id,
+                actionBackward,
+                null
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+            assertThat(pagerState.currentPage).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun accessibilityScroll_alwaysScrollsFullPage_backward() {
+        createPager(initialPage = 1)
+
+        assertThat(pagerState.currentPage).isEqualTo(1)
+
+        val actionBackward = if (vertical) {
+            android.R.id.accessibilityActionScrollUp
+        } else {
+            android.R.id.accessibilityActionScrollLeft
+        }
+
+        rule.onNodeWithTag(PagerTestTag).withSemanticsNode {
+            accessibilityNodeProvider.performAction(
+                id,
+                actionBackward,
+                null
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+            assertThat(pagerState.currentPage).isEqualTo(0)
         }
     }
 

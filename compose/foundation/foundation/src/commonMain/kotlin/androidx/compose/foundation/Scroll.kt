@@ -39,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
@@ -54,12 +53,9 @@ import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.scrollBy
-import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.fastRoundToInt
-import kotlinx.coroutines.launch
 
 /**
  * Create and [remember] the [ScrollState] based on the currently appropriate scroll
@@ -354,31 +350,6 @@ private class ScrollSemanticsModifierNode(
             this.verticalScrollAxisRange = accessibilityScrollState
         } else {
             this.horizontalScrollAxisRange = accessibilityScrollState
-        }
-        if (isScrollable) {
-            // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
-            scrollBy(
-                action = { x: Float, y: Float ->
-                    coroutineScope.launch {
-                        if (isVertical) {
-                            (state as ScrollableState).animateScrollBy(y)
-                        } else {
-                            (state as ScrollableState).animateScrollBy(x)
-                        }
-                    }
-                    return@scrollBy true
-                }
-            )
-
-            scrollByOffset { offset ->
-                if (isVertical) {
-                    val consumed = (state as ScrollableState).animateScrollBy(offset.y)
-                    Offset(0f, consumed)
-                } else {
-                    val consumed = (state as ScrollableState).animateScrollBy(offset.x)
-                    Offset(consumed, 0f)
-                }
-            }
         }
     }
 }

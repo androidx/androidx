@@ -513,8 +513,6 @@ class ColorScheme(
     internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
     internal var defaultTextFieldColorsCached: TextFieldColors? = null
 
-    internal var defaultTextLinkStylesCached: TextLinkStyles? = null
-
     @OptIn(ExperimentalMaterial3Api::class)
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
 

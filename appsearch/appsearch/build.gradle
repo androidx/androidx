@@ -32,7 +32,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.appsearch"

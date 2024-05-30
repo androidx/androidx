@@ -167,14 +167,6 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase> {
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setUseCaseEventCallback(@NonNull UseCase.EventCallback eventCallback) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, eventCallback);
-            return this;
-        }
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         @Override
         public Builder setZslDisabled(boolean disabled) {

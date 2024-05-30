@@ -1694,7 +1694,8 @@ public actual open class NavController(
             "Destination with route ${route::class.simpleName} cannot be found " +
                 "in navigation graph $_graph"
         }
-        return route.generateRouteWithArgs(
+        return generateRouteWithArgs(
+            route,
             // get argument typeMap
             destination.arguments.mapValues { it.value.type }
         )

@@ -33,6 +33,7 @@ plugins {
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation(project(":compose:foundation:foundation"))
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.compose.material:material-icons-core:1.6.0")
     implementation("androidx.compose.runtime:runtime:1.6.0")

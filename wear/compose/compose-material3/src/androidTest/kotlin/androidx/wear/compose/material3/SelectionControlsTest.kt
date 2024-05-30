@@ -39,7 +39,7 @@ class SelectionControlsTest {
     fun radio_control_supports_testtag() {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                Radio(
+                RadioButton(
                     Modifier.testTag(TEST_TAG)
                 )
             }
@@ -53,7 +53,7 @@ class SelectionControlsTest {
         rule
             .setContentWithThemeForSizeAssertions {
                 with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                    Radio(
+                    RadioButton(
                         modifier = Modifier.testTag(TEST_TAG)
                     )
                 }
@@ -66,7 +66,7 @@ class SelectionControlsTest {
     fun radio_control_is_correctly_enabled() {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                Radio(
+                RadioButton(
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -81,8 +81,8 @@ class SelectionControlsTest {
         val color = Color.Green
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                Radio(
-                    colors = RadioDefaults.colors(
+                RadioButton(
+                    colors = RadioButtonDefaults.colors(
                         selectedColor = color
                     ),
                     modifier = Modifier.testTag(TEST_TAG)
@@ -102,8 +102,8 @@ class SelectionControlsTest {
         val color = Color.Green
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = false)) {
-                Radio(
-                    colors = RadioDefaults.colors(
+                RadioButton(
+                    colors = RadioButtonDefaults.colors(
                         unselectedColor = color,
                     ),
                     modifier = Modifier.testTag(TEST_TAG)

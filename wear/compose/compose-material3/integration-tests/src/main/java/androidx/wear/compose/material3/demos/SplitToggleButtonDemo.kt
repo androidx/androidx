@@ -27,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -128,7 +130,11 @@ private fun DemoSplitToggleCheckbox(
             )
         },
         checked = checked,
-        toggleControl = { Checkbox() },
+        toggleControl = {
+            Checkbox(modifier = Modifier.semantics {
+                contentDescription = primary
+            })
+        },
         onCheckedChange = { checked = it },
         onClick = {
             val toastText = if (checked) "Checked" else "Not Checked"
@@ -152,12 +158,13 @@ private fun DemoSplitToggleCheckbox(
 @Composable
 private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
     var checked by remember { mutableStateOf(initiallyChecked) }
+    val text = "Primary label"
     val context = LocalContext.current
     SplitToggleButton(
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
-                "Primary label",
+                text,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
                 textAlign = TextAlign.Start,
@@ -165,10 +172,14 @@ private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
             )
         },
         checked = checked,
-        toggleControl = { Switch() },
+        toggleControl = {
+            Switch(modifier = Modifier.semantics {
+                contentDescription = text
+            })
+        },
         onCheckedChange = { checked = it },
         onClick = {
-            val toastText = if (checked) "Checked" else "Not Checked"
+            val toastText = text + " " + if (checked) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,

@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.util.sanitizeAsJavaParameterName
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertySetter
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Origin
 
 internal class KspExecutableParameterElement(
     env: KspProcessingEnv,
@@ -92,10 +93,20 @@ internal class KspExecutableParameterElement(
                 asMemberOf = container,
             )
         )
-        // In KSP2 the varargs have the component type instead of the array type. We make it always
-        // return the array type in XProcessing.
-        return if (isVarArgs() && !type.isArray()) {
-            env.getArrayType(env.getWildcardType(producerExtends = type))
+        return if (isVarArgs()) {
+            if (!type.isArray()) {
+                // In KSP2 the varargs have the component type instead of the array type.
+                // We make it always return the array type in XProcessing.
+                env.getArrayType(env.getWildcardType(producerExtends = type))
+            } else {
+                type
+            }.run {
+                // In Kotlin the vararg array is never null
+                when (parameter.origin) {
+                    Origin.KOTLIN, Origin.KOTLIN_LIB -> makeNonNullable()
+                    else -> makeNullable()
+                }
+            }
         } else {
             type
         }

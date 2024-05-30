@@ -270,6 +270,7 @@ package androidx.graphics.opengl.egl {
   }
 
   public static final class EGLConfigAttributes.Builder {
+    ctor public EGLConfigAttributes.Builder();
     method public androidx.graphics.opengl.egl.EGLConfigAttributes build();
     method public void include(androidx.graphics.opengl.egl.EGLConfigAttributes attributes);
     method public androidx.graphics.opengl.egl.EGLConfigAttributes.Builder setAttribute(int attribute, int value);

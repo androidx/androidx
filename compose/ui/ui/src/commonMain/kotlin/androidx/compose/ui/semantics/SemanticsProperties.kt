@@ -281,9 +281,9 @@ object SemanticsProperties {
     val IndexForKey = SemanticsPropertyKey<(Any) -> Int>("IndexForKey")
 
     /**
-     * @see SemanticsPropertyReceiver.editable
+     * @see SemanticsPropertyReceiver.isEditable
      */
-    val Editable = SemanticsPropertyKey<Unit>("Editable")
+    val IsEditable = SemanticsPropertyKey<Boolean>("IsEditable")
 
     /**
      * @see SemanticsPropertyReceiver.maxTextLength
@@ -1113,6 +1113,11 @@ var SemanticsPropertyReceiver.collectionItemInfo by SemanticsProperties.Collecti
 var SemanticsPropertyReceiver.toggleableState by SemanticsProperties.ToggleableState
 
 /**
+ * Whether this semantics node is editable, e.g. an editable text field.
+ */
+var SemanticsPropertyReceiver.isEditable by SemanticsProperties.IsEditable
+
+/**
  * The node is marked as a password.
  */
 fun SemanticsPropertyReceiver.password() {
@@ -1134,13 +1139,6 @@ fun SemanticsPropertyReceiver.error(description: String) {
  */
 fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
     this[SemanticsProperties.IndexForKey] = mapping
-}
-
-/**
- * Whether this semantics node is editable, e.g. an editable text field.
- */
-fun SemanticsPropertyReceiver.editable() {
-    this[SemanticsProperties.Editable] = Unit
 }
 
 /**

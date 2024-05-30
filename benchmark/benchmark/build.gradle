@@ -44,6 +44,12 @@ dependencies {
 
 android {
     namespace "androidx.benchmark.benchmark"
+    buildTypes.release {
+        androidTest {
+            enableMinification = false
+            testProguardFiles "proguard-rules.pro"
+        }
+    }
 }
 
 androidx {

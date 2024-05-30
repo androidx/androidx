@@ -485,7 +485,9 @@ class BenchmarkState internal constructor(
                 !MethodTracing.hasBeenUsed) {
             "Measurement prevented by method trace - Running on a device/configuration where " +
                 "method tracing affects measurements, and a method trace has been captured " +
-                "- no additional benchmarks can be run without restarting the test suite."
+                "- no additional benchmarks can be run without restarting the test suite. Use " +
+                "ProfilerConfig.MethodTracing.affectsMeasurementOnThisDevice to detect affected " +
+                "devices, see its documentation for more info."
         }
 
         thermalThrottleSleepSeconds = 0
@@ -652,13 +654,13 @@ class BenchmarkState internal constructor(
         private var firstBenchmark = true
 
         /**
-         * Disable error to enable internal correctness tests, which need to use method tracing
-         * and can safely ignore measurement accuracy
+         * Used to disable error to enable internal correctness tests, which need to use method
+         * tracing and can safely ignore measurement accuracy
          *
          * Ideally this would function as a true suppressible error like in Errors.kt, but existing
          * error functionality doesn't handle changing error states dynamically
          */
-        internal var enableMethodTracingAffectsMeasurementError = false
+        internal var enableMethodTracingAffectsMeasurementError = true
 
         private val DEFAULT_METRICS: Array<MetricCapture> =
             if (Arguments.cpuEventCounterMask != 0) {

@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -47,6 +48,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
@@ -86,8 +89,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -95,6 +102,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
@@ -1158,6 +1166,162 @@ class ScrollableTest {
             // Since child (inner) consumes half of the scroll, the parent (outer) consumes the
             // remainder (which is half as well), so they will be equal.
             assertThat(innerDrag).isEqualTo(outerDrag)
+        }
+    }
+
+    @Test
+    fun scrollable_nestedScroll_childPartialConsumptionForSemantics_horizontal() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        val outerState = ScrollableState(
+            consumeScrollDelta = {
+                // Since the child has already consumed half, the parent will consume the rest.
+                outerDrag += it
+                it
+            }
+        )
+        val innerState = ScrollableState(
+            consumeScrollDelta = {
+                // Child consumes half, leaving the rest for the parent to consume.
+                innerDrag += it / 2
+                it / 2
+            }
+        )
+
+        rule.setContentAndGetScope {
+            Box {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(300.dp)
+                        .scrollable(
+                            state = outerState,
+                            orientation = Orientation.Horizontal
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .testTag(scrollableBoxTag)
+                            .size(300.dp)
+                            .scrollable(
+                                state = innerState,
+                                orientation = Orientation.Horizontal
+                            )
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performSemanticsAction(ScrollBy) {
+            it.invoke(200f, 0f)
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isGreaterThan(0f)
+            assertThat(outerDrag).isGreaterThan(0f)
+            assertThat(innerDrag).isEqualTo(outerDrag)
+            innerDrag
+        }
+    }
+
+    @Test
+    fun scrollable_nestedScroll_childPartialConsumptionForSemantics_vertical() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        val outerState = ScrollableState(
+            consumeScrollDelta = {
+                outerDrag += it
+                it
+            }
+        )
+        val innerState = ScrollableState(
+            consumeScrollDelta = {
+                innerDrag += it / 2
+                it / 2
+            }
+        )
+
+        rule.setContentAndGetScope {
+            Box {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(300.dp)
+                        .scrollable(
+                            state = outerState,
+                            orientation = Orientation.Vertical
+                        )
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .testTag(scrollableBoxTag)
+                            .size(300.dp)
+                            .scrollable(
+                                state = innerState,
+                                orientation = Orientation.Vertical
+                            )
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag).performSemanticsAction(ScrollBy) {
+            it.invoke(0f, 200f)
+        }
+
+        rule.runOnIdle {
+            assertThat(innerDrag).isGreaterThan(0f)
+            assertThat(outerDrag).isGreaterThan(0f)
+            assertThat(innerDrag).isEqualTo(outerDrag)
+            innerDrag
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun focusScroll_nestedScroll_childPartialConsumptionForSemantics() {
+        var outerDrag = 0f
+        val requester = BringIntoViewRequester()
+        val connection = object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                outerDrag += available.x
+                return super.onPreScroll(available, source)
+            }
+        }
+        val scrollState = ScrollState(0)
+        rule.setContentAndGetScope {
+            Box(Modifier.nestedScroll(connection)) {
+                Row(
+                    modifier = Modifier
+                        .size(300.dp)
+                        .horizontalScroll(scrollState)
+                ) {
+                    repeat(5) {
+                        Box(
+                            modifier = Modifier
+                                .testTag(scrollableBoxTag)
+                                .size(100.dp)
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .testTag(scrollableBoxTag)
+                            .size(100.dp)
+                            .bringIntoViewRequester(requester)
+
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            scope.launch {
+                requester.bringIntoView()
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(outerDrag).isNonZero()
+            assertThat(outerDrag).isWithin(1f).of(-scrollState.value.toFloat())
         }
     }
 
@@ -3124,6 +3288,46 @@ class ScrollableTest {
             assertThat(controller.lastScrolledForward).isFalse()
             assertThat(controller.lastScrolledBackward).isTrue()
         }
+    }
+
+    @Test
+    fun enabledChange_semanticsShouldBeCleared() {
+        var enabled by mutableStateOf(true)
+        rule.setContentAndGetScope {
+            Box(
+                modifier = Modifier
+                    .testTag(scrollableBoxTag)
+                    .size(100.dp)
+                    .scrollable(
+                        state = rememberScrollableState { it },
+                        orientation = Orientation.Horizontal,
+                        enabled = enabled
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
+
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollByOffset))
+
+        rule.runOnIdle {
+            enabled = true
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
     }
 
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {

@@ -481,6 +481,16 @@ object IconButtonDefaults {
      *
      * If the button is disabled, then the colors will have an alpha
      * ([DisabledContentAlpha] and [DisabledContainerAlpha]) value applied.
+     */
+    @Composable
+    fun iconToggleButtonColors() = MaterialTheme.colorScheme.defaultIconToggleButtonColors
+
+    /**
+     * Creates a [ToggleButtonColors] for a [IconToggleButton]
+     * - by default, a colored background with a contrasting content color.
+     *
+     * If the button is disabled, then the colors will have an alpha
+     * ([DisabledContentAlpha] and [DisabledContainerAlpha]) value applied.
      *
      * @param checkedContainerColor The container color of this [IconToggleButton] when enabled
      * and checked
@@ -501,31 +511,24 @@ object IconButtonDefaults {
      */
     @Composable
     fun iconToggleButtonColors(
-        checkedContainerColor: Color = IconToggleButtonTokens.CheckedContainerColor.value,
-        checkedContentColor: Color = IconToggleButtonTokens.CheckedContentColor.value,
-        uncheckedContainerColor: Color = IconToggleButtonTokens.UncheckedContainerColor.value,
-        uncheckedContentColor: Color = IconToggleButtonTokens.UncheckedContentColor.value,
-        disabledCheckedContainerColor: Color = IconToggleButtonTokens.DisabledCheckedContainerColor
-            .value.toDisabledColor(IconToggleButtonTokens.DisabledCheckedContainerOpacity),
-        disabledCheckedContentColor: Color = IconToggleButtonTokens.DisabledCheckedContentColor
-            .value.toDisabledColor(IconToggleButtonTokens.DisabledCheckedContentOpacity),
-        disabledUncheckedContainerColor: Color = IconToggleButtonTokens
-            .DisabledUncheckedContainerColor.value
-            .toDisabledColor(IconToggleButtonTokens.DisabledUncheckedContainerOpacity),
-        disabledUncheckedContentColor: Color = IconToggleButtonTokens.DisabledUncheckedContentColor
-            .value.toDisabledColor(IconToggleButtonTokens.DisabledUncheckedContentOpacity),
-    ): ToggleButtonColors {
-        return ToggleButtonColors(
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-            uncheckedContainerColor = uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor,
-            disabledCheckedContainerColor = disabledCheckedContainerColor,
-            disabledCheckedContentColor = disabledCheckedContentColor,
-            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
-            disabledUncheckedContentColor = disabledUncheckedContentColor,
-        )
-    }
+        checkedContainerColor: Color = Color.Unspecified,
+        checkedContentColor: Color = Color.Unspecified,
+        uncheckedContainerColor: Color = Color.Unspecified,
+        uncheckedContentColor: Color = Color.Unspecified,
+        disabledCheckedContainerColor: Color = Color.Unspecified,
+        disabledCheckedContentColor: Color = Color.Unspecified,
+        disabledUncheckedContainerColor: Color = Color.Unspecified,
+        disabledUncheckedContentColor: Color = Color.Unspecified,
+    ): ToggleButtonColors = MaterialTheme.colorScheme.defaultIconToggleButtonColors.copy(
+        checkedContainerColor = checkedContainerColor,
+        checkedContentColor = checkedContentColor,
+        uncheckedContainerColor = uncheckedContainerColor,
+        uncheckedContentColor = uncheckedContentColor,
+        disabledCheckedContainerColor = disabledCheckedContainerColor,
+        disabledCheckedContentColor = disabledCheckedContentColor,
+        disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+        disabledUncheckedContentColor = disabledUncheckedContentColor,
+    )
 
     /**
      * The recommended size of an icon when used inside an icon button with size
@@ -623,6 +626,34 @@ object IconButtonDefaults {
                 disabledContentColor = fromToken(IconButtonTokens.DisabledContentColor)
                     .toDisabledColor(disabledAlpha = IconButtonTokens.DisabledContentOpacity)
             ).also { defaultIconButtonColorsCached = it }
+        }
+
+    private val ColorScheme.defaultIconToggleButtonColors: ToggleButtonColors
+        get() {
+            return defaultIconToggleButtonColorsCached ?: ToggleButtonColors(
+                checkedContainerColor = fromToken(IconToggleButtonTokens.CheckedContainerColor),
+                checkedContentColor = fromToken(IconToggleButtonTokens.CheckedContentColor),
+                uncheckedContainerColor = fromToken(IconToggleButtonTokens.UncheckedContainerColor),
+                uncheckedContentColor = fromToken(IconToggleButtonTokens.UncheckedContentColor),
+                disabledCheckedContainerColor =
+                fromToken(IconToggleButtonTokens.DisabledCheckedContainerColor).toDisabledColor(
+                    disabledAlpha = IconToggleButtonTokens.DisabledCheckedContainerOpacity
+                ),
+                disabledCheckedContentColor =
+                fromToken(IconToggleButtonTokens.DisabledCheckedContentColor).toDisabledColor(
+                    disabledAlpha = IconToggleButtonTokens.DisabledCheckedContentOpacity
+                ),
+                disabledUncheckedContainerColor =
+                fromToken(IconToggleButtonTokens.DisabledUncheckedContainerColor)
+                    .toDisabledColor(
+                        disabledAlpha = IconToggleButtonTokens.DisabledUncheckedContainerOpacity
+                    ),
+                disabledUncheckedContentColor =
+                fromToken(IconToggleButtonTokens.DisabledUncheckedContentColor)
+                    .toDisabledColor(
+                        disabledAlpha = IconToggleButtonTokens.DisabledUncheckedContentOpacity
+                    ),
+            ).also { defaultIconToggleButtonColorsCached = it }
         }
 }
 

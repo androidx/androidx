@@ -20,7 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.processing.compat.XConverters.toKS
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
@@ -89,10 +89,11 @@ class XExecutableElementTest {
                     val paramType = param.type
                     check(paramType.isArray())
                     assertThat(paramType.componentType.asTypeName())
-                        .isEqualTo(String::class.asClassName())
+                        .isEqualTo(String::class.asClassName().copy(nullable = true))
                     assertThat(param.enclosingElement).isEqualTo(method)
                 }
-                assertThat(method.returnType.asTypeName()).isEqualTo(String::class.asClassName())
+                assertThat(method.returnType.asTypeName())
+                    .isEqualTo(String::class.asClassName().copy(nullable = true))
             }
             element.getConstructors().single().let { ctor ->
                 assertThat(ctor.parameters).hasSize(1)
@@ -120,12 +121,16 @@ class XExecutableElementTest {
             element.getMethodByJvmName("method").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(String::class.asClassName()))
+                    XTypeName.getArrayName(
+                        String::class.asClassName().copy(nullable = true)
+                    ).copy(nullable = true)
+                )
             }
             element.getMethodByJvmName("methodPrimitive").let { method ->
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
+                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT).copy(nullable = true)
+                )
             }
         }
     }
@@ -808,13 +813,13 @@ class XExecutableElementTest {
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
             assertThat(
                 elm.getMethodByJvmName("getX").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName())
+            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
             assertThat(
                 elm.getMethodByJvmName("getY").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName())
+            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
             assertThat(
                 elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
-            ).isEqualTo(Int::class.asClassName())
+            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
         }
     }
 
@@ -1477,9 +1482,7 @@ class XExecutableElementTest {
                             assertThat(parameterName).isEqualTo("param1")
                         } else {
                             if (it.isKsp) {
-                                if (hasDebugFlag &&
-                                        it.processingEnv.toKS().kspVersion >=
-                                        KotlinVersion(2, 0)) {
+                                if (hasDebugFlag && (it.processingEnv as KspProcessingEnv).isKsp2) {
                                     if (isAbstract || isJavaNative) {
                                         assertThat(parameterName).isEqualTo("p0")
                                     } else {

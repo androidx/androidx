@@ -51,7 +51,8 @@ internal abstract class KspExecutableElement(
     override val thrownTypes: List<XType> by lazy {
         env.resolver.getJvmCheckedException(declaration).map {
             env.wrap(
-                ksType = it,
+                // Thrown exception types are never nullable
+                ksType = it.makeNotNullable(),
                 allowPrimitives = false
             )
         }.toList()

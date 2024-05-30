@@ -40,7 +40,6 @@ import androidx.wear.compose.material3.ProgressIndicatorDefaults.StartAngle
 import androidx.wear.compose.material3.ProgressIndicatorDefaults.StrokeWidth
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.materialcore.toRadians
-import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.min
@@ -307,5 +306,3 @@ private fun DrawScope.drawIndicatorSegment(
         )
     }
 }
-
-private fun Float.toDegrees() = this * 180f / PI.toFloat()

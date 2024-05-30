@@ -39,10 +39,14 @@ import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.MILLISECONDS
+import java.util.concurrent.TimeUnit.NANOSECONDS
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
@@ -84,7 +88,9 @@ class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraCompone
 }
 
 // TODO: Further implement the methods in this class as needed
-open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
+open class FakeUseCaseCameraRequestControl(
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob()),
+) : UseCaseCameraRequestControl {
 
     val addParameterCalls = mutableListOf<Map<CaptureRequest.Key<*>, Any>>()
     var addParameterResult = CompletableDeferred(Unit)
@@ -129,7 +135,7 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
     var cancelFocusMeteringCallCount = 0
     var cancelFocusMeteringResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
-    var awaitFocusMetering = true
+    var focusAutoCompletesAfterTimeout = true
 
     override suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>?,
@@ -154,14 +160,16 @@ open class FakeUseCaseCameraRequestControl : UseCaseCameraRequestControl {
             )
         )
 
-        if (awaitFocusMetering) {
-            withTimeoutOrNull(TimeUnit.MILLISECONDS.convert(timeLimitNs, TimeUnit.NANOSECONDS)) {
-                focusMeteringResult.await()
-            }.let { result3A ->
-                if (result3A == null) {
-                    focusMeteringResult.complete(
-                        Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
-                    )
+        if (focusAutoCompletesAfterTimeout) {
+            scope.launch {
+                withTimeoutOrNull(MILLISECONDS.convert(timeLimitNs, NANOSECONDS)) {
+                    focusMeteringResult.await()
+                }.let { result3A ->
+                    if (result3A == null) {
+                        focusMeteringResult.complete(
+                            Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
+                        )
+                    }
                 }
             }
         }

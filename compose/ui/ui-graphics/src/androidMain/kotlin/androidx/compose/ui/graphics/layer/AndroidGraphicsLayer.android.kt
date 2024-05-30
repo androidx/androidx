@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastRoundToInt
 
@@ -58,7 +57,7 @@ actual class GraphicsLayer internal constructor(
 
     private var androidOutline: AndroidOutline? = null
     private var outlineDirty = true
-    private var roundRectOutlineTopLeft: Offset = Offset.Unspecified
+    private var roundRectOutlineTopLeft: Offset = Offset.Zero
     private var roundRectOutlineSize: Size = Size.Unspecified
     private var roundRectCornerRadius: Float = 0f
 
@@ -597,22 +596,16 @@ actual class GraphicsLayer internal constructor(
     }
 
     private inline fun <T> resolveOutlinePosition(block: (Offset, Size) -> T): T {
-        val layerTopLeft = this.topLeft.toOffset()
         val layerSize = this.size.toSize()
         val rRectTopLeft = roundRectOutlineTopLeft
         val rRectSize = roundRectOutlineSize
-        val outlineTopLeft = if (rRectTopLeft.isUnspecified) {
-            layerTopLeft
-        } else {
-            rRectTopLeft
-        }
 
         val outlineSize = if (rRectSize.isUnspecified) {
             layerSize
         } else {
             rRectSize
         }
-        return block(outlineTopLeft, outlineSize)
+        return block(rRectTopLeft, outlineSize)
     }
 
     // Suppress deprecation for usage of setConvexPath in favor of setPath on API levels that
@@ -716,7 +709,7 @@ actual class GraphicsLayer internal constructor(
         internalOutline = null
         outlinePath = null
         roundRectOutlineSize = Size.Unspecified
-        roundRectOutlineTopLeft = Offset.Unspecified
+        roundRectOutlineTopLeft = Offset.Zero
         roundRectCornerRadius = 0f
         outlineDirty = true
     }
@@ -736,9 +729,11 @@ actual class GraphicsLayer internal constructor(
     }
 
     /**
-     * Specifies a round rect as the outline.
-     * By default, both [topLeft] and [size] are set to [Offset.Unspecified] and [Size.Unspecified]
-     * indicating that the outline should match the bounds of the [GraphicsLayer].
+     * Configures a rounded rect outline for this [GraphicsLayer]. By default, [topLeft] is set to
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
+     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using an [Outline] created from the round rect parameters provided. Additionally
+     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline

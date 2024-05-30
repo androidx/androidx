@@ -39,6 +39,7 @@ import kotlin.reflect.KProperty
  * when added as part of a [MotionScene] with [MotionSceneScope.addTransition].
  * @param content Lambda to define the Transition parameters on the given [TransitionScope].
  */
+@ExperimentalMotionApi
 fun Transition(
     from: String = "start",
     to: String = "end",
@@ -52,8 +53,6 @@ fun Transition(
 /**
  * Scope where [Transition] parameters are defined.
  *
- * &nbsp;
- *
  * Here, you may define multiple KeyFrames for specific [ConstrainedLayoutReference]s, as well was
  * enabling [OnSwipe] handling.
  *
@@ -61,6 +60,7 @@ fun Transition(
  * @see keyPositions
  * @see keyCycles
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class TransitionScope internal constructor(
     private val from: String,
@@ -100,16 +100,12 @@ class TransitionScope internal constructor(
     /**
      * The default [Arc] shape for animated layout movement.
      *
-     * &nbsp;
-     *
      * [Arc.None] by default.
      */
     var motionArc: Arc = Arc.None
 
     /**
      * When not null, enables animating through the transition with touch input.
-     *
-     * &nbsp;
      *
      * Example:
      * ```
@@ -149,21 +145,15 @@ class TransitionScope internal constructor(
     /**
      * Defines the maximum delay (in progress value) between a group of staggered widgets.
      *
-     * &nbsp;
-     *
      * The amount of delay for each widget is decided based on its weight. Where the widget with the
      * lowest weight will receive the full delay. A negative [maxStaggerDelay] value inverts this logic, so
      * that the widget with the highest weight will receive the full delay.
-     *
-     * &nbsp;
      *
      * By default, the weight of each widget is calculated as the Manhattan Distance from the
      * top-left corner of the layout. You may set custom weights using
      * [MotionSceneScope.staggeredWeight] on a per-widget basis, this essentially allows you to set
      * a custom staggering order. Note that when you set custom weights, widgets without a custom
      * weight will be ignored for this calculation and will animate without delay.
-     *
-     * &nbsp;
      *
      * The remaining widgets will receive a portion of this delay, based on their weight calculated
      * against each other.
@@ -290,6 +280,7 @@ class TransitionScope internal constructor(
  * should be registered on [framesContainer] and the corresponding properties changes on
  * [keyFramePropsObject].
  */
+@ExperimentalMotionApi
 sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
     internal val keyFramePropsObject = CLObject(charArrayOf()).apply {
         clear()
@@ -337,6 +328,7 @@ sealed class BaseKeyFramesScope(vararg targets: ConstrainedLayoutReference) {
  * Fake private implementation of [BaseKeyFramesScope] to prevent exhaustive `when` usages of
  * [BaseKeyFramesScope], while `sealed` prevents undesired inheritance of [BaseKeyFramesScope].
  */
+@OptIn(ExperimentalMotionApi::class)
 private class FakeKeyFramesScope : BaseKeyFramesScope()
 
 /**
@@ -344,6 +336,7 @@ private class FakeKeyFramesScope : BaseKeyFramesScope()
  *
  * @see frame
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
@@ -368,6 +361,7 @@ class KeyAttributesScope internal constructor(vararg targets: ConstrainedLayoutR
  *
  * @see frame
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
@@ -398,6 +392,7 @@ class KeyPositionsScope internal constructor(vararg targets: ConstrainedLayoutRe
  *
  * @see frame
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutReference) :
     BaseKeyFramesScope(*targets) {
@@ -423,6 +418,7 @@ class KeyCyclesScope internal constructor(vararg targets: ConstrainedLayoutRefer
  * Properties should be registered on [keyFramePropertiesValue], however, custom properties must
  * use [customPropertiesValue].
  */
+@ExperimentalMotionApi
 sealed class BaseKeyFrameScope {
     /**
      * PropertyName-Value map for the properties of each type of key frame.
@@ -460,8 +456,6 @@ sealed class BaseKeyFrameScope {
      * Where the Key is the property's name unless [nameOverride] is not null.
      *
      * The value is the String given by [NamedPropertyOrValue.name].
-     *
-     * &nbsp;
      *
      * Use when declaring properties that have a named value.
      *
@@ -527,6 +521,7 @@ sealed class BaseKeyFrameScope {
  * Fake private implementation of [BaseKeyFrameScope] to prevent exhaustive `when` usages of
  * [BaseKeyFrameScope], while `sealed` prevents undesired inheritance of [BaseKeyFrameScope].
  */
+@OptIn(ExperimentalMotionApi::class)
 private class FakeKeyFrameScope : BaseKeyFrameScope()
 
 /**
@@ -538,6 +533,7 @@ private class FakeKeyFrameScope : BaseKeyFrameScope()
  *
  * @see [MotionSceneScope.customFloat]
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
     var alpha by addOnPropertyChange(1f, "alpha")
@@ -557,6 +553,7 @@ class KeyAttributeScope internal constructor() : BaseKeyFrameScope() {
  * These are modifications on the widget's position and size relative to its final state on the
  * current transition.
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
     /**
@@ -564,8 +561,6 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
      *
      * Where 0 is the position at the **start** [ConstraintSet] and 1 is at the **end**
      * [ConstraintSet].
-     *
-     * &nbsp;
      *
      * The coordinate space is defined by [KeyPositionsScope.type].
      */
@@ -576,8 +571,6 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
      *
      * Where 0 is the position at the **start** [ConstraintSet] and 1 is at the **end**
      * [ConstraintSet].
-     *
-     * &nbsp;
      *
      * The coordinate space is defined by [KeyPositionsScope.type].
      */
@@ -605,6 +598,7 @@ class KeyPositionScope internal constructor() : BaseKeyFrameScope() {
  * [KeyCycleScope] allows you to apply wave-based transforms, defined by [period], [offset] and
  * [phase]. A sinusoidal wave is used by default.
  */
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class KeyCycleScope internal constructor() : BaseKeyFrameScope() {
     var alpha by addOnPropertyChange(1f)
@@ -630,8 +624,6 @@ internal interface NamedPropertyOrValue {
 /**
  * Defines the OnSwipe behavior for a [Transition].
  *
- * &nbsp;
- *
  * When swiping, the [MotionLayout] is updated to a progress value so that the given
  * [ConstrainedLayoutReference] is laid out in a position corresponding to the drag.
  *
@@ -655,6 +647,7 @@ internal interface NamedPropertyOrValue {
  * @param mode Describes how MotionLayout animates during [onTouchUp]. [SwipeMode.velocity] by
  * default.
  */
+@ExperimentalMotionApi
 class OnSwipe(
     val anchor: ConstrainedLayoutReference,
     val side: SwipeSide,
@@ -670,16 +663,13 @@ class OnSwipe(
 /**
  * Supported Easing curves.
  *
- * &nbsp;
- *
  * You may define your own Cubic-bezier easing curve with [cubic].
  */
+@ExperimentalMotionApi
 class Easing internal constructor(override val name: String) : NamedPropertyOrValue {
     companion object {
         /**
          * Standard [Easing] curve, also known as: Ease in, ease out.
-         *
-         * &nbsp;
          *
          * Defined as `cubic(0.4f, 0.0f, 0.2f, 1f)`.
          */
@@ -688,8 +678,6 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
         /**
          * Acceleration [Easing] curve, also known as: Ease in.
          *
-         * &nbsp;
-         *
          * Defined as `cubic(0.4f, 0.05f, 0.8f, 0.7f)`.
          */
         val Accelerate = Easing("accelerate")
@@ -697,16 +685,12 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
         /**
          * Deceleration [Easing] curve, also known as: Ease out.
          *
-         * &nbsp;
-         *
          * Defined as `cubic(0.0f, 0.0f, 0.2f, 0.95f)`.
          */
         val Decelerate = Easing("decelerate")
 
         /**
          * Linear [Easing] curve.
-         *
-         * &nbsp;
          *
          * Defined as `cubic(1f, 1f, 0f, 0f)`.
          */
@@ -716,16 +700,12 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
          * Anticipate is an [Easing] curve with a small negative overshoot near the start of the
          * motion.
          *
-         * &nbsp;
-         *
          * Defined as `cubic(0.36f, 0f, 0.66f, -0.56f)`.
          */
         val Anticipate = Easing("anticipate")
 
         /**
          * Overshoot is an [Easing] curve with a small positive overshoot near the end of the motion.
-         *
-         * &nbsp;
          *
          * Defined as `cubic(0.34f, 1.56f, 0.64f, 1f)`.
          */
@@ -750,6 +730,7 @@ class Easing internal constructor(override val name: String) : NamedPropertyOrVa
 /**
  * Determines a specific arc direction of the widget's path on a [Transition].
  */
+@ExperimentalMotionApi
 class Arc internal constructor(val name: String) {
     companion object {
         val None = Arc("none")
@@ -767,6 +748,7 @@ class Arc internal constructor(val name: String) {
  * @see velocity
  * @see spring
  */
+@ExperimentalMotionApi
 class SwipeMode internal constructor(
     val name: String,
     internal val springMass: Float = 1f,
@@ -847,14 +829,13 @@ class SwipeMode internal constructor(
 /**
  * The logic used to decide the target position when the touch input ends.
  *
- * &nbsp;
- *
  * The possible target positions are the positions defined by the **start** and **end**
  * [ConstraintSet]s.
  *
  * To define the type of motion used while animating during touch up, see [SwipeMode] for
  * [OnSwipe.mode].
  */
+@ExperimentalMotionApi
 class SwipeTouchUp internal constructor(val name: String) {
     companion object {
         /**
@@ -909,6 +890,7 @@ class SwipeTouchUp internal constructor(val name: String) {
 /**
  * Direction of the touch input that will initiate the swipe handling.
  */
+@ExperimentalMotionApi
 class SwipeDirection internal constructor(val name: String) {
     companion object {
         val Up: SwipeDirection = SwipeDirection("up")
@@ -926,6 +908,7 @@ class SwipeDirection internal constructor(val name: String) {
  * Side of the bounds to track during touch handling, this is to account for when the widget changes
  * size during the [Transition].
  */
+@ExperimentalMotionApi
 class SwipeSide internal constructor(val name: String) {
     companion object {
         val Top: SwipeSide = SwipeSide("top")
@@ -942,6 +925,7 @@ class SwipeSide internal constructor(val name: String) {
  * Behavior of the spring as it crosses its target position. The target position may be the start or
  * end of the [Transition].
  */
+@ExperimentalMotionApi
 class SpringBoundary internal constructor(val name: String) {
     companion object {
         /**
@@ -972,6 +956,7 @@ class SpringBoundary internal constructor(val name: String) {
 /**
  * Type of fit applied between curves.
  */
+@ExperimentalMotionApi
 class CurveFit internal constructor(override val name: String) : NamedPropertyOrValue {
     companion object {
         val Spline: CurveFit = CurveFit("spline")
@@ -982,6 +967,7 @@ class CurveFit internal constructor(override val name: String) : NamedPropertyOr
 /**
  * Relative coordinate space in which KeyPositions are applied.
  */
+@ExperimentalMotionApi
 class RelativePosition internal constructor(override val name: String) : NamedPropertyOrValue {
     companion object {
         /**

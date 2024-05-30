@@ -42,7 +42,6 @@ import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
-import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
 import static androidx.camera.video.QualitySelector.getQualityToResolutionMap;
 import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
@@ -190,18 +189,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
         boolean hasPreviewDelayQuirk =
                 DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
-        boolean hasImageCaptureFailedQuirk =
-                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
+        ImageCaptureFailedWhenVideoCaptureIsBoundQuirk imageCaptureFailedQuirk =
+                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class);
+        boolean useTemplatePreviewByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
+                && imageCaptureFailedQuirk.workaroundByTemplatePreview();
+        boolean enableSurfaceProcessingByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
+                && imageCaptureFailedQuirk.workaroundBySurfaceProcessing();
         boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
         boolean hasExtraSupportedResolutionQuirk =
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
         boolean hasTemporalNoiseQuirk = DeviceQuirks.get(TemporalNoiseQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
-                hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
-                        || hasTemporalNoiseQuirk;
+                hasPreviewStretchQuirk || hasPreviewDelayQuirk
+                        || useTemplatePreviewByImageCaptureFailedQuirk || hasTemporalNoiseQuirk;
         sEnableSurfaceProcessingByQuirk =
-                hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
+                hasPreviewDelayQuirk || enableSurfaceProcessingByImageCaptureFailedQuirk
                         || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
     }
@@ -1892,15 +1895,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         @NonNull
         public Builder<T> setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder<T> setUseCaseEventCallback(
-                @NonNull EventCallback useCaseEventCallback) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
 

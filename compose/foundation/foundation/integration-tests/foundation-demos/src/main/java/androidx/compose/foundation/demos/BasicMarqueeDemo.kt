@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.demos
 
 import android.text.SpannableStringBuilder
@@ -23,11 +21,10 @@ import android.text.TextUtils
 import android.text.method.LinkMovementMethod
 import android.text.style.URLSpan
 import android.widget.TextView
-import androidx.compose.foundation.DefaultMarqueeVelocity
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
+import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeVelocity
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -175,7 +172,6 @@ private fun MarqueeWithClickable() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MarqueeText(
     text: String,

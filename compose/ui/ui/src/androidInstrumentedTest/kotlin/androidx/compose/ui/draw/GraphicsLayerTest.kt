@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
@@ -72,12 +73,14 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.padding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.scale
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
@@ -1876,6 +1879,89 @@ class GraphicsLayerTest {
 
         rule.runOnIdle {
             assertThat(layer.isReleased).isFalse()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchingFromExplicitLayerToImplicit() {
+        var useExplicitLayer by mutableStateOf(true)
+        rule.setContent {
+            val layer = if (useExplicitLayer) {
+                rememberGraphicsLayer()
+            } else {
+                null
+            }
+            Canvas(
+                modifier = Modifier
+                    .testTag("tag")
+                    .layout { measurable, _ ->
+                        val placeable = measurable.measure(Constraints.fixed(10, 10))
+                        layout(placeable.width, placeable.height) {
+                            if (layer != null) {
+                                placeable.placeWithLayer(0, 0, layer)
+                            } else {
+                                placeable.place(0, 0)
+                            }
+                        }
+                    }
+                    .then(if (layer != null) Modifier else Modifier.graphicsLayer())
+            ) {
+                drawRect(Color.Blue)
+            }
+        }
+
+        rule.runOnIdle {
+            useExplicitLayer = false
+        }
+
+        rule.onNodeWithTag("tag")
+            .captureToImage()
+            .assertPixels(IntSize(10, 10)) { Color.Blue }
+    }
+
+    @Test
+    fun centerPivotIsUsedWhenWeCalculateBoundsBeforeLayerWasFirstDrawn() {
+        var bounds: Rect = Rect.Zero
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .rotate(180f)
+                        .onPlaced {
+                            bounds = it.boundsInRoot()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(bounds).isEqualTo(Rect(0f, 0f, 10f, 10f))
+        }
+    }
+
+    @Test
+    fun customPivotIsCalculatedCorrectlyWhenWeCalculateBoundsBeforeLayerWasFirstDrawn() {
+        var bounds: Rect = Rect.Zero
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .graphicsLayer(
+                            rotationZ = 180f,
+                            transformOrigin = TransformOrigin(1f, 1f)
+                        )
+                        .onPlaced {
+                            bounds = it.boundsInRoot()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(bounds).isEqualTo(Rect(10f, 10f, 20f, 20f))
         }
     }
 }

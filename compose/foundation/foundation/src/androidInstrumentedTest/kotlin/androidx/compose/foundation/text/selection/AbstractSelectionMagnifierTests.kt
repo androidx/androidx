@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.selection.gestures.RtlChar
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -102,7 +103,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     @Test
     fun magnifier_centeredToEndOfLine_whenBidiEndOffsetInMiddleOfLine() {
         val ltrWord = "hello"
-        val rtlWord = "בבבבב"
+        val rtlWord = RtlChar.repeat(5)
 
         lateinit var textLayout: TextLayoutResult
         rule.setTextFieldTestContent {
@@ -200,6 +201,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
         // start selection at first character
         rule.onNodeWithTag(tag).performTouchInput {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longPress(firstPressOffset)
         }
         assertMagnifierAt(firstPressOffset)
@@ -448,20 +450,18 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     ) {
         val dragDistance = Offset(10f, 0f)
         val dragDirection = if (expandForwards) 1f else -1f
+        val char = if (layoutDirection == LayoutDirection.Ltr) "a" else RtlChar
+        val word = char.repeat(4)
         lateinit var textLayout: TextLayoutResult
         rule.setTextFieldTestContent {
             Content(
-                if (layoutDirection == LayoutDirection.Ltr) {
-                    "aaaa aaaa aaaa"
-                } else {
-                    "באמת באמת באמת"
-                },
-                Modifier
+                text = "$word $word $word",
+                onTextLayout = { textLayout = it },
+                modifier = Modifier
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
-                    .testTag(tag),
-                onTextLayout = { textLayout = it }
+                    .testTag(tag)
             )
         }
 
@@ -499,14 +499,12 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr
     ) {
         val dragDistance = Offset(1f, 0f)
+        val char = if (layoutDirection == LayoutDirection.Ltr) "a" else RtlChar
+        val word = char.repeat(4)
         rule.setTextFieldTestContent {
             Content(
-                if (layoutDirection == LayoutDirection.Ltr) {
-                    "aaaa aaaa aaaa"
-                } else {
-                    "באמת באמת באמת"
-                },
-                Modifier
+                text = "$word $word $word",
+                modifier = Modifier
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
@@ -539,7 +537,8 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         val dragDistance = Offset(1f, 0f)
         val dragDirection = if (checkStart xor (layoutDirection == LayoutDirection.Rtl)) -1f else 1f
         val moveOffset = dragDistance * dragDirection
-        val fillerWord = if (layoutDirection == LayoutDirection.Ltr) "aaaa" else "באמת"
+        val fillerChar = if (layoutDirection == LayoutDirection.Ltr) "a" else RtlChar
+        val fillerWord = fillerChar.repeat(4)
         // When testing the cursor, we use an empty line so it doesn't have room to move in either
         // direction. For other handles, the line needs to have some text to select.
         val middleLine = if (handle == Handle.Cursor) "" else fillerWord
@@ -582,20 +581,18 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     ) {
         var screenWidth = 0
         val dragDirection = if (checkStart) -1f else 1f
+        val char = if (layoutDirection == LayoutDirection.Ltr) "a" else RtlChar
+        val word = char.repeat(4)
         rule.setTextFieldTestContent {
             Content(
-                if (layoutDirection == LayoutDirection.Ltr) {
-                    "aaaa aaaa\naaaa\naaaa aaaa"
-                } else {
-                    "באמתבאמת\nבאמת\nבאמתבאמת"
-                },
-                Modifier
+                text = "$word $word\n$word\n$word $word",
+                style = TextStyle(textAlign = TextAlign.Center),
+                modifier = Modifier
                     .onSizeChanged { screenWidth = it.width }
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
-                    .testTag(tag),
-                style = TextStyle(textAlign = TextAlign.Center)
+                    .testTag(tag)
             )
         }
 

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -42,7 +43,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.emoji2.text.EmojiCompat
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -132,7 +132,12 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
                 )
 
                 if (isStylusHandwritingSupported) {
-                    launch(start = CoroutineStart.UNDISPATCHED) {
+                    launch {
+                        // When the editor is just focused, we need to wait for imm.startInput
+                        // before calling startStylusHandwriting. We need to wait for one frame
+                        // because TextInputService.startInput also waits for one frame before
+                        // actually calling imm.restartInput.
+                        withFrameMillis { }
                         stylusHandwritingTrigger?.collect {
                             inputMethodManager.startStylusHandwriting()
                         }

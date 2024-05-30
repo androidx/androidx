@@ -110,5 +110,5 @@ public class MyDatabase_Impl : MyDatabase() {
     return _autoMigrations
   }
 
-  override fun getDao(): MyDao = _myDao.value
+  override fun getDao(): MyDao? = _myDao.value
 }

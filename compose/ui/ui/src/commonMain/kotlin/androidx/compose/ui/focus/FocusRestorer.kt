@@ -19,6 +19,11 @@ package androidx.compose.ui.focus
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.currentValueOf
@@ -62,6 +67,10 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
     return false
 }
 
+internal fun FocusTargetNode.pinFocusedChild(): PinnedHandle? {
+    return findActiveFocusNode()?.currentValueOf(LocalPinnableContainer)?.pin()
+}
+
 // TODO: Move focusRestorer to foundation after saveFocusedChild and restoreFocusedChild are stable.
 /**
  * This modifier can be used to save and restore focus to a focus group.
@@ -82,25 +91,37 @@ fun Modifier.focusRestorer(
 
 internal class FocusRestorerNode(
     var onRestoreFailed: (() -> FocusRequester)?
-) : FocusPropertiesModifierNode, FocusRequesterModifierNode, Modifier.Node() {
+) : CompositionLocalConsumerModifierNode,
+    FocusPropertiesModifierNode,
+    FocusRequesterModifierNode,
+    Modifier.Node() {
+
+    private var pinnedHandle: PinnedHandle? = null
     private val onExit: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
         saveFocusedChild()
-        FocusRequester.Default
+        pinnedHandle?.release()
+        pinnedHandle = pinFocusedChild()
+        Default
     }
 
     private val onEnter: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
-        if (restoreFocusedChild()) {
-            FocusRequester.Cancel
-        } else {
-            onRestoreFailed?.invoke() ?: FocusRequester.Default
-        }
+        val result = if (restoreFocusedChild()) Cancel else onRestoreFailed?.invoke()
+        pinnedHandle?.release()
+        pinnedHandle = null
+        result ?: Default
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.enter = onEnter
         focusProperties.exit = onExit
+    }
+
+    override fun onDetach() {
+        pinnedHandle?.release()
+        pinnedHandle = null
+        super.onDetach()
     }
 }
 

@@ -222,7 +222,10 @@ internal abstract class NodeCoordinator(
         if (layer != null) {
             layer.resize(IntSize(width, height))
         } else {
-            wrappedBy?.invalidateLayer()
+            // if the node is not placed then this change will not be visible
+            if (layoutNode.isPlaced) {
+                wrappedBy?.invalidateLayer()
+            }
         }
         measuredSize = IntSize(width, height)
         if (layerBlock != null) {
@@ -373,6 +376,10 @@ internal abstract class NodeCoordinator(
         } else {
             if (this.explicitLayer != null) {
                 this.explicitLayer = null
+                // we need to first release the OwnedLayer created for explicitLayer
+                // as we don't support updating the same OwnedLayer object from using
+                // explicit layer to implicit one.
+                updateLayerBlock(null)
             }
             updateLayerBlock(layerBlock)
         }
@@ -401,6 +408,11 @@ internal abstract class NodeCoordinator(
                 explicitLayer = null
             }
             updateLayerBlock(null)
+
+            // as we removed the layer the node was placed with, we have to request relayout in
+            // case the node will be reused in future. during the relayout the layer will be
+            // recreated again if needed.
+            layoutNode.requestRelayout()
         }
     }
 

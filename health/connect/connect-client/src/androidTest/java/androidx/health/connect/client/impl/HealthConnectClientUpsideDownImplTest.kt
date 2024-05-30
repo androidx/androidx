@@ -20,6 +20,7 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
@@ -54,6 +55,7 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -61,10 +63,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @MediumTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class HealthConnectClientUpsideDownImplTest {
 
     private companion object {
@@ -393,6 +394,32 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    @Test
+    fun aggregateRecords_belowSdkExt10() = runTest {
+        assumeFalse(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
+
+        healthConnectClient.insertRecords(
+            listOf(
+                NutritionRecord(
+                    startTime = START_TIME,
+                    startZoneOffset = ZoneOffset.UTC,
+                    endTime = START_TIME + 1.minutes,
+                    endZoneOffset = ZoneOffset.UTC,
+                    transFat = Mass.grams(0.5)
+                )
+            )
+        )
+
+        val aggregateResponse = healthConnectClient.aggregate(
+            AggregateRequest(
+                setOf(NutritionRecord.TRANS_FAT_TOTAL),
+                TimeRangeFilter.none()
+            )
+        )
+
+        assertThat(aggregateResponse[NutritionRecord.TRANS_FAT_TOTAL]).isEqualTo(Mass.grams(0.5))
+    }
+
     @Ignore("b/314092270")
     @Test
     fun aggregateRecordsGroupByDuration() = runTest {
@@ -544,6 +571,7 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    @Ignore("b/314092270")
     @Test
     fun aggregateRecordsGroupByPeriod_monthly_noData() = runTest {
         val queryStartTime = LocalDateTime.ofInstant(START_TIME - 40.days, ZONE_ID)

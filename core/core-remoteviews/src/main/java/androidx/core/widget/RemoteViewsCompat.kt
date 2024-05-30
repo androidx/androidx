@@ -936,6 +936,7 @@ public object RemoteViewsCompat {
      * Equivalent to calling [android.widget.LinearLayout.setHorizontalGravity].
      *
      * @param viewId The id of the target view
+     * @param horizontalGravity See [android.view.Gravity].
      */
     @JvmStatic
     public fun RemoteViews.setLinearLayoutHorizontalGravity(
@@ -949,6 +950,7 @@ public object RemoteViewsCompat {
      * Equivalent to calling [android.widget.LinearLayout.setVerticalGravity].
      *
      * @param viewId The id of the target view
+     * @param verticalGravity See [android.view.Gravity].
      */
     @JvmStatic
     public fun RemoteViews.setLinearLayoutVerticalGravity(
@@ -1439,6 +1441,7 @@ public object RemoteViewsCompat {
      * Equivalent to calling [android.widget.RelativeLayout.setHorizontalGravity].
      *
      * @param viewId The id of the target view
+     * @param horizontalGravity See [android.view.Gravity].
      */
     @JvmStatic
     public fun RemoteViews.setRelativeLayoutHorizontalGravity(
@@ -1467,6 +1470,7 @@ public object RemoteViewsCompat {
      * Equivalent to calling [android.widget.RelativeLayout.setVerticalGravity].
      *
      * @param viewId The id of the target view
+     * @param verticalGravity See [android.view.Gravity].
      */
     @JvmStatic
     public fun RemoteViews.setRelativeLayoutVerticalGravity(
@@ -1669,7 +1673,7 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param notNight An Icon holding the desired thumb when the UI is not in night mode, or null
      * to clear the thumb.
-     * @param notNight An Icon holding the desired thumb when the UI is in night mode, or null to
+     * @param night An Icon holding the desired thumb when the UI is in night mode, or null to
      * clear the thumb.
      */
     @RequiresApi(31)
@@ -1819,7 +1823,7 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param notNight An Icon holding the desired track when the UI is not in night mode, or null
      * to clear the track.
-     * @param notNight An Icon holding the desired track when the UI is in night mode, or null to
+     * @param night An Icon holding the desired track when the UI is in night mode, or null to
      * clear the track.
      */
     @RequiresApi(31)

@@ -1758,12 +1758,6 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void TabRow(int selectedTabIndex, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material3.TabPosition>,kotlin.Unit> indicator, optional kotlin.jvm.functions.Function0<kotlin.Unit> divider, kotlin.jvm.functions.Function0<kotlin.Unit> tabs);
   }
 
-  public final class TextDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.TextLinkStyles linkStyles();
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.TextLinkStyles linkStyles(optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.SpanStyle? linkPressedStyle);
-    field public static final androidx.compose.material3.TextDefaults INSTANCE;
-  }
-
   @androidx.compose.runtime.Immutable public final class TextFieldColors {
     ctor public TextFieldColors(long focusedTextColor, long unfocusedTextColor, long disabledTextColor, long errorTextColor, long focusedContainerColor, long unfocusedContainerColor, long disabledContainerColor, long errorContainerColor, long cursorColor, long errorCursorColor, androidx.compose.foundation.text.selection.TextSelectionColors textSelectionColors, long focusedIndicatorColor, long unfocusedIndicatorColor, long disabledIndicatorColor, long errorIndicatorColor, long focusedLeadingIconColor, long unfocusedLeadingIconColor, long disabledLeadingIconColor, long errorLeadingIconColor, long focusedTrailingIconColor, long unfocusedTrailingIconColor, long disabledTrailingIconColor, long errorTrailingIconColor, long focusedLabelColor, long unfocusedLabelColor, long disabledLabelColor, long errorLabelColor, long focusedPlaceholderColor, long unfocusedPlaceholderColor, long disabledPlaceholderColor, long errorPlaceholderColor, long focusedSupportingTextColor, long unfocusedSupportingTextColor, long disabledSupportingTextColor, long errorSupportingTextColor, long focusedPrefixColor, long unfocusedPrefixColor, long disabledPrefixColor, long errorPrefixColor, long focusedSuffixColor, long unfocusedSuffixColor, long disabledSuffixColor, long errorSuffixColor);
     method public androidx.compose.material3.TextFieldColors copy(optional long focusedTextColor, optional long unfocusedTextColor, optional long disabledTextColor, optional long errorTextColor, optional long focusedContainerColor, optional long unfocusedContainerColor, optional long disabledContainerColor, optional long errorContainerColor, optional long cursorColor, optional long errorCursorColor, optional androidx.compose.foundation.text.selection.TextSelectionColors? textSelectionColors, optional long focusedIndicatorColor, optional long unfocusedIndicatorColor, optional long disabledIndicatorColor, optional long errorIndicatorColor, optional long focusedLeadingIconColor, optional long unfocusedLeadingIconColor, optional long disabledLeadingIconColor, optional long errorLeadingIconColor, optional long focusedTrailingIconColor, optional long unfocusedTrailingIconColor, optional long disabledTrailingIconColor, optional long errorTrailingIconColor, optional long focusedLabelColor, optional long unfocusedLabelColor, optional long disabledLabelColor, optional long errorLabelColor, optional long focusedPlaceholderColor, optional long unfocusedPlaceholderColor, optional long disabledPlaceholderColor, optional long errorPlaceholderColor, optional long focusedSupportingTextColor, optional long unfocusedSupportingTextColor, optional long disabledSupportingTextColor, optional long errorSupportingTextColor, optional long focusedPrefixColor, optional long unfocusedPrefixColor, optional long disabledPrefixColor, optional long errorPrefixColor, optional long focusedSuffixColor, optional long unfocusedSuffixColor, optional long disabledSuffixColor, optional long errorSuffixColor);
@@ -1895,26 +1889,12 @@ package androidx.compose.material3 {
 
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @Deprecated @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
-    method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style, optional androidx.compose.material3.TextLinkStyles linkStyles);
+    method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>? onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @Deprecated @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
-  }
-
-  @androidx.compose.runtime.Immutable public final class TextLinkStyles {
-    ctor public TextLinkStyles(androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.SpanStyle? linkPressedStyle);
-    method public androidx.compose.material3.TextLinkStyles copy(optional androidx.compose.ui.text.SpanStyle? linkStyle, optional androidx.compose.ui.text.SpanStyle? linkFocusedStyle, optional androidx.compose.ui.text.SpanStyle? linkHoveredStyle, optional androidx.compose.ui.text.SpanStyle? linkPressedStyle);
-    method public androidx.compose.ui.text.SpanStyle? getLinkFocusedStyle();
-    method public androidx.compose.ui.text.SpanStyle? getLinkHoveredStyle();
-    method public androidx.compose.ui.text.SpanStyle? getLinkPressedStyle();
-    method public androidx.compose.ui.text.SpanStyle? getLinkStyle();
-    property public final androidx.compose.ui.text.SpanStyle? linkFocusedStyle;
-    property public final androidx.compose.ui.text.SpanStyle? linkHoveredStyle;
-    property public final androidx.compose.ui.text.SpanStyle? linkPressedStyle;
-    property public final androidx.compose.ui.text.SpanStyle? linkStyle;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class TimePickerColors {
@@ -1960,6 +1940,7 @@ package androidx.compose.material3 {
   public final class TimePickerKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimeInput(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void TimePicker(androidx.compose.material3.TimePickerState state, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.TimePickerColors colors, optional int layoutType);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.TimePickerState TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TimePickerState rememberTimePickerState(optional int initialHour, optional int initialMinute, optional boolean is24Hour);
   }
 
@@ -1974,20 +1955,35 @@ package androidx.compose.material3 {
     property public final int Vertical;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TimePickerState {
-    ctor public TimePickerState(int initialHour, int initialMinute, boolean is24Hour);
-    method public int getHour();
-    method public int getMinute();
-    method public boolean is24hour();
-    method public suspend Object? settle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final int hour;
-    property public final boolean is24hour;
-    property public final int minute;
-    field public static final androidx.compose.material3.TimePickerState.Companion Companion;
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @kotlin.jvm.JvmInline public final value class TimePickerSelectionMode {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.compose.material3.TimePickerSelectionMode.Companion Companion;
   }
 
-  public static final class TimePickerState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material3.TimePickerState,? extends java.lang.Object!> Saver();
+  public static final class TimePickerSelectionMode.Companion {
+    method public int getHour();
+    method public int getMinute();
+    property public final int Hour;
+    property public final int Minute;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TimePickerState {
+    method @IntRange(from=0L, to=23L) public int getHour();
+    method @IntRange(from=0L, to=59L) public int getMinute();
+    method public int getSelection();
+    method public boolean is24hour();
+    method public boolean isAfternoon();
+    method public void set24hour(boolean);
+    method public void setAfternoon(boolean);
+    method public void setHour(@IntRange(from=0L, to=23L) int);
+    method public void setMinute(@IntRange(from=0L, to=59L) int);
+    method public void setSelection(int);
+    property @IntRange(from=0L, to=23L) public abstract int hour;
+    property public abstract boolean is24hour;
+    property public abstract boolean isAfternoon;
+    property @IntRange(from=0L, to=59L) public abstract int minute;
+    property public abstract int selection;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class TooltipDefaults {
@@ -2014,7 +2010,7 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TooltipState rememberTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipScope {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface TooltipScope {
     method public androidx.compose.ui.Modifier drawCaret(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.draw.CacheDrawScope,? super androidx.compose.ui.layout.LayoutCoordinates?,androidx.compose.ui.draw.DrawResult> draw);
   }
 
@@ -2172,6 +2168,9 @@ package androidx.compose.material3.carousel {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface CarouselItemScope {
     method public androidx.compose.material3.carousel.CarouselItemInfo getCarouselItemInfo();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskClip(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape shape);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.GenericShape rememberMaskShape(androidx.compose.ui.graphics.Shape shape);
     property public abstract androidx.compose.material3.carousel.CarouselItemInfo carouselItemInfo;
   }
 
@@ -2208,9 +2207,11 @@ package androidx.compose.material3.pulltorefresh {
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class PullToRefreshDefaults {
     method @androidx.compose.runtime.Composable public void Indicator(androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long color, optional float threshold);
     method @androidx.compose.runtime.Composable public long getContainerColor();
+    method public float getElevation();
     method @androidx.compose.runtime.Composable public long getIndicatorColor();
     method public float getPositionalThreshold();
     method public androidx.compose.ui.graphics.Shape getShape();
+    property public final float Elevation;
     property public final float PositionalThreshold;
     property @androidx.compose.runtime.Composable public final long containerColor;
     property @androidx.compose.runtime.Composable public final long indicatorColor;
@@ -2219,10 +2220,10 @@ package androidx.compose.material3.pulltorefresh {
   }
 
   public final class PullToRefreshKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean isRefreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void PullToRefreshBox(boolean isRefreshing, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> indicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.pulltorefresh.PullToRefreshState PullToRefreshState();
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefresh(androidx.compose.ui.Modifier, boolean isRefreshing, androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled, optional float threshold, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefreshIndicator(androidx.compose.ui.Modifier, androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefresh(androidx.compose.ui.Modifier, boolean isRefreshing, androidx.compose.material3.pulltorefresh.PullToRefreshState state, optional boolean enabled, optional float threshold, kotlin.jvm.functions.Function0<kotlin.Unit> onRefresh);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.ui.Modifier pullToRefreshIndicator(androidx.compose.ui.Modifier, androidx.compose.material3.pulltorefresh.PullToRefreshState state, boolean isRefreshing, optional float threshold, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional float elevation);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.pulltorefresh.PullToRefreshState rememberPullToRefreshState();
   }
 

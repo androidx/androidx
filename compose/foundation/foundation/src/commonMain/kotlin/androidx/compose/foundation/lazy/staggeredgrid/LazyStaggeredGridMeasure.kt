@@ -264,8 +264,6 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 consumedScroll = 0,
                 layoutWidth = layoutWidth,
                 layoutHeight = layoutHeight,
-                beforeContentPadding = beforeContentPadding,
-                afterContentPadding = afterContentPadding,
                 positionedItems = mutableListOf(),
                 keyIndexMap = measuredItemProvider.keyIndexMap,
                 itemProvider = measuredItemProvider,
@@ -273,6 +271,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 isVertical = isVertical,
                 isLookingAhead = false,
                 hasLookaheadOccurred = false,
+                layoutMinOffset = 0,
+                layoutMaxOffset = 0,
                 coroutineScope = coroutineScope,
                 graphicsContext = graphicsContext
             )
@@ -873,8 +873,6 @@ private fun LazyStaggeredGridMeasureContext.measure(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
             positionedItems = positionedItems,
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
@@ -882,6 +880,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
             laneCount = laneCount,
             isLookingAhead = false,
             hasLookaheadOccurred = false,
+            layoutMinOffset = firstItemOffsets.min(),
+            layoutMaxOffset = currentItemOffsets.max() + contentPadding,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext
         )

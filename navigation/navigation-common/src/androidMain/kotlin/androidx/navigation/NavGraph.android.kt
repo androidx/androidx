@@ -409,7 +409,7 @@ public actual open class NavGraph actual constructor(
             val args = startDestination.arguments.mapValues {
                 it.value.type
             }
-            startDestRoute.generateRouteWithArgs(args)
+            generateRouteWithArgs(startDestRoute, args)
         }
     }
 

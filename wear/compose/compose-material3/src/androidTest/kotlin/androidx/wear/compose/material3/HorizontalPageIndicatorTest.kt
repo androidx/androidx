@@ -45,7 +45,9 @@ class HorizontalPageIndicatorTest {
             ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
-                    pageIndicatorState = pageIndicatorState()
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                 )
             }
         }
@@ -60,7 +62,9 @@ class HorizontalPageIndicatorTest {
             ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
-                    pageIndicatorState = pageIndicatorState()
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                 )
             }
         }
@@ -94,7 +98,9 @@ class HorizontalPageIndicatorTest {
                     modifier = Modifier
                         .testTag(TEST_TAG)
                         .size(150.dp),
-                    pageIndicatorState = pageIndicatorState(),
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
                     indicatorSize = 20.dp
@@ -121,7 +127,9 @@ class HorizontalPageIndicatorTest {
                         .testTag(TEST_TAG)
                         .size(150.dp)
                         .fillMaxWidth(),
-                    pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.5f },
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
                     indicatorSize = 20.dp
@@ -145,15 +153,7 @@ class HorizontalPageIndicatorTest {
         val selectedColor = Color.Yellow
         val unselectedColor = Color.Red
 
-        fun pageIndicatorState(
-            pageOffset: Float = 0f,
-            selectedPage: Int = 1,
-            pageCount: Int = 4
-        ) = object : PageIndicatorState {
-            override fun selectedPageWithOffsetFraction(): Float =
-                selectedPage + pageOffset
-            override val pageCount: Int
-                get() = pageCount
-        }
+        const val PAGE_COUNT = 4
+        const val SELECTED_PAGE_INDEX = 1
     }
 }

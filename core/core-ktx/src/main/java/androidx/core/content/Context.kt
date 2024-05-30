@@ -45,6 +45,7 @@ public inline fun <reified T : Any> Context.getSystemService(): T? =
  * @param defStyleRes A resource identifier of a style resource that supplies default values
  *                    for the [TypedArray], used only if [defStyleAttr] is 0 or can not be found
  *                     in the theme. Can be 0 to not look for defaults.
+ * @param block The block that will be executed.
  *
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes
@@ -63,7 +64,9 @@ public inline fun Context.withStyledAttributes(
  * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the the values
  * defined by the style resource [resourceId] which are listed in [attrs].
  *
+ * @param resourceId The desired style resource.
  * @param attrs The desired attributes. These attribute IDs must be sorted in ascending order.
+ * @param block The block that will be executed.
  *
  * @see Context.obtainStyledAttributes
  * @see android.content.res.Resources.Theme.obtainStyledAttributes

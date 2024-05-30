@@ -277,6 +277,7 @@ internal actual fun ModalBottomSheetDialog(
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
     val scope = rememberCoroutineScope()
+    val darkThemeEnabled = isSystemInDarkTheme()
     val dialog = remember(view, density) {
         ModalBottomSheetDialogWrapper(
             onDismissRequest,
@@ -287,6 +288,7 @@ internal actual fun ModalBottomSheetDialog(
             dialogId,
             predictiveBackProgress,
             scope,
+            darkThemeEnabled,
         ).apply {
             setContent(composition) {
                 Box(
@@ -456,6 +458,7 @@ private class ModalBottomSheetDialogWrapper(
     dialogId: UUID,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     scope: CoroutineScope,
+    darkThemeEnabled: Boolean,
 ) : ComponentDialog(
     ContextThemeWrapper(
         composeView.context,
@@ -518,8 +521,8 @@ private class ModalBottomSheetDialogWrapper(
         updateParameters(onDismissRequest, properties, layoutDirection)
 
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = false
-            isAppearanceLightNavigationBars = false
+            isAppearanceLightStatusBars = !darkThemeEnabled
+            isAppearanceLightNavigationBars = !darkThemeEnabled
         }
         // Due to how the onDismissRequest callback works
         // (it enforces a just-in-time decision on whether to update the state to hide the dialog)

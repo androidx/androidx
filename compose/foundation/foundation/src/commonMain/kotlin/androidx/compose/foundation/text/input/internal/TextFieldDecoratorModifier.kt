@@ -74,10 +74,10 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
+import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
@@ -222,7 +222,7 @@ internal class TextFieldDecoratorModifierNode(
                     )
                 }
                 launch(start = CoroutineStart.UNDISPATCHED) {
-                    detectTextFieldLongPressAndAfterDrag(requestFocus)
+                    textFieldSelectionGestures(requestFocus)
                 }
             }
         }
@@ -238,7 +238,9 @@ internal class TextFieldDecoratorModifierNode(
         // Note: TextField will show software keyboard automatically when it
         // gain focus. 3) show a toast message telling that handwriting is not
         // supported for password fields. TODO(b/335294152)
-        if (keyboardOptions.keyboardType != KeyboardType.Password) {
+        if (keyboardOptions.keyboardType != KeyboardType.Password &&
+            keyboardOptions.keyboardType != KeyboardType.NumberPassword
+        ) {
             // Send the handwriting start signal to platform.
             // The editor should send the signal when it is focused or is about
             // to gain focus, Here are more details:
@@ -476,7 +478,7 @@ internal class TextFieldDecoratorModifierNode(
         textSelectionRange = selection
 
         if (!enabled) disabled()
-        if (editable) editable()
+        isEditable = this@TextFieldDecoratorModifierNode.editable
 
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false

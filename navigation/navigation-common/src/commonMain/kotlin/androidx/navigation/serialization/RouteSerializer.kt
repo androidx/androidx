@@ -131,14 +131,13 @@ internal fun <T> KSerializer<T>.generateNavArguments(
  * See [RouteBuilder.Builder.computeParamType] for logic on how parameter type (path or query)
  * is computed.
  *
- * [T] as receiver to allow secondary constructors for nav builders (i.e. NavGraphBuilder)
- * to take object <T : Any> as parameter
  */
 @OptIn(InternalSerializationApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T : Any> T.generateRouteWithArgs(
+public fun <T : Any> generateRouteWithArgs(
+    route: T,
     typeMap: Map<String, NavType<Any?>>
-): String = RouteEncoder(this::class.serializer(), typeMap).encodeRouteWithArgs(this)
+): String = RouteEncoder(route::class.serializer(), typeMap).encodeRouteWithArgs(route)
 
 private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     // abstract class

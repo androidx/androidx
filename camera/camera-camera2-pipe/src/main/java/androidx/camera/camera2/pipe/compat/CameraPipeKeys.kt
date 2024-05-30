@@ -29,6 +29,13 @@ object CameraPipeKeys {
     )
 
     /**
+     * Key for configuring the tag for a Camera2 CaptureRequest.
+     */
+    val camera2CaptureRequestTag = Metadata.Key.create<Any>(
+        "androidx.camera.camera2.pipe.CaptureRequestTag"
+    )
+
+    /**
      * Key for defaultParameters and requiredParameters that allows the users to ignore the required
      * 3A parameters stipulated by the 3A controller in CameraPipe.
      */

@@ -1,5 +1,8 @@
 ## These rules enable microbenchmarking from a minified test, as an experimental feature
 
+# Custom JNI registration, so entire class must be kept
+-keepclasseswithmembers class androidx.benchmark.BlackHole { *; }
+
 # basic protection against junit/androidx.test reflection, shouldn't affect library/test code
 -keepclasseswithmembers class androidx.test.** { *; }
 -keepclasseswithmembers class org.junit.** { *; }

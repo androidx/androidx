@@ -47,6 +47,8 @@ internal class LazyLayoutItemAnimation(
     var placementSpec: FiniteAnimationSpec<IntOffset>? = null
     var fadeOutSpec: FiniteAnimationSpec<Float>? = null
 
+    var isRunningMovingAwayAnimation = false
+        private set
     /**
      * Returns true when the placement animation is currently in progress so the parent
      * should continue composing this item.
@@ -126,11 +128,12 @@ internal class LazyLayoutItemAnimation(
     /**
      * Animate the placement by the given [delta] offset.
      */
-    fun animatePlacementDelta(delta: IntOffset) {
+    fun animatePlacementDelta(delta: IntOffset, isMovingAway: Boolean) {
         val spec = placementSpec ?: return
         val totalDelta = placementDelta - delta
         placementDelta = totalDelta
         isPlacementAnimationInProgress = true
+        isRunningMovingAwayAnimation = isMovingAway
         coroutineScope.launch {
             try {
                 val finalSpec = if (placementDeltaAnimation.isRunning) {
@@ -159,6 +162,7 @@ internal class LazyLayoutItemAnimation(
                 }
 
                 isPlacementAnimationInProgress = false
+                isRunningMovingAwayAnimation = false
             } catch (_: CancellationException) {
                 // we don't reset inProgress in case of cancellation as it means
                 // there is a new animation started which would reset it later
@@ -239,6 +243,7 @@ internal class LazyLayoutItemAnimation(
                 visibilityAnimation.stop()
             }
         }
+        isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
         rawOffset = NotInitialized
         layer?.let { graphicsContext?.releaseGraphicsLayer(it) }

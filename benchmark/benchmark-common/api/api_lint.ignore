@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+NoByteOrShort: androidx.benchmark.BlackHole#consume(byte) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `byte` in parameter value in androidx.benchmark.BlackHole.consume(byte value)
+NoByteOrShort: androidx.benchmark.BlackHole#consume(short) parameter #0:
+    Should avoid odd sized primitives; use `int` instead of `short` in parameter value in androidx.benchmark.BlackHole.consume(short value)

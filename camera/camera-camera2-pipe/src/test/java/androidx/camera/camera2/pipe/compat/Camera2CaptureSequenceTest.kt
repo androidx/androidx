@@ -69,7 +69,6 @@ internal class Camera2CaptureSequenceTest {
         listOf(requestMetadata),
         listeners,
         sequenceListener,
-        mapOf(requestNumber to requestMetadata),
         mapOf(surface to streamId)
     )
 

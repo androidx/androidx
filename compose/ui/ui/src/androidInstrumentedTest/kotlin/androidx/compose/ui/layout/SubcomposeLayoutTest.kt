@@ -19,6 +19,7 @@ package androidx.compose.ui.layout
 import android.annotation.SuppressLint
 import android.os.Build
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -56,10 +57,12 @@ import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.RootMeasurePolicy.measure
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
@@ -2801,6 +2804,40 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle {
             assertThat(disposeOrder).isExactly("inner 2", "outer", "inner 1")
+        }
+    }
+
+    @Test
+    fun precomposeAndPremeasureAreNotCausingViewInvalidations() {
+        val state = SubcomposeLayoutState()
+
+        var drawingCount = 0
+
+        rule.setContent {
+            val view = LocalView.current
+            DisposableEffect(view) {
+                val listener = ViewTreeObserver.OnDrawListener { drawingCount++ }
+                view.viewTreeObserver.addOnDrawListener(listener)
+                onDispose {
+                    view.viewTreeObserver.removeOnDrawListener(listener)
+                }
+            }
+            SubcomposeLayout(state) {
+                layout(10, 10) { }
+            }
+        }
+
+        rule.runOnIdle {
+            drawingCount = 0
+
+            val handle = state.precompose(Unit) {
+                Box(Modifier.graphicsLayer().size(10.dp))
+            }
+            handle.premeasure(0, Constraints())
+        }
+
+        rule.runOnIdle {
+            assertThat(drawingCount).isEqualTo(0)
         }
     }
 

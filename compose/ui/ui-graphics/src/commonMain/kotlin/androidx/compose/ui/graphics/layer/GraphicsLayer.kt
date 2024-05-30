@@ -246,9 +246,9 @@ expect class GraphicsLayer {
     // TODO Fix default values on Wasm
 
     /**
-     * Configures a rounded rect outline for this [GraphicsLayer]. By default, both [topLeft] and
-     * [size] are set to [Offset.Unspecified] and [Size.Unspecified] indicating that the outline
-     * should match the bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * Configures a rounded rect outline for this [GraphicsLayer]. By default, [topLeft] is set to
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
+     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
      * is produced using an [Outline] created from the round rect parameters provided. Additionally
      * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
@@ -259,17 +259,17 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     fun setRoundRectOutline(
-        topLeft: Offset = Offset.Unspecified,
+        topLeft: Offset = Offset.Zero,
         size: Size = Size.Unspecified,
         cornerRadius: Float = 0f,
     )
 
     /**
-     * Configures a rectangular outline for this [GraphicsLayer]. By default, both [topLeft] and
-     * [size] are set to [Offset.Unspecified] and [Size.Unspecified] indicating that the outline
-     * should match the bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
-     * is produced using an [Outline] created from the rect parameters provided. Additionally if
-     * [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     * Configures a rectangular outline for this [GraphicsLayer]. By default, [topLeft] is set to
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
+     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using an [Outline] created from the round rect parameters provided. Additionally
+     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
      * @param size The size of the rounded rect outline
@@ -277,7 +277,7 @@ expect class GraphicsLayer {
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRectOutline
      */
     fun setRectOutline(
-        topLeft: Offset = Offset.Unspecified,
+        topLeft: Offset = Offset.Zero,
         size: Size = Size.Unspecified
     )
 

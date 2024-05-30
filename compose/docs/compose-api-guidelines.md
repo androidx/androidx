@@ -722,8 +722,8 @@ class MyState(
     override var name by mutableStateOf(name)
     override var avatarUrl by mutableStateOf(avatarUrl)
 
-    override val currentPersonData: PersonData =
-        PersonData(name, avatarUrl)
+    override val currentPersonData: PersonData
+        get() = PersonData(name, avatarUrl)
 
     override fun setPersonName(name: String) {
         this.name = name

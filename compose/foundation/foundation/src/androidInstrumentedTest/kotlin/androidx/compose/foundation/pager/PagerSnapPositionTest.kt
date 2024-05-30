@@ -24,6 +24,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -64,6 +66,82 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
             runOnIdle {
                 assertThat(pagerState.canScrollForward).isFalse()
             }
+        }
+    }
+
+    @Test
+    fun pagerAtBounds_flingTowardsBound_doesNotMove() {
+        rule.setContent {
+            ParameterizedPager(
+                modifier = Modifier.fillMaxSize(),
+                pageSize = object : PageSize {
+                    override fun Density.calculateMainAxisPageSize(
+                        availableSpace: Int,
+                        pageSpacing: Int
+                    ) = ((availableSpace - 2 * pageSpacing) / 2.5).roundToInt()
+                },
+                orientation = it.orientation,
+                snapPosition = it.snapPosition.first
+            )
+        }
+
+        val velocity = with(rule.density) { 0.3 * MinFlingVelocityDp.roundToPx() }.toFloat()
+
+        rule.forEachParameter(ParamsToTest) { param ->
+            runBlocking { resetTestCase(initialPage = 0) }
+
+            // When we are at the start of the layout, we should only be able to move forward
+            assertThat(pagerState.canScrollForward).isTrue()
+            assertThat(pagerState.canScrollBackward).isFalse()
+            // Our offset fraction can differ depending on the snap position, so we only care about
+            // any changes after interactions
+            val fractionBeforeFirstSwipe = pagerState.currentPageOffsetFraction
+            val pageBeforeFirstSwipe = pagerState.currentPage
+
+            onPager().performTouchInput {
+                with(param) {
+                    swipeWithVelocityAcrossMainAxis(
+                        velocity = velocity,
+                        delta = (pageSize / 2f) * (scrollForwardSign * -1)
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            assertWithMessage("currentPageOffsetFraction should not have changed")
+                .that(pagerState.currentPageOffsetFraction).isEqualTo(fractionBeforeFirstSwipe)
+            assertThat(pagerState.currentPage).isEqualTo(pageBeforeFirstSwipe)
+            assertThat(pagerState.canScrollForward).isTrue()
+            assertThat(pagerState.canScrollBackward).isFalse()
+
+            // Scroll to the end of the layout
+            rule.runOnUiThread {
+                runBlocking { pagerState.scrollToPage(DefaultPageCount - 1) }
+            }
+            rule.waitForIdle()
+
+            // When we are at the end of the layout, we should only be able to move backwards
+            assertThat(pagerState.canScrollForward).isFalse()
+            assertThat(pagerState.canScrollBackward).isTrue()
+
+            val fractionBeforeSecondSwipe = pagerState.currentPageOffsetFraction
+            val pageBeforeSecondSwipe = pagerState.currentPage
+
+            onPager().performTouchInput {
+                with(param) {
+                    swipeWithVelocityAcrossMainAxis(
+                        velocity = velocity,
+                        delta = (pageSize / 2f) * scrollForwardSign
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            assertWithMessage("currentPageOffsetFraction should not have changed")
+                .that(pagerState.currentPageOffsetFraction).isEqualTo(fractionBeforeSecondSwipe)
+            assertThat(pagerState.currentPage).isEqualTo(pageBeforeSecondSwipe)
+            assertThat(pagerState.canScrollForward).isFalse()
+            assertThat(pagerState.canScrollBackward).isTrue()
         }
     }
 
