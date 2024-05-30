@@ -52,3 +52,8 @@ androidx.compose.ui.util
 androidx.compose.ui.viewinterop
 androidx.compose.ui.window
 androidx.navigation.compose
+androidx.wear.compose.foundation
+androidx.wear.compose.material
+androidx.wear.compose.material3
+androidx.wear.compose.materialcore
+androidx.wear.compose.navigation
