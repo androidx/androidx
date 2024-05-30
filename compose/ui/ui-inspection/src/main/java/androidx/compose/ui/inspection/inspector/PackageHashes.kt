@@ -66,4 +66,9 @@ val systemPackages = intSetOf(
     packageNameHash("androidx.compose.ui.viewinterop"),
     packageNameHash("androidx.compose.ui.window"),
     packageNameHash("androidx.navigation.compose"),
+    packageNameHash("androidx.wear.compose.foundation"),
+    packageNameHash("androidx.wear.compose.material"),
+    packageNameHash("androidx.wear.compose.material3"),
+    packageNameHash("androidx.wear.compose.materialcore"),
+    packageNameHash("androidx.wear.compose.navigation"),
 )
