@@ -21,34 +21,41 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ProjectIsolationIssueTest : GradleLintDetectorTest(
-    detector = DiscouragedGradleMethodDetector(),
-    issues = listOf(DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE)
-) {
+class ProjectIsolationIssueTest :
+    GradleLintDetectorTest(
+        detector = DiscouragedGradleMethodDetector(),
+        issues = listOf(DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE)
+    ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.findProperty("example")
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: Use providers.gradleProperty instead of findProperty [GradleProjectIsolation]
                 project.findProperty("example")
                         ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
-        val expectedFixDiffs = """
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
             Fix for src/test.kt line 4: Replace with providers.gradleProperty:
             @@ -4 +4
             -     project.findProperty("example")
             +     project.providers.gradleProperty("example")
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }

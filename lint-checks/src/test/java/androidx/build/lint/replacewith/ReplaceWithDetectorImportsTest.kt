@@ -25,12 +25,11 @@ class ReplaceWithDetectorImportsTest {
 
     @Test
     fun methodWithImportsJava() {
-        val input = arrayOf(
-            javaSample("replacewith.MethodWithImportsJava")
-        )
+        val input = arrayOf(javaSample("replacewith.MethodWithImportsJava"))
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/MethodWithImportsJava.java:38: Information: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,9 +37,11 @@ src/replacewith/MethodWithImportsJava.java:42: Information: Replacement availabl
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/MethodWithImportsJava.java line 38: Replace with `newMethod(null)`:
 @@ -20 +20
 + import androidx.annotation.Deprecated;
@@ -54,7 +55,8 @@ Fix for src/replacewith/MethodWithImportsJava.java line 42: Replace with `newMet
 @@ -42 +44
 -         oldMethodMultiImport(null);
 +         newMethod(null);
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -62,37 +64,42 @@ Fix for src/replacewith/MethodWithImportsJava.java line 42: Replace with `newMet
 
     @Test
     fun methodWithImportsKotlin() {
-        val input = arrayOf(
-            ktSample("replacewith.MethodWithImportsKotlin"),
-            javaSample("replacewith.ReplaceWithUsageJava")
-        )
+        val input =
+            arrayOf(
+                ktSample("replacewith.MethodWithImportsKotlin"),
+                javaSample("replacewith.ReplaceWithUsageJava")
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
-src/replacewith/MethodWithImportsKotlin.kt:27: Information: Replacement available [ReplaceWith]
+        val expected =
+            """
+src/replacewith/MethodWithImportsKotlin.kt:25: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImport("hello")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithImportsKotlin.kt:32: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithImportsKotlin.kt:30: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImports("world")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
-Fix for src/replacewith/MethodWithImportsKotlin.kt line 27: Replace with `"hello".toString()`:
+        val expectedFixDiffs =
+            """
+Fix for src/replacewith/MethodWithImportsKotlin.kt line 25: Replace with `"hello".toString()`:
 @@ -19 +19
 + import androidx.annotation.Deprecated
-@@ -27 +28
+@@ -25 +26
 -         ReplaceWithUsageJava.toStringWithImport("hello")
 +         "hello".toString()
-Fix for src/replacewith/MethodWithImportsKotlin.kt line 32: Replace with `"world".toString()`:
+Fix for src/replacewith/MethodWithImportsKotlin.kt line 30: Replace with `"world".toString()`:
 @@ -19 +19
 + import androidx.annotation.Deprecated
 + import androidx.annotation.NonNull
-@@ -32 +34
+@@ -30 +32
 -         ReplaceWithUsageJava.toStringWithImports("world")
 +         "world".toString()
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -100,12 +107,11 @@ Fix for src/replacewith/MethodWithImportsKotlin.kt line 32: Replace with `"world
 
     @Test
     fun methodWithNoImportsJava() {
-        val input = arrayOf(
-            javaSample("replacewith.MethodWithNoImportsJava")
-        )
+        val input = arrayOf(javaSample("replacewith.MethodWithNoImportsJava"))
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/replacewith/MethodWithNoImportsJava.java:37: Information: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,9 +119,11 @@ src/replacewith/MethodWithNoImportsJava.java:41: Information: Replacement availa
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/replacewith/MethodWithNoImportsJava.java line 37: Replace with `newMethod(null)`:
 @@ -19 +19
 + import androidx.annotation.Deprecated;
@@ -131,7 +139,8 @@ Fix for src/replacewith/MethodWithNoImportsJava.java line 41: Replace with `newM
 @@ -41 +44
 -         oldMethodMultiImport(null);
 +         newMethod(null);
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -139,39 +148,44 @@ Fix for src/replacewith/MethodWithNoImportsJava.java line 41: Replace with `newM
 
     @Test
     fun methodWithNoImportsKotlin() {
-        val input = arrayOf(
-            ktSample("replacewith.MethodWithNoImportsKotlin"),
-            javaSample("replacewith.ReplaceWithUsageJava")
-        )
+        val input =
+            arrayOf(
+                ktSample("replacewith.MethodWithNoImportsKotlin"),
+                javaSample("replacewith.ReplaceWithUsageJava")
+            )
 
         /* ktlint-disable max-line-length */
-        val expected = """
-src/replacewith/MethodWithNoImportsKotlin.kt:24: Information: Replacement available [ReplaceWith]
+        val expected =
+            """
+src/replacewith/MethodWithNoImportsKotlin.kt:22: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImport("hello")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/MethodWithNoImportsKotlin.kt:28: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodWithNoImportsKotlin.kt:26: Information: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toStringWithImports("world")
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
-Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 24: Replace with `"hello".toString()`:
+        val expectedFixDiffs =
+            """
+Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 22: Replace with `"hello".toString()`:
 @@ -18 +18
 + import androidx.annotation.Deprecated
 +
-@@ -24 +26
+@@ -22 +24
 -         ReplaceWithUsageJava.toStringWithImport("hello")
 +         "hello".toString()
-Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 28: Replace with `"world".toString()`:
+Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 26: Replace with `"world".toString()`:
 @@ -18 +18
 + import androidx.annotation.Deprecated
 + import androidx.annotation.NonNull
 +
-@@ -28 +31
+@@ -26 +29
 -         ReplaceWithUsageJava.toStringWithImports("world")
 +         "world".toString()
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -179,12 +193,11 @@ Fix for src/replacewith/MethodWithNoImportsKotlin.kt line 28: Replace with `"wor
 
     @Test
     fun methodWithNoImportsOrPackage() {
-        val input = arrayOf(
-            javaSample("replacewith.MethodWithNoImportsOrPackage")
-        )
+        val input = arrayOf(javaSample("replacewith.MethodWithNoImportsOrPackage"))
 
         /* ktlint-disable max-line-length */
-        val expected = """
+        val expected =
+            """
 src/MethodWithNoImportsOrPackage.java:35: Information: Replacement available [ReplaceWith]
         oldMethodSingleImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,9 +205,11 @@ src/MethodWithNoImportsOrPackage.java:39: Information: Replacement available [Re
         oldMethodMultiImport(null);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val expectedFixDiffs = """
+        val expectedFixDiffs =
+            """
 Fix for src/MethodWithNoImportsOrPackage.java line 35: Replace with `newMethod(null)`:
 @@ -35 +35
 -         oldMethodSingleImport(null);
@@ -208,7 +223,8 @@ Fix for src/MethodWithNoImportsOrPackage.java line 39: Replace with `newMethod(n
 @@ -42 +42
 + import androidx.annotation.Deprecated;
 + import androidx.annotation.NonNull;
-        """.trimIndent()
+        """
+                .trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)

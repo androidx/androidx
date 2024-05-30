@@ -36,35 +36,28 @@ import java.lang.reflect.Method
 /**
  * The goal here is to get common (and correct) behavior around Activity recreation for all API
  * versions up until P, where the behavior was specified to be useful and implemented to match the
- * specification. On API 26 and 27, recreate() doesn't actually recreate the Activity if it's
- * not in the foreground; it will be recreated when the user next interacts with it. This has a few
+ * specification. On API 26 and 27, recreate() doesn't actually recreate the Activity if it's not in
+ * the foreground; it will be recreated when the user next interacts with it. This has a few
  * undesirable consequences:
- *
- *
  * 1. It's impossible to recreate multiple activities at once, which means that activities in the
- * background will observe the new configuration before they're recreated. If we keep them on the
- * old configuration, we have two conflicting configurations active in the app, which leads to
- * logging skew.
- *
- *
+ *    background will observe the new configuration before they're recreated. If we keep them on the
+ *    old configuration, we have two conflicting configurations active in the app, which leads to
+ *    logging skew.
  * 2. Recreation occurs in the critical path of user interaction - re-inflating a bunch of views
- * isn't free, and we'd rather do it when we're in the background than when the user is staring at
- * the screen waiting to see us.
+ *    isn't free, and we'd rather do it when we're in the background than when the user is staring
+ *    at the screen waiting to see us.
  *
- *
- * On API < 26, recreate() was implemented with a single call to a private method on
- * ActivityThread. That method still exists in 26 and 27, so we can use reflection to call it and
- * get the exact same behavior as < 26. However, that behavior has problems itself. When
- * an Activity in the background is recreated, it goes through: destroy -> create -> start ->
- * resume -> pause and doesn't stop. This is a violation of the contract for onStart/onStop,
- * but that might be palatable if it didn't also have the effect of preventing new configurations
- * from being applied - since the Activity doesn't go through onStop, our tracking of whether
- * our app is visible thinks we're always visible, and thus can't do another recreation later.
- *
+ * On API < 26, recreate() was implemented with a single call to a private method on ActivityThread.
+ * That method still exists in 26 and 27, so we can use reflection to call it and get the exact same
+ * behavior as < 26. However, that behavior has problems itself. When an Activity in the background
+ * is recreated, it goes through: destroy -> create -> start -> resume -> pause and doesn't stop.
+ * This is a violation of the contract for onStart/onStop, but that might be palatable if it didn't
+ * also have the effect of preventing new configurations from being applied - since the Activity
+ * doesn't go through onStop, our tracking of whether our app is visible thinks we're always
+ * visible, and thus can't do another recreation later.
  *
  * The fix for this is to add the missing onStop() call, by using reflection to call into
  * ActivityThread.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object ActivityRecreatorKtChecked {
@@ -109,27 +102,31 @@ internal object ActivityRecreatorKtChecked {
             return false
         }
         return try {
-            val token = tokenField!!.get(activity)
-                ?: return false
-            val activityThread = mainThreadField!!.get(activity)
-                ?: return false
+            val token = tokenField!!.get(activity) ?: return false
+            val activityThread = mainThreadField!!.get(activity) ?: return false
             val application = activity.application
             val callbacks = LifecycleCheckCallbacks(activity)
             application.registerActivityLifecycleCallbacks(callbacks)
 
             /*
-                  * Runnables scheduled before/after recreate() will run before and after the Runnables
-                  * scheduled by recreate(). This allows us to bound the time where mActivity lifecycle
-                  * events that could be caused by recreate() run - that way we can detect onPause()
-                  * from the new Activity instance, and schedule onStop to run immediately after it.
-                  */mainHandler.post {
-                callbacks.currentlyRecreatingToken = token
-            }
+             * Runnables scheduled before/after recreate() will run before and after the Runnables
+             * scheduled by recreate(). This allows us to bound the time where mActivity lifecycle
+             * events that could be caused by recreate() run - that way we can detect onPause()
+             * from the new Activity instance, and schedule onStop to run immediately after it.
+             */ mainHandler.post { callbacks.currentlyRecreatingToken = token }
             try {
                 if (needsRelaunchCall()) {
                     requestRelaunchActivityMethod!!.invoke(
                         activityThread,
-                        token, null, null, 0, false, null, null, false, false
+                        token,
+                        null,
+                        null,
+                        0,
+                        false,
+                        null,
+                        null,
+                        false,
+                        false
                     )
                 } else {
                     activity.recreate()
@@ -161,8 +158,9 @@ internal object ActivityRecreatorKtChecked {
     ): Boolean {
         return try {
             val token = tokenField!![activity]
-            if (token !== currentlyRecreatingToken ||
-                activity.hashCode() != currentlyRecreatingHashCode
+            if (
+                token !== currentlyRecreatingToken ||
+                    activity.hashCode() != currentlyRecreatingHashCode
             ) {
                 // We're looking at a different activity, don't try to make it stop! Note that
                 // tokens are reused on SDK 21-23 but Activity objects (and thus hashCode, in
@@ -179,31 +177,27 @@ internal object ActivityRecreatorKtChecked {
                         if (performStopActivity3ParamsMethod != null) {
                             performStopActivity3ParamsMethod!!.invoke(
                                 activityThread,
-                                token, false, "AppCompat recreation"
+                                token,
+                                false,
+                                "AppCompat recreation"
                             )
                         } else {
-                            performStopActivity2ParamsMethod!!.invoke(
-                                activityThread,
-                                token, false
-                            )
+                            performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
                         }
                     }
                 } catch (e: RuntimeException) {
                     // If an Activity throws from onStop, don't swallow it
-                    if ((e.javaClass == RuntimeException::class.java) &&
-                        (e.message != null) &&
-                        e.message!!.startsWith("Unable to stop")
+                    if (
+                        (e.javaClass == RuntimeException::class.java) &&
+                            (e.message != null) &&
+                            e.message!!.startsWith("Unable to stop")
                     ) {
                         throw e
                     }
                     // Otherwise just swallow it - we're calling random private methods,
                     // there's no guarantee on how they'll behave.
                 } catch (t: Throwable) {
-                    Log.e(
-                        LOG_TAG,
-                        "Exception while invoking performStopActivity",
-                        t
-                    )
+                    Log.e(LOG_TAG, "Exception while invoking performStopActivity", t)
                 }
             }
             true
@@ -218,10 +212,13 @@ internal object ActivityRecreatorKtChecked {
             return null
         }
         return try {
-            val performStop = activityThreadClass.getDeclaredMethod(
-                "performStopActivity",
-                IBinder::class.java, Boolean::class.javaPrimitiveType, String::class.java
-            )
+            val performStop =
+                activityThreadClass.getDeclaredMethod(
+                    "performStopActivity",
+                    IBinder::class.java,
+                    Boolean::class.javaPrimitiveType,
+                    String::class.java
+                )
             performStop.isAccessible = true
             performStop
         } catch (t: Throwable) {
@@ -234,10 +231,12 @@ internal object ActivityRecreatorKtChecked {
             return null
         }
         return try {
-            val performStop = activityThreadClass.getDeclaredMethod(
-                "performStopActivity",
-                IBinder::class.java, Boolean::class.javaPrimitiveType
-            )
+            val performStop =
+                activityThreadClass.getDeclaredMethod(
+                    "performStopActivity",
+                    IBinder::class.java,
+                    Boolean::class.javaPrimitiveType
+                )
             performStop.isAccessible = true
             performStop
         } catch (t: Throwable) {
@@ -255,18 +254,19 @@ internal object ActivityRecreatorKtChecked {
             return null
         }
         return try {
-            val relaunch = activityThreadClass.getDeclaredMethod(
-                "requestRelaunchActivity",
-                IBinder::class.java,
-                MutableList::class.java,
-                MutableList::class.java,
-                Int::class.javaPrimitiveType,
-                Boolean::class.javaPrimitiveType,
-                Configuration::class.java,
-                Configuration::class.java,
-                Boolean::class.javaPrimitiveType,
-                Boolean::class.javaPrimitiveType
-            )
+            val relaunch =
+                activityThreadClass.getDeclaredMethod(
+                    "requestRelaunchActivity",
+                    IBinder::class.java,
+                    MutableList::class.java,
+                    MutableList::class.java,
+                    Int::class.javaPrimitiveType,
+                    Boolean::class.javaPrimitiveType,
+                    Configuration::class.java,
+                    Configuration::class.java,
+                    Boolean::class.javaPrimitiveType,
+                    Boolean::class.javaPrimitiveType
+                )
             relaunch.isAccessible = true
             relaunch
         } catch (t: Throwable) {
@@ -295,11 +295,12 @@ internal object ActivityRecreatorKtChecked {
     }
 
     private val activityThreadClass: Class<*>?
-        get() = try {
-            Class.forName("android.app.ActivityThread")
-        } catch (t: Throwable) {
-            null
-        }
+        get() =
+            try {
+                Class.forName("android.app.ActivityThread")
+            } catch (t: Throwable) {
+                null
+            }
 
     // Only reachable on SDK_INT < 28
     private class LifecycleCheckCallbacks internal constructor(aboutToRecreate: Activity) :
@@ -319,7 +320,9 @@ internal object ActivityRecreatorKtChecked {
         // Whether we'll force the activity on which recreate() was called to go through an
         // onStop()
         private var mStopQueued = false
+
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
         override fun onActivityStarted(activity: Activity) {
             // If we see a start call on the original mActivity instance, then the mActivity
             // starting event executed between our call to recreate() and the actual
@@ -330,11 +333,14 @@ internal object ActivityRecreatorKtChecked {
         }
 
         override fun onActivityResumed(activity: Activity) {}
+
         override fun onActivityPaused(activity: Activity) {
-            if (mDestroyed && // Original mActivity must be gone
-                !mStopQueued && // Don't schedule stop twice for one recreate() call
-                !mStarted && // Don't schedule stop if the original instance starting raced with...
-                queueOnStopIfNecessary(currentlyRecreatingToken, mRecreatingHashCode, activity)
+            if (
+                mDestroyed && // Original mActivity must be gone
+                    !mStopQueued && // Don't schedule stop twice for one recreate() call
+                    !mStarted && // Don't schedule stop if the original instance starting raced
+                    // with...
+                    queueOnStopIfNecessary(currentlyRecreatingToken, mRecreatingHashCode, activity)
             ) {
                 mStopQueued = true
                 // Don't retain this object longer than necessary
@@ -343,6 +349,7 @@ internal object ActivityRecreatorKtChecked {
         }
 
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
         override fun onActivityStopped(activity: Activity) {
             // Not possible to get a start/stop pair in the same UI thread loop
         }
@@ -367,11 +374,8 @@ internal object ActivityRecreatorKtChecked {
         val activityThreadClass = activityThreadClass
         mainThreadField = getMainThreadField()
         tokenField = getTokenField()
-        performStopActivity3ParamsMethod =
-            getPerformStopActivity3Params(activityThreadClass)
-        performStopActivity2ParamsMethod =
-            getPerformStopActivity2Params(activityThreadClass)
-        requestRelaunchActivityMethod =
-            getRequestRelaunchActivityMethod(activityThreadClass)
+        performStopActivity3ParamsMethod = getPerformStopActivity3Params(activityThreadClass)
+        performStopActivity2ParamsMethod = getPerformStopActivity2Params(activityThreadClass)
+        requestRelaunchActivityMethod = getRequestRelaunchActivityMethod(activityThreadClass)
     }
 }

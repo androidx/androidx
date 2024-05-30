@@ -35,85 +35,81 @@ import org.jetbrains.uast.UQualifiedReferenceExpression
 
 class BanConcurrentHashMap : Detector(), Detector.UastScanner {
 
-    override fun getApplicableUastTypes(): List<Class<out UElement>> = listOf(
-        UImportStatement::class.java,
-        UQualifiedReferenceExpression::class.java
-    )
+    override fun getApplicableUastTypes(): List<Class<out UElement>> =
+        listOf(UImportStatement::class.java, UQualifiedReferenceExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext): UElementHandler = object :
-        UElementHandler() {
+    override fun createUastHandler(context: JavaContext): UElementHandler =
+        object : UElementHandler() {
 
-        /**
-         * Detect map construction using fully qualified reference if not imported.
-         * This specifically flags the constructor, and not usages of the map after it is created.
-         */
-        override fun visitQualifiedReferenceExpression(node: UQualifiedReferenceExpression) {
-            val resolved = node.resolve()
-            // In Kotlin, the resolved node will be a method with name ConcurrentHashMap
-            // In Java, it will be the class itself
-            if ((resolved is PsiMethod && resolved.isConcurrentHashMapConstructor()) ||
-                (resolved is PsiClass && resolved.isConcurrentHashMap())) {
-                reportIncidentForNode(node)
-            }
-        }
-
-        /**
-         * Detect import.
-         */
-        override fun visitImportStatement(node: UImportStatement) {
-            if (node.importReference != null) {
-                var resolved = node.resolve()
-                if (resolved is PsiField) {
-                    resolved = resolved.containingClass
-                } else if (resolved is PsiMethod) {
-                    resolved = resolved.containingClass
-                }
-
-                if (resolved is PsiClass && resolved.isConcurrentHashMap()) {
+            /**
+             * Detect map construction using fully qualified reference if not imported. This
+             * specifically flags the constructor, and not usages of the map after it is created.
+             */
+            override fun visitQualifiedReferenceExpression(node: UQualifiedReferenceExpression) {
+                val resolved = node.resolve()
+                // In Kotlin, the resolved node will be a method with name ConcurrentHashMap
+                // In Java, it will be the class itself
+                if (
+                    (resolved is PsiMethod && resolved.isConcurrentHashMapConstructor()) ||
+                        (resolved is PsiClass && resolved.isConcurrentHashMap())
+                ) {
                     reportIncidentForNode(node)
                 }
             }
-        }
 
-        /**
-         * Reports an error for ConcurrentHashMap usage at the node's location.
-         */
-        private fun reportIncidentForNode(node: UElement) {
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getLocation(node))
-                .message("Detected ConcurrentHashMap usage.")
-                .scope(node)
-            context.report(incident)
-        }
+            /** Detect import. */
+            override fun visitImportStatement(node: UImportStatement) {
+                if (node.importReference != null) {
+                    var resolved = node.resolve()
+                    if (resolved is PsiField) {
+                        resolved = resolved.containingClass
+                    } else if (resolved is PsiMethod) {
+                        resolved = resolved.containingClass
+                    }
 
-        /**
-         * Check if the method is the constructor for ConcurrentHashMap (applicable for Kotlin).
-         */
-        private fun PsiMethod.isConcurrentHashMapConstructor(): Boolean {
-            return name == CONCURRENT_HASHMAP && (containingClass?.isConcurrentHashMap() ?: false)
-        }
+                    if (resolved is PsiClass && resolved.isConcurrentHashMap()) {
+                        reportIncidentForNode(node)
+                    }
+                }
+            }
 
-        /**
-         * Checks if the class is ConcurrentHashMap.
-         */
-        private fun PsiClass.isConcurrentHashMap(): Boolean {
-            return qualifiedName == CONCURRENT_HASHMAP_QUALIFIED_NAME
+            /** Reports an error for ConcurrentHashMap usage at the node's location. */
+            private fun reportIncidentForNode(node: UElement) {
+                val incident =
+                    Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getLocation(node))
+                        .message("Detected ConcurrentHashMap usage.")
+                        .scope(node)
+                context.report(incident)
+            }
+
+            /**
+             * Check if the method is the constructor for ConcurrentHashMap (applicable for Kotlin).
+             */
+            private fun PsiMethod.isConcurrentHashMapConstructor(): Boolean {
+                return name == CONCURRENT_HASHMAP &&
+                    (containingClass?.isConcurrentHashMap() ?: false)
+            }
+
+            /** Checks if the class is ConcurrentHashMap. */
+            private fun PsiClass.isConcurrentHashMap(): Boolean {
+                return qualifiedName == CONCURRENT_HASHMAP_QUALIFIED_NAME
+            }
         }
-    }
 
     companion object {
-        val ISSUE = Issue.create(
-            "BanConcurrentHashMap",
-            "ConcurrentHashMap usage is not allowed",
-            "ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost" +
-                " updates under thread contention.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                BanConcurrentHashMap::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                "BanConcurrentHashMap",
+                "ConcurrentHashMap usage is not allowed",
+                "ConcurrentHashMap has an issue on Android’s Lollipop release that can lead to lost" +
+                    " updates under thread contention.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanConcurrentHashMap::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
         const val CONCURRENT_HASHMAP_QUALIFIED_NAME = "java.util.concurrent.ConcurrentHashMap"
         const val CONCURRENT_HASHMAP = "ConcurrentHashMap"
     }

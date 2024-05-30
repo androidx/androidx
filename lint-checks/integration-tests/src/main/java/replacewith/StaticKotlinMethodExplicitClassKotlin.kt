@@ -17,9 +17,7 @@ package replacewith
 
 import replacewith.ReplaceWithUsageKotlin.Companion.toString
 
-/**
- * Usage of a static method with an explicit class.
- */
+/** Usage of a static method with an explicit class. */
 @Suppress("deprecation", "unused")
 internal class StaticKotlinMethodExplicitClassKotlin {
     fun main() {

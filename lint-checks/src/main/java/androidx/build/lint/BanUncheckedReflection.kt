@@ -39,15 +39,9 @@ import org.jetbrains.uast.getContainingUMethod
 
 class BanUncheckedReflection : Detector(), SourceCodeScanner {
 
-    override fun getApplicableMethodNames() = listOf(
-        METHOD_INVOKE_NAME
-    )
+    override fun getApplicableMethodNames() = listOf(METHOD_INVOKE_NAME)
 
-    override fun visitMethodCall(
-        context: JavaContext,
-        node: UCallExpression,
-        method: PsiMethod
-    ) {
+    override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         // We don't care if the invocation is correct -- there's another lint for that. We're
         // just enforcing the "all reflection on the platform SDK must be gated on SDK_INT checks"
         // policy. Also -- since we're not actually checking whether the invocation is on the
@@ -57,46 +51,49 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
         if (!context.evaluator.isMemberInClass(method, METHOD_REFLECTION_CLASS)) return
 
         // Flag if the call isn't inside or preceded by an SDK_INT check.
-        if (!isWithinVersionCheckConditional(
+        if (
+            !isWithinVersionCheckConditional(
                 context,
                 node,
-                ApiConstraint.get(HIGHEST_KNOWN_API), false
+                ApiConstraint.get(HIGHEST_KNOWN_API),
+                false
             ) &&
-            !isWithinVersionCheckConditional(context, node, ApiConstraint.get(1), true) &&
-            !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(HIGHEST_KNOWN_API)) &&
-            !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(1)) &&
-            !isWithinDeprecatedSinceApiMethod(node) &&
-            !isWithinDeprecatedSinceApiClass(node)
+                !isWithinVersionCheckConditional(context, node, ApiConstraint.get(1), true) &&
+                !isPrecededByVersionCheckExit(
+                    context,
+                    node,
+                    ApiConstraint.get(HIGHEST_KNOWN_API)
+                ) &&
+                !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(1)) &&
+                !isWithinDeprecatedSinceApiMethod(node) &&
+                !isWithinDeprecatedSinceApiClass(node)
         ) {
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getLocation(node))
-                .message("Method.invoke requires both an upper and lower SDK bounds checks to be" +
-                    " safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API.")
-                .scope(node)
+            val incident =
+                Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getLocation(node))
+                    .message(
+                        "Method.invoke requires both an upper and lower SDK bounds checks to be" +
+                            " safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+                    )
+                    .scope(node)
             context.report(incident)
         }
     }
 
-    /**
-     * Checks if the expression is within a method annotated with @DeprecatedSinceApi.
-     */
+    /** Checks if the expression is within a method annotated with @DeprecatedSinceApi. */
     private fun isWithinDeprecatedSinceApiMethod(node: UExpression): Boolean {
         val containingMethod = node.getContainingUMethod() ?: return false
         return annotationsContainDeprecatedSinceApi(containingMethod.annotations)
     }
 
-    /**
-     * Checks if the expression is within a class annotated with @DeprecatedSinceApi.
-     */
+    /** Checks if the expression is within a class annotated with @DeprecatedSinceApi. */
     private fun isWithinDeprecatedSinceApiClass(node: UExpression): Boolean {
         val containingClass = node.getContainingUClass() ?: return false
         return annotationsContainDeprecatedSinceApi(containingClass.annotations)
     }
 
-    /**
-     * Checks if any of the annotations are @DeprecatedSinceApi.
-     */
+    /** Checks if any of the annotations are @DeprecatedSinceApi. */
     private fun annotationsContainDeprecatedSinceApi(annotations: Array<PsiAnnotation>): Boolean {
         for (annotation in annotations) {
             if (annotation.hasQualifiedName(DEPRECATED_SINCE_API_ANNOTATION)) {
@@ -107,17 +104,20 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "BanUncheckedReflection",
-            "Reflection that is not within an SDK check",
-            "Jetpack policy discourages reflection. In cases where reflection is used on " +
-                "platform SDK classes, it must be used within an `SDK_INT` check that delegates " +
-                "to an equivalent public API on the latest version of the platform. If no " +
-                "equivalent public API exists, reflection must not be used. For more " +
-                "information, see go/androidx-api-guidelines#sdk-reflection.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "BanUncheckedReflection",
+                "Reflection that is not within an SDK check",
+                "Jetpack policy discourages reflection. In cases where reflection is used on " +
+                    "platform SDK classes, it must be used within an `SDK_INT` check that delegates " +
+                    "to an equivalent public API on the latest version of the platform. If no " +
+                    "equivalent public API exists, reflection must not be used. For more " +
+                    "information, see go/androidx-api-guidelines#sdk-reflection.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE)
+            )
 
         const val METHOD_REFLECTION_CLASS = "java.lang.reflect.Method"
         const val METHOD_INVOKE_NAME = "invoke"

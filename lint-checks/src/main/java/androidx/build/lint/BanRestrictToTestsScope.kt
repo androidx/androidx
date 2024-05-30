@@ -46,42 +46,48 @@ class BanRestrictToTestsScope : Detector(), Detector.UastScanner {
             if (node.qualifiedName != "androidx.annotation.RestrictTo") return
 
             // Resolve the FQN for all arguments to value parameter.
-            val scopes = node.findAttributeValue("value")?.let { value ->
-                if (value.isArrayInitializer()) {
-                    (value as? UCallExpression)?.valueArguments?.mapNotNull { arg ->
-                        arg as? UReferenceExpression
-                    } ?: emptyList()
-                } else if (value is UReferenceExpression) {
-                    listOfNotNull(value)
-                } else {
-                    emptyList()
-                }
-            }?.mapNotNull { expr ->
-                expr.resolve()?.getFqName()
-            } ?: emptyList()
+            val scopes =
+                node
+                    .findAttributeValue("value")
+                    ?.let { value ->
+                        if (value.isArrayInitializer()) {
+                            (value as? UCallExpression)?.valueArguments?.mapNotNull { arg ->
+                                arg as? UReferenceExpression
+                            } ?: emptyList()
+                        } else if (value is UReferenceExpression) {
+                            listOfNotNull(value)
+                        } else {
+                            emptyList()
+                        }
+                    }
+                    ?.mapNotNull { expr -> expr.resolve()?.getFqName() } ?: emptyList()
 
             if (!scopes.contains("androidx.annotation.RestrictTo.Scope.TESTS")) return
 
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getNameLocation(node))
-                .message("Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`")
-                .scope(node)
+            val incident =
+                Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(node))
+                    .message("Replace `@RestrictTo(TESTS)` with `@VisibleForTesting`")
+                    .scope(node)
 
             // If there's only one scope, suggest replacement.
             if (scopes.size == 1) {
                 // Extract Kotlin use-site target, if available.
-                val useSiteTarget = (node.sourcePsi as? KtAnnotationEntry)
-                    ?.useSiteTarget
-                    ?.getAnnotationUseSiteTarget()
-                    ?.renderName
-                    ?.let { "$it:" } ?: ""
+                val useSiteTarget =
+                    (node.sourcePsi as? KtAnnotationEntry)
+                        ?.useSiteTarget
+                        ?.getAnnotationUseSiteTarget()
+                        ?.renderName
+                        ?.let { "$it:" } ?: ""
 
-                val fix = fix().name("Replace with `@${useSiteTarget}VisibleForTesting`")
-                    .replace()
-                    .with("@${useSiteTarget}androidx.annotation.VisibleForTesting")
-                    .shortenNames()
-                    .build()
+                val fix =
+                    fix()
+                        .name("Replace with `@${useSiteTarget}VisibleForTesting`")
+                        .replace()
+                        .with("@${useSiteTarget}androidx.annotation.VisibleForTesting")
+                        .shortenNames()
+                        .build()
                 incident.fix(fix)
             }
 
@@ -90,13 +96,16 @@ class BanRestrictToTestsScope : Detector(), Detector.UastScanner {
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "UsesRestrictToTestsScope",
-            "Uses @RestrictTo(TESTS) restriction scope",
-            "Use of @RestrictTo(TESTS) restriction scope is not allowed, use " +
-                "@VisibleForTesting instead.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(BanRestrictToTestsScope::class.java, Scope.JAVA_FILE_SCOPE)
-        )
+        val ISSUE =
+            Issue.create(
+                "UsesRestrictToTestsScope",
+                "Uses @RestrictTo(TESTS) restriction scope",
+                "Use of @RestrictTo(TESTS) restriction scope is not allowed, use " +
+                    "@VisibleForTesting instead.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(BanRestrictToTestsScope::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

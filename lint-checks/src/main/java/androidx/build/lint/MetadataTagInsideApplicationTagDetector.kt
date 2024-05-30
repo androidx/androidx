@@ -37,29 +37,33 @@ class MetadataTagInsideApplicationTagDetector : Detector(), Detector.XmlScanner 
 
     override fun visitElement(context: XmlContext, element: Element) {
         if (element.parentNode.nodeName == NODE_APPLICATION) {
-            val incident = Incident(context)
-                .issue(ISSUE)
-                .location(context.getLocation(element))
-                .message("Detected <application>-level meta-data tag.")
-                .scope(element)
+            val incident =
+                Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getLocation(element))
+                    .message("Detected <application>-level meta-data tag.")
+                    .scope(element)
 
             context.report(incident)
         }
     }
 
     companion object {
-        val ISSUE = Issue.create(
-            "MetadataTagInsideApplicationTag",
-            "Detected <application>-level <meta-data> tag in library manifest",
-            "Developers should not add <application>-level <meta-data> tags to library manifests" +
-                " because doing so may inadvertently cause denial-of-service attacks against" +
-                " other apps. Instead, developers may consider adding <metadata> nested " +
-                "inside of placeholder <service> tags.",
-            Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(
-                MetadataTagInsideApplicationTagDetector::class.java,
-                Scope.MANIFEST_SCOPE
+        val ISSUE =
+            Issue.create(
+                "MetadataTagInsideApplicationTag",
+                "Detected <application>-level <meta-data> tag in library manifest",
+                "Developers should not add <application>-level <meta-data> tags to library manifests" +
+                    " because doing so may inadvertently cause denial-of-service attacks against" +
+                    " other apps. Instead, developers may consider adding <metadata> nested " +
+                    "inside of placeholder <service> tags.",
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(
+                    MetadataTagInsideApplicationTagDetector::class.java,
+                    Scope.MANIFEST_SCOPE
+                )
             )
-        )
     }
 }

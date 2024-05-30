@@ -21,32 +21,36 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class WithTypeWithoutConfigureEachUsageDetectorTest : GradleLintDetectorTest(
-    detector = WithTypeWithoutConfigureEachUsageDetector(),
-    issues = listOf(WithTypeWithoutConfigureEachUsageDetector.ISSUE)
-
-) {
+class WithTypeWithoutConfigureEachUsageDetectorTest :
+    GradleLintDetectorTest(
+        detector = WithTypeWithoutConfigureEachUsageDetector(),
+        issues = listOf(WithTypeWithoutConfigureEachUsageDetector.ISSUE)
+    ) {
     @Test
     fun `Test withType Without ConfigureEach usage`() {
 
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.withType(Example::class.java) {}
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
 
         val message = "Avoid passing a closure to withType, use withType().configureEach instead"
 
-        val expected = """
+        val expected =
+            """
             src/test.kt:4: Error: $message [WithTypeWithoutConfigureEach]
                 project.tasks.withType(Example::class.java) {}
                               ~~~~~~~~
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input).expect(expected)
     }
@@ -54,15 +58,17 @@ class WithTypeWithoutConfigureEachUsageDetectorTest : GradleLintDetectorTest(
     @Test
     fun `Test withType With ConfigureEach usage`() {
 
-        val input = kotlin(
-            """
+        val input =
+            kotlin(
+                """
                 import org.gradle.api.Project
 
                 fun configure(project: Project) {
                     project.tasks.withType(Example::class.java).configureEach {}
                 }
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
         check(input).expectClean()
     }
 }

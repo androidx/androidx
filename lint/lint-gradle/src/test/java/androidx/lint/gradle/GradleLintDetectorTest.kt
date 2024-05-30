@@ -28,6 +28,7 @@ abstract class GradleLintDetectorTest(
     private val issues: List<Issue>
 ) : LintDetectorTest() {
     override fun getDetector(): Detector = detector
+
     override fun getIssues(): List<Issue> = issues
 
     /** Convenience method for running a lint test over the input [files] and [STUBS]. */
