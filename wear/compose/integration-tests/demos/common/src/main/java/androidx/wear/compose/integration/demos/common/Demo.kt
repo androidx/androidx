@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import kotlin.reflect.KClass
 
 /**
@@ -52,7 +53,15 @@ class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KCla
 class DemoCategory(
     title: String,
     val demos: List<Demo>
-) : Demo(title)
+) : Demo(title) {
+    private var scrollState: ScalingLazyListState? = null
+
+    @Composable
+    fun getScrollStateOrInit(factory: @Composable () -> ScalingLazyListState):
+        ScalingLazyListState {
+        return scrollState ?: (factory().also { scrollState = it })
+    }
+}
 
 /**
  * Parameters which are used by [Demo] screens.
