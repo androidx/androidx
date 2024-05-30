@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import androidx.core.bundle.Bundle
 import kotlinx.coroutines.flow.StateFlow
 
 public actual open class NavGraphNavigator actual constructor(
@@ -56,7 +57,7 @@ public actual open class NavGraphNavigator actual constructor(
     ) {
         val destination = entry.destination as NavGraph
         // contains restored args or args passed explicitly as startDestinationArgs
-        val args = entry.arguments
+        var args = entry.arguments
         val startRoute = destination.startDestinationRoute
         check(startRoute != null) {
             ("no start destination defined via app:startDestination for ${destination.displayName}")
@@ -66,6 +67,14 @@ public actual open class NavGraphNavigator actual constructor(
             throw IllegalArgumentException(
                 "navigation destination $startRoute is not a direct child of this NavGraph"
             )
+        }
+        val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
+        if (matchingArgs != null && !matchingArgs.isEmpty()) {
+            val bundle = Bundle()
+            // we need to add args from startRoute, but it should not override existing args
+            bundle.putAll(matchingArgs)
+            args?.let { bundle.putAll(it) }
+            args = bundle
         }
 
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
