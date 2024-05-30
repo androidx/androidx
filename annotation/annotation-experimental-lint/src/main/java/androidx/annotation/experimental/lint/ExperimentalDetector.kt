@@ -520,7 +520,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         }
 
         // Check whether the usage actually considered experimental.
-        val decl = referenced.toUElement() ?: usage.getReferencedElement() ?: return
+        val decl =
+            referenced as? UElement
+                ?: referenced.toUElement()
+                ?: usage.getReferencedElement()
+                ?: return
         if (!decl.isExperimentalityRequired(context, annotationFqName)) {
             return
         }
@@ -572,7 +576,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         annotationFqName: String,
     ): Boolean {
         // Is the element itself experimental?
-        if (isDeclarationAnnotatedWith(annotationFqName)) {
+        if (isDeclarationAnnotatedWith(context.evaluator, annotationFqName)) {
             return true
         }
 
@@ -592,7 +596,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // which is landed on the backing field if any
         if (sourcePsi is KtProperty && this is UMethod) {
             val backingField = (uastParent as? UClass)?.fields?.find { it.sourcePsi == sourcePsi }
-            if (backingField?.isDeclarationAnnotatedWith(annotationFqName) == true) {
+            if (
+                backingField?.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ==
+                    true
+            ) {
                 return true
             }
         }
@@ -617,7 +624,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         return config.getOption(ISSUE_ERROR, "opt-in")?.contains(annotationFqName) == true ||
             config.getOption(ISSUE_WARNING, "opt-in")?.contains(annotationFqName) == true ||
             anyParentMatches({ element ->
-                element.isDeclarationAnnotatedWith(annotationFqName) ||
+                element.isDeclarationAnnotatedWith(context.evaluator, annotationFqName) ||
                     element.isDeclarationAnnotatedWithOptInOf(annotationFqName, optInFqNames)
             }) ||
             context.evaluator.getPackage(this)?.let { element ->
@@ -662,8 +669,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val elementLabel =
             when (element) {
                 is UMethod -> "'${element.name}'"
-                is UClass -> "containing class '${element.name}'"
                 is UAnonymousClass -> "containing anonymous class"
+                is UClass -> "containing class '${element.name}'"
                 else -> throw IllegalArgumentException("Unsupported element type")
             }
 
@@ -842,11 +849,11 @@ private fun UElement?.getReferencedElement(): UElement? =
             } // or referenced
         is USimpleNameReferenceExpression ->
             resolve().let { field -> field as? PsiField ?: field as? PsiMethod } // or referenced
+        is UEnumConstant -> resolveMethod() // or referenced
         is UCallExpression ->
             resolve() ?: classReference?.resolve() // referenced is empty for constructor
         is UCallableReferenceExpression -> resolve() as? PsiMethod // or referenced
         is UAnnotation -> null
-        is UEnumConstant -> resolveMethod() // or referenced
         is UArrayAccessExpression -> (receiver as? UReferenceExpression)?.resolve() // or referenced
         is UVariable -> this
         else -> null
@@ -893,10 +900,25 @@ private fun PsiPackage.isAnnotatedWithOptInOf(
         }
     }
 
-/** Returns whether the element declaration is annotated with the specified annotation. */
+/**
+ * Returns whether the element declaration is annotated with the specified annotation or annotated
+ * with annotation that is annotated with the specified annotation
+ */
 private fun UElement.isDeclarationAnnotatedWith(
+    evaluator: JavaEvaluator,
     annotationFqName: String,
-) = (this as? UAnnotated)?.findAnnotation(annotationFqName) != null
+): Boolean {
+    return (this as? UAnnotated)?.uAnnotations?.firstOrNull { uAnnotation ->
+        // Directly annotated
+        if (uAnnotation.qualifiedName == annotationFqName) return@firstOrNull true
+
+        // Annotated with an annotation that is annotated with the specified annotation
+        val cls = uAnnotation.resolve()
+        if (cls == null || !cls.isAnnotationType) return@firstOrNull false
+        val metaAnnotations = evaluator.getAllAnnotations(cls, inHierarchy = false)
+        metaAnnotations.find { it.qualifiedName == annotationFqName } != null
+    } != null
+}
 
 /**
  * Returns whether the element declaration is annotated with any of the specified opt-in annotations
