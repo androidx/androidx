@@ -94,8 +94,11 @@ constructor(
             }
             lastCameraError = null
             val camera =
-                virtualCameraManager.open(config.camera, config.sharedCameraIds, graphListener) { _
-                    ->
+                virtualCameraManager.open(
+                    config.camera,
+                    config.sharedCameraIds,
+                    graphListener,
+                ) { _ ->
                     isForeground
                 }
             if (camera == null) {
@@ -117,7 +120,7 @@ constructor(
                     cameraSurfaceManager,
                     timeSource,
                     config.flags,
-                    scope,
+                    scope
                 )
             currentSession = session
 
@@ -170,20 +173,8 @@ constructor(
                 ControllerState.ERROR ->
                     if (
                         cameraStatus is CameraStatus.CameraAvailable &&
-                            lastCameraError != CameraError.ERROR_GRAPH_CONFIG
+                            lastCameraError == CameraError.ERROR_CAMERA_DEVICE
                     ) {
-                        shouldRestart = true
-                    }
-                ControllerState.STARTED ->
-                    if (cameraStatus is CameraStatus.CameraAvailable) {
-                        // On certain platforms with non-compliant camera HALs, we don't get
-                        // onError() or onDisconnected() callbacks. Therefore, we should still retry
-                        // when we (unexpectedly) get notified that a camera is available.
-                        //
-                        // Please see b/340583179 for details.
-                        Log.warn {
-                            "Got $cameraStatus when controller is started, attempting restart"
-                        }
                         shouldRestart = true
                     }
             }
