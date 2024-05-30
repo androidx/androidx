@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.compat.quirk;
+package androidx.camera.camera2.internal.compat.quirk;
+
+import static android.hardware.camera2.CameraCharacteristics.LENS_FACING;
+import static android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT;
 
 import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 
-import androidx.camera.core.impl.Quirk;
+import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
 /**
  * <p>QuirkSummary
@@ -29,10 +33,10 @@ import androidx.camera.core.impl.Quirk;
  *                  {@link CameraDevice#TEMPLATE_RECORD}.
  *     Device(s): Pixel 8.
  */
-public class TemporalNoiseQuirk implements Quirk {
+public class TemporalNoiseQuirk implements CaptureIntentPreviewQuirk {
 
-    static boolean load() {
-        return isPixel8();
+    static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
+        return isPixel8() && cameraCharacteristics.get(LENS_FACING) == LENS_FACING_FRONT;
     }
 
     private static boolean isPixel8() {

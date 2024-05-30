@@ -103,6 +103,18 @@ constructor(
         if (YuvImageOnePixelShiftQuirk.isEnabled()) {
             quirks.add(YuvImageOnePixelShiftQuirk())
         }
+        if (PreviewStretchWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(PreviewStretchWhenVideoCaptureIsBoundQuirk())
+        }
+        if (PreviewDelayWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+        }
+        if (ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()) {
+            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+        }
+        if (TemporalNoiseQuirk.isEnabled(cameraMetadata)) {
+            quirks.add(PreviewDelayWhenVideoCaptureIsBoundQuirk())
+        }
 
         Quirks(quirks)
     }

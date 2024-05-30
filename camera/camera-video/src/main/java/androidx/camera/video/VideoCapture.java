@@ -61,7 +61,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
-import android.hardware.camera2.CameraDevice;
 import android.media.MediaCodec;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -126,11 +125,7 @@ import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk;
-import androidx.camera.video.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
-import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
-import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
-import androidx.camera.video.internal.compat.quirk.TemporalNoiseQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
@@ -181,30 +176,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final Defaults DEFAULT_CONFIG = new Defaults();
     @VisibleForTesting
     static boolean sEnableSurfaceProcessingByQuirk;
-    private static final boolean USE_TEMPLATE_PREVIEW_BY_QUIRK;
 
     static {
-        boolean hasPreviewStretchQuirk =
-                DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
-        boolean hasPreviewDelayQuirk =
-                DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
-        ImageCaptureFailedWhenVideoCaptureIsBoundQuirk imageCaptureFailedQuirk =
-                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class);
-        boolean useTemplatePreviewByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
-                && imageCaptureFailedQuirk.workaroundByTemplatePreview();
-        boolean enableSurfaceProcessingByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
-                && imageCaptureFailedQuirk.workaroundBySurfaceProcessing();
         boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
         boolean hasExtraSupportedResolutionQuirk =
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
-        boolean hasTemporalNoiseQuirk = DeviceQuirks.get(TemporalNoiseQuirk.class) != null;
-        USE_TEMPLATE_PREVIEW_BY_QUIRK =
-                hasPreviewStretchQuirk || hasPreviewDelayQuirk
-                        || useTemplatePreviewByImageCaptureFailedQuirk || hasTemporalNoiseQuirk;
         sEnableSurfaceProcessingByQuirk =
-                hasPreviewDelayQuirk || enableSurfaceProcessingByImageCaptureFailedQuirk
-                        || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
+                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
     }
 
@@ -710,9 +689,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         sessionConfigBuilder.setVideoStabilization(config.getVideoStabilizationMode());
         sessionConfigBuilder.addErrorListener(
                 (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
-        if (USE_TEMPLATE_PREVIEW_BY_QUIRK) {
-            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        }
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
