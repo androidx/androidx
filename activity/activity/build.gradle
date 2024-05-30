@@ -15,6 +15,7 @@ plugins {
 }
 
 android {
+    compileSdkPreview "VanillaIceCream"
     defaultConfig {
         multiDexEnabled true
     }
