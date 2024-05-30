@@ -19,7 +19,13 @@ package androidx.navigation
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 import androidx.navigation.internal.UriCodec
+import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 public actual class NavDeepLink internal actual constructor(
     public actual val uriPattern: String?,
@@ -42,7 +48,7 @@ public actual class NavDeepLink internal actual constructor(
 
     // fragment
     private val fragArgsAndRegex: Pair<MutableList<String>, String>? by
-    lazy(LazyThreadSafetyMode.NONE) { parseFragment() }
+        lazy(LazyThreadSafetyMode.NONE) { parseFragment() }
     private val fragArgs by lazy(LazyThreadSafetyMode.NONE) {
         fragArgsAndRegex?.first ?: mutableListOf()
     }
@@ -98,6 +104,17 @@ public actual class NavDeepLink internal actual constructor(
         // If both are null return true, otherwise see if they match
     }
 
+    /**
+     * May return null if any of the following:
+     * 1. missing required arguments that don't have default values
+     * 2. wrong value type (i.e. null for non-nullable arg)
+     * 3. other exceptions from parsing an argument value
+     *
+     * May return empty bundle if any of the following:
+     * 1. deeplink has no arguments
+     * 2. deeplink contains arguments with unknown default values (i.e. deeplink from safe args
+     * with unknown default values)
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMatchingArguments(
         deepLink: String,
@@ -313,6 +330,22 @@ public actual class NavDeepLink internal actual constructor(
 
         public actual fun setUriPattern(uriPattern: String): Builder {
             this.uriPattern = uriPattern
+            return this
+        }
+
+        public actual inline fun <reified T : Any> setUriPattern(
+            basePath: String,
+            typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        ): Builder = setUriPattern(basePath, T::class, typeMap)
+
+        @OptIn(InternalSerializationApi::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // need to be public for reified delegation
+        public actual fun <T : Any> setUriPattern(
+            basePath: String,
+            route: KClass<T>,
+            typeMap: Map<KType, NavType<*>>,
+        ): Builder {
+            this.uriPattern = route.serializer().generateRoutePattern(typeMap, basePath)
             return this
         }
 

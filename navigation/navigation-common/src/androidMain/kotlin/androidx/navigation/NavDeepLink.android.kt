@@ -518,17 +518,17 @@ public actual class NavDeepLink internal actual constructor(
          *
          * @return This builder.
          */
-        public inline fun <reified T : Any> setUriPattern(
+        public actual inline fun <reified T : Any> setUriPattern(
             basePath: String,
-            typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+            typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
         ): Builder = setUriPattern(basePath, T::class, typeMap)
 
         @OptIn(InternalSerializationApi::class)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // need to be public for reified delegation
-        public fun <T : Any> setUriPattern(
+        public actual fun <T : Any> setUriPattern(
             basePath: String,
             route: KClass<T>,
-            typeMap: Map<KType, NavType<*>> = emptyMap(),
+            typeMap: Map<KType, NavType<*>>,
         ): Builder {
             this.uriPattern = route.serializer().generateRoutePattern(typeMap, basePath)
             return this
