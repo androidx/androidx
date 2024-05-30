@@ -730,6 +730,8 @@ public class WebViewCompat {
      * @see JavaScriptReplyProxy
      * @see WebMessageListener
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
@@ -762,6 +764,8 @@ public class WebViewCompat {
      *
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void removeWebMessageListener(
@@ -807,6 +811,8 @@ public class WebViewCompat {
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -1148,6 +1154,8 @@ public class WebViewCompat {
      * @param webView the WebView for which to check mute status.
      * @return true if the WebView is muted, false otherwise.
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isAudioMuted(@NonNull WebView webView) {
@@ -1165,6 +1173,8 @@ public class WebViewCompat {
      * @param webView the WebView for which to control muting.
      * @param mute true to mute the WebView; false to un-mute the WebView.
      */
+    // UI thread not currently enforced, but required
+    @UiThread
     @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setAudioMuted(@NonNull WebView webView, boolean mute) {

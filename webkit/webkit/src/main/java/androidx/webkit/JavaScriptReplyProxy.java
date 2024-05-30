@@ -19,6 +19,7 @@ package androidx.webkit;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 
 /**
  * This class represents the JavaScript object injected by {@link
@@ -35,6 +36,8 @@ import androidx.annotation.RestrictTo;
  * @see WebViewCompat#addWebMessageListener(android.webkit.WebView, String, java.util.Set,
  * WebViewCompat.WebMessageListener).
  */
+// UI thread not currently enforced, but required
+@UiThread
 public abstract class JavaScriptReplyProxy {
     /**
      * Post a String message to the injected JavaScript object which sent this {@link
