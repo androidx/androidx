@@ -355,6 +355,7 @@ private fun NavigationItemLayout(
     topIconItemVerticalPadding: Dp
 ) {
     Layout(
+        modifier = Modifier.badgeBounds(),
         content = {
             // Create the indicator ripple.
             Box(
