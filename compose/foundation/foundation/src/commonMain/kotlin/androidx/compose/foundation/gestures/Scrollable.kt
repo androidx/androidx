@@ -775,7 +775,7 @@ internal class ScrollingLogic(
     suspend fun onDragStopped(initialVelocity: Velocity) {
         val availableVelocity = initialVelocity.singleAxisVelocity()
 
-        scrollableState.scroll {
+        scroll {
             val performFling: suspend (Velocity) -> Velocity = { velocity ->
                 val preConsumedByParent = nestedScrollDispatcher
                     .dispatchPreFling(velocity)
@@ -799,25 +799,23 @@ internal class ScrollingLogic(
         }
     }
 
-    suspend fun ScrollScope.doFlingAnimation(available: Velocity): Velocity {
+    suspend fun NestedScrollScope.doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
-        // TODO (MERGE 1.7) `scroll(scrollPriority = MutatePriority.Default)` was removed in 1.6
-        scroll(scrollPriority = MutatePriority.Default) {
-            val nestedScrollScope = this
-            val reverseScope = object : ScrollScope {
-                override fun scrollBy(pixels: Float): Float {
-                    return nestedScrollScope.scrollByWithOverscroll(
-                        offset = pixels.toOffset().reverseIfNeeded(),
-                        source = SideEffect
-                    ).toFloat().reverseIfNeeded()
-                }
+
+        val nestedScrollScope = this
+        val reverseScope = object : ScrollScope {
+            override fun scrollBy(pixels: Float): Float {
+                return nestedScrollScope.scrollByWithOverscroll(
+                    offset = pixels.toOffset().reverseIfNeeded(),
+                    source = SideEffect
+                ).toFloat().reverseIfNeeded()
             }
-            with(reverseScope) {
-                with(flingBehavior) {
-                    result = result.update(
-                        performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
-                    )
-                }
+        }
+        with(reverseScope) {
+            with(flingBehavior) {
+                result = result.update(
+                    performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
+                )
             }
         }
         return result
@@ -900,7 +898,7 @@ private class ScrollableNestedScrollConnection(
         return if (enabled) {
             var velocityLeft: Velocity = available
             with(scrollingLogic) {
-                scrollableState.scroll {
+                scroll {
                     velocityLeft = doFlingAnimation(available)
                 }
             }

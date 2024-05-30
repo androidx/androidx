@@ -131,13 +131,6 @@ internal class MouseWheelScrollNode(
         }
     }
 
-    private suspend fun ScrollableState.userScroll(
-        block: suspend ScrollScope.() -> Unit
-    ) = supervisorScope {
-        // Run it in supervisorScope to ignore cancellations from scrolls with higher MutatePriority
-        scroll(MutatePriority.UserInput, block)
-    }
-
     private fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
         val scrollDelta = with(mouseWheelScrollConfig) {
             calculateMouseWheelScroll(pointerEvent, size)
@@ -238,7 +231,7 @@ internal class MouseWheelScrollNode(
             } ?: false
         }
 
-        scrollableState.userScroll {
+        scroll(MutatePriority.UserInput) {
             var requiredAnimation = true
             while (requiredAnimation) {
                 requiredAnimation = false
@@ -279,7 +272,7 @@ internal class MouseWheelScrollNode(
         onScrollStopped(velocity)
     }
 
-    private suspend fun ScrollScope.animateMouseWheelScroll(
+    private suspend fun NestedScrollScope.animateMouseWheelScroll(
         animationState: AnimationState<Float, AnimationVector1D>,
         targetValue: Float,
         durationMillis: Int,
@@ -309,12 +302,11 @@ internal class MouseWheelScrollNode(
         }
     }
 
-    private fun ScrollScope.dispatchMouseWheelScroll(delta: Float) = with(scrollingLogic) {
+    private fun NestedScrollScope.dispatchMouseWheelScroll(delta: Float) = with(scrollingLogic) {
         val offset = delta.reverseIfNeeded().toOffset()
-        val consumed = dispatchScroll(
+        val consumed = scrollByWithOverscroll(
             offset,
             NestedScrollSource.UserInput,
-            overscrollEnabledForSource = false
         )
         consumed.reverseIfNeeded().toFloat()
     }
