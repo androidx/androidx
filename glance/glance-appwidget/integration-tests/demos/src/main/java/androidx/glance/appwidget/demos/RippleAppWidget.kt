@@ -33,6 +33,7 @@ import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -74,7 +75,8 @@ class RippleAppWidget : GlanceAppWidget() {
             modifier =
                 GlanceModifier.fillMaxSize()
                     .padding(8.dp)
-                    .cornerRadius(20.dp)
+                    .cornerRadius(R.dimen.corner_radius)
+                    .appWidgetBackground()
                     .background(ColorProvider(day = columnBgColors[0], night = columnBgColors[1]))
                     .clickable {
                         columnBgColors =
