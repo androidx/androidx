@@ -449,6 +449,32 @@ class RxPagedListBuilderTest {
         assertEquals(2, pagingSourcesCreated)
     }
 
+    @Test
+    fun exceptionThrownFromDataSourceEmitsInRxChain() {
+        class DodgyQueryDataSourceFactory : DataSource.Factory<Int, String>() {
+            override fun create() = object : PositionalDataSource<String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams,
+                    callback: LoadInitialCallback<String>,
+                ) {
+                    error("This was totally unexpected.")
+                }
+
+                override fun loadRange(
+                    params: LoadRangeParams,
+                    callback: LoadRangeCallback<String>,
+                ) = Unit
+            }
+        }
+
+        RxPagedListBuilder(DodgyQueryDataSourceFactory(), 10)
+            .setFetchScheduler(Schedulers.trampoline())
+            .setNotifyScheduler(Schedulers.trampoline())
+            .buildObservable()
+            .test()
+            .assertError { it.message == "This was totally unexpected." }
+    }
+
     companion object {
         val EXCEPTION = Exception("")
     }
