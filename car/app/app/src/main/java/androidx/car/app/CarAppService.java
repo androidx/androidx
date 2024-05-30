@@ -220,7 +220,7 @@ public abstract class CarAppService extends Service {
             synchronized (mBinders) {
                 CarAppBinder binder = mBinders.remove(sessionInfo);
                 if (binder != null) {
-                    binder.onDestroyLifecycle();
+                    binder.destroy();
                 }
             }
         });

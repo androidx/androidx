@@ -369,6 +369,12 @@ final class CarAppBinder extends ICarApp.Stub {
         return mHandshakeInfo;
     }
 
+    @VisibleForTesting
+    @Nullable
+    CarAppService getCarAppService() {
+        return mService;
+    }
+
     @Nullable
     Session getCurrentSession() {
         return mCurrentSession;
