@@ -17,9 +17,6 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -136,10 +133,6 @@ fun CanScrollSample() {
 fun FocusScrollingInLazyRowSample() {
     // a bring into view spec that pivots around the center of the scrollable container
     val customBringIntoViewSpec = object : BringIntoViewSpec {
-        val customAnimationSpec = tween<Float>(easing = LinearEasing)
-        override val scrollAnimationSpec: AnimationSpec<Float>
-            get() = customAnimationSpec
-
         override fun calculateScrollDistance(
             offset: Float,
             size: Float,
