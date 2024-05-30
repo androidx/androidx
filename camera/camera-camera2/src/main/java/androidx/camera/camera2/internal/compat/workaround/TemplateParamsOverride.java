@@ -28,6 +28,10 @@ import static java.util.Collections.unmodifiableMap;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk;
+import androidx.camera.camera2.internal.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk;
+import androidx.camera.camera2.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
+import androidx.camera.camera2.internal.compat.quirk.TemporalNoiseQuirk;
 import androidx.camera.core.impl.Quirks;
 
 import java.util.HashMap;
@@ -37,6 +41,11 @@ import java.util.Map;
  * Workaround to get those capture parameters used to override the template default parameters.
  *
  * <p>This workaround should only be applied on repeating request but not on single request.
+ *
+ * @see PreviewStretchWhenVideoCaptureIsBoundQuirk
+ * @see PreviewDelayWhenVideoCaptureIsBoundQuirk
+ * @see ImageCaptureFailedWhenVideoCaptureIsBoundQuirk
+ * @see TemporalNoiseQuirk
  */
 public class TemplateParamsOverride {
     private final Quirks mQuirks;

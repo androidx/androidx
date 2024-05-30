@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.compat.quirk;
+package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk;
 
 /**
  * <p>QuirkSummary
@@ -29,7 +29,8 @@ import androidx.camera.core.impl.Quirk;
  *                  issue.
  *     Device(s): Some Huawei devices.
  */
-public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
+public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements CaptureIntentPreviewQuirk,
+        SurfaceProcessingQuirk {
 
     /*
     Known devices:

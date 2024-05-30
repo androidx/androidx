@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.compat.quirk;
+package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
-
-import androidx.camera.core.impl.Quirk;
-
 /**
  * <p>QuirkSummary
  *     Bug Id: b/227469801, b/274738266
  *     Description: Quirk indicates Preview is stretched when VideoCapture is bound.
  *     Device(s): Samsung J3, Samsung J5, Samsung J7, Samsung J1 Ace neo and Oppo A37F
  */
-public class PreviewStretchWhenVideoCaptureIsBoundQuirk implements Quirk {
+public class PreviewStretchWhenVideoCaptureIsBoundQuirk implements CaptureIntentPreviewQuirk {
 
     static boolean load() {
         return isHuaweiP8Lite() || isSamsungJ3() || isSamsungJ7() || isSamsungJ1AceNeo()
