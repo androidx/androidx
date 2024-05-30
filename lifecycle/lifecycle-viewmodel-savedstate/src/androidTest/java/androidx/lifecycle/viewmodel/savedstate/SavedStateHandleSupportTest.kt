@@ -101,8 +101,7 @@ class SavedStateHandleSupportTest {
         try {
             component.createSavedStateHandle("key")
             Assert.fail("createSavedStateHandle should fail when install() wasn't called")
-        } catch (e: IllegalStateException) {
-        }
+        } catch (e: IllegalStateException) {}
     }
 
     @UiThreadTest

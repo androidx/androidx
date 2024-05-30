@@ -26,11 +26,12 @@ class ViewModelLazyTest {
     @Test
     fun test() {
         val store = ViewModelStore()
-        val viewModel by ViewModelLazy(
-            viewModelClass = TestViewModel::class,
-            storeProducer = { store },
-            factoryProducer = { TestFactory() },
-        )
+        val viewModel by
+            ViewModelLazy(
+                viewModelClass = TestViewModel::class,
+                storeProducer = { store },
+                factoryProducer = { TestFactory() },
+            )
         assertThat(viewModel.prop).isEqualTo(expected = "spb")
         assertThat(store.keys()).isNotEmpty()
     }

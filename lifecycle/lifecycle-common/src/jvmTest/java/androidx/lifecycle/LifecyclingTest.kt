@@ -38,80 +38,46 @@ class LifecyclingTest {
     @Test
     fun testDerivedWithNewLfMethodsNoGeneratedAdapter() {
         val callback = lifecycleEventObserver(DerivedWithNewMethods())
-        assertThat(
-            callback, instanceOf(
-                ReflectiveGenericLifecycleObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(ReflectiveGenericLifecycleObserver::class.java))
     }
 
     @Test
     fun testDerivedWithNoNewLfMethodsNoGeneratedAdapter() {
         val callback = lifecycleEventObserver(DerivedWithNoNewMethods())
-        assertThat(
-            callback, instanceOf(
-                SingleGeneratedAdapterObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(SingleGeneratedAdapterObserver::class.java))
     }
 
     @Test
     fun testDerivedWithOverriddenMethodsNoGeneratedAdapter() {
-        val callback = lifecycleEventObserver(
-            DerivedWithOverriddenMethodsWithLfAnnotation()
-        )
+        val callback = lifecycleEventObserver(DerivedWithOverriddenMethodsWithLfAnnotation())
         // that is not effective but...
-        assertThat(
-            callback, instanceOf(
-                ReflectiveGenericLifecycleObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(ReflectiveGenericLifecycleObserver::class.java))
     }
 
     @Test
     fun testInterfaceImpl1NoGeneratedAdapter() {
         val callback = lifecycleEventObserver(InterfaceImpl1())
-        assertThat(
-            callback, instanceOf(
-                SingleGeneratedAdapterObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(SingleGeneratedAdapterObserver::class.java))
     }
 
     @Test
     fun testInterfaceImpl2NoGeneratedAdapter() {
         val callback = lifecycleEventObserver(InterfaceImpl2())
-        assertThat(
-            callback, instanceOf(
-                CompositeGeneratedAdaptersObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver::class.java))
     }
 
     @Test
     fun testInterfaceImpl3NoGeneratedAdapter() {
         val callback = lifecycleEventObserver(InterfaceImpl3())
-        assertThat(
-            callback, instanceOf(
-                CompositeGeneratedAdaptersObserver::class.java
-            )
-        )
+        assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver::class.java))
     }
 
     @Test
     fun testDerivedSequence() {
         val callback2 = lifecycleEventObserver(DerivedSequence2())
-        assertThat(
-            callback2, instanceOf(
-                ReflectiveGenericLifecycleObserver::class.java
-            )
-        )
+        assertThat(callback2, instanceOf(ReflectiveGenericLifecycleObserver::class.java))
         val callback1 = lifecycleEventObserver(DerivedSequence1())
-        assertThat(
-            callback1, instanceOf(
-                SingleGeneratedAdapterObserver::class.java
-            )
-        )
+        assertThat(callback1, instanceOf(SingleGeneratedAdapterObserver::class.java))
     }
 
     // MUST BE HERE TILL Lifecycle 3.0.0 release for back-compatibility with other modules
@@ -135,9 +101,7 @@ class LifecyclingTest {
             }
         }
 
-        val callback = lifecycleEventObserver(
-            AnnotatedFullLifecycleObserver()
-        )
+        val callback = lifecycleEventObserver(AnnotatedFullLifecycleObserver())
         // check that neither of these calls fail
         callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE)
         callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_START)
@@ -158,15 +122,10 @@ class LifecyclingTest {
                 )
             }
 
-            override fun onStateChanged(
-                source: LifecycleOwner,
-                event: Lifecycle.Event
-            ) {}
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {}
         }
 
-        val callback = lifecycleEventObserver(
-            AnnotatedLifecycleEventObserver()
-        )
+        val callback = lifecycleEventObserver(AnnotatedLifecycleEventObserver())
 
         // check that neither of these calls fail
         callback.onStateChanged(DefaultLifecycleOwner(), Lifecycle.Event.ON_CREATE)

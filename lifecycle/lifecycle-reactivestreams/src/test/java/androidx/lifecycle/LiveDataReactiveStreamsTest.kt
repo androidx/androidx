@@ -39,9 +39,7 @@ import org.reactivestreams.Subscription
 
 class LiveDataReactiveStreamsTest {
 
-    @JvmField
-    @Rule
-    val instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
+    @JvmField @Rule val instantTaskExecutorRule: TestRule = InstantTaskExecutorRule()
 
     private lateinit var lifecycleOwner: TestLifecycleOwner
     private val liveDataOutput = ArrayList<String>()
@@ -51,10 +49,8 @@ class LiveDataReactiveStreamsTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun init() {
-        lifecycleOwner = TestLifecycleOwner(
-            Lifecycle.State.RESUMED,
-            UnconfinedTestDispatcher(null, null)
-        )
+        lifecycleOwner =
+            TestLifecycleOwner(Lifecycle.State.RESUMED, UnconfinedTestDispatcher(null, null))
     }
 
     @Test
@@ -159,8 +155,7 @@ class LiveDataReactiveStreamsTest {
 
     @Test
     fun convertsFromAsyncPublisher() {
-        val input = just("foo").concatWith(just("bar", "baz")
-                .observeOn(backgroundScheduler))
+        val input = just("foo").concatWith(just("bar", "baz").observeOn(backgroundScheduler))
         val liveData = input.toLiveData()
         liveData.observe(lifecycleOwner, observer)
         assertThat(liveDataOutput, `is`(listOf("foo")))
@@ -174,14 +169,10 @@ class LiveDataReactiveStreamsTest {
         liveData.value = "foo"
         assertThat(liveData.value, `is`("foo"))
         @Suppress("DEPRECATION")
-        fromPublisher(toPublisher(lifecycleOwner, liveData))
-            .subscribe(outputProcessor)
+        fromPublisher(toPublisher(lifecycleOwner, liveData)).subscribe(outputProcessor)
         liveData.value = "bar"
         liveData.value = "baz"
-        assertThat(
-            outputProcessor.getValues(arrayOf()),
-            `is`(arrayOf("foo", "bar", "baz"))
-        )
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo", "bar", "baz")))
     }
 
     @Test
@@ -190,8 +181,10 @@ class LiveDataReactiveStreamsTest {
         liveData.value = "foo"
         assertThat(liveData.value, `is`("foo"))
         @Suppress("DEPRECATION")
-        val disposable = fromPublisher(toPublisher(lifecycleOwner, liveData))
-            .subscribe { s -> liveDataOutput.add(s) }
+        val disposable =
+            fromPublisher(toPublisher(lifecycleOwner, liveData)).subscribe { s ->
+                liveDataOutput.add(s)
+            }
         liveData.value = "bar"
         liveData.value = "baz"
         assertThat(liveData.hasObservers(), `is`(true))
@@ -209,22 +202,24 @@ class LiveDataReactiveStreamsTest {
         val subscriptionSubject = AsyncSubject.create<Subscription>()
         @Suppress("DEPRECATION")
         fromPublisher(toPublisher<String>(lifecycleOwner, liveData))
-            .subscribe(object : Subscriber<String> {
-                override fun onSubscribe(s: Subscription) {
-                    subscriptionSubject.onNext(s)
-                    subscriptionSubject.onComplete()
-                }
+            .subscribe(
+                object : Subscriber<String> {
+                    override fun onSubscribe(s: Subscription) {
+                        subscriptionSubject.onNext(s)
+                        subscriptionSubject.onComplete()
+                    }
 
-                override fun onNext(s: String) {
-                    outputProcessor.onNext(s)
-                }
+                    override fun onNext(s: String) {
+                        outputProcessor.onNext(s)
+                    }
 
-                override fun onError(t: Throwable) {
-                    throw RuntimeException(t)
-                }
+                    override fun onError(t: Throwable) {
+                        throw RuntimeException(t)
+                    }
 
-                override fun onComplete() {}
-            })
+                    override fun onComplete() {}
+                }
+            )
 
         // Subscription should have happened synchronously. If it didn't, this will deadlock.
         val subscription = subscriptionSubject.blockingSingle()
@@ -235,25 +230,16 @@ class LiveDataReactiveStreamsTest {
         subscription.request(2)
         liveData.value = "baz"
         liveData.value = "fizz"
-        assertThat(
-            outputProcessor.getValues(arrayOf()),
-            `is`(arrayOf("foo", "baz", "fizz"))
-        )
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo", "baz", "fizz")))
 
         // 'nyan' will be dropped as there is nothing currently requesting a stream.
         liveData.value = "nyan"
         liveData.value = "cat"
-        assertThat(
-            outputProcessor.getValues(arrayOf()),
-            `is`(arrayOf("foo", "baz", "fizz"))
-        )
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo", "baz", "fizz")))
 
         // When a new request comes in, the latest value will be pushed.
         subscription.request(1)
-        assertThat(
-            outputProcessor.getValues(arrayOf()),
-            `is`(arrayOf("foo", "baz", "fizz", "cat"))
-        )
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo", "baz", "fizz", "cat")))
     }
 
     @Test
@@ -271,10 +257,7 @@ class LiveDataReactiveStreamsTest {
         liveData.value = "baz"
         assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo")))
         backgroundScheduler.triggerActions()
-        assertThat(
-            outputProcessor.getValues(arrayOf()),
-            `is`(arrayOf("foo", "bar", "baz"))
-        )
+        assertThat(outputProcessor.getValues(arrayOf()), `is`(arrayOf("foo", "bar", "baz")))
     }
 
     companion object {

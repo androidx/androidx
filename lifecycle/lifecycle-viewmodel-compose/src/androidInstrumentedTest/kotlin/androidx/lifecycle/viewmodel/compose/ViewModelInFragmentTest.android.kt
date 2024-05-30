@@ -63,9 +63,7 @@ public class ViewModelInFragmentTest(private val viewModelClass: Class<out ViewM
             val view = FragmentContainerView(activity)
             view.id = 100
             activity.setContentView(view)
-            activity.supportFragmentManager.beginTransaction()
-                .replace(100, fragment)
-                .commit()
+            activity.supportFragmentManager.beginTransaction().replace(100, fragment).commit()
         }
 
         assertTrue(fragment.latch.await(1, TimeUnit.SECONDS))
@@ -80,10 +78,11 @@ public class TestFragment(private val viewModelClass: Class<out ViewModel>) : Fr
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): ComposeView = ComposeView(requireContext()).apply {
-        setContent {
-            viewModel(viewModelClass)
-            latch.countDown()
+    ): ComposeView =
+        ComposeView(requireContext()).apply {
+            setContent {
+                viewModel(viewModelClass)
+                latch.countDown()
+            }
         }
-    }
 }

@@ -38,7 +38,8 @@ class LifecycleWhenChecksTest {
             .run()
     }
 
-    private val TEMPLATE = """
+    private val TEMPLATE =
+        """
         package foo
 
         import androidx.lifecycle.Lifecycle
@@ -80,7 +81,8 @@ class LifecycleWhenChecksTest {
                 FooView().foo()
             }
         }
-    """.trimIndent()
+    """
+            .trimIndent()
 
     private val TEMPLATE_SIZE_BEFOFE_BODY = TEMPLATE.substringBefore("%s").lines().size
 
@@ -100,43 +102,51 @@ class LifecycleWhenChecksTest {
         fun multiLine(s: String) = s.lines().joinToString("\n|")
 
         val error = errorMessage("whenStarted").replace("`", "")
-        val primary = """
+        val primary =
+            """
             src/foo/test.kt:$l: Error: $error [${ISSUE.id}]
                 $customExpression
                 $highlight
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val message = if (additionalMessage.isEmpty()) {
-            primary
-        } else {
-            """
+        val message =
+            if (additionalMessage.isEmpty()) {
+                primary
+            } else {
+                """
                 |${multiLine(primary)}
                 |    $additionalMessage
-            """.trimMargin()
-        }
+            """
+                    .trimMargin()
+            }
 
         return """
             |${multiLine(message)}
             |1 errors, 0 warnings
-            """.trimMargin()
+            """
+            .trimMargin()
     }
 
     @Test
     fun accessViewInFinally() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input.trimIndent()).expect(error(4))
     }
 
     @Test
     fun accessViewInFinallyInLifecycleCheck() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -144,13 +154,15 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expectClean()
     }
 
     @Test
     fun accessViewInFinallyAfterLifecycleCheck() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -159,7 +171,8 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expect(error(6, "    view.foo()"))
     }
 
@@ -167,7 +180,8 @@ class LifecycleWhenChecksTest {
     fun accessViewInFinallyWithLifecycleCheckInterrupted() {
         // it is ok, because suspendingFun in if - check will throw if scope was cancelled,
         // so view.foo() won't be executed
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -176,13 +190,15 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expectClean()
     }
 
     @Test
     fun tryInLifecycleCheck() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -195,14 +211,15 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
-        check(input.trimIndent()).expect(error(8, "        view.foo()"))
-            .expectErrorCount(1)
+        """
+                .trimIndent()
+        check(input.trimIndent()).expect(error(8, "        view.foo()")).expectErrorCount(1)
     }
 
     @Test
     fun tryWithNonSuspendLambda() {
-        val input = """
+        val input =
+            """
             try {
                 "".apply {
                     suspendingFun()
@@ -210,14 +227,16 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
 
         check(input.trimIndent()).expect(error(6))
     }
 
     @Test
     fun tryWithSuspendLambda() {
-        val input = """
+        val input =
+            """
             try {
                 GlobalScope.launch {
                     suspendingFun()
@@ -225,14 +244,16 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expectClean()
     }
 
     @Test
     fun suspendLambdaWithTry() {
         // some weird stuff is going, but it is not our business
-        val input = """
+        val input =
+            """
             GlobalScope.launch {
                 try {
                     suspendingFun()
@@ -240,14 +261,16 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expectClean()
     }
 
     @Test
     fun nonSuspendLambdaWithTry() {
         // some weird stuff is going, but it is not our business
-        val input = """
+        val input =
+            """
             "".apply {
                 try {
                     suspendingFun()
@@ -255,7 +278,8 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input.trimIndent()).expect(error(5, "    view.foo()"))
     }
 
@@ -273,7 +297,8 @@ class LifecycleWhenChecksTest {
 
     @Test
     fun finallyWithWhenFinally() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -281,39 +306,45 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expectClean()
     }
 
     @Test
     fun tryInTrySuspendAfter() {
-        val input = """
+        val input =
+            """
             try {
                 try { } finally {}
                 suspendingFun()
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(5))
     }
 
     @Test
     fun tryInTrySuspendBefore() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
                 try { } finally {}
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(5))
     }
 
     @Test
     fun tryInTrySuspendInInnerSuspend() {
-        val input = """
+        val input =
+            """
             try {
                 try {
                     suspendingFun()
@@ -322,13 +353,15 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(7))
     }
 
     @Test
     fun tryInTrySuspendInInnerFinally() {
-        val input = """
+        val input =
+            """
             try {
                 try {
                 } finally {
@@ -337,13 +370,15 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(7))
     }
 
     @Test
     fun failingTryOkTry() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -354,13 +389,15 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(4)).expectErrorCount(1)
     }
 
     @Test
     fun tryInFinallySuspendInOuterTry() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -369,13 +406,15 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(6, "    view.foo()")).expectErrorCount(1)
     }
 
     @Test
     fun accessViewInTryInFinallySuspendInOuter() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -384,13 +423,15 @@ class LifecycleWhenChecksTest {
                 } finally {
                 }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(5, "    view.foo()")).expectErrorCount(1)
     }
 
     @Test
     fun failingTrySuspendFunOkTry() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
@@ -402,13 +443,15 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expect(error(4)).expectErrorCount(1)
     }
 
     @Test
     fun unrelatedClassDeclaration() {
-        val input = """
+        val input =
+            """
             try {
                 class Boom {
                     fun another() {
@@ -418,13 +461,15 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expectClean()
     }
 
     @Test
     fun unrelatedFunDeclaration() {
-        val input = """
+        val input =
+            """
             try {
                 suspend fun another() {
                     suspendingFun()
@@ -432,24 +477,23 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         check(input).expectClean()
     }
 
     @Test
     fun viewAccessInFunction() {
-        val input = """
+        val input =
+            """
             try {
                 suspendingFun()
             } finally {
                 accessView(view)
             }
-        """.trimIndent()
-        check(input).expect(
-            error(
-                4, "accessView(view)",
-                "src/foo/test.kt:31: Internal View access"
-            )
-        )
+        """
+                .trimIndent()
+        check(input)
+            .expect(error(4, "accessView(view)", "src/foo/test.kt:31: Internal View access"))
     }
 }

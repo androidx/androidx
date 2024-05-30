@@ -37,9 +37,10 @@ class ViewModelProvidersTest {
     @Test
     fun getDefaultFactory_ownerWithFactory_returnsExtras() {
         val customFactory = object : ViewModelProvider.Factory {}
-        val owner = TestViewModelStoreOwnerWithDefaults(
-            defaultViewModelProviderFactory = customFactory,
-        )
+        val owner =
+            TestViewModelStoreOwnerWithDefaults(
+                defaultViewModelProviderFactory = customFactory,
+            )
 
         val factory = ViewModelProviders.getDefaultFactory(owner)
 
@@ -56,9 +57,10 @@ class ViewModelProvidersTest {
     @Test
     fun getDefaultCreationExtras_ownerWithExtras_returnsExtras() {
         val customExtras = MutableCreationExtras()
-        val owner = TestViewModelStoreOwnerWithDefaults(
-            defaultViewModelCreationExtras = customExtras,
-        )
+        val owner =
+            TestViewModelStoreOwnerWithDefaults(
+                defaultViewModelCreationExtras = customExtras,
+            )
 
         val extras = ViewModelProviders.getDefaultCreationExtras(owner)
 

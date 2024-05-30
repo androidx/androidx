@@ -19,8 +19,6 @@ package androidx.lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
 
-/**
- * To ensure consistent behavior, we run these tests both on androidTest and test
- */
+/** To ensure consistent behavior, we run these tests both on androidTest and test */
 @RunWith(AndroidJUnit4::class)
 class LifecycleCoroutineScopeAndroidTest : LifecycleCoroutineScopeTestBase()

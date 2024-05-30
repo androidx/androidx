@@ -33,9 +33,8 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 
 /**
- * Android Unit Tests target doesn't provide a Main dispatcher.
- * Lifecycle internals rely on Main & Main.immediate dispatchers heavily,
- * so we need to re-create their behavior in tests.
+ * Android Unit Tests target doesn't provide a Main dispatcher. Lifecycle internals rely on Main &
+ * Main.immediate dispatchers heavily, so we need to re-create their behavior in tests.
  */
 @OptIn(DelicateCoroutinesApi::class)
 private class SurrogateMainCoroutineDispatcher : MainCoroutineDispatcher() {
@@ -63,7 +62,8 @@ private class ImmediateMainCoroutineDispatcher(
     private val isMainThread: ThreadLocal<Boolean>,
     private val mainThreadSurrogate: CloseableCoroutineDispatcher,
 ) : MainCoroutineDispatcher() {
-    override val immediate: MainCoroutineDispatcher get() = this
+    override val immediate: MainCoroutineDispatcher
+        get() = this
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         mainThreadSurrogate.dispatch(context, block)

@@ -15,9 +15,8 @@
  */
 package androidx.lifecycle
 
-internal class SingleGeneratedAdapterObserver(
-    private val generatedAdapter: GeneratedAdapter
-) : LifecycleEventObserver {
+internal class SingleGeneratedAdapterObserver(private val generatedAdapter: GeneratedAdapter) :
+    LifecycleEventObserver {
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         generatedAdapter.callMethods(source, event, false, null)
         generatedAdapter.callMethods(source, event, true, null)

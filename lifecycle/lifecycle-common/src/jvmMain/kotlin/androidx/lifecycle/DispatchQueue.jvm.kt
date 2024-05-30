@@ -46,9 +46,7 @@ internal class DispatchQueue {
         if (!paused) {
             return
         }
-        check(!finished) {
-            "Cannot resume a finished dispatcher"
-        }
+        check(!finished) { "Cannot resume a finished dispatcher" }
         paused = false
         drainQueue()
     }
@@ -78,8 +76,7 @@ internal class DispatchQueue {
         }
     }
 
-    @MainThread
-    fun canRun() = finished || !paused
+    @MainThread fun canRun() = finished || !paused
 
     @AnyThread
     @Suppress("WrongThread") // false negative, we are checking the thread
@@ -105,9 +102,7 @@ internal class DispatchQueue {
 
     @MainThread
     private fun enqueue(runnable: Runnable) {
-        check(queue.offer(runnable)) {
-            "cannot enqueue any more runnables"
-        }
+        check(queue.offer(runnable)) { "cannot enqueue any more runnables" }
         drainQueue()
     }
 }

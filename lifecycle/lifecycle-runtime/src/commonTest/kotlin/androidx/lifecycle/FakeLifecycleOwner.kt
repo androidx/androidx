@@ -24,9 +24,7 @@ public class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : Lifecyc
     private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(this)
 
     init {
-        initialState?.let {
-            setState(it)
-        }
+        initialState?.let { setState(it) }
     }
 
     override val lifecycle: Lifecycle
@@ -37,38 +35,26 @@ public class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : Lifecyc
     }
 
     public fun pause() {
-        runBlocking(Dispatchers.Main) {
-            setState(Lifecycle.State.STARTED)
-        }
+        runBlocking(Dispatchers.Main) { setState(Lifecycle.State.STARTED) }
     }
 
     public fun destroy() {
-        runBlocking(Dispatchers.Main) {
-            setState(Lifecycle.State.DESTROYED)
-        }
+        runBlocking(Dispatchers.Main) { setState(Lifecycle.State.DESTROYED) }
     }
 
     public fun create() {
-        runBlocking(Dispatchers.Main) {
-            setState(Lifecycle.State.CREATED)
-        }
+        runBlocking(Dispatchers.Main) { setState(Lifecycle.State.CREATED) }
     }
 
     public fun start() {
-        runBlocking(Dispatchers.Main) {
-            setState(Lifecycle.State.STARTED)
-        }
+        runBlocking(Dispatchers.Main) { setState(Lifecycle.State.STARTED) }
     }
 
     public fun resume() {
-        runBlocking(Dispatchers.Main) {
-            setState(Lifecycle.State.RESUMED)
-        }
+        runBlocking(Dispatchers.Main) { setState(Lifecycle.State.RESUMED) }
     }
 
     private suspend fun getObserverCount(): Int {
-        return withContext(Dispatchers.Main) {
-            registry.observerCount
-        }
+        return withContext(Dispatchers.Main) { registry.observerCount }
     }
 }

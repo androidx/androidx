@@ -33,25 +33,26 @@ import org.jetbrains.uast.UastFacade
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 /**
- * Lint check for detecting calls to the suspend `repeatOnLifecycle` APIs in wrong lifecycle
- * methods of [androidx.fragment.app.Fragment] or [androidx.core.app.ComponentActivity].
+ * Lint check for detecting calls to the suspend `repeatOnLifecycle` APIs in wrong lifecycle methods
+ * of [androidx.fragment.app.Fragment] or [androidx.core.app.ComponentActivity].
  */
 class RepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
 
     companion object {
-        val ISSUE = Issue.create(
-            id = "RepeatOnLifecycleWrongUsage",
-            briefDescription = "Wrong usage of repeatOnLifecycle.",
-            explanation = """The repeatOnLifecycle APIs should be used when the View is created, \
+        val ISSUE =
+            Issue.create(
+                id = "RepeatOnLifecycleWrongUsage",
+                briefDescription = "Wrong usage of repeatOnLifecycle.",
+                explanation =
+                    """The repeatOnLifecycle APIs should be used when the View is created, \
                 that is in the `onCreate` lifecycle method for Activities, or `onViewCreated` in \
                 case you're using Fragments.""",
-            category = Category.CORRECTNESS,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                RepeatOnLifecycleDetector::class.java, Scope.JAVA_FILE_SCOPE
-            ),
-            androidSpecific = true
-        )
+                category = Category.CORRECTNESS,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(RepeatOnLifecycleDetector::class.java, Scope.JAVA_FILE_SCOPE),
+                androidSpecific = true
+            )
     }
 
     private val lifecycleMethods = setOf("onStart", "onResume")
@@ -64,9 +65,8 @@ class RepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
         val visitedMethods = mutableSetOf<PsiMethod>()
         declaration.methods.forEach { method ->
             if (lifecycleMethods.contains(method.name)) {
-                val visitor = RecursiveMethodVisitor(
-                    context, declaration.name, method, visitedMethods
-                )
+                val visitor =
+                    RecursiveMethodVisitor(context, declaration.name, method, visitedMethods)
                 method.uastBody?.accept(visitor)
             }
         }
@@ -99,10 +99,8 @@ private class RecursiveMethodVisitor(
         }
         // Check current method and report if there's a wrong repeatOnLifecycle usage
         if (!checkMethodCall(psiMethod, node)) {
-            val uastNode = UastFacade.convertElementWithParent(
-                psiMethod,
-                UMethod::class.java
-            ) as? UMethod
+            val uastNode =
+                UastFacade.convertElementWithParent(psiMethod, UMethod::class.java) as? UMethod
             uastNode?.uastBody?.accept(this)
         }
         return super.visitCallExpression(node)
@@ -135,9 +133,7 @@ private class RecursiveMethodVisitor(
 
 internal data class Method(val cls: String?, val name: String)
 
-private val UNSAFE_METHOD = Method(
-    "androidx.lifecycle.RepeatOnLifecycleKt", "repeatOnLifecycle"
-)
+private val UNSAFE_METHOD = Method("androidx.lifecycle.RepeatOnLifecycleKt", "repeatOnLifecycle")
 
 private const val FRAGMENT_CLASS = "androidx.fragment.app.Fragment"
 private const val ACTIVITY_CLASS = "androidx.core.app.ComponentActivity"

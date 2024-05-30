@@ -55,7 +55,8 @@ internal class ViewModelProviderImpl(
             }
             return viewModel as T
         } else {
-            @Suppress("ControlFlowWithEmptyBody") if (viewModel != null) {
+            @Suppress("ControlFlowWithEmptyBody")
+            if (viewModel != null) {
                 // TODO: log a warning.
             }
         }
@@ -71,8 +72,8 @@ internal class ViewModelProviderImpl(
  *
  * **Important:** Android targets using `compileOnly` dependencies may encounter AGP desugaring
  * issues where `Factory.create` throws an `AbstractMethodError`. This is resolved by an
- * Android-specific implementation that first attempts all `ViewModelProvider.Factory.create`
- * method overloads before allowing the exception to propagate.
+ * Android-specific implementation that first attempts all `ViewModelProvider.Factory.create` method
+ * overloads before allowing the exception to propagate.
  *
  * @see <a href="https://b.corp.google.com/issues/230454566">b/230454566</a>
  * @see <a href="https://b.corp.google.com/issues/341792251">b/341792251</a>

@@ -26,9 +26,11 @@ class CommonLifecycleRegistryTest {
 
     @BeforeTest
     fun init() {
-        mLifecycleOwner = object : LifecycleOwner {
-            override val lifecycle get() = mRegistry
-        }
+        mLifecycleOwner =
+            object : LifecycleOwner {
+                override val lifecycle
+                    get() = mRegistry
+            }
         mRegistry = LifecycleRegistry.createUnsafe(mLifecycleOwner)
     }
 
@@ -46,8 +48,10 @@ class CommonLifecycleRegistryTest {
             mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         } catch (e: IllegalStateException) {
             assertThat(e.message)
-                .isEqualTo("State must be at least CREATED to move to DESTROYED, " +
-                    "but was INITIALIZED in component $mLifecycleOwner")
+                .isEqualTo(
+                    "State must be at least CREATED to move to DESTROYED, " +
+                        "but was INITIALIZED in component $mLifecycleOwner"
+                )
         }
     }
 
@@ -108,12 +112,13 @@ class CommonLifecycleRegistryTest {
     @Test
     fun removeWhileTraversing() {
         val observer2 = TestObserver()
-        val observer1 = object : TestObserver() {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                mRegistry.removeObserver(observer2)
+        val observer1 =
+            object : TestObserver() {
+                override fun onCreate(owner: LifecycleOwner) {
+                    super.onCreate(owner)
+                    mRegistry.removeObserver(observer2)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
         dispatchEvent(Lifecycle.Event.ON_CREATE)
@@ -126,54 +131,65 @@ class CommonLifecycleRegistryTest {
         fullyInitializeRegistry()
         val observer = TestObserver()
         mRegistry.addObserver(observer)
-        assertThat(observer.onStateChangedEvents).containsExactly(
-            Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_START, Lifecycle.Event.ON_RESUME
-        ).inOrder()
+        assertThat(observer.onStateChangedEvents)
+            .containsExactly(
+                Lifecycle.Event.ON_CREATE,
+                Lifecycle.Event.ON_START,
+                Lifecycle.Event.ON_RESUME
+            )
+            .inOrder()
     }
 
     @Test
     fun constructionDestruction1() {
         fullyInitializeRegistry()
-        val observer = object : TestObserver() {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                dispatchEvent(Lifecycle.Event.ON_PAUSE)
+        val observer =
+            object : TestObserver() {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    dispatchEvent(Lifecycle.Event.ON_PAUSE)
+                }
             }
-        }
         mRegistry.addObserver(observer)
-        assertThat(observer.onStateChangedEvents).containsExactly(
-            Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_START
-        ).inOrder()
+        assertThat(observer.onStateChangedEvents)
+            .containsExactly(Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_START)
+            .inOrder()
         assertThat(observer.onResumeCallCount).isEqualTo(0)
     }
 
     @Test
     fun constructionDestruction2() {
         fullyInitializeRegistry()
-        val observer = object : TestObserver() {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                dispatchEvent(Lifecycle.Event.ON_PAUSE)
-                dispatchEvent(Lifecycle.Event.ON_STOP)
-                dispatchEvent(Lifecycle.Event.ON_DESTROY)
+        val observer =
+            object : TestObserver() {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    dispatchEvent(Lifecycle.Event.ON_PAUSE)
+                    dispatchEvent(Lifecycle.Event.ON_STOP)
+                    dispatchEvent(Lifecycle.Event.ON_DESTROY)
+                }
             }
-        }
         mRegistry.addObserver(observer)
-        assertThat(observer.onStateChangedEvents).containsExactly(
-            Lifecycle.Event.ON_CREATE, Lifecycle.Event.ON_START,
-            Lifecycle.Event.ON_STOP, Lifecycle.Event.ON_DESTROY,
-        ).inOrder()
+        assertThat(observer.onStateChangedEvents)
+            .containsExactly(
+                Lifecycle.Event.ON_CREATE,
+                Lifecycle.Event.ON_START,
+                Lifecycle.Event.ON_STOP,
+                Lifecycle.Event.ON_DESTROY,
+            )
+            .inOrder()
         assertThat(observer.onResumeCallCount).isEqualTo(0)
     }
 
     @Test
     fun twoObserversChangingState() {
-        val observer1 = object : TestObserver() {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                dispatchEvent(Lifecycle.Event.ON_START)
+        val observer1 =
+            object : TestObserver() {
+                override fun onCreate(owner: LifecycleOwner) {
+                    super.onCreate(owner)
+                    dispatchEvent(Lifecycle.Event.ON_START)
+                }
             }
-        }
         val observer2 = TestObserver()
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
@@ -191,25 +207,28 @@ class CommonLifecycleRegistryTest {
             events.add(observer to event)
         }
         val observer3 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.addObserver(observer3)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
         val observer2 = TestObserver(::populateEvents)
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
         dispatchEvent(Lifecycle.Event.ON_CREATE)
         dispatchEvent(Lifecycle.Event.ON_START)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_START,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_START,
+            )
+            .inOrder()
     }
 
     @Test
@@ -219,33 +238,37 @@ class CommonLifecycleRegistryTest {
             events.add(observer to event)
         }
         val observer3 = TestObserver(::populateEvents)
-        val observer2 = object : TestObserver(::populateEvents) {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                mRegistry.addObserver(observer3)
+        val observer2 =
+            object : TestObserver(::populateEvents) {
+                override fun onCreate(owner: LifecycleOwner) {
+                    super.onCreate(owner)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                mRegistry.addObserver(observer2)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onResume(owner: LifecycleOwner) {
+                    super.onResume(owner)
+                    mRegistry.addObserver(observer2)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
         dispatchEvent(Lifecycle.Event.ON_CREATE)
         dispatchEvent(Lifecycle.Event.ON_START)
         dispatchEvent(Lifecycle.Event.ON_RESUME)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -273,20 +296,26 @@ class CommonLifecycleRegistryTest {
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
         dispatchEvent(Lifecycle.Event.ON_PAUSE)
-        assertThat(events).containsAtLeast(
-            observer2 to Lifecycle.Event.ON_PAUSE,
-            observer1 to Lifecycle.Event.ON_PAUSE,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer2 to Lifecycle.Event.ON_PAUSE,
+                observer1 to Lifecycle.Event.ON_PAUSE,
+            )
+            .inOrder()
         dispatchEvent(Lifecycle.Event.ON_STOP)
-        assertThat(events).containsAtLeast(
-            observer2 to Lifecycle.Event.ON_STOP,
-            observer1 to Lifecycle.Event.ON_STOP,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer2 to Lifecycle.Event.ON_STOP,
+                observer1 to Lifecycle.Event.ON_STOP,
+            )
+            .inOrder()
         dispatchEvent(Lifecycle.Event.ON_DESTROY)
-        assertThat(events).containsAtLeast(
-            observer2 to Lifecycle.Event.ON_DESTROY,
-            observer1 to Lifecycle.Event.ON_DESTROY,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer2 to Lifecycle.Event.ON_DESTROY,
+                observer1 to Lifecycle.Event.ON_DESTROY,
+            )
+            .inOrder()
     }
 
     @Test
@@ -299,26 +328,31 @@ class CommonLifecycleRegistryTest {
         dispatchEvent(Lifecycle.Event.ON_START)
         val observer1 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
-        val observer2 = object : TestObserver(::populateEvents) {
-            override fun onStop(owner: LifecycleOwner) {
-                super.onStop(owner)
-                mRegistry.addObserver(observer3)
+        val observer2 =
+            object : TestObserver(::populateEvents) {
+                override fun onStop(owner: LifecycleOwner) {
+                    super.onStop(owner)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
         dispatchEvent(Lifecycle.Event.ON_STOP)
-        assertThat(events).containsAtLeast(
-            observer2 to Lifecycle.Event.ON_STOP,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_STOP,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer2 to Lifecycle.Event.ON_STOP,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_STOP,
+            )
+            .inOrder()
         dispatchEvent(Lifecycle.Event.ON_DESTROY)
-        assertThat(events).containsAtLeast(
-            observer3 to Lifecycle.Event.ON_DESTROY,
-            observer2 to Lifecycle.Event.ON_DESTROY,
-            observer1 to Lifecycle.Event.ON_DESTROY,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer3 to Lifecycle.Event.ON_DESTROY,
+                observer2 to Lifecycle.Event.ON_DESTROY,
+                observer1 to Lifecycle.Event.ON_DESTROY,
+            )
+            .inOrder()
     }
 
     @Test
@@ -330,32 +364,37 @@ class CommonLifecycleRegistryTest {
         fullyInitializeRegistry()
         val observer1 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
-        val observer2 = object : TestObserver(::populateEvents) {
-            override fun onStop(owner: LifecycleOwner) {
-                super.onStop(owner)
-                mRegistry.removeObserver(observer3)
-                mRegistry.removeObserver(this)
-                mRegistry.removeObserver(observer1)
-                assertThat(mRegistry.observerCount).isEqualTo(0)
+        val observer2 =
+            object : TestObserver(::populateEvents) {
+                override fun onStop(owner: LifecycleOwner) {
+                    super.onStop(owner)
+                    mRegistry.removeObserver(observer3)
+                    mRegistry.removeObserver(this)
+                    mRegistry.removeObserver(observer1)
+                    assertThat(mRegistry.observerCount).isEqualTo(0)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
         mRegistry.addObserver(observer2)
         mRegistry.addObserver(observer3)
         dispatchEvent(Lifecycle.Event.ON_PAUSE)
-        assertThat(events).containsAtLeast(
-            observer3 to Lifecycle.Event.ON_PAUSE,
-            observer2 to Lifecycle.Event.ON_PAUSE,
-            observer1 to Lifecycle.Event.ON_PAUSE,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer3 to Lifecycle.Event.ON_PAUSE,
+                observer2 to Lifecycle.Event.ON_PAUSE,
+                observer1 to Lifecycle.Event.ON_PAUSE,
+            )
+            .inOrder()
         assertThat(observer3.onPauseCallCount).isEqualTo(1)
         assertThat(observer2.onPauseCallCount).isEqualTo(1)
         assertThat(observer1.onPauseCallCount).isEqualTo(1)
         dispatchEvent(Lifecycle.Event.ON_STOP)
-        assertThat(events).containsAtLeast(
-            observer3 to Lifecycle.Event.ON_STOP,
-            observer2 to Lifecycle.Event.ON_STOP,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer3 to Lifecycle.Event.ON_STOP,
+                observer2 to Lifecycle.Event.ON_STOP,
+            )
+            .inOrder()
         assertThat(observer1.onStopCallCount).isEqualTo(0)
         dispatchEvent(Lifecycle.Event.ON_PAUSE)
         assertThat(observer3.onPauseCallCount).isEqualTo(1)
@@ -372,26 +411,29 @@ class CommonLifecycleRegistryTest {
         fullyInitializeRegistry()
         val observer2 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.removeObserver(this)
-                assertThat(mRegistry.observerCount).isEqualTo(0)
-                mRegistry.addObserver(observer2)
-                mRegistry.addObserver(observer3)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.removeObserver(this)
+                    assertThat(mRegistry.observerCount).isEqualTo(0)
+                    mRegistry.addObserver(observer2)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -402,26 +444,29 @@ class CommonLifecycleRegistryTest {
         }
         val observer2 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.removeObserver(this)
-                assertThat(mRegistry.observerCount).isEqualTo(0)
-                mRegistry.addObserver(observer2)
-                mRegistry.addObserver(observer3)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.removeObserver(this)
+                    assertThat(mRegistry.observerCount).isEqualTo(0)
+                    mRegistry.addObserver(observer2)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
         dispatchEvent(Lifecycle.Event.ON_CREATE)
         dispatchEvent(Lifecycle.Event.ON_START)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_START,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_START,
+            )
+            .inOrder()
     }
 
     @Test
@@ -432,36 +477,40 @@ class CommonLifecycleRegistryTest {
         }
         val observer3 = TestObserver(::populateEvents)
         val observer4 = TestObserver(::populateEvents)
-        val observer2 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.removeObserver(this)
+        val observer2 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.removeObserver(this)
+                }
             }
-        }
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                mRegistry.removeObserver(this)
-                mRegistry.addObserver(observer2)
-                mRegistry.addObserver(observer3)
-                mRegistry.addObserver(observer4)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onResume(owner: LifecycleOwner) {
+                    super.onResume(owner)
+                    mRegistry.removeObserver(this)
+                    mRegistry.addObserver(observer2)
+                    mRegistry.addObserver(observer3)
+                    mRegistry.addObserver(observer4)
+                }
             }
-        }
         fullyInitializeRegistry()
         mRegistry.addObserver(observer1)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_START,
-            observer4 to Lifecycle.Event.ON_CREATE,
-            observer4 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-            observer4 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_START,
+                observer4 to Lifecycle.Event.ON_CREATE,
+                observer4 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+                observer4 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -471,23 +520,26 @@ class CommonLifecycleRegistryTest {
             events.add(observer to event)
         }
         val observer2 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onPause(owner: LifecycleOwner) {
-                super.onPause(owner)
-                mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                mRegistry.addObserver(observer2)
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onPause(owner: LifecycleOwner) {
+                    super.onPause(owner)
+                    mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+                    mRegistry.addObserver(observer2)
+                }
             }
-        }
         fullyInitializeRegistry()
         mRegistry.addObserver(observer1)
         mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        assertThat(events).containsAtLeast(
-            observer1 to Lifecycle.Event.ON_PAUSE,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer2 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsAtLeast(
+                observer1 to Lifecycle.Event.ON_PAUSE,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer2 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -499,29 +551,32 @@ class CommonLifecycleRegistryTest {
         fullyInitializeRegistry()
         val observer2 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.addObserver(observer2)
-            }
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.addObserver(observer2)
+                }
 
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                mRegistry.addObserver(observer3)
+                override fun onResume(owner: LifecycleOwner) {
+                    super.onResume(owner)
+                    mRegistry.addObserver(observer3)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer2 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer2 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -534,32 +589,35 @@ class CommonLifecycleRegistryTest {
         val observer2 = TestObserver(::populateEvents)
         val observer3 = TestObserver(::populateEvents)
         val observer4 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.addObserver(observer2)
-            }
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.addObserver(observer2)
+                }
 
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                mRegistry.removeObserver(observer2)
-                mRegistry.addObserver(observer3)
-                mRegistry.addObserver(observer4)
+                override fun onResume(owner: LifecycleOwner) {
+                    super.onResume(owner)
+                    mRegistry.removeObserver(observer2)
+                    mRegistry.addObserver(observer3)
+                    mRegistry.addObserver(observer4)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_START,
-            observer4 to Lifecycle.Event.ON_CREATE,
-            observer4 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-            observer4 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_START,
+                observer4 to Lifecycle.Event.ON_CREATE,
+                observer4 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+                observer4 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test
@@ -570,38 +628,42 @@ class CommonLifecycleRegistryTest {
         }
         fullyInitializeRegistry()
         val observer2 = TestObserver(::populateEvents)
-        val observer3 = object : TestObserver(::populateEvents) {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                mRegistry.removeObserver(observer2)
+        val observer3 =
+            object : TestObserver(::populateEvents) {
+                override fun onCreate(owner: LifecycleOwner) {
+                    super.onCreate(owner)
+                    mRegistry.removeObserver(observer2)
+                }
             }
-        }
         val observer4 = TestObserver(::populateEvents)
-        val observer1 = object : TestObserver(::populateEvents) {
-            override fun onStart(owner: LifecycleOwner) {
-                super.onStart(owner)
-                mRegistry.addObserver(observer2)
-            }
+        val observer1 =
+            object : TestObserver(::populateEvents) {
+                override fun onStart(owner: LifecycleOwner) {
+                    super.onStart(owner)
+                    mRegistry.addObserver(observer2)
+                }
 
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                mRegistry.addObserver(observer3)
-                mRegistry.addObserver(observer4)
+                override fun onResume(owner: LifecycleOwner) {
+                    super.onResume(owner)
+                    mRegistry.addObserver(observer3)
+                    mRegistry.addObserver(observer4)
+                }
             }
-        }
         mRegistry.addObserver(observer1)
-        assertThat(events).containsExactly(
-            observer1 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_START,
-            observer2 to Lifecycle.Event.ON_CREATE,
-            observer1 to Lifecycle.Event.ON_RESUME,
-            observer3 to Lifecycle.Event.ON_CREATE,
-            observer3 to Lifecycle.Event.ON_START,
-            observer4 to Lifecycle.Event.ON_CREATE,
-            observer4 to Lifecycle.Event.ON_START,
-            observer3 to Lifecycle.Event.ON_RESUME,
-            observer4 to Lifecycle.Event.ON_RESUME,
-        ).inOrder()
+        assertThat(events)
+            .containsExactly(
+                observer1 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_START,
+                observer2 to Lifecycle.Event.ON_CREATE,
+                observer1 to Lifecycle.Event.ON_RESUME,
+                observer3 to Lifecycle.Event.ON_CREATE,
+                observer3 to Lifecycle.Event.ON_START,
+                observer4 to Lifecycle.Event.ON_CREATE,
+                observer4 to Lifecycle.Event.ON_START,
+                observer3 to Lifecycle.Event.ON_RESUME,
+                observer4 to Lifecycle.Event.ON_RESUME,
+            )
+            .inOrder()
     }
 
     @Test

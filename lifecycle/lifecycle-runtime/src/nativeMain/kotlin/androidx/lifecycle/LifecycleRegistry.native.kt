@@ -15,5 +15,4 @@
  */
 package androidx.lifecycle
 
-internal actual fun isMainThread(): Boolean =
-    MainDispatcherChecker.isMainDispatcherThread()
+internal actual fun isMainThread(): Boolean = MainDispatcherChecker.isMainDispatcherThread()

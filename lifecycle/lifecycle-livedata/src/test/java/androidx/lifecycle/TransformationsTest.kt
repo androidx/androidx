@@ -32,7 +32,7 @@ class TransformationsTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val owner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
 
-    //region map
+    // region map
     @Test
     fun map() {
         ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
@@ -121,9 +121,10 @@ class TransformationsTest {
 
         assertThat(observer.values).containsExactly(1, 4)
     }
-    //endregion
 
-    //region switchMap
+    // endregion
+
+    // region switchMap
     @Test
     fun switchMap() {
         ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
@@ -133,9 +134,8 @@ class TransformationsTest {
         val secondLiveData = MutableLiveData<String>()
         val observer = TestObserver<String>()
 
-        val switchLiveData = sourceLiveData.switchMap { input ->
-            if (input == 1) firstLiveData else secondLiveData
-        }
+        val switchLiveData =
+            sourceLiveData.switchMap { input -> if (input == 1) firstLiveData else secondLiveData }
         switchLiveData.observe(owner, observer)
 
         firstLiveData.value = "first"
@@ -231,9 +231,8 @@ class TransformationsTest {
         val anotherLiveData = MutableLiveData<String>()
         val observer = TestObserver<String>()
 
-        val switchMapLiveData = sourceLiveData.switchMap { input: Int ->
-            if (input == 1) anotherLiveData else null
-        }
+        val switchMapLiveData =
+            sourceLiveData.switchMap { input: Int -> if (input == 1) anotherLiveData else null }
         switchMapLiveData.observe(owner, observer)
 
         anotherLiveData.value = "first"
@@ -275,9 +274,10 @@ class TransformationsTest {
             hasMessageThat().isEqualTo("Cannot invoke observe on a background thread")
         }
     }
-    //endregion
 
-    //region distinctUntilChanged
+    // endregion
+
+    // region distinctUntilChanged
     @Test
     fun distinctUntilChanged_initialValueIsSet() {
         ArchTaskExecutor.getInstance().setDelegate(InstantTaskExecutor())
@@ -375,7 +375,8 @@ class TransformationsTest {
             hasMessageThat().isEqualTo("Cannot invoke observe on a background thread")
         }
     }
-    //endregion
+
+    // endregion
 
     private class TestObserver<T>(val values: MutableList<T> = mutableListOf()) : Observer<T> {
         override fun onChanged(value: T) {

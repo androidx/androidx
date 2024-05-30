@@ -42,25 +42,30 @@ fun collectAndVerifyInput(
 ): InputModel {
     val validator = Validator(processingEnv)
     val worldCollector = ObserversCollector(processingEnv)
-    val roots = roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).map { elem ->
-        if (elem.kind != ElementKind.METHOD) {
-            validator.printErrorMessage(ErrorMessages.INVALID_ANNOTATED_ELEMENT, elem)
-            null
-        } else {
-            val enclosingElement = elem.enclosingElement
-            if (validator.validateClass(enclosingElement)) {
-                MoreElements.asType(enclosingElement)
-            } else {
-                null
+    val roots =
+        roundEnv
+            .getElementsAnnotatedWith(OnLifecycleEvent::class.java)
+            .map { elem ->
+                if (elem.kind != ElementKind.METHOD) {
+                    validator.printErrorMessage(ErrorMessages.INVALID_ANNOTATED_ELEMENT, elem)
+                    null
+                } else {
+                    val enclosingElement = elem.enclosingElement
+                    if (validator.validateClass(enclosingElement)) {
+                        MoreElements.asType(enclosingElement)
+                    } else {
+                        null
+                    }
+                }
             }
-        }
-    }.filterNotNull().toSet()
+            .filterNotNull()
+            .toSet()
     roots.forEach { worldCollector.collect(it) }
     val observersInfo = worldCollector.observers
-    val generatedAdapters = worldCollector.observers.keys
-        .mapNotNull { type ->
-            worldCollector.generatedAdapterInfoFor(type)?.let { type to it }
-        }.toMap()
+    val generatedAdapters =
+        worldCollector.observers.keys
+            .mapNotNull { type -> worldCollector.generatedAdapterInfoFor(type)?.let { type to it } }
+            .toMap()
     return InputModel(roots, observersInfo, generatedAdapters)
 }
 
@@ -76,11 +81,12 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
         if (type in observers) {
             return observers[type]
         }
-        val parents = (listOf(type.superclass) + type.interfaces)
-            .filter { typeUtils.isAssignable(it, lifecycleObserverTypeMirror) }
-            .filterNot { typeUtils.isSameType(it, lifecycleObserverTypeMirror) }
-            .map { collect(MoreTypes.asTypeElement(it)) }
-            .filterNotNull()
+        val parents =
+            (listOf(type.superclass) + type.interfaces)
+                .filter { typeUtils.isAssignable(it, lifecycleObserverTypeMirror) }
+                .filterNot { typeUtils.isSameType(it, lifecycleObserverTypeMirror) }
+                .map { collect(MoreTypes.asTypeElement(it)) }
+                .filterNotNull()
         val info = createObserverInfo(type, parents)
         if (info != null) {
             observers[type] = info
@@ -91,8 +97,7 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
     fun generatedAdapterInfoFor(type: TypeElement): List<ExecutableElement>? {
         val packageName = if (type.getPackageQName().isEmpty()) "" else "${type.getPackageQName()}."
         val adapterType = elementUtils.getTypeElement(packageName + getAdapterName(type))
-        return adapterType?.methods()
-            ?.filter { executable -> isSyntheticMethod(executable) }
+        return adapterType?.methods()?.filter { executable -> isSyntheticMethod(executable) }
     }
 
     @Suppress("DEPRECATION")
@@ -103,16 +108,21 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
         if (!validator.validateClass(typeElement)) {
             return null
         }
-        val methods = typeElement.methods().filter { executable ->
-            MoreElements.isAnnotationPresent(executable, OnLifecycleEvent::class.java)
-        }.map { executable ->
-            val onState = executable.getAnnotation(OnLifecycleEvent::class.java)
-            if (validator.validateMethod(executable, onState.value)) {
-                EventMethod(executable, onState, typeElement)
-            } else {
-                null
-            }
-        }.filterNotNull()
+        val methods =
+            typeElement
+                .methods()
+                .filter { executable ->
+                    MoreElements.isAnnotationPresent(executable, OnLifecycleEvent::class.java)
+                }
+                .map { executable ->
+                    val onState = executable.getAnnotation(OnLifecycleEvent::class.java)
+                    if (validator.validateMethod(executable, onState.value)) {
+                        EventMethod(executable, onState, typeElement)
+                    } else {
+                        null
+                    }
+                }
+                .filterNotNull()
         return LifecycleObserverInfo(typeElement, methods, parents)
     }
 }
@@ -123,11 +133,7 @@ class Validator(val processingEnv: ProcessingEnvironment) {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg, elem)
     }
 
-    fun validateParam(
-        param: VariableElement,
-        expectedType: Class<*>,
-        errorMsg: String
-    ): Boolean {
+    fun validateParam(param: VariableElement, expectedType: Class<*>, errorMsg: String): Boolean {
         if (!MoreTypes.isTypeOf(expectedType, param.asType())) {
             printErrorMessage(errorMsg, param)
             return false
@@ -151,17 +157,21 @@ class Validator(val processingEnv: ProcessingEnvironment) {
             return false
         }
 
-        if (params.size == 2 && !validateParam(
-                params[1], Lifecycle.Event::class.java,
-                ErrorMessages.INVALID_SECOND_ARGUMENT
-            )
+        if (
+            params.size == 2 &&
+                !validateParam(
+                    params[1],
+                    Lifecycle.Event::class.java,
+                    ErrorMessages.INVALID_SECOND_ARGUMENT
+                )
         ) {
             return false
         }
 
         if (params.size > 0) {
             return validateParam(
-                params[0], LifecycleOwner::class.java,
+                params[0],
+                LifecycleOwner::class.java,
                 ErrorMessages.INVALID_FIRST_ARGUMENT
             )
         }

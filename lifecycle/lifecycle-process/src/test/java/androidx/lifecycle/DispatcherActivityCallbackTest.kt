@@ -52,8 +52,7 @@ class DispatcherActivityCallbackTest {
         val transaction = mock(FragmentTransaction::class.java)
         `when`(activity.fragmentManager).thenReturn(fm)
         `when`(fm.beginTransaction()).thenReturn(transaction)
-        `when`(transaction.add(any(Fragment::class.java), anyString()))
-            .thenReturn(transaction)
+        `when`(transaction.add(any(Fragment::class.java), anyString())).thenReturn(transaction)
         callback.onActivityCreated(activity, mock(Bundle::class.java))
         verify(activity).fragmentManager
         verify(fm).beginTransaction()

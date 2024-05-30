@@ -47,8 +47,7 @@ class AndroidViewModelFactoryTest {
         try {
             factory.create(VM::class.java, CreationExtras.Empty)
             Assert.fail()
-        } catch (e: IllegalArgumentException) {
-        }
+        } catch (e: IllegalArgumentException) {}
     }
 
     @Test
@@ -64,8 +63,7 @@ class AndroidViewModelFactoryTest {
         try {
             factory.create(VM::class.java)
             Assert.fail()
-        } catch (e: UnsupportedOperationException) {
-        }
+        } catch (e: UnsupportedOperationException) {}
     }
 
     @Test
@@ -93,6 +91,7 @@ class AndroidViewModelFactoryTest {
 
 class VMFactory(application: Application) : AndroidViewModelFactory(application) {
     var calledCreateWithNoExtras = false
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         calledCreateWithNoExtras = true
         return super.create(modelClass)

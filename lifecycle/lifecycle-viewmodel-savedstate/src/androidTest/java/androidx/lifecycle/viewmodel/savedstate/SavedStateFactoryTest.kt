@@ -50,10 +50,8 @@ class SavedStateFactoryTest {
     @UiThreadTest
     @Test
     fun testLegacyCreateAndroidVM() {
-        val savedStateVMFactory = SavedStateViewModelFactory(
-            activityRule.activity.application,
-            activityRule.activity
-        )
+        val savedStateVMFactory =
+            SavedStateViewModelFactory(activityRule.activity.application, activityRule.activity)
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
         assertThat(vm[MyViewModel::class.java].handle).isNotNull()
@@ -75,10 +73,7 @@ class SavedStateFactoryTest {
     @UiThreadTest
     @Test
     fun testCreateAndroidWithStatefulFactoryVM() {
-        val savedStateVMFactory = SavedStateViewModelFactory(
-            null,
-            activityRule.activity
-        )
+        val savedStateVMFactory = SavedStateViewModelFactory(null, activityRule.activity)
         val component = TestComponent()
         component.enableSavedStateHandles()
         val extras = component.extras
@@ -101,20 +96,19 @@ class SavedStateFactoryTest {
             assertThat(vm[WrongOrderAndroidViewModel::class.java].handle).isNotNull()
             fail()
         } catch (e: UnsupportedOperationException) {
-            assertThat(e).hasMessageThat().isEqualTo(
-                "Class WrongOrderAndroidViewModel must have parameters in the proper order: " +
-                    "[class android.app.Application, class androidx.lifecycle.SavedStateHandle]"
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .isEqualTo(
+                    "Class WrongOrderAndroidViewModel must have parameters in the proper order: " +
+                        "[class android.app.Application, class androidx.lifecycle.SavedStateHandle]"
+                )
         }
     }
 
     @UiThreadTest
     @Test
     fun testLegacyCreateFailAndroidVM() {
-        val savedStateVMFactory = SavedStateViewModelFactory(
-            null,
-            activityRule.activity
-        )
+        val savedStateVMFactory = SavedStateViewModelFactory(null, activityRule.activity)
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         try {
             vm[MyAndroidViewModel::class.java]
@@ -135,8 +129,7 @@ class SavedStateFactoryTest {
         try {
             vm[MyAndroidViewModel::class.java]
             fail("Creating an AndroidViewModel should fail when no Application extras is provided")
-        } catch (e: RuntimeException) {
-        }
+        } catch (e: RuntimeException) {}
         assertThat(vm[MyViewModel::class.java].handle).isNotNull()
     }
 
@@ -145,17 +138,16 @@ class SavedStateFactoryTest {
     fun testLegacyCreateAndroidAbstractVM() {
         val activity = activityRule.activity
         val app = activity.application
-        val savedStateVMFactory = object : AbstractSavedStateViewModelFactory(
-            activity, null
-        ) {
-            override fun <T : ViewModel> create(
-                key: String,
-                modelClass: Class<T>,
-                handle: SavedStateHandle
-            ): T {
-                return modelClass.cast(MyAndroidViewModel(app, handle))!!
+        val savedStateVMFactory =
+            object : AbstractSavedStateViewModelFactory(activity, null) {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle
+                ): T {
+                    return modelClass.cast(MyAndroidViewModel(app, handle))!!
+                }
             }
-        }
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm[MyAndroidViewModel::class.java].handle).isNotNull()
     }
@@ -167,27 +159,25 @@ class SavedStateFactoryTest {
         try {
             factory.create(MyViewModel::class.java)
             fail()
-        } catch (e: UnsupportedOperationException) {
-        }
+        } catch (e: UnsupportedOperationException) {}
 
         try {
             factory.create("a", MyViewModel::class.java)
             fail()
-        } catch (e: UnsupportedOperationException) {
-        }
+        } catch (e: UnsupportedOperationException) {}
 
-        val absFactory = object : AbstractSavedStateViewModelFactory() {
-            override fun <T : ViewModel> create(
-                key: String,
-                modelClass: Class<T>,
-                handle: SavedStateHandle
-            ): T = create(modelClass)
-        }
+        val absFactory =
+            object : AbstractSavedStateViewModelFactory() {
+                override fun <T : ViewModel> create(
+                    key: String,
+                    modelClass: Class<T>,
+                    handle: SavedStateHandle
+                ): T = create(modelClass)
+            }
         try {
             absFactory.create(MyViewModel::class.java)
             fail()
-        } catch (e: UnsupportedOperationException) {
-        }
+        } catch (e: UnsupportedOperationException) {}
     }
 
     internal class MyAndroidViewModel(app: Application, val handle: SavedStateHandle) :

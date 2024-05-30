@@ -58,9 +58,7 @@ class WithLifecycleStateTest {
         val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
 
-        assertFailsWith<LifecycleDestroyedException> {
-            owner.withStarted {}
-        }
+        assertFailsWith<LifecycleDestroyedException> { owner.withStarted {} }
     }
 
     @Test
@@ -77,9 +75,7 @@ class WithLifecycleStateTest {
         assertWithMessage("test ran to first suspension after successfully launching")
             .that(launched)
             .isTrue()
-        assertWithMessage("withStarted is still active")
-            .that(resultTask.isActive)
-            .isTrue()
+        assertWithMessage("withStarted is still active").that(resultTask.isActive).isTrue()
 
         owner.setState(Lifecycle.State.DESTROYED)
 

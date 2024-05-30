@@ -19,6 +19,5 @@ import androidx.lifecycle.Lifecycle
 
 @Suppress("DEPRECATION")
 class DerivedWithNewMethods : Base() {
-    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {}
+    @androidx.lifecycle.OnLifecycleEvent(Lifecycle.Event.ON_STOP) fun onStop() {}
 }

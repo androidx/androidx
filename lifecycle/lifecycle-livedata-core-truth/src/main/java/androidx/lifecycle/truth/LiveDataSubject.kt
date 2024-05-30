@@ -22,34 +22,27 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 
-/**
- * A Truth Subject for making assertions about [LiveData].
- */
-class LiveDataSubject private constructor(
-    metadata: FailureMetadata,
-    private val actual: LiveData<*>
-) : Subject(metadata, actual) {
+/** A Truth Subject for making assertions about [LiveData]. */
+class LiveDataSubject
+private constructor(metadata: FailureMetadata, private val actual: LiveData<*>) :
+    Subject(metadata, actual) {
 
-    /**
-     * Assertion that the [LiveData] has active observers.
-     */
+    /** Assertion that the [LiveData] has active observers. */
     fun hasActiveObservers() {
         check("activeObservers").that(actual.hasActiveObservers()).isTrue()
     }
 
-    /**
-     * Assertion that the [LiveData] has no active observers.
-     */
+    /** Assertion that the [LiveData] has no active observers. */
     fun hasNoActiveObservers() {
         check("activeObservers").that(actual.hasActiveObservers()).isFalse()
     }
 
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
-        val factory = Factory<LiveDataSubject, LiveData<*>> {
-            metadata, actual ->
-            LiveDataSubject(metadata, actual)
-        }
+        val factory =
+            Factory<LiveDataSubject, LiveData<*>> { metadata, actual ->
+                LiveDataSubject(metadata, actual)
+            }
 
         @JvmStatic
         fun assertThat(actual: LiveData<*>): LiveDataSubject {

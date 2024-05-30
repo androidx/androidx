@@ -29,9 +29,7 @@ import org.junit.Before
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * To ensure consistent behavior, we run these tests both on androidTest and test
- */
+/** To ensure consistent behavior, we run these tests both on androidTest and test */
 @RunWith(JUnit4::class)
 class LifecycleCoroutineScopeTest : LifecycleCoroutineScopeTestBase() {
     private val mainExecutor = Executors.newSingleThreadExecutor()
