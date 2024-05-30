@@ -749,6 +749,15 @@ internal class CompositionImpl(
         }
     }
 
+    internal fun updateMovingInvalidations() {
+        synchronized(lock) {
+            drainPendingModificationsForCompositionLocked()
+            guardInvalidationsLocked { invalidations ->
+                composer.updateComposerInvalidations(invalidations)
+            }
+        }
+    }
+
     override fun dispose() {
         synchronized(lock) {
             checkPrecondition(!composer.isComposing) {

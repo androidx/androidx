@@ -3557,6 +3557,23 @@ internal class ComposerImpl(
         return false
     }
 
+    fun updateComposerInvalidations(
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
+    ) {
+        invalidationsRequested.map.forEach { scope, instances ->
+            scope as RecomposeScopeImpl
+            val location = scope.anchor?.location ?: return@forEach
+            invalidations.add(
+                Invalidation(
+                    scope,
+                    location,
+                    instances.takeUnless { it === ScopeInvalidated }
+                )
+            )
+        }
+        invalidations.sortWith(InvalidationLocationAscending)
+    }
+
     private fun doCompose(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
         content: (@Composable () -> Unit)?
@@ -3565,18 +3582,7 @@ internal class ComposerImpl(
         trace("Compose:recompose") {
             compositionToken = currentSnapshot().id
             providerUpdates = null
-            invalidationsRequested.map.forEach { scope, instances ->
-                scope as RecomposeScopeImpl
-                val location = scope.anchor?.location ?: return@forEach
-                invalidations.add(
-                    Invalidation(
-                        scope,
-                        location,
-                        instances.takeUnless { it === ScopeInvalidated }
-                    )
-                )
-            }
-            invalidations.sortWith(InvalidationLocationAscending)
+            updateComposerInvalidations(invalidationsRequested)
             nodeIndex = 0
             var complete = false
             isComposing = true
@@ -3770,6 +3776,7 @@ internal class ComposerImpl(
      */
     private fun reportAllMovableContent() {
         if (slotTable.containsMark()) {
+            (composition as CompositionImpl).updateMovingInvalidations()
             val changes = ChangeList()
             deferredChanges = changes
             slotTable.read { reader ->
