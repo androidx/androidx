@@ -23,9 +23,6 @@ import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
-import androidx.health.connect.client.impl.platform.div
-import androidx.health.connect.client.impl.platform.duration
-import androidx.health.connect.client.impl.platform.minus
 import androidx.health.connect.client.impl.platform.toInstantWithDefaultZoneFallback
 import androidx.health.connect.client.impl.platform.useLocalTime
 import androidx.health.connect.client.records.BloodPressureRecord
@@ -40,8 +37,6 @@ import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Duration
-import java.time.Instant
-import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -92,10 +87,12 @@ private suspend fun <T : Record> HealthConnectClient.aggregate(
     return when (recordType) {
         BloodPressureRecord::class ->
             aggregateBloodPressure(recordTypeMetrics, timeRangeFilter, dataOriginFilter)
-        CyclingPedalingCadenceRecord::class -> TODO(reason = "b/326414908")
+        CyclingPedalingCadenceRecord::class ->
+            aggregateCyclingPedalingCadence(recordTypeMetrics, timeRangeFilter, dataOriginFilter)
         NutritionRecord::class -> aggregateNutritionTransFatTotal(timeRangeFilter, dataOriginFilter)
-        SpeedRecord::class -> TODO(reason = "b/326414908")
-        StepsCadenceRecord::class -> TODO(reason = "b/326414908")
+        SpeedRecord::class -> aggregateSpeed(recordTypeMetrics, timeRangeFilter, dataOriginFilter)
+        StepsCadenceRecord::class ->
+            aggregateStepsCadence(recordTypeMetrics, timeRangeFilter, dataOriginFilter)
         else -> error("Invalid record type for aggregation fallback: $recordType")
     }
 }
@@ -156,26 +153,19 @@ internal fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
     )
 }
 
-internal fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilter): Double {
-    val startTime: Instant
-    val endTime: Instant
-
-    if (timeRangeFilter.useLocalTime()) {
-        val requestStartTime =
-            timeRangeFilter.localStartTime?.toInstantWithDefaultZoneFallback(record.startZoneOffset)
-        val requestEndTime =
-            timeRangeFilter.localEndTime?.toInstantWithDefaultZoneFallback(record.endZoneOffset)
-        startTime = maxOf(record.startTime, requestStartTime ?: record.startTime)
-        endTime = minOf(record.endTime, requestEndTime ?: record.endTime)
-    } else {
-        startTime = maxOf(record.startTime, timeRangeFilter.startTime ?: record.startTime)
-        endTime = minOf(record.endTime, timeRangeFilter.endTime ?: record.endTime)
-    }
-
-    return max(0.0, (endTime - startTime) / record.duration)
-}
-
 internal fun emptyAggregationResult() =
     AggregationResult(longValues = mapOf(), doubleValues = mapOf(), dataOrigins = setOf())
 
-class AggregatedData<T>(var value: T, var dataOrigins: MutableSet<DataOrigin> = mutableSetOf())
+internal class AggregatedData<T>(
+    var value: T,
+    var dataOrigins: MutableSet<DataOrigin> = mutableSetOf()
+)
+
+internal data class AvgData(var count: Int = 0, var total: Double = 0.0) {
+    operator fun plusAssign(value: Double) {
+        count++
+        total += value
+    }
+
+    fun average() = total / count
+}

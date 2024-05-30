@@ -21,9 +21,17 @@ package androidx.health.connect.client.impl.platform.aggregate
 import androidx.annotation.RequiresApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.impl.platform.div
+import androidx.health.connect.client.impl.platform.duration
+import androidx.health.connect.client.impl.platform.minus
+import androidx.health.connect.client.impl.platform.toInstantWithDefaultZoneFallback
+import androidx.health.connect.client.impl.platform.useLocalTime
+import androidx.health.connect.client.records.IntervalRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
+import java.time.Instant
+import kotlin.math.max
 import kotlinx.coroutines.flow.fold
 
 internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
@@ -43,12 +51,12 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
                 records.filter {
                     it.overlaps(timeRangeFilter) &&
                         it.transFat != null &&
-                        sliceFactor(it, timeRangeFilter) > 0
+                        it.sliceFactor(timeRangeFilter) > 0
                 }
 
             filteredRecords.forEach {
                 currentAggregatedData.value +=
-                    it.transFat!!.inGrams * sliceFactor(it, timeRangeFilter)
+                    it.transFat!!.inGrams * it.sliceFactor(timeRangeFilter)
             }
 
             filteredRecords.mapTo(currentAggregatedData.dataOrigins) { it.metadata.dataOrigin }
@@ -64,4 +72,23 @@ internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
         doubleValues = mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to aggregatedData.value),
         dataOrigins = aggregatedData.dataOrigins
     )
+}
+
+internal fun IntervalRecord.sliceFactor(timeRangeFilter: TimeRangeFilter): Double {
+    val startTime: Instant
+    val endTime: Instant
+
+    if (timeRangeFilter.useLocalTime()) {
+        val requestStartTime =
+            timeRangeFilter.localStartTime?.toInstantWithDefaultZoneFallback(startZoneOffset)
+        val requestEndTime =
+            timeRangeFilter.localEndTime?.toInstantWithDefaultZoneFallback(endZoneOffset)
+        startTime = maxOf(this.startTime, requestStartTime ?: this.startTime)
+        endTime = minOf(this.endTime, requestEndTime ?: this.endTime)
+    } else {
+        startTime = maxOf(this.startTime, timeRangeFilter.startTime ?: this.startTime)
+        endTime = minOf(this.endTime, timeRangeFilter.endTime ?: this.endTime)
+    }
+
+    return max(0.0, (endTime - startTime) / duration)
 }
