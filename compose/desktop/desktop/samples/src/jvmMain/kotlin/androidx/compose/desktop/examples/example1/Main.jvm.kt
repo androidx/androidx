@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.mouseClickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.CircleShape
@@ -89,15 +88,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.isAltPressed
-import androidx.compose.ui.input.pointer.isBackPressed
-import androidx.compose.ui.input.pointer.isCtrlPressed
-import androidx.compose.ui.input.pointer.isForwardPressed
-import androidx.compose.ui.input.pointer.isMetaPressed
-import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.isShiftPressed
-import androidx.compose.ui.input.pointer.isTertiaryPressed
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
@@ -394,32 +384,6 @@ private fun FrameWindowScope.ScrollableContent(scrollState: ScrollState) {
             ) {
                 Text("Base")
             }
-
-            var clickableText by remember { mutableStateOf("Click me!") }
-            @OptIn(ExperimentalFoundationApi::class)
-            Text(
-                modifier = Modifier.mouseClickable(
-                    onClick = {
-                        clickableText = buildString {
-                            append("Buttons pressed:\n")
-                            append("primary: ${buttons.isPrimaryPressed}\t")
-                            append("secondary: ${buttons.isSecondaryPressed}\t")
-                            append("tertiary: ${buttons.isTertiaryPressed}\t")
-                            append("primary: ${buttons.isPrimaryPressed}\t")
-                            append("back: ${buttons.isBackPressed}\t")
-                            append("forward: ${buttons.isForwardPressed}\t")
-
-                            append("\n\nKeyboard modifiers pressed:\n")
-
-                            append("alt: ${keyboardModifiers.isAltPressed}\t")
-                            append("ctrl: ${keyboardModifiers.isCtrlPressed}\t")
-                            append("meta: ${keyboardModifiers.isMetaPressed}\t")
-                            append("shift: ${keyboardModifiers.isShiftPressed}\t")
-                        }
-                    }
-                ),
-                text = clickableText
-            )
         }
 
         Row(
