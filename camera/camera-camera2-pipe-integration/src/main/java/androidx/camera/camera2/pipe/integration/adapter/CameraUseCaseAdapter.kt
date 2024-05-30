@@ -79,10 +79,6 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         when (captureType) {
             CaptureType.IMAGE_CAPTURE,
             CaptureType.PREVIEW,
-            // Uses TEMPLATE_PREVIEW instead of TEMPLATE_RECORD for StreamSharing. Since there
-            // is a issue that captured results being stretched when requested for recording on
-            // some models, it would be safer to request for preview, which is also better
-            // tested. More detail please see b/297167569.
             CaptureType.STREAM_SHARING,
             CaptureType.METERING_REPEATING,
             CaptureType.IMAGE_ANALYSIS ->
@@ -103,8 +99,6 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                     else CameraDevice.TEMPLATE_STILL_CAPTURE
             CaptureType.PREVIEW,
             CaptureType.IMAGE_ANALYSIS,
-            // Uses TEMPLATE_PREVIEW instead of TEMPLATE_RECORD for StreamSharing to align with
-            // SessionConfig's setup. More detail please see b/297167569.
             CaptureType.STREAM_SHARING,
             CaptureType.METERING_REPEATING ->
                 captureBuilder.templateType = CameraDevice.TEMPLATE_PREVIEW
