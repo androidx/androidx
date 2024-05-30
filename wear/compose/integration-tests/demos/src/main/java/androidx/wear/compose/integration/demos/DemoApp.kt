@@ -31,7 +31,6 @@ import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.integration.demos.common.ActivityDemo
@@ -53,11 +52,10 @@ fun DemoApp(
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
-    scrollStates: MutableList<ScalingLazyListState>,
 ) {
     val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
     DisplayDemo(
-        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack, scrollStates)
+        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
 }
 
 @Composable
@@ -66,8 +64,7 @@ private fun DisplayDemo(
     currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit,
-    scrollStates: MutableList<ScalingLazyListState>,
+    onNavigateBack: () -> Unit
 ) {
     SwipeToDismissBox(
         state = state,
@@ -79,9 +76,7 @@ private fun DisplayDemo(
             state,
             if (isBackground) parentDemo else currentDemo,
             onNavigateTo,
-            onNavigateBack,
-            scrollStates.lastIndex - (if (isBackground) 1 else 0),
-            scrollStates,
+            onNavigateBack
         )
     }
 }
@@ -91,9 +86,7 @@ private fun BoxScope.BoxDemo(
     state: SwipeToDismissBoxState,
     demo: Demo?,
     onNavigateTo: (Demo) -> Unit,
-    onNavigateBack: () -> Unit,
-    scrollStateIndex: Int,
-    scrollStates: MutableList<ScalingLazyListState>,
+    onNavigateBack: () -> Unit
 ) {
     when (demo) {
         is ActivityDemo<*> -> {
@@ -105,7 +98,7 @@ private fun BoxScope.BoxDemo(
         }
 
         is DemoCategory -> {
-            DisplayDemoList(demo, onNavigateTo, scrollStateIndex, scrollStates)
+            DisplayDemoList(demo, onNavigateTo)
         }
 
         else -> {
@@ -116,18 +109,16 @@ private fun BoxScope.BoxDemo(
 @Composable
 internal fun BoxScope.DisplayDemoList(
     category: DemoCategory,
-    onNavigateTo: (Demo) -> Unit,
-    scrollStateIndex: Int,
-    scrollStates: MutableList<ScalingLazyListState>,
+    onNavigateTo: (Demo) -> Unit
 ) {
-    val state = rememberScalingLazyListState()
+    val state = category.getScrollStateOrInit { rememberScalingLazyListState() }
 
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .testTag(DemoListTag),
-        state = scrollStates[scrollStateIndex],
+        state = state,
         autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
         item {
@@ -146,7 +137,6 @@ internal fun BoxScope.DisplayDemoList(
             item {
                 Chip(
                     onClick = {
-                        scrollStates.add(state)
                         onNavigateTo(demo)
                     },
                     colors = ChipDefaults.secondaryChipColors(),
