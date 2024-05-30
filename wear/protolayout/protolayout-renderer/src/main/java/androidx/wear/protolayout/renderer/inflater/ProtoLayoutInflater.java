@@ -153,6 +153,8 @@ import androidx.wear.protolayout.proto.ModifiersProto.ArcModifiers;
 import androidx.wear.protolayout.proto.ModifiersProto.Background;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
 import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
+import androidx.wear.protolayout.proto.ModifiersProto.Corner;
+import androidx.wear.protolayout.proto.ModifiersProto.CornerRadius;
 import androidx.wear.protolayout.proto.ModifiersProto.EnterTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.FadeInTransition;
@@ -200,6 +202,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1548,16 +1551,67 @@ public final class ProtoLayoutInflater {
             handleProp(background.getColor(), drawable::setColor, posId, pipelineMaker);
         }
 
-        if (background.hasCorner()) {
-            final int radiusPx = safeDpToPx(background.getCorner().getRadius());
-            if (radiusPx != 0) {
-                drawable.setCornerRadius(radiusPx);
-                view.setClipToOutline(true);
-                view.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
-            }
-        }
+        applyCornerToBackground(view, background, drawable);
 
         return drawable;
+    }
+
+    private void applyCornerToBackground(
+            View view, @NonNull Background background, @NonNull GradientDrawable drawable) {
+        if (!background.hasCorner()) {
+            return;
+        }
+
+        // apply corner
+        final Corner corner = background.getCorner();
+        final int radiusPx = corner.hasRadius() ? safeDpToPx(corner.getRadius()) : 0;
+        float[] radii = new float[8];
+        Arrays.fill(radii, radiusPx);
+        if (corner.hasTopLeftRadius()) {
+            setCornerRadiusToArray(corner.getTopLeftRadius(), radii, /* index= */ 0);
+        }
+        if (corner.hasTopRightRadius()) {
+            setCornerRadiusToArray(corner.getTopRightRadius(), radii, /* index= */ 2);
+        }
+        if (corner.hasBottomRightRadius()) {
+            setCornerRadiusToArray(corner.getBottomRightRadius(), radii, /* index= */ 4);
+        }
+        if (corner.hasBottomLeftRadius()) {
+            setCornerRadiusToArray(corner.getBottomLeftRadius(), radii, /* index= */ 6);
+        }
+
+        if (areAllEqual(radii, /* count= */ 8)) {
+            if (radii[0] == 0) {
+                return;
+            }
+            // The implementation in GradientDrawable is more efficient by calling setCornerRadius
+            // than calling setCornerRadii with an array of all equal items.
+            drawable.setCornerRadius(radii[0]);
+        } else {
+            drawable.setCornerRadii(radii);
+        }
+
+        view.setClipToOutline(true);
+        view.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+    }
+
+    private void setCornerRadiusToArray(
+            @NonNull CornerRadius cornerRadius, float[] radii, int index) {
+        if (cornerRadius.hasX()) {
+            radii[index] = safeDpToPx(cornerRadius.getX());
+        }
+        if (cornerRadius.hasY()) {
+            radii[index + 1] = safeDpToPx(cornerRadius.getY());
+        }
+    }
+
+    private static boolean areAllEqual(float[] array, int count) {
+        for (int i = 1; i < count; i++) {
+            if (array[0] != array[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private GradientDrawable applyBorder(
