@@ -33,6 +33,8 @@ android{
     namespace "androidx.datastore.preferences"
 }
 androidXMultiplatform {
+    enableBinaryCompatibilityValidator = true
+
     jvm()
     mac()
     linux()
