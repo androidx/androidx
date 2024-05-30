@@ -25,13 +25,13 @@ class LifecycleRuntimeIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = listOf(
-        LifecycleWhenChecks.ISSUE,
-        RepeatOnLifecycleDetector.ISSUE
-    )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=413132",
-        identifier = "androidx.lifecycle",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues
+        get() = listOf(LifecycleWhenChecks.ISSUE, RepeatOnLifecycleDetector.ISSUE)
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=413132",
+            identifier = "androidx.lifecycle",
+            vendorName = "Android Open Source Project",
+        )
 }

@@ -49,9 +49,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 @Suppress("unchecked_cast")
 @RunWith(JUnit4::class)
 class LiveDataTest {
-    @JvmField
-    @Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
+    @JvmField @Rule var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var liveData: PublicLiveData<String>
     private lateinit var activeObserversChanged: MethodExec
@@ -71,14 +69,10 @@ class LiveDataTest {
         liveData = PublicLiveData()
         activeObserversChanged = mock()
         liveData.activeObserversChanged = activeObserversChanged
-        owner = TestLifecycleOwner(
-            Lifecycle.State.INITIALIZED,
-            UnconfinedTestDispatcher(null, null)
-        )
-        owner2 = TestLifecycleOwner(
-            Lifecycle.State.INITIALIZED,
-            UnconfinedTestDispatcher(null, null)
-        )
+        owner =
+            TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher(null, null))
+        owner2 =
+            TestLifecycleOwner(Lifecycle.State.INITIALIZED, UnconfinedTestDispatcher(null, null))
         inObserver = false
     }
 
@@ -106,9 +100,7 @@ class LiveDataTest {
 
         val liveData = MutableLiveData<String>()
         var value = ""
-        liveData.observe(lifecycleOwner) { newValue ->
-            value = newValue
-        }
+        liveData.observe(lifecycleOwner) { newValue -> value = newValue }
 
         liveData.value = "261"
         assertThat(value, `is`("261"))
@@ -209,10 +201,7 @@ class LiveDataTest {
         } catch (t: Throwable) {
             throwable = t
         }
-        assertThat(
-            throwable,
-            instanceOf(IllegalArgumentException::class.java)
-        )
+        assertThat(throwable, instanceOf(IllegalArgumentException::class.java))
         assertThat(
             throwable.message,
             `is`("Cannot add the same observer with different lifecycles")
@@ -435,12 +424,14 @@ class LiveDataTest {
     @Test
     fun testDataChangeDuringStateChange() {
         owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        owner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStop(owner: LifecycleOwner) {
-                // change data in onStop, observer should not be called!
-                liveData.value = "b"
+        owner.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onStop(owner: LifecycleOwner) {
+                    // change data in onStop, observer should not be called!
+                    liveData.value = "b"
+                }
             }
-        })
+        )
         val observer = mock() as Observer<String>
         liveData.value = "a"
         liveData.observe(owner, observer)
@@ -471,11 +462,13 @@ class LiveDataTest {
     fun testRemoveDuringAddition() {
         owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
         liveData.value = "bla"
-        liveData.observeForever(object : Observer<String> {
-            override fun onChanged(value: String) {
-                liveData.removeObserver(this)
+        liveData.observeForever(
+            object : Observer<String> {
+                override fun onChanged(value: String) {
+                    liveData.removeObserver(this)
+                }
             }
-        })
+        )
         assertThat(liveData.hasActiveObservers(), `is`(false))
         val inOrder = inOrder(activeObserversChanged)
         inOrder.verify(activeObserversChanged).onCall(true)
@@ -486,11 +479,13 @@ class LiveDataTest {
     @Test
     fun testRemoveDuringBringingUpToState() {
         liveData.value = "bla"
-        liveData.observeForever(object : Observer<String> {
-            override fun onChanged(value: String) {
-                liveData.removeObserver(this)
+        liveData.observeForever(
+            object : Observer<String> {
+                override fun onChanged(value: String) {
+                    liveData.removeObserver(this)
+                }
             }
-        })
+        )
         owner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         assertThat(liveData.hasActiveObservers(), `is`(false))
         val inOrder = inOrder(activeObserversChanged)
@@ -727,14 +722,14 @@ class LiveDataTest {
     @Test
     fun nestedForeverObserver() {
         liveData.value = "."
-        liveData.observeForever(object : Observer<String> {
-            override fun onChanged(value: String) {
-                liveData.observeForever(
-                    mock() as Observer<String>
-                )
-                liveData.removeObserver(this)
+        liveData.observeForever(
+            object : Observer<String> {
+                override fun onChanged(value: String) {
+                    liveData.observeForever(mock() as Observer<String>)
+                    liveData.removeObserver(this)
+                }
             }
-        })
+        )
         verify(activeObserversChanged, only()).onCall(true)
     }
 
@@ -759,25 +754,23 @@ class LiveDataTest {
     @Test
     fun activeReentry_removeOnActive() {
         owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        val observer: Observer<String> = Observer { }
+        val observer: Observer<String> = Observer {}
         val activeCalls: MutableList<Boolean> = ArrayList()
-        val liveData = object : MutableLiveData<String>("foo") {
-            override fun onActive() {
-                activeCalls.add(true)
-                super.onActive()
-                removeObserver(observer)
-            }
+        val liveData =
+            object : MutableLiveData<String>("foo") {
+                override fun onActive() {
+                    activeCalls.add(true)
+                    super.onActive()
+                    removeObserver(observer)
+                }
 
-            override fun onInactive() {
-                activeCalls.add(false)
-                super.onInactive()
+                override fun onInactive() {
+                    activeCalls.add(false)
+                    super.onInactive()
+                }
             }
-        }
         liveData.observe(owner, observer)
-        assertThat<List<Boolean>>(
-            activeCalls,
-            equalTo(mutableListOf(true, false))
-        )
+        assertThat<List<Boolean>>(activeCalls, equalTo(mutableListOf(true, false)))
     }
 
     @Test
@@ -786,18 +779,19 @@ class LiveDataTest {
         val observer1 = mock() as Observer<String>
         val observer2 = mock() as Observer<String>
         val activeCalls: MutableList<Boolean> = ArrayList()
-        val liveData = object : MutableLiveData<String>("foo") {
-            override fun onActive() {
-                activeCalls.add(true)
-                super.onActive()
-            }
+        val liveData =
+            object : MutableLiveData<String>("foo") {
+                override fun onActive() {
+                    activeCalls.add(true)
+                    super.onActive()
+                }
 
-            override fun onInactive() {
-                activeCalls.add(false)
-                observe(owner, observer2)
-                super.onInactive()
+                override fun onInactive() {
+                    activeCalls.add(false)
+                    observe(owner, observer2)
+                    super.onInactive()
+                }
             }
-        }
         liveData.observe(owner, observer1)
         liveData.removeObserver(observer1)
         liveData.removeObserver(observer2)
@@ -810,26 +804,25 @@ class LiveDataTest {
     @Test
     fun activeReentry_lifecycleChangesActive() {
         owner.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        val observer: Observer<String> =
-            Observer { owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP) }
-        val activeCalls: MutableList<Boolean> = ArrayList()
-        val liveData = object : MutableLiveData<String>("foo") {
-            override fun onActive() {
-                activeCalls.add(true)
-                super.onActive()
-            }
-
-            override fun onInactive() {
-                activeCalls.add(false)
-                super.onInactive()
-            }
+        val observer: Observer<String> = Observer {
+            owner.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
         }
+        val activeCalls: MutableList<Boolean> = ArrayList()
+        val liveData =
+            object : MutableLiveData<String>("foo") {
+                override fun onActive() {
+                    activeCalls.add(true)
+                    super.onActive()
+                }
+
+                override fun onInactive() {
+                    activeCalls.add(false)
+                    super.onInactive()
+                }
+            }
         liveData.observe(owner, observer)
         assertThat(owner.currentState, `is`(Lifecycle.State.CREATED))
-        assertThat<List<Boolean>>(
-            activeCalls,
-            `is`(mutableListOf(true, false))
-        )
+        assertThat<List<Boolean>>(activeCalls, `is`(mutableListOf(true, false)))
     }
 
     private fun getLiveDataInternalObserver(lifecycle: Lifecycle?): LifecycleEventObserver {
@@ -841,6 +834,7 @@ class LiveDataTest {
     internal class PublicLiveData<T> : LiveData<T>() {
         // cannot spy due to internal calls
         var activeObserversChanged: MethodExec? = null
+
         override fun onActive() {
             if (activeObserversChanged != null) {
                 activeObserversChanged!!.onCall(true)

@@ -37,47 +37,59 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
     )
 
     companion object {
-        private fun generateTestConfigs() = listOf(true, false).flatMap { activity ->
-            listOf(
-                activity to (if (activity) "onCreate" else "onCreateView"),
-                activity to "onStart", activity to "onResume"
-            )
-                .flatMap { (activity, lifecycleMethod) ->
-                    listOf(
-                        Triple(activity, lifecycleMethod, "repeatOnLifecycle"),
-                        Triple(activity, lifecycleMethod, "lifecycle.repeatOnLifecycle"),
+        private fun generateTestConfigs() =
+            listOf(true, false).flatMap { activity ->
+                listOf(
+                        activity to (if (activity) "onCreate" else "onCreateView"),
+                        activity to "onStart",
+                        activity to "onResume"
                     )
-                }
-                .flatMap { (activity, lifecycleMethod, apiMethod) ->
-                    listOf(
-                        // apiMethod is called directly from the lifecycleMethod
-                        TestConfig(
-                            activity, lifecycleMethod, apiMethod,
-                            methodBody = """
+                    .flatMap { (activity, lifecycleMethod) ->
+                        listOf(
+                            Triple(activity, lifecycleMethod, "repeatOnLifecycle"),
+                            Triple(activity, lifecycleMethod, "lifecycle.repeatOnLifecycle"),
+                        )
+                    }
+                    .flatMap { (activity, lifecycleMethod, apiMethod) ->
+                        listOf(
+                            // apiMethod is called directly from the lifecycleMethod
+                            TestConfig(
+                                activity,
+                                lifecycleMethod,
+                                apiMethod,
+                                methodBody =
+                                    """
                                 GlobalScope.launch {
                                     $apiMethod(Lifecycle.State.STARTED) { }
                                 }
-                            """.trimIndent(),
-                            helperMethodBody = ""
-                        ),
-                        // apiMethod is called from another function called from the lifecycleMethod
-                        TestConfig(
-                            activity, lifecycleMethod, apiMethod,
-                            methodBody = """
+                            """
+                                        .trimIndent(),
+                                helperMethodBody = ""
+                            ),
+                            // apiMethod is called from another function called from the
+                            // lifecycleMethod
+                            TestConfig(
+                                activity,
+                                lifecycleMethod,
+                                apiMethod,
+                                methodBody =
+                                    """
                                 GlobalScope.launch {
                                     helperMethod()
                                 }
-                            """.trimIndent(),
-                            // The helper method body depends on the apiMethod we're testing
-                            helperMethodBody = if (apiMethod == "lifecycle.repeatOnLifecycle") {
-                                "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
-                            } else {
-                                "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
-                            }
+                            """
+                                        .trimIndent(),
+                                // The helper method body depends on the apiMethod we're testing
+                                helperMethodBody =
+                                    if (apiMethod == "lifecycle.repeatOnLifecycle") {
+                                        "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                                    } else {
+                                        "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
+                                    }
+                            )
                         )
-                    )
-                }
-        }
+                    }
+            }
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -86,14 +98,16 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
 
     @Test
     fun basicTest() {
-        val fileToAdd = if (config.isActivity) {
-            activityTemplate(config.lifecycleMethod, config.methodBody, config.helperMethodBody)
-        } else {
-            fragmentTemplate(config.lifecycleMethod, config.methodBody, config.helperMethodBody)
-        }
+        val fileToAdd =
+            if (config.isActivity) {
+                activityTemplate(config.lifecycleMethod, config.methodBody, config.helperMethodBody)
+            } else {
+                fragmentTemplate(config.lifecycleMethod, config.methodBody, config.helperMethodBody)
+            }
         val testLintResult = check(fileToAdd)
-        if ((config.isActivity && config.lifecycleMethod == "onCreate") ||
-            (!config.isActivity) && config.lifecycleMethod == "onCreateView"
+        if (
+            (config.isActivity && config.lifecycleMethod == "onCreate") ||
+                (!config.isActivity) && config.lifecycleMethod == "onCreateView"
         ) {
             testLintResult.expectClean()
         } else {
@@ -103,10 +117,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
 
     private fun check(fileToAdd: String): TestLintResult {
         return TestLintTask.lint()
-            .files(
-                *REPEAT_ON_LIFECYCLE_STUBS,
-                TestFiles.kt(fileToAdd)
-            )
+            .files(*REPEAT_ON_LIFECYCLE_STUBS, TestFiles.kt(fileToAdd))
             .issues(RepeatOnLifecycleDetector.ISSUE)
             .run()
     }
@@ -123,12 +134,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 )
             } else {
                 val error = "${config.apiMethod}(Lifecycle.State.STARTED) { }"
-                Error(
-                    error = error,
-                    curlyCharacters = error.length,
-                    indent = 4,
-                    wrongLine = "13"
-                )
+                Error(error = error, curlyCharacters = error.length, indent = 4, wrongLine = "13")
             }
         /* ktlint-disable max-line-length */
         return """
@@ -136,13 +142,14 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
             ${" ".repeat(indent)}$error
             ${" ".repeat(indent)}${"~".repeat(curlyCharacters)}
             1 errors, 0 warnings
-        """.trimIndent()
+        """
+            .trimIndent()
         /* ERROR EXAMPLE:
-            src/foo/MyActivity.kt:13: Error: Wrong usage of repeatOnLifecycle from MyActivity.onStart. [RepeatOnLifecycleWrongUsage]
-                repeatOnLifecycle(Lifecycle.State.STARTED) { }
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            1 errors, 0 warnings
-         */
+           src/foo/MyActivity.kt:13: Error: Wrong usage of repeatOnLifecycle from MyActivity.onStart. [RepeatOnLifecycleWrongUsage]
+               repeatOnLifecycle(Lifecycle.State.STARTED) { }
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+           1 errors, 0 warnings
+        */
         /* ktlint-enable max-line-length */
     }
 
@@ -158,7 +165,8 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
         helperMethodBody: String
     ) = ACTIVITY_TEMPLATE.format(lifecycleMethod, methodBody, helperMethodBody)
 
-    private val FRAGMENT_TEMPLATE = """
+    private val FRAGMENT_TEMPLATE =
+        """
         package foo
 
         import androidx.lifecycle.Lifecycle
@@ -177,9 +185,11 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 %s // config.helperMethodBody
             }
         }
-    """.trimIndent()
+    """
+            .trimIndent()
 
-    private val ACTIVITY_TEMPLATE = """
+    private val ACTIVITY_TEMPLATE =
+        """
         package foo
 
         import androidx.core.app.ComponentActivity
@@ -198,7 +208,8 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 %s // config.helperMethodBody
             }
         }
-    """.trimIndent()
+    """
+            .trimIndent()
 }
 
 private data class Error(

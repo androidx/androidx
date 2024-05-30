@@ -26,47 +26,40 @@ import kotlin.reflect.KClass
 /**
  * A utility class that provides `ViewModels` for a scope.
  *
- * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained
- * by passing it to the constructor: `ViewModelProvider(myFragment)`
+ * Default `ViewModelProvider` for an `Activity` or a `Fragment` can be obtained by passing it to
+ * the constructor: `ViewModelProvider(myFragment)`
  */
 public expect class ViewModelProvider {
 
     /**
-     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
-     * an activity), associated with this `ViewModelProvider`.
+     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
+     * activity), associated with this `ViewModelProvider`.
      *
-     *
-     * The created ViewModel is associated with the given scope and will be retained
-     * as long as the scope is alive (e.g. if it is an activity, until it is
-     * finished or process is killed).
+     * The created ViewModel is associated with the given scope and will be retained as long as the
+     * scope is alive (e.g. if it is an activity, until it is finished or process is killed).
      *
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     * present.
+     *   present.
      * @return A ViewModel that is an instance of the given type `T`.
      * @throws IllegalArgumentException if the given [modelClass] is local or anonymous class.
      */
-    @MainThread
-    public operator fun <T : ViewModel> get(modelClass: KClass<T>): T
+    @MainThread public operator fun <T : ViewModel> get(modelClass: KClass<T>): T
 
     /**
-     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or
-     * an activity), associated with this `ViewModelProvider`.
+     * Returns an existing ViewModel or creates a new one in the scope (usually, a fragment or an
+     * activity), associated with this `ViewModelProvider`.
      *
-     * The created ViewModel is associated with the given scope and will be retained
-     * as long as the scope is alive (e.g. if it is an activity, until it is
-     * finished or process is killed).
+     * The created ViewModel is associated with the given scope and will be retained as long as the
+     * scope is alive (e.g. if it is an activity, until it is finished or process is killed).
      *
-     * @param key        The key to use to identify the ViewModel.
+     * @param key The key to use to identify the ViewModel.
      * @param modelClass The class of the ViewModel to create an instance of it if it is not
-     * present.
+     *   present.
      * @return A ViewModel that is an instance of the given type `T`.
      */
-    @MainThread
-    public operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T
+    @MainThread public operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T
 
-    /**
-     * Implementations of `Factory` interface are responsible to instantiate ViewModels.
-     */
+    /** Implementations of `Factory` interface are responsible to instantiate ViewModels. */
     public interface Factory {
 
         /**
@@ -94,10 +87,9 @@ public expect class ViewModelProvider {
          * [ViewModelStoreOwner].
          *
          * @param owner The [ViewModelStoreOwner] that will manage the lifecycle of the created
-         *  [ViewModel] instances.
+         *   [ViewModel] instances.
          * @param factory The [Factory] responsible for creating new [ViewModel] instances.
-         * @param extras Additional data to be passed to the [Factory] during
-         *  [ViewModel] creation.
+         * @param extras Additional data to be passed to the [Factory] during [ViewModel] creation.
          */
         public fun create(
             owner: ViewModelStoreOwner,
@@ -112,9 +104,8 @@ public expect class ViewModelProvider {
          *
          * @param store `ViewModelStore` where ViewModels will be stored.
          * @param factory factory a `Factory` which will be used to instantiate new `ViewModels`
-         * @param extras Additional data to be passed to the [Factory] during
-         *  [ViewModel] creation.
-         *  */
+         * @param extras Additional data to be passed to the [Factory] during [ViewModel] creation.
+         */
         public fun create(
             store: ViewModelStore,
             factory: Factory = DefaultViewModelProviderFactory,

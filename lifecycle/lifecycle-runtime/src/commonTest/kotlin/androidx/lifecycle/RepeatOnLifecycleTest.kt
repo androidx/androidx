@@ -39,11 +39,10 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                expectations.expect(2)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.CREATED) { expectations.expect(2) }
             }
-        }
 
         expectations.expect(3)
         owner.setState(Lifecycle.State.DESTROYED)
@@ -55,11 +54,10 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                expectations.expect(2)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) { expectations.expect(2) }
             }
-        }
 
         owner.setState(Lifecycle.State.STARTED)
         expectations.expect(3)
@@ -72,11 +70,10 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                expectations.expect(3)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.RESUMED) { expectations.expect(3) }
             }
-        }
 
         owner.setState(Lifecycle.State.STARTED)
         expectations.expect(2)
@@ -92,15 +89,16 @@ class RepeatOnLifecycleTest {
         var restarted = false
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (!restarted) {
-                    expectations.expect(2)
-                } else {
-                    expectations.expect(5)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    if (!restarted) {
+                        expectations.expect(2)
+                    } else {
+                        expectations.expect(5)
+                    }
                 }
             }
-        }
 
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(3)
@@ -120,26 +118,27 @@ class RepeatOnLifecycleTest {
         var restarted = false
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (!restarted) {
-                    expectations.expect(2)
-                    try {
-                        awaitCancellation()
-                    } finally {
-                        withContext(NonCancellable) {
-                            expectations.expect(4)
-                            yield()
-                            expectations.expect(6)
-                            yield()
-                            expectations.expect(8)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    if (!restarted) {
+                        expectations.expect(2)
+                        try {
+                            awaitCancellation()
+                        } finally {
+                            withContext(NonCancellable) {
+                                expectations.expect(4)
+                                yield()
+                                expectations.expect(6)
+                                yield()
+                                expectations.expect(8)
+                            }
                         }
+                    } else {
+                        expectations.expect(9)
                     }
-                } else {
-                    expectations.expect(9)
                 }
             }
-        }
 
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(3)
@@ -160,16 +159,17 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                try {
-                    expectations.expect(2)
-                    awaitCancellation()
-                } catch (e: CancellationException) {
-                    expectations.expect(4)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    try {
+                        expectations.expect(2)
+                        awaitCancellation()
+                    } catch (e: CancellationException) {
+                        expectations.expect(4)
+                    }
                 }
             }
-        }
 
         expectations.expect(3)
         owner.setState(Lifecycle.State.DESTROYED)
@@ -184,11 +184,10 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                expectations.expect(2)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) { expectations.expect(2) }
             }
-        }
 
         expectations.expect(3)
         owner.setState(Lifecycle.State.DESTROYED)
@@ -201,11 +200,10 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.DESTROYED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                expectations.expectUnreached()
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) { expectations.expectUnreached() }
             }
-        }
 
         expectations.expect(2)
         assertThat(repeatingWorkJob.isCompleted).isTrue()
@@ -216,16 +214,17 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                try {
-                    expectations.expect(2)
-                    awaitCancellation()
-                } catch (e: CancellationException) {
-                    expectations.expect(4)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    try {
+                        expectations.expect(2)
+                        awaitCancellation()
+                    } catch (e: CancellationException) {
+                        expectations.expect(4)
+                    }
                 }
             }
-        }
 
         expectations.expect(3)
         repeatingWorkJob.cancel()
@@ -242,18 +241,19 @@ class RepeatOnLifecycleTest {
         expectations.expect(1)
 
         val customJob = Job()
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                withContext(customJob) {
-                    try {
-                        expectations.expect(2)
-                        awaitCancellation()
-                    } catch (e: CancellationException) {
-                        expectations.expect(4)
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    withContext(customJob) {
+                        try {
+                            expectations.expect(2)
+                            awaitCancellation()
+                        } catch (e: CancellationException) {
+                            expectations.expect(4)
+                        }
                     }
                 }
             }
-        }
 
         expectations.expect(3)
         customJob.cancel()
@@ -273,22 +273,23 @@ class RepeatOnLifecycleTest {
         expectations.expect(1)
 
         val customJob = Job()
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (!restarted) {
-                    expectations.expect(2)
-                } else {
-                    expectations.expect(6)
-                }
-                withContext(customJob) {
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                     if (!restarted) {
-                        expectations.expect(3)
+                        expectations.expect(2)
                     } else {
-                        expectations.expectUnreached()
+                        expectations.expect(6)
+                    }
+                    withContext(customJob) {
+                        if (!restarted) {
+                            expectations.expect(3)
+                        } else {
+                            expectations.expectUnreached()
+                        }
                     }
                 }
             }
-        }
 
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(4)
@@ -309,15 +310,16 @@ class RepeatOnLifecycleTest {
         expectations.expect(1)
 
         var restarted = false
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (!restarted) {
-                    expectations.expect(2)
-                } else {
-                    expectations.expectUnreached()
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    if (!restarted) {
+                        expectations.expect(2)
+                    } else {
+                        expectations.expectUnreached()
+                    }
                 }
             }
-        }
 
         expectations.expect(3)
         repeatingWorkJob.cancel()
@@ -344,9 +346,7 @@ class RepeatOnLifecycleTest {
         withContext(unconfinedDispatcher) {
             owner.lifecycleScope.launch {
                 owner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                    withContext(unconfinedDispatcher) {
-                        expectations.expect(2)
-                    }
+                    withContext(unconfinedDispatcher) { expectations.expect(2) }
                 }
             }
         }
@@ -360,11 +360,12 @@ class RepeatOnLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         expectations.expect(1)
 
-        val repeatingWorkJob = owner.lifecycleScope.launch {
-            owner.repeatOnLifecycle(Lifecycle.State.DESTROYED) {
-                expectations.expectUnreached()
+        val repeatingWorkJob =
+            owner.lifecycleScope.launch {
+                owner.repeatOnLifecycle(Lifecycle.State.DESTROYED) {
+                    expectations.expectUnreached()
+                }
             }
-        }
 
         expectations.expect(2)
         owner.setState(Lifecycle.State.DESTROYED)

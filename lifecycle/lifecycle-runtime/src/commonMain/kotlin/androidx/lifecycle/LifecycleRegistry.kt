@@ -29,8 +29,8 @@ public expect open class LifecycleRegistry
 /**
  * Creates a new LifecycleRegistry for the given provider.
  *
- * You should usually create this inside your LifecycleOwner class's constructor and hold
- * onto the same instance.
+ * You should usually create this inside your LifecycleOwner class's constructor and hold onto the
+ * same instance.
  *
  * @param provider The owner LifecycleOwner
  */
@@ -40,8 +40,8 @@ constructor(provider: LifecycleOwner) : Lifecycle {
     /**
      * Sets the current state and notifies the observers.
      *
-     * Note that if the `currentState` is the same state as the last call to this method,
-     * calling this method has no effect.
+     * Note that if the `currentState` is the same state as the last call to this method, calling
+     * this method has no effect.
      *
      * @param event The event that was received
      */
@@ -56,12 +56,14 @@ constructor(provider: LifecycleOwner) : Lifecycle {
 
     public companion object {
         /**
-         * Creates a new LifecycleRegistry for the given provider, that doesn't check
-         * that its methods are called on the threads other than main.
+         * Creates a new LifecycleRegistry for the given provider, that doesn't check that its
+         * methods are called on the threads other than main.
          *
-         * LifecycleRegistry is not synchronized: if multiple threads access this `LifecycleRegistry`, it must be synchronized externally.
+         * LifecycleRegistry is not synchronized: if multiple threads access this
+         * `LifecycleRegistry`, it must be synchronized externally.
          *
-         * Another possible use-case for this method is JVM testing, when main thread is not present.
+         * Another possible use-case for this method is JVM testing, when main thread is not
+         * present.
          */
         @JvmStatic
         @VisibleForTesting

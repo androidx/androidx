@@ -53,22 +53,26 @@ class ViewModelInitializerTest {
             }
             fail("Expected `IllegalArgumentException` but no exception has been throw.")
         } catch (e: IllegalArgumentException) {
-            assertThat(e).hasMessageThat().isEqualTo(
-                "A `initializer` with the same `clazz` has already been added: " +
-                    "${TestViewModel1::class.qualifiedName}."
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .isEqualTo(
+                    "A `initializer` with the same `clazz` has already been added: " +
+                        "${TestViewModel1::class.qualifiedName}."
+                )
         }
     }
 
     @Test
     fun viewModelFactory_noInitializers_throwsException() {
-        val factory = viewModelFactory { }
+        val factory = viewModelFactory {}
         try {
             factory.create(TestViewModel1::class, CreationExtras.Empty)
         } catch (e: IllegalArgumentException) {
-            assertThat(e).hasMessageThat().isEqualTo(
-                "No initializer set for given class ${TestViewModel1::class.qualifiedName}"
-            )
+            assertThat(e)
+                .hasMessageThat()
+                .isEqualTo(
+                    "No initializer set for given class ${TestViewModel1::class.qualifiedName}"
+                )
         }
     }
 }

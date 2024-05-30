@@ -29,10 +29,10 @@ import platform.posix.pthread_mutexattr_destroy
 import platform.posix.pthread_mutexattr_init
 import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
+
 /**
- * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
- * is represented as kotlin.Int on darwin platforms and kotlin.UInt on linuxX64
- * See: // https://youtrack.jetbrains.com/issue/KT-41509
+ * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which is represented as kotlin.Int on darwin
+ * platforms and kotlin.UInt on linuxX64 See: // https://youtrack.jetbrains.com/issue/KT-41509
  */
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 

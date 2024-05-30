@@ -26,7 +26,7 @@ public interface GeneratedAdapter {
      * @param event The event
      * @param onAny approveCall onAny handlers
      * @param logger if passed, used to track called methods and prevent calling the same method
-     *                  twice
+     *   twice
      */
     public fun callMethods(
         source: LifecycleOwner,

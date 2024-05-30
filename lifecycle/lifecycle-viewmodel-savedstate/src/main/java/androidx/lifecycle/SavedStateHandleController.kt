@@ -18,10 +18,8 @@ package androidx.lifecycle
 import androidx.savedstate.SavedStateRegistry
 import java.io.Closeable
 
-internal class SavedStateHandleController(
-    private val key: String,
-    val handle: SavedStateHandle
-) : LifecycleEventObserver, Closeable {
+internal class SavedStateHandleController(private val key: String, val handle: SavedStateHandle) :
+    LifecycleEventObserver, Closeable {
 
     var isAttached = false
         private set

@@ -20,42 +20,49 @@ internal open class TestObserver(
     private val onEvent: (LifecycleObserver, Lifecycle.Event) -> Unit = { _, _ -> }
 ) : DefaultLifecycleObserver, LifecycleEventObserver {
     var onCreateCallCount = 0
+
     override fun onCreate(owner: LifecycleOwner) {
         onCreateCallCount++
         onEvent(this, Lifecycle.Event.ON_CREATE)
     }
 
     var onStartCallCount = 0
+
     override fun onStart(owner: LifecycleOwner) {
         onStartCallCount++
         onEvent(this, Lifecycle.Event.ON_START)
     }
 
     var onResumeCallCount = 0
+
     override fun onResume(owner: LifecycleOwner) {
         onResumeCallCount++
         onEvent(this, Lifecycle.Event.ON_RESUME)
     }
 
     var onPauseCallCount = 0
+
     override fun onPause(owner: LifecycleOwner) {
         onPauseCallCount++
         onEvent(this, Lifecycle.Event.ON_PAUSE)
     }
 
     var onStopCallCount = 0
+
     override fun onStop(owner: LifecycleOwner) {
         onStopCallCount++
         onEvent(this, Lifecycle.Event.ON_STOP)
     }
 
     var onDestroyCallCount = 0
+
     override fun onDestroy(owner: LifecycleOwner) {
         onDestroyCallCount++
         onEvent(this, Lifecycle.Event.ON_DESTROY)
     }
 
     val onStateChangedEvents = mutableListOf<Lifecycle.Event>()
+
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         onStateChangedEvents.add(event)
     }

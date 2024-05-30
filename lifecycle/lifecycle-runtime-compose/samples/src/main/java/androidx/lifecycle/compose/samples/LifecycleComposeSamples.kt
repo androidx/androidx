@@ -70,7 +70,9 @@ private interface TimeAnalytics {
 
 private interface DataAnalytics {
     fun trackScreenView(screenName: String)
+
     fun startTimeTracking(): TimeAnalytics
+
     fun sendDisposalAnalytics(timeAnalytics: TimeAnalytics)
 }
 
@@ -79,9 +81,7 @@ private interface DataAnalytics {
 fun lifecycleEventEffectSample() {
     @Composable
     fun Analytics(dataAnalytics: DataAnalytics) {
-        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-            dataAnalytics.trackScreenView("screen1")
-        }
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { dataAnalytics.trackScreenView("screen1") }
 
         // ...
     }
@@ -95,9 +95,7 @@ fun lifecycleStartEffectSample() {
         LifecycleStartEffect(dataAnalytics) {
             val timeTracker = dataAnalytics.startTimeTracking()
 
-            onStopOrDispose {
-                timeTracker.stopTimeTracking()
-            }
+            onStopOrDispose { timeTracker.stopTimeTracking() }
         }
 
         // ...
@@ -112,9 +110,7 @@ fun lifecycleResumeEffectSample() {
         LifecycleResumeEffect(dataAnalytics) {
             val timeTracker = dataAnalytics.startTimeTracking()
 
-            onPauseOrDispose {
-                timeTracker.stopTimeTracking()
-            }
+            onPauseOrDispose { timeTracker.stopTimeTracking() }
         }
 
         // ...

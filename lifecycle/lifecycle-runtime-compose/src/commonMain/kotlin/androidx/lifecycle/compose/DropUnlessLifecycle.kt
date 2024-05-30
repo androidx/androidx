@@ -26,19 +26,16 @@ import androidx.lifecycle.LifecycleOwner
  * Returns a new decorated function that will invoke the given [block] if the [lifecycleOwner]'s
  * lifecycle state is at least [state]. Otherwise, [block] is not invoked.
  *
- * Note this function should **not** be used to target the [State.DESTROYED] because
- * Compose stops recomposing after receiving a [Lifecycle.Event.ON_STOP] and will never be
- * aware of an [State.DESTROYED] state.
+ * Note this function should **not** be used to target the [State.DESTROYED] because Compose stops
+ * recomposing after receiving a [Lifecycle.Event.ON_STOP] and will never be aware of an
+ * [State.DESTROYED] state.
  *
  * @param state The target [Lifecycle.State] to match.
  * @param lifecycleOwner The [LifecycleOwner] whose lifecycle will be observed. Defaults to the
- *  current [LocalLifecycleOwner].
+ *   current [LocalLifecycleOwner].
  * @param block The callback to be executed when the observed lifecycle state is at least [state].
- *
  * @return A decorated function that invoke [block] only if the lifecycle state is at least [state].
- *
  * @throws IllegalArgumentException if attempting to target state [State.DESTROYED].
- *
  * @see dropUnlessStarted
  * @see dropUnlessResumed
  */
@@ -66,12 +63,11 @@ private fun dropUnlessStateIsAtLeast(
  * lifecycle state is at least [State.STARTED]. Otherwise, [block] is not invoked.
  *
  * @param lifecycleOwner The [LifecycleOwner] whose lifecycle will be observed. Defaults to the
- *  current [LocalLifecycleOwner].
+ *   current [LocalLifecycleOwner].
  * @param block The callback to be executed when the observed lifecycle state is at least
- *  [State.STARTED].
- *
+ *   [State.STARTED].
  * @return A decorated function that invoke [block] only if the lifecycle state is at least
- *  [State.STARTED].
+ *   [State.STARTED].
  *
  * @sample androidx.lifecycle.compose.samples.DropUnlessStarted
  */
@@ -90,12 +86,11 @@ fun dropUnlessStarted(
  * composable is in transition as a result of navigation.
  *
  * @param lifecycleOwner The [LifecycleOwner] whose lifecycle will be observed. Defaults to the
- *  current [LocalLifecycleOwner].
+ *   current [LocalLifecycleOwner].
  * @param block The callback to be executed when the observed lifecycle state is at least
- *  [State.RESUMED].
- *
+ *   [State.RESUMED].
  * @return A decorated function that invoke [block] only if the lifecycle state is at least
- *  [State.RESUMED].
+ *   [State.RESUMED].
  *
  * @sample androidx.lifecycle.compose.samples.DropUnlessResumed
  */

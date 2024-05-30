@@ -20,29 +20,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-@ThreadLocal
-private var isMainDispatcherThread = false
+@ThreadLocal private var isMainDispatcherThread = false
 
 internal object MainDispatcherChecker {
     private val isMainDispatcherAvailable: Boolean
 
     init {
-        isMainDispatcherAvailable = try {
-            runBlocking {
-                launch(Dispatchers.Main.immediate) {
-                    isMainDispatcherThread = true
-                }
+        isMainDispatcherAvailable =
+            try {
+                runBlocking { launch(Dispatchers.Main.immediate) { isMainDispatcherThread = true } }
+                true
+            } catch (_: NotImplementedError) {
+                // Isn't available on some targets (for example, Linux)
+                false
             }
-            true
-        } catch (_: NotImplementedError) {
-            // Isn't available on some targets (for example, Linux)
-            false
-        }
     }
 
-    fun isMainDispatcherThread(): Boolean = if (isMainDispatcherAvailable) {
-        isMainDispatcherThread
-    } else {
-        true
-    }
+    fun isMainDispatcherThread(): Boolean =
+        if (isMainDispatcherAvailable) {
+            isMainDispatcherThread
+        } else {
+            true
+        }
 }

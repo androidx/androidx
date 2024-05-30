@@ -23,16 +23,18 @@ import kotlin.reflect.KClass
  * An implementation of [Lazy] used by [androidx.fragment.app.Fragment.viewModels] and
  * [androidx.activity.ComponentActivity.viewmodels].
  *
- * [storeProducer] is a lambda that will be called during initialization, [VM] will be created
- * in the scope of returned [ViewModelStore].
+ * [storeProducer] is a lambda that will be called during initialization, [VM] will be created in
+ * the scope of returned [ViewModelStore].
  *
- * [factoryProducer] is a lambda that will be called during initialization,
- * returned [ViewModelProvider.Factory] will be used for creation of [VM]
+ * [factoryProducer] is a lambda that will be called during initialization, returned
+ * [ViewModelProvider.Factory] will be used for creation of [VM]
  *
- * [extrasProducer] is a lambda that will be called during initialization,
- * returned [HasDefaultViewModelProviderFactory] will get [CreationExtras] used for creation of [VM]
+ * [extrasProducer] is a lambda that will be called during initialization, returned
+ * [HasDefaultViewModelProviderFactory] will get [CreationExtras] used for creation of [VM]
  */
-public class ViewModelLazy<VM : ViewModel> @JvmOverloads constructor(
+public class ViewModelLazy<VM : ViewModel>
+@JvmOverloads
+constructor(
     private val viewModelClass: KClass<VM>,
     private val storeProducer: () -> ViewModelStore,
     private val factoryProducer: () -> ViewModelProvider.Factory,
@@ -47,9 +49,9 @@ public class ViewModelLazy<VM : ViewModel> @JvmOverloads constructor(
                 val store = storeProducer()
                 val factory = factoryProducer()
                 val extras = extrasProducer()
-                ViewModelProvider.create(store, factory, extras)
-                    .get(viewModelClass)
-                    .also { cached = it }
+                ViewModelProvider.create(store, factory, extras).get(viewModelClass).also {
+                    cached = it
+                }
             } else {
                 viewModel
             }

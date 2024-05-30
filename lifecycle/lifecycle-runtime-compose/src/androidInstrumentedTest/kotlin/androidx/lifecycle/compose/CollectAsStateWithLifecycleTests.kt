@@ -39,14 +39,10 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            withLifecycleOwner {
-                realValue = flow.collectAsStateWithLifecycle("0").value
-            }
+            withLifecycleOwner { realValue = flow.collectAsStateWithLifecycle("0").value }
         }
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
     }
 
     @Test
@@ -55,14 +51,10 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            withLifecycleOwner {
-                realValue = stateFlow.collectAsStateWithLifecycle().value
-            }
+            withLifecycleOwner { realValue = stateFlow.collectAsStateWithLifecycle().value }
         }
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
     }
 
     @Test
@@ -78,9 +70,7 @@ class CollectAsStateWithLifecycleTests {
         }
 
         assertThat(_sharedFlow.tryEmit("1")).isTrue()
-        runOnIdle {
-            assertThat(realValue).isEqualTo("1")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("1") }
     }
 
     @Test
@@ -96,9 +86,7 @@ class CollectAsStateWithLifecycleTests {
 
         stateFlow.value = "1"
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("1")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("1") }
     }
 
     @Test
@@ -109,17 +97,18 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            realValue = flow.collectAsStateWithLifecycle(
-                initialValue = "0",
-                lifecycle = lifecycleOwner.lifecycle
-            ).value
+            realValue =
+                flow
+                    .collectAsStateWithLifecycle(
+                        initialValue = "0",
+                        lifecycle = lifecycleOwner.lifecycle
+                    )
+                    .value
         }
 
         _stateFlow.value = "1"
         _stateFlow.value = "2"
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
     }
 
     @Test
@@ -129,17 +118,14 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            realValue = stateFlow.collectAsStateWithLifecycle(
-                lifecycle = lifecycleOwner.lifecycle
-            ).value
+            realValue =
+                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
         }
 
         stateFlow.value = "1"
         stateFlow.value = "2"
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
     }
 
     @Test
@@ -150,22 +136,21 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            realValue = flow.collectAsStateWithLifecycle(
-                initialValue = "0",
-                lifecycle = lifecycleOwner.lifecycle
-            ).value
+            realValue =
+                flow
+                    .collectAsStateWithLifecycle(
+                        initialValue = "0",
+                        lifecycle = lifecycleOwner.lifecycle
+                    )
+                    .value
         }
 
         assertThat(_sharedFlow.tryEmit("1")).isTrue()
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
 
         lifecycleOwner.currentState = Lifecycle.State.RESUMED
         assertThat(_sharedFlow.tryEmit("2"))
-        runOnIdle {
-            assertThat(realValue).isEqualTo("2")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("2") }
     }
 
     @Test
@@ -175,21 +160,16 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            realValue = stateFlow.collectAsStateWithLifecycle(
-                lifecycle = lifecycleOwner.lifecycle
-            ).value
+            realValue =
+                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
         }
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
 
         stateFlow.value = "1"
         stateFlow.value = "2"
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("2")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("2") }
     }
 
     @Test
@@ -199,22 +179,17 @@ class CollectAsStateWithLifecycleTests {
 
         var realValue: String? = null
         setContent {
-            realValue = stateFlow.collectAsStateWithLifecycle(
-                lifecycle = lifecycleOwner.lifecycle
-            ).value
+            realValue =
+                stateFlow.collectAsStateWithLifecycle(lifecycle = lifecycleOwner.lifecycle).value
         }
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("0")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("0") }
 
         stateFlow.value = "1"
         stateFlow.value = "2"
         lifecycleOwner.currentState = Lifecycle.State.RESUMED
 
-        runOnIdle {
-            assertThat(realValue).isEqualTo("2")
-        }
+        runOnIdle { assertThat(realValue).isEqualTo("2") }
     }
 
     @Composable

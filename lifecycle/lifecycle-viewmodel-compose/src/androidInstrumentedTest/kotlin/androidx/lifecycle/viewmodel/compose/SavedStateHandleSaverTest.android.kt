@@ -74,16 +74,12 @@ class SavedStateHandleSaverTest {
         assertThat(array).isEqualTo(intArrayOf(1))
     }
 
-    private class CustomStateHolder(
-        initialValue: Int
-    ) {
+    private class CustomStateHolder(initialValue: Int) {
         var value by mutableStateOf(initialValue)
 
         companion object {
-            val Saver: Saver<CustomStateHolder, *> = Saver(
-                save = { it.value },
-                restore = { CustomStateHolder(it) }
-            )
+            val Saver: Saver<CustomStateHolder, *> =
+                Saver(save = { it.value }, restore = { CustomStateHolder(it) })
         }
     }
 
@@ -94,12 +90,13 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                stateHolder = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    saver = CustomStateHolder.Saver
-                ) {
-                    CustomStateHolder(0)
-                }
+                stateHolder =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        saver = CustomStateHolder.Saver
+                    ) {
+                        CustomStateHolder(0)
+                    }
             }
         }
 
@@ -116,26 +113,23 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                stateHolder = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    saver = CustomStateHolder.Saver
-                ) {
-                    CustomStateHolder(0)
-                }
+                stateHolder =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        saver = CustomStateHolder.Saver
+                    ) {
+                        CustomStateHolder(0)
+                    }
             }
         }
 
         assertThat(stateHolder?.value).isEqualTo(1)
     }
 
-    private data class CustomState(
-        val value: Int
-    ) {
+    private data class CustomState(val value: Int) {
         companion object {
-            val Saver: Saver<CustomState, *> = Saver(
-                save = { it.value },
-                restore = { CustomState(it) }
-            )
+            val Saver: Saver<CustomState, *> =
+                Saver(save = { it.value }, restore = { CustomState(it) })
         }
     }
 
@@ -146,12 +140,13 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                state = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    stateSaver = CustomState.Saver
-                ) {
-                    mutableStateOf(CustomState(0))
-                }
+                state =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        stateSaver = CustomState.Saver
+                    ) {
+                        mutableStateOf(CustomState(0))
+                    }
             }
         }
 
@@ -168,12 +163,13 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                state = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    stateSaver = CustomState.Saver
-                ) {
-                    mutableStateOf(CustomState(0))
-                }
+                state =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        stateSaver = CustomState.Saver
+                    ) {
+                        mutableStateOf(CustomState(0))
+                    }
             }
         }
 
@@ -187,12 +183,13 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                state = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    stateSaver = CustomState.Saver
-                ) {
-                    mutableStateOf(CustomState(0), referentialEqualityPolicy())
-                }
+                state =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        stateSaver = CustomState.Saver
+                    ) {
+                        mutableStateOf(CustomState(0), referentialEqualityPolicy())
+                    }
             }
         }
 
@@ -209,12 +206,13 @@ class SavedStateHandleSaverTest {
         activityTestRuleScenario.scenario.onActivity { activity ->
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
-                state = viewModel.savedStateHandle.saveable(
-                    key = "key",
-                    stateSaver = CustomState.Saver
-                ) {
-                    mutableStateOf(CustomState(0), referentialEqualityPolicy())
-                }
+                state =
+                    viewModel.savedStateHandle.saveable(
+                        key = "key",
+                        stateSaver = CustomState.Saver
+                    ) {
+                        mutableStateOf(CustomState(0), referentialEqualityPolicy())
+                    }
             }
         }
 
@@ -232,9 +230,8 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                val arrayProperty: IntArray by viewModel.savedStateHandle.saveable<IntArray> {
-                    intArrayOf(0)
-                }
+                val arrayProperty: IntArray by
+                    viewModel.savedStateHandle.saveable<IntArray> { intArrayOf(0) }
                 array = arrayProperty
             }
         }
@@ -255,9 +252,8 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                val arrayProperty: IntArray by viewModel.savedStateHandle.saveable<IntArray> {
-                    intArrayOf(0)
-                }
+                val arrayProperty: IntArray by
+                    viewModel.savedStateHandle.saveable<IntArray> { intArrayOf(0) }
                 array = arrayProperty
             }
         }
@@ -276,9 +272,7 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                var count by viewModel.savedStateHandle.saveable {
-                    mutableStateOf(0)
-                }
+                var count by viewModel.savedStateHandle.saveable { mutableStateOf(0) }
                 getCount = { count }
                 setCount = { count = it }
             }
@@ -301,9 +295,7 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                var count by viewModel.savedStateHandle.saveable {
-                    mutableStateOf(0)
-                }
+                var count by viewModel.savedStateHandle.saveable { mutableStateOf(0) }
                 getCount = { count }
                 setCount = { count = it }
             }
@@ -323,9 +315,7 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                var count: Int? by viewModel.savedStateHandle.saveable {
-                    mutableStateOf(null)
-                }
+                var count: Int? by viewModel.savedStateHandle.saveable { mutableStateOf(null) }
                 getOptionalCount = { count }
                 setOptionalCount = { count = it }
             }
@@ -348,9 +338,7 @@ class SavedStateHandleSaverTest {
             activity.setContent {
                 val viewModel = viewModel<SavingTestViewModel>(activity)
                 savedStateHandle = viewModel.savedStateHandle
-                var count: Int? by viewModel.savedStateHandle.saveable {
-                    mutableStateOf(null)
-                }
+                var count: Int? by viewModel.savedStateHandle.saveable { mutableStateOf(null) }
                 getOptionalCount = { count }
                 setOptionalCount = { count = it }
             }
