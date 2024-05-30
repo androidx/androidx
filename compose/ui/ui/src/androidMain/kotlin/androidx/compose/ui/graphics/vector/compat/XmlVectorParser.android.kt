@@ -305,12 +305,12 @@ internal fun AndroidVectorParser.parsePath(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_LINE_JOIN, -1
     )
     val strokeLineJoin =
-        getStrokeLineJoin(lineJoin, StrokeJoin.Bevel)
+        getStrokeLineJoin(lineJoin, StrokeJoin.Miter)
     val strokeMiterLimit = getNamedFloat(
         a,
         "strokeMiterLimit",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_MITER_LIMIT,
-        1.0f
+        4.0f
     )
     val strokeColor = getNamedComplexColor(
         a,
