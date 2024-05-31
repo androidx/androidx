@@ -18,7 +18,6 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.navigation.serialization.generateRoutePattern
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.serialization.InternalSerializationApi
@@ -52,7 +51,7 @@ public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDe
  */
 public inline fun <reified T : Any> navDeepLink(
     basePath: String,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     noinline deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit = { }
 ): NavDeepLink = navDeepLink(basePath, T::class, typeMap, deepLinkBuilder)
 
@@ -61,7 +60,7 @@ public inline fun <reified T : Any> navDeepLink(
 public fun <T : Any> navDeepLink(
     basePath: String,
     route: KClass<T>,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    typeMap: Map<KType, NavType<*>>,
     deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit
 ): NavDeepLink = NavDeepLinkDslBuilder(basePath, route, typeMap).apply(deepLinkBuilder).build()
 
@@ -95,7 +94,7 @@ public class NavDeepLinkDslBuilder {
     internal constructor(
         basePath: String,
         route: KClass<*>,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, NavType<*>>
     ) {
         require(basePath.isNotEmpty()) {
             "The basePath for NavDeepLink from KClass cannot be empty"

@@ -319,7 +319,7 @@ public fun NavGraphBuilder.navigation(
  */
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
     noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
     @JvmSuppressWildcards EnterTransition?)? = null,
@@ -352,7 +352,7 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
 public fun NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     route: KClass<*>,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
     enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
     @JvmSuppressWildcards EnterTransition?)? = null,
@@ -404,7 +404,7 @@ public fun NavGraphBuilder.navigation(
  */
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
     noinline enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
     @JvmSuppressWildcards EnterTransition?)? = null,
@@ -437,7 +437,7 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
 public fun NavGraphBuilder.navigation(
     startDestination: Any,
     route: KClass<*>,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
     enterTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() ->
     @JvmSuppressWildcards EnterTransition?)? = null,
@@ -521,7 +521,7 @@ public fun NavGraphBuilder.dialog(
  * @param content composable content for the destination that will be hosted within the Dialog
  */
 public inline fun <reified T : Any> NavGraphBuilder.dialog(
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     deepLinks: List<NavDeepLink> = emptyList(),
     dialogProperties: DialogProperties = DialogProperties(),
     noinline content: @Composable (NavBackStackEntry) -> Unit

@@ -17,13 +17,9 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
-import androidx.navigation.serialization.generateNavArguments
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 
 @DslMarker
 public annotation class NavDestinationDsl
@@ -57,7 +53,7 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
     public constructor(
         navigator: Navigator<out D>,
         @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        typeMap: Map<KType, NavType<*>>,
     )
 
     /**

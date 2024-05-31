@@ -23,7 +23,6 @@ import androidx.core.bundle.Bundle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.coroutines.flow.Flow
@@ -364,7 +363,7 @@ public inline fun NavController.createGraph(
 public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 
@@ -381,7 +380,7 @@ public inline fun NavController.createGraph(
 public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 

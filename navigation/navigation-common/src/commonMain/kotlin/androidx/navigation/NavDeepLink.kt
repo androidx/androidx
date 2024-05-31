@@ -16,13 +16,9 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
-import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.serializer
 
 /**
  * NavDeepLink encapsulates the parsing and matching of a navigation deep link.
@@ -130,7 +126,7 @@ public expect class NavDeepLink internal constructor(
          */
         public inline fun <reified T : Any> setUriPattern(
             basePath: String,
-            typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+            typeMap: Map<KType, NavType<*>> = emptyMap(),
         ): Builder
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // need to be public for reified delegation

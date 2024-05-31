@@ -21,7 +21,6 @@ package androidx.navigation
 
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmSuppressWildcards
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
@@ -56,7 +55,7 @@ public inline fun NavigatorProvider.navigation(
 public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder)
     .build()
@@ -76,7 +75,7 @@ public inline fun NavigatorProvider.navigation(
 public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder)
     .build()
@@ -110,7 +109,7 @@ public inline fun NavGraphBuilder.navigation(
  */
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): Unit = destination(NavGraphBuilder(provider, startDestination, T::class, typeMap)
     .apply(builder))
@@ -129,7 +128,7 @@ public inline fun <reified T : Any> NavGraphBuilder.navigation(
  */
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
     builder: NavGraphBuilder.() -> Unit
 ): Unit = destination(NavGraphBuilder(provider, startDestination, T::class, typeMap)
     .apply(builder))
@@ -171,7 +170,7 @@ public expect open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: KClass<*>,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, NavType<*>>
     )
 
     /**
@@ -190,7 +189,7 @@ public expect open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: Any,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, NavType<*>>
     )
 
     /**
