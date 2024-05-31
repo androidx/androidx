@@ -524,12 +524,6 @@ class AffectedModuleDetectorImpl(
                     ":benchmark:benchmark-macro",
                     ":benchmark:integration-tests:macrobenchmark-target"
                 ), // link benchmark-macro's correctness test and its target
-                // Changing generator code changes the output for generated icons, which are tested
-                // in material-icons-extended.
-                setOf(
-                    ":compose:material:material:icons:generator",
-                    ":compose:material:material-icons-extended"
-                ),
                 setOf(
                     ":profileinstaller:integration-tests:profile-verification",
                     ":profileinstaller:integration-tests:profile-verification-sample",
