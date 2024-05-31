@@ -192,7 +192,7 @@ private constructor(
         }
     }
 
-    public actual public override val viewModelStore: ViewModelStore
+    public actual override val viewModelStore: ViewModelStore
         /**
          * {@inheritDoc}
          *

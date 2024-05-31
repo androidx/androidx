@@ -27,7 +27,7 @@ import kotlinx.serialization.serializer
 /**
  * NavOptions stores special options for navigate actions
  */
-public class NavOptions internal constructor(
+public actual class NavOptions internal constructor(
     private val singleTop: Boolean,
     private val restoreState: Boolean,
     /**
@@ -210,7 +210,7 @@ public class NavOptions internal constructor(
      * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP]
      * works with activities.
      */
-    public fun shouldLaunchSingleTop(): Boolean {
+    public actual fun shouldLaunchSingleTop(): Boolean {
         return singleTop
     }
 
@@ -218,7 +218,7 @@ public class NavOptions internal constructor(
      * Whether this navigation action should restore any state previously saved
      * by [Builder.setPopUpTo] or the `popUpToSaveState` attribute.
      */
-    public fun shouldRestoreState(): Boolean {
+    public actual fun shouldRestoreState(): Boolean {
         return restoreState
     }
 
@@ -228,7 +228,7 @@ public class NavOptions internal constructor(
      *
      * @see NavOptions.getPopUpTo
      */
-    public fun isPopUpToInclusive(): Boolean {
+    public actual fun isPopUpToInclusive(): Boolean {
         return popUpToInclusive
     }
 
@@ -239,7 +239,7 @@ public class NavOptions internal constructor(
      * as [popUpToId] (note: this matching ID is true whether [isPopUpToInclusive] is true or
      * false).
      */
-    public fun shouldPopUpToSaveState(): Boolean {
+    public actual fun shouldPopUpToSaveState(): Boolean {
         return popUpToSaveState
     }
 
@@ -324,7 +324,7 @@ public class NavOptions internal constructor(
     /**
      * Builder for constructing new instances of NavOptions.
      */
-    public class Builder {
+    public actual class Builder {
         private var singleTop = false
         private var restoreState = false
 
@@ -566,7 +566,7 @@ public class NavOptions internal constructor(
         /**
          * @return a constructed NavOptions
          */
-        public fun build(): NavOptions {
+        public actual fun build(): NavOptions {
             return if (popUpToRoute != null) {
                 NavOptions(
                     singleTop, restoreState,

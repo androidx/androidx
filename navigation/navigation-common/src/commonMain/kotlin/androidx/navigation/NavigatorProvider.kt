@@ -80,6 +80,7 @@ public expect open class NavigatorProvider() {
  *
  * @throws IllegalStateException if the Navigator has not been added
  */
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     name: String
 ): T = getNavigator(name)
@@ -99,6 +100,7 @@ public expect inline operator fun <T : Navigator<out NavDestination>> NavigatorP
  *
  * @return the previously added [Navigator] for the given name, if any
  */
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public inline operator fun NavigatorProvider.set(
     name: String,
     navigator: Navigator<out NavDestination>
@@ -107,6 +109,7 @@ public inline operator fun NavigatorProvider.set(
 /**
  * Register a navigator using the name provided by its name.
  */
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
     addNavigator(navigator)
 }

@@ -81,11 +81,7 @@ public actual open class NavigatorProvider {
         }
 
         _typeNavigators[navigator::class] = navigator
-        return if (navigator.name != null) {
-            addNavigator(navigator.name, navigator)
-        } else {
-            navigator
-        }
+        return addNavigator(navigator.name, navigator)
     }
 
     @CallSuper
@@ -114,6 +110,7 @@ public actual open class NavigatorProvider {
     }
 }
 
+@Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public actual inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
     clazz: KClass<T>
 ): T = getNavigator(clazz)
