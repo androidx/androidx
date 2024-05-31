@@ -110,30 +110,7 @@ class CompilationModeTest {
             check(device.wait(Until.hasObject(By.text(EXPECTED_TEXT)), 3000))
         }
 
-    private fun getCompilationMode(): String {
-        val dump =
-            Shell.executeScriptCaptureStdoutStderr("cmd package dump $TARGET_PACKAGE_NAME")
-                .stdout
-                .trim()
-
-        // Find `Dexopt state:` line
-        var firstMarkerFound = false
-        for (line in dump.lines()) {
-
-            // Looks for first marker
-            if (!firstMarkerFound && line.trim() == FIRST_MARKER) {
-                firstMarkerFound = true
-                continue
-            }
-
-            // Looks for second marker
-            if (firstMarkerFound && line.trim().contains(SECOND_MARKER)) {
-                return line.substringAfter(SECOND_MARKER).substringBefore("]")
-            }
-        }
-
-        return COMPILATION_PROFILE_UNKNOWN
-    }
+    private fun getCompilationMode() = Shell.getCompilationMode(TARGET_PACKAGE_NAME)
 
     @SmallTest
     @Test
@@ -181,10 +158,5 @@ class CompilationModeTest {
 
         // Screen assert
         private const val EXPECTED_TEXT = "FULL DISPLAY"
-
-        // Compilation mode
-        private const val FIRST_MARKER = "Dexopt state:"
-        private const val SECOND_MARKER = "[status="
-        private const val COMPILATION_PROFILE_UNKNOWN = "unknown"
     }
 }
