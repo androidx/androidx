@@ -664,6 +664,9 @@ internal fun inverse3x3(m: FloatArray): FloatArray {
 internal fun mul3x3(lhs: FloatArray, rhs: FloatArray):
     FloatArray {
         val r = FloatArray(9)
+        // Compiler hint to bypass extra bound checks
+        if (lhs.size < 9) return r
+        if (rhs.size < 9) return r
         r[0] = lhs[0] * rhs[0] + lhs[3] * rhs[1] + lhs[6] * rhs[2]
         r[1] = lhs[1] * rhs[0] + lhs[4] * rhs[1] + lhs[7] * rhs[2]
         r[2] = lhs[2] * rhs[0] + lhs[5] * rhs[1] + lhs[8] * rhs[2]
@@ -688,6 +691,10 @@ internal fun mul3x3Float3(
     lhs: FloatArray,
     rhs: FloatArray
 ): FloatArray {
+    // Compiler hint to bypass extra bounds checks
+    if (lhs.size < 9) return rhs
+    if (rhs.size < 3) return rhs
+
     val r0 = rhs[0]
     val r1 = rhs[1]
     val r2 = rhs[2]
@@ -699,6 +706,7 @@ internal fun mul3x3Float3(
 
 /**
  * Multiplies a vector of 3 components by a 3x3 matrix and returns the first element.
+ * If [lhs] does not contain at least 9 elements, returns [r0].
  *
  * @param lhs 3x3 matrix, as a non-null array of 9 floats
  * @param r0: The first element of the vector
@@ -718,6 +726,7 @@ internal inline fun mul3x3Float3_0(
 
 /**
  * Multiplies a vector of 3 components by a 3x3 matrix and returns the second element.
+ * If [lhs] does not contain at least 9 elements, returns [r0].
  *
  * @param lhs 3x3 matrix, as a non-null array of 9 floats
  * @param r0: The first element of the vector
@@ -737,6 +746,7 @@ internal inline fun mul3x3Float3_1(
 
 /**
  * Multiplies a vector of 3 components by a 3x3 matrix and returns the third element.
+ * If [lhs] does not contain at least 9 elements, returns [r0].
  *
  * @param lhs 3x3 matrix, as a non-null array of 9 floats
  * @param r0: The first element of the vector
