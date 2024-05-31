@@ -228,9 +228,11 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
 
         // Makes sure that only the non obfuscated build type variant selected is enabled
         val buildType = variantBuilder.buildType
+
+        val isBaselineProfileBuildType = buildType in baselineProfileExtendedToOriginalTypeMap.keys
+        val isBenchmarkBuildType = buildType in benchmarkExtendedToOriginalTypeMap.keys
         variantBuilder.enable =
-            buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
-                buildType in benchmarkExtendedToOriginalTypeMap.keys
+            variantBuilder.enable && (isBaselineProfileBuildType || isBenchmarkBuildType)
     }
 
     override fun onTestVariants(variant: TestVariant) {
