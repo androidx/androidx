@@ -17,6 +17,11 @@
 package androidx.navigation
 
 import android.net.Uri
+import androidx.navigation.NavType.Companion.BoolListType
+import androidx.navigation.NavType.Companion.FloatListType
+import androidx.navigation.NavType.Companion.IntListType
+import androidx.navigation.NavType.Companion.LongListType
+import androidx.navigation.serialization.generateRouteWithArgs
 import androidx.navigation.test.booleanArgument
 import androidx.navigation.test.intArgument
 import androidx.navigation.test.intArgumentUnknownDefault
@@ -24,11 +29,13 @@ import androidx.navigation.test.nullableStringArgument
 import androidx.navigation.test.nullableStringArgumentUnknownDefault
 import androidx.navigation.test.stringArgument
 import androidx.navigation.test.stringArrayArgument
+import androidx.navigation.test.stringListArgument
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.UnsupportedEncodingException
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.junit.Test
 
@@ -1282,6 +1289,29 @@ class NavDeepLinkTest {
             .contains("name2")
     }
 
+    @Suppress("UNCHECKED_CAST")
+    @Test
+    fun deepLinkRepeatedQueryParamsMappedToList() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val navArg = stringListArgument()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                Uri.parse("$DEEP_LINK_EXACT_HTTPS/users?myarg=name1&myarg=name2"),
+                mapOf("myarg" to navArg)
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringList = navArg.type[matchArgs!!, "myarg"] as List<String>
+        assertWithMessage("Args list should not be null").that(matchArgsStringList).isNotNull()
+        assertWithMessage("Args should contain first arg")
+            .that(matchArgsStringList)
+            .contains("name1")
+        assertWithMessage("Args should contain second arg")
+            .that(matchArgsStringList)
+            .contains("name2")
+    }
+
     @Test
     fun deepLinkNoRepeatedQueryParamsInPattern() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}&myarg={myarg}"
@@ -1457,6 +1487,118 @@ class NavDeepLinkTest {
                 mapOf("arg" to nullableStringArgumentUnknownDefault())
             )
         assertThat(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullString() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: String?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val argName = "arg"
+        val navArg = nullableStringArgument()
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullStringList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<String>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val argName = "arg"
+        val navArg = stringListArgument()
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullIntList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Int>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(IntListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullBoolList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Boolean>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(BoolListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullLongList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Long>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(LongListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullFloatList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Float>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(FloatListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments(Uri.parse("http://$route"), mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
     }
 
     @Test
