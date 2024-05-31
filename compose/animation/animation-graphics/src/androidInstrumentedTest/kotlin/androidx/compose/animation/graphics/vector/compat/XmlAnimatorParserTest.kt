@@ -48,11 +48,7 @@ class XmlAnimatorParserTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = context.resources
         val delta = 0.001f
-        val a = loadAnimatorResource(
-            context.theme,
-            resources,
-            R.animator.object_animator_1d
-        )
+        val a = loadAnimatorResource(context.theme, resources, R.animator.object_animator_1d)
         assertThat(a).isInstanceOf(ObjectAnimator::class.java)
         val oa = a as ObjectAnimator
         assertThat(oa.duration).isEqualTo(333)
@@ -72,11 +68,7 @@ class XmlAnimatorParserTest {
     fun objectAnimator2D() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = context.resources
-        val a = loadAnimatorResource(
-            context.theme,
-            resources,
-            R.animator.object_animator_2d
-        )
+        val a = loadAnimatorResource(context.theme, resources, R.animator.object_animator_2d)
         assertThat(a).isInstanceOf(ObjectAnimator::class.java)
         val oa = a as ObjectAnimator
         assertThat(oa.duration).isEqualTo(333)
@@ -94,11 +86,7 @@ class XmlAnimatorParserTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = context.resources
         val delta = 0.001f
-        val a = loadAnimatorResource(
-            context.theme,
-            resources,
-            R.animator.property_values_holders
-        )
+        val a = loadAnimatorResource(context.theme, resources, R.animator.property_values_holders)
         assertThat(a).isInstanceOf(ObjectAnimator::class.java)
         val oa = a as ObjectAnimator
         assertThat(oa.duration).isEqualTo(333)
@@ -159,11 +147,7 @@ class XmlAnimatorParserTest {
     fun set() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resources = context.resources
-        val anim = loadAnimatorResource(
-            context.theme,
-            resources,
-            R.animator.set
-        )
+        val anim = loadAnimatorResource(context.theme, resources, R.animator.set)
         assertThat(anim).isInstanceOf(AnimatorSet::class.java)
         val set = anim as AnimatorSet
         assertThat(set.ordering).isEqualTo(Ordering.Together)

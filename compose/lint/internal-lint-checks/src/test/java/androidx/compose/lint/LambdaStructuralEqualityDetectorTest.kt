@@ -30,15 +30,15 @@ import org.junit.runners.JUnit4
 class LambdaStructuralEqualityDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = LambdaStructuralEqualityDetector()
 
-    override fun getIssues(): MutableList<Issue> = mutableListOf(
-        LambdaStructuralEqualityDetector.ISSUE
-    )
+    override fun getIssues(): MutableList<Issue> =
+        mutableListOf(LambdaStructuralEqualityDetector.ISSUE)
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val lambda1 = { 1 }
@@ -49,17 +49,18 @@ class LambdaStructuralEqualityDetectorTest : LintDetectorTest() {
                     lambda1 !== lambda2
                 }
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package test
 
                 val lambda1 = { 1 }
@@ -73,8 +74,8 @@ class LambdaStructuralEqualityDetectorTest : LintDetectorTest() {
                     lambda3?.equals(lambda2)
                 }
             """
+                )
             )
-        )
             .run()
             .expect(
                 """

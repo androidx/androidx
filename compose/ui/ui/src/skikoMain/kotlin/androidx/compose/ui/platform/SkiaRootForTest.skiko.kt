@@ -21,16 +21,15 @@ import androidx.compose.ui.input.pointer.TestPointerInputEventData
 import androidx.compose.ui.node.RootForTest
 
 /**
- * The marker interface to be implemented by the desktop root backing the composition.
- * To be used in tests.
+ * The marker interface to be implemented by the desktop root backing the composition. To be used in
+ * tests.
  */
 @InternalComposeUiApi
 interface SkiaRootForTest : RootForTest {
     /**
      * Process pointer event
      *
-     * [timeMillis] time when the pointer event occurred
-     * [pointers] state of all pointers
+     * [timeMillis] time when the pointer event occurred [pointers] state of all pointers
      */
     fun processPointerInput(timeMillis: Long, pointers: List<TestPointerInputEventData>)
 }

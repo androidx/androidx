@@ -29,17 +29,16 @@ import com.google.common.truth.Truth.assertThat
 
 @OptIn(InternalFoundationTextApi::class)
 internal fun assertThat(buffer: PartialGapBuffer): EditBufferSubject {
-    return assertAbout(EditBufferSubject.SUBJECT_FACTORY)
-        .that(GapBufferWrapper(buffer))!!
+    return assertAbout(EditBufferSubject.SUBJECT_FACTORY).that(GapBufferWrapper(buffer))!!
 }
 
 internal fun assertThat(buffer: EditingBuffer): EditBufferSubject {
-    return assertAbout(EditBufferSubject.SUBJECT_FACTORY)
-        .that(EditingBufferWrapper(buffer))!!
+    return assertAbout(EditBufferSubject.SUBJECT_FACTORY).that(EditingBufferWrapper(buffer))!!
 }
 
 internal abstract class GetOperatorWrapper(val buffer: Any) {
     abstract operator fun get(index: Int): Char
+
     override fun toString(): String = buffer.toString()
 }
 
@@ -52,17 +51,16 @@ private class GapBufferWrapper(buffer: PartialGapBuffer) : GetOperatorWrapper(bu
     override fun get(index: Int): Char = (buffer as PartialGapBuffer)[index]
 }
 
-/**
- * Truth extension for Editing Buffers.
- */
-internal class EditBufferSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: GetOperatorWrapper
-) : Subject(failureMetadata, subject) {
+/** Truth extension for Editing Buffers. */
+internal class EditBufferSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: GetOperatorWrapper) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<EditBufferSubject, GetOperatorWrapper> =
-            Factory { failureMetadata, subject -> EditBufferSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                EditBufferSubject(failureMetadata, subject)
+            }
     }
 
     fun hasChars(expected: String) {

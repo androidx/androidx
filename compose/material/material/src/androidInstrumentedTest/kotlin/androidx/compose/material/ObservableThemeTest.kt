@@ -49,55 +49,50 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ObservableThemeTest {
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun testObservableTheme() {
         val testCase = ObservableThemeTestCase()
-        composeTestRule
-            .forGivenTestCase(testCase)
-            .performTestWithEventsControl {
-                doFrame()
-                assertNoPendingChanges()
+        composeTestRule.forGivenTestCase(testCase).performTestWithEventsControl {
+            doFrame()
+            assertNoPendingChanges()
 
-                assertEquals(2, testCase.primaryCompositions)
-                assertEquals(1, testCase.secondaryCompositions)
+            assertEquals(2, testCase.primaryCompositions)
+            assertEquals(1, testCase.secondaryCompositions)
 
-                doFrame()
-                assertNoPendingChanges()
+            doFrame()
+            assertNoPendingChanges()
 
-                testCase.toggleState()
+            testCase.toggleState()
 
-                doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
+            doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
-                assertEquals(4, testCase.primaryCompositions)
-                assertEquals(1, testCase.secondaryCompositions)
-            }
+            assertEquals(4, testCase.primaryCompositions)
+            assertEquals(1, testCase.secondaryCompositions)
+        }
     }
 
     @Test
     fun testImmutableTheme() {
         val testCase = ImmutableThemeTestCase()
-        composeTestRule
-            .forGivenTestCase(testCase)
-            .performTestWithEventsControl {
-                doFrame()
-                assertNoPendingChanges()
+        composeTestRule.forGivenTestCase(testCase).performTestWithEventsControl {
+            doFrame()
+            assertNoPendingChanges()
 
-                assertEquals(2, testCase.primaryCompositions)
-                assertEquals(1, testCase.secondaryCompositions)
+            assertEquals(2, testCase.primaryCompositions)
+            assertEquals(1, testCase.secondaryCompositions)
 
-                doFrame()
-                assertNoPendingChanges()
+            doFrame()
+            assertNoPendingChanges()
 
-                testCase.toggleState()
+            testCase.toggleState()
 
-                doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
+            doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
-                assertEquals(4, testCase.primaryCompositions)
-                assertEquals(2, testCase.secondaryCompositions)
-            }
+            assertEquals(4, testCase.primaryCompositions)
+            assertEquals(2, testCase.secondaryCompositions)
+        }
     }
 }
 
@@ -118,16 +113,16 @@ private sealed class ThemeTestCase : ComposeTestCase, ToggleableTestCase {
     }
 
     override fun toggleState() {
-        with(primaryState!!) {
-            value = if (value == Color.Blue) Color.Red else Color.Blue
-        }
+        with(primaryState!!) { value = if (value == Color.Blue) Color.Red else Color.Blue }
     }
 
-    @Composable
-    internal abstract fun createTheme(primary: Color): TestTheme
+    @Composable internal abstract fun createTheme(primary: Color): TestTheme
 
-    val primaryCompositions get() = primaryTracker.compositions
-    val secondaryCompositions get() = secondaryTracker.compositions
+    val primaryCompositions
+        get() = primaryTracker.compositions
+
+    val secondaryCompositions
+        get() = secondaryTracker.compositions
 }
 
 private interface TestTheme {
@@ -136,8 +131,8 @@ private interface TestTheme {
 }
 
 /**
- * Test case using an observable [TestTheme] that will be memoized and mutated when
- * incoming values change, causing only functions consuming the specific changed color to recompose.
+ * Test case using an observable [TestTheme] that will be memoized and mutated when incoming values
+ * change, causing only functions consuming the specific changed color to recompose.
  */
 private class ObservableThemeTestCase : ThemeTestCase() {
     @Composable
@@ -200,9 +195,7 @@ private fun ExpensiveSecondaryColorConsumer(compositionTracker: CompositionTrack
  * Immutable as we want to ensure that we always skip recomposition unless the CompositionLocal
  * value inside the function changes.
  */
-@Immutable
-private class CompositionTracker(var compositions: Int = 0)
+@Immutable private class CompositionTracker(var compositions: Int = 0)
 
-private val LocalTestTheme = staticCompositionLocalOf<TestTheme> {
-    error("CompositionLocal LocalTestThemem not present")
-}
+private val LocalTestTheme =
+    staticCompositionLocalOf<TestTheme> { error("CompositionLocal LocalTestThemem not present") }

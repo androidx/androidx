@@ -82,46 +82,36 @@ fun WindowScope.Content(
 ) {
     val dialogState = remember { mutableStateOf(false) }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(55, 55, 55)
-    ) {
+    Surface(modifier = Modifier.fillMaxSize(), color = Color(55, 55, 55)) {
         Column {
             Row(
-                modifier = Modifier.background(color = Color(75, 75, 75))
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .padding(start = 20.dp, end = 10.dp),
+                modifier =
+                    Modifier.background(color = Color(75, 75, 75))
+                        .fillMaxWidth()
+                        .height(30.dp)
+                        .padding(start = 20.dp, end = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                WindowDraggableArea(
-                    modifier = Modifier.weight(1f)
-                ) {
+                WindowDraggableArea(modifier = Modifier.weight(1f)) {
                     TextBox(text = AppState.wndTitle.value)
                 }
                 Row {
                     Button(
                         color = Color(210, 210, 210),
                         size = IntSize(16, 16),
-                        onClick = {
-                            windowState.placement = WindowPlacement.Fullscreen
-                        }
+                        onClick = { windowState.placement = WindowPlacement.Fullscreen }
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(232, 182, 109),
                         size = IntSize(16, 16),
-                        onClick = {
-                            windowState.isMinimized = true
-                        }
+                        onClick = { windowState.isMinimized = true }
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
                         color = Color(150, 232, 150),
                         size = IntSize(16, 16),
-                        onClick = {
-                            windowState.placement = WindowPlacement.Maximized
-                        }
+                        onClick = { windowState.placement = WindowPlacement.Maximized }
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Button(
@@ -148,15 +138,18 @@ fun WindowScope.Content(
                         onClick = {
                             val message = "There should be your message."
                             when {
-                                AppState.notify.value -> trayState.sendNotification(
-                                    Notification("Notification.", message)
-                                )
-                                AppState.warn.value -> trayState.sendNotification(
-                                    Notification("Warning.", message, Notification.Type.Warning)
-                                )
-                                else -> trayState.sendNotification(
-                                    Notification("Error.", message, Notification.Type.Error)
-                                )
+                                AppState.notify.value ->
+                                    trayState.sendNotification(
+                                        Notification("Notification.", message)
+                                    )
+                                AppState.warn.value ->
+                                    trayState.sendNotification(
+                                        Notification("Warning.", message, Notification.Type.Warning)
+                                    )
+                                else ->
+                                    trayState.sendNotification(
+                                        Notification("Error.", message, Notification.Type.Error)
+                                    )
                             }
                         },
                         color = Color(196, 136, 255)
@@ -169,9 +162,10 @@ fun WindowScope.Content(
                     SwingActionButton("JButton", { AppState.amount.value++ })
                 }
                 Column(
-                    modifier = Modifier.padding(start = 30.dp, top = 50.dp, end = 30.dp)
-                        .background(color = Color(255, 255, 255, 10))
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier.padding(start = 30.dp, top = 50.dp, end = 30.dp)
+                            .background(color = Color(255, 255, 255, 10))
+                            .fillMaxWidth()
                 ) {
                     Row {
                         ContextMenu()
@@ -190,20 +184,11 @@ fun WindowScope.Content(
                     )
                     Spacer(modifier = Modifier.height(30.dp))
                     Row(modifier = Modifier.padding(start = 20.dp)) {
-                        RadioButton(
-                            text = "- notify",
-                            state = AppState.notify
-                        )
+                        RadioButton(text = "- notify", state = AppState.notify)
                         Spacer(modifier = Modifier.width(30.dp))
-                        RadioButton(
-                            text = "- warn",
-                            state = AppState.warn
-                        )
+                        RadioButton(text = "- warn", state = AppState.warn)
                         Spacer(modifier = Modifier.width(30.dp))
-                        RadioButton(
-                            text = "- error",
-                            state = AppState.error
-                        )
+                        RadioButton(text = "- error", state = AppState.error)
                     }
                     Spacer(modifier = Modifier.height(30.dp))
                     Row(modifier = Modifier.padding(start = 20.dp)) {
@@ -215,19 +200,12 @@ fun WindowScope.Content(
         }
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Box(
-            modifier = Modifier.background(color = Color(32, 32, 32))
-                .fillMaxWidth()
-                .height(30.dp)
+            modifier = Modifier.background(color = Color(32, 32, 32)).fillMaxWidth().height(30.dp)
         ) {
             Row(modifier = Modifier.padding(start = 20.dp)) {
-                TextBox(
-                    text = "Size: ${windowState.size}   Location: ${windowState.position}"
-                )
+                TextBox(text = "Size: ${windowState.size}   Location: ${windowState.position}")
             }
         }
     }
@@ -241,9 +219,7 @@ fun WindowScope.Content(
     )
     if (AppState.popupState.value) {
         // To make sure the popup is displayed on the top.
-        Box(
-            Modifier.fillMaxSize().background(color = Color(0, 0, 0, 200))
-        )
+        Box(Modifier.fillMaxSize().background(color = Color(0, 0, 0, 200)))
     }
 
     if (dialogState.value) {
@@ -255,35 +231,22 @@ fun WindowScope.Content(
         if (AppState.alertDialog.value) {
             AlertDialog(
                 onDismissRequest = dismiss,
-                confirmButton = {
-                    Button(text = "OK", onClick = { AppState.amount.value++ })
-                },
-                dismissButton = {
-                    Button(text = "Cancel", onClick = dismiss)
-                },
-                title = {
-                    TextBox(text = "Alert Dialog")
-                },
+                confirmButton = { Button(text = "OK", onClick = { AppState.amount.value++ }) },
+                dismissButton = { Button(text = "Cancel", onClick = dismiss) },
+                title = { TextBox(text = "Alert Dialog") },
                 text = {
                     println("CompositionLocal value is ${LocalTest.current}.")
                     TextBox(text = "Increment amount?")
                     DisposableEffect(Unit) {
-                        onDispose {
-                            println("onDispose inside AlertDialog is called.")
-                        }
+                        onDispose { println("onDispose inside AlertDialog is called.") }
                     }
                 },
                 shape = RoundedCornerShape(0.dp),
                 backgroundColor = Color(70, 70, 70)
             )
         } else {
-            DialogWindow(
-                onCloseRequest = dismiss
-            ) {
-                WindowContent(
-                    AppState.amount,
-                    onClose = dismiss
-                )
+            DialogWindow(onCloseRequest = dismiss) {
+                WindowContent(AppState.amount, onClose = dismiss)
             }
         }
     }
@@ -291,24 +254,18 @@ fun WindowScope.Content(
 
 @Composable
 fun PopupSample(displayed: Boolean, onDismiss: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         if (displayed) {
             Popup(
                 alignment = Alignment.TopCenter,
                 offset = IntOffset(0, 50),
                 onDismissRequest = onDismiss,
-                properties = PopupProperties(
-                    focusable = true
-                )
+                properties = PopupProperties(focusable = true)
             ) {
                 println("CompositionLocal value is ${LocalTest.current}.")
                 PopupContent(onDismiss)
                 DisposableEffect(Unit) {
-                    onDispose {
-                        println("onDispose inside Popup is called.")
-                    }
+                    onDispose { println("onDispose inside Popup is called.") }
                 }
             }
         }
@@ -358,21 +315,15 @@ fun Button(
     @OptIn(ExperimentalFoundationApi::class)
     TooltipArea(
         tooltip = {
-            Surface(
-                color = Color(210, 210, 210),
-                shape = RoundedCornerShape(4.dp)
-            ) {
+            Surface(color = Color(210, 210, 210), shape = RoundedCornerShape(4.dp)) {
                 Text(text = "Tooltip: [$text]", modifier = Modifier.padding(10.dp))
             }
         }
     ) {
         Button(
             onClick = onClick,
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = color
-            ),
-            modifier = Modifier
-                .size(size.width.dp, size.height.dp)
+            colors = ButtonDefaults.buttonColors(backgroundColor = color),
+            modifier = Modifier.size(size.width.dp, size.height.dp)
         ) {
             Text(text = text)
         }
@@ -381,50 +332,37 @@ fun Button(
 
 @Composable
 fun TextBox(text: String = "", modifier: Modifier = Modifier.height(30.dp)) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            color = Color(200, 200, 200)
-        )
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Text(text = text, color = Color(200, 200, 200))
     }
 }
 
 @Composable
-@OptIn(
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalFoundationApi::class)
 fun ContextMenu() {
     val items = listOf("Item A", "Item B", "Item C", "Item D", "Item E", "Item F")
     val showMenu = remember { mutableStateOf(false) }
     val selectedIndex = remember { mutableStateOf(0) }
     TooltipArea(
         delayMillis = 100,
-        tooltipPlacement = TooltipPlacement.ComponentRect(
-            anchor = Alignment.TopStart,
-            alignment = Alignment.TopEnd
-        ),
+        tooltipPlacement =
+            TooltipPlacement.ComponentRect(
+                anchor = Alignment.TopStart,
+                alignment = Alignment.TopEnd
+            ),
         tooltip = {
-            Surface(
-                color = Color(210, 210, 210),
-                shape = RoundedCornerShape(4.dp)
-            ) {
+            Surface(color = Color(210, 210, 210), shape = RoundedCornerShape(4.dp)) {
                 Text(text = "Tooltip: [ContextMenu]", modifier = Modifier.padding(10.dp))
             }
         }
     ) {
-        Surface(
-            color = Color(255, 255, 255, 40),
-            shape = RoundedCornerShape(4.dp)
-        ) {
+        Surface(color = Color(255, 255, 255, 40), shape = RoundedCornerShape(4.dp)) {
             TextBox(
                 text = "Selected: ${items[selectedIndex.value]}",
-                modifier = Modifier
-                    .height(35.dp)
-                    .padding(start = 4.dp, end = 4.dp)
-                    .clickable(onClick = { showMenu.value = true })
+                modifier =
+                    Modifier.height(35.dp)
+                        .padding(start = 4.dp, end = 4.dp)
+                        .clickable(onClick = { showMenu.value = true })
             )
             CursorDropdownMenu(
                 expanded = showMenu.value,
@@ -447,10 +385,7 @@ fun ContextMenu() {
 
 @Composable
 fun TextFieldWithSuggestions() {
-    Surface(
-        color = Color(255, 255, 255, 40),
-        shape = RoundedCornerShape(4.dp)
-    ) {
+    Surface(color = Color(255, 255, 255, 40), shape = RoundedCornerShape(4.dp)) {
         Box(
             modifier = Modifier.size(200.dp, 35.dp).padding(5.dp),
             contentAlignment = Alignment.CenterStart
@@ -464,24 +399,17 @@ fun TextFieldWithSuggestions() {
                 singleLine = true,
                 onValueChange = {
                     text.value = it
-                    if (text.value.isNotEmpty())
-                        showMenu.value = true
-                    else
-                        showMenu.value = false
+                    if (text.value.isNotEmpty()) showMenu.value = true else showMenu.value = false
                 },
                 modifier = Modifier.height(14.dp),
             )
             DropdownMenu(
                 expanded = showMenu.value,
                 onDismissRequest = {},
-                properties = PopupProperties(
-                    focusable = false
-                )
+                properties = PopupProperties(focusable = false)
             ) {
                 words.forEach { name ->
-                    DropdownMenuItem(onClick = { text.value += name }) {
-                        Text(text = name)
-                    }
+                    DropdownMenuItem(onClick = { text.value += name }) { Text(text = name) }
                 }
             }
         }
@@ -491,15 +419,10 @@ fun TextFieldWithSuggestions() {
 @Composable
 fun CheckBox(text: String, state: MutableState<Boolean>) {
     Row {
-        Box(
-            modifier = Modifier.height(35.dp),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(modifier = Modifier.height(35.dp), contentAlignment = Alignment.Center) {
             Checkbox(
                 checked = state.value,
-                onCheckedChange = {
-                    state.value = !state.value
-                },
+                onCheckedChange = { state.value = !state.value },
                 modifier = Modifier.padding(start = 20.dp, bottom = 5.dp)
             )
         }
@@ -533,32 +456,26 @@ fun SwingActionButton(text: String, action: (() -> Unit)? = null) {
         modifier = Modifier.size(200.dp, 35.dp),
         factory = {
             JButton(text).apply {
-                addActionListener(object : ActionListener {
-                    public override fun actionPerformed(e: ActionEvent) {
-                        action?.invoke()
+                addActionListener(
+                    object : ActionListener {
+                        public override fun actionPerformed(e: ActionEvent) {
+                            action?.invoke()
+                        }
                     }
-                })
+                )
             }
         },
-        update = { component ->
-            component.setText("$text:${AppState.amount.value}")
-        }
+        update = { component -> component.setText("$text:${AppState.amount.value}") }
     )
 }
 
 @Composable
-fun ApplicationScope.SecondaryWindow(onCloseRequest: () -> Unit) = Window(
-    onCloseRequest = onCloseRequest,
-    state = rememberWindowState(size = DpSize(400.dp, 200.dp)),
-    undecorated = AppState.undecorated.value,
-) {
-    WindowContent(
-        amount = AppState.amount,
-        onClose = onCloseRequest
-    )
-    DisposableEffect(Unit) {
-        onDispose {
-            println("Dispose composition")
-        }
+fun ApplicationScope.SecondaryWindow(onCloseRequest: () -> Unit) =
+    Window(
+        onCloseRequest = onCloseRequest,
+        state = rememberWindowState(size = DpSize(400.dp, 200.dp)),
+        undecorated = AppState.undecorated.value,
+    ) {
+        WindowContent(amount = AppState.amount, onClose = onCloseRequest)
+        DisposableEffect(Unit) { onDispose { println("Dispose composition") } }
     }
-}

@@ -35,10 +35,7 @@ class HapticFeedbackTest {
 
         hapticFeedBack.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 
-        verify(
-            view,
-            times(1)
-        ).performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+        verify(view, times(1)).performHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
     }
 
     @Test
@@ -48,9 +45,6 @@ class HapticFeedbackTest {
 
         hapticFeedBack.performHapticFeedback(HapticFeedbackType.LongPress)
 
-        verify(
-            view,
-            times(1)
-        ).performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        verify(view, times(1)).performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
 }

@@ -27,38 +27,28 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 @ExperimentalFoundationApi
 expect class MediaType(representation: String) {
 
-    /**
-     * How this [MediaType] is represented in a specific platform.
-     */
+    /** How this [MediaType] is represented in a specific platform. */
     val representation: String
 
     @ExperimentalFoundationApi
     companion object {
 
-        /**
-         * Any type of text, html, stylized, or plain.
-         */
+        /** Any type of text, html, stylized, or plain. */
         val Text: MediaType
 
         /**
-         * Plain text that's only decoded from its raw representation, does not define or carry
-         * any annotations.
+         * Plain text that's only decoded from its raw representation, does not define or carry any
+         * annotations.
          */
         val PlainText: MediaType
 
-        /**
-         * Text that represents an HTML content.
-         */
+        /** Text that represents an HTML content. */
         val HtmlText: MediaType
 
-        /**
-         * Any type of image like PNG, JPEG, or GIFs.
-         */
+        /** Any type of image like PNG, JPEG, or GIFs. */
         val Image: MediaType
 
-        /**
-         * Matches all content types.
-         */
+        /** Matches all content types. */
         val All: MediaType
     }
 }

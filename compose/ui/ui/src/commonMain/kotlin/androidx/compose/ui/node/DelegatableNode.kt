@@ -43,7 +43,8 @@ interface DelegatableNode {
     val node: Modifier.Node
 }
 
-internal val DelegatableNode.isDelegationRoot: Boolean get() = node === this
+internal val DelegatableNode.isDelegationRoot: Boolean
+    get() = node === this
 
 // TREE TRAVERSAL APIS
 // For now, traversing the node tree and layout node tree will be kept out of public API.
@@ -128,19 +129,14 @@ internal inline fun DelegatableNode.visitSubtree(mask: Int, block: (Modifier.Nod
 }
 
 private fun MutableVector<Modifier.Node>.addLayoutNodeChildren(node: Modifier.Node) {
-    node.requireLayoutNode()._children.forEachReversed {
-        add(it.nodes.head)
-    }
+    node.requireLayoutNode()._children.forEachReversed { add(it.nodes.head) }
 }
 
 internal inline fun DelegatableNode.visitChildren(mask: Int, block: (Modifier.Node) -> Unit) {
     check(node.isAttached) { "visitChildren called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
-    if (child == null)
-        branches.addLayoutNodeChildren(node)
-    else
-        branches.add(child)
+    if (child == null) branches.addLayoutNodeChildren(node) else branches.add(child)
     while (branches.isNotEmpty()) {
         val branch = branches.removeAt(branches.lastIndex)
         if (branch.aggregateChildKindSet and mask == 0) {
@@ -167,10 +163,7 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
     checkPrecondition(node.isAttached) { "visitSubtreeIf called on an unattached node" }
     val branches = mutableVectorOf<Modifier.Node>()
     val child = node.child
-    if (child == null)
-        branches.addLayoutNodeChildren(node)
-    else
-        branches.add(child)
+    if (child == null) branches.addLayoutNodeChildren(node) else branches.add(child)
     outer@ while (branches.isNotEmpty()) {
         val branch = branches.removeAt(branches.size - 1)
         if (branch.aggregateChildKindSet and mask != 0) {
@@ -190,11 +183,7 @@ internal inline fun DelegatableNode.visitSubtreeIf(mask: Int, block: (Modifier.N
 internal inline fun DelegatableNode.visitLocalDescendants(
     mask: Int,
     block: (Modifier.Node) -> Unit
-) = visitLocalDescendants(
-    mask = mask,
-    includeSelf = false,
-    block = block
-)
+) = visitLocalDescendants(mask = mask, includeSelf = false, block = block)
 
 internal inline fun DelegatableNode.visitLocalDescendants(
     mask: Int,
@@ -213,10 +202,7 @@ internal inline fun DelegatableNode.visitLocalDescendants(
     }
 }
 
-internal inline fun DelegatableNode.visitLocalAncestors(
-    mask: Int,
-    block: (Modifier.Node) -> Unit
-) {
+internal inline fun DelegatableNode.visitLocalAncestors(mask: Int, block: (Modifier.Node) -> Unit) {
     checkPrecondition(node.isAttached) { "visitLocalAncestors called on an unattached node" }
     var next = node.parent
     while (next != null) {
@@ -230,23 +216,17 @@ internal inline fun DelegatableNode.visitLocalAncestors(
 internal inline fun <reified T> DelegatableNode.visitSelfAndLocalDescendants(
     type: NodeKind<T>,
     block: (T) -> Unit
-) = visitLocalDescendants(mask = type.mask, includeSelf = true) {
-    it.dispatchForKind(type, block)
-}
+) = visitLocalDescendants(mask = type.mask, includeSelf = true) { it.dispatchForKind(type, block) }
 
 internal inline fun <reified T> DelegatableNode.visitLocalDescendants(
     type: NodeKind<T>,
     block: (T) -> Unit
-) = visitLocalDescendants(type.mask) {
-    it.dispatchForKind(type, block)
-}
+) = visitLocalDescendants(type.mask) { it.dispatchForKind(type, block) }
 
 internal inline fun <reified T> DelegatableNode.visitLocalAncestors(
     type: NodeKind<T>,
     block: (T) -> Unit
-) = visitLocalAncestors(type.mask) {
-    it.dispatchForKind(type, block)
-}
+) = visitLocalAncestors(type.mask) { it.dispatchForKind(type, block) }
 
 internal inline fun <reified T> DelegatableNode.visitAncestors(
     type: NodeKind<T>,
@@ -268,9 +248,7 @@ internal inline fun <reified T> DelegatableNode.visitSelfAndAncestors(
     }
 }
 
-internal inline fun <reified T> DelegatableNode.ancestors(
-    type: NodeKind<T>
-): List<T>? {
+internal inline fun <reified T> DelegatableNode.ancestors(type: NodeKind<T>): List<T>? {
     var result: MutableList<T>? = null
     visitAncestors(type) {
         if (result == null) result = mutableListOf()
@@ -307,45 +285,37 @@ internal inline fun <reified T> DelegatableNode.visitSelfAndChildren(
 internal inline fun <reified T> DelegatableNode.visitSubtreeIf(
     type: NodeKind<T>,
     block: (T) -> Boolean
-) = visitSubtreeIf(type.mask) foo@{ node ->
-    node.dispatchForKind(type) {
-        if (!block(it)) return@foo false
+) =
+    visitSubtreeIf(type.mask) foo@{ node ->
+        node.dispatchForKind(type) { if (!block(it)) return@foo false }
+        true
     }
-    true
-}
 
 internal fun DelegatableNode.has(type: NodeKind<*>): Boolean =
     node.aggregateChildKindSet and type.mask != 0
 
 internal fun DelegatableNode.requireCoordinator(kind: NodeKind<*>): NodeCoordinator {
     val coordinator = node.coordinator!!
-    return if (coordinator.tail !== this)
-        coordinator
-    else if (kind.includeSelfInTraversal)
-        coordinator.wrapped!!
-    else
-        coordinator
+    return if (coordinator.tail !== this) coordinator
+    else if (kind.includeSelfInTraversal) coordinator.wrapped!! else coordinator
 }
 
 internal fun DelegatableNode.requireLayoutNode(): LayoutNode =
     checkPreconditionNotNull(node.coordinator) {
-        "Cannot obtain node coordinator. Is the Modifier.Node attached?"
-    }.layoutNode
+            "Cannot obtain node coordinator. Is the Modifier.Node attached?"
+        }
+        .layoutNode
 
 internal fun DelegatableNode.requireOwner(): Owner =
-    checkPreconditionNotNull(requireLayoutNode().owner) {
-        "This node does not have an owner."
-    }
+    checkPreconditionNotNull(requireLayoutNode().owner) { "This node does not have an owner." }
 
 /**
- * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to.
- * If the node is not attached, this function will throw an [IllegalStateException].
+ * Returns the current [Density] of the LayoutNode that this [DelegatableNode] is attached to. If
+ * the node is not attached, this function will throw an [IllegalStateException].
  */
 fun DelegatableNode.requireDensity(): Density = requireLayoutNode().density
 
-/**
- * Returns the current [GraphicsContext] of the [Owner]
- */
+/** Returns the current [GraphicsContext] of the [Owner] */
 fun DelegatableNode.requireGraphicsContext(): GraphicsContext = requireOwner().graphicsContext
 
 /**
@@ -361,25 +331,23 @@ fun DelegatableNode.requireLayoutDirection(): LayoutDirection = requireLayoutNod
  * implement [LayoutAwareModifierNode].
  *
  * @throws IllegalStateException When either this node is not attached, or the [LayoutCoordinates]
- * object is not attached.
+ *   object is not attached.
  */
 fun DelegatableNode.requireLayoutCoordinates(): LayoutCoordinates {
     checkPrecondition(node.isAttached) {
         "Cannot get LayoutCoordinates, Modifier.Node is not attached."
     }
     val coordinates = requireCoordinator(Nodes.Layout).coordinates
-    checkPrecondition(coordinates.isAttached) {
-        "LayoutCoordinates is not attached."
-    }
+    checkPrecondition(coordinates.isAttached) { "LayoutCoordinates is not attached." }
     return coordinates
 }
 
 /**
  * Invalidates the subtree of this layout, including layout, drawing, parent data, etc.
  *
- * Calling this method can be a relatively expensive operation as it will cause the
- * entire subtree to relayout and redraw instead of just parts that
- * are otherwise invalidated. Its use should be limited to structural changes.
+ * Calling this method can be a relatively expensive operation as it will cause the entire subtree
+ * to relayout and redraw instead of just parts that are otherwise invalidated. Its use should be
+ * limited to structural changes.
  */
 fun DelegatableNode.invalidateSubtree() {
     if (node.isAttached) {
@@ -397,17 +365,21 @@ internal fun Modifier.Node.asLayoutModifierNode(): LayoutModifierNode? {
         var node: Modifier.Node? = delegate
         while (node != null) {
             if (node is LayoutModifierNode) return node
-            node = if (node is DelegatingNode && node.isKind(Nodes.Layout)) {
-                // NOTE: we can only do this here because we are enforcing that a delegating node
-                // only behaves as a single LayoutModifierNode, not multiple, so we know that if
-                // the node is of kind "Layout", then one of its delegates has to be a
-                // LayoutModifierNode and *none of the other delegates of its parent can be*. As a
-                // result, we can avoid allocating a collection here and instead just dive down into
-                // this delegate directly.
-                node.delegate
-            } else {
-                node.child
-            }
+            node =
+                if (node is DelegatingNode && node.isKind(Nodes.Layout)) {
+                    // NOTE: we can only do this here because we are enforcing that a delegating
+                    // node
+                    // only behaves as a single LayoutModifierNode, not multiple, so we know that if
+                    // the node is of kind "Layout", then one of its delegates has to be a
+                    // LayoutModifierNode and *none of the other delegates of its parent can be*. As
+                    // a
+                    // result, we can avoid allocating a collection here and instead just dive down
+                    // into
+                    // this delegate directly.
+                    node.delegate
+                } else {
+                    node.child
+                }
         }
     }
     return null
@@ -468,6 +440,5 @@ internal inline fun <reified T> Modifier.Node.dispatchForKind(
 }
 
 private fun MutableVector<Modifier.Node>?.pop(): Modifier.Node? {
-    return if (this == null || isEmpty()) null
-    else removeAt(size - 1)
+    return if (this == null || isEmpty()) null else removeAt(size - 1)
 }

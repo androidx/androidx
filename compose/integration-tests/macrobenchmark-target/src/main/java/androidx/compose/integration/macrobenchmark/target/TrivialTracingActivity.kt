@@ -33,14 +33,10 @@ class TrivialTracingActivity : ComponentActivity() {
 }
 
 @Composable
-private fun Foo_BBC27C8E_13A7_4A5F_A735_AFDC433F54C3() =
-    Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9()
+private fun Foo_BBC27C8E_13A7_4A5F_A735_AFDC433F54C3() = Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9()
 
-@Composable
-private fun Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9() {
-}
+@Composable private fun Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9() {}
 
 @Suppress("NonAsciiCharacters")
 @Composable
-private fun Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8() {
-}
+private fun Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8() {}

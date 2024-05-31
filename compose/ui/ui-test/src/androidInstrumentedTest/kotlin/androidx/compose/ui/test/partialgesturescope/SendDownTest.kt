@@ -34,9 +34,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [down] works
- */
+/** Tests if [down] works */
 @MediumTest
 class SendDownTest {
     companion object {
@@ -44,17 +42,14 @@ class SendDownTest {
         private val position2 = Offset(7f, 7f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Suppress("DEPRECATION")
@@ -110,8 +105,6 @@ class SendDownTest {
         // When we inject two down events with the same pointer id
         rule.partialGesture { down(1, position1) }
         // Then the second throws an exception
-        expectError<IllegalArgumentException> {
-            rule.partialGesture { down(1, position1) }
-        }
+        expectError<IllegalArgumentException> { rule.partialGesture { down(1, position1) } }
     }
 }

@@ -18,11 +18,5 @@ package androidx.compose.ui.test
 
 import kotlinx.coroutines.test.TestCoroutineScheduler
 
-internal class MainTestClockImpl(
-    testScheduler: TestCoroutineScheduler,
-    frameDelayMillis: Long
-) : AbstractMainTestClock(
-    testScheduler,
-    frameDelayMillis,
-    ::runOnUiThread
-)
+internal class MainTestClockImpl(testScheduler: TestCoroutineScheduler, frameDelayMillis: Long) :
+    AbstractMainTestClock(testScheduler, frameDelayMillis, ::runOnUiThread)

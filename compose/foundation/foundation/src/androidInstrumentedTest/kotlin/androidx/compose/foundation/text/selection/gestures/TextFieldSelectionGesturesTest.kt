@@ -48,6 +48,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     protected abstract fun characterPosition(offset: Int): Offset
 
     abstract fun setupAsserter()
+
     protected abstract var textContent: String
     protected abstract var readOnly: Boolean
     protected abstract var enabled: Boolean
@@ -61,22 +62,16 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         // ensure the following event (if any) isn't considered a multi-tap
         rule.mainClock.advanceTimeBy(1_000)
 
-        asserter.applyAndAssert {
-            cursorHandleShown = true
-        }
+        asserter.applyAndAssert { cursorHandleShown = true }
         asserter.cursorHandleShown = false
         // most tests first action will start a selection, so leave cursor handle as false
     }
 
     @Test
     fun whenTouch_withLongPressOutOfBounds_nothingHappens() {
-        performTouchGesture {
-            longPress(topStart.nudge(yDirection = UP))
-        }
+        performTouchGesture { longPress(topStart.nudge(yDirection = UP)) }
 
-        asserter.applyAndAssert {
-            cursorHandleShown = true
-        }
+        asserter.applyAndAssert { cursorHandleShown = true }
 
         touchDragTo(topEnd.nudge(yDirection = UP))
         asserter.assert()
@@ -89,9 +84,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
 
-        asserter.applyAndAssert {
-            textContent = ""
-        }
+        asserter.applyAndAssert { textContent = "" }
 
         performTouchGesture {
             advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
@@ -111,26 +104,20 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
 
-        asserter.applyAndAssert {
-            textContent = ""
-        }
+        asserter.applyAndAssert { textContent = "" }
 
         performTouchGesture {
             advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longPress(center)
         }
 
-        asserter.applyAndAssert {
-            hapticsCount++
-        }
+        asserter.applyAndAssert { hapticsCount++ }
 
         touchDragTo(centerStart)
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             textToolbarShown = true // paste will show up if clipboard is not empty
@@ -146,9 +133,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
 
-        asserter.applyAndAssert {
-            textContent = ""
-        }
+        asserter.applyAndAssert { textContent = "" }
 
         performTouchGesture {
             advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
@@ -164,9 +149,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             textToolbarShown = true // paste will show up if clipboard is not empty
@@ -176,9 +159,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         rule.onNodeWithTag(pointerAreaTag).performTextInput(newText)
         rule.waitForIdle()
 
-        performTouchGesture {
-            longPress(characterPosition(2))
-        }
+        performTouchGesture { longPress(characterPosition(2)) }
 
         asserter.applyAndAssert {
             textContent = newText
@@ -195,9 +176,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             hapticsCount++
         }
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -208,9 +187,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressThenClear_noSelection() {
-        performTouchGesture {
-            longClick(characterPosition(13))
-        }
+        performTouchGesture { longClick(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -219,9 +196,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             hapticsCount++
         }
 
-        performTouchGesture {
-            click(characterPosition(14))
-        }
+        performTouchGesture { click(characterPosition(14)) }
 
         asserter.applyAndAssert {
             selection = 14.collapsed
@@ -233,9 +208,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressThenDragLeftOutOfBoundsUpAndDown_selectsLines() {
-        performTouchGesture {
-            longPress(characterPosition(9))
-        }
+        performTouchGesture { longPress(characterPosition(9)) }
 
         // anchor starts at beginning of middle line
         asserter.applyAndAssert {
@@ -246,9 +219,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         // beginning of middle line
         touchDragTo(characterPosition(6) + Offset(-2f, 0f))
-        asserter.applyAndAssert {
-            selection = 6 to 11
-        }
+        asserter.applyAndAssert { selection = 6 to 11 }
 
         // beginning of top line
         touchDragTo(characterPosition(0) + Offset(-2f, 0f))
@@ -271,9 +242,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_verifyOneCharStaysSelected_withinLine() {
-        performTouchGesture {
-            longPress(characterPosition(14))
-        }
+        performTouchGesture { longPress(characterPosition(14)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -282,9 +251,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         }
 
         touchDragTo(characterPosition(13))
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
 
         touchDragTo(characterPosition(12))
         // shouldn't allow collapsed selection, but keeps previous single char selection
@@ -299,9 +266,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPress_selectsSingleWord() {
-        performTouchGesture {
-            longClick(characterPosition(13))
-        }
+        performTouchGesture { longClick(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -317,9 +282,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         asserter.textToolbarShown = true
 
         fun longClickCharacterPositionThenApplyAndAssert(offset: Int, selection: TextRange) {
-            performTouchGesture {
-                longClick(characterPosition(offset))
-            }
+            performTouchGesture { longClick(characterPosition(offset)) }
 
             asserter.applyAndAssert {
                 this.selection = selection
@@ -378,9 +341,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         backwardOffset: Offset,
         expectedSelection: TextRange,
     ) {
-        performTouchGesture {
-            longPress(characterPosition(13))
-        }
+        performTouchGesture { longPress(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -399,9 +360,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -438,9 +397,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         endOffset: Offset,
         endSelection: TextRange,
     ) {
-        performTouchGesture {
-            longPress(characterPosition(13))
-        }
+        performTouchGesture { longPress(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -456,9 +413,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             hapticsCount++
         }
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -468,9 +423,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressInEndPadding_entersSelectionMode() {
-        performTouchGesture {
-            longPress(topEnd)
-        }
+        performTouchGesture { longPress(topEnd) }
 
         asserter.applyAndAssert {
             selection = 5.collapsed
@@ -482,9 +435,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             cursorHandleShown = true
@@ -505,9 +456,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             cursorHandleShown = true
         }
 
-        performTouchGesture {
-            longPress(centerEnd)
-        }
+        performTouchGesture { longPress(centerEnd) }
 
         asserter.applyAndAssert {
             selection = 6.collapsed
@@ -520,9 +469,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             cursorHandleShown = true
@@ -532,9 +479,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressInEndPaddingThenDragToUpperEndPadding_selectsParagraphAndNewLine() {
-        performTouchGesture {
-            longPress(centerEnd)
-        }
+        performTouchGesture { longPress(centerEnd) }
 
         asserter.applyAndAssert {
             selection = 23.collapsed
@@ -548,9 +493,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             hapticsCount++
         }
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -560,9 +503,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressInEndPaddingThenDragToLowerEndPadding_selectsNewLineAndParagraph() {
-        performTouchGesture {
-            longPress(centerEnd)
-        }
+        performTouchGesture { longPress(centerEnd) }
 
         asserter.applyAndAssert {
             selection = 23.collapsed
@@ -576,9 +517,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             hapticsCount++
         }
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -588,9 +527,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressInEndPaddingOfFinalLine_entersSelectionMode() {
-        performTouchGesture {
-            longPress(bottomEnd)
-        }
+        performTouchGesture { longPress(bottomEnd) }
 
         asserter.applyAndAssert {
             selection = 29.collapsed
@@ -602,9 +539,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             cursorHandleShown = true
@@ -614,9 +549,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressThanDragAcrossSingleWord_onlySelectsSingleWordAndNoOtherChanges() {
-        performTouchGesture {
-            longPress(characterPosition(15))
-        }
+        performTouchGesture { longPress(characterPosition(15)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -626,19 +559,13 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         touchDragTo(characterPosition(13))
 
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
 
         touchDragTo(characterPosition(15))
 
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -660,9 +587,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             cursorHandleShown = true
         }
 
-        performTouchGesture {
-            longPress(bottomEnd)
-        }
+        performTouchGesture { longPress(bottomEnd) }
 
         asserter.applyAndAssert {
             selection = 7.collapsed
@@ -675,9 +600,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         asserter.assert()
 
-        performTouchGesture {
-            up()
-        }
+        performTouchGesture { up() }
 
         asserter.applyAndAssert {
             cursorHandleShown = true
@@ -688,24 +611,16 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     // Regression test for a mouse long click resulting in touch behaviors for selection.
     @Test
     fun whenMouse_withLongClick_collapsedSelectionAtClick() {
-        performMouseGesture {
-            longClick(characterPosition(13))
-        }
+        performMouseGesture { longClick(characterPosition(13)) }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
     }
 
     @Test
     fun whenMouse_withClick_collapsedSelectionAtClick() {
-        performMouseGesture {
-            click(characterPosition(13))
-        }
+        performMouseGesture { click(characterPosition(13)) }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
     }
 
     @Test
@@ -715,13 +630,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             press()
         }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
 
-        performMouseGesture {
-            release()
-        }
+        performMouseGesture { release() }
 
         asserter.assert()
     }
@@ -770,13 +681,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withDoubleClick_selectsWord() {
-        performMouseGesture {
-            repeat(2) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(2) { click(characterPosition(13)) } }
 
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
     }
 
     @Test
@@ -823,13 +730,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withTripleClick_selectsParagraph() {
-        performMouseGesture {
-            repeat(3) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(3) { click(characterPosition(13)) } }
 
-        asserter.applyAndAssert {
-            selection = 6 to 23
-        }
+        asserter.applyAndAssert { selection = 6 to 23 }
     }
 
     @Test
@@ -965,36 +868,24 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             }
         }
 
-        asserter.applyAndAssert {
-            selection = startSelection
-        }
+        asserter.applyAndAssert { selection = startSelection }
 
         mouseDragTo(endOffset)
 
-        asserter.applyAndAssert {
-            selection = endSelection
-        }
+        asserter.applyAndAssert { selection = endSelection }
 
-        performMouseGesture {
-            release()
-        }
+        performMouseGesture { release() }
 
         asserter.assert()
     }
 
     @Test
     fun whenMouse_thenTouch_touchBehaviorsAppear() {
-        performMouseGesture {
-            repeat(2) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(2) { click(characterPosition(13)) } }
 
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
 
-        performTouchGesture {
-            enterTouchMode()
-        }
+        performTouchGesture { enterTouchMode() }
 
         asserter.applyAndAssert {
             selectionHandlesShown = true
@@ -1004,9 +895,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_thenMouse_touchBehaviorsDisappear() {
-        performTouchGesture {
-            longClick(characterPosition(13))
-        }
+        performTouchGesture { longClick(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -1026,28 +915,18 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     // Regression test for when this would result in text toolbar showing instead of the cursor.
     @Test
     fun whenMouseCollapsedSelection_thenTouch_ToolbarAndCursorAppears() {
-        performMouseGesture {
-            click(characterPosition(13))
-        }
+        performMouseGesture { click(characterPosition(13)) }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
 
-        performTouchGesture {
-            enterTouchMode()
-        }
+        performTouchGesture { enterTouchMode() }
 
-        asserter.applyAndAssert {
-            cursorHandleShown = true
-        }
+        asserter.applyAndAssert { cursorHandleShown = true }
     }
 
     @Test
     fun whenTouchCollapsedSelection_thenMouse_noUiElements() {
-        performTouchGesture {
-            click(characterPosition(13))
-        }
+        performTouchGesture { click(characterPosition(13)) }
 
         asserter.applyAndAssert {
             selection = 13.collapsed
@@ -1056,21 +935,15 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         enterMouseMode()
 
-        asserter.applyAndAssert {
-            cursorHandleShown = false
-        }
+        asserter.applyAndAssert { cursorHandleShown = false }
     }
 
     // Regression test for when this instead selected the current and next (if any) paragraph.
     @Test
     fun whenMouse_thenTripleClickInEndPadding_selectsCurrentParagraph() {
-        performMouseGesture {
-            repeat(3) { click(centerEnd) }
-        }
+        performMouseGesture { repeat(3) { click(centerEnd) } }
 
-        asserter.applyAndAssert {
-            selection = 6 to 23
-        }
+        asserter.applyAndAssert { selection = 6 to 23 }
     }
 
     @Test
@@ -1080,9 +953,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         performTouchGesture { click(characterPosition(13)) }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
     }
 
     @Test
@@ -1114,9 +985,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
         performMouseGesture { click(characterPosition(13)) }
 
-        asserter.applyAndAssert {
-            selection = 13.collapsed
-        }
+        asserter.applyAndAssert { selection = 13.collapsed }
     }
 
     @Test
@@ -1124,13 +993,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         readOnly = true
         rule.waitForIdle()
 
-        performMouseGesture {
-            repeat(2) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(2) { click(characterPosition(13)) } }
 
-        asserter.applyAndAssert {
-            selection = 12 to 17
-        }
+        asserter.applyAndAssert { selection = 12 to 17 }
     }
 
     @Test
@@ -1138,13 +1003,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         readOnly = true
         rule.waitForIdle()
 
-        performMouseGesture {
-            repeat(3) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(3) { click(characterPosition(13)) } }
 
-        asserter.applyAndAssert {
-            selection = 6 to 23
-        }
+        asserter.applyAndAssert { selection = 6 to 23 }
     }
 
     @Test
@@ -1182,9 +1043,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         enabled = false
         rule.waitForIdle()
 
-        performMouseGesture {
-            repeat(2) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(2) { click(characterPosition(13)) } }
         asserter.assert()
     }
 
@@ -1193,9 +1052,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         enabled = false
         rule.waitForIdle()
 
-        performMouseGesture {
-            repeat(3) { click(characterPosition(13)) }
-        }
+        performMouseGesture { repeat(3) { click(characterPosition(13)) } }
         asserter.assert()
     }
 }

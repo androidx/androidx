@@ -42,14 +42,14 @@ expect sealed class PlatformFont : Font {
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
  * @param data Byte array with loaded font data.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
-class LoadedFont internal constructor(
+class LoadedFont
+internal constructor(
     override val identity: String,
     val data: ByteArray,
     override val weight: FontWeight,
@@ -87,11 +87,10 @@ class LoadedFont internal constructor(
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
  * @param data Byte array with loaded font data.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 fun Font(
@@ -101,10 +100,7 @@ fun Font(
     style: FontStyle = FontStyle.Normal
 ): Font = LoadedFont(identity, data, weight, style)
 
-internal class SkiaBackedTypeface(
-    val alias: String?,
-    val nativeTypeface: SkTypeface
-) : Typeface {
+internal class SkiaBackedTypeface(val alias: String?, val nativeTypeface: SkTypeface) : Typeface {
     override val fontFamily: FontFamily? = null
 }
 
@@ -215,4 +211,5 @@ internal class FontCache {
 }
 
 internal expect val typefacesCache: Cache<String, SkTypeface>
+
 internal expect fun loadFromTypefacesCache(font: Font): SkTypeface

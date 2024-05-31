@@ -69,11 +69,12 @@ private class DemoAdapter(val entries: List<String>) : Adapter<DemoAdapter.DemoV
                 this.isFocusableInTouchMode = true
                 val focusRequester = FocusRequester()
 
-                this.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-                    if (hasFocus) {
-                        focusRequester.requestFocus()
+                this.onFocusChangeListener =
+                    View.OnFocusChangeListener { _, hasFocus ->
+                        if (hasFocus) {
+                            focusRequester.requestFocus()
+                        }
                     }
-                }
 
                 setContent {
                     FocusableText(
@@ -97,12 +98,13 @@ private fun FocusableText(text: String, modifier: Modifier) {
     var color by remember { mutableStateOf(Color.Unspecified) }
     val focusRequester = remember { FocusRequester() }
     Text(
-        modifier = modifier
-            .background(color)
-            .focusRequester(focusRequester)
-            .onFocusEvent { color = if (it.isFocused) Color.LightGray else Color.Unspecified }
-            .focusTarget()
-            .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
+        modifier =
+            modifier
+                .background(color)
+                .focusRequester(focusRequester)
+                .onFocusEvent { color = if (it.isFocused) Color.LightGray else Color.Unspecified }
+                .focusTarget()
+                .pointerInput(Unit) { detectTapGestures { focusRequester.requestFocus() } },
         text = text,
         fontSize = 30.sp
     )

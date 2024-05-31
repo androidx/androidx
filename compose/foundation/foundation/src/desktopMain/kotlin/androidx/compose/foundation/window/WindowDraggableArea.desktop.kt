@@ -46,12 +46,13 @@ fun WindowScope.WindowDraggableArea(
     val handler = remember { DragHandler(window) }
 
     Box(
-        modifier = modifier.pointerInput(Unit) {
-            awaitEachGesture {
-                awaitFirstDown()
-                handler.register()
+        modifier =
+            modifier.pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown()
+                    handler.register()
+                }
             }
-        }
     ) {
         content()
     }
@@ -61,15 +62,17 @@ private class DragHandler(private val window: Window) {
     private var location = window.location.toComposeOffset()
     private var pointStart = MouseInfo.getPointerInfo().location.toComposeOffset()
 
-    private val dragListener = object : MouseMotionAdapter() {
-        override fun mouseDragged(event: MouseEvent) = drag()
-    }
-    private val removeListener = object : MouseAdapter() {
-        override fun mouseReleased(event: MouseEvent) {
-            window.removeMouseMotionListener(dragListener)
-            window.removeMouseListener(this)
+    private val dragListener =
+        object : MouseMotionAdapter() {
+            override fun mouseDragged(event: MouseEvent) = drag()
         }
-    }
+    private val removeListener =
+        object : MouseAdapter() {
+            override fun mouseReleased(event: MouseEvent) {
+                window.removeMouseMotionListener(dragListener)
+                window.removeMouseListener(this)
+            }
+        }
 
     fun register() {
         location = window.location.toComposeOffset()

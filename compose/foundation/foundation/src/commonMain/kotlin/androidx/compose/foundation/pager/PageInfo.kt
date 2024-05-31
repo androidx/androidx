@@ -16,14 +16,10 @@
 
 package androidx.compose.foundation.pager
 
-/**
- * This represents a single measured page in a [Pager] layout.
- */
+/** This represents a single measured page in a [Pager] layout. */
 sealed interface PageInfo {
 
-    /**
-     * The index of this page.
-     */
+    /** The index of this page. */
     val index: Int
 
     /**

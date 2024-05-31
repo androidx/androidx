@@ -32,28 +32,28 @@ import androidx.compose.ui.unit.dp
 @Suppress("DEPRECATION")
 fun InspectableModifierSample() {
 
-    /**
-     * Sample with a single parameter
-     */
-    fun Modifier.simpleFrame(color: Color) = inspectable(
-        inspectorInfo = debugInspectorInfo {
-            name = "simpleFrame"
-            value = color
+    /** Sample with a single parameter */
+    fun Modifier.simpleFrame(color: Color) =
+        inspectable(
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "simpleFrame"
+                    value = color
+                }
+        ) {
+            background(color, RoundedCornerShape(5.0.dp))
         }
-    ) {
-        background(color, RoundedCornerShape(5.0.dp))
-    }
 
-    /**
-     * Sample with multiple parameters
-     */
-    fun Modifier.fancyFrame(size: Dp, color: Color) = inspectable(
-        inspectorInfo = debugInspectorInfo {
-            name = "fancyFrame"
-            properties["size"] = size
-            properties["color"] = color
+    /** Sample with multiple parameters */
+    fun Modifier.fancyFrame(size: Dp, color: Color) =
+        inspectable(
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "fancyFrame"
+                    properties["size"] = size
+                    properties["color"] = color
+                }
+        ) {
+            background(color, RoundedCornerShape(size))
         }
-    ) {
-        background(color, RoundedCornerShape(size))
-    }
 }

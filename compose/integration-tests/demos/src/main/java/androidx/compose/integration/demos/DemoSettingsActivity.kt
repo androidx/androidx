@@ -27,16 +27,17 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.plusAssign
 
-private val allSettings = listOf(
-    LayoutDirectionSetting,
-    DynamicThemeSetting,
-    SoftInputModeSetting,
-    DecorFitsSystemWindowsSetting,
-)
+private val allSettings =
+    listOf(
+        LayoutDirectionSetting,
+        DynamicThemeSetting,
+        SoftInputModeSetting,
+        DecorFitsSystemWindowsSetting,
+    )
 
 /**
- * Shell [AppCompatActivity] around [SettingsFragment], as we need a FragmentActivity subclass
- * to host the [SettingsFragment].
+ * Shell [AppCompatActivity] around [SettingsFragment], as we need a FragmentActivity subclass to
+ * host the [SettingsFragment].
  */
 class DemoSettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,14 +53,13 @@ class DemoSettingsActivity : AppCompatActivity() {
             val context = preferenceManager.context
             val screen = preferenceManager.createPreferenceScreen(context)
 
-            val general = PreferenceCategory(context).apply {
-                title = "General options"
-                screen += this
-            }
+            val general =
+                PreferenceCategory(context).apply {
+                    title = "General options"
+                    screen += this
+                }
 
-            allSettings.forEach {
-                general += it.createPreference(context)
-            }
+            allSettings.forEach { general += it.createPreference(context) }
 
             preferenceScreen = screen
         }

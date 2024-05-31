@@ -30,16 +30,13 @@ import kotlin.math.absoluteValue
  * @param expected The expected value to which this one should be equal to.
  * @param subject Used in the error message to identify which item this assertion failed on.
  * @param tolerance The tolerance within which the values should be treated as equal.
- *
  * @throws AssertionError if comparison fails.
  */
 fun Dp.assertIsEqualTo(expected: Dp, subject: String = "", tolerance: Dp = Dp(.5f)) {
     val diff = (this - expected).value.absoluteValue
     if (diff > tolerance.value) {
         // Comparison failed, report the error in DPs
-        throw AssertionError(
-            "Actual $subject is $this, expected $expected (tolerance: $tolerance)"
-        )
+        throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")
     }
 }
 
@@ -54,8 +51,7 @@ fun Dp.assertIsEqualTo(expected: Dp, subject: String = "", tolerance: Dp = Dp(.5
  * @param unexpected The value to which this one should not be equal to.
  * @param subject Used in the error message to identify which item this assertion failed on.
  * @param tolerance The tolerance that is expected to be greater than the difference between the
- * given values to treat them as non-equal.
- *
+ *   given values to treat them as non-equal.
  * @throws AssertionError if comparison fails.
  */
 fun Dp.assertIsNotEqualTo(unexpected: Dp, subject: String = "", tolerance: Dp = Dp(.5f)) {

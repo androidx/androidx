@@ -52,12 +52,12 @@ fun NestedLazyListFocusSearchDemo() {
                             text = "$verticalIndex,$horizontalIndex",
                             fontSize = 50.sp,
                             textAlign = Center,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .border(2.dp, Color.Gray)
-                                .onFocusChanged { color = if (it.isFocused) Red else White }
-                                .background(color)
-                                .focusable()
+                            modifier =
+                                Modifier.size(100.dp)
+                                    .border(2.dp, Color.Gray)
+                                    .onFocusChanged { color = if (it.isFocused) Red else White }
+                                    .background(color)
+                                    .focusable()
                         )
                     }
                 }

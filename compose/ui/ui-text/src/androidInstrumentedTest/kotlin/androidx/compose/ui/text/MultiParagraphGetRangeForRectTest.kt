@@ -41,6 +41,7 @@ class MultiParagraphGetRangeForRectTest {
     private val basicFontFamily = FontTestData.BASIC_MEASURE_FONT.toFontFamily()
     private val defaultDensity = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
+
     @Test
     fun getRangeForRect_characterGranularity_rectCoversAllParagraphs() {
         val fontSize = 10f
@@ -50,10 +51,7 @@ class MultiParagraphGetRangeForRectTest {
         //   abc
         //   def
         //   ghi
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            style = TextStyle(fontSize = fontSize.sp)
-        )
+        val paragraph = simpleMultiParagraph(text = text, style = TextStyle(fontSize = fontSize.sp))
 
         // Precondition check: there 3 lines each corresponding to a paragraph
         assertThat(paragraph.lineCount).isEqualTo(3)
@@ -65,11 +63,12 @@ class MultiParagraphGetRangeForRectTest {
         // The rect covers character 'b' and 'h'.
         val rect = Rect(left, top, right, bottom)
 
-        val range = paragraph.getRangeForRect(
-            rect,
-            TextGranularity.Character,
-            TextInclusionStrategy.ContainsCenter
-        )
+        val range =
+            paragraph.getRangeForRect(
+                rect,
+                TextGranularity.Character,
+                TextInclusionStrategy.ContainsCenter
+            )
         assertThat(range).isEqualTo(text.rangeOf('b', 'h'))
     }
 
@@ -81,10 +80,7 @@ class MultiParagraphGetRangeForRectTest {
         // This paragraph is rendered as:
         //   abc
         //   def
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            style = TextStyle(fontSize = fontSize.sp)
-        )
+        val paragraph = simpleMultiParagraph(text = text, style = TextStyle(fontSize = fontSize.sp))
 
         // Precondition check: there 2 lines each corresponding to a paragraph
         assertThat(paragraph.lineCount).isEqualTo(2)
@@ -96,11 +92,12 @@ class MultiParagraphGetRangeForRectTest {
         // This rectangle doesn't cover any character's center point, return null.
         val rect = Rect(left, top, right, bottom)
 
-        val range = paragraph.getRangeForRect(
-            rect,
-            TextGranularity.Character,
-            TextInclusionStrategy.ContainsCenter
-        )
+        val range =
+            paragraph.getRangeForRect(
+                rect,
+                TextGranularity.Character,
+                TextInclusionStrategy.ContainsCenter
+            )
         assertThat(range).isEqualTo(TextRange.Zero)
     }
 
@@ -110,11 +107,12 @@ class MultiParagraphGetRangeForRectTest {
         val text = createAnnotatedString("abcd", "efg")
         val charPerLine = 3
 
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            style = TextStyle(fontSize = fontSize.sp),
-            width = charPerLine * fontSize
-        )
+        val paragraph =
+            simpleMultiParagraph(
+                text = text,
+                style = TextStyle(fontSize = fontSize.sp),
+                width = charPerLine * fontSize
+            )
 
         // The input text is rendered as following:
         //   abc
@@ -132,11 +130,12 @@ class MultiParagraphGetRangeForRectTest {
         // And it covers character 'f' in the second paragraph, the result is [5, 6).
         val rect = Rect(left, top, right, bottom)
 
-        val range = paragraph.getRangeForRect(
-            rect,
-            TextGranularity.Character,
-            TextInclusionStrategy.ContainsCenter
-        )
+        val range =
+            paragraph.getRangeForRect(
+                rect,
+                TextGranularity.Character,
+                TextInclusionStrategy.ContainsCenter
+            )
         assertThat(range).isEqualTo(text.rangeOf('f'))
     }
 
@@ -145,10 +144,7 @@ class MultiParagraphGetRangeForRectTest {
         val fontSize = 10f
         val text = createAnnotatedString("ab cd", "ef", "gh ij")
 
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            style = TextStyle(fontSize = fontSize.sp)
-        )
+        val paragraph = simpleMultiParagraph(text = text, style = TextStyle(fontSize = fontSize.sp))
 
         // The input text is rendered as following:
         //   ab cd
@@ -164,11 +160,12 @@ class MultiParagraphGetRangeForRectTest {
         // The rect covers character 'cd' and 'ij'.
         val rect = Rect(left, top, right, bottom)
 
-        val range = paragraph.getRangeForRect(
-            rect,
-            TextGranularity.Word,
-            TextInclusionStrategy.ContainsCenter
-        )
+        val range =
+            paragraph.getRangeForRect(
+                rect,
+                TextGranularity.Word,
+                TextInclusionStrategy.ContainsCenter
+            )
         assertThat(range).isEqualTo(text.rangeOf('c', 'j'))
     }
 
@@ -177,10 +174,7 @@ class MultiParagraphGetRangeForRectTest {
         val fontSize = 10f
         val text = createAnnotatedString("ab cd", "ef gh", "ij kl")
 
-        val paragraph = simpleMultiParagraph(
-            text = text,
-            style = TextStyle(fontSize = fontSize.sp)
-        )
+        val paragraph = simpleMultiParagraph(text = text, style = TextStyle(fontSize = fontSize.sp))
 
         // The input text is rendered as following:
         //   ab cd
@@ -196,14 +190,16 @@ class MultiParagraphGetRangeForRectTest {
         // The rect covers only the spaces. It should return null.
         val rect = Rect(left, top, right, bottom)
 
-        val range = paragraph.getRangeForRect(
-            rect,
-            TextGranularity.Word,
-            TextInclusionStrategy.ContainsCenter
-        )
+        val range =
+            paragraph.getRangeForRect(
+                rect,
+                TextGranularity.Word,
+                TextInclusionStrategy.ContainsCenter
+            )
 
         assertThat(range).isEqualTo(TextRange.Zero)
     }
+
     private fun simpleMultiParagraph(
         text: AnnotatedString,
         style: TextStyle? = null,
@@ -214,11 +210,13 @@ class MultiParagraphGetRangeForRectTest {
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
-            style = TextStyle(
-                fontFamily = basicFontFamily,
-                fontSize = fontSize,
-                localeList = localeList
-            ).merge(style),
+            style =
+                TextStyle(
+                        fontFamily = basicFontFamily,
+                        fontSize = fontSize,
+                        localeList = localeList
+                    )
+                    .merge(style),
             maxLines = maxLines,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,

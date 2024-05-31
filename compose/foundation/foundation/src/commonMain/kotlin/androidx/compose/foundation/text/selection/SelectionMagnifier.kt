@@ -37,21 +37,20 @@ import kotlinx.coroutines.launch
 private val UnspecifiedAnimationVector2D = AnimationVector2D(Float.NaN, Float.NaN)
 
 /** Like `Offset.VectorConverter` but propagates [Offset.Unspecified] values. */
-internal val UnspecifiedSafeOffsetVectorConverter = TwoWayConverter<Offset, AnimationVector2D>(
-    convertToVector = {
-        if (it.isSpecified) {
-            AnimationVector2D(it.x, it.y)
-        } else {
-            UnspecifiedAnimationVector2D
-        }
-    },
-    convertFromVector = { Offset(it.v1, it.v2) }
-)
+internal val UnspecifiedSafeOffsetVectorConverter =
+    TwoWayConverter<Offset, AnimationVector2D>(
+        convertToVector = {
+            if (it.isSpecified) {
+                AnimationVector2D(it.x, it.y)
+            } else {
+                UnspecifiedAnimationVector2D
+            }
+        },
+        convertFromVector = { Offset(it.v1, it.v2) }
+    )
 
-internal val OffsetDisplacementThreshold = Offset(
-    Spring.DefaultDisplacementThreshold,
-    Spring.DefaultDisplacementThreshold
-)
+internal val OffsetDisplacementThreshold =
+    Offset(Spring.DefaultDisplacementThreshold, Spring.DefaultDisplacementThreshold)
 
 internal val MagnifierSpringSpec = SpringSpec(visibilityThreshold = OffsetDisplacementThreshold)
 
@@ -89,16 +88,14 @@ private fun rememberAnimatedMagnifierPosition(
                 // possible and animation would only add unnecessary lag.
                 if (
                     animatable.value.isSpecified &&
-                    targetValue.isSpecified &&
-                    animatable.value.y != targetValue.y
+                        targetValue.isSpecified &&
+                        animatable.value.y != targetValue.y
                 ) {
                     // Launch the animation, instead of cancelling and re-starting manually via
                     // collectLatest, so if another animation is started before this one finishes,
                     // the new one will use the correct velocity, e.g. in order to propagate spring
                     // inertia.
-                    animationScope.launch {
-                        animatable.animateTo(targetValue, MagnifierSpringSpec)
-                    }
+                    animationScope.launch { animatable.animateTo(targetValue, MagnifierSpringSpec) }
                 } else {
                     animatable.snapTo(targetValue)
                 }

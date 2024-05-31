@@ -37,10 +37,7 @@ fun BlurSample() {
     Box(
         Modifier.size(300.dp)
             // Blur content allowing the result to extend beyond the bounds of the original content
-            .blur(
-                30.dp,
-                edgeTreatment = BlurredEdgeTreatment.Unbounded
-            )
+            .blur(30.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
             .background(Color.Red, CircleShape)
     )
 }

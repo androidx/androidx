@@ -29,9 +29,7 @@ import androidx.annotation.RequiresApi
  */
 internal object HandlerHelper {
 
-    /**
-     * @return handler, with createAsync if API level supports it.
-     */
+    /** @return handler, with createAsync if API level supports it. */
     fun createAsync(looper: Looper): Handler {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             Handler28Impl.createAsync(looper)

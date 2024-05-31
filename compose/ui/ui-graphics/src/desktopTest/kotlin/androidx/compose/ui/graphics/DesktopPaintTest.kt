@@ -50,11 +50,15 @@ class DesktopPaintTest : DesktopGraphicsTest() {
     fun blendModePlus() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(
-            left = 4f, top = 4f, right = 12f, bottom = 12f,
-            paint = Paint().apply {
-                color = Color.Blue
-                blendMode = BlendMode.Plus
-            }
+            left = 4f,
+            top = 4f,
+            right = 12f,
+            bottom = 12f,
+            paint =
+                Paint().apply {
+                    color = Color.Blue
+                    blendMode = BlendMode.Plus
+                }
         )
 
         screenshotRule.snap(surface)
@@ -64,11 +68,15 @@ class DesktopPaintTest : DesktopGraphicsTest() {
     fun blendModeMultiply() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(
-            left = 4f, top = 4f, right = 12f, bottom = 12f,
-            paint = Paint().apply {
-                color = Color.Gray
-                blendMode = BlendMode.Multiply
-            }
+            left = 4f,
+            top = 4f,
+            right = 12f,
+            bottom = 12f,
+            paint =
+                Paint().apply {
+                    color = Color.Gray
+                    blendMode = BlendMode.Multiply
+                }
         )
 
         screenshotRule.snap(surface)
@@ -81,9 +89,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawImage(
             image = loadResourceBitmap("androidx/compose/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
-            paint = Paint().apply {
-                colorFilter = ColorFilter.tint(Color.Blue, BlendMode.Plus)
-            }
+            paint = Paint().apply { colorFilter = ColorFilter.tint(Color.Blue, BlendMode.Plus) }
         )
 
         screenshotRule.snap(surface)
@@ -99,9 +105,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 4),
             dstSize = IntSize(4, 12),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.None
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.None }
         )
         canvas.drawImageRect(
             image = loadResourceBitmap("androidx/compose/desktop/test.png"),
@@ -109,9 +113,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(4, 4),
             dstSize = IntSize(4, 12),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.Low
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.Low }
         )
         canvas.drawImageRect(
             image = loadResourceBitmap("androidx/compose/desktop/test.png"),
@@ -119,9 +121,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(8, 4),
             dstSize = IntSize(4, 12),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.High
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.High }
         )
 
         screenshotRule.snap(surface)
@@ -139,9 +139,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(0, 2),
             dstSize = IntSize(2, 6),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.None
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.None }
         )
         canvas.drawImageRect(
             image = loadResourceBitmap("androidx/compose/desktop/test.png"),
@@ -149,9 +147,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(2, 2),
             dstSize = IntSize(2, 6),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.Low
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.Low }
         )
         canvas.drawImageRect(
             image = loadResourceBitmap("androidx/compose/desktop/test.png"),
@@ -159,9 +155,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             srcSize = IntSize(2, 4),
             dstOffset = IntOffset(4, 2),
             dstSize = IntSize(2, 6),
-            paint = redPaint.apply {
-                filterQuality = FilterQuality.High
-            }
+            paint = redPaint.apply { filterQuality = FilterQuality.High }
         )
 
         screenshotRule.snap(surface)
@@ -172,15 +166,20 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawRect(
-            left = 2f, top = 2f, right = 14f, bottom = 14f,
-            paint = Paint().apply {
-                shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
-                    to = Offset(6f, 6f),
-                    colors = listOf(Color.Blue, Color.Green),
-                    tileMode = TileMode.Mirror
-                )
-            }
+            left = 2f,
+            top = 2f,
+            right = 14f,
+            bottom = 14f,
+            paint =
+                Paint().apply {
+                    shader =
+                        LinearGradientShader(
+                            from = Offset(0f, 0f),
+                            to = Offset(6f, 6f),
+                            colors = listOf(Color.Blue, Color.Green),
+                            tileMode = TileMode.Mirror
+                        )
+                }
         )
 
         screenshotRule.snap(surface)
@@ -191,16 +190,21 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawRect(
-            left = 1f, top = 2f, right = 14f, bottom = 15f,
-            paint = Paint().apply {
-                shader = LinearGradientShader(
-                    from = Offset(0f, 0f),
-                    to = Offset(12f, 0f),
-                    colorStops = listOf(0f, 0.25f, 1f),
-                    colors = listOf(Color.Blue, Color.Green, Color.Yellow),
-                    tileMode = TileMode.Mirror
-                )
-            }
+            left = 1f,
+            top = 2f,
+            right = 14f,
+            bottom = 15f,
+            paint =
+                Paint().apply {
+                    shader =
+                        LinearGradientShader(
+                            from = Offset(0f, 0f),
+                            to = Offset(12f, 0f),
+                            colorStops = listOf(0f, 0.25f, 1f),
+                            colors = listOf(Color.Blue, Color.Green, Color.Yellow),
+                            tileMode = TileMode.Mirror
+                        )
+                }
         )
 
         screenshotRule.snap(surface)
@@ -211,15 +215,20 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawRect(
-            left = 2f, top = 2f, right = 14f, bottom = 14f,
-            paint = Paint().apply {
-                shader = RadialGradientShader(
-                    center = Offset(4f, 8f),
-                    radius = 8f,
-                    colors = listOf(Color.Blue, Color.Green),
-                    tileMode = TileMode.Clamp
-                )
-            }
+            left = 2f,
+            top = 2f,
+            right = 14f,
+            bottom = 14f,
+            paint =
+                Paint().apply {
+                    shader =
+                        RadialGradientShader(
+                            center = Offset(4f, 8f),
+                            radius = 8f,
+                            colors = listOf(Color.Blue, Color.Green),
+                            tileMode = TileMode.Clamp
+                        )
+                }
         )
 
         screenshotRule.snap(surface)
@@ -230,13 +239,18 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawRect(
-            left = 2f, top = 2f, right = 14f, bottom = 14f,
-            paint = Paint().apply {
-                shader = SweepGradientShader(
-                    center = Offset(4f, 8f),
-                    colors = listOf(Color.Blue, Color.Green)
-                )
-            }
+            left = 2f,
+            top = 2f,
+            right = 14f,
+            bottom = 14f,
+            paint =
+                Paint().apply {
+                    shader =
+                        SweepGradientShader(
+                            center = Offset(4f, 8f),
+                            colors = listOf(Color.Blue, Color.Green)
+                        )
+                }
         )
 
         screenshotRule.snap(surface)
@@ -247,14 +261,19 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
 
         canvas.drawRect(
-            left = 2f, top = 2f, right = 14f, bottom = 14f,
-            paint = Paint().apply {
-                shader = ImageShader(
-                    loadResourceBitmap("androidx/compose/desktop/test.png"),
-                    tileModeX = TileMode.Clamp,
-                    tileModeY = TileMode.Repeated
-                )
-            }
+            left = 2f,
+            top = 2f,
+            right = 14f,
+            bottom = 14f,
+            paint =
+                Paint().apply {
+                    shader =
+                        ImageShader(
+                            loadResourceBitmap("androidx/compose/desktop/test.png"),
+                            tileModeX = TileMode.Clamp,
+                            tileModeY = TileMode.Repeated
+                        )
+                }
         )
 
         screenshotRule.snap(surface)

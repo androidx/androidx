@@ -20,12 +20,9 @@ import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import org.jetbrains.annotations.TestOnly
 
-/**
- * [ComposeAnimation] of type [ComposeAnimationType.UNSUPPORTED].
- */
-internal class UnsupportedComposeAnimation private constructor(
-    override val label: String?
-) : ComposeAnimation {
+/** [ComposeAnimation] of type [ComposeAnimationType.UNSUPPORTED]. */
+internal class UnsupportedComposeAnimation private constructor(override val label: String?) :
+    ComposeAnimation {
     override val type = ComposeAnimationType.UNSUPPORTED
     override val animationObject: Any = 0
     override val states = emptySet<Int>()
@@ -40,8 +37,7 @@ internal class UnsupportedComposeAnimation private constructor(
         var apiAvailable = enumValues<ComposeAnimationType>().any { it.name == "UNSUPPORTED" }
             private set
 
-        fun create(label: String?) =
-            if (apiAvailable) UnsupportedComposeAnimation(label) else null
+        fun create(label: String?) = if (apiAvailable) UnsupportedComposeAnimation(label) else null
 
         /** This method is for testing only. */
         @TestOnly

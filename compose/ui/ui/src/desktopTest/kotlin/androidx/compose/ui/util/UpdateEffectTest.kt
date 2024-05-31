@@ -27,8 +27,7 @@ import org.junit.Test
 
 @Ignore("b/271123970 Fails in AOSP. Will be fixed after upstreaming Compose for Desktop")
 internal class UpdateEffectTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun `call update when any mutableStateOf is changed`() {
@@ -70,11 +69,7 @@ internal class UpdateEffectTest {
         var state = 0
         var updatedState = -1
 
-        rule.setContent {
-            UpdateEffect {
-                updatedState = state
-            }
-        }
+        rule.setContent { UpdateEffect { updatedState = state } }
 
         rule.waitForIdle()
         assertThat(updatedState).isEqualTo(state)

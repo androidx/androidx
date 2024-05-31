@@ -44,11 +44,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 internal class HandwritingDetectorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val immRule = ComposeInputMethodManagerTestRule()
+    @get:Rule val immRule = ComposeInputMethodManagerTestRule()
 
     private val imm = FakeInputMethodManager()
 
@@ -70,25 +68,25 @@ internal class HandwritingDetectorTest {
         rule.setContent {
             Column(Modifier.safeContentPadding()) {
                 Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(HandwritingBoundsVerticalOffset)
-                        .handwritingDetector { callbackCount++ }
-                        .testTag(detectorTag)
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(HandwritingBoundsVerticalOffset)
+                            .handwritingDetector { callbackCount++ }
+                            .testTag(detectorTag)
                 )
                 // This spacer is within the extended handwriting bounds of the detector
                 Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(HandwritingBoundsVerticalOffset)
-                        .testTag(insideSpacerTag)
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(HandwritingBoundsVerticalOffset)
+                            .testTag(insideSpacerTag)
                 )
                 // This spacer is outside the extended handwriting bounds of the detector
                 Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(HandwritingBoundsVerticalOffset)
-                        .testTag(outsideSpacerTag)
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(HandwritingBoundsVerticalOffset)
+                            .testTag(outsideSpacerTag)
                 )
             }
         }

@@ -16,18 +16,12 @@
 
 package androidx.compose.ui.text
 
-/**
- * Provides platform specific [TextStyle] configuration options for styling and compatibility.
- */
+/** Provides platform specific [TextStyle] configuration options for styling and compatibility. */
 expect class PlatformTextStyle {
-    /**
-     * Platform specific text span styling and compatibility configuration.
-     */
+    /** Platform specific text span styling and compatibility configuration. */
     val spanStyle: PlatformSpanStyle?
 
-    /**
-     * Platform specific paragraph styling and compatibility configuration.
-     */
+    /** Platform specific paragraph styling and compatibility configuration. */
     val paragraphStyle: PlatformParagraphStyle?
 }
 
@@ -47,9 +41,7 @@ expect class PlatformParagraphStyle {
     fun merge(other: PlatformParagraphStyle?): PlatformParagraphStyle
 }
 
-/**
- * Provides platform specific [SpanStyle] configuration options for styling and compatibility.
- */
+/** Provides platform specific [SpanStyle] configuration options for styling and compatibility. */
 expect class PlatformSpanStyle {
     companion object {
         val Default: PlatformSpanStyle
@@ -63,13 +55,12 @@ expect class PlatformSpanStyle {
  *
  * This will not work well if the styles don't set the same fields.
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid.
  */
 expect fun lerp(
     start: PlatformParagraphStyle,
@@ -82,13 +73,12 @@ expect fun lerp(
  *
  * This will not work well if the styles don't set the same fields.
  *
- * The [fraction] argument represents position on the timeline, with 0.0 meaning
- * that the interpolation has not started, returning [start] (or something
- * equivalent to [start]), 1.0 meaning that the interpolation has finished,
- * returning [stop] (or something equivalent to [stop]), and values in between
- * meaning that the interpolation is at the relevant point on the timeline
- * between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and
- * 1.0, so negative values and values greater than 1.0 are valid.
+ * The [fraction] argument represents position on the timeline, with 0.0 meaning that the
+ * interpolation has not started, returning [start] (or something equivalent to [start]), 1.0
+ * meaning that the interpolation has finished, returning [stop] (or something equivalent to
+ * [stop]), and values in between meaning that the interpolation is at the relevant point on the
+ * timeline between [start] and [stop]. The interpolation can be extrapolated beyond 0.0 and 1.0, so
+ * negative values and values greater than 1.0 are valid.
  */
 expect fun lerp(
     start: PlatformSpanStyle,

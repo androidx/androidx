@@ -145,12 +145,13 @@ class SaversTest {
 
     @Test
     fun test_ParagraphStyle_with_no_null_value() {
-        val original = ParagraphStyle(
-            textAlign = TextAlign.Justify,
-            textDirection = TextDirection.Rtl,
-            lineHeight = 10.sp,
-            textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
-        )
+        val original =
+            ParagraphStyle(
+                textAlign = TextAlign.Justify,
+                textDirection = TextDirection.Rtl,
+                lineHeight = 10.sp,
+                textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
+            )
         val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
         val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
 
@@ -177,26 +178,23 @@ class SaversTest {
 
     @Test
     fun test_SpanStyle_with_no_null_value() {
-        val original = SpanStyle(
-            color = Color.Red,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic,
-            fontSynthesis = FontSynthesis.All,
-            // fontFamily =
-            fontFeatureSettings = "feature settings",
-            letterSpacing = 2.em,
-            baselineShift = BaselineShift.Superscript,
-            textGeometricTransform = TextGeometricTransform(2f, 3f),
-            localeList = LocaleList(
-                Locale("sr-Latn-SR"),
-                Locale("sr-Cyrl-SR"),
-                Locale.current
-            ),
-            background = Color.Blue,
-            textDecoration = TextDecoration.LineThrough,
-            shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
-        )
+        val original =
+            SpanStyle(
+                color = Color.Red,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSynthesis = FontSynthesis.All,
+                // fontFamily =
+                fontFeatureSettings = "feature settings",
+                letterSpacing = 2.em,
+                baselineShift = BaselineShift.Superscript,
+                textGeometricTransform = TextGeometricTransform(2f, 3f),
+                localeList = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
+                background = Color.Blue,
+                textDecoration = TextDecoration.LineThrough,
+                shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
+            )
         val saved = save(original, SpanStyleSaver, defaultSaverScope)
         val restored: SpanStyle? = restore(saved, SpanStyleSaver)
 
@@ -214,12 +212,13 @@ class SaversTest {
 
     @Test
     fun test_TextLinkStyles_withNonNullValues() {
-        val original = TextLinkStyles(
-            SpanStyle(color = Color.Red),
-            SpanStyle(color = Color.Green),
-            SpanStyle(color = Color.Blue),
-            SpanStyle(color = Color.Gray)
-        )
+        val original =
+            TextLinkStyles(
+                SpanStyle(color = Color.Red),
+                SpanStyle(color = Color.Green),
+                SpanStyle(color = Color.Blue),
+                SpanStyle(color = Color.Gray)
+            )
         val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
         val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
 
@@ -264,9 +263,8 @@ class SaversTest {
 
     @Test
     fun test_TextDecoration() {
-        val original = TextDecoration.combine(
-            listOf(TextDecoration.LineThrough, TextDecoration.Underline)
-        )
+        val original =
+            TextDecoration.combine(listOf(TextDecoration.LineThrough, TextDecoration.Underline))
         val saved = save(original, TextDecoration.Saver, defaultSaverScope)
         val restored: TextDecoration? = restore(saved, TextDecoration.Saver)
 
@@ -390,7 +388,9 @@ class SaversTest {
                         SpanStyle(color = Color.White)
                     )
                 )
-            ) { append("7") }
+            ) {
+                append("7")
+            }
             withLink(
                 LinkAnnotation.Clickable(
                     "tag3",
@@ -438,7 +438,9 @@ class SaversTest {
                         SpanStyle(color = Color.Yellow)
                     )
                 )
-            ) { append("11") }
+            ) {
+                append("11")
+            }
             withLink(
                 LinkAnnotation.Clickable(
                     "tag3",
@@ -471,11 +473,7 @@ class SaversTest {
 
     @Test
     fun test_LocaleList() {
-        val original = LocaleList(
-            Locale("sr-Latn-SR"),
-            Locale("sr-Cyrl-SR"),
-            Locale.current
-        )
+        val original = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current)
         val saved = with(LocaleList.Saver) { defaultSaverScope.save(original) }
 
         assertThat(LocaleList.Saver.restore(saved!!)).isEqualTo(original)

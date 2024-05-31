@@ -47,11 +47,9 @@ import org.junit.runner.RunWith
  * - GetIndexForKey
  * - ScrollToIndex
  *
- * GetIndexForKey:
- * Create a lazy list, iterate over all indices, verify key of each of them
+ * GetIndexForKey: Create a lazy list, iterate over all indices, verify key of each of them
  *
- * ScrollToIndex:
- * Create a lazy list, scroll to an item off screen, verify shown items
+ * ScrollToIndex: Create a lazy list, scroll to an item off screen, verify shown items
  *
  * All tests performed in [runTest], scenarios set up in the test methods.
  */
@@ -63,20 +61,16 @@ class LazySemanticsTest {
     private val LazyListModifier = Modifier.testTag(LazyListTag).requiredSize(100.dp)
 
     private fun tag(index: Int): String = "tag_$index"
+
     private fun key(index: Int): String = "key_$index"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun itemSemantics_column() {
         rule.setContent {
             LazyColumn(LazyListModifier) {
-                repeat(N) {
-                    item(key = key(it)) {
-                        SpacerInColumn(it)
-                    }
-                }
+                repeat(N) { item(key = key(it)) { SpacerInColumn(it) } }
             }
         }
         runTest()
@@ -86,9 +80,7 @@ class LazySemanticsTest {
     fun itemsSemantics_column() {
         rule.setContent {
             LazyColumn(LazyListModifier) {
-                items(items = List(N) { it }, key = { key(it) }) {
-                    SpacerInColumn(it)
-                }
+                items(items = List(N) { it }, key = { key(it) }) { SpacerInColumn(it) }
             }
         }
         runTest()
@@ -97,13 +89,7 @@ class LazySemanticsTest {
     @Test
     fun itemSemantics_row() {
         rule.setContent {
-            LazyRow(LazyListModifier) {
-                repeat(N) {
-                    item(key = key(it)) {
-                        SpacerInRow(it)
-                    }
-                }
-            }
+            LazyRow(LazyListModifier) { repeat(N) { item(key = key(it)) { SpacerInRow(it) } } }
         }
         runTest()
     }
@@ -112,9 +98,7 @@ class LazySemanticsTest {
     fun itemsSemantics_row() {
         rule.setContent {
             LazyRow(LazyListModifier) {
-                items(items = List(N) { it }, key = { key(it) }) {
-                    SpacerInRow(it)
-                }
+                items(items = List(N) { it }, key = { key(it) }) { SpacerInRow(it) }
             }
         }
         runTest()
@@ -124,16 +108,19 @@ class LazySemanticsTest {
         checkViewport(firstExpectedItem = 0, lastExpectedItem = 3)
 
         // Verify IndexForKey
-        rule.onNodeWithTag(LazyListTag).assert(
-            SemanticsMatcher.keyIsDefined(IndexForKey).and(
-                SemanticsMatcher("keys match") { node ->
-                    val actualIndex = node.config.getOrNull(IndexForKey)!!
-                    (0 until N).all { expectedIndex ->
-                        expectedIndex == actualIndex.invoke(key(expectedIndex))
-                    }
-                }
+        rule
+            .onNodeWithTag(LazyListTag)
+            .assert(
+                SemanticsMatcher.keyIsDefined(IndexForKey)
+                    .and(
+                        SemanticsMatcher("keys match") { node ->
+                            val actualIndex = node.config.getOrNull(IndexForKey)!!
+                            (0 until N).all { expectedIndex ->
+                                expectedIndex == actualIndex.invoke(key(expectedIndex))
+                            }
+                        }
+                    )
             )
-        )
 
         // Verify ScrollToIndex
         rule.onNodeWithTag(LazyListTag).assert(SemanticsMatcher.keyIsDefined(ScrollToIndex))
@@ -146,20 +133,16 @@ class LazySemanticsTest {
     }
 
     private fun invokeScrollToIndex(targetIndex: Int) {
-        val node = rule.onNodeWithTag(LazyListTag)
-            .fetchSemanticsNode("Failed: invoke ScrollToIndex")
-        rule.runOnUiThread {
-            node.config[ScrollToIndex].action!!.invoke(targetIndex)
-        }
+        val node =
+            rule.onNodeWithTag(LazyListTag).fetchSemanticsNode("Failed: invoke ScrollToIndex")
+        rule.runOnUiThread { node.config[ScrollToIndex].action!!.invoke(targetIndex) }
     }
 
     private fun checkViewport(firstExpectedItem: Int, lastExpectedItem: Int) {
         if (firstExpectedItem > 0) {
             rule.onNodeWithTag(tag(firstExpectedItem - 1)).assertDoesNotExist()
         }
-        (firstExpectedItem..lastExpectedItem).forEach {
-            rule.onNodeWithTag(tag(it)).assertExists()
-        }
+        (firstExpectedItem..lastExpectedItem).forEach { rule.onNodeWithTag(tag(it)).assertExists() }
         if (firstExpectedItem < N - 1) {
             rule.onNodeWithTag(tag(lastExpectedItem + 1)).assertDoesNotExist()
         }

@@ -31,16 +31,12 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlinx.coroutines.runBlocking
 
-@Composable
-private fun composableFunction() {
-}
+@Composable private fun composableFunction() {}
 
-private fun nonComposableFunction() {
-}
+private fun nonComposableFunction() {}
 
 @Suppress("UNUSED_PARAMETER")
-private fun nonComposableFunctionWithComposerParam(unused: Composer) {
-}
+private fun nonComposableFunctionWithComposerParam(unused: Composer) {}
 
 @Composable
 private fun composableFunctionWithDefaults(
@@ -49,16 +45,13 @@ private fun composableFunctionWithDefaults(
     s3: String = "a",
     s4: String = "a",
     s5: String = "a"
-): String { return s1 + s2 + s3 + s4 + s5 }
-
-@Composable
-private fun overloadedComposable() {
+): String {
+    return s1 + s2 + s3 + s4 + s5
 }
 
-@Suppress("UNUSED_PARAMETER")
-@Composable
-private fun overloadedComposable(s: String) {
-}
+@Composable private fun overloadedComposable() {}
+
+@Suppress("UNUSED_PARAMETER") @Composable private fun overloadedComposable(s: String) {}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -73,7 +66,7 @@ private fun overloadedComposable(
     v8: String,
     v9: String,
     v10: String
-) { }
+) {}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -89,7 +82,7 @@ private fun overloadedComposable(
     v9: String,
     v10: String,
     v11: String
-) { }
+) {}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -106,7 +99,7 @@ private fun overloadedComposable(
     v10: String,
     v11: String,
     v12: String
-) { }
+) {}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -117,19 +110,14 @@ private fun differentParametersTypes(
     v4: Float,
     v5: Double,
     v6: Long
-) { }
+) {}
 
 private class ComposablesWrapper {
-    @Composable
-    fun composableMethod() {
-    }
+    @Composable fun composableMethod() {}
 
-    fun nonComposableMethod() {
-    }
+    fun nonComposableMethod() {}
 
-    @Suppress("UNUSED_PARAMETER")
-    fun nonComposableMethodWithComposerParam(unused: Composer) {
-    }
+    @Suppress("UNUSED_PARAMETER") fun nonComposableMethodWithComposerParam(unused: Composer) {}
 
     @Composable
     fun composableMethodWithDefaults(
@@ -138,16 +126,13 @@ private class ComposablesWrapper {
         s3: String = "a",
         s4: String = "a",
         s5: String = "a"
-    ): String { return s1 + s2 + s3 + s4 + s5 }
-
-    @Composable
-    fun overloadedComposableMethod() {
+    ): String {
+        return s1 + s2 + s3 + s4 + s5
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    @Composable
-    fun overloadedComposableMethod(s: String) {
-    }
+    @Composable fun overloadedComposableMethod() {}
+
+    @Suppress("UNUSED_PARAMETER") @Composable fun overloadedComposableMethod(s: String) {}
 
     @Suppress("UNUSED_PARAMETER")
     @Composable
@@ -162,7 +147,7 @@ private class ComposablesWrapper {
         v8: String,
         v9: String,
         v10: String
-    ) { }
+    ) {}
 
     @Suppress("UNUSED_PARAMETER")
     @Composable
@@ -178,7 +163,7 @@ private class ComposablesWrapper {
         v9: String,
         v10: String,
         v11: String
-    ) { }
+    ) {}
 
     @Suppress("UNUSED_PARAMETER")
     @Composable
@@ -195,7 +180,7 @@ private class ComposablesWrapper {
         v10: String,
         v11: String,
         v12: String
-    ) { }
+    ) {}
 
     @Suppress("UNUSED_PARAMETER")
     @Composable
@@ -206,14 +191,12 @@ private class ComposablesWrapper {
         v4: Float,
         v5: Double,
         v6: Long
-    ) { }
+    ) {}
 }
 
 class ComposableMethodTest {
-    private val clazz =
-        Class.forName("androidx.compose.runtime.reflect.ComposableMethodTestKt")
-    private val wrapperClazz =
-        Class.forName("androidx.compose.runtime.reflect.ComposablesWrapper")
+    private val clazz = Class.forName("androidx.compose.runtime.reflect.ComposableMethodTestKt")
+    private val wrapperClazz = Class.forName("androidx.compose.runtime.reflect.ComposablesWrapper")
 
     private val composable = clazz.declaredMethods.find { it.name == "composableFunction" }!!
     private val nonComposable = clazz.declaredMethods.find { it.name == "nonComposableFunction" }!!
@@ -345,7 +328,8 @@ class ComposableMethodTest {
         val method0 = wrapperClazz.getDeclaredComposableMethod("overloadedComposableMethod")
         val method1 =
             wrapperClazz.getDeclaredComposableMethod(
-                "overloadedComposableMethod", String::class.java
+                "overloadedComposableMethod",
+                String::class.java
             )
         val method10 =
             wrapperClazz.getDeclaredComposableMethod(
@@ -462,15 +446,29 @@ class ComposableMethodTest {
 
         assertEquals(6, diffParameters.parameters.size)
         assertEquals(
-            listOf(String::class.java, Any::class.java, Int::class.java, Float::class.java,
-                Double::class.java, Long::class.java),
-            diffParameters.parameters.map { it.type })
+            listOf(
+                String::class.java,
+                Any::class.java,
+                Int::class.java,
+                Float::class.java,
+                Double::class.java,
+                Long::class.java
+            ),
+            diffParameters.parameters.map { it.type }
+        )
 
         assertEquals(6, diffParametersMethod.parameters.size)
         assertEquals(
-            listOf(String::class.java, Any::class.java, Int::class.java, Float::class.java,
-                Double::class.java, Long::class.java),
-            diffParametersMethod.parameters.map { it.type })
+            listOf(
+                String::class.java,
+                Any::class.java,
+                Int::class.java,
+                Float::class.java,
+                Double::class.java,
+                Long::class.java
+            ),
+            diffParametersMethod.parameters.map { it.type }
+        )
     }
 
     @Throws(NoSuchMethodException::class)
@@ -556,15 +554,29 @@ class ComposableMethodTest {
 
         assertEquals(6, diffParameters.parameterTypes.size)
         assertEquals(
-            listOf(String::class.java, Any::class.java, Int::class.java, Float::class.java,
-                Double::class.java, Long::class.java),
-            diffParameters.parameterTypes.toList())
+            listOf(
+                String::class.java,
+                Any::class.java,
+                Int::class.java,
+                Float::class.java,
+                Double::class.java,
+                Long::class.java
+            ),
+            diffParameters.parameterTypes.toList()
+        )
 
         assertEquals(6, diffParametersMethod.parameterTypes.size)
         assertEquals(
-            listOf(String::class.java, Any::class.java, Int::class.java, Float::class.java,
-                Double::class.java, Long::class.java),
-            diffParametersMethod.parameterTypes.toList())
+            listOf(
+                String::class.java,
+                Any::class.java,
+                Int::class.java,
+                Float::class.java,
+                Double::class.java,
+                Long::class.java
+            ),
+            diffParametersMethod.parameterTypes.toList()
+        )
     }
 
     private class TestFrameClock : MonotonicFrameClock {
@@ -573,24 +585,12 @@ class ComposableMethodTest {
 
     private fun <T> executeWithComposer(block: (composer: Composer) -> T): T =
         runBlocking(TestFrameClock()) {
-            fun compose(
-                recomposer: Recomposer,
-                block: @Composable () -> Unit
-            ): Composition {
-                return Composition(
-                    EmptyApplier(),
-                    recomposer
-                ).apply {
-                    setContent(block)
-                }
+            fun compose(recomposer: Recomposer, block: @Composable () -> Unit): Composition {
+                return Composition(EmptyApplier(), recomposer).apply { setContent(block) }
             }
 
             var res: T? = null
-            withRunningRecomposer { r ->
-                compose(r) {
-                    res = block(currentComposer)
-                }
-            }
+            withRunningRecomposer { r -> compose(r) { res = block(currentComposer) } }
             res!!
         }
 
@@ -634,8 +634,7 @@ class ComposableMethodTest {
     fun testInvokeComposableMethods() {
 
         val composableWithDefaults =
-            wrapperClazz
-                .declaredMethods
+            wrapperClazz.declaredMethods
                 .find { it.name == "composableMethodWithDefaults" }!!
                 .asComposableMethod()!!
         composableWithDefaults.asMethod().isAccessible = true

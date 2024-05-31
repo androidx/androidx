@@ -48,53 +48,49 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val RowSnappingDemos = listOf(
-    ComposableDemo("Single Item - Same Size Items") { SinglePageSnapping() },
-    ComposableDemo("Multi Item - Decayed Snapping") { DecayedSnappingDemo() },
-    ComposableDemo("Multi Item - View Port Based Offset") { ViewPortBasedSnappingDemo() },
-)
+val RowSnappingDemos =
+    listOf(
+        ComposableDemo("Single Item - Same Size Items") { SinglePageSnapping() },
+        ComposableDemo("Multi Item - Decayed Snapping") { DecayedSnappingDemo() },
+        ComposableDemo("Multi Item - View Port Based Offset") { ViewPortBasedSnappingDemo() },
+    )
 
-/**
- * Snapping happens to the next item and items have the same size
- */
+/** Snapping happens to the next item and items have the same size */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SinglePageSnapping() {
     val scrollState = rememberScrollState()
     val layoutSizeState = remember { mutableStateOf(IntSize.Zero) }
-    val layoutInfoProvider = rememberNextItemSnappingLayoutInfoProvider(scrollState) {
-        layoutSizeState.value.width.toFloat()
-    }
+    val layoutInfoProvider =
+        rememberNextItemSnappingLayoutInfoProvider(scrollState) {
+            layoutSizeState.value.width.toFloat()
+        }
     val snapFlingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = layoutInfoProvider)
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
-/**
- * Snapping happens after a decay animation. Items have the same size.
- */
+/** Snapping happens after a decay animation. Items have the same size. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DecayedSnappingDemo() {
     val scrollState = rememberScrollState()
     val layoutSizeState = remember { mutableStateOf(IntSize.Zero) }
-    val layoutInfoProvider = rememberRowSnapLayoutInfoProvider(scrollState) {
-        layoutSizeState.value.width.toFloat()
-    }
+    val layoutInfoProvider =
+        rememberRowSnapLayoutInfoProvider(scrollState) { layoutSizeState.value.width.toFloat() }
     val snapFlingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = layoutInfoProvider)
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
 
-/**
- * Snapping happens to at max one view port item's worth distance.
- */
+/** Snapping happens to at max one view port item's worth distance. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ViewPortBasedSnappingDemo() {
     val scrollState = rememberScrollState()
     val layoutSizeState = remember { mutableStateOf(IntSize.Zero) }
-    val layoutInfoProvider = rememberViewPortSnapLayoutInfoProvider(scrollState) {
-        layoutSizeState.value.width.toFloat()
-    }
+    val layoutInfoProvider =
+        rememberViewPortSnapLayoutInfoProvider(scrollState) {
+            layoutSizeState.value.width.toFloat()
+        }
     val snapFlingBehavior = rememberSnapFlingBehavior(snapLayoutInfoProvider = layoutInfoProvider)
     RowSnappingMainLayout(snapFlingBehavior, scrollState) { layoutSizeState.value = it }
 }
@@ -106,23 +102,21 @@ private fun RowSnappingMainLayout(
     onLayoutSizeChanged: (IntSize) -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .drawWithContent {
+        modifier =
+            Modifier.fillMaxSize().drawWithContent {
                 drawContent()
                 drawAnchor(CenterAnchor)
-            }, contentAlignment = Alignment.Center
+            },
+        contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onSizeChanged(onLayoutSizeChanged)
-                .fillMaxHeight(0.7f)
-                .horizontalScroll(scrollState, flingBehavior = snapFlingBehavior)
+            modifier =
+                Modifier.fillMaxWidth()
+                    .onSizeChanged(onLayoutSizeChanged)
+                    .fillMaxHeight(0.7f)
+                    .horizontalScroll(scrollState, flingBehavior = snapFlingBehavior)
         ) {
-            repeat(100) {
-                RowSnappingItem(position = it)
-            }
+            repeat(100) { RowSnappingItem(position = it) }
         }
     }
 }
@@ -130,15 +124,15 @@ private fun RowSnappingMainLayout(
 @Composable
 private fun RowSnappingItem(position: Int) {
     Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .width(RowItemSize)
-            .padding(4.dp)
-            .background(Color.Gray)
-            .drawWithContent {
-                drawContent()
-                drawAnchor(CenterAnchor)
-            },
+        modifier =
+            Modifier.fillMaxHeight()
+                .width(RowItemSize)
+                .padding(4.dp)
+                .background(Color.Gray)
+                .drawWithContent {
+                    drawContent()
+                    drawAnchor(CenterAnchor)
+                },
         contentAlignment = Alignment.Center
     ) {
         Text(text = position.toString(), fontSize = 40.sp)
@@ -168,17 +162,15 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
     layoutSize: () -> Float
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
-    val basedSnappingLayoutInfoProvider = SnapLayoutInfoProvider(
-        scrollState = scrollState,
-        itemSize = { with(density) { RowItemSize.toPx() } },
-        layoutSize = layoutSize
-    )
+    val basedSnappingLayoutInfoProvider =
+        SnapLayoutInfoProvider(
+            scrollState = scrollState,
+            itemSize = { with(density) { RowItemSize.toPx() } },
+            layoutSize = layoutSize
+        )
     return remember(scrollState, layoutSize) {
         object : SnapLayoutInfoProvider by basedSnappingLayoutInfoProvider {
-            override fun calculateApproachOffset(
-                velocity: Float,
-                decayOffset: Float
-            ): Float = 0.0f
+            override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float = 0.0f
         }
     }
 }
@@ -191,10 +183,8 @@ private fun rememberViewPortSnapLayoutInfoProvider(
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     val decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
-    val baseSnapLayoutInfoProvider = rememberScrollStateLayoutInfoProvider(
-        scrollState = scrollState,
-        layoutSize = layoutSize
-    )
+    val baseSnapLayoutInfoProvider =
+        rememberScrollStateLayoutInfoProvider(scrollState = scrollState, layoutSize = layoutSize)
 
     return remember(baseSnapLayoutInfoProvider, density, layoutSize) {
         ViewPortBasedSnappingLayoutInfoProvider(

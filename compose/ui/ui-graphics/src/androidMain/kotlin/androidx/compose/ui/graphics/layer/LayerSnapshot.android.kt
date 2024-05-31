@@ -46,9 +46,7 @@ internal object LayerSnapshotV28 : LayerSnapshotImpl {
     override suspend fun toBitmap(graphicsLayer: GraphicsLayer): Bitmap =
         Bitmap.createBitmap(GraphicsLayerPicture(graphicsLayer))
 
-    /**
-     * [Picture] class used to create a hardware bitmap through [Bitmap.createBitmap]
-     */
+    /** [Picture] class used to create a hardware bitmap through [Bitmap.createBitmap] */
     private class GraphicsLayerPicture(val graphicsLayer: GraphicsLayer) : Picture() {
         override fun beginRecording(width: Int, height: Int): Canvas {
             // Return placeholder canvas here as we are leveraging a graphicsLayer that is
@@ -82,37 +80,34 @@ internal object LayerSnapshotV22 : LayerSnapshotImpl {
         val size = graphicsLayer.size
         val looper = Looper.myLooper() ?: Looper.getMainLooper()
         ImageReader.newInstance(
-            size.width, /* pixel width */
-            size.height, /* pixel height */
-            PixelFormat.RGBA_8888, /* format */
-            1 /* maxImages */
-        ).use { reader ->
-            val image = suspendCancellableCoroutine { continuation ->
-                reader.setOnImageAvailableListener(
-                    {
-                        continuation.resume(it.acquireLatestImage())
-                    },
-                    HandlerCompat.createAsync(looper)
-                )
+                size.width, /* pixel width */
+                size.height, /* pixel height */
+                PixelFormat.RGBA_8888, /* format */
+                1 /* maxImages */
+            )
+            .use { reader ->
+                val image = suspendCancellableCoroutine { continuation ->
+                    reader.setOnImageAvailableListener(
+                        { continuation.resume(it.acquireLatestImage()) },
+                        HandlerCompat.createAsync(looper)
+                    )
 
-                val surface = reader.surface
-                val canvas = SurfaceUtils.lockCanvas(surface)
-                try {
-                    // Clear contents of the buffer before rendering
-                    canvas.drawColor(Color.Black.toArgb(), PorterDuff.Mode.CLEAR)
-                    graphicsLayer.draw(ComposeCanvas(canvas), null)
-                } finally {
-                    surface.unlockCanvasAndPost(canvas)
+                    val surface = reader.surface
+                    val canvas = SurfaceUtils.lockCanvas(surface)
+                    try {
+                        // Clear contents of the buffer before rendering
+                        canvas.drawColor(Color.Black.toArgb(), PorterDuff.Mode.CLEAR)
+                        graphicsLayer.draw(ComposeCanvas(canvas), null)
+                    } finally {
+                        surface.unlockCanvasAndPost(canvas)
+                    }
                 }
+                return image.toBitmap()
             }
-            return image.toBitmap()
-        }
     }
 }
 
-/**
- * Fallback implementation to render into a software bitmap
- */
+/** Fallback implementation to render into a software bitmap */
 internal object LayerSnapshotV21 : LayerSnapshotImpl {
     override suspend fun toBitmap(graphicsLayer: GraphicsLayer): Bitmap {
         val size = graphicsLayer.size
@@ -137,15 +132,15 @@ internal object SurfaceUtils {
 
     /**
      * Attempts to obtain a hardware accelerated [android.graphics.Canvas] from the provided
-     * [Surface]. In certain scenarios it will fallback to returning a software backed [Canvas].
-     * For Android versions M (inclusive) and above this will always return a hardware accelerated
+     * [Surface]. In certain scenarios it will fallback to returning a software backed [Canvas]. For
+     * Android versions M (inclusive) and above this will always return a hardware accelerated
      * [Canvas].
      *
      * For Android L_MR1 (API 22) this will attempt to leverage reflection to obtain a hardware
      * accelerated [Canvas].
      *
-     * If the reflective call fails or this method is invoked on Android L (API 21) this will
-     * always return a software backed [Canvas]
+     * If the reflective call fails or this method is invoked on Android L (API 21) this will always
+     * return a software backed [Canvas]
      */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP_MR1)
     fun lockCanvas(surface: Surface): Canvas {
@@ -178,10 +173,11 @@ internal object SurfaceUtils {
                     // method instance on success and throws on failure. Avoiding usage of the
                     // the safe call operator as it shows warnings in the IDE that it is not
                     // necessary as a result
-                    method = Surface::class.java.getDeclaredMethod("lockHardwareCanvas").also {
-                        it.isAccessible = true
-                        lockHardwareCanvasMethod = it
-                    }
+                    method =
+                        Surface::class.java.getDeclaredMethod("lockHardwareCanvas").also {
+                            it.isAccessible = true
+                            lockHardwareCanvasMethod = it
+                        }
                 }
                 method
             } catch (_: Throwable) {
@@ -219,11 +215,6 @@ private fun Image.toBitmap(): Bitmap {
             colors[i] = Color(red, green, blue, alpha).toArgb()
         }
 
-        return Bitmap.createBitmap(
-            colors,
-            width,
-            height,
-            android.graphics.Bitmap.Config.ARGB_8888
-        )
+        return Bitmap.createBitmap(colors, width, height, android.graphics.Bitmap.Config.ARGB_8888)
     }
 }

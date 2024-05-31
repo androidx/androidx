@@ -48,13 +48,14 @@ class GraphicsLayerScopeTest {
         scope.rotationZ = 5f
         scope.cameraDistance = 5f
         scope.transformOrigin = TransformOrigin(0.7f, 0.1f)
-        scope.shape = object : Shape {
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ) = Outline.Rectangle(size.toRect())
-        }
+        scope.shape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density
+                ) = Outline.Rectangle(size.toRect())
+            }
         scope.clip = true
         scope.size = Size(100f, 200f)
         scope.reset()

@@ -43,35 +43,35 @@ import kotlinx.coroutines.launch
 @Suppress("UnusedReceiverParameter")
 @Sampled
 fun platformTextInputModifierNodeSample() {
-    class PlatformTextInputModifierNodeSample : Modifier.Node(),
-        FocusEventModifierNode,
-        PlatformTextInputModifierNode {
+    class PlatformTextInputModifierNodeSample :
+        Modifier.Node(), FocusEventModifierNode, PlatformTextInputModifierNode {
 
         private var focusedJob: Job? = null
 
         override fun onFocusEvent(focusState: FocusState) {
             focusedJob?.cancel()
-            focusedJob = if (focusState.isFocused) {
-                // establishTextInputSession is a suspend function, so it must be called from a
-                // coroutine. Launching it into this modifier node's coroutine scope ensures the
-                // session will automatically be torn down when the node is detached.
-                coroutineScope.launch {
-                    // This will automatically cancel any currently-active session.
-                    establishTextInputSession {
-                        launch {
-                            // TODO: Observe text field state, call into system to update it as
-                            //  required by the platform.
-                        }
+            focusedJob =
+                if (focusState.isFocused) {
+                    // establishTextInputSession is a suspend function, so it must be called from a
+                    // coroutine. Launching it into this modifier node's coroutine scope ensures the
+                    // session will automatically be torn down when the node is detached.
+                    coroutineScope.launch {
+                        // This will automatically cancel any currently-active session.
+                        establishTextInputSession {
+                            launch {
+                                // TODO: Observe text field state, call into system to update it as
+                                //  required by the platform.
+                            }
 
-                        // Call out to a platform-specific expect/actual function to create the
-                        // platform-specific request.
-                        val request: PlatformTextInputMethodRequest = createInputRequest()
-                        startInputMethod(request)
+                            // Call out to a platform-specific expect/actual function to create the
+                            // platform-specific request.
+                            val request: PlatformTextInputMethodRequest = createInputRequest()
+                            startInputMethod(request)
+                        }
                     }
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
         }
 
         // This would probably be an expect/actual function.
@@ -91,30 +91,29 @@ fun InterceptPlatformTextInputSample() {
     InterceptPlatformTextInput(
         interceptor = { request, nextHandler ->
             // Create a new request to wrap the incoming one with some custom logic.
-            val modifiedRequest = object : PlatformTextInputMethodRequest {
-                override fun createInputConnection(outAttributes: EditorInfo): InputConnection {
-                    val inputConnection = request.createInputConnection(outAttributes)
-                    // After the original request finishes initializing the EditorInfo we can
-                    // customize it. If we needed to we could also wrap the InputConnection before
-                    // returning it.
-                    updateEditorInfo(outAttributes)
-                    return inputConnection
-                }
+            val modifiedRequest =
+                object : PlatformTextInputMethodRequest {
+                    override fun createInputConnection(outAttributes: EditorInfo): InputConnection {
+                        val inputConnection = request.createInputConnection(outAttributes)
+                        // After the original request finishes initializing the EditorInfo we can
+                        // customize it. If we needed to we could also wrap the InputConnection
+                        // before
+                        // returning it.
+                        updateEditorInfo(outAttributes)
+                        return inputConnection
+                    }
 
-                fun updateEditorInfo(outAttributes: EditorInfo) {
-                    // Your code here, e.g. set some custom properties.
+                    fun updateEditorInfo(outAttributes: EditorInfo) {
+                        // Your code here, e.g. set some custom properties.
+                    }
                 }
-            }
 
             // Send our wrapping request to the next handler, which could be the system or another
             // interceptor up the tree.
             nextHandler.startInputMethod(modifiedRequest)
         }
     ) {
-        BasicTextField(
-            value = text,
-            onValueChange = { text = it }
-        )
+        BasicTextField(value = text, onValueChange = { text = it })
     }
 }
 

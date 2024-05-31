@@ -29,12 +29,11 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 interface FocusOrderModifier : Modifier.Element {
 
     /**
-     * Populates the [next][FocusOrder.next] / [left][FocusOrder.left] /
-     * [right][FocusOrder.right] / [up][FocusOrder.up] / [down][FocusOrder.down] items if
-     * you don't want to use the default focus traversal order.
+     * Populates the [next][FocusOrder.next] / [left][FocusOrder.left] / [right][FocusOrder.right] /
+     * [up][FocusOrder.up] / [down][FocusOrder.down] items if you don't want to use the default
+     * focus traversal order.
      */
-    @Suppress("DEPRECATION")
-    fun populateFocusOrder(focusOrder: FocusOrder)
+    @Suppress("DEPRECATION") fun populateFocusOrder(focusOrder: FocusOrder)
 }
 
 /**
@@ -44,8 +43,7 @@ interface FocusOrderModifier : Modifier.Element {
  */
 @Deprecated("Use FocusProperties instead")
 class FocusOrder internal constructor(private val focusProperties: FocusProperties) {
-    @Suppress("unused")
-    constructor() : this(FocusPropertiesImpl())
+    @Suppress("unused") constructor() : this(FocusPropertiesImpl())
 
     /**
      * A custom item to be used when the user requests a focus moves to the "next" item.
@@ -70,9 +68,9 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
         }
 
     /**
-     *  A custom item to be used when the user moves focus "up".
+     * A custom item to be used when the user moves focus "up".
      *
-     *  @sample androidx.compose.ui.samples.CustomFocusOrderSample
+     * @sample androidx.compose.ui.samples.CustomFocusOrderSample
      */
     var up: FocusRequester
         get() = focusProperties.up
@@ -81,9 +79,9 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
         }
 
     /**
-     *  A custom item to be used when the user moves focus "down".
+     * A custom item to be used when the user moves focus "down".
      *
-     *  @sample androidx.compose.ui.samples.CustomFocusOrderSample
+     * @sample androidx.compose.ui.samples.CustomFocusOrderSample
      */
     var down: FocusRequester
         get() = focusProperties.down
@@ -126,8 +124,8 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
         }
 
     /**
-     * A custom item to be used when the user requests a focus moves to the "right" in LTR mode
-     * and "left" in RTL mode.
+     * A custom item to be used when the user requests a focus moves to the "right" in LTR mode and
+     * "left" in RTL mode.
      *
      * @sample androidx.compose.ui.samples.CustomFocusOrderSample
      */
@@ -141,10 +139,10 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
 /**
  * Use this modifier to specify a custom focus traversal order.
  *
- * @param focusOrderReceiver Specifies [FocusRequester]s that are used when the user wants
- * to move the current focus to the [next][FocusOrder.next] item, or wants to move
- * focus [left][FocusOrder.left], [right][FocusOrder.right], [up][FocusOrder.up] or
- * [down][FocusOrder.down].
+ * @param focusOrderReceiver Specifies [FocusRequester]s that are used when the user wants to move
+ *   the current focus to the [next][FocusOrder.next] item, or wants to move focus
+ *   [left][FocusOrder.left], [right][FocusOrder.right], [up][FocusOrder.up] or
+ *   [down][FocusOrder.down].
  *
  * @sample androidx.compose.ui.samples.CustomFocusOrderSample
  */
@@ -156,8 +154,7 @@ class FocusOrder internal constructor(private val focusProperties: FocusProperti
     )
 )
 fun Modifier.focusOrder(
-    @Suppress("DEPRECATION")
-    focusOrderReceiver: FocusOrder.() -> Unit
+    @Suppress("DEPRECATION") focusOrderReceiver: FocusOrder.() -> Unit
 ): Modifier {
     val scope = FocusOrderToProperties(focusOrderReceiver)
     return focusProperties { scope.apply(this) }
@@ -188,19 +185,15 @@ fun Modifier.focusOrder(focusRequester: FocusRequester): Modifier = focusRequest
 )
 fun Modifier.focusOrder(
     focusRequester: FocusRequester,
-    @Suppress("DEPRECATION")
-    focusOrderReceiver: FocusOrder.() -> Unit
+    @Suppress("DEPRECATION") focusOrderReceiver: FocusOrder.() -> Unit
 ): Modifier {
     val scope = FocusOrderToProperties(focusOrderReceiver)
-    return this
-        .focusRequester(focusRequester)
-        .focusProperties { scope.apply(this) }
+    return this.focusRequester(focusRequester).focusProperties { scope.apply(this) }
 }
 
 @Suppress("DEPRECATION")
-internal class FocusOrderToProperties(
-    val focusOrderReceiver: FocusOrder.() -> Unit
-) : FocusPropertiesScope {
+internal class FocusOrderToProperties(val focusOrderReceiver: FocusOrder.() -> Unit) :
+    FocusPropertiesScope {
     override fun apply(focusProperties: FocusProperties) {
         focusOrderReceiver(FocusOrder(focusProperties))
     }

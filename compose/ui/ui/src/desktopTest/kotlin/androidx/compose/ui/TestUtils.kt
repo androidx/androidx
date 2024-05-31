@@ -52,43 +52,27 @@ internal val isLinux = os.startsWith("linux")
 internal val isWindows = os.startsWith("win")
 internal val isMacOs = os.startsWith("mac")
 
-fun Window.sendKeyEvent(
-    code: Int,
-    modifiers: Int = 0
-): Boolean {
-    val event = KeyEvent(
-        // if we would just use `focusOwner` then it will be null if the window is minimized
-        mostRecentFocusOwner,
-        KeyEvent.KEY_PRESSED,
-        0,
-        modifiers,
-        code,
-        code.toChar(),
-        KeyEvent.KEY_LOCATION_STANDARD
-    )
+fun Window.sendKeyEvent(code: Int, modifiers: Int = 0): Boolean {
+    val event =
+        KeyEvent(
+            // if we would just use `focusOwner` then it will be null if the window is minimized
+            mostRecentFocusOwner,
+            KeyEvent.KEY_PRESSED,
+            0,
+            modifiers,
+            code,
+            code.toChar(),
+            KeyEvent.KEY_LOCATION_STANDARD
+        )
     dispatchEvent(event)
     return event.isConsumed
 }
 
-fun JFrame.sendMouseEvent(
-    id: Int,
-    x: Int,
-    y: Int,
-    modifiers: Int = 0
-): Boolean {
+fun JFrame.sendMouseEvent(id: Int, x: Int, y: Int, modifiers: Int = 0): Boolean {
     // we use width and height instead of x and y because we can send (-1, -1), but still need
     // the component inside window
     val component = findComponentAt(width / 2, height / 2)
-    val event = MouseEvent(
-        component,
-        id,
-        0,
-        modifiers,
-        x,
-        y,
-        1,
-        false
-    )
+    val event = MouseEvent(component, id, 0, modifiers, x, y, 1, false)
     component.dispatchEvent(event)
     return event.isConsumed
 }
@@ -104,19 +88,8 @@ fun JFrame.sendMouseWheelEvent(
     // we use width and height instead of x and y because we can send (-1, -1), but still need
     // the component inside window
     val component = findComponentAt(width / 2, height / 2)
-    val event = MouseWheelEvent(
-        component,
-        id,
-        0,
-        modifiers,
-        x,
-        y,
-        1,
-        false,
-        scrollType,
-        1,
-        wheelRotation
-    )
+    val event =
+        MouseWheelEvent(component, id, 0, modifiers, x, y, 1, false, scrollType, 1, wheelRotation)
     component.dispatchEvent(event)
     return event.isConsumed
 }

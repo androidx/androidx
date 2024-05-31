@@ -47,20 +47,10 @@ fun stateMapSample() {
 
         Column {
             Row {
-                BasicTextField(
-                    value = name,
-                    onValueChange = { name = it }
-                )
-                BasicTextField(
-                    value = saying,
-                    onValueChange = { saying = it }
-                )
-                Button(onClick = { sayings[name] = saying }) {
-                    Text("Add")
-                }
-                Button(onClick = { sayings.remove(name) }) {
-                    Text("Remove")
-                }
+                BasicTextField(value = name, onValueChange = { name = it })
+                BasicTextField(value = saying, onValueChange = { saying = it })
+                Button(onClick = { sayings[name] = saying }) { Text("Add") }
+                Button(onClick = { sayings.remove(name) }) { Text("Remove") }
             }
             Text("Sayings:")
             Column {

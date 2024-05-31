@@ -33,8 +33,7 @@ import org.junit.Test
 @OptIn(ExperimentalComposeUiApi::class)
 class ComposeInvokerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun workingComposable() {
@@ -120,9 +119,7 @@ class ComposeInvokerTest {
 
 class MyTestComposables {
 
-    @Composable
-    fun MyWorkingComposable() {
-    }
+    @Composable fun MyWorkingComposable() {}
 
     @Composable
     fun MyThrowExceptionComposable() {
@@ -132,9 +129,7 @@ class MyTestComposables {
 
 class MyTestComposableWithBooleanPreviewParams {
 
-    @Composable
-    fun TestContent() {
-    }
+    @Composable fun TestContent() {}
 
     @Preview
     @Composable
@@ -142,8 +137,7 @@ class MyTestComposableWithBooleanPreviewParams {
         @PreviewParameter(TestContentParameterProviderBoolean::class)
         @Suppress("UNUSED_PARAMETER")
         valueParameter: Boolean
-    ) {
-    }
+    ) {}
 
     private class TestContentParameterProviderBoolean : PreviewParameterProvider<Boolean> {
         override val values = sequenceOf(true, false)
@@ -152,9 +146,7 @@ class MyTestComposableWithBooleanPreviewParams {
 
 class MyTestComposableWithIntPreviewParams {
 
-    @Composable
-    fun TestContent() {
-    }
+    @Composable fun TestContent() {}
 
     @Preview
     @Composable
@@ -162,8 +154,7 @@ class MyTestComposableWithIntPreviewParams {
         @PreviewParameter(TestContentParameterProviderInt::class)
         @Suppress("UNUSED_PARAMETER")
         valueParameter: Int
-    ) {
-    }
+    ) {}
 
     private class TestContentParameterProviderInt : PreviewParameterProvider<Int> {
         override val values = sequenceOf(42, 45, 92)
@@ -177,8 +168,7 @@ class MyTestComposableWithClassTypePreviewParams {
         @PreviewParameter(CornerRadiusParamProvider::class)
         @Suppress("UNUSED_PARAMETER")
         radius: CornerRadius
-    ) {
-    }
+    ) {}
 
     class CornerRadiusParamProvider : PreviewParameterProvider<CornerRadius> {
         override val values: Sequence<CornerRadius>

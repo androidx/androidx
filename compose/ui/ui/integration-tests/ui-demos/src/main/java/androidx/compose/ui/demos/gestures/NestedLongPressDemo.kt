@@ -35,9 +35,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Demonstration of how various press/tap gesture interact together in a nested fashion.
- */
+/** Demonstration of how various press/tap gesture interact together in a nested fashion. */
 @Composable
 fun NestedLongPressDemo() {
     Column {
@@ -59,25 +57,21 @@ fun NestedLongPressDemo() {
 }
 
 @Composable
-private fun LongPressableContainer(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+private fun LongPressableContainer(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val defaultColor = DefaultBackgroundColor
     val pressedColor = PressedColor
 
     val currentColor = remember { mutableStateOf(defaultColor) }
     val pressed = remember { mutableStateOf(false) }
 
-    val onLongPress: (Offset) -> Unit = {
-        currentColor.value = currentColor.value.next()
-    }
+    val onLongPress: (Offset) -> Unit = { currentColor.value = currentColor.value.next() }
 
-    val color = if (pressed.value) {
-        pressedColor.compositeOver(currentColor.value)
-    } else {
-        currentColor.value
-    }
+    val color =
+        if (pressed.value) {
+            pressedColor.compositeOver(currentColor.value)
+        } else {
+            currentColor.value
+        }
 
     Box(
         modifier
@@ -86,5 +80,7 @@ private fun LongPressableContainer(
             .border(BorderStroke(2.dp, BorderColor))
             .padding(2.dp),
         contentAlignment = Alignment.Center
-    ) { content() }
+    ) {
+        content()
+    }
 }

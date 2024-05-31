@@ -52,38 +52,31 @@ fun mutatorMutexStateObject() {
 
         private val mutatorMutex = MutatorMutex()
 
-        /**
-         * Only one caller to [scroll] can be in progress at a time.
-         */
-        suspend fun <R> scroll(
-            block: suspend () -> R
-        ): R = mutatorMutex.mutate {
-            isScrolling = true
-            try {
-                block()
-            } finally {
-                // MutatorMutex.mutate ensures mutual exclusion between blocks.
-                // By setting back to false in the finally block inside mutate, we ensure that we
-                // reset the state upon cancellation before the next block starts to run (if any).
-                isScrolling = false
+        /** Only one caller to [scroll] can be in progress at a time. */
+        suspend fun <R> scroll(block: suspend () -> R): R =
+            mutatorMutex.mutate {
+                isScrolling = true
+                try {
+                    block()
+                } finally {
+                    // MutatorMutex.mutate ensures mutual exclusion between blocks.
+                    // By setting back to false in the finally block inside mutate, we ensure that
+                    // we
+                    // reset the state upon cancellation before the next block starts to run (if
+                    // any).
+                    isScrolling = false
+                }
             }
-        }
     }
 
-    /**
-     * Arbitrary animations can be defined as extensions using only public API
-     */
+    /** Arbitrary animations can be defined as extensions using only public API */
     suspend fun ScrollState.animateTo(target: Int) {
-        scroll {
-            animate(from = position, to = target) { newPosition ->
-                position = newPosition
-            }
-        }
+        scroll { animate(from = position, to = target) { newPosition -> position = newPosition } }
     }
 
     /**
-     * Presents two buttons for animating a scroll to the beginning or end of content.
-     * Pressing one will cancel any current animation in progress.
+     * Presents two buttons for animating a scroll to the beginning or end of content. Pressing one
+     * will cancel any current animation in progress.
      */
     @Composable
     fun ScrollControls(scrollState: ScrollState) {
@@ -108,12 +101,9 @@ fun mutatorMutexStateObjectWithReceiver() {
 
         private val mutatorMutex = MutatorMutex()
 
-        /**
-         * Only [block] in a call to [scroll] may change the value of [position].
-         */
-        suspend fun <R> scroll(
-            block: suspend MutableState<Int>.() -> R
-        ): R = mutatorMutex.mutateWith(_position, block = block)
+        /** Only [block] in a call to [scroll] may change the value of [position]. */
+        suspend fun <R> scroll(block: suspend MutableState<Int>.() -> R): R =
+            mutatorMutex.mutateWith(_position, block = block)
     }
 }
 

@@ -30,7 +30,7 @@ import java.awt.event.KeyEvent.KEY_LOCATION_STANDARD
  * Actual implementation of [Key] for Desktop.
  *
  * @param keyCode an integer code representing the key pressed. Note: This keycode can be used to
- * uniquely identify a hardware key. It is different from the native keycode.
+ *   uniquely identify a hardware key. It is different from the native keycode.
  */
 @JvmInline
 actual value class Key(val keyCode: Long) {
@@ -349,8 +349,8 @@ actual value class Key(val keyCode: Long) {
         /**
          * Num Lock key.
          *
-         * This is the Num Lock key; it is different from [Number].
-         * This key alters the behavior of other keys on the numeric keypad.
+         * This is the Num Lock key; it is different from [Number]. This key alters the behavior of
+         * other keys on the numeric keypad.
          */
         actual val NumLock = Key(KeyEvent.VK_NUM_LOCK, KEY_LOCATION_NUMPAD)
 
@@ -613,14 +613,10 @@ fun Key(nativeKeyCode: Int, nativeKeyLocation: Int = KEY_LOCATION_STANDARD): Key
     return Key(keyCode or location)
 }
 
-/**
- * The native keycode corresponding to this [Key].
- */
+/** The native keycode corresponding to this [Key]. */
 val Key.nativeKeyCode: Int
     get() = unpackInt1(keyCode)
 
-/**
- * The native location corresponding to this [Key].
- */
+/** The native location corresponding to this [Key]. */
 val Key.nativeKeyLocation: Int
     get() = (keyCode and 0xFFFFFFFF).shr(29).toInt()

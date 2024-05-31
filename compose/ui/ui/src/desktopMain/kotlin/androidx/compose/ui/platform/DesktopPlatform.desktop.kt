@@ -39,9 +39,7 @@ internal enum class DesktopPlatform {
     Unknown;
 
     companion object {
-        /**
-         * Identify OS on which the application is currently running.
-         */
+        /** Identify OS on which the application is currently running. */
         val Current: DesktopPlatform by lazy {
             val name = System.getProperty("os.name")
             when {

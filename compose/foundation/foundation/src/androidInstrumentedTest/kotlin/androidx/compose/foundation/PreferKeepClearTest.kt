@@ -43,25 +43,20 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Testing the support for Android Views in Compose UI.
- */
+/** Testing the support for Android Views in Compose UI. */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PreferKeepClearTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     /**
-     * Make sure that when an rect using the bounds of a layout is used, the
-     * bounds should be marked as prefer keep clear.
+     * Make sure that when an rect using the bounds of a layout is used, the bounds should be marked
+     * as prefer keep clear.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun preferClearBounds() {
-        val composeView = setComposeContent {
-            Box(Modifier.size(50.dp).preferKeepClear())
-        }
+        val composeView = setComposeContent { Box(Modifier.size(50.dp).preferKeepClear()) }
         rule.runOnIdle {
             assertThat(composeView.preferKeepClearRects).isNotNull()
             assertThat(composeView.preferKeepClearRects).hasSize(1)
@@ -72,16 +67,14 @@ class PreferKeepClearTest {
     }
 
     /**
-     * Make sure that when an area using a supplied rect, the
-     * rect should be marked as prefer keep clear.
+     * Make sure that when an area using a supplied rect, the rect should be marked as prefer keep
+     * clear.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun preferClearWithRect() {
         val composeView = setComposeContent {
-            Box(Modifier.size(50.dp).preferKeepClear {
-                Rect(0f, 0f, 10f, 20f)
-            })
+            Box(Modifier.size(50.dp).preferKeepClear { Rect(0f, 0f, 10f, 20f) })
         }
         rule.runOnIdle {
             assertThat(composeView.preferKeepClearRects).isNotNull()
@@ -108,9 +101,7 @@ class PreferKeepClearTest {
             assertThat(composeView.preferKeepClearRects[0]).isEqualTo(expectedRect)
         }
         setPreferClear = false
-        rule.runOnIdle {
-            assertThat(composeView.preferKeepClearRects).isEmpty()
-        }
+        rule.runOnIdle { assertThat(composeView.preferKeepClearRects).isEmpty() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -118,9 +109,9 @@ class PreferKeepClearTest {
     fun removeWhenModifierRemovedRect() {
         var setPreferClear by mutableStateOf(true)
         val composeView = setComposeContent {
-            val modifier = if (setPreferClear) Modifier.preferKeepClear {
-                Rect(0f, 0f, 10f, 20f)
-            } else Modifier
+            val modifier =
+                if (setPreferClear) Modifier.preferKeepClear { Rect(0f, 0f, 10f, 20f) }
+                else Modifier
             Box(Modifier.size(50.dp).then(modifier))
         }
         rule.runOnUiThread {
@@ -131,9 +122,7 @@ class PreferKeepClearTest {
             assertThat(composeView.preferKeepClearRects[0]).isEqualTo(expectedRect)
         }
         setPreferClear = false
-        rule.runOnIdle {
-            assertThat(composeView.preferKeepClearRects).isEmpty()
-        }
+        rule.runOnIdle { assertThat(composeView.preferKeepClearRects).isEmpty() }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -175,9 +164,10 @@ class PreferKeepClearTest {
     fun markPreferClearMultipleBoundsSingleComposable() {
         val composeView = setComposeContent {
             Column(Modifier.wrapContentSize()) {
-                Box(Modifier.size(100.dp)
-                    .preferKeepClear { Rect(0f, 0f, 100f, 50f) }
-                    .preferKeepClear { Rect(0f, 50f, 100f, 100f) }
+                Box(
+                    Modifier.size(100.dp)
+                        .preferKeepClear { Rect(0f, 0f, 100f, 50f) }
+                        .preferKeepClear { Rect(0f, 50f, 100f, 100f) }
                 )
             }
         }
@@ -217,9 +207,7 @@ class PreferKeepClearTest {
                 Box(Modifier.size(50.dp).preferKeepClear())
             }
         }
-        rule.runOnIdle {
-            setPreferClear = false
-        }
+        rule.runOnIdle { setPreferClear = false }
         rule.runOnIdle {
             assertThat(composeView.preferKeepClearRects).hasSize(1)
             val rect = composeView.preferKeepClearRects[0]
@@ -233,18 +221,13 @@ class PreferKeepClearTest {
         var useEmpty by mutableStateOf(false)
         val composeView = setComposeContent {
             Column(Modifier.wrapContentSize()) {
-                val lambda: (LayoutCoordinates) -> Rect = if (useEmpty) { _ ->
-                    Rect.Zero
-                } else { _ ->
-                    Rect(0f, 0f, 10f, 10f)
-                }
+                val lambda: (LayoutCoordinates) -> Rect =
+                    if (useEmpty) { _ -> Rect.Zero } else { _ -> Rect(0f, 0f, 10f, 10f) }
                 Box(Modifier.size(50.dp).preferKeepClear(lambda))
                 Box(Modifier.size(50.dp).preferKeepClear())
             }
         }
-        rule.runOnIdle {
-            useEmpty = true
-        }
+        rule.runOnIdle { useEmpty = true }
         rule.runOnIdle {
             assertThat(composeView.preferKeepClearRects).hasSize(1)
             val rect = composeView.preferKeepClearRects[0]
@@ -258,17 +241,13 @@ class PreferKeepClearTest {
         var useFirst by mutableStateOf(true)
         val composeView = setComposeContent {
             Column(Modifier.wrapContentSize()) {
-                val lambda: (LayoutCoordinates) -> Rect = if (useFirst) { _ ->
-                    Rect(0f, 10f, 10f, 5f)
-                } else { _ ->
-                    Rect(0f, 0f, 10f, 10f)
-                }
+                val lambda: (LayoutCoordinates) -> Rect =
+                    if (useFirst) { _ -> Rect(0f, 10f, 10f, 5f) }
+                    else { _ -> Rect(0f, 0f, 10f, 10f) }
                 Box(Modifier.size(50.dp).preferKeepClear(lambda))
             }
         }
-        rule.runOnIdle {
-            useFirst = false
-        }
+        rule.runOnIdle { useFirst = false }
         rule.runOnIdle {
             assertThat(composeView.preferKeepClearRects).hasSize(1)
             val rect = composeView.preferKeepClearRects[0]

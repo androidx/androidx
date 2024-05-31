@@ -36,13 +36,14 @@ class AndroidFontResourceLoaderTest {
     @Suppress("DEPRECATION")
     fun test_font_loading_from_res() {
         val loader = AndroidFontResourceLoader(context)
-        val typeface = loader.load(
-            Font(
-                resId = R.font.sample_font,
-                weight = FontWeight.Normal,
-                style = FontStyle.Normal
+        val typeface =
+            loader.load(
+                Font(
+                    resId = R.font.sample_font,
+                    weight = FontWeight.Normal,
+                    style = FontStyle.Normal
+                )
             )
-        )
         assertThat(typeface).isNotNull()
     }
 }

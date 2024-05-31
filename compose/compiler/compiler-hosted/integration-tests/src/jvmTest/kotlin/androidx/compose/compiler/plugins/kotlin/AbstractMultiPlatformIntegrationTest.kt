@@ -57,6 +57,7 @@ private fun executeCompilerGrabOutput(
 
     return Pair(output.toString(), ExitCode.OK)
 }
+
 // CompilerTestUtil
 private fun executeCompiler(compiler: CLITool<*>, args: List<String>): Pair<String, ExitCode> {
     val bytes = ByteArrayOutputStream()
@@ -69,43 +70,41 @@ private fun executeCompiler(compiler: CLITool<*>, args: List<String>): Pair<Stri
         System.setErr(origErr)
     }
 }
+
 // jetTestUtils
 fun String.trimTrailingWhitespaces(): String =
     this.split('\n').joinToString(separator = "\n") { it.trimEnd() }
+
 // jetTestUtils
 fun String.trimTrailingWhitespacesAndAddNewlineAtEOF(): String =
-    this.trimTrailingWhitespaces().let {
-        result ->
+    this.trimTrailingWhitespaces().let { result ->
         if (result.endsWith("\n")) result else result + "\n"
     }
 
 @RunWith(JUnit4::class)
 abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest(useFir = false) {
-    @JvmField
-    @Rule
-    val sourceDirectory = TemporaryFolder()
+    @JvmField @Rule val sourceDirectory = TemporaryFolder()
 
     protected fun multiplatform(
-        @Language("kotlin")
-        common: String,
-        @Language("kotlin")
-        jvm: String,
+        @Language("kotlin") common: String,
+        @Language("kotlin") jvm: String,
         output: String
     ) {
         assert(composePluginJar.exists()) {
             "Compiler plugin jar does not exist: $composePluginJar"
         }
 
-        val optionalArgs = arrayOf(
-            "-cp",
-            defaultClassPath
-                .filter { it.exists() }
-                .joinToString(File.pathSeparator) { it.absolutePath },
-            "-kotlin-home",
-            kotlinHome.absolutePath,
-            "-Xplugin=${composePluginJar.absolutePath}",
-            "-Xuse-ir"
-        )
+        val optionalArgs =
+            arrayOf(
+                "-cp",
+                defaultClassPath
+                    .filter { it.exists() }
+                    .joinToString(File.pathSeparator) { it.absolutePath },
+                "-kotlin-home",
+                kotlinHome.absolutePath,
+                "-Xplugin=${composePluginJar.absolutePath}",
+                "-Xuse-ir"
+            )
 
         val jvmOnlyArgs = arrayOf("-no-stdlib")
 
@@ -118,13 +117,8 @@ abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest(useFi
 
         val jvmDest = sourceDirectory.newFolder("jvm").absolutePath
 
-        val result = K2JVMCompiler().compile(
-            jvmSrc,
-            commonSrc,
-            "-d", jvmDest,
-            *optionalArgs,
-            *jvmOnlyArgs
-        )
+        val result =
+            K2JVMCompiler().compile(jvmSrc, commonSrc, "-d", jvmDest, *optionalArgs, *jvmOnlyArgs)
 
         val files = File(jvmDest).listFiles()
 
@@ -159,19 +153,23 @@ abstract class AbstractMultiPlatformIntegrationTest : AbstractCompilerTest(useFi
         sources: File,
         commonSources: File?,
         vararg mainArguments: String
-    ): String = buildString {
-        val (output, exitCode) = executeCompilerGrabOutput(
-            this@compile,
-            listOfNotNull(
-                sources.absolutePath,
-                commonSources?.absolutePath,
-                commonSources?.absolutePath?.let("-Xcommon-sources="::plus),
-                "-Xmulti-platform",
-                "-Xexpect-actual-classes"
-            ) + mainArguments
-        )
-        appendLine("Exit code: $exitCode")
-        appendLine("Output:")
-        appendLine(output)
-    }.trimTrailingWhitespacesAndAddNewlineAtEOF().trimEnd('\r', '\n')
+    ): String =
+        buildString {
+                val (output, exitCode) =
+                    executeCompilerGrabOutput(
+                        this@compile,
+                        listOfNotNull(
+                            sources.absolutePath,
+                            commonSources?.absolutePath,
+                            commonSources?.absolutePath?.let("-Xcommon-sources="::plus),
+                            "-Xmulti-platform",
+                            "-Xexpect-actual-classes"
+                        ) + mainArguments
+                    )
+                appendLine("Exit code: $exitCode")
+                appendLine("Output:")
+                appendLine(output)
+            }
+            .trimTrailingWhitespacesAndAddNewlineAtEOF()
+            .trimEnd('\r', '\n')
 }

@@ -21,30 +21,29 @@ package androidx.compose.runtime
  * [ReusableContentHost] and [ReusableContent].
  *
  * The [ReusableContentHost] introduces the concept of reusing (or recycling) nodes, as well as
- * deactivating parts of composition, while keeping the nodes around to reuse common structures
- * in the next iteration. In this state, [RememberObserver] is not sufficient to track lifetime
- * of data associated with reused node, as deactivated or reused parts of composition is disposed.
+ * deactivating parts of composition, while keeping the nodes around to reuse common structures in
+ * the next iteration. In this state, [RememberObserver] is not sufficient to track lifetime of data
+ * associated with reused node, as deactivated or reused parts of composition is disposed.
  *
- * These callbacks track intermediate states of the node in reusable groups for managing
- * data contained inside reusable nodes or associated with them (e.g. subcomposition).
+ * These callbacks track intermediate states of the node in reusable groups for managing data
+ * contained inside reusable nodes or associated with them (e.g. subcomposition).
  *
  * Important: the runtime only supports node implementation of this interface.
  */
 interface ComposeNodeLifecycleCallback {
     /**
-     * Invoked when the node was reused in the composition.
-     * Consumers might use this callback to reset data associated with the previous content, as
-     * it is no longer valid.
+     * Invoked when the node was reused in the composition. Consumers might use this callback to
+     * reset data associated with the previous content, as it is no longer valid.
      */
     fun onReuse()
 
     /**
-     * Invoked when the group containing the node was deactivated.
-     * This happens when the content of [ReusableContentHost] is deactivated.
+     * Invoked when the group containing the node was deactivated. This happens when the content of
+     * [ReusableContentHost] is deactivated.
      *
-     * The node will not be reused in this recompose cycle, but might be reused or released in
-     * the future. Consumers might use this callback to release expensive resources or stop
-     * continuous process that was dependent on the node being used in composition.
+     * The node will not be reused in this recompose cycle, but might be reused or released in the
+     * future. Consumers might use this callback to release expensive resources or stop continuous
+     * process that was dependent on the node being used in composition.
      *
      * If the node is reused, [onReuse] will be called again to prepare the node for reuse.
      * Similarly, [onRelease] will indicate that deactivated node will never be reused again.
@@ -52,8 +51,8 @@ interface ComposeNodeLifecycleCallback {
     fun onDeactivate()
 
     /**
-     * Invoked when the node exits the composition entirely and won't be reused again.
-     * All intermediate data related to the node can be safely disposed.
+     * Invoked when the node exits the composition entirely and won't be reused again. All
+     * intermediate data related to the node can be safely disposed.
      */
     fun onRelease()
 }

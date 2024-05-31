@@ -53,33 +53,34 @@ private fun ApplicationScope.AppWindow() {
         }
     }
 
-    fun logFrame() = with(state) {
-        val t2 = System.nanoTime()
-        val dt = (t2 - t1).coerceAtLeast(0)
-        frameDeltas.add(dt)
-        t1 = t2
+    fun logFrame() =
+        with(state) {
+            val t2 = System.nanoTime()
+            val dt = (t2 - t1).coerceAtLeast(0)
+            frameDeltas.add(dt)
+            t1 = t2
 
-        if (heuristicExpectedFrameTime > 0 && dt > heuristicExpectedFrameTime * 1.5) {
-            val dtMillis = dt / 1E6
-            val expectedMillis = heuristicExpectedFrameTime / 1E6
-            println("Too long frame %.2f (expected %.2f)".format(dtMillis, expectedMillis))
+            if (heuristicExpectedFrameTime > 0 && dt > heuristicExpectedFrameTime * 1.5) {
+                val dtMillis = dt / 1E6
+                val expectedMillis = heuristicExpectedFrameTime / 1E6
+                println("Too long frame %.2f (expected %.2f)".format(dtMillis, expectedMillis))
+            }
+
+            if (frameDeltas.size % FrameLogCount == 0) {
+                val fps = 1E9 / frameDeltas.average()
+
+                // it is more precise than
+                // window.window.graphicsConfiguration.device.displayMode.refreshRate
+                // if vsync is supported
+                heuristicExpectedFrameTime = frameDeltas.median()
+
+                val actualFrameCount = frameDeltas.sum() / heuristicExpectedFrameTime
+                val missedFrames = (actualFrameCount - frameDeltas.size).coerceAtLeast(0)
+                val missedFrameCountPercent = 100.0 * missedFrames / frameDeltas.size
+                println("FPS %.2f, missed frames %.2f%%".format(fps, missedFrameCountPercent))
+                frameDeltas.clear()
+            }
         }
-
-        if (frameDeltas.size % FrameLogCount == 0) {
-            val fps = 1E9 / frameDeltas.average()
-
-            // it is more precise than
-            // window.window.graphicsConfiguration.device.displayMode.refreshRate
-            // if vsync is supported
-            heuristicExpectedFrameTime = frameDeltas.median()
-
-            val actualFrameCount = frameDeltas.sum() / heuristicExpectedFrameTime
-            val missedFrames = (actualFrameCount - frameDeltas.size).coerceAtLeast(0)
-            val missedFrameCountPercent = 100.0 * missedFrames / frameDeltas.size
-            println("FPS %.2f, missed frames %.2f%%".format(fps, missedFrameCountPercent))
-            frameDeltas.clear()
-        }
-    }
 
     Window(
         onCloseRequest = ::exitApplication,

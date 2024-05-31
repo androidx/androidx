@@ -39,9 +39,7 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 
-/**
- * The default scrim opacity.
- */
+/** The default scrim opacity. */
 private const val DefaultScrimOpacity = 0.6f
 private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
 
@@ -49,20 +47,23 @@ private val DefaultScrimColor = Color.Black.copy(alpha = DefaultScrimOpacity)
  * Properties used to customize the behavior of a [Dialog].
  *
  * @property dismissOnBackPress whether the popup can be dismissed by pressing the back button
- *  * on Android or escape key on desktop.
- * If true, pressing the back button will call onDismissRequest.
+ *     * on Android or escape key on desktop. If true, pressing the back button will call
+ *       onDismissRequest.
+ *
  * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
- * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
+ *   dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
- * the platform default, which is smaller than the screen width.
+ *   the platform default, which is smaller than the screen width.
  * @property usePlatformInsets Whether the size of the dialog's content should be limited by
- * platform insets.
+ *   platform insets.
  * @property useSoftwareKeyboardInset Whether the size of the dialog's content should be limited by
- * software keyboard inset.
+ *   software keyboard inset.
  * @property scrimColor Color of background fill.
  */
 @Immutable
-actual class DialogProperties @ExperimentalComposeUiApi constructor(
+actual class DialogProperties
+@ExperimentalComposeUiApi
+constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = true,
@@ -118,9 +119,7 @@ actual fun Dialog(
 ) {
     DialogLayout(
         if (properties.dismissOnClickOutside) onDismissRequest else null,
-        modifier = Modifier.drawBehind {
-            drawRect(properties.scrimColor)
-        },
+        modifier = Modifier.drawBehind { drawRect(properties.scrimColor) },
         onPreviewKeyEvent = { false },
         onKeyEvent = {
             if (properties.dismissOnBackPress && it.isDismissRequest()) {
@@ -147,47 +146,52 @@ internal fun DialogLayout(
     val density = LocalDensity.current
 
     val parentComposition = rememberCompositionContext()
-    val (owner, composition) = remember {
-        val owner = SkiaBasedOwner(
-            platformInputService = scene.platformInputService,
-            component = scene.component,
-            density = density,
-            coroutineContext = parentComposition.effectCoroutineContext,
-            isPopup = true,
-            isFocusable = true,
-            onDismissRequest = onDismissRequest,
-            onPreviewKeyEvent = onPreviewKeyEvent ?: { false },
-            onKeyEvent = onKeyEvent ?: { false }
-        )
-        scene.attach(owner)
-        val composition = owner.setContent(parent = parentComposition) {
-            Layout(
-                content = content,
-                modifier = modifier,
-                measurePolicy = { measurables, constraints ->
-                    val width = constraints.maxWidth
-                    val height = constraints.maxHeight
+    val (owner, composition) =
+        remember {
+            val owner =
+                SkiaBasedOwner(
+                    platformInputService = scene.platformInputService,
+                    component = scene.component,
+                    density = density,
+                    coroutineContext = parentComposition.effectCoroutineContext,
+                    isPopup = true,
+                    isFocusable = true,
+                    onDismissRequest = onDismissRequest,
+                    onPreviewKeyEvent = onPreviewKeyEvent ?: { false },
+                    onKeyEvent = onKeyEvent ?: { false }
+                )
+            scene.attach(owner)
+            val composition =
+                owner.setContent(parent = parentComposition) {
+                    Layout(
+                        content = content,
+                        modifier = modifier,
+                        measurePolicy = { measurables, constraints ->
+                            val width = constraints.maxWidth
+                            val height = constraints.maxHeight
 
-                    layout(constraints.maxWidth, constraints.maxHeight) {
-                        measurables.forEach {
-                            val placeable = it.measure(constraints)
-                            val position = Alignment.Center.align(
-                                size = IntSize(placeable.width, placeable.height),
-                                space = IntSize(width, height),
-                                layoutDirection = layoutDirection
-                            )
-                            owner.bounds = IntRect(
-                                position,
-                                IntSize(placeable.width, placeable.height)
-                            )
-                            placeable.place(position.x, position.y)
+                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                measurables.forEach {
+                                    val placeable = it.measure(constraints)
+                                    val position =
+                                        Alignment.Center.align(
+                                            size = IntSize(placeable.width, placeable.height),
+                                            space = IntSize(width, height),
+                                            layoutDirection = layoutDirection
+                                        )
+                                    owner.bounds =
+                                        IntRect(
+                                            position,
+                                            IntSize(placeable.width, placeable.height)
+                                        )
+                                    placeable.place(position.x, position.y)
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-            )
+            owner to composition
         }
-        owner to composition
-    }
     owner.density = density
     DisposableEffect(Unit) {
         onDispose {
@@ -198,5 +202,4 @@ internal fun DialogLayout(
     }
 }
 
-private fun KeyEvent.isDismissRequest() =
-    type == KeyEventType.KeyDown && key == Key.Escape
+private fun KeyEvent.isDismissRequest() = type == KeyEventType.KeyDown && key == Key.Escape

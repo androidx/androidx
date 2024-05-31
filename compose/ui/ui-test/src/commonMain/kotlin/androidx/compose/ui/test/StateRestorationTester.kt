@@ -28,9 +28,9 @@ import androidx.compose.runtime.setValue
 /**
  * Helps to test the state restoration for your Composable component.
  *
- * Instead of calling [ComposeUiTest.setContent] you need to use [setContent] on this
- * object, then change your state so there is some change to be restored, then execute
- * [emulateSaveAndRestore] and assert your state is restored properly.
+ * Instead of calling [ComposeUiTest.setContent] you need to use [setContent] on this object, then
+ * change your state so there is some change to be restored, then execute [emulateSaveAndRestore]
+ * and assert your state is restored properly.
  *
  * Note that this only tests the restoration of the local state of the composable you passed to
  * [setContent] and it is useful for testing uses of
@@ -43,8 +43,8 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
     private var registry: RestorationRegistry? = null
 
     /**
-     * This functions is a direct replacement for [ComposeUiTest.setContent] if you are
-     * going to use [emulateSaveAndRestore] in the test.
+     * This functions is a direct replacement for [ComposeUiTest.setContent] if you are going to use
+     * [emulateSaveAndRestore] in the test.
      *
      * @see ComposeUiTest.setContent
      */
@@ -59,21 +59,15 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
 
     /**
      * Emulates a save and restore cycle of the current composition. First all state that is
-     * remembered with [rememberSaveable][androidx.compose.runtime.saveable.rememberSaveable]
-     * is stored, then the current composition is disposed, and finally the composition is
-     * composed again. This allows you to test how your component behaves when state
-     * restoration is happening. Note that state stored via [remember] will be lost.
+     * remembered with [rememberSaveable][androidx.compose.runtime.saveable.rememberSaveable] is
+     * stored, then the current composition is disposed, and finally the composition is composed
+     * again. This allows you to test how your component behaves when state restoration is
+     * happening. Note that state stored via [remember] will be lost.
      */
     fun emulateSaveAndRestore() {
-        val registry = checkNotNull(registry) {
-            "setContent should be called first!"
-        }
-        composeTest.runOnIdle {
-            registry.saveStateAndDisposeChildren()
-        }
-        composeTest.runOnIdle {
-            registry.emitChildrenWithRestoredState()
-        }
+        val registry = checkNotNull(registry) { "setContent should be called first!" }
+        composeTest.runOnIdle { registry.saveStateAndDisposeChildren() }
+        composeTest.runOnIdle { registry.emitChildrenWithRestoredState() }
         composeTest.runOnIdle {
             // we just wait for the children to be emitted
         }
@@ -81,10 +75,11 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
 
     @Composable
     private fun InjectRestorationRegistry(content: @Composable (RestorationRegistry) -> Unit) {
-        val original = requireNotNull(LocalSaveableStateRegistry.current) {
-            "StateRestorationTester requires composeTestRule.setContent() to provide " +
-                "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
-        }
+        val original =
+            requireNotNull(LocalSaveableStateRegistry.current) {
+                "StateRestorationTester requires composeTestRule.setContent() to provide " +
+                    "a SaveableStateRegistry implementation via LocalSaveableStateRegistry"
+            }
         val restorationRegistry = remember { RestorationRegistry(original) }
         CompositionLocalProvider(LocalSaveableStateRegistry provides restorationRegistry) {
             if (restorationRegistry.shouldEmitChildren) {
@@ -98,6 +93,7 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
 
         var shouldEmitChildren by mutableStateOf(true)
             private set
+
         private var currentRegistry: SaveableStateRegistry = original
         private var savedMap: Map<String, List<Any?>> = emptyMap()
 
@@ -107,10 +103,11 @@ class StateRestorationTester(private val composeTest: ComposeUiTest) {
         }
 
         fun emitChildrenWithRestoredState() {
-            currentRegistry = SaveableStateRegistry(
-                restoredValues = savedMap,
-                canBeSaved = { original.canBeSaved(it) }
-            )
+            currentRegistry =
+                SaveableStateRegistry(
+                    restoredValues = savedMap,
+                    canBeSaved = { original.canBeSaved(it) }
+                )
             shouldEmitChildren = true
         }
 

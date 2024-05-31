@@ -33,42 +33,27 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ChildSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun oneChild() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent") {
-                BoundaryNode(testTag = "Child")
-            }
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") { BoundaryNode(testTag = "Child") } }
 
-        rule.onNodeWithTag("Parent")
-            .onChild()
-            .assert(hasTestTag("Child"))
+        rule.onNodeWithTag("Parent").onChild().assert(hasTestTag("Child"))
     }
 
     @Test
     fun noChild() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
-        rule.onNodeWithTag("Parent")
-            .onChild()
-            .assertDoesNotExist()
+        rule.onNodeWithTag("Parent").onChild().assertDoesNotExist()
     }
 
     @Test(expected = AssertionError::class)
     fun noChild_fail() {
-        rule.setContent {
-            BoundaryNode(testTag = "Parent")
-        }
+        rule.setContent { BoundaryNode(testTag = "Parent") }
 
-        rule.onNodeWithTag("Parent")
-            .onChild()
-            .assertExists()
+        rule.onNodeWithTag("Parent").onChild().assertExists()
     }
 
     @Test
@@ -87,9 +72,7 @@ class ChildSelectorTest {
                 "((TestTag = 'Parent').child)\n" +
                 "Nodes found:"
         ) {
-            rule.onNodeWithTag("Parent")
-                .onChild()
-                .assertExists()
+            rule.onNodeWithTag("Parent").onChild().assertExists()
         }
     }
 }

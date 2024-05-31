@@ -42,12 +42,12 @@ interface Draggable2DState {
     /**
      * Call this function to take control of drag logic.
      *
-     * All actions that change the logical drag position must be performed within a [drag]
-     * block (even if they don't call any other methods on this object) in order to guarantee
-     * that mutual exclusion is enforced.
+     * All actions that change the logical drag position must be performed within a [drag] block
+     * (even if they don't call any other methods on this object) in order to guarantee that mutual
+     * exclusion is enforced.
      *
-     * If [drag] is called from elsewhere with the [dragPriority] higher or equal to ongoing
-     * drag, ongoing drag will be canceled.
+     * If [drag] is called from elsewhere with the [dragPriority] higher or equal to ongoing drag,
+     * ongoing drag will be canceled.
      *
      * @param dragPriority of the drag operation
      * @param block to perform drag in
@@ -60,27 +60,23 @@ interface Draggable2DState {
     /**
      * Dispatch drag delta in pixels avoiding all drag related priority mechanisms.
      *
-     * **Note:** unlike [drag], dispatching any delta with this method will bypass scrolling of
-     * any priority. This method will also ignore `reverseDirection` and other parameters set in
+     * **Note:** unlike [drag], dispatching any delta with this method will bypass scrolling of any
+     * priority. This method will also ignore `reverseDirection` and other parameters set in
      * draggable2D.
      *
      * This method is used internally for low level operations, allowing implementers of
-     * [Draggable2DState] influence the consumption as suits them.
-     * Manually dispatching delta via this method will likely result in a bad user experience,
-     * you must prefer [drag] method over this one.
+     * [Draggable2DState] influence the consumption as suits them. Manually dispatching delta via
+     * this method will likely result in a bad user experience, you must prefer [drag] method over
+     * this one.
      *
      * @param delta amount of scroll dispatched in the nested drag process
      */
     fun dispatchRawDelta(delta: Offset)
 }
 
-/**
- * Scope used for suspending drag blocks
- */
+/** Scope used for suspending drag blocks */
 interface Drag2DScope {
-    /**
-     * Attempts to drag by [pixels] px.
-     */
+    /** Attempts to drag by [pixels] px. */
     fun dragBy(pixels: Offset)
 }
 
@@ -89,25 +85,22 @@ interface Drag2DScope {
  * will be invoked when the drag occurs.
  *
  * This is the simplest way to set up a draggable2D modifier. When constructing this
- * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in
- * pixels.
+ * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever drag
+ * happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in pixels.
  *
  * If you are creating [Draggable2DState] in composition, consider using [rememberDraggable2DState].
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
-fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState =
-    DefaultDraggable2DState(onDelta)
+fun Draggable2DState(onDelta: (Offset) -> Unit): Draggable2DState = DefaultDraggable2DState(onDelta)
 
 /**
  * Create and remember default implementation of [Draggable2DState] interface that allows to pass a
  * simple action that will be invoked when the drag occurs.
  *
  * This is the simplest way to set up a [draggable2D] modifier. When constructing this
- * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever
- * drag happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in
- * pixels.
+ * [Draggable2DState], you must provide a [onDelta] lambda, which will be invoked whenever drag
+ * happens (by gesture input or a custom [Draggable2DState.drag] call) with the delta in pixels.
  *
  * @param onDelta callback invoked when drag occurs. The callback receives the delta in pixels.
  */
@@ -118,31 +111,31 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
 }
 
 /**
- * Configure touch dragging for the UI element in both orientations. The drag distance
- * reported to [Draggable2DState], allowing users to react to the drag delta and update their state.
+ * Configure touch dragging for the UI element in both orientations. The drag distance reported to
+ * [Draggable2DState], allowing users to react to the drag delta and update their state.
  *
- * The common common usecase for this component is when you need to be able to drag something
- * inside the component on the screen and represent this state via one float value
+ * The common common usecase for this component is when you need to be able to drag something inside
+ * the component on the screen and represent this state via one float value
  *
  * If you are implementing dragging in a single orientation, consider using [draggable].
  *
  * @sample androidx.compose.foundation.samples.Draggable2DSample
  *
  * @param state [Draggable2DState] state of the draggable2D. Defines how drag events will be
- * interpreted by the user land logic.
+ *   interpreted by the user land logic.
  * @param enabled whether or not drag is enabled
  * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [DragInteraction.Start] when this draggable is being dragged.
+ *   [DragInteraction.Start] when this draggable is being dragged.
  * @param startDragImmediately when set to true, draggable2D will start dragging immediately and
- * prevent other gesture detectors from reacting to "down" events (in order to block composed
- * press-based gestures). This is intended to allow end users to "catch" an animating widget by
- * pressing on it. It's useful to set it when value you're dragging is settling / animating.
+ *   prevent other gesture detectors from reacting to "down" events (in order to block composed
+ *   press-based gestures). This is intended to allow end users to "catch" an animating widget by
+ *   pressing on it. It's useful to set it when value you're dragging is settling / animating.
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
- * position, allowing user to perform preparation for drag.
- * @param onDragStopped callback that will be invoked when drag is finished, allowing the
- * user to react on velocity and process it.
- * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
- * behave like bottom to top and left to right will behave like right to left.
+ *   position, allowing user to perform preparation for drag.
+ * @param onDragStopped callback that will be invoked when drag is finished, allowing the user to
+ *   react on velocity and process it.
+ * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will behave
+ *   like bottom to top and left to right will behave like right to left.
  */
 @Stable
 fun Modifier.draggable2D(
@@ -153,15 +146,17 @@ fun Modifier.draggable2D(
     onDragStarted: (startedPosition: Offset) -> Unit = NoOpOnDragStart,
     onDragStopped: (velocity: Velocity) -> Unit = NoOpOnDragStop,
     reverseDirection: Boolean = false
-): Modifier = this then Draggable2DElement(
-    state = state,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    startDragImmediately = startDragImmediately,
-    onDragStarted = onDragStarted,
-    onDragStopped = onDragStopped,
-    reverseDirection = reverseDirection
-)
+): Modifier =
+    this then
+        Draggable2DElement(
+            state = state,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            startDragImmediately = startDragImmediately,
+            onDragStarted = onDragStarted,
+            onDragStopped = onDragStopped,
+            reverseDirection = reverseDirection
+        )
 
 internal class Draggable2DElement(
     private val state: Draggable2DState,
@@ -172,16 +167,17 @@ internal class Draggable2DElement(
     private val onDragStopped: (velocity: Velocity) -> Unit,
     private val reverseDirection: Boolean
 ) : ModifierNodeElement<Draggable2DNode>() {
-    override fun create(): Draggable2DNode = Draggable2DNode(
-        state,
-        CanDrag,
-        enabled,
-        interactionSource,
-        startDragImmediately,
-        reverseDirection,
-        onDragStarted,
-        onDragStopped,
-    )
+    override fun create(): Draggable2DNode =
+        Draggable2DNode(
+            state,
+            CanDrag,
+            enabled,
+            interactionSource,
+            startDragImmediately,
+            reverseDirection,
+            onDragStarted,
+            onDragStopped,
+        )
 
     override fun update(node: Draggable2DNode) {
         node.update(
@@ -250,20 +246,17 @@ internal class Draggable2DNode(
     private var reverseDirection: Boolean,
     private var onDragStarted: (startedPosition: Offset) -> Unit,
     private var onDragStopped: (velocity: Velocity) -> Unit,
-) : DragGestureNode(
-    canDrag = canDrag,
-    enabled = enabled,
-    interactionSource = interactionSource,
-    orientationLock = null
-) {
-
-    override suspend fun drag(
-        forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit
+) :
+    DragGestureNode(
+        canDrag = canDrag,
+        enabled = enabled,
+        interactionSource = interactionSource,
+        orientationLock = null
     ) {
+
+    override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.drag(MutatePriority.UserInput) {
-            forEachDelta { dragDelta ->
-                dragBy(dragDelta.delta.reverseIfNeeded())
-            }
+            forEachDelta { dragDelta -> dragBy(dragDelta.delta.reverseIfNeeded()) }
         }
     }
 
@@ -312,22 +305,22 @@ internal class Draggable2DNode(
     }
 
     private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+
     private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
 }
 
 private class DefaultDraggable2DState(val onDelta: (Offset) -> Unit) : Draggable2DState {
-    private val drag2DScope: Drag2DScope = object : Drag2DScope {
-        override fun dragBy(pixels: Offset) = onDelta(pixels)
-    }
+    private val drag2DScope: Drag2DScope =
+        object : Drag2DScope {
+            override fun dragBy(pixels: Offset) = onDelta(pixels)
+        }
 
     private val drag2DMutex = MutatorMutex()
 
     override suspend fun drag(
         dragPriority: MutatePriority,
         block: suspend Drag2DScope.() -> Unit
-    ): Unit = coroutineScope {
-        drag2DMutex.mutateWith(drag2DScope, dragPriority, block)
-    }
+    ): Unit = coroutineScope { drag2DMutex.mutateWith(drag2DScope, dragPriority, block) }
 
     override fun dispatchRawDelta(delta: Offset) {
         return onDelta(delta)

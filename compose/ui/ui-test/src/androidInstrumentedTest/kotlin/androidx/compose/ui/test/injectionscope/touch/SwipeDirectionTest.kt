@@ -58,8 +58,7 @@ class SwipeDirectionTest {
         private const val tag = "widget"
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
 

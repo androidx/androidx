@@ -27,22 +27,21 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
- * [Painter] implementation used to draw an [ImageBitmap] into the provided canvas
- * This implementation can handle applying alpha and [ColorFilter] to it's drawn result
+ * [Painter] implementation used to draw an [ImageBitmap] into the provided canvas This
+ * implementation can handle applying alpha and [ColorFilter] to it's drawn result
  *
  * @param image The [ImageBitmap] to draw
  * @param srcOffset Optional offset relative to [image] used to draw a subsection of the
- * [ImageBitmap]. By default this uses the origin of [image]
- * @param srcSize Optional dimensions representing size of the subsection of [image] to draw
- * Both the offset and size must have the following requirements:
- *
+ *   [ImageBitmap]. By default this uses the origin of [image]
+ * @param srcSize Optional dimensions representing size of the subsection of [image] to draw Both
+ *   the offset and size must have the following requirements:
  * 1) Left and top bounds must be greater than or equal to zero
  * 2) Source size must be greater than zero
  * 3) Source size must be less than or equal to the dimensions of [image]
  *
- * @param filterQuality Sampling algorithm applied to the [image] when it is scaled and drawn
- * into the destination. The default is [FilterQuality.Low] which scales using a bilinear
- * sampling algorithm
+ * @param filterQuality Sampling algorithm applied to the [image] when it is scaled and drawn into
+ *   the destination. The default is [FilterQuality.Low] which scales using a bilinear sampling
+ *   algorithm
  */
 fun BitmapPainter(
     image: ImageBitmap,
@@ -50,20 +49,17 @@ fun BitmapPainter(
     srcSize: IntSize = IntSize(image.width, image.height),
     filterQuality: FilterQuality = FilterQuality.Low
 ): BitmapPainter =
-    BitmapPainter(image, srcOffset, srcSize).apply {
-        this.filterQuality = filterQuality
-    }
+    BitmapPainter(image, srcOffset, srcSize).apply { this.filterQuality = filterQuality }
 
 /**
- * [Painter] implementation used to draw an [ImageBitmap] into the provided canvas
- * This implementation can handle applying alpha and [ColorFilter] to it's drawn result
+ * [Painter] implementation used to draw an [ImageBitmap] into the provided canvas This
+ * implementation can handle applying alpha and [ColorFilter] to it's drawn result
  *
  * @param image The [ImageBitmap] to draw
  * @param srcOffset Optional offset relative to [image] used to draw a subsection of the
- * [ImageBitmap]. By default this uses the origin of [image]
- * @param srcSize Optional dimensions representing size of the subsection of [image] to draw
- * Both the offset and size must have the following requirements:
- *
+ *   [ImageBitmap]. By default this uses the origin of [image]
+ * @param srcSize Optional dimensions representing size of the subsection of [image] to draw Both
+ *   the offset and size must have the following requirements:
  * 1) Left and top bounds must be greater than or equal to zero
  * 2) Source size must be greater than zero
  * 3) Source size must be less than or equal to the dimensions of [image]
@@ -94,20 +90,20 @@ class BitmapPainter(
             image,
             srcOffset,
             srcSize,
-            dstSize = IntSize(
-                this@onDraw.size.width.fastRoundToInt(),
-                this@onDraw.size.height.fastRoundToInt()
-            ),
+            dstSize =
+                IntSize(
+                    this@onDraw.size.width.fastRoundToInt(),
+                    this@onDraw.size.height.fastRoundToInt()
+                ),
             alpha = alpha,
             colorFilter = colorFilter,
             filterQuality = filterQuality
         )
     }
 
-    /**
-     * Return the dimension of the underlying [ImageBitmap] as it's intrinsic width and height
-     */
-    override val intrinsicSize: Size get() = size.toSize()
+    /** Return the dimension of the underlying [ImageBitmap] as it's intrinsic width and height */
+    override val intrinsicSize: Size
+        get() = size.toSize()
 
     override fun applyAlpha(alpha: Float): Boolean {
         this.alpha = alpha

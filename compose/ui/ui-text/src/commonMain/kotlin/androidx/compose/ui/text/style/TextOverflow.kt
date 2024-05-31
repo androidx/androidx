@@ -34,24 +34,24 @@ value class TextOverflow internal constructor(internal val value: Int) {
     companion object {
         /**
          * Clip the overflowing text to fix its container.
+         *
          * @sample androidx.compose.ui.text.samples.TextOverflowClipSample
          */
-        @Stable
-        val Clip = TextOverflow(1)
+        @Stable val Clip = TextOverflow(1)
 
         /**
          * Use an ellipsis to indicate that the text has overflowed.
+         *
          * @sample androidx.compose.ui.text.samples.TextOverflowEllipsisSample
          */
-        @Stable
-        val Ellipsis = TextOverflow(2)
+        @Stable val Ellipsis = TextOverflow(2)
 
         /**
-         * Display all text, even if there is not enough space in the specified bounds.
-         * When overflow is visible, text may be rendered outside the bounds of the composable
-         * displaying the text. This ensures that all text is displayed to the user, and is typically
-         * the right choice for most text display. It does mean that the text may visually occupy a
-         * region larger than the bounds of it's composable. This can lead to situations where text
+         * Display all text, even if there is not enough space in the specified bounds. When
+         * overflow is visible, text may be rendered outside the bounds of the composable displaying
+         * the text. This ensures that all text is displayed to the user, and is typically the right
+         * choice for most text display. It does mean that the text may visually occupy a region
+         * larger than the bounds of it's composable. This can lead to situations where text
          * displays outside the bounds of the background and clickable on a Text composable with a
          * fixed height and width.
          *
@@ -65,7 +65,6 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * Note: text that expands past its bounds using `Visible` may be clipped by other modifiers
          * such as `Modifier.clipToBounds`.
          */
-        @Stable
-        val Visible = TextOverflow(3)
+        @Stable val Visible = TextOverflow(3)
     }
 }

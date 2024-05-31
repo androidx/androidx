@@ -48,14 +48,15 @@ actual fun DeviceConfigurationOverride.Companion.ForcedSize(
         // Second, override the configuration, with the current configuration modified by the
         // resulting density
         OverriddenConfiguration(
-            configuration = Configuration().apply {
-                // Initialize from the current configuration
-                updateFrom(LocalConfiguration.current)
+            configuration =
+                Configuration().apply {
+                    // Initialize from the current configuration
+                    updateFrom(LocalConfiguration.current)
 
-                // Override densityDpi
-                densityDpi =
-                    floor(LocalDensity.current.density * DisplayMetrics.DENSITY_DEFAULT).toInt()
-            },
+                    // Override densityDpi
+                    densityDpi =
+                        floor(LocalDensity.current.density * DisplayMetrics.DENSITY_DEFAULT).toInt()
+                },
             content = contentUnderTest
         )
     }
@@ -65,13 +66,14 @@ actual fun DeviceConfigurationOverride.Companion.FontScale(
     fontScale: Float
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Override font scale
-            this.fontScale = fontScale
-        },
+                // Override font scale
+                this.fontScale = fontScale
+            },
         content = contentUnderTest
     )
 }
@@ -80,17 +82,20 @@ actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
     layoutDirection: LayoutDirection
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Override screen layout for layout direction
-            screenLayout = screenLayout and Configuration.SCREENLAYOUT_LAYOUTDIR_MASK.inv() or
-                when (layoutDirection) {
-                    LayoutDirection.Ltr -> Configuration.SCREENLAYOUT_LAYOUTDIR_LTR
-                    LayoutDirection.Rtl -> Configuration.SCREENLAYOUT_LAYOUTDIR_RTL
-                }
-        },
+                // Override screen layout for layout direction
+                screenLayout =
+                    screenLayout and
+                        Configuration.SCREENLAYOUT_LAYOUTDIR_MASK.inv() or
+                        when (layoutDirection) {
+                            LayoutDirection.Ltr -> Configuration.SCREENLAYOUT_LAYOUTDIR_LTR
+                            LayoutDirection.Rtl -> Configuration.SCREENLAYOUT_LAYOUTDIR_RTL
+                        }
+            },
         content = contentUnderTest
     )
 }
@@ -107,21 +112,19 @@ fun DeviceConfigurationOverride.Companion.Locales(
     locales: LocaleList,
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Update the locale list
-            ConfigurationCompat.setLocales(
-                this,
-                LocaleListCompat.forLanguageTags(
-                    locales.localeList.fastJoinToString(
-                        ",",
-                        transform = Locale::toLanguageTag
+                // Update the locale list
+                ConfigurationCompat.setLocales(
+                    this,
+                    LocaleListCompat.forLanguageTags(
+                        locales.localeList.fastJoinToString(",", transform = Locale::toLanguageTag)
                     )
                 )
-            )
-        },
+            },
         content = contentUnderTest
     )
 }
@@ -137,17 +140,21 @@ fun DeviceConfigurationOverride.Companion.DarkMode(
     isDarkMode: Boolean,
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Override dark mode
-            uiMode = uiMode and Configuration.UI_MODE_NIGHT_MASK.inv() or if (isDarkMode) {
-                Configuration.UI_MODE_NIGHT_YES
-            } else {
-                Configuration.UI_MODE_NIGHT_NO
-            }
-        },
+                // Override dark mode
+                uiMode =
+                    uiMode and
+                        Configuration.UI_MODE_NIGHT_MASK.inv() or
+                        if (isDarkMode) {
+                            Configuration.UI_MODE_NIGHT_YES
+                        } else {
+                            Configuration.UI_MODE_NIGHT_NO
+                        }
+            },
         content = contentUnderTest
     )
 }
@@ -163,13 +170,14 @@ fun DeviceConfigurationOverride.Companion.FontWeightAdjustment(
     fontWeightAdjustment: Int,
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Override fontWeightAdjustment
-            this.fontWeightAdjustment = fontWeightAdjustment
-        },
+                // Override fontWeightAdjustment
+                this.fontWeightAdjustment = fontWeightAdjustment
+            },
         content = contentUnderTest
     )
 }
@@ -185,18 +193,22 @@ fun DeviceConfigurationOverride.Companion.RoundScreen(
     isScreenRound: Boolean,
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
     OverriddenConfiguration(
-        configuration = Configuration().apply {
-            // Initialize from the current configuration
-            updateFrom(LocalConfiguration.current)
+        configuration =
+            Configuration().apply {
+                // Initialize from the current configuration
+                updateFrom(LocalConfiguration.current)
 
-            // Override isRound in screenLayout
-            screenLayout = when (isScreenRound) {
-                true -> (screenLayout and Configuration.SCREENLAYOUT_ROUND_MASK.inv()) or
-                    Configuration.SCREENLAYOUT_ROUND_YES
-                false -> (screenLayout and Configuration.SCREENLAYOUT_ROUND_MASK.inv()) or
-                    Configuration.SCREENLAYOUT_ROUND_NO
-            }
-        },
+                // Override isRound in screenLayout
+                screenLayout =
+                    when (isScreenRound) {
+                        true ->
+                            (screenLayout and Configuration.SCREENLAYOUT_ROUND_MASK.inv()) or
+                                Configuration.SCREENLAYOUT_ROUND_YES
+                        false ->
+                            (screenLayout and Configuration.SCREENLAYOUT_ROUND_MASK.inv()) or
+                                Configuration.SCREENLAYOUT_ROUND_NO
+                    }
+            },
         content = contentUnderTest
     )
 }
@@ -204,19 +216,17 @@ fun DeviceConfigurationOverride.Companion.RoundScreen(
 /**
  * Overrides the compositions locals related to the given [configuration].
  *
- * There currently isn't a single source of truth for these values, so we update them all
- * according to the given [configuration].
+ * There currently isn't a single source of truth for these values, so we update them all according
+ * to the given [configuration].
  */
 @Composable
-private fun OverriddenConfiguration(
-    configuration: Configuration,
-    content: @Composable () -> Unit
-) {
+private fun OverriddenConfiguration(configuration: Configuration, content: @Composable () -> Unit) {
     // We don't override the theme, but we do want to override the configuration and this seems
     // convenient to do so
-    val newContext = ContextThemeWrapper(LocalContext.current, 0).apply {
-        applyOverrideConfiguration(configuration)
-    }
+    val newContext =
+        ContextThemeWrapper(LocalContext.current, 0).apply {
+            applyOverrideConfiguration(configuration)
+        }
 
     CompositionLocalProvider(
         LocalContext provides newContext,
@@ -227,10 +237,11 @@ private fun OverriddenConfiguration(
             } else {
                 LayoutDirection.Rtl
             },
-        LocalDensity provides Density(
-            configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT,
-            configuration.fontScale
-        ),
+        LocalDensity provides
+            Density(
+                configuration.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT,
+                configuration.fontScale
+            ),
         LocalFontFamilyResolver provides createFontFamilyResolver(newContext),
         content = content
     )

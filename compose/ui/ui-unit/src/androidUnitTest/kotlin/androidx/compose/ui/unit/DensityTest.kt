@@ -33,54 +33,43 @@ class DensityTest {
         assertEquals(3f, density.fontScale, 0.001f)
     }
 
-    @Test
-    fun testDpToPx() = with(density) {
-        assertEquals(2f, 1.dp.toPx(), 0.001f)
-    }
+    @Test fun testDpToPx() = with(density) { assertEquals(2f, 1.dp.toPx(), 0.001f) }
 
     @Test
-    fun testDpRoundToPx() = with(density) {
-        assertEquals(10, 4.95.dp.roundToPx())
-        assertEquals(10, 4.75.dp.roundToPx())
-        assertEquals(9, 4.74.dp.roundToPx())
-    }
+    fun testDpRoundToPx() =
+        with(density) {
+            assertEquals(10, 4.95.dp.roundToPx())
+            assertEquals(10, 4.75.dp.roundToPx())
+            assertEquals(9, 4.74.dp.roundToPx())
+        }
+
+    @Test fun testIntToDp() = with(density) { assertEquals(1.dp, 2.toDp()) }
+
+    @Test fun testFloatToDp() = with(density) { assertEquals(1.dp, 2f.toDp()) }
 
     @Test
-    fun testIntToDp() = with(density) {
-        assertEquals(1.dp, 2.toDp())
-    }
+    fun testDpRectToRect() =
+        with(density) {
+            val rect = DpRect(1.dp, 2.dp, 3.dp, 4.dp).toRect()
+            assertEquals(2f, rect.left, 0.001f)
+            assertEquals(4f, rect.top, 0.001f)
+            assertEquals(6f, rect.right, 0.001f)
+            assertEquals(8f, rect.bottom, 0.001f)
+        }
 
     @Test
-    fun testFloatToDp() = with(density) {
-        assertEquals(1.dp, 2f.toDp())
-    }
+    fun testDpSizeToSize() =
+        with(density) { assertEquals(Size(2f, 6f), DpSize(1.dp, 3.dp).toSize()) }
 
     @Test
-    fun testDpRectToRect() = with(density) {
-        val rect = DpRect(1.dp, 2.dp, 3.dp, 4.dp).toRect()
-        assertEquals(2f, rect.left, 0.001f)
-        assertEquals(4f, rect.top, 0.001f)
-        assertEquals(6f, rect.right, 0.001f)
-        assertEquals(8f, rect.bottom, 0.001f)
-    }
+    fun testSizeToDpSize() =
+        with(density) { assertEquals(DpSize(1.dp, 3.dp), Size(2f, 6f).toDpSize()) }
 
     @Test
-    fun testDpSizeToSize() = with(density) {
-        assertEquals(Size(2f, 6f), DpSize(1.dp, 3.dp).toSize())
-    }
+    fun testDpSizeUnspecifiedToSize() =
+        with(density) { assertEquals(Size.Unspecified, DpSize.Unspecified.toSize()) }
 
     @Test
-    fun testSizeToDpSize() = with(density) {
-        assertEquals(DpSize(1.dp, 3.dp), Size(2f, 6f).toDpSize())
-    }
-
-    @Test
-    fun testDpSizeUnspecifiedToSize() = with(density) {
-        assertEquals(Size.Unspecified, DpSize.Unspecified.toSize())
-    }
-
-    @Test
-    fun testSizeUnspecifiedToDpSize() = with(density) {
-        assertEquals(DpSize.Unspecified, Size.Unspecified.toDpSize())
-    }
+    fun testSizeUnspecifiedToDpSize() =
+        with(density) { assertEquals(DpSize.Unspecified, Size.Unspecified.toDpSize()) }
 }

@@ -43,9 +43,7 @@ internal fun <T> runOnUiThread(action: () -> T): T {
     }
 }
 
-/**
- * Returns if the call is made on the main thread.
- */
+/** Returns if the call is made on the main thread. */
 internal fun isOnUiThread(): Boolean {
     return Looper.myLooper() == Looper.getMainLooper()
 }

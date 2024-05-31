@@ -20,8 +20,8 @@ package androidx.compose.ui.autofill
  * Content type information.
  *
  * Autofill services use the [ContentType] to determine what value to use to autofill fields
- * associated with this type. If the [ContentType] is not specified, the autofill services have
- * to use heuristics to determine the right value to use while autofilling the corresponding field.
+ * associated with this type. If the [ContentType] is not specified, the autofill services have to
+ * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
 internal actual class ContentType private actual constructor(contentHint: String) {
     internal actual companion object {

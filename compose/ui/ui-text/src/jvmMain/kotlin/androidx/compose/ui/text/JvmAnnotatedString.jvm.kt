@@ -42,16 +42,17 @@ internal actual fun AnnotatedString.transform(
         offsetMap.put(end, resultStr.length)
     }
 
-    val newSpanStyles = spanStylesOrNull?.fastMap {
-        // The offset map must have mapping entry from all style start, end position.
-        Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
-    }
-    val newParaStyles = paragraphStylesOrNull?.fastMap {
-        Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
-    }
-    val newAnnotations = annotations?.fastMap {
-        Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
-    }
+    val newSpanStyles =
+        spanStylesOrNull?.fastMap {
+            // The offset map must have mapping entry from all style start, end position.
+            Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
+        }
+    val newParaStyles =
+        paragraphStylesOrNull?.fastMap {
+            Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!)
+        }
+    val newAnnotations =
+        annotations?.fastMap { Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!) }
 
     return AnnotatedString(
         text = resultStr,
@@ -67,10 +68,7 @@ internal actual fun AnnotatedString.transform(
  * @param ranges The list of AnnotatedString.Range
  * @param target The output list
  */
-private fun collectRangeTransitions(
-    ranges: List<Range<*>>?,
-    target: SortedSet<Int>
-) {
+private fun collectRangeTransitions(ranges: List<Range<*>>?, target: SortedSet<Int>) {
     ranges?.fastFold(target) { acc, range ->
         acc.apply {
             add(range.start)

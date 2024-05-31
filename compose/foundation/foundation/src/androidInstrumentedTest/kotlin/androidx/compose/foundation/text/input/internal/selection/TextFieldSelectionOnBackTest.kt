@@ -52,30 +52,20 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TextFieldSelectionOnBackTest : FocusedWindowTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val Tag = "BasicTextField"
 
     @Test
     fun whenBackPressed_andReleased_textFieldClearsSelection() {
         val state = TextFieldState("hello", TextRange(0, 0))
-        rule.setContent {
-            BasicTextField(
-                state,
-                Modifier
-                    .testTag(Tag)
-                    .wrapContentSize()
-            )
-        }
+        rule.setContent { BasicTextField(state, Modifier.testTag(Tag).wrapContentSize()) }
         val textNode = rule.onNodeWithTag(Tag)
         textNode.performTextInputSelection(TextRange(0, 3))
         rule.waitForIdle()
         textNode.performKeyInput { pressKey(Key.Back) }
         val expected = TextRange(3, 3)
-        rule.runOnIdle {
-            assertThat(state.selection).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(state.selection).isEqualTo(expected) }
     }
 
     @Test
@@ -85,15 +75,12 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
         rule.setContent {
             BasicTextField(
                 state,
-                Modifier
-                    .testTag(Tag)
-                    .wrapContentSize()
-                    .onKeyEvent {
-                        if (it.type == KeyEventType.KeyUp && it.key == Key.Back) {
-                            backPressed++
-                        }
-                        false
+                Modifier.testTag(Tag).wrapContentSize().onKeyEvent {
+                    if (it.type == KeyEventType.KeyUp && it.key == Key.Back) {
+                        backPressed++
                     }
+                    false
+                }
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -110,23 +97,14 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
     @Test
     fun whenBackPressed_coreTextFieldRetainsSelection() {
         val state = TextFieldState("hello", TextRange(0, 0))
-        rule.setContent {
-            BasicTextField(
-                state,
-                Modifier
-                    .testTag(Tag)
-                    .wrapContentSize()
-            )
-        }
+        rule.setContent { BasicTextField(state, Modifier.testTag(Tag).wrapContentSize()) }
         val expected = TextRange(0, 3)
         val textNode = rule.onNodeWithTag(Tag)
         textNode.performTextInputSelection(expected)
         rule.waitForIdle()
         // should have no effect
         textNode.performKeyInput { keyDown(Key.Back) }
-        rule.runOnIdle {
-            assertThat(state.selection).isEqualTo(expected)
-        }
+        rule.runOnIdle { assertThat(state.selection).isEqualTo(expected) }
     }
 
     @Test
@@ -138,14 +116,12 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
             BasicTextField(
                 state,
-                Modifier
-                    .testTag(Tag)
-                    .onKeyEvent {
-                        if (it.type == KeyEventType.KeyUp && it.key == Key.Back) {
-                            backPressed++
-                        }
-                        false
+                Modifier.testTag(Tag).onKeyEvent {
+                    if (it.type == KeyEventType.KeyUp && it.key == Key.Back) {
+                        backPressed++
                     }
+                    false
+                }
             )
         }
 
@@ -156,17 +132,13 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
 
             // Hide the keyboard before pressing back, since the first back should be consumed by
             // the keyboard.
-            rule.runOnUiThread {
-                softwareKeyboardController!!.hide()
-            }
+            rule.runOnUiThread { softwareKeyboardController!!.hide() }
 
             // Press back.
             performKeyInput { pressKey(Key.Back) }
 
             // Ensure back event was propagated up past the text field.
-            rule.runOnIdle {
-                assertThat(backPressed).isEqualTo(1)
-            }
+            rule.runOnIdle { assertThat(backPressed).isEqualTo(1) }
         }
     }
 }

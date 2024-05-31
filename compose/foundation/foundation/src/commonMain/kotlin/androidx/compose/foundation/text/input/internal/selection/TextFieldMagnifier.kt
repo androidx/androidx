@@ -34,10 +34,8 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.absoluteValue
 
-internal abstract class TextFieldMagnifierNode : DelegatingNode(),
-    OnGloballyPositionedModifier,
-    DrawModifierNode,
-    SemanticsModifierNode {
+internal abstract class TextFieldMagnifierNode :
+    DelegatingNode(), OnGloballyPositionedModifier, DrawModifierNode, SemanticsModifierNode {
 
     abstract fun update(
         textFieldState: TransformedTextFieldState,
@@ -77,12 +75,13 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     }
 
     val selection = textFieldState.visualText.selection
-    val textOffset = when (selectionState.draggingHandle) {
-        null -> return Offset.Unspecified
-        Handle.Cursor,
-        Handle.SelectionStart -> selection.start
-        Handle.SelectionEnd -> selection.end
-    }
+    val textOffset =
+        when (selectionState.draggingHandle) {
+            null -> return Offset.Unspecified
+            Handle.Cursor,
+            Handle.SelectionStart -> selection.start
+            Handle.SelectionEnd -> selection.end
+        }
 
     // If the text hasn't been laid out yet, don't show the modifier.
     val layoutResult = textLayoutState.layoutResult ?: return Offset.Unspecified
@@ -104,8 +103,9 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // It is very unlikely that this behavior would cause a flicker since magnifier immediately
     // shows up where the pointer is being dragged. The pointer needs to drag further than the half
     // of magnifier's width to hide by the following logic.
-    if (magnifierSize != IntSize.Zero &&
-        (dragX - centerX).absoluteValue > magnifierSize.width / 2) {
+    if (
+        magnifierSize != IntSize.Zero && (dragX - centerX).absoluteValue > magnifierSize.width / 2
+    ) {
         return Offset.Unspecified
     }
 
@@ -115,8 +115,8 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     val centerY = ((bottom - top) / 2) + top
 
     var offset = Offset(centerX, centerY)
-    textLayoutState.textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { innerCoordinates ->
-        offset = offset.coerceIn(innerCoordinates.visibleBounds())
-    }
+    textLayoutState.textLayoutNodeCoordinates
+        ?.takeIf { it.isAttached }
+        ?.let { innerCoordinates -> offset = offset.coerceIn(innerCoordinates.visibleBounds()) }
     return textLayoutState.fromTextLayoutToCore(offset)
 }

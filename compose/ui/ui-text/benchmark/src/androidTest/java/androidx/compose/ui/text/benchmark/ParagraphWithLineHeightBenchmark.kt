@@ -47,23 +47,20 @@ class ParagraphWithLineHeightBenchmark(
 ) {
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "length={0} newLine={1} applyLineHeight={2}"
-        )
-        fun initParameters(): List<Array<Any?>> = cartesian(
-            arrayOf(16),
-            // add new line
-            arrayOf(true),
-            // apply line height
-            arrayOf(false, true)
-        )
+        @Parameterized.Parameters(name = "length={0} newLine={1} applyLineHeight={2}")
+        fun initParameters(): List<Array<Any?>> =
+            cartesian(
+                arrayOf(16),
+                // add new line
+                arrayOf(true),
+                // apply line height
+                arrayOf(false, true)
+            )
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @get:Rule
-    val textBenchmarkRule = TextBenchmarkTestRule(Alphabet.Latin)
+    @get:Rule val textBenchmarkRule = TextBenchmarkTestRule(Alphabet.Latin)
 
     private lateinit var instrumentationContext: Context
 
@@ -74,21 +71,19 @@ class ParagraphWithLineHeightBenchmark(
     @Before
     fun setup() {
         instrumentationContext = InstrumentationRegistry.getInstrumentation().context
-        width = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            textBenchmarkRule.widthDp,
-            instrumentationContext.resources.displayMetrics
-        )
+        width =
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                textBenchmarkRule.widthDp,
+                instrumentationContext.resources.displayMetrics
+            )
     }
 
     private fun text(textGenerator: RandomTextGenerator): String {
         return textGenerator.nextParagraph(textLength) + if (addNewLine) "\n" else ""
     }
 
-    private fun paragraph(
-        text: String,
-        width: Float
-    ): Paragraph {
+    private fun paragraph(text: String, width: Float): Paragraph {
         return Paragraph(
             paragraphIntrinsics = paragraphIntrinsics(text),
             constraints = Constraints(maxWidth = ceil(width).toInt())
@@ -97,20 +92,21 @@ class ParagraphWithLineHeightBenchmark(
 
     private fun paragraphIntrinsics(text: String): ParagraphIntrinsics {
         @Suppress("DEPRECATION")
-        val style = if (applyLineHeight) {
-            TextStyle(
-                fontSize = fontSize,
-                lineHeight = fontSize * 2,
-                lineHeightStyle = LineHeightStyle.Default,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        } else {
-            TextStyle(
-                fontSize = fontSize,
-                lineHeightStyle = LineHeightStyle.Default,
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        }
+        val style =
+            if (applyLineHeight) {
+                TextStyle(
+                    fontSize = fontSize,
+                    lineHeight = fontSize * 2,
+                    lineHeightStyle = LineHeightStyle.Default,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                )
+            } else {
+                TextStyle(
+                    fontSize = fontSize,
+                    lineHeightStyle = LineHeightStyle.Default,
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                )
+            }
 
         return ParagraphIntrinsics(
             text = text,

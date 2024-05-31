@@ -99,17 +99,18 @@ fun FilterChipSample() {
         selected = selected,
         onClick = { selected = !selected },
         label = { Text("Filter chip") },
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Localized Description",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                null
             }
-        } else {
-            null
-        }
     )
 }
 
@@ -122,17 +123,18 @@ fun ElevatedFilterChipSample() {
         selected = selected,
         onClick = { selected = !selected },
         label = { Text("Filter chip") },
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Localized Description",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                null
             }
-        } else {
-            null
-        }
     )
 }
 
@@ -145,23 +147,24 @@ fun FilterChipWithLeadingIconSample() {
         selected = selected,
         onClick = { selected = !selected },
         label = { Text("Filter chip") },
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Localized Description",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
+            } else {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(FilterChipDefaults.IconSize)
+                    )
+                }
             }
-        } else {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Home,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        }
     )
 }
 
@@ -200,20 +203,14 @@ fun InputChipWithAvatarSample() {
 @Sampled
 @Composable
 fun SuggestionChipSample() {
-    SuggestionChip(
-        onClick = { /* Do something! */ },
-        label = { Text("Suggestion Chip") }
-    )
+    SuggestionChip(onClick = { /* Do something! */ }, label = { Text("Suggestion Chip") })
 }
 
 @Preview
 @Sampled
 @Composable
 fun ElevatedSuggestionChipSample() {
-    ElevatedSuggestionChip(
-        onClick = { /* Do something! */ },
-        label = { Text("Suggestion Chip") }
-    )
+    ElevatedSuggestionChip(onClick = { /* Do something! */ }, label = { Text("Suggestion Chip") })
 }
 
 @Preview
@@ -238,22 +235,29 @@ fun ChipGroupSingleLineSample() {
 @Sampled
 @Composable
 fun ChipGroupReflowSample() {
-    val colorNames = listOf(
-        "Blue", "Yellow", "Red", "Orange", "Black", "Green",
-        "White", "Magenta", "Gray", "Transparent"
-    )
+    val colorNames =
+        listOf(
+            "Blue",
+            "Yellow",
+            "Red",
+            "Orange",
+            "Black",
+            "Green",
+            "White",
+            "Magenta",
+            "Gray",
+            "Transparent"
+        )
     Column {
         FlowRow(
-            Modifier
-                .fillMaxWidth(1f)
-                .wrapContentHeight(align = Alignment.Top),
+            Modifier.fillMaxWidth(1f).wrapContentHeight(align = Alignment.Top),
             horizontalArrangement = Arrangement.Start,
         ) {
             colorNames.fastForEachIndexed { index, element ->
                 AssistChip(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .align(alignment = Alignment.CenterVertically),
+                    modifier =
+                        Modifier.padding(horizontal = 4.dp)
+                            .align(alignment = Alignment.CenterVertically),
                     onClick = { /* do something*/ },
                     label = { Text("$element $index") }
                 )

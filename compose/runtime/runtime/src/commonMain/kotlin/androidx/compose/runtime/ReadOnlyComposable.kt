@@ -19,8 +19,8 @@ package androidx.compose.runtime
 /**
  * This annotation can be applied to [Composable] functions so that no group will be generated
  * around the body of the function it annotates. This is not safe unless the body of the function
- * and any functions that it calls only executes "read" operations on the passed in composer.
- * This will result in slightly more efficient code.
+ * and any functions that it calls only executes "read" operations on the passed in composer. This
+ * will result in slightly more efficient code.
  *
  * A common use case for this are for functions that only need to be composable in order to read
  * [CompositionLocal] values, but don't call any other composables.
@@ -30,8 +30,5 @@ package androidx.compose.runtime
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER
-)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 annotation class ReadOnlyComposable

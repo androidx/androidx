@@ -21,9 +21,7 @@ import java.awt.dnd.DropTargetEvent as AwtDropTargetEvent
 
 actual class DragAndDropTransferData
 
-/**
- * AWT [DragAndDropEvent] which delegates to a [AwtDropTargetEvent]
- */
+/** AWT [DragAndDropEvent] which delegates to a [AwtDropTargetEvent] */
 actual class DragAndDropEvent(
     internal val dropTargetEvent: AwtDropTargetEvent,
 )

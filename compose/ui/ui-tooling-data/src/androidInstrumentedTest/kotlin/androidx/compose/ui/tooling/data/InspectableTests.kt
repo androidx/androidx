@@ -54,21 +54,16 @@ class InspectableTests : ToolingTest() {
         val slotTableRecord = CompositionDataRecord.create()
         show {
             Inspectable(slotTableRecord) {
-                Column {
-                    Box(
-                        Modifier.size(100.dp).drawBehind {
-                            drawRect(Color.Black)
-                        }
-                    )
-                }
+                Column { Box(Modifier.size(100.dp).drawBehind { drawRect(Color.Black) }) }
             }
         }
 
         // Should be able to find the group for this test
         val tree = slotTableRecord.store.first().asTree()
-        val group = tree.firstOrNull {
-            it.location?.sourceFile?.equals("InspectableTests.kt") == true && it.box.right > 0
-        } ?: error("Expected a group from this file")
+        val group =
+            tree.firstOrNull {
+                it.location?.sourceFile?.equals("InspectableTests.kt") == true && it.box.right > 0
+            } ?: error("Expected a group from this file")
         assertNotNull(group)
 
         // The group should have a non-empty bounding box
@@ -117,11 +112,11 @@ class InspectableTests : ToolingTest() {
 
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
-        val parameters = list.filter { group ->
-            group.parameters.isNotEmpty() && group.location.let {
-                it != null && it.sourceFile == "InspectableTests.kt"
+        val parameters =
+            list.filter { group ->
+                group.parameters.isNotEmpty() &&
+                    group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
             }
-        }
 
         val callCursor = parameters.listIterator()
         class ParameterValidationReceiver(val parameterCursor: Iterator<ParameterInformation>) {
@@ -328,18 +323,15 @@ class InspectableTests : ToolingTest() {
     @Test // regression test for b/161839910
     fun textParametersAreCorrect() {
         val slotTableRecord = CompositionDataRecord.create()
-        show {
-            Inspectable(slotTableRecord) {
-                Text("Test")
-            }
-        }
+        show { Inspectable(slotTableRecord) { Text("Test") } }
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
-        val parameters = list.filter { group ->
-            group.parameters.isNotEmpty() && group.name == "Text" && group.location.let {
-                it != null && it.sourceFile == "InspectableTests.kt"
+        val parameters =
+            list.filter { group ->
+                group.parameters.isNotEmpty() &&
+                    group.name == "Text" &&
+                    group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
             }
-        }
         val names = parameters.first().parameters.map { it.name }
         assertEquals(
             "text, modifier, color, fontSize, fontStyle, fontWeight, fontFamily, " +
@@ -357,11 +349,7 @@ class InspectableTests : ToolingTest() {
             ModalDrawer(
                 drawerContent = { Text("Something") },
                 content = {
-                    Column(
-                        Modifier.onGloballyPositioned {
-                            positioned.countDown()
-                        }
-                    ) {
+                    Column(Modifier.onGloballyPositioned { positioned.countDown() }) {
                         Text(text = "Hello World", color = Color.Green)
                         Button(onClick = {}) { Text(text = "OK") }
                     }
@@ -372,21 +360,23 @@ class InspectableTests : ToolingTest() {
         assertTrue(positioned.await(2, TimeUnit.SECONDS))
 
         // Wait for composition to complete
-        activity.runOnUiThread { }
+        activity.runOnUiThread {}
 
         assertFalse(tables.isNullOrEmpty())
         assertTrue(tables.size > 1)
 
-        val calls = activity.uiThread {
-            tables.flatMap { table ->
-                if (!table.isEmpty) table.asTree().asList() else emptyList()
-            }.filter {
-                val location = it.location
-                location != null && location.sourceFile == "InspectableTests.kt"
-            }.map {
-                it.name
+        val calls =
+            activity.uiThread {
+                tables
+                    .flatMap { table ->
+                        if (!table.isEmpty) table.asTree().asList() else emptyList()
+                    }
+                    .filter {
+                        val location = it.location
+                        location != null && location.sourceFile == "InspectableTests.kt"
+                    }
+                    .map { it.name }
             }
-        }
 
         assertTrue(calls.contains("Column"))
         assertTrue(calls.contains("Text"))
@@ -397,22 +387,18 @@ class InspectableTests : ToolingTest() {
     fun allowKeysThatLookLikeInvalidSourceInformation() {
         val slotTableRecord = CompositionDataRecord.create()
         show {
-            Inspectable(slotTableRecord) {
-                ReusableContent("1234123412341234") {
-                    Text("Test")
-                }
-            }
+            Inspectable(slotTableRecord) { ReusableContent("1234123412341234") { Text("Test") } }
         }
         slotTableRecord.store.first().asTree()
     }
 
     @Test
     fun emptyCompostionDataShouldProduceEmptyTree() {
-        val emptyCompositionData = object : CompositionData {
-            override val compositionGroups: Iterable<CompositionGroup> =
-                emptyList()
-            override val isEmpty = true
-        }
+        val emptyCompositionData =
+            object : CompositionData {
+                override val compositionGroups: Iterable<CompositionGroup> = emptyList()
+                override val isEmpty = true
+            }
 
         val emptyTree = emptyCompositionData.asTree()
         assertTrue(emptyTree.children.isEmpty())
@@ -430,25 +416,15 @@ private fun <T> TestActivity.uiThread(block: () -> T): T {
     return result!!
 }
 
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun OneParameter(a: Int) {
-}
+@Suppress("UNUSED_PARAMETER") @Composable fun OneParameter(a: Int) {}
+
+@Suppress("UNUSED_PARAMETER") @Composable fun OneDefaultParameter(a: Int = 1) {}
+
+@Suppress("UNUSED_PARAMETER") @Composable fun ThreeParameters(a: Int, b: Int, c: Int) {}
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
-fun OneDefaultParameter(a: Int = 1) {
-}
-
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun ThreeParameters(a: Int, b: Int, c: Int) {
-}
-
-@Suppress("UNUSED_PARAMETER")
-@Composable
-fun ThreeDefaultParameters(a: Int = 1, b: Int = 2, c: Int = 3) {
-}
+fun ThreeDefaultParameters(a: Int = 1, b: Int = 2, c: Int = 3) {}
 
 // BFS
 @UiToolingDataApi

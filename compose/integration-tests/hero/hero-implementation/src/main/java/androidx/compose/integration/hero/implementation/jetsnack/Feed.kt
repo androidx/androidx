@@ -37,16 +37,9 @@ import androidx.compose.ui.util.trace
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Feed(
-    onSnackClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun Feed(onSnackClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     val snackCollections = remember { SnackRepo.getSnacks() }
-    Feed(
-        snackCollections,
-        onSnackClick,
-        modifier.semantics { testTagsAsResourceId = true }
-    )
+    Feed(snackCollections, onSnackClick, modifier.semantics { testTagsAsResourceId = true })
 }
 
 @Composable
@@ -54,48 +47,44 @@ private fun Feed(
     snackCollections: List<SnackCollection>,
     onSnackClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
-) = trace("Feed") {
-    JetsnackSurface(
-        modifier = modifier
-            .fillMaxSize()
-    ) {
-        Box {
-            SnackCollectionList(snackCollections, onSnackClick)
-            DestinationBar()
+) =
+    trace("Feed") {
+        JetsnackSurface(modifier = modifier.fillMaxSize()) {
+            Box {
+                SnackCollectionList(snackCollections, onSnackClick)
+                DestinationBar()
+            }
         }
     }
-}
 
 @Composable
 private fun SnackCollectionList(
     snackCollections: List<SnackCollection>,
     onSnackClick: (Long) -> Unit,
     modifier: Modifier = Modifier
-) = trace("SnackCollectionList") {
-    Box(modifier) {
-        LazyColumn(
-            modifier = Modifier
-                .testTag("snack_list")
-        ) {
-            item {
-                Spacer(
-                    Modifier.windowInsetsTopHeight(
-                        WindowInsets.statusBars.add(WindowInsets(top = 56.dp))
+) =
+    trace("SnackCollectionList") {
+        Box(modifier) {
+            LazyColumn(modifier = Modifier.testTag("snack_list")) {
+                item {
+                    Spacer(
+                        Modifier.windowInsetsTopHeight(
+                            WindowInsets.statusBars.add(WindowInsets(top = 56.dp))
+                        )
                     )
-                )
-            }
-            itemsIndexed(snackCollections) { index, snackCollection ->
-                if (index > 0) {
-                    JetsnackDivider(thickness = 2.dp)
                 }
+                itemsIndexed(snackCollections) { index, snackCollection ->
+                    if (index > 0) {
+                        JetsnackDivider(thickness = 2.dp)
+                    }
 
-                SnackCollection(
-                    snackCollection = snackCollection,
-                    onSnackClick = onSnackClick,
-                    index = index,
-                    modifier = Modifier.testTag("snack_collection")
-                )
+                    SnackCollection(
+                        snackCollection = snackCollection,
+                        onSnackClick = onSnackClick,
+                        index = index,
+                        modifier = Modifier.testTag("snack_collection")
+                    )
+                }
             }
         }
     }
-}

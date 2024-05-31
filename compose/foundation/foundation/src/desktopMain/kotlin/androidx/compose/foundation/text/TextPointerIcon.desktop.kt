@@ -19,5 +19,4 @@ package androidx.compose.foundation.text
 import androidx.compose.ui.input.pointer.PointerIcon
 import java.awt.Cursor
 
-internal actual val textPointerIcon: PointerIcon =
-    PointerIcon(Cursor(Cursor.TEXT_CURSOR))
+internal actual val textPointerIcon: PointerIcon = PointerIcon(Cursor(Cursor.TEXT_CURSOR))

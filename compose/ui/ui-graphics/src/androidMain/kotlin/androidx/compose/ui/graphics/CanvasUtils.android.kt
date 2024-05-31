@@ -43,28 +43,31 @@ internal object CanvasUtils {
                 try {
                     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
                         // use double reflection to avoid grey list on P
-                        val getDeclaredMethod = Class::class.java.getDeclaredMethod(
-                            "getDeclaredMethod",
-                            String::class.java,
-                            arrayOf<Class<*>>()::class.java
-                        )
-                        reorderBarrierMethod = getDeclaredMethod.invoke(
-                            Canvas::class.java,
-                            "insertReorderBarrier",
-                            emptyArray<Class<*>>()
-                        ) as Method?
-                        inorderBarrierMethod = getDeclaredMethod.invoke(
-                            Canvas::class.java,
-                            "insertInorderBarrier",
-                            emptyArray<Class<*>>()
-                        ) as Method?
+                        val getDeclaredMethod =
+                            Class::class
+                                .java
+                                .getDeclaredMethod(
+                                    "getDeclaredMethod",
+                                    String::class.java,
+                                    arrayOf<Class<*>>()::class.java
+                                )
+                        reorderBarrierMethod =
+                            getDeclaredMethod.invoke(
+                                Canvas::class.java,
+                                "insertReorderBarrier",
+                                emptyArray<Class<*>>()
+                            ) as Method?
+                        inorderBarrierMethod =
+                            getDeclaredMethod.invoke(
+                                Canvas::class.java,
+                                "insertInorderBarrier",
+                                emptyArray<Class<*>>()
+                            ) as Method?
                     } else {
-                        reorderBarrierMethod = Canvas::class.java.getDeclaredMethod(
-                            "insertReorderBarrier"
-                        )
-                        inorderBarrierMethod = Canvas::class.java.getDeclaredMethod(
-                            "insertInorderBarrier"
-                        )
+                        reorderBarrierMethod =
+                            Canvas::class.java.getDeclaredMethod("insertReorderBarrier")
+                        inorderBarrierMethod =
+                            Canvas::class.java.getDeclaredMethod("insertInorderBarrier")
                     }
                     reorderBarrierMethod?.isAccessible = true
                     inorderBarrierMethod?.isAccessible = true

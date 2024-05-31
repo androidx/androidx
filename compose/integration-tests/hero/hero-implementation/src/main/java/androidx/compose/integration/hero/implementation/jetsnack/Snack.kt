@@ -30,199 +30,167 @@ data class Snack(
     val tags: Set<String> = emptySet()
 )
 
-/**
- * Static data
- */
-
-val snacks = listOf(
-    Snack(
-        id = 1L,
-        name = "Cupcake",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 2L,
-        name = "Donut",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 3L,
-        name = "Eclair",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 4L,
-        name = "Froyo",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 5L,
-        name = "Gingerbread",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 499
-    ),
-    Snack(
-        id = 6L,
-        name = "Honeycomb",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 7L,
-        name = "Ice Cream Sandwich",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 1299
-    ),
-    Snack(
-        id = 8L,
-        name = "Jellybean",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 9L,
-        name = "KitKat",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 549
-    ),
-    Snack(
-        id = 10L,
-        name = "Lollipop",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 11L,
-        name = "Marshmallow",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 12L,
-        name = "Nougat",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 13L,
-        name = "Oreo",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 14L,
-        name = "Pie",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 15L,
-        name = "Chips",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 16L,
-        name = "Pretzels",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 17L,
-        name = "Smoothies",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 18L,
-        name = "Popcorn",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 19L,
-        name = "Almonds",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 20L,
-        name = "Cheese",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 21L,
-        name = "Apples",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 22L,
-        name = "Apple sauce",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 23L,
-        name = "Apple chips",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 24L,
-        name = "Apple juice",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 25L,
-        name = "Apple pie",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 26L,
-        name = "Grapes",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
-    ),
-    Snack(
-        id = 27L,
-        name = "Kiwi",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.eclair,
-        price = 299
-    ),
-    Snack(
-        id = 28L,
-        name = "Mango",
-        tagline = "A tag line",
-        imageDrawable = R.drawable.donut,
-        price = 299
+/** Static data */
+val snacks =
+    listOf(
+        Snack(
+            id = 1L,
+            name = "Cupcake",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 2L,
+            name = "Donut",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 3L,
+            name = "Eclair",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 4L,
+            name = "Froyo",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 5L,
+            name = "Gingerbread",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 499
+        ),
+        Snack(
+            id = 6L,
+            name = "Honeycomb",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 7L,
+            name = "Ice Cream Sandwich",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 1299
+        ),
+        Snack(
+            id = 8L,
+            name = "Jellybean",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 9L,
+            name = "KitKat",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 549
+        ),
+        Snack(
+            id = 10L,
+            name = "Lollipop",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 11L,
+            name = "Marshmallow",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 12L,
+            name = "Nougat",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 13L,
+            name = "Oreo",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 14L,
+            name = "Pie",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(id = 15L, name = "Chips", imageDrawable = R.drawable.eclair, price = 299),
+        Snack(id = 16L, name = "Pretzels", imageDrawable = R.drawable.eclair, price = 299),
+        Snack(id = 17L, name = "Smoothies", imageDrawable = R.drawable.donut, price = 299),
+        Snack(id = 18L, name = "Popcorn", imageDrawable = R.drawable.donut, price = 299),
+        Snack(id = 19L, name = "Almonds", imageDrawable = R.drawable.eclair, price = 299),
+        Snack(id = 20L, name = "Cheese", imageDrawable = R.drawable.eclair, price = 299),
+        Snack(
+            id = 21L,
+            name = "Apples",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 22L,
+            name = "Apple sauce",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 23L,
+            name = "Apple chips",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 24L,
+            name = "Apple juice",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 25L,
+            name = "Apple pie",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 26L,
+            name = "Grapes",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        ),
+        Snack(
+            id = 27L,
+            name = "Kiwi",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.eclair,
+            price = 299
+        ),
+        Snack(
+            id = 28L,
+            name = "Mango",
+            tagline = "A tag line",
+            imageDrawable = R.drawable.donut,
+            price = 299
+        )
     )
-)

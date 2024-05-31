@@ -19,9 +19,8 @@ package androidx.compose.compiler.plugins.kotlin
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.junit.Test
 
-class ControlFlowTransformTestsNoSource(
-    useFir: Boolean
-) : AbstractControlFlowTransformTests(useFir) {
+class ControlFlowTransformTestsNoSource(useFir: Boolean) :
+    AbstractControlFlowTransformTests(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, false)
         put(
@@ -32,30 +31,33 @@ class ControlFlowTransformTestsNoSource(
     }
 
     @Test
-    fun testPublicFunctionAlwaysMarkedAsCall(): Unit = controlFlow(
-        """
+    fun testPublicFunctionAlwaysMarkedAsCall(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test() {
               A(a)
               A(b)
             }
         """
-    )
+        )
 
     @Test
-    fun testPrivateFunctionDoNotGetMarkedAsCall(): Unit = controlFlow(
-        """
+    fun testPrivateFunctionDoNotGetMarkedAsCall(): Unit =
+        controlFlow(
+            """
             @Composable
             private fun Test() {
               A(a)
               A(b)
             }
         """
-    )
+        )
 
     @Test
-    fun testCallingAWrapperComposable(): Unit = controlFlow(
-        """
+    fun testCallingAWrapperComposable(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test() {
               W {
@@ -63,11 +65,12 @@ class ControlFlowTransformTestsNoSource(
               }
             }
         """
-    )
+        )
 
     @Test
-    fun testCallingAnInlineWrapperComposable(): Unit = controlFlow(
-        """
+    fun testCallingAnInlineWrapperComposable(): Unit =
+        controlFlow(
+            """
             @Composable
             fun Test() {
               IW {
@@ -75,11 +78,13 @@ class ControlFlowTransformTestsNoSource(
               }
             }
         """
-    )
+        )
 
     @Test
-    fun verifyEarlyExitFromMultiLevelNestedInlineFunction() = verifyGoldenComposeIrTransform(
-        source = """
+    fun verifyEarlyExitFromMultiLevelNestedInlineFunction() =
+        verifyGoldenComposeIrTransform(
+            source =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -98,7 +103,8 @@ class ControlFlowTransformTestsNoSource(
                 Text("Before outer")
             }
         """,
-        extra = """
+            extra =
+                """
             import androidx.compose.runtime.*
 
             @Composable
@@ -114,5 +120,5 @@ class ControlFlowTransformTestsNoSource(
                 content()
             }
         """
-    )
+        )
 }

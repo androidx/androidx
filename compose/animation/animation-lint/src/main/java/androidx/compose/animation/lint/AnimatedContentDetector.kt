@@ -47,14 +47,18 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(Names.Animation.PackageName)) {
-            val lambdaArgument = computeKotlinArgumentMapping(node, method)
-                .orEmpty().filter { (_, param) -> param.name == "content" }
-                .keys.filterIsInstance<ULambdaExpression>().firstOrNull() ?: return
+            val lambdaArgument =
+                computeKotlinArgumentMapping(node, method)
+                    .orEmpty()
+                    .filter { (_, param) -> param.name == "content" }
+                    .keys
+                    .filterIsInstance<ULambdaExpression>()
+                    .firstOrNull() ?: return
 
             lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
-                val location = unreferencedParameter.parameter
-                    ?.let { context.getLocation(it) }
-                    ?: context.getLocation(lambdaArgument)
+                val location =
+                    unreferencedParameter.parameter?.let { context.getLocation(it) }
+                        ?: context.getLocation(lambdaArgument)
                 val name = unreferencedParameter.name
                 context.report(
                     UnusedContentLambdaTargetStateParameter,
@@ -67,22 +71,25 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val UnusedContentLambdaTargetStateParameter = Issue.create(
-            "UnusedContentLambdaTargetStateParameter",
-            "AnimatedContent calls should use the provided `T` parameter in the content lambda",
-            "`content` lambda in AnimatedContent works as a lookup function that returns the " +
-                "corresponding content based on the parameter (a state of type `T`). It is " +
-                "important for this lambda to return content *specific* to the input parameter, " +
-                "so that the different contents can be properly animated. Not using the input " +
-                "parameter to the content lambda will result in the same content for different " +
-                "input (i.e. target state) and therefore an erroneous transition between the " +
-                "exact same content.`",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                AnimatedContentDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UnusedContentLambdaTargetStateParameter =
+            Issue.create(
+                "UnusedContentLambdaTargetStateParameter",
+                "AnimatedContent calls should use the provided `T` parameter in the content lambda",
+                "`content` lambda in AnimatedContent works as a lookup function that returns the " +
+                    "corresponding content based on the parameter (a state of type `T`). It is " +
+                    "important for this lambda to return content *specific* to the input parameter, " +
+                    "so that the different contents can be properly animated. Not using the input " +
+                    "parameter to the content lambda will result in the same content for different " +
+                    "input (i.e. target state) and therefore an erroneous transition between the " +
+                    "exact same content.`",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    AnimatedContentDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

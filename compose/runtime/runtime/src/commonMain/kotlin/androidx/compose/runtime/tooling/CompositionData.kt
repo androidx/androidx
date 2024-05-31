@@ -21,13 +21,13 @@ import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 /**
  * A [CompositionData] is the data tracked by the composer during composition.
  *
- * This interface is not intended to be used directly and is provided to allow the tools API to
- * have access to data tracked during composition. The tools API should be used instead which
- * provides a more usable interpretation of the slot table.
+ * This interface is not intended to be used directly and is provided to allow the tools API to have
+ * access to data tracked during composition. The tools API should be used instead which provides a
+ * more usable interpretation of the slot table.
  */
 interface CompositionData {
     /**
-     * Iterate the composition data in the group.  The composition data is structured as a tree of
+     * Iterate the composition data in the group. The composition data is structured as a tree of
      * values that corresponds to the call graph of the functions that produced the tree.
      * Interspersed are groups that represents the nodes themselves.
      */
@@ -35,16 +35,16 @@ interface CompositionData {
 
     /**
      * Returns true if no composition data has been collected. This occurs when the first
-     * composition into this composition data has not completed yet or, if it is a group, it
-     * doesn't contain any child groups.
+     * composition into this composition data has not completed yet or, if it is a group, it doesn't
+     * contain any child groups.
      */
     val isEmpty: Boolean
 
     /**
      * Find a sub-group by identity. Returns `null` if the group is not found or the implementation
-     * of this interface does not support finding groups by their identity. In other words, a
-     * `null` result from this method should not be interpreted as the identity is not a group in
-     * the composition data.
+     * of this interface does not support finding groups by their identity. In other words, a `null`
+     * result from this method should not be interpreted as the identity is not a group in the
+     * composition data.
      */
     fun find(identityToFind: Any): CompositionGroup? = null
 }
@@ -54,21 +54,21 @@ interface CompositionData {
  * correspond to flow control branches (such as if statements and function calls) as well as
  * emitting of a node to the tree.
  *
- * This interface is not intended to be used directly and is provided to allow the tools API to
- * have access to data tracked during composition. The tools API should be used instead which
- * provides a more usable interpretation of the slot table.
+ * This interface is not intended to be used directly and is provided to allow the tools API to have
+ * access to data tracked during composition. The tools API should be used instead which provides a
+ * more usable interpretation of the slot table.
  */
 @JvmDefaultWithCompatibility
 interface CompositionGroup : CompositionData {
     /**
-     * A value used to identify the group within its siblings and is typically a compiler
-     * generated integer but can be an object if the [key] composable is used.
+     * A value used to identify the group within its siblings and is typically a compiler generated
+     * integer but can be an object if the [key] composable is used.
      */
     val key: Any
 
     /**
-     * Information recorded by the compiler to help tooling identify the source that generated
-     * the group. The format of this string is internal and is interpreted by the tools API which
+     * Information recorded by the compiler to help tooling identify the source that generated the
+     * group. The format of this string is internal and is interpreted by the tools API which
      * translates this information into source file name and offsets.
      */
     val sourceInfo: String?
@@ -80,23 +80,21 @@ interface CompositionGroup : CompositionData {
     val node: Any?
 
     /**
-     * The data stored in the slot table for this group. This information includes the values
-     * stored for parameters that are checked for change, any value passed as a parameter for
+     * The data stored in the slot table for this group. This information includes the values stored
+     * for parameters that are checked for change, any value passed as a parameter for
      * [androidx.compose.runtime.remember] and the last value returned by
      * [androidx.compose.runtime.remember], etc.
      */
     val data: Iterable<Any?>
 
-    /**
-     * A value that identifies a Group independently of movement caused by recompositions.
-     */
+    /** A value that identifies a Group independently of movement caused by recompositions. */
     val identity: Any?
-      get() = null
+        get() = null
 
-    /**
-     * The total number of groups, including itself, that this group contains.
-     */
-    val groupSize: Int get() = 0
+    /** The total number of groups, including itself, that this group contains. */
+    val groupSize: Int
+        get() = 0
 
-    val slotsSize: Int get() = 0
+    val slotsSize: Int
+        get() = 0
 }

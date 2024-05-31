@@ -41,7 +41,8 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 
 //  Parsing logic is the same as in Android implementation
-//  (compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.kt)
+//
+// (compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/graphics/vector/compat/XmlVectorParser.kt)
 //
 //  Except there is no support for linking with external resources
 //  (for example, we can't reference to color defined in another file)
@@ -56,14 +57,12 @@ private class BuildContext {
     val currentGroups = LinkedList<Group>()
 
     enum class Group {
-        /**
-         * Group that exists in xml file
-         */
+        /** Group that exists in xml file */
         Real,
 
         /**
-         * Group that doesn't exist in xml file. We add it manually when we see <clip-path> node.
-         * It will be automatically popped when the real group will be popped.
+         * Group that doesn't exist in xml file. We add it manually when we see <clip-path> node. It
+         * will be automatically popped when the real group will be popped.
          */
         Virtual
     }
@@ -71,22 +70,19 @@ private class BuildContext {
 
 internal fun Element.parseVectorRoot(density: Density): ImageVector {
     val context = BuildContext()
-    val builder = ImageVector.Builder(
-        defaultWidth = attributeOrNull(ANDROID_NS, "width").parseDp(density),
-        defaultHeight = attributeOrNull(ANDROID_NS, "height").parseDp(density),
-        viewportWidth = attributeOrNull(ANDROID_NS, "viewportWidth")?.toFloat() ?: 0f,
-        viewportHeight = attributeOrNull(ANDROID_NS, "viewportHeight")?.toFloat() ?: 0f
-    )
+    val builder =
+        ImageVector.Builder(
+            defaultWidth = attributeOrNull(ANDROID_NS, "width").parseDp(density),
+            defaultHeight = attributeOrNull(ANDROID_NS, "height").parseDp(density),
+            viewportWidth = attributeOrNull(ANDROID_NS, "viewportWidth")?.toFloat() ?: 0f,
+            viewportHeight = attributeOrNull(ANDROID_NS, "viewportHeight")?.toFloat() ?: 0f
+        )
     parseVectorNodes(builder, context)
     return builder.build()
 }
 
 private fun Element.parseVectorNodes(builder: ImageVector.Builder, context: BuildContext) {
-    childrenSequence
-        .filterIsInstance<Element>()
-        .forEach {
-            it.parseVectorNode(builder, context)
-        }
+    childrenSequence.filterIsInstance<Element>().forEach { it.parseVectorNode(builder, context) }
 }
 
 private fun Element.parseVectorNode(builder: ImageVector.Builder, context: BuildContext) {
@@ -100,20 +96,23 @@ private fun Element.parseVectorNode(builder: ImageVector.Builder, context: Build
 private fun Element.parsePath(builder: ImageVector.Builder) {
     builder.addPath(
         pathData = addPathNodes(attributeOrNull(ANDROID_NS, "pathData")),
-        pathFillType = attributeOrNull(ANDROID_NS, "fillType")
-            ?.let(::parseFillType) ?: PathFillType.NonZero,
+        pathFillType =
+            attributeOrNull(ANDROID_NS, "fillType")?.let(::parseFillType) ?: PathFillType.NonZero,
         name = attributeOrNull(ANDROID_NS, "name") ?: "",
-        fill = attributeOrNull(ANDROID_NS, "fillColor")?.let(::parseStringBrush)
-            ?: apptAttr(ANDROID_NS, "fillColor")?.let(Element::parseElementBrush),
+        fill =
+            attributeOrNull(ANDROID_NS, "fillColor")?.let(::parseStringBrush)
+                ?: apptAttr(ANDROID_NS, "fillColor")?.let(Element::parseElementBrush),
         fillAlpha = attributeOrNull(ANDROID_NS, "fillAlpha")?.toFloat() ?: 1.0f,
-        stroke = attributeOrNull(ANDROID_NS, "strokeColor")?.let(::parseStringBrush)
-            ?: apptAttr(ANDROID_NS, "strokeColor")?.let(Element::parseElementBrush),
+        stroke =
+            attributeOrNull(ANDROID_NS, "strokeColor")?.let(::parseStringBrush)
+                ?: apptAttr(ANDROID_NS, "strokeColor")?.let(Element::parseElementBrush),
         strokeAlpha = attributeOrNull(ANDROID_NS, "strokeAlpha")?.toFloat() ?: 1.0f,
         strokeLineWidth = attributeOrNull(ANDROID_NS, "strokeWidth")?.toFloat() ?: 1.0f,
-        strokeLineCap = attributeOrNull(ANDROID_NS, "strokeLineCap")
-            ?.let(::parseStrokeCap) ?: StrokeCap.Butt,
-        strokeLineJoin = attributeOrNull(ANDROID_NS, "strokeLineJoin")
-            ?.let(::parseStrokeJoin) ?: StrokeJoin.Miter,
+        strokeLineCap =
+            attributeOrNull(ANDROID_NS, "strokeLineCap")?.let(::parseStrokeCap) ?: StrokeCap.Butt,
+        strokeLineJoin =
+            attributeOrNull(ANDROID_NS, "strokeLineJoin")?.let(::parseStrokeJoin)
+                ?: StrokeJoin.Miter,
         strokeLineMiter = attributeOrNull(ANDROID_NS, "strokeMiterLimit")?.toFloat() ?: 1.0f,
         trimPathStart = attributeOrNull(ANDROID_NS, "trimPathStart")?.toFloat() ?: 0.0f,
         trimPathEnd = attributeOrNull(ANDROID_NS, "trimPathEnd")?.toFloat() ?: 1.0f,
@@ -154,10 +153,7 @@ private fun Element.parseGroup(builder: ImageVector.Builder, context: BuildConte
 private fun parseStringBrush(str: String) = SolidColor(Color(parseColorValue(str)))
 
 private fun Element.parseElementBrush(): Brush? =
-    childrenSequence
-        .filterIsInstance<Element>()
-        .find { it.nodeName == "gradient" }
-        ?.parseGradient()
+    childrenSequence.filterIsInstance<Element>().find { it.nodeName == "gradient" }?.parseGradient()
 
 private fun Element.parseGradient(): Brush? {
     return when (attributeOrNull(ANDROID_NS, "type")) {
@@ -169,48 +165,54 @@ private fun Element.parseGradient(): Brush? {
 }
 
 @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-private fun Element.parseLinearGradient() = Brush.linearGradient(
-    colorStops = parseColorStops(),
-    start = Offset(
-        attributeOrNull(ANDROID_NS, "startX")?.toFloat() ?: 0f,
-        attributeOrNull(ANDROID_NS, "startY")?.toFloat() ?: 0f
-    ),
-    end = Offset(
-        attributeOrNull(ANDROID_NS, "endX")?.toFloat() ?: 0f,
-        attributeOrNull(ANDROID_NS, "endY")?.toFloat() ?: 0f
-    ),
-    tileMode = attributeOrNull(ANDROID_NS, "tileMode")?.let(::parseTileMode) ?: TileMode.Clamp
-)
-
-@Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-private fun Element.parseRadialGradient() = Brush.radialGradient(
-    colorStops = parseColorStops(),
-    center = Offset(
-        attributeOrNull(ANDROID_NS, "centerX")?.toFloat() ?: 0f,
-        attributeOrNull(ANDROID_NS, "centerY")?.toFloat() ?: 0f
-    ),
-    radius = attributeOrNull(ANDROID_NS, "gradientRadius")?.toFloat() ?: 0f,
-    tileMode = attributeOrNull(ANDROID_NS, "tileMode")?.let(::parseTileMode) ?: TileMode.Clamp
-)
-
-@Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
-private fun Element.parseSweepGradient() = Brush.sweepGradient(
-    colorStops = parseColorStops(),
-    center = Offset(
-        attributeOrNull(ANDROID_NS, "centerX")?.toFloat() ?: 0f,
-        attributeOrNull(ANDROID_NS, "centerY")?.toFloat() ?: 0f,
+private fun Element.parseLinearGradient() =
+    Brush.linearGradient(
+        colorStops = parseColorStops(),
+        start =
+            Offset(
+                attributeOrNull(ANDROID_NS, "startX")?.toFloat() ?: 0f,
+                attributeOrNull(ANDROID_NS, "startY")?.toFloat() ?: 0f
+            ),
+        end =
+            Offset(
+                attributeOrNull(ANDROID_NS, "endX")?.toFloat() ?: 0f,
+                attributeOrNull(ANDROID_NS, "endY")?.toFloat() ?: 0f
+            ),
+        tileMode = attributeOrNull(ANDROID_NS, "tileMode")?.let(::parseTileMode) ?: TileMode.Clamp
     )
-)
+
+@Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
+private fun Element.parseRadialGradient() =
+    Brush.radialGradient(
+        colorStops = parseColorStops(),
+        center =
+            Offset(
+                attributeOrNull(ANDROID_NS, "centerX")?.toFloat() ?: 0f,
+                attributeOrNull(ANDROID_NS, "centerY")?.toFloat() ?: 0f
+            ),
+        radius = attributeOrNull(ANDROID_NS, "gradientRadius")?.toFloat() ?: 0f,
+        tileMode = attributeOrNull(ANDROID_NS, "tileMode")?.let(::parseTileMode) ?: TileMode.Clamp
+    )
+
+@Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
+private fun Element.parseSweepGradient() =
+    Brush.sweepGradient(
+        colorStops = parseColorStops(),
+        center =
+            Offset(
+                attributeOrNull(ANDROID_NS, "centerX")?.toFloat() ?: 0f,
+                attributeOrNull(ANDROID_NS, "centerY")?.toFloat() ?: 0f,
+            )
+    )
 
 private fun Element.parseColorStops(): Array<Pair<Float, Color>> {
-    val items = childrenSequence
-        .filterIsInstance<Element>()
-        .filter { it.nodeName == "item" }
-        .toList()
+    val items =
+        childrenSequence.filterIsInstance<Element>().filter { it.nodeName == "item" }.toList()
 
-    val colorStops = items.mapIndexedNotNullTo(mutableListOf()) { index, item ->
-        item.parseColorStop(defaultOffset = index.toFloat() / items.lastIndex.coerceAtLeast(1))
-    }
+    val colorStops =
+        items.mapIndexedNotNullTo(mutableListOf()) { index, item ->
+            item.parseColorStop(defaultOffset = index.toFloat() / items.lastIndex.coerceAtLeast(1))
+        }
 
     if (colorStops.isEmpty()) {
         val startColor = attributeOrNull(ANDROID_NS, "startColor")?.let(::parseColorValue)
@@ -245,33 +247,26 @@ private fun Element.attributeOrNull(namespace: String, name: String): String? {
 /**
  * Attribute of an element can be represented as a separate child:
  *
- *  <path ...>
- *    <aapt:attr name="android:fillColor">
- *      <gradient ...
- *        ...
- *      </gradient>
- *    </aapt:attr>
- *  </path>
+ * <path ...> <aapt:attr name="android:fillColor"> <gradient ... ... </gradient> </aapt:attr>
+ * </path>
  *
  * instead of:
  *
- *  <path android:fillColor="red" ... />
+ * <path android:fillColor="red" ... />
  */
-private fun Element.apptAttr(
-    namespace: String,
-    name: String
-): Element? {
+private fun Element.apptAttr(namespace: String, name: String): Element? {
     val prefix = lookupPrefix(namespace) ?: return null
-    return childrenSequence
-        .filterIsInstance<Element>()
-        .find {
-            it.namespaceURI == AAPT_NS && it.localName == "attr" &&
-                it.getAttribute("name") == "$prefix:$name"
-        }
-}
-
-private val Element.childrenSequence get() = sequence<Node> {
-    for (i in 0 until childNodes.length) {
-        yield(childNodes.item(i))
+    return childrenSequence.filterIsInstance<Element>().find {
+        it.namespaceURI == AAPT_NS &&
+            it.localName == "attr" &&
+            it.getAttribute("name") == "$prefix:$name"
     }
 }
+
+private val Element.childrenSequence
+    get() =
+        sequence<Node> {
+            for (i in 0 until childNodes.length) {
+                yield(childNodes.item(i))
+            }
+        }

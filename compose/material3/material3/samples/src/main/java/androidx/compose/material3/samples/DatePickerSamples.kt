@@ -114,13 +114,7 @@ fun DatePickerDialogSample() {
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = {
-                        openDialog.value = false
-                    }
-                ) {
-                    Text("Cancel")
-                }
+                TextButton(onClick = { openDialog.value = false }) { Text("Cancel") }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -134,28 +128,33 @@ fun DatePickerDialogSample() {
 @Sampled
 @Composable
 fun DatePickerWithDateSelectableDatesSample() {
-    val datePickerState = rememberDatePickerState(
-        selectableDates = object : SelectableDates {
-            // Blocks Sunday and Saturday from being selected.
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val dayOfWeek = Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneId.of("UTC"))
-                        .toLocalDate().dayOfWeek
-                    dayOfWeek != DayOfWeek.SUNDAY && dayOfWeek != DayOfWeek.SATURDAY
-                } else {
-                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                    calendar.timeInMillis = utcTimeMillis
-                    calendar[Calendar.DAY_OF_WEEK] != Calendar.SUNDAY &&
-                        calendar[Calendar.DAY_OF_WEEK] != Calendar.SATURDAY
-                }
-            }
+    val datePickerState =
+        rememberDatePickerState(
+            selectableDates =
+                object : SelectableDates {
+                    // Blocks Sunday and Saturday from being selected.
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            val dayOfWeek =
+                                Instant.ofEpochMilli(utcTimeMillis)
+                                    .atZone(ZoneId.of("UTC"))
+                                    .toLocalDate()
+                                    .dayOfWeek
+                            dayOfWeek != DayOfWeek.SUNDAY && dayOfWeek != DayOfWeek.SATURDAY
+                        } else {
+                            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                            calendar.timeInMillis = utcTimeMillis
+                            calendar[Calendar.DAY_OF_WEEK] != Calendar.SUNDAY &&
+                                calendar[Calendar.DAY_OF_WEEK] != Calendar.SATURDAY
+                        }
+                    }
 
-            // Allow selecting dates from year 2023 forward.
-            override fun isSelectableYear(year: Int): Boolean {
-                return year > 2022
-            }
-        }
-    )
+                    // Allow selecting dates from year 2023 forward.
+                    override fun isSelectableYear(year: Int): Boolean {
+                        return year > 2022
+                    }
+                }
+        )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         DatePicker(state = datePickerState)
@@ -196,10 +195,10 @@ fun DateRangePickerSample() {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Top) {
         // Add a row with "Save" and dismiss actions.
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(DatePickerDefaults.colors().containerColor)
-                .padding(start = 12.dp, end = 12.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .background(DatePickerDefaults.colors().containerColor)
+                    .padding(start = 12.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -209,8 +208,7 @@ fun DateRangePickerSample() {
             TextButton(
                 onClick = {
                     snackScope.launch {
-                        val range =
-                            state.selectedStartDateMillis!!..state.selectedEndDateMillis!!
+                        val range = state.selectedStartDateMillis!!..state.selectedEndDateMillis!!
                         snackState.showSnackbar("Saved range (timestamps): $range")
                     }
                 },

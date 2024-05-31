@@ -18,8 +18,8 @@ package androidx.compose.runtime
 
 /**
  * Compose passes data through the composition tree explicitly through means of parameters to
- * composable functions. This is often times the simplest and best way to have data flow through
- * the tree.
+ * composable functions. This is often times the simplest and best way to have data flow through the
+ * tree.
  *
  * Sometimes this model can be cumbersome or break down for data that is needed by lots of
  * components, or when components need to pass data between one another but keep that implementation
@@ -33,14 +33,14 @@ package androidx.compose.runtime
  * statically. [CompositionLocal] instances themselves hold no data, and can be thought of as a
  * type-safe identifier for the data being passed down a tree. [CompositionLocal] factory functions
  * take a single parameter: a factory to create a default value in cases where a [CompositionLocal]
- * is used without a Provider. If this is a situation you would rather not handle, you can throw
- * an error in this factory.
+ * is used without a Provider. If this is a situation you would rather not handle, you can throw an
+ * error in this factory.
  *
  * @sample androidx.compose.runtime.samples.createCompositionLocal
  *
- * Somewhere up the tree, a [CompositionLocalProvider] component can be used, which provides a
- * value for the [CompositionLocal]. This would often be at the "root" of a tree, but could be
- * anywhere, and can also be used in multiple places to override the provided value for a sub-tree.
+ * Somewhere up the tree, a [CompositionLocalProvider] component can be used, which provides a value
+ * for the [CompositionLocal]. This would often be at the "root" of a tree, but could be anywhere,
+ * and can also be used in multiple places to override the provided value for a sub-tree.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
  *
@@ -50,8 +50,8 @@ package androidx.compose.runtime
  * @sample androidx.compose.runtime.samples.someScreenSample
  *
  * Finally, a component that wishes to consume the [CompositionLocal] value can use the [current]
- * property of the [CompositionLocal] key which returns the current value of the
- * [CompositionLocal], and subscribes the component to changes of it.
+ * property of the [CompositionLocal] key which returns the current value of the [CompositionLocal],
+ * and subscribes the component to changes of it.
  *
  * @sample androidx.compose.runtime.samples.consumeCompositionLocal
  */
@@ -65,16 +65,14 @@ sealed class CompositionLocal<T>(defaultFactory: () -> T) {
     ): ValueHolder<T>
 
     /**
-     * Return the value provided by the nearest [CompositionLocalProvider] component that invokes, directly or
-     * indirectly, the composable function that uses this property.
+     * Return the value provided by the nearest [CompositionLocalProvider] component that invokes,
+     * directly or indirectly, the composable function that uses this property.
      *
      * @sample androidx.compose.runtime.samples.consumeCompositionLocal
      */
     @OptIn(InternalComposeApi::class)
     inline val current: T
-        @ReadOnlyComposable
-        @Composable
-        get() = currentComposer.consume(this)
+        @ReadOnlyComposable @Composable get() = currentComposer.consume(this)
 }
 
 /**
@@ -87,7 +85,7 @@ sealed class CompositionLocal<T>(defaultFactory: () -> T) {
  */
 @Stable
 abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory: () -> T) :
-    CompositionLocal<T> (defaultFactory) {
+    CompositionLocal<T>(defaultFactory) {
     internal abstract fun defaultProvidedValue(value: T): ProvidedValue<T>
 
     /**
@@ -109,9 +107,9 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
 
     /**
      * Associates a [CompositionLocal] key to a lambda, [compute], in a call to [CompositionLocal].
-     * The [compute] lambda is invoked whenever the key is retrieved. The lambda is executed in
-     * the context of a [CompositionLocalContext] which allow retrieving the current values of
-     * other composition locals by calling [CompositionLocalAccessorScope.currentValue], which is an
+     * The [compute] lambda is invoked whenever the key is retrieved. The lambda is executed in the
+     * context of a [CompositionLocalContext] which allow retrieving the current values of other
+     * composition locals by calling [CompositionLocalAccessorScope.currentValue], which is an
      * extension function provided by the context for a [CompositionLocal] key.
      *
      * The lambda passed to [providesComputed] will be invoked every time the
@@ -123,6 +121,7 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
      * would automatically update all the accent colors.
      *
      * @sample androidx.compose.runtime.samples.compositionLocalProvidedComputed
+     *
      * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
      *
      * @see CompositionLocal
@@ -151,13 +150,8 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
                     previous
                 } else null
             is StaticValueHolder ->
-                if (value.isStatic && value.effectiveValue == previous.value)
-                    previous
-                else null
-            is ComputedValueHolder ->
-                if (value.compute === previous.compute)
-                    previous
-                else null
+                if (value.isStatic && value.effectiveValue == previous.value) previous else null
+            is ComputedValueHolder -> if (value.compute === previous.compute) previous else null
             else -> null
         } ?: valueHolderOf(value)
     }
@@ -167,8 +161,9 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
             value.isDynamic ->
                 DynamicValueHolder(
                     value.state
-                        ?: mutableStateOf(value.value, value.mutationPolicy
-                            ?: structuralEqualityPolicy()
+                        ?: mutableStateOf(
+                            value.value,
+                            value.mutationPolicy ?: structuralEqualityPolicy()
                         )
                 )
             value.compute != null -> ComputedValueHolder(value.compute)
@@ -224,29 +219,27 @@ internal class StaticProvidableCompositionLocal<T>(defaultFactory: () -> T) :
 }
 
 /**
- * Create a [CompositionLocal] key that can be provided using [CompositionLocalProvider].
- * Changing the value provided during recomposition will invalidate the content of
- * [CompositionLocalProvider] that read the value using [CompositionLocal.current].
+ * Create a [CompositionLocal] key that can be provided using [CompositionLocalProvider]. Changing
+ * the value provided during recomposition will invalidate the content of [CompositionLocalProvider]
+ * that read the value using [CompositionLocal.current].
  *
  * [compositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a a call to
- * [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public
- * as [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
+ * [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
+ * [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
  * [CompositionLocal.current] but not re-provided.
  *
  * @param policy a policy to determine when a [CompositionLocal] is considered changed. See
- * [SnapshotMutationPolicy] for details.
+ *   [SnapshotMutationPolicy] for details.
  * @param defaultFactory a value factory to supply a value when a value is not provided. This
- * factory is called when no value is provided through a [CompositionLocalProvider] of the caller
- * of the component using [CompositionLocal.current]. If no reasonable default can be provided then
- * consider throwing an exception.
- *
+ *   factory is called when no value is provided through a [CompositionLocalProvider] of the caller
+ *   of the component using [CompositionLocal.current]. If no reasonable default can be provided
+ *   then consider throwing an exception.
  * @see CompositionLocal
  * @see staticCompositionLocalOf
  * @see mutableStateOf
  */
 fun <T> compositionLocalOf(
-    policy: SnapshotMutationPolicy<T> =
-        structuralEqualityPolicy(),
+    policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy(),
     defaultFactory: () -> T
 ): ProvidableCompositionLocal<T> = DynamicProvidableCompositionLocal(policy, defaultFactory)
 
@@ -257,22 +250,21 @@ fun <T> compositionLocalOf(
  * composer and changing the value provided in the [CompositionLocalProvider] call will cause the
  * entirety of the content to be recomposed instead of just the places where in the composition the
  * local value is used. This lack of tracking, however, makes a [staticCompositionLocalOf] more
- * efficient when the value provided is highly unlikely to or will never change. For example,
- * the android context, font loaders, or similar shared values, are unlikely to change for the
+ * efficient when the value provided is highly unlikely to or will never change. For example, the
+ * android context, font loaders, or similar shared values, are unlikely to change for the
  * components in the content of a the [CompositionLocalProvider] and should consider using a
- * [staticCompositionLocalOf]. A color, or other theme like value, might change or even be
- * animated therefore a [compositionLocalOf] should be used.
+ * [staticCompositionLocalOf]. A color, or other theme like value, might change or even be animated
+ * therefore a [compositionLocalOf] should be used.
  *
- * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a a
- * call to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made
- * public as [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
+ * [staticCompositionLocalOf] creates a [ProvidableCompositionLocal] which can be used in a a call
+ * to [CompositionLocalProvider]. Similar to [MutableList] vs. [List], if the key is made public as
+ * [CompositionLocal] instead of [ProvidableCompositionLocal], it can be read using
  * [CompositionLocal.current] but not re-provided.
  *
  * @param defaultFactory a value factory to supply a value when a value is not provided. This
- * factory is called when no value is provided through a [CompositionLocalProvider] of the caller
- * of the component using [CompositionLocal.current]. If no reasonable default can be provided then
- * consider throwing an exception.
- *
+ *   factory is called when no value is provided through a [CompositionLocalProvider] of the caller
+ *   of the component using [CompositionLocal.current]. If no reasonable default can be provided
+ *   then consider throwing an exception.
  * @see CompositionLocal
  * @see compositionLocalOf
  */
@@ -282,35 +274,34 @@ fun <T> staticCompositionLocalOf(defaultFactory: () -> T): ProvidableComposition
 /**
  * Create a [CompositionLocal] that behaves like it was provided using
  * [ProvidableCompositionLocal.providesComputed] by default. If a value is provided using
- * [ProvidableCompositionLocal.provides] it behaves as if the [CompositionLocal] was produced
- * by calling [compositionLocalOf].
+ * [ProvidableCompositionLocal.provides] it behaves as if the [CompositionLocal] was produced by
+ * calling [compositionLocalOf].
  *
  * In other words, a [CompositionLocal] produced by can be provided identically to
- * [CompositionLocal] created with  [compositionLocalOf] with the only difference is how it behaves
+ * [CompositionLocal] created with [compositionLocalOf] with the only difference is how it behaves
  * when the value is not provided. For a [compositionLocalOf] the default value is returned. If no
  * default value has be computed for [CompositionLocal] the default computation is called.
  *
  * The lambda passed to [compositionLocalWithComputedDefaultOf] will be invoked every time the
- * [CompositionLocal.current] is evaluated for the composition local and computes its value based
- * on the current value of the locals referenced in the lambda at the time
- * [CompositionLocal.current] is evaluated. This allows providing values that can be derived from
- * other locals. For example, if accent colors can be calculated from a single base color, the
- * accent colors can be provided as computed composition locals. Providing a new base color would
- * automatically update all the accent colors.
+ * [CompositionLocal.current] is evaluated for the composition local and computes its value based on
+ * the current value of the locals referenced in the lambda at the time [CompositionLocal.current]
+ * is evaluated. This allows providing values that can be derived from other locals. For example, if
+ * accent colors can be calculated from a single base color, the accent colors can be provided as
+ * computed composition locals. Providing a new base color would automatically update all the accent
+ * colors.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalComputedByDefault
+ *
  * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
  *
  * @param defaultComputation the default computation to use when this [CompositionLocal] is not
- * provided.
- *
+ *   provided.
  * @see CompositionLocal
  * @see ProvidableCompositionLocal
  */
 fun <T> compositionLocalWithComputedDefaultOf(
     defaultComputation: CompositionLocalAccessorScope.() -> T
-): ProvidableCompositionLocal<T> =
-    ComputedProvidableCompositionLocal(defaultComputation)
+): ProvidableCompositionLocal<T> = ComputedProvidableCompositionLocal(defaultComputation)
 
 internal class ComputedProvidableCompositionLocal<T>(
     defaultComputation: CompositionLocalAccessorScope.() -> T
@@ -331,9 +322,9 @@ internal class ComputedProvidableCompositionLocal<T>(
 
 interface CompositionLocalAccessorScope {
     /**
-     * An extension property that allows accessing the current value of a composition local in
-     * the context of this scope. This scope is the type of the `this` parameter when in a
-     * computed composition. Computed composition locals can be provided by either using
+     * An extension property that allows accessing the current value of a composition local in the
+     * context of this scope. This scope is the type of the `this` parameter when in a computed
+     * composition. Computed composition locals can be provided by either using
      * [compositionLocalWithComputedDefaultOf] or by using the
      * [ProvidableCompositionLocal.providesComputed] infix operator.
      *
@@ -350,21 +341,20 @@ interface CompositionLocalAccessorScope {
 /**
  * Stores [CompositionLocal]'s and their values.
  *
- * Can be obtained via [currentCompositionLocalContext] and passed to another composition
- * via [CompositionLocalProvider].
+ * Can be obtained via [currentCompositionLocalContext] and passed to another composition via
+ * [CompositionLocalProvider].
  *
  * [CompositionLocalContext] is immutable and won't be changed after its obtaining.
  */
 @Stable
-class CompositionLocalContext internal constructor(
-    internal val compositionLocals: PersistentCompositionLocalMap
-)
+class CompositionLocalContext
+internal constructor(internal val compositionLocals: PersistentCompositionLocalMap)
 
 /**
  * [CompositionLocalProvider] binds values to [ProvidableCompositionLocal] keys. Reading the
  * [CompositionLocal] using [CompositionLocal.current] will return the value provided in
- * [CompositionLocalProvider]'s [values] parameter for all composable functions called directly
- * or indirectly in the [content] lambda.
+ * [CompositionLocalProvider]'s [values] parameter for all composable functions called directly or
+ * indirectly in the [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
  *
@@ -384,8 +374,8 @@ fun CompositionLocalProvider(vararg values: ProvidedValue<*>, content: @Composab
 /**
  * [CompositionLocalProvider] binds value to [ProvidableCompositionLocal] key. Reading the
  * [CompositionLocal] using [CompositionLocal.current] will return the value provided in
- * [CompositionLocalProvider]'s [value] parameter for all composable functions called directly
- * or indirectly in the [content] lambda.
+ * [CompositionLocalProvider]'s [value] parameter for all composable functions called directly or
+ * indirectly in the [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
  *
@@ -403,10 +393,10 @@ fun CompositionLocalProvider(value: ProvidedValue<*>, content: @Composable () ->
 }
 
 /**
- * [CompositionLocalProvider] binds values to [CompositionLocal]'s, provided by [context].
- * Reading the [CompositionLocal] using [CompositionLocal.current] will return the value provided in
- * values stored inside [context] for all composable functions called directly
- * or indirectly in the [content] lambda.
+ * [CompositionLocalProvider] binds values to [CompositionLocal]'s, provided by [context]. Reading
+ * the [CompositionLocal] using [CompositionLocal.current] will return the value provided in values
+ * stored inside [context] for all composable functions called directly or indirectly in the
+ * [content] lambda.
  *
  * @sample androidx.compose.runtime.samples.compositionLocalProvider
  *

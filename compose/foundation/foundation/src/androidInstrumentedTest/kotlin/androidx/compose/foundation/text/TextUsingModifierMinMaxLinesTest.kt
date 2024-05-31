@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TextUsingModifierMinMaxLinesTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun whenMaxLines_isBoundOnLineHeight() {
@@ -48,30 +47,18 @@ class TextUsingModifierMinMaxLinesTest {
         val textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY)
         rule.setContent {
             for (i in sizes.indices) {
-                Box(
-                    Modifier
-                        .onSizeChanged { sizes[i] = it }
-                        .width(5.dp)) {
+                Box(Modifier.onSizeChanged { sizes[i] = it }.width(5.dp)) {
                     BasicText(
                         text,
                         style = textStyle,
                         maxLines = i + 1,
-                        onTextLayout = {
-                            layouts[i] = it
-                        }
+                        onTextLayout = { layouts[i] = it }
                     )
                 }
             }
 
-            Box(
-                Modifier
-                    .onSizeChanged { unboundedTextSize = it }
-                    .width(5.dp)) {
-                BasicText(
-                    text,
-                    style = textStyle,
-                    maxLines = Int.MAX_VALUE
-                )
+            Box(Modifier.onSizeChanged { unboundedTextSize = it }.width(5.dp)) {
+                BasicText(text, style = textStyle, maxLines = Int.MAX_VALUE)
             }
         }
         rule.runOnIdle {
@@ -94,29 +81,18 @@ class TextUsingModifierMinMaxLinesTest {
         val textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY)
         rule.setContent {
             for (i in sizes.indices) {
-                Box(
-                    Modifier
-                        .onSizeChanged { sizes[i] = it }
-                        .width(5.dp)) {
+                Box(Modifier.onSizeChanged { sizes[i] = it }.width(5.dp)) {
                     BasicText(
                         text,
                         style = textStyle,
                         minLines = i + 1,
-                        onTextLayout = {
-                            layouts[i] = it
-                        }
+                        onTextLayout = { layouts[i] = it }
                     )
                 }
             }
 
-            Box(
-                Modifier
-                    .onSizeChanged { unboundedTextSize = it }
-                    .width(5.dp)) {
-                BasicText(
-                    text,
-                    style = textStyle
-                )
+            Box(Modifier.onSizeChanged { unboundedTextSize = it }.width(5.dp)) {
+                BasicText(text, style = textStyle)
             }
         }
         rule.runOnIdle {
@@ -131,22 +107,16 @@ class TextUsingModifierMinMaxLinesTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun negativeMinLines_throws() {
-        rule.setContent {
-            BasicText(text = "", minLines = -1)
-        }
+        rule.setContent { BasicText(text = "", minLines = -1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun negativeMaxLines_throws() {
-        rule.setContent {
-            BasicText(text = "", maxLines = -1)
-        }
+        rule.setContent { BasicText(text = "", maxLines = -1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun crossedMinMaxLines_throws() {
-        rule.setContent {
-            BasicText(text = "", minLines = 10, maxLines = 5)
-        }
+        rule.setContent { BasicText(text = "", minLines = 10, maxLines = 5) }
     }
 }

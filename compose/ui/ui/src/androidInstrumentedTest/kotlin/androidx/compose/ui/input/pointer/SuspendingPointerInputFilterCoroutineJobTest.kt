@@ -44,9 +44,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SuspendingPointerInputFilterCoroutineJobTest {
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val rule = createComposeRule(Dispatchers.Main)
+    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule(Dispatchers.Main)
 
     @Test
     @LargeTest
@@ -86,10 +84,11 @@ class SuspendingPointerInputFilterCoroutineJobTest {
 
         rule.setContent {
             Box(
-                modifier = elementFor(
-                    key1 = Unit,
-                    instance = suspendingPointerInputModifierNode as Modifier.Node
-                )
+                modifier =
+                    elementFor(
+                        key1 = Unit,
+                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                    )
             )
         }
 

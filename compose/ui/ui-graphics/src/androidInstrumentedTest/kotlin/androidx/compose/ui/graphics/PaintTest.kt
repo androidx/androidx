@@ -77,15 +77,16 @@ class PaintTest {
         val composePaint = nativePaint.asComposePaint()
         val green = android.graphics.Color.GREEN
         val red = android.graphics.Color.RED
-        val shader = android.graphics.LinearGradient(
-            0f,
-            0f,
-            1f,
-            1f,
-            green,
-            red,
-            android.graphics.Shader.TileMode.MIRROR
-        )
+        val shader =
+            android.graphics.LinearGradient(
+                0f,
+                0f,
+                1f,
+                1f,
+                green,
+                red,
+                android.graphics.Shader.TileMode.MIRROR
+            )
         composePaint.shader = shader
         assertSame(composePaint.shader, nativePaint.shader)
     }

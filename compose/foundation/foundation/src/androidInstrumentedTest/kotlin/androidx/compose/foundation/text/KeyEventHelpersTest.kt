@@ -29,34 +29,21 @@ import org.junit.runner.RunWith
 class KeyEventHelpersTest {
     @Test
     fun whenBackAndUp_cancels() {
-        val event = KeyEvent(
-            NativeKeyEvent(
-                NativeKeyEvent.ACTION_UP,
-                NativeKeyEvent.KEYCODE_BACK
-            )
-        )
+        val event = KeyEvent(NativeKeyEvent(NativeKeyEvent.ACTION_UP, NativeKeyEvent.KEYCODE_BACK))
         assertThat(event.cancelsTextSelection()).isTrue()
     }
 
     @Test
     fun whenBackAndDown_ignores() {
-        val event = KeyEvent(
-            NativeKeyEvent(
-                NativeKeyEvent.ACTION_DOWN,
-                NativeKeyEvent.KEYCODE_BACK
-            )
-        )
+        val event =
+            KeyEvent(NativeKeyEvent(NativeKeyEvent.ACTION_DOWN, NativeKeyEvent.KEYCODE_BACK))
         assertThat(event.cancelsTextSelection()).isFalse()
     }
 
     @Test
     fun whenNotBack_ignores() {
-        val event = KeyEvent(
-            NativeKeyEvent(
-                NativeKeyEvent.ACTION_DOWN,
-                NativeKeyEvent.KEYCODE_HOME
-            )
-        )
+        val event =
+            KeyEvent(NativeKeyEvent(NativeKeyEvent.ACTION_DOWN, NativeKeyEvent.KEYCODE_HOME))
         assertThat(event.cancelsTextSelection()).isFalse()
     }
 }

@@ -16,22 +16,19 @@
 
 package androidx.compose.ui.input.key
 
-/**
- * The native platform-specific keyboard key event.
- */
+/** The native platform-specific keyboard key event. */
 expect class NativeKeyEvent
 
 /**
  * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the item that is
  * currently focused. Any parent composable can intercept this [key event][KeyEvent] on its way to
- * the focused item by using [Modifier.onPreviewKeyEvent()]][onPreviewKeyEvent]. If the item is
- * not consumed, it returns back to each parent and can be intercepted by using
+ * the focused item by using [Modifier.onPreviewKeyEvent()]][onPreviewKeyEvent]. If the item is not
+ * consumed, it returns back to each parent and can be intercepted by using
  * [Modifier.onKeyEvent()]][onKeyEvent].
  *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@kotlin.jvm.JvmInline
-value class KeyEvent(val nativeKeyEvent: NativeKeyEvent)
+@kotlin.jvm.JvmInline value class KeyEvent(val nativeKeyEvent: NativeKeyEvent)
 
 /**
  * The key that was pressed.
@@ -41,20 +38,20 @@ value class KeyEvent(val nativeKeyEvent: NativeKeyEvent)
 expect val KeyEvent.key: Key
 
 /**
- * The UTF16 value corresponding to the key event that was pressed. The unicode character
- * takes into account any meta keys that are pressed (eg. Pressing shift results in capital
- * alphabets). The UTF16 value uses the
- * [U+n notation][http://www.unicode.org/reports/tr27/#notation] of the Unicode Standard.
+ * The UTF16 value corresponding to the key event that was pressed. The unicode character takes into
+ * account any meta keys that are pressed (eg. Pressing shift results in capital alphabets). The
+ * UTF16 value uses the [U+n notation][http://www.unicode.org/reports/tr27/#notation] of the Unicode
+ * Standard.
  *
- * An [Int] is used instead of a [Char] so that we can support supplementary characters. The
- * Unicode Standard allows for characters whose representation requires more than 16 bits.
- * The range of legal code points is U+0000 to U+10FFFF, known as Unicode scalar value.
+ * An [Int] is used instead of a [Char] so that we can support supplementary characters. The Unicode
+ * Standard allows for characters whose representation requires more than 16 bits. The range of
+ * legal code points is U+0000 to U+10FFFF, known as Unicode scalar value.
  *
- * The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic
- * Multilingual Plane (BMP). Characters whose code points are greater than U+FFFF are called
- * supplementary characters. In this representation, supplementary characters are represented
- * as a pair of char values, the first from the high-surrogates range, (\uD800-\uDBFF), the
- * second from the low-surrogates range (\uDC00-\uDFFF).
+ * The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic Multilingual
+ * Plane (BMP). Characters whose code points are greater than U+FFFF are called supplementary
+ * characters. In this representation, supplementary characters are represented as a pair of char
+ * values, the first from the high-surrogates range, (\uD800-\uDBFF), the second from the
+ * low-surrogates range (\uDC00-\uDFFF).
  */
 expect val KeyEvent.utf16CodePoint: Int
 

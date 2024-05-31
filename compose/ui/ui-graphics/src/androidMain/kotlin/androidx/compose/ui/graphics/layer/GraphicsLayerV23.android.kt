@@ -66,8 +66,7 @@ internal class GraphicsLayerV23(
             // This is only to force loading the DisplayListCanvas class and causing the
             // MRenderNode to fail with a NoClassDefFoundError during construction instead of
             // later.
-            @Suppress("UNUSED_VARIABLE")
-            val displayListCanvas: DisplayListCanvas? = null
+            @Suppress("UNUSED_VARIABLE") val displayListCanvas: DisplayListCanvas? = null
 
             // Ensure that we can access properties of the RenderNode. We want to force an
             // exception here if there is a problem accessing any of these so that we can
@@ -158,9 +157,9 @@ internal class GraphicsLayerV23(
             field = value
             if (value != null) {
                 applyCompositingStrategy(CompositingStrategy.Offscreen)
-                renderNode.setLayerPaint(obtainLayerPaint().apply {
-                    colorFilter = value.asAndroidColorFilter()
-                })
+                renderNode.setLayerPaint(
+                    obtainLayerPaint().apply { colorFilter = value.asAndroidColorFilter() }
+                )
             } else {
                 updateLayerProperties()
             }
@@ -193,11 +192,13 @@ internal class GraphicsLayerV23(
             field = value
             renderNode.setScaleX(value)
         }
+
     override var scaleY: Float = 1f
         set(value) {
             field = value
             renderNode.setScaleY(value)
         }
+
     override var translationX: Float = 0f
         set(value) {
             field = value
@@ -209,11 +210,13 @@ internal class GraphicsLayerV23(
             field = value
             renderNode.setTranslationY(value)
         }
+
     override var shadowElevation: Float = 0f
         set(value) {
             field = value
             renderNode.setElevation(value)
         }
+
     override var ambientShadowColor: Color = Color.Black
         set(value) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -221,6 +224,7 @@ internal class GraphicsLayerV23(
                 RenderNodeVerificationHelper28.setAmbientShadowColor(renderNode, value.toArgb())
             }
         }
+
     override var spotShadowColor: Color = Color.Black
         set(value) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -228,21 +232,25 @@ internal class GraphicsLayerV23(
                 RenderNodeVerificationHelper28.setSpotShadowColor(renderNode, value.toArgb())
             }
         }
+
     override var rotationX: Float = 0f
         set(value) {
             field = value
             renderNode.setRotationX(value)
         }
+
     override var rotationY: Float = 0f
         set(value) {
             field = value
             renderNode.setRotationY(value)
         }
+
     override var rotationZ: Float = 0f
         set(value) {
             field = value
             renderNode.setRotation(value)
         }
+
     override var cameraDistance: Float = DefaultCameraDistance
         set(value) {
             // Camera distance was negated in older API levels. Maintain the same input parameters
@@ -311,14 +319,7 @@ internal class GraphicsLayerV23(
     ) {
         val recordingCanvas = renderNode.start(size.width, size.height)
         canvasHolder.drawInto(recordingCanvas) {
-            canvasDrawScope.draw(
-                density,
-                layoutDirection,
-                this,
-                size.toSize(),
-                layer,
-                block
-            )
+            canvasDrawScope.draw(density, layoutDirection, this, size.toSize(), layer, block)
         }
         renderNode.end(recordingCanvas)
         isInvalidated = false

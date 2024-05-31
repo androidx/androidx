@@ -59,11 +59,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ExpressiveNavigationBarScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun equalWeightArrangement_lightTheme() {
@@ -395,7 +393,7 @@ class ExpressiveNavigationBarScreenshotTest {
      *
      * @param scope [CoroutineScope] used to interact with [MutableInteractionSource]
      * @param interactionSource the [MutableInteractionSource] used for the first
-     * [ExpressiveNavigationBarItem]
+     *   [ExpressiveNavigationBarItem]
      * @param interaction the [Interaction] to assert for, or `null` if no [Interaction].
      * @param goldenIdentifier the identifier for the corresponding screenshot
      */
@@ -408,9 +406,7 @@ class ExpressiveNavigationBarScreenshotTest {
         if (interaction != null) {
             composeTestRule.runOnIdle {
                 // Start ripple
-                scope.launch {
-                    interactionSource.emit(interaction)
-                }
+                scope.launch { interactionSource.emit(interaction) }
             }
 
             composeTestRule.waitForIdle()
@@ -422,7 +418,8 @@ class ExpressiveNavigationBarScreenshotTest {
         }
 
         // Capture and compare screenshots
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }
@@ -433,7 +430,7 @@ class ExpressiveNavigationBarScreenshotTest {
  * item is selected, and the rest are not.
  *
  * @param interactionSource the [MutableInteractionSource] for the first
- * [ExpressiveNavigationBarItem], to control its visual state.
+ *   [ExpressiveNavigationBarItem], to control its visual state.
  * @param modifier the [Modifier] applied to the navigation bar
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
@@ -486,16 +483,15 @@ private fun ComposeContentTestRule.setContentWithSimulatedSize(
     setContent {
         val currentDensity = LocalDensity.current
         val currentConfiguration = LocalConfiguration.current
-        val simulatedDensity = Density(
-            currentDensity.density * (currentConfiguration.screenWidthDp.dp / simulatedWidth)
-        )
+        val simulatedDensity =
+            Density(
+                currentDensity.density * (currentConfiguration.screenWidthDp.dp / simulatedWidth)
+            )
         MaterialTheme(colorScheme = colorScheme) {
             Surface(modifier = modifier) {
                 CompositionLocalProvider(LocalDensity provides simulatedDensity) {
                     Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(simulatedHeight),
+                        Modifier.fillMaxWidth().height(simulatedHeight),
                     ) {
                         composable()
                     }

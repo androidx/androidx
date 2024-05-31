@@ -21,8 +21,8 @@ import androidx.compose.runtime.Immutable
 /**
  * Used to configure Android platform IME options.
  *
- * @param privateImeOptions defines a [String] for supplying additional information options that
- * are private to a particular IME implementation.
+ * @param privateImeOptions defines a [String] for supplying additional information options that are
+ *   private to a particular IME implementation.
  */
 @Immutable
 actual class PlatformImeOptions(

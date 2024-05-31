@@ -46,12 +46,8 @@ class DesktopInputComponentTest {
         val input = PlatformInput(DummyPlatformComponent)
         val inputService = TextInputService(input)
 
-        val session = inputService.startInput(
-            TextFieldValue(),
-            ImeOptions.Default,
-            processor::apply,
-            {}
-        )
+        val session =
+            inputService.startInput(TextFieldValue(), ImeOptions.Default, processor::apply, {})
 
         processor.reset(TextFieldValue("h"), session)
 
@@ -83,12 +79,8 @@ class DesktopInputComponentTest {
         val input = PlatformInput(component)
         val inputService = TextInputService(input)
 
-        val session = inputService.startInput(
-            TextFieldValue(),
-            ImeOptions.Default,
-            processor::apply,
-            {}
-        )
+        val session =
+            inputService.startInput(TextFieldValue(), ImeOptions.Default, processor::apply, {})
 
         input.charKeyPressed = true
         processor.reset(TextFieldValue("a", selection = TextRange(1)), session)

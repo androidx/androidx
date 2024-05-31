@@ -65,21 +65,20 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class TextFieldScreenshotTest {
     private val TextFieldTag = "TextField"
-    private val longText = TextFieldValue(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
-            "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
-            " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
-            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
-            "fugiat nulla pariatur."
-    )
+    private val longText =
+        TextFieldValue(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do " +
+                "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam," +
+                " quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
+                "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
+                "fugiat nulla pariatur."
+        )
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val platformTextStyle = defaultPlatformTextStyle()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     @Test
     fun textField_withInput() {
@@ -212,9 +211,8 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 label = { Text("Label") },
-                modifier = Modifier.requiredHeight(300.dp)
-                    .requiredWidth(280.dp)
-                    .testTag(TextFieldTag)
+                modifier =
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
             )
         }
 
@@ -228,9 +226,8 @@ class TextFieldScreenshotTest {
             TextField(
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
-                modifier = Modifier.requiredHeight(300.dp)
-                    .requiredWidth(280.dp)
-                    .testTag(TextFieldTag)
+                modifier =
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
             )
         }
 
@@ -245,9 +242,8 @@ class TextFieldScreenshotTest {
                 onValueChange = {},
                 label = { Text("Label") },
                 placeholder = { Text("placeholder") },
-                modifier = Modifier.requiredHeight(300.dp)
-                    .requiredWidth(280.dp)
-                    .testTag(TextFieldTag)
+                modifier =
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
             )
         }
 
@@ -263,9 +259,8 @@ class TextFieldScreenshotTest {
                 value = "",
                 onValueChange = {},
                 placeholder = { Text("placeholder") },
-                modifier = Modifier.requiredHeight(300.dp)
-                    .requiredWidth(280.dp)
-                    .testTag(TextFieldTag)
+                modifier =
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
             )
         }
 
@@ -281,9 +276,8 @@ class TextFieldScreenshotTest {
                 value = "",
                 onValueChange = {},
                 label = { Text("Label") },
-                modifier = Modifier.requiredHeight(300.dp)
-                    .requiredWidth(280.dp)
-                    .testTag(TextFieldTag)
+                modifier =
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
             )
         }
 
@@ -409,7 +403,7 @@ class TextFieldScreenshotTest {
         rule.setMaterialContent {
             TextField(
                 value = longText,
-                onValueChange = { },
+                onValueChange = {},
                 singleLine = true,
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(300.dp),
                 enabled = false
@@ -464,7 +458,7 @@ class TextFieldScreenshotTest {
         rule.setMaterialContent {
             TextField(
                 value = longText,
-                onValueChange = { },
+                onValueChange = {},
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(300.dp),
                 singleLine = true,
                 enabled = true,
@@ -490,10 +484,8 @@ class TextFieldScreenshotTest {
                 value = TextFieldValue(text = text, selection = TextRange(text.length)),
                 onValueChange = {},
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Center,
-                    platformStyle = platformTextStyle
-                ),
+                textStyle =
+                    TextStyle(textAlign = TextAlign.Center, platformStyle = platformTextStyle),
                 singleLine = true
             )
         }
@@ -552,11 +544,16 @@ class TextFieldScreenshotTest {
 
     private fun SemanticsNodeInteraction.focus() {
         // split click into (down) and (move, up) to enforce a composition in between
-        this.performTouchInput { down(center) }.performTouchInput { move(); up() }
+        this.performTouchInput { down(center) }
+            .performTouchInput {
+                move()
+                up()
+            }
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
-        rule.onNodeWithTag(TextFieldTag)
+        rule
+            .onNodeWithTag(TextFieldTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

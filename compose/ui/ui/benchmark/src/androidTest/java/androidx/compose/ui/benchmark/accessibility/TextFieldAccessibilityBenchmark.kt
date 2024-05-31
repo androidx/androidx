@@ -90,7 +90,8 @@ class TextFieldAccessibilityBenchmark(
         )
     }
 
-    @Test fun createAccessibilityNodeInfoFromId_singleOfMultipleTextField() {
+    @Test
+    fun createAccessibilityNodeInfoFromId_singleOfMultipleTextField() {
         if (!accessibilityEnabled) return
 
         measureRepeatedOnUiThread(
@@ -101,9 +102,7 @@ class TextFieldAccessibilityBenchmark(
                         value = "abc",
                         onValueChange = {},
                     )
-                    repeat(9) {
-                        TextField(value = "abc", onValueChange = {})
-                    }
+                    repeat(9) { TextField(value = "abc", onValueChange = {}) }
                 }
             },
             benchmark = {
@@ -123,15 +122,9 @@ class TextFieldAccessibilityBenchmark(
 
         measureRepeatedOnUiThread(
             content = {
-                TextField(
-                    modifier = Modifier.testTag("tag"),
-                    value = "abc",
-                    onValueChange = {}
-                )
+                TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
             },
-            benchmark = {
-                nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
-            }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
         )
     }
 
@@ -151,14 +144,10 @@ class TextFieldAccessibilityBenchmark(
                         value = "abc",
                         onValueChange = {},
                     )
-                    repeat(9) {
-                        TextField(value = "abc", onValueChange = {})
-                    }
+                    repeat(9) { TextField(value = "abc", onValueChange = {}) }
                 }
             },
-            benchmark = {
-                nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID)
-            }
+            benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) }
         )
     }
 
@@ -172,9 +161,7 @@ class TextFieldAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        Column {
-                            if (include) TextField(value = "abc", onValueChange = {})
-                        }
+                        Column { if (include) TextField(value = "abc", onValueChange = {}) }
                     }
 
                     override fun toggleState() {
@@ -198,9 +185,7 @@ class TextFieldAccessibilityBenchmark(
                         setupAccessibility()
                         Column {
                             if (include) {
-                                repeat(10) {
-                                    TextField(value = "abc", onValueChange = {})
-                                }
+                                repeat(10) { TextField(value = "abc", onValueChange = {}) }
                             }
                         }
                     }
@@ -225,11 +210,7 @@ class TextFieldAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        Column {
-                            repeat(count) {
-                                TextField(value = "abc", onValueChange = {})
-                            }
-                        }
+                        Column { repeat(count) { TextField(value = "abc", onValueChange = {}) } }
                     }
 
                     override fun toggleState() {
@@ -370,17 +351,16 @@ class TextFieldAccessibilityBenchmark(
         @Parameterized.Parameters(
             name = "accessibilityEnabled = {0}, invalidateSemanticsOnEachRun = {1}"
         )
-        fun initParameters() = listOf(
-            arrayOf(false, false),
-            arrayOf(true, false),
-            arrayOf(true, true)
-        )
+        fun initParameters() =
+            listOf(arrayOf(false, false), arrayOf(true, false), arrayOf(true, true))
     }
 
     private fun findIdByTag(@Suppress("SameParameterValue") tag: String): Int {
-        return (view as RootForTest).semanticsOwner
+        return (view as RootForTest)
+            .semanticsOwner
             .getAllSemanticsNodes(mergingEnabled = false)
-            .find { it.config.getOrNull(SemanticsProperties.TestTag) == tag }!!.id
+            .find { it.config.getOrNull(SemanticsProperties.TestTag) == tag }!!
+            .id
     }
 
     private fun measureRepeatedOnUiThread(

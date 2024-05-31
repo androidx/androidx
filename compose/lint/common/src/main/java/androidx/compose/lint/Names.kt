@@ -18,20 +18,21 @@ package androidx.compose.lint
 
 import kotlinx.metadata.ClassName
 
-/**
- * Contains common names used for lint checks.
- */
+/** Contains common names used for lint checks. */
 object Names {
     object Animation {
         val PackageName = Package("androidx.compose.animation")
+
         object Core {
             val PackageName = Package("androidx.compose.animation.core")
             val Animatable = Name(PackageName, "Animatable")
         }
     }
+
     object AnimationCore {
         val PackageName = Package("androidx.compose.animation.core")
     }
+
     object Runtime {
         val PackageName = Package("androidx.compose.runtime")
 
@@ -56,10 +57,12 @@ object Names {
         val Key = Name(PackageName, "key")
         val StructuralEqualityPolicy = Name(PackageName, "structuralEqualityPolicy")
     }
+
     object Ui {
         val PackageName = Package("androidx.compose.ui")
         val Composed = Name(PackageName, "composed")
         val Modifier = Name(PackageName, "Modifier")
+
         object Layout {
             val PackageName = Package("androidx.compose.ui.layout")
             val ParentDataModifier = Name(PackageName, "ParentDataModifier")
@@ -95,9 +98,7 @@ object Names {
  * @property segments the segments representing the package
  */
 class PackageName internal constructor(internal val segments: List<String>) {
-    /**
-     * The Java-style package name for this [Name], separated with `.`
-     */
+    /** The Java-style package name for this [Name], separated with `.` */
     val javaPackageName: String
         get() = segments.joinToString(".")
 }
@@ -106,55 +107,37 @@ class PackageName internal constructor(internal val segments: List<String>) {
  * Represents the qualified name for an element
  *
  * @property pkg the package for this element
- * @property nameSegments the segments representing the element - there can be multiple in the
- * case of nested classes.
+ * @property nameSegments the segments representing the element - there can be multiple in the case
+ *   of nested classes.
  */
-class Name internal constructor(
-    private val pkg: PackageName,
-    private val nameSegments: List<String>
-) {
-    /**
-     * The short name for this [Name]
-     */
+class Name
+internal constructor(private val pkg: PackageName, private val nameSegments: List<String>) {
+    /** The short name for this [Name] */
     val shortName: String
         get() = nameSegments.last()
 
-    /**
-     * The Java-style fully qualified name for this [Name], separated with `.`
-     */
+    /** The Java-style fully qualified name for this [Name], separated with `.` */
     val javaFqn: String
-        get() = pkg.segments.joinToString(".", postfix = ".") +
-            nameSegments.joinToString(".")
+        get() = pkg.segments.joinToString(".", postfix = ".") + nameSegments.joinToString(".")
 
     /**
-     * The [ClassName] for use with kotlinx.metadata. Note that in kotlinx.metadata the actual
-     * type might be different from the underlying JVM type, for example:
-     * kotlin/Int -> java/lang/Integer
+     * The [ClassName] for use with kotlinx.metadata. Note that in kotlinx.metadata the actual type
+     * might be different from the underlying JVM type, for example: kotlin/Int -> java/lang/Integer
      */
     val kmClassName: ClassName
-        get() = pkg.segments.joinToString("/", postfix = "/") +
-            nameSegments.joinToString(".")
+        get() = pkg.segments.joinToString("/", postfix = "/") + nameSegments.joinToString(".")
 
-    /**
-     * The [PackageName] of this element.
-     */
-    val packageName: PackageName get() = pkg
+    /** The [PackageName] of this element. */
+    val packageName: PackageName
+        get() = pkg
 }
 
-/**
- * @return a [PackageName] with a Java-style (separated with `.`) [packageName].
- */
-fun Package(packageName: String): PackageName =
-    PackageName(packageName.split("."))
+/** @return a [PackageName] with a Java-style (separated with `.`) [packageName]. */
+fun Package(packageName: String): PackageName = PackageName(packageName.split("."))
 
-/**
- * @return a [PackageName] with a Java-style (separated with `.`) [packageName].
- */
+/** @return a [PackageName] with a Java-style (separated with `.`) [packageName]. */
 fun Package(packageName: PackageName, shortName: String): PackageName =
     PackageName(packageName.segments + shortName.split("."))
 
-/**
- * @return a [Name] with the provided [pkg] and Java-style (separated with `.`) [shortName].
- */
-fun Name(pkg: PackageName, shortName: String): Name =
-    Name(pkg, shortName.split("."))
+/** @return a [Name] with the provided [pkg] and Java-style (separated with `.`) [shortName]. */
+fun Name(pkg: PackageName, shortName: String): Name = Name(pkg, shortName.split("."))

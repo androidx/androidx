@@ -27,16 +27,13 @@ import androidx.compose.ui.text.TextRange
  */
 @OptIn(InternalTextApi::class)
 class EditingBuffer(
-    /**
-     * The initial text of this editing buffer
-     */
+    /** The initial text of this editing buffer */
     text: AnnotatedString,
     /**
-     * The initial selection range of this buffer.
-     * If you provide collapsed selection, it is treated as the cursor position. The cursor and
-     * selection cannot exists at the same time.
-     * The selection must points the valid index of the initialText, otherwise
-     * IndexOutOfBoundsException will be thrown.
+     * The initial selection range of this buffer. If you provide collapsed selection, it is treated
+     * as the cursor position. The cursor and selection cannot exists at the same time. The
+     * selection must points the valid index of the initialText, otherwise IndexOutOfBoundsException
+     * will be thrown.
      */
     selection: TextRange
 ) {
@@ -46,18 +43,14 @@ class EditingBuffer(
 
     private val gapBuffer = PartialGapBuffer(text.text)
 
-    /**
-     * The inclusive selection start offset
-     */
+    /** The inclusive selection start offset */
     internal var selectionStart = selection.min
         private set(value) {
             require(value >= 0) { "Cannot set selectionStart to a negative value: $value" }
             field = value
         }
 
-    /**
-     * The exclusive selection end offset
-     */
+    /** The exclusive selection end offset */
     internal var selectionEnd = selection.max
         private set(value) {
             require(value >= 0) { "Cannot set selectionEnd to a negative value: $value" }
@@ -80,29 +73,21 @@ class EditingBuffer(
     internal var compositionEnd = NOWHERE
         private set
 
-    /**
-     * Helper function that returns true if the editing buffer has composition text
-     */
+    /** Helper function that returns true if the editing buffer has composition text */
     internal fun hasComposition(): Boolean = compositionStart != NOWHERE
 
-    /**
-     * Returns the composition information as TextRange. Returns null if no
-     * composition is set.
-     */
+    /** Returns the composition information as TextRange. Returns null if no composition is set. */
     internal val composition: TextRange?
-        get() = if (hasComposition()) {
-            TextRange(compositionStart, compositionEnd)
-        } else null
+        get() =
+            if (hasComposition()) {
+                TextRange(compositionStart, compositionEnd)
+            } else null
 
-    /**
-     * Returns the selection information as TextRange
-     */
+    /** Returns the selection information as TextRange */
     internal val selection: TextRange
         get() = TextRange(selectionStart, selectionEnd)
 
-    /**
-     * Helper accessor for cursor offset
-     */
+    /** Helper accessor for cursor offset */
     /*VisibleForTesting*/
     internal var cursor: Int
         /**
@@ -119,15 +104,12 @@ class EditingBuffer(
          */
         set(cursor) = setSelection(cursor, cursor)
 
-    /**
-     * [] operator for the character at the index.
-     */
+    /** [] operator for the character at the index. */
     internal operator fun get(index: Int): Char = gapBuffer[index]
 
-    /**
-     * Returns the length of the buffer.
-     */
-    internal val length: Int get() = gapBuffer.length
+    /** Returns the length of the buffer. */
+    internal val length: Int
+        get() = gapBuffer.length
 
     internal constructor(
         text: String,
@@ -212,10 +194,8 @@ class EditingBuffer(
 
         gapBuffer.replace(start, end, "")
 
-        val newSelection = updateRangeAfterDelete(
-            TextRange(selectionStart, selectionEnd),
-            deleteRange
-        )
+        val newSelection =
+            updateRangeAfterDelete(TextRange(selectionStart, selectionEnd), deleteRange)
         selectionStart = newSelection.min
         selectionEnd = newSelection.max
 
@@ -234,11 +214,11 @@ class EditingBuffer(
     /**
      * Mark the specified area of the text as selected text.
      *
-     * You can set cursor by specifying the same value to `start` and `end`.
-     * The reversed range is not allowed.
+     * You can set cursor by specifying the same value to `start` and `end`. The reversed range is
+     * not allowed.
+     *
      * @param start the inclusive start offset of the selection
      * @param end the exclusive end offset of the selection
-     *
      * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer.
      * @throws IllegalArgumentException if start is larger than end. (reversed range)
      */
@@ -264,15 +244,14 @@ class EditingBuffer(
     /**
      * Mark the specified area of the text as composition text.
      *
-     * The empty range or reversed range is not allowed.
-     * Use clearComposition in case of clearing composition.
+     * The empty range or reversed range is not allowed. Use clearComposition in case of clearing
+     * composition.
      *
      * @param start the inclusive start offset of the composition
      * @param end the exclusive end offset of the composition
-     *
      * @throws IndexOutOfBoundsException if start or end offset is ouside of current buffer
      * @throws IllegalArgumentException if start is larger than or equal to end. (reversed or
-     *                                  collapsed range)
+     *   collapsed range)
      */
     internal fun setComposition(start: Int, end: Int) {
         if (start < 0 || start > gapBuffer.length) {
@@ -293,18 +272,14 @@ class EditingBuffer(
         compositionEnd = end
     }
 
-    /**
-     * Removes the ongoing composition text and reset the composition range.
-     */
+    /** Removes the ongoing composition text and reset the composition range. */
     internal fun cancelComposition() {
         replace(compositionStart, compositionEnd, "")
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
     }
 
-    /**
-     * Commits the ongoing composition text and reset the composition range.
-     */
+    /** Commits the ongoing composition text and reset the composition range. */
     internal fun commitComposition() {
         compositionStart = NOWHERE
         compositionEnd = NOWHERE

@@ -35,10 +35,10 @@ import org.junit.Rule
 import org.junit.Test
 
 class NavigationSuiteScaffoldBenchmarkTest {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { NavigationSuiteScaffoldTestCase() }
+
     @Test
     fun firstPixel() {
         benchmarkRule.benchmarkFirstRenderUntilStable(testCaseFactory)
@@ -83,9 +83,7 @@ internal class NavigationSuiteScaffoldTestCase : LayeredComposeTestCase(), Toggl
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

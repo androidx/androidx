@@ -40,9 +40,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [moveTo] and [movePointerTo] work
- */
+/** Tests if [moveTo] and [movePointerTo] work */
 @MediumTest
 class SendMoveToTest {
     companion object {
@@ -52,17 +50,14 @@ class SendMoveToTest {
         private val moveToPosition2 = Offset(21f, 21f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Suppress("DEPRECATION")
@@ -153,18 +148,14 @@ class SendMoveToTest {
     @Suppress("DEPRECATION")
     @Test
     fun moveToWithoutDown() {
-        expectError<IllegalStateException> {
-            rule.partialGesture { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { moveTo(moveToPosition1) } }
     }
 
     @Suppress("DEPRECATION")
     @Test
     fun moveToWrongPointerId() {
         rule.partialGesture { down(1, downPosition1) }
-        expectError<IllegalArgumentException> {
-            rule.partialGesture { moveTo(2, moveToPosition1) }
-        }
+        expectError<IllegalArgumentException> { rule.partialGesture { moveTo(2, moveToPosition1) } }
     }
 
     @Suppress("DEPRECATION")
@@ -172,9 +163,7 @@ class SendMoveToTest {
     fun moveToAfterUp() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { up() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { moveTo(moveToPosition1) } }
     }
 
     @Suppress("DEPRECATION")
@@ -182,9 +171,7 @@ class SendMoveToTest {
     fun moveToAfterCancel() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { cancel() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { moveTo(moveToPosition1) }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { moveTo(moveToPosition1) } }
     }
 
     @Suppress("DEPRECATION")

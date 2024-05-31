@@ -37,8 +37,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SuspendingEffectsTests : BaseComposeTest() {
 
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test
     fun testLaunchedTask() {
@@ -47,22 +46,23 @@ class SuspendingEffectsTests : BaseComposeTest() {
         // Used as a signal that LaunchedTask will await
         val ch = Channel<Unit>(Channel.CONFLATED)
         compose {
-            LaunchedEffect(Unit) {
-                counter++
-                ch.receive()
-                counter++
-                ch.receive()
-                counter++
+                LaunchedEffect(Unit) {
+                    counter++
+                    ch.receive()
+                    counter++
+                    ch.receive()
+                    counter++
+                }
             }
-        }.then {
-            assertEquals(1, counter)
-            ch.trySend(Unit)
-        }.then {
-            assertEquals(2, counter)
-            ch.trySend(Unit)
-        }.then {
-            assertEquals(3, counter)
-        }
+            .then {
+                assertEquals(1, counter)
+                ch.trySend(Unit)
+            }
+            .then {
+                assertEquals(2, counter)
+                ch.trySend(Unit)
+            }
+            .then { assertEquals(3, counter) }
     }
 
     @Test
@@ -70,25 +70,31 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-            LaunchedEffect(Unit) {
-                withFrameNanos {
-                    awaitFrameTime = it
+                LaunchedEffect(Unit) { withFrameNanos { awaitFrameTime = it } }
+                DisposableEffect(true) {
+                    Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
+                        choreographerTime = frameTimeNanos
+                    }
+                    onDispose {}
                 }
             }
-            DisposableEffect(true) {
-                Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
-                    choreographerTime = frameTimeNanos
-                }
-                onDispose { }
+            .then {
+                assertNotEquals(
+                    choreographerTime,
+                    Long.MIN_VALUE,
+                    "Choreographer callback never ran"
+                )
+                assertNotEquals(
+                    awaitFrameTime,
+                    Long.MAX_VALUE,
+                    "awaitFrameNanos callback never ran"
+                )
+                assertEquals(
+                    choreographerTime,
+                    awaitFrameTime,
+                    "expected same values from choreographer post and awaitFrameNanos"
+                )
             }
-        }.then {
-            assertNotEquals(choreographerTime, Long.MIN_VALUE, "Choreographer callback never ran")
-            assertNotEquals(awaitFrameTime, Long.MAX_VALUE, "awaitFrameNanos callback never ran")
-            assertEquals(
-                choreographerTime, awaitFrameTime,
-                "expected same values from choreographer post and awaitFrameNanos"
-            )
-        }
     }
 
     @Test
@@ -96,36 +102,42 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-            val scope = rememberCoroutineScope()
-            DisposableEffect(true) {
-                scope.launch {
-                    withFrameNanos {
-                        awaitFrameTime = it
+                val scope = rememberCoroutineScope()
+                DisposableEffect(true) {
+                    scope.launch { withFrameNanos { awaitFrameTime = it } }
+                    Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
+                        choreographerTime = frameTimeNanos
                     }
+                    onDispose {}
                 }
-                Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
-                    choreographerTime = frameTimeNanos
-                }
-                onDispose { }
             }
-        }.then {
-            assertNotEquals(choreographerTime, Long.MIN_VALUE, "Choreographer callback never ran")
-            assertNotEquals(awaitFrameTime, Long.MAX_VALUE, "awaitFrameNanos callback never ran")
-            assertEquals(
-                choreographerTime, awaitFrameTime,
-                "expected same values from choreographer post and awaitFrameNanos"
-            )
-        }
+            .then {
+                assertNotEquals(
+                    choreographerTime,
+                    Long.MIN_VALUE,
+                    "Choreographer callback never ran"
+                )
+                assertNotEquals(
+                    awaitFrameTime,
+                    Long.MAX_VALUE,
+                    "awaitFrameNanos callback never ran"
+                )
+                assertEquals(
+                    choreographerTime,
+                    awaitFrameTime,
+                    "expected same values from choreographer post and awaitFrameNanos"
+                )
+            }
     }
 
     @Test
     fun testRememberCoroutineScopeActiveWithComposition() {
         lateinit var coroutineScope: CoroutineScope
-        compose {
-            coroutineScope = rememberCoroutineScope()
-        }.then {
-            assertTrue(coroutineScope.isActive, "coroutine scope was active before dispose")
-        }.done()
+        compose { coroutineScope = rememberCoroutineScope() }
+            .then {
+                assertTrue(coroutineScope.isActive, "coroutine scope was active before dispose")
+            }
+            .done()
         assertFalse(coroutineScope.isActive, "coroutine scope was inactive after dispose")
     }
 
@@ -134,22 +146,23 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var coroutineScope: CoroutineScope? = null
         var toggle by mutableStateOf(true)
         compose {
-            if (toggle) {
-                coroutineScope = rememberCoroutineScope()
+                if (toggle) {
+                    coroutineScope = rememberCoroutineScope()
+                }
             }
-        }.then {
-            assertTrue(
-                coroutineScope?.isActive == true,
-                "coroutine scope should be active after initial composition"
-            )
-        }.then {
-            toggle = false
-        }.then {
-            assertTrue(
-                coroutineScope?.isActive == false,
-                "coroutine scope should be cancelled after leaving composition"
-            )
-        }
+            .then {
+                assertTrue(
+                    coroutineScope?.isActive == true,
+                    "coroutine scope should be active after initial composition"
+                )
+            }
+            .then { toggle = false }
+            .then {
+                assertTrue(
+                    coroutineScope?.isActive == false,
+                    "coroutine scope should be cancelled after leaving composition"
+                )
+            }
     }
 
     @OptIn(InternalComposeApi::class)
@@ -160,23 +173,23 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var rememberCoroutineScopeFrameClock: MonotonicFrameClock? = null
 
         compose {
-            recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
-            LaunchedEffect(Unit) {
-                launchedTaskClock = coroutineContext[MonotonicFrameClock]
+                recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
+                LaunchedEffect(Unit) { launchedTaskClock = coroutineContext[MonotonicFrameClock] }
+                val rememberedScope = rememberCoroutineScope()
+                SideEffect {
+                    rememberCoroutineScopeFrameClock =
+                        rememberedScope.coroutineContext[MonotonicFrameClock]
+                }
             }
-            val rememberedScope = rememberCoroutineScope()
-            SideEffect {
-                rememberCoroutineScopeFrameClock =
-                    rememberedScope.coroutineContext[MonotonicFrameClock]
+            .then {
+                assertNotNull(recomposerClock, "Recomposer frameClock")
+                assertSame(recomposerClock, launchedTaskClock, "LaunchedTask clock")
+                assertSame(
+                    recomposerClock,
+                    rememberCoroutineScopeFrameClock,
+                    "rememberCoroutineScope clock"
+                )
             }
-        }.then {
-            assertNotNull(recomposerClock, "Recomposer frameClock")
-            assertSame(recomposerClock, launchedTaskClock, "LaunchedTask clock")
-            assertSame(
-                recomposerClock, rememberCoroutineScopeFrameClock,
-                "rememberCoroutineScope clock"
-            )
-        }
     }
 
     @Test
@@ -184,17 +197,14 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var onCommitRan = false
         var launchRanAfter = false
         compose {
-            // Confirms that these run "out of order" with respect to one another because
-            // the launch runs dispatched.
-            LaunchedEffect(Unit) {
-                launchRanAfter = onCommitRan
+                // Confirms that these run "out of order" with respect to one another because
+                // the launch runs dispatched.
+                LaunchedEffect(Unit) { launchRanAfter = onCommitRan }
+                SideEffect { onCommitRan = true }
             }
-            SideEffect {
-                onCommitRan = true
+            .then {
+                assertTrue(launchRanAfter, "expected LaunchedTask to run after later onCommit")
             }
-        }.then {
-            assertTrue(launchRanAfter, "expected LaunchedTask to run after later onCommit")
-        }
     }
 
     /*

@@ -26,9 +26,7 @@ import org.jetbrains.skia.PathOp
 
 actual fun Path(): Path = SkiaBackedPath()
 
-/**
- * Convert the [org.jetbrains.skia.Path] instance into a Compose-compatible Path
- */
+/** Convert the [org.jetbrains.skia.Path] instance into a Compose-compatible Path */
 fun org.jetbrains.skia.Path.asComposePath(): Path = SkiaBackedPath(this)
 
 /**
@@ -44,9 +42,8 @@ fun Path.asSkiaPath(): org.jetbrains.skia.Path =
     }
 
 @Suppress("OVERRIDE_DEPRECATION")
-internal class SkiaBackedPath(
-    internalPath: org.jetbrains.skia.Path = org.jetbrains.skia.Path()
-) : Path {
+internal class SkiaBackedPath(internalPath: org.jetbrains.skia.Path = org.jetbrains.skia.Path()) :
+    Path {
     var internalPath = internalPath
         private set
 
@@ -58,7 +55,6 @@ internal class SkiaBackedPath(
                 PathFillType.NonZero
             }
         }
-
         set(value) {
             internalPath.fillMode =
                 if (value == PathFillType.EvenOdd) {
@@ -101,11 +97,7 @@ internal class SkiaBackedPath(
     }
 
     override fun cubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
-        internalPath.cubicTo(
-            x1, y1,
-            x2, y2,
-            x3, y3
-        )
+        internalPath.cubicTo(x1, y1, x2, y2, x3, y3)
     }
 
     override fun relativeCubicTo(
@@ -116,11 +108,7 @@ internal class SkiaBackedPath(
         dx3: Float,
         dy3: Float
     ) {
-        internalPath.rCubicTo(
-            dx1, dy1,
-            dx2, dy2,
-            dx3, dy3
-        )
+        internalPath.rCubicTo(dx1, dy1, dx2, dy2, dx3, dy3)
     }
 
     override fun arcTo(
@@ -129,12 +117,7 @@ internal class SkiaBackedPath(
         sweepAngleDegrees: Float,
         forceMoveTo: Boolean
     ) {
-        internalPath.arcTo(
-            rect.toSkiaRect(),
-            startAngleDegrees,
-            sweepAngleDegrees,
-            forceMoveTo
-        )
+        internalPath.arcTo(rect.toSkiaRect(), startAngleDegrees, sweepAngleDegrees, forceMoveTo)
     }
 
     override fun addRect(rect: Rect) {
@@ -179,7 +162,8 @@ internal class SkiaBackedPath(
 
     override fun reset() {
         // preserve fillType to match the Android behavior
-        // see https://cs.android.com/android/_/android/platform/frameworks/base/+/d0f379c1976c600313f1f4c39f2587a649e3a4fc
+        // see
+        // https://cs.android.com/android/_/android/platform/frameworks/base/+/d0f379c1976c600313f1f4c39f2587a649e3a4fc
         val fillType = this.fillType
         internalPath.reset()
         this.fillType = fillType
@@ -199,41 +183,36 @@ internal class SkiaBackedPath(
 
     override fun getBounds(): Rect {
         val bounds = internalPath.bounds
-        return Rect(
-            bounds.left,
-            bounds.top,
-            bounds.right,
-            bounds.bottom
-        )
+        return Rect(bounds.left, bounds.top, bounds.right, bounds.bottom)
     }
 
-    override fun op(
-        path1: Path,
-        path2: Path,
-        operation: PathOperation
-    ): Boolean {
-        val path = org.jetbrains.skia.Path.makeCombining(
-            path1.asSkiaPath(),
-            path2.asSkiaPath(),
-            operation.toSkiaOperation()
-        )
+    override fun op(path1: Path, path2: Path, operation: PathOperation): Boolean {
+        val path =
+            org.jetbrains.skia.Path.makeCombining(
+                path1.asSkiaPath(),
+                path2.asSkiaPath(),
+                operation.toSkiaOperation()
+            )
 
         internalPath = path ?: internalPath
         return path != null
     }
 
-    private fun PathOperation.toSkiaOperation() = when (this) {
-        PathOperation.Difference -> PathOp.DIFFERENCE
-        PathOperation.Intersect -> PathOp.INTERSECT
-        PathOperation.Union -> PathOp.UNION
-        PathOperation.Xor -> PathOp.XOR
-        PathOperation.ReverseDifference -> PathOp.REVERSE_DIFFERENCE
-        else -> PathOp.XOR
-    }
+    private fun PathOperation.toSkiaOperation() =
+        when (this) {
+            PathOperation.Difference -> PathOp.DIFFERENCE
+            PathOperation.Intersect -> PathOp.INTERSECT
+            PathOperation.Union -> PathOp.UNION
+            PathOperation.Xor -> PathOp.XOR
+            PathOperation.ReverseDifference -> PathOp.REVERSE_DIFFERENCE
+            else -> PathOp.XOR
+        }
 
-    override val isConvex: Boolean get() = internalPath.isConvex
+    override val isConvex: Boolean
+        get() = internalPath.isConvex
 
-    override val isEmpty: Boolean get() = internalPath.isEmpty
+    override val isEmpty: Boolean
+        get() = internalPath.isEmpty
 
     private fun Matrix33.setFrom(matrix: Matrix) {
         require(
@@ -295,7 +274,8 @@ internal class SkiaBackedPath(
     }
 }
 
-private fun Path.Direction.toSkiaPathDirection() = when (this) {
-    Path.Direction.CounterClockwise -> PathDirection.COUNTER_CLOCKWISE
-    Path.Direction.Clockwise -> PathDirection.CLOCKWISE
-}
+private fun Path.Direction.toSkiaPathDirection() =
+    when (this) {
+        Path.Direction.CounterClockwise -> PathDirection.COUNTER_CLOCKWISE
+        Path.Direction.Clockwise -> PathDirection.CLOCKWISE
+    }

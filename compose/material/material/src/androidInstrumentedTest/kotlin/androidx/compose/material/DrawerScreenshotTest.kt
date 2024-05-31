@@ -44,12 +44,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class DrawerScreenshotTest {
 
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val rule = createComposeRule()
+    @Suppress("DEPRECATION") @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL)
 
     private fun ComposeContentTestRule.setBottomDrawer(drawerValue: BottomDrawerValue) {
         setMaterialContent {
@@ -100,7 +97,8 @@ class DrawerScreenshotTest {
     }
 
     private fun assertScreenshotAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag("container")
+        rule
+            .onNodeWithTag("container")
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }

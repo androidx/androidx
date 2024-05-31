@@ -70,16 +70,12 @@ import kotlinx.coroutines.yield
  *
  * @see [awaitApplication]
  */
-fun application(
-    content: @Composable ApplicationScope.() -> Unit
-) {
+fun application(content: @Composable ApplicationScope.() -> Unit) {
     if (System.getProperty("compose.application.configure.swing.globals") == "true") {
         configureSwingGlobalsForCompose()
     }
 
-    runBlocking {
-        awaitApplication(content = content)
-    }
+    runBlocking { awaitApplication(content = content) }
 }
 
 /**
@@ -95,30 +91,24 @@ fun application(
  * ```
  *
  * Don't use `GlobalScope.launchApplication {}` to launch application inside `main()` function
- * without waiting it to end.
- * As it will not block the main thread, and application process will stop
- * (because global coroutines are daemon threads, daemon threads don't keep process alive:
+ * without waiting it to end. As it will not block the main thread, and application process will
+ * stop (because global coroutines are daemon threads, daemon threads don't keep process alive:
  * https://kotlinlang.org/docs/coroutines-basics.html#global-coroutines-are-like-daemon-threads)
  *
  * @see [awaitApplication]
  */
-fun CoroutineScope.launchApplication(
-    content: @Composable ApplicationScope.() -> Unit
-): Job {
+fun CoroutineScope.launchApplication(content: @Composable ApplicationScope.() -> Unit): Job {
     if (System.getProperty("compose.application.configure.swing.globals") == "true") {
         configureSwingGlobalsForCompose()
     }
-    return launch {
-        awaitApplication(content = content)
-    }
+    return launch { awaitApplication(content = content) }
 }
 
 /**
  * An entry point for the Compose application.
  *
- * Application can launch background tasks using [LaunchedEffect]
- * or create [Window], [Dialog], or [Tray] in a declarative Compose way:
- *
+ * Application can launch background tasks using [LaunchedEffect] or create [Window], [Dialog], or
+ * [Tray] in a declarative Compose way:
  * ```
  * fun main() = runBlocking {
  *     withApplication {
@@ -138,21 +128,18 @@ fun CoroutineScope.launchApplication(
  * }
  * ```
  *
- * When there is no any active compositions, this function will end.
- * Active composition is a composition that have active coroutine (for example, launched in
- * [LaunchedEffect]) or that have child composition created inside [Window], [Dialog], or [Tray].
+ * When there is no any active compositions, this function will end. Active composition is a
+ * composition that have active coroutine (for example, launched in [LaunchedEffect]) or that have
+ * child composition created inside [Window], [Dialog], or [Tray].
  *
- * Don't use any animation in this function
- * (for example, [withFrameNanos] or [androidx.compose.animation.core.animateFloatAsState]),
- * because underlying [MonotonicFrameClock] hasn't synchronized with any display, and produces
- * frames as fast as possible.
+ * Don't use any animation in this function (for example, [withFrameNanos] or
+ * [androidx.compose.animation.core.animateFloatAsState]), because underlying [MonotonicFrameClock]
+ * hasn't synchronized with any display, and produces frames as fast as possible.
  *
- * All animation's should be created inside Composable content of the
- * [Window] / [Dialog] / [ComposePanel].
+ * All animation's should be created inside Composable content of the [Window] / [Dialog] /
+ * [ComposePanel].
  */
-suspend fun awaitApplication(
-    content: @Composable ApplicationScope.() -> Unit
-) {
+suspend fun awaitApplication(content: @Composable ApplicationScope.() -> Unit) {
     if (System.getProperty("compose.application.configure.swing.globals") == "true") {
         configureSwingGlobalsForCompose()
     }
@@ -163,15 +150,14 @@ suspend fun awaitApplication(
             val recomposer = Recomposer(coroutineContext)
             var isOpen by mutableStateOf(true)
 
-            val applicationScope = object : ApplicationScope {
-                override fun exitApplication() {
-                    isOpen = false
+            val applicationScope =
+                object : ApplicationScope {
+                    override fun exitApplication() {
+                        isOpen = false
+                    }
                 }
-            }
 
-            launch {
-                recomposer.runRecomposeAndApplyChanges()
-            }
+            launch { recomposer.runRecomposeAndApplyChanges() }
 
             launch {
                 val applier = ApplicationApplier()
@@ -198,18 +184,14 @@ suspend fun awaitApplication(
     }
 }
 
-/**
- * Scope used by [application], [awaitApplication], [launchApplication]
- */
+/** Scope used by [application], [awaitApplication], [launchApplication] */
 @Stable
 interface ApplicationScope {
     fun exitApplication()
 }
 
 private object YieldFrameClock : MonotonicFrameClock {
-    override suspend fun <R> withFrameNanos(
-        onFrame: (frameTimeNanos: Long) -> R
-    ): R {
+    override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R {
         // We call `yield` to avoid blocking UI thread. If we don't call this then application
         // can be frozen for the user in some cases as it will not receive any input events.
         //
@@ -221,12 +203,20 @@ private object YieldFrameClock : MonotonicFrameClock {
 
 private class ApplicationApplier : Applier<Unit> {
     override val current: Unit = Unit
+
     override fun down(node: Unit) = Unit
+
     override fun up() = Unit
+
     override fun insertTopDown(index: Int, instance: Unit) = Unit
+
     override fun insertBottomUp(index: Int, instance: Unit) = Unit
+
     override fun remove(index: Int, count: Int) = Unit
+
     override fun move(from: Int, to: Int, count: Int) = Unit
+
     override fun clear() = Unit
+
     override fun onEndChanges() = Unit
 }

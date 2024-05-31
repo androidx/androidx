@@ -31,42 +31,43 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MeasuringPlacingTwiceIsNotAllowedTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun measureTwiceInMeasureBlock() {
-        assertException(measureBlock = { measurable, constraints ->
-            measurable.measure(constraints)
-            measurable.measure(constraints)
-        })
+        assertException(
+            measureBlock = { measurable, constraints ->
+                measurable.measure(constraints)
+                measurable.measure(constraints)
+            }
+        )
     }
 
     @Test
     fun measureTwiceInMeasureBlockWithDifferentConstraints() {
-        assertException(measureBlock = { measurable, _ ->
-            measurable.measure(Constraints.fixed(100, 100))
-            measurable.measure(Constraints.fixed(200, 200))
-        })
+        assertException(
+            measureBlock = { measurable, _ ->
+                measurable.measure(Constraints.fixed(100, 100))
+                measurable.measure(Constraints.fixed(200, 200))
+            }
+        )
     }
 
     @Test
     fun measureTwiceInLayoutBlock() {
-        assertException(layoutBlock = { measurable, constraints ->
-            measurable.measure(constraints)
-            measurable.measure(constraints)
-        })
+        assertException(
+            layoutBlock = { measurable, constraints ->
+                measurable.measure(constraints)
+                measurable.measure(constraints)
+            }
+        )
     }
 
     @Test
     fun measureInBothStages() {
         assertException(
-            measureBlock = { measurable, constraints ->
-                measurable.measure(constraints)
-            },
-            layoutBlock = { measurable, constraints ->
-                measurable.measure(constraints)
-            }
+            measureBlock = { measurable, constraints -> measurable.measure(constraints) },
+            layoutBlock = { measurable, constraints -> measurable.measure(constraints) }
         )
     }
 
@@ -112,9 +113,7 @@ class MeasuringPlacingTwiceIsNotAllowedTest {
     ) {
         var exception: Exception? = null
         rule.setContent {
-            Layout(content = {
-                AtLeastSize(50)
-            }) { measurables, constraints ->
+            Layout(content = { AtLeastSize(50) }) { measurables, constraints ->
                 try {
                     measureBlock(measurables.first(), constraints)
                 } catch (e: Exception) {

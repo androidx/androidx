@@ -30,14 +30,11 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class AccessibilityTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun accessibleText() {
-        rule.setContent {
-            Text("Hello world. Hi world.", modifier = Modifier.testTag("text"))
-        }
+        rule.setContent { Text("Hello world. Hi world.", modifier = Modifier.testTag("text")) }
 
         val node = rule.onNodeWithTag("text").fetchSemanticsNode()
         val accessibleNode = ComposeAccessible(node)

@@ -45,10 +45,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LinearProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LinearProgressIndicator(
@@ -69,10 +70,11 @@ fun LinearProgressIndicatorSample() {
 @Composable
 fun LegacyLinearProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LinearProgressIndicator(
@@ -97,9 +99,7 @@ fun LegacyLinearProgressIndicatorSample() {
 @Sampled
 @Composable
 fun IndeterminateLinearProgressIndicatorSample() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        LinearProgressIndicator()
-    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) { LinearProgressIndicator() }
 }
 
 @Preview
@@ -119,10 +119,11 @@ fun LegacyIndeterminateLinearProgressIndicatorSample() {
 @Composable
 fun CircularProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(progress = { animatedProgress })
@@ -141,10 +142,11 @@ fun CircularProgressIndicatorSample() {
 @Composable
 fun LegacyCircularProgressIndicatorSample() {
     var progress by remember { mutableStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
-    )
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+        )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(
@@ -168,17 +170,13 @@ fun LegacyCircularProgressIndicatorSample() {
 @Sampled
 @Composable
 fun IndeterminateCircularProgressIndicatorSample() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator()
-    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) { CircularProgressIndicator() }
 }
 
 @Preview
 @Composable
 fun LegacyIndeterminateCircularProgressIndicatorSample() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularProgressIndicator(
-            strokeCap = StrokeCap.Butt
-        )
+        CircularProgressIndicator(strokeCap = StrokeCap.Butt)
     }
 }

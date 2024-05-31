@@ -73,10 +73,7 @@ class RectTest {
 
     @Test
     fun `rect size`() {
-        assertEquals(
-            Size(210f, 290f),
-            Rect(70f, 10f, 280f, 300f).size
-        )
+        assertEquals(Size(210f, 290f), Rect(70f, 10f, 280f, 300f).size)
     }
 
     @Test
@@ -131,9 +128,7 @@ class RectTest {
 
     @Test
     fun `rect intersect`() {
-        val intersected = Rect(0f, 0f, 20f, 20f).intersect(
-            Rect(10f, 10f, 30f, 30f)
-        )
+        val intersected = Rect(0f, 0f, 20f, 20f).intersect(Rect(10f, 10f, 30f, 30f))
         assertEquals(Rect(10f, 10f, 20f, 20f), intersected)
     }
 

@@ -54,14 +54,13 @@ fun ComposeContentTestRule.setMaterialContent(
     }
 }
 
-private val WindowInfoFocused = object : WindowInfo {
-    override val isWindowFocused = true
-}
+private val WindowInfoFocused =
+    object : WindowInfo {
+        override val isWindowFocused = true
+    }
 
 fun <T> ComposeTestRule.runOnIdleWithDensity(action: Density.() -> T): T {
-    return runOnIdle {
-        density.action()
-    }
+    return runOnIdle { density.action() }
 }
 
 fun SemanticsNodeInteraction.getFirstBaselinePosition() = getAlignmentLinePosition(FirstBaseline)
@@ -75,9 +74,7 @@ fun ComposeTestRule.rootWidth(): Dp = onRoot().getUnclippedBoundsInRoot().width
 
 fun ComposeTestRule.rootHeight(): Dp = onRoot().getUnclippedBoundsInRoot().height
 
-/**
- * Constant to emulate very big but finite constraints
- */
+/** Constant to emulate very big but finite constraints */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
 
@@ -92,10 +89,8 @@ fun ComposeContentTestRule.setMaterialContentForSizeAssertions(
             Surface {
                 Box {
                     Box(
-                        Modifier.sizeIn(
-                            maxWidth = parentMaxWidth,
-                            maxHeight = parentMaxHeight
-                        ).testTag("containerForSizeAssertion")
+                        Modifier.sizeIn(maxWidth = parentMaxWidth, maxHeight = parentMaxHeight)
+                            .testTag("containerForSizeAssertion")
                     ) {
                         content()
                     }

@@ -37,9 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test for [TouchInjectionScope.pinch]
- */
+/** Test for [TouchInjectionScope.pinch] */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class PinchTest {
@@ -47,17 +45,14 @@ class PinchTest {
         private const val TAG = "PINCH"
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Test
     fun pinch() {
         rule.setContent {
-            Box(Modifier.fillMaxSize()) {
-                ClickableTestBox(modifier = recorder, tag = TAG)
-            }
+            Box(Modifier.fillMaxSize()) { ClickableTestBox(modifier = recorder, tag = TAG) }
         }
 
         val start0 = Offset(40f, 50f)
@@ -66,9 +61,7 @@ class PinchTest {
         val end1 = Offset(92f, 50f)
         val duration = 400L
 
-        rule.onNodeWithTag(TAG).performTouchInput {
-            pinch(start0, end0, start1, end1, duration)
-        }
+        rule.onNodeWithTag(TAG).performTouchInput { pinch(start0, end0, start1, end1, duration) }
 
         rule.runOnIdle {
             recorder.run {

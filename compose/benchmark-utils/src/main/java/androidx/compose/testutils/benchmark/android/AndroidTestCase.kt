@@ -19,9 +19,7 @@ package androidx.compose.testutils.benchmark.android
 import android.app.Activity
 import android.view.ViewGroup
 
-/**
- * To be implemented to provide a test case that can be executed in benchmarks.
- */
+/** To be implemented to provide a test case that can be executed in benchmarks. */
 interface AndroidTestCase {
     fun getContent(activity: Activity): ViewGroup
 }

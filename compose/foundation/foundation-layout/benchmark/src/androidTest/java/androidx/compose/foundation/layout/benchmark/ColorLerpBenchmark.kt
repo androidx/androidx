@@ -29,37 +29,24 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ColorLerpBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun lerpSrgb() {
-        benchmarkRule.measureRepeated {
-            repeat(1001) {
-                lerp(Color.Blue, Color.White, it / 1000f)
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(1001) { lerp(Color.Blue, Color.White, it / 1000f) } }
     }
 
     @Test
     fun lerpOklab() {
         val blue = Color.Blue.convert(ColorSpaces.Oklab)
         val green = Color.Green.convert(ColorSpaces.Oklab)
-        benchmarkRule.measureRepeated {
-            repeat(1001) {
-                lerp(blue, green, it / 1000f)
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(1001) { lerp(blue, green, it / 1000f) } }
     }
 
     @Test
     fun lerpCieLab() {
         val blue = Color.Blue.convert(ColorSpaces.CieLab)
         val green = Color.Green.convert(ColorSpaces.CieLab)
-        benchmarkRule.measureRepeated {
-            repeat(1001) {
-                lerp(blue, green, it / 1000f)
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(1001) { lerp(blue, green, it / 1000f) } }
     }
 }

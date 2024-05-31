@@ -57,160 +57,162 @@ class LineBreakTest : TextLineBreaker() {
 
     @Test
     fun equals_different_strategy_returns_false() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.HighQuality,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.HighQuality,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.equals(otherLineBreak)).isFalse()
     }
 
     @Test
     fun equals_different_style_returns_false() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Loose,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Loose,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.equals(otherLineBreak)).isFalse()
     }
 
     @Test
     fun equals_different_wordBreak_returns_false() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Default
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Default
+            )
 
         assertThat(lineBreak.equals(otherLineBreak)).isFalse()
     }
 
     @Test
     fun equals_same_flags_returns_true() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.equals(otherLineBreak)).isTrue()
     }
 
     @Test
     fun hashCode_different_for_different_strategy() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.HighQuality,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.HighQuality,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.hashCode()).isNotEqualTo(otherLineBreak.hashCode())
     }
 
     @Test
     fun hashCode_different_for_different_style() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Loose,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Loose,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.hashCode()).isNotEqualTo(otherLineBreak.hashCode())
     }
 
     @Test
     fun hashCode_different_for_different_wordBreak() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Default
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Default
+            )
 
         assertThat(lineBreak.hashCode()).isNotEqualTo(otherLineBreak.hashCode())
     }
 
     @Test
     fun hashCode_same_for_same_flags() {
-        val lineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
-        val otherLineBreak = LineBreak(
-            strategy = LineBreak.Strategy.Balanced,
-            strictness = LineBreak.Strictness.Strict,
-            wordBreak = LineBreak.WordBreak.Phrase
-        )
+        val lineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
+        val otherLineBreak =
+            LineBreak(
+                strategy = LineBreak.Strategy.Balanced,
+                strictness = LineBreak.Strictness.Strict,
+                wordBreak = LineBreak.WordBreak.Phrase
+            )
 
         assertThat(lineBreak.hashCode()).isEqualTo(otherLineBreak.hashCode())
     }
 
     @Test
     fun correct_lineBreak_simple_result_narrow() {
-        val expectedBrokenLines = listOf(
-            "This is ",
-            "an ",
-            "example ",
-            "text"
-        )
-        val brokenLines = breakTextIntoLines(
-            text = textToLineBreak,
-            lineBreak = LineBreak.Simple,
-            maxWidth = 50
-        )
+        val expectedBrokenLines = listOf("This is ", "an ", "example ", "text")
+        val brokenLines =
+            breakTextIntoLines(text = textToLineBreak, lineBreak = LineBreak.Simple, maxWidth = 50)
 
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
 
     @Test
     fun correct_lineBreak_simple_result_wide() {
-        val expectedBrokenLines = listOf(
-            "This is an example ",
-            "text"
-        )
-        val brokenLines = breakTextIntoLines(
-            text = textToLineBreak,
-            lineBreak = LineBreak.Simple,
-            maxWidth = 120
-        )
+        val expectedBrokenLines = listOf("This is an example ", "text")
+        val brokenLines =
+            breakTextIntoLines(text = textToLineBreak, lineBreak = LineBreak.Simple, maxWidth = 120)
 
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
@@ -218,17 +220,13 @@ class LineBreakTest : TextLineBreaker() {
     @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_paragraph_result() {
-        val expectedBrokenLines = listOf(
-            "This ",
-            "is an ",
-            "example ",
-            "text"
-        )
-        val brokenLines = breakTextIntoLines(
-            text = textToLineBreak,
-            lineBreak = LineBreak.Paragraph,
-            maxWidth = 50
-        )
+        val expectedBrokenLines = listOf("This ", "is an ", "example ", "text")
+        val brokenLines =
+            breakTextIntoLines(
+                text = textToLineBreak,
+                lineBreak = LineBreak.Paragraph,
+                maxWidth = 50
+            )
 
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }
@@ -236,15 +234,13 @@ class LineBreakTest : TextLineBreaker() {
     @SdkSuppress(minSdkVersion = 23) // b/269193836
     @Test
     fun correct_lineBreak_heading_result() {
-        val expectedBrokenLines = listOf(
-            "This is an ",
-            "example text"
-        )
-        val brokenLines = breakTextIntoLines(
-            text = textToLineBreak,
-            lineBreak = LineBreak.Heading,
-            maxWidth = 120
-        )
+        val expectedBrokenLines = listOf("This is an ", "example text")
+        val brokenLines =
+            breakTextIntoLines(
+                text = textToLineBreak,
+                lineBreak = LineBreak.Heading,
+                maxWidth = 120
+            )
 
         assertThat(brokenLines).isEqualTo(expectedBrokenLines)
     }

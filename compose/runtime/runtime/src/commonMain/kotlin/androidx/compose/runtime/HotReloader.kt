@@ -15,13 +15,14 @@
  */
 
 @file:OptIn(InternalComposeApi::class)
+
 package androidx.compose.runtime
 
 /**
  * Apply Code Changes will invoke the two functions before and after a code swap.
  *
- * This forces the whole view hierarchy to be redrawn to invoke any code change that was
- * introduce in the code swap.
+ * This forces the whole view hierarchy to be redrawn to invoke any code change that was introduce
+ * in the code swap.
  *
  * All these are private as within JVMTI / JNI accessibility is mostly a formality.
  */
@@ -62,28 +63,24 @@ private class HotReloader {
 
 /**
  * Simulates hot reload of all current compositions by disposing all composed content and restarting
- * compositions. Calling this method switches recomposer into hot reload mode.
- * Test-only API, not for use in production.
+ * compositions. Calling this method switches recomposer into hot reload mode. Test-only API, not
+ * for use in production.
  *
  * @param context context for disposal.
  */
-@TestOnly
-fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
+@TestOnly fun simulateHotReload(context: Any) = HotReloader.simulateHotReload(context)
 
 /**
  * Invalidates composed groups with the given key. Calling this method switches recomposer into hot
- * reload mode.
- * Test-only API, not for use in production.
+ * reload mode. Test-only API, not for use in production.
  *
  * @param key group key to invalidate.
  */
-@TestOnly
-fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
+@TestOnly fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
 
 /**
- * Get list of errors captured in composition. This list is only available when recomposer is in
- * hot reload mode.
- * Test-only API, not for use in production.
+ * Get list of errors captured in composition. This list is only available when recomposer is in hot
+ * reload mode. Test-only API, not for use in production.
  *
  * @return pair of error and whether the error is recoverable.
  */
@@ -91,12 +88,9 @@ fun invalidateGroupsWithKey(key: Int) = HotReloader.invalidateGroupsWithKey(key)
 @Suppress("ListIterator")
 @TestOnly
 fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
-    HotReloader.getCurrentErrors()
-        .map { it.cause to it.recoverable }
+    HotReloader.getCurrentErrors().map { it.cause to it.recoverable }
 
 /**
- * Clears current composition errors in hot reload mode.
- * Test-only API, not for use in production.
+ * Clears current composition errors in hot reload mode. Test-only API, not for use in production.
  */
-@TestOnly
-fun clearCompositionErrors() = HotReloader.clearErrors()
+@TestOnly fun clearCompositionErrors() = HotReloader.clearErrors()

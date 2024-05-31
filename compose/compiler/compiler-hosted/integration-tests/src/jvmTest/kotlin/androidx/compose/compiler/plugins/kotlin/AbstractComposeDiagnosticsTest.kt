@@ -30,14 +30,17 @@ abstract class AbstractComposeDiagnosticsTest(useFir: Boolean) : AbstractCompile
         ignoreParseErrors: Boolean = false
     ) {
         val clearText = CheckerTestUtil.parseDiagnosedRanges(expectedText, mutableListOf())
-        val clearCommonText = commonText?.let {
-            CheckerTestUtil.parseDiagnosedRanges(commonText, mutableListOf())
-        }
+        val clearCommonText =
+            commonText?.let { CheckerTestUtil.parseDiagnosedRanges(commonText, mutableListOf()) }
 
-        val errors = analyze(
-            listOf(SourceFile("test.kt", clearText, ignoreParseErrors)),
-            listOfNotNull(clearCommonText?.let { SourceFile("common.kt", it, ignoreParseErrors) }),
-        ).diagnostics
+        val errors =
+            analyze(
+                    listOf(SourceFile("test.kt", clearText, ignoreParseErrors)),
+                    listOfNotNull(
+                        clearCommonText?.let { SourceFile("common.kt", it, ignoreParseErrors) }
+                    ),
+                )
+                .diagnostics
 
         checkDiagnostics(expectedText, clearText, errors["test.kt"])
         if (clearCommonText != null) {
@@ -50,44 +53,44 @@ abstract class AbstractComposeDiagnosticsTest(useFir: Boolean) : AbstractCompile
         clearText: String,
         allDiagnostics: List<AnalysisResult.Diagnostic>?
     ) {
-        val annotatedText = if (allDiagnostics != null) {
-            val rangeToDiagnostics = allDiagnostics
-                .flatGroupBy { it.textRanges }
-                .mapValues { entry ->
-                    entry.value.map { it.factoryName }.toSet()
-                }
-            val startOffsetToGroups = rangeToDiagnostics.entries.groupBy(
-                keySelector = { it.key.startOffset },
-                valueTransform = { it.value }
-            )
-            val endOffsetsToGroups = rangeToDiagnostics.entries.groupBy(
-                keySelector = { it.key.endOffset },
-                valueTransform = { it.value }
-            )
+        val annotatedText =
+            if (allDiagnostics != null) {
+                val rangeToDiagnostics =
+                    allDiagnostics
+                        .flatGroupBy { it.textRanges }
+                        .mapValues { entry -> entry.value.map { it.factoryName }.toSet() }
+                val startOffsetToGroups =
+                    rangeToDiagnostics.entries.groupBy(
+                        keySelector = { it.key.startOffset },
+                        valueTransform = { it.value }
+                    )
+                val endOffsetsToGroups =
+                    rangeToDiagnostics.entries.groupBy(
+                        keySelector = { it.key.endOffset },
+                        valueTransform = { it.value }
+                    )
 
-            buildString {
-                for ((i, c) in clearText.withIndex()) {
-                    endOffsetsToGroups[i]?.let { groups ->
-                        repeat(groups.size) { append("<!>") }
-                    }
-                    startOffsetToGroups[i]?.let { groups ->
-                        for (diagnostics in groups) {
-                            append("<!${diagnostics.joinToString(",")}!>")
+                buildString {
+                    for ((i, c) in clearText.withIndex()) {
+                        endOffsetsToGroups[i]?.let { groups ->
+                            repeat(groups.size) { append("<!>") }
                         }
+                        startOffsetToGroups[i]?.let { groups ->
+                            for (diagnostics in groups) {
+                                append("<!${diagnostics.joinToString(",")}!>")
+                            }
+                        }
+                        append(c)
                     }
-                    append(c)
                 }
+            } else {
+                clearText
             }
-        } else {
-            clearText
-        }
 
         assertEquals(expectedText, annotatedText)
     }
 
     protected fun checkFail(expectedText: String) {
-        assertThrows(AssertionError::class.java) {
-            check(expectedText)
-        }
+        assertThrows(AssertionError::class.java) { check(expectedText) }
     }
 }

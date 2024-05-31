@@ -39,7 +39,8 @@ import kotlinx.coroutines.test.TestDispatcher
 @InternalTestApi
 abstract class DelayPropagatingContinuationInterceptorWrapper(
     wrappedInterceptor: ContinuationInterceptor?
-) : AbstractCoroutineContextElement(ContinuationInterceptor),
+) :
+    AbstractCoroutineContextElement(ContinuationInterceptor),
     ContinuationInterceptor,
     // Coroutines will internally use the Default dispatcher as the delay if the
     // ContinuationInterceptor does not implement Delay.

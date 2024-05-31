@@ -49,11 +49,7 @@ fun BitmapPainterSubsectionSample() {
     val ImageBitmap = createTestImage()
     // Lays out and draws an image sized to the rectangular subsection of the ImageBitmap
     Image(
-        painter = BitmapPainter(
-            ImageBitmap,
-            IntOffset(10, 12),
-            IntSize(50, 60)
-        ),
+        painter = BitmapPainter(ImageBitmap, IntOffset(10, 12), IntSize(50, 60)),
         contentDescription = "Localized description"
     )
 }
@@ -80,14 +76,10 @@ fun BitmapPainterSample() {
     )
 }
 
-/**
- * Helper method to create an ImageBitmap with some content in it
- */
+/** Helper method to create an ImageBitmap with some content in it */
 private fun createTestImage(): ImageBitmap {
     val ImageBitmap = ImageBitmap(100, 100)
-    Canvas(ImageBitmap).drawCircle(
-        Offset(50.0f, 50.0f), 50.0f,
-        Paint().apply { this.color = Color.Cyan }
-    )
+    Canvas(ImageBitmap)
+        .drawCircle(Offset(50.0f, 50.0f), 50.0f, Paint().apply { this.color = Color.Cyan })
     return ImageBitmap
 }

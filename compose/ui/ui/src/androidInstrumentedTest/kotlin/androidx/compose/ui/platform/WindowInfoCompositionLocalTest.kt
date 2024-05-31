@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class WindowInfoCompositionLocalTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @FlakyTest(bugId = 173088588)
     @Test
@@ -81,9 +80,7 @@ class WindowInfoCompositionLocalTest {
             if (showPopup.value) {
                 Popup(
                     properties = PopupProperties(focusable = true),
-                    onDismissRequest = {
-                        showPopup.value = false
-                    }
+                    onDismissRequest = { showPopup.value = false }
                 ) {
                     BasicText("Popup Window")
                     popupWindowInfo = LocalWindowInfo.current
@@ -214,15 +211,18 @@ class WindowInfoCompositionLocalTest {
         }
         assertThat(keyModifiers.packedValue).isEqualTo(0)
 
-        (rule as AndroidComposeTestRule<*, *>).runOnUiThread {
-            ownerView.requestFocus()
-        }
+        (rule as AndroidComposeTestRule<*, *>).runOnUiThread { ownerView.requestFocus() }
 
         rule.runOnIdle {
-            val ctrlPressed = KeyEvent(
-                0, 0, KeyEvent.ACTION_DOWN,
-                KeyEvent.KEYCODE_CTRL_LEFT, 0, KeyEvent.META_CTRL_ON
-            )
+            val ctrlPressed =
+                KeyEvent(
+                    0,
+                    0,
+                    KeyEvent.ACTION_DOWN,
+                    KeyEvent.KEYCODE_CTRL_LEFT,
+                    0,
+                    KeyEvent.META_CTRL_ON
+                )
             ownerView.dispatchKeyEvent(ctrlPressed)
         }
 
@@ -230,25 +230,32 @@ class WindowInfoCompositionLocalTest {
         assertThat(keyModifiers.packedValue).isEqualTo(KeyEvent.META_CTRL_ON)
 
         rule.runOnIdle {
-            val altAndCtrlPressed = KeyEvent(
-                0, 0, KeyEvent.ACTION_DOWN,
-                KeyEvent.KEYCODE_ALT_LEFT, 0,
-                KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON
-            )
+            val altAndCtrlPressed =
+                KeyEvent(
+                    0,
+                    0,
+                    KeyEvent.ACTION_DOWN,
+                    KeyEvent.KEYCODE_ALT_LEFT,
+                    0,
+                    KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON
+                )
             ownerView.dispatchKeyEvent(altAndCtrlPressed)
         }
 
         rule.waitForIdle()
-        assertThat(keyModifiers.packedValue).isEqualTo(
-            KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON
-        )
+        assertThat(keyModifiers.packedValue)
+            .isEqualTo(KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON)
 
         rule.runOnIdle {
-            val altUnpressed = KeyEvent(
-                0, 0, KeyEvent.ACTION_UP,
-                KeyEvent.KEYCODE_ALT_LEFT, 0,
-                KeyEvent.META_CTRL_ON
-            )
+            val altUnpressed =
+                KeyEvent(
+                    0,
+                    0,
+                    KeyEvent.ACTION_UP,
+                    KeyEvent.KEYCODE_ALT_LEFT,
+                    0,
+                    KeyEvent.META_CTRL_ON
+                )
             ownerView.dispatchKeyEvent(altUnpressed)
         }
 
@@ -256,10 +263,7 @@ class WindowInfoCompositionLocalTest {
         assertThat(keyModifiers.packedValue).isEqualTo(KeyEvent.META_CTRL_ON)
 
         rule.runOnIdle {
-            val ctrlUnpressed = KeyEvent(
-                0, 0, KeyEvent.ACTION_UP,
-                KeyEvent.KEYCODE_CTRL_LEFT, 0, 0
-            )
+            val ctrlUnpressed = KeyEvent(0, 0, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT, 0, 0)
             ownerView.dispatchKeyEvent(ctrlUnpressed)
         }
 

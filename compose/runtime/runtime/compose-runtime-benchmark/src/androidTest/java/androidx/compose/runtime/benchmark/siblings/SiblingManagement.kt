@@ -43,16 +43,18 @@ fun ItemRow(item: Item) {
     // the complexity of this will influence the benchmark a lot because if
     // identity doesn't influence what the component looks like, it's not
     // very important to track it.
-    val background = when (item.id % 3) {
-        0 -> blueBackground
-        1 -> blackBackground
-        else -> magentaBackground
-    }
-    val style = when (item.id % 3) {
-        0 -> blackStyle
-        1 -> blueStyle
-        else -> magentaStyle
-    }
+    val background =
+        when (item.id % 3) {
+            0 -> blueBackground
+            1 -> blackBackground
+            else -> magentaBackground
+        }
+    val style =
+        when (item.id % 3) {
+            0 -> blackStyle
+            1 -> blueStyle
+            else -> magentaStyle
+        }
     Row(Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxSize().then(background))
         Text(text = "${item.id}", style = style)
@@ -61,13 +63,22 @@ fun ItemRow(item: Item) {
 
 data class Item(val id: Int)
 
-enum class IdentityType { Index, Key }
+enum class IdentityType {
+    Index,
+    Key
+}
 
 enum class ReorderType {
-    Shuffle, ShiftRight, ShiftLeft, Swap,
-    AddEnd, RemoveEnd,
-    AddStart, RemoveStart,
-    AddMiddle, RemoveMiddle
+    Shuffle,
+    ShiftRight,
+    ShiftLeft,
+    Swap,
+    AddEnd,
+    RemoveEnd,
+    AddStart,
+    RemoveStart,
+    AddMiddle,
+    RemoveMiddle
 }
 
 fun <T> List<T>.move(from: Int, to: Int): List<T> {
@@ -93,9 +104,8 @@ fun <T> List<T>.update(reorderType: ReorderType, random: Random, factory: (Int) 
         ReorderType.RemoveEnd -> dropLast(1)
         ReorderType.AddStart -> listOf(factory(size)) + this
         ReorderType.RemoveStart -> drop(1)
-        ReorderType.AddMiddle -> random.nextInt(size).let {
-            subList(0, it) + listOf(factory(size)) + subList(it, size)
-        }
+        ReorderType.AddMiddle ->
+            random.nextInt(size).let { subList(0, it) + listOf(factory(size)) + subList(it, size) }
         ReorderType.RemoveMiddle -> random.nextInt(size).let { filterIndexed { i, _ -> i == it } }
     }
 }
@@ -111,9 +121,7 @@ fun SiblingManagement(identity: IdentityType, items: List<Item>) {
             }
             IdentityType.Key -> {
                 for (item in items) {
-                    key(item.id) {
-                        ItemRow(item = item)
-                    }
+                    key(item.id) { ItemRow(item = item) }
                 }
             }
         }

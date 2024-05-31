@@ -81,10 +81,7 @@ private fun EditLine(
     BasicTextField(
         modifier = demoTextFieldModifiers,
         state = state,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = imeAction),
         textStyle = TextStyle(fontSize = fontSize8),
     )
 }
@@ -99,9 +96,7 @@ private fun ShowKeyboardOnFocus(showKeyboardOnFocus: Boolean) {
         BasicTextField(
             modifier = demoTextFieldModifiers.focusRequester(focusRequester),
             state = state,
-            keyboardOptions = KeyboardOptions(
-                showKeyboardOnFocus = showKeyboardOnFocus
-            )
+            keyboardOptions = KeyboardOptions(showKeyboardOnFocus = showKeyboardOnFocus)
         )
         Button(onClick = { focusRequester.requestFocus() }) {
             BasicText("Focus me", style = LocalTextStyle.current)
@@ -118,15 +113,13 @@ private fun HintLocaleDemo(localeList: LocaleList) {
         BasicTextField(
             modifier = demoTextFieldModifiers,
             state = state,
-            keyboardOptions = KeyboardOptions(
-                hintLocales = localeList
-            )
+            keyboardOptions = KeyboardOptions(hintLocales = localeList)
         )
     }
 }
 
-val demoTextFieldModifiers = Modifier
-    .fillMaxWidth()
-    .padding(6.dp)
-    .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
-    .padding(6.dp)
+val demoTextFieldModifiers =
+    Modifier.fillMaxWidth()
+        .padding(6.dp)
+        .border(1.dp, Color.LightGray, RoundedCornerShape(6.dp))
+        .padding(6.dp)

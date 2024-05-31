@@ -51,13 +51,7 @@ class CompoundHashKeyTests {
 
         val firstOuter = mutableListOf<Int>()
         val firstInner = mutableListOf<Int>()
-        compose {
-            (0..1).forEach {
-                key(it) {
-                    recordHashKeys()
-                }
-            }
-        }
+        compose { (0..1).forEach { key(it) { recordHashKeys() } } }
         assertEquals(2, outerKeys.size)
         assertEquals(2, innerKeys.size)
         assertNotEquals(outerKeys[0], outerKeys[1])
@@ -78,9 +72,7 @@ class CompoundHashKeyTests {
     @Test // b/195185633
     fun testEnumKeys() = compositionTest {
         val testClass = EnumTestClass()
-        compose {
-            testClass.Test()
-        }
+        compose { testClass.Test() }
 
         val originalKey = testClass.currentKey
         testClass.scope.invalidate()
@@ -132,34 +124,20 @@ class CompoundHashKeyTests {
 
     @Test // b/287537290
     fun repeatedCallsProduceUniqueKeys() = compositionTest {
-        expectUniqueHashCodes {
-            repeat(10) {
-                A()
-            }
-        }
+        expectUniqueHashCodes { repeat(10) { A() } }
     }
 
     @Test
     fun uniqueKeysGenerateUniqueCompositeKeys() = compositionTest {
         expectUniqueHashCodes {
-            key(1) {
-                A()
-            }
-            key(2) {
-                A()
-            }
+            key(1) { A() }
+            key(2) { A() }
         }
     }
 
     @Test
     fun duplicateKeysGenerateDuplicateCompositeKeys() = compositionTest {
-        expectHashCodes(duplicateCount = 4) {
-            listOf(1, 2, 1, 2, 1, 2).forEach {
-                key(it) {
-                    A()
-                }
-            }
-        }
+        expectHashCodes(duplicateCount = 4) { listOf(1, 2, 1, 2, 1, 2).forEach { key(it) { A() } } }
     }
 
     @Test
@@ -180,9 +158,7 @@ class CompoundHashKeyTests {
         val list = mutableStateListOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
         var markers = expectUniqueHashCodes {
             for (item in list) {
-                key(item) {
-                    A()
-                }
+                key(item) { A() }
             }
         }
         list.reverse()
@@ -204,9 +180,7 @@ private class EnumTestClass {
 
     @Composable
     fun Test() {
-        key(config.value) {
-            Child()
-        }
+        key(config.value) { Child() }
     }
 
     @Composable
@@ -216,7 +190,8 @@ private class EnumTestClass {
     }
 
     enum class Config {
-        A, B
+        A,
+        B
     }
 }
 
@@ -225,12 +200,10 @@ private var hashTrace = MutableIntList()
 private var markerToHash = MutableIntIntMap()
 
 private var marker = 100
+
 private fun newMarker() = marker++
 
-private data class TraceResult(
-    val trace: IntList,
-    val markers: IntIntMap
-)
+private data class TraceResult(val trace: IntList, val markers: IntIntMap)
 
 private fun CompositionTestScope.composeTrace(content: @Composable () -> Unit): TraceResult {
     hashTrace = MutableIntList()
@@ -275,7 +248,8 @@ private fun CompositionTestScope.expectHashCodes(
         if (duplicateCount == 0)
             "Non-unique codes detected. " +
                 "Count of unique hash codes doesn't match the number of codes collected"
-        else "Expected $duplicateCount keys but found but found ${
+        else
+            "Expected $duplicateCount keys but found but found ${
             hashCodes.size - uniqueCodes.size
         }"
     )

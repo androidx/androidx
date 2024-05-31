@@ -23,19 +23,17 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
 /**
- * Represents a set of declarations that should have
- * kotlin.native.HiddenFromObjC annotation added in their IR and descriptors.
+ * Represents a set of declarations that should have kotlin.native.HiddenFromObjC annotation added
+ * in their IR and descriptors.
  *
- * It's used by [AddHiddenFromObjCSerializationPlugin] to determine
- * if there's a need to modify the declaration descriptor before it's serialized.
- * This set is populated by [AddHiddenFromObjCLowering].
+ * It's used by [AddHiddenFromObjCSerializationPlugin] to determine if there's a need to modify the
+ * declaration descriptor before it's serialized. This set is populated by
+ * [AddHiddenFromObjCLowering].
  *
- * More context:
- * The reason why we need this set is due to k/native ObjCExportMapper.kt is
- * using descriptors to look at the declaration annotations.
- * When ObjCExportMapper.kt migrates to FIR, we will need to simply remove this interface
- * and [AddHiddenFromObjCSerializationPlugin].
- * Adding the annotation in IR - [AddHiddenFromObjCLowering] will likely be enough.
+ * More context: The reason why we need this set is due to k/native ObjCExportMapper.kt is using
+ * descriptors to look at the declaration annotations. When ObjCExportMapper.kt migrates to FIR, we
+ * will need to simply remove this interface and [AddHiddenFromObjCSerializationPlugin]. Adding the
+ * annotation in IR - [AddHiddenFromObjCLowering] will likely be enough.
  */
 @OptIn(ObsoleteDescriptorBasedAPI::class)
 class HideFromObjCDeclarationsSet {

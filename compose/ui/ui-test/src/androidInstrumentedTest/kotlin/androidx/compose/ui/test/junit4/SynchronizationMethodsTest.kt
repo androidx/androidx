@@ -40,9 +40,10 @@ import org.mockito.kotlin.whenever
 @OptIn(ExperimentalTestApi::class)
 class SynchronizationMethodsTest {
 
-    private val environment = AndroidComposeUiTestEnvironment<ComponentActivity> {
-        throw NotImplementedError("This test shouldn't use the Activity")
-    }
+    private val environment =
+        AndroidComposeUiTestEnvironment<ComponentActivity> {
+            throw NotImplementedError("This test shouldn't use the Activity")
+        }
     private val composeRootRegistry = environment.composeRootRegistry
     private val test = environment.test
 
@@ -50,9 +51,7 @@ class SynchronizationMethodsTest {
     val registryRule: TestRule = TestRule { base, _ ->
         object : Statement() {
             override fun evaluate() {
-                composeRootRegistry.withRegistry {
-                    base.evaluate()
-                }
+                composeRootRegistry.withRegistry { base.evaluate() }
             }
         }
     }
@@ -111,20 +110,12 @@ class SynchronizationMethodsTest {
 
     @Test
     fun runOnIdle_waitForIdle_fails() {
-        test.runOnIdle {
-            expectError<IllegalStateException> {
-                test.waitForIdle()
-            }
-        }
+        test.runOnIdle { expectError<IllegalStateException> { test.waitForIdle() } }
     }
 
     @Test
     fun runOnIdle_runOnIdle_fails() {
-        test.runOnIdle {
-            expectError<IllegalStateException> {
-                test.runOnIdle {}
-            }
-        }
+        test.runOnIdle { expectError<IllegalStateException> { test.runOnIdle {} } }
     }
 
     private fun mockResumedComposeRoot(): ViewRootForTest {

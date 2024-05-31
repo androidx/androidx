@@ -21,41 +21,33 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 
 /**
- * Creates a new [PathHitTester] to query whether certain x/y coordinates lie inside a
- * given [Path]. A [PathHitTester] is optimized to perform multiple queries against a
- * single path.
+ * Creates a new [PathHitTester] to query whether certain x/y coordinates lie inside a given [Path].
+ * A [PathHitTester] is optimized to perform multiple queries against a single path.
  *
  * The result of a query depends on the [fill type][Path.fillType] of the path.
  *
- * If the content of [path] changes, you must call [PathHitTester.updatePath] or create
- * a new [PathHitTester] as [PathHitTester] will cache precomputed values to speed up
- * queries.
+ * If the content of [path] changes, you must call [PathHitTester.updatePath] or create a new
+ * [PathHitTester] as [PathHitTester] will cache precomputed values to speed up queries.
  *
- * If [path] contains conic curves, they are converted to quadratic curves during the
- * query process. The tolerance of that conversion is defined by [tolerance]. The
- * tolerance should be appropriate to the coordinate systems used by the caller. For
- * instance if the path is defined in pixels, 0.5 (half a pixel) or 1.0 (a pixel) are
- * appropriate tolerances. If the path is normalized and defined in the domain 0..1,
- * the caller should choose a more appropriate tolerance close to or equal to one
- * "query unit". The tolerance must be >= 0.
+ * If [path] contains conic curves, they are converted to quadratic curves during the query process.
+ * The tolerance of that conversion is defined by [tolerance]. The tolerance should be appropriate
+ * to the coordinate systems used by the caller. For instance if the path is defined in pixels, 0.5
+ * (half a pixel) or 1.0 (a pixel) are appropriate tolerances. If the path is normalized and defined
+ * in the domain 0..1, the caller should choose a more appropriate tolerance close to or equal to
+ * one "query unit". The tolerance must be >= 0.
  *
  * @param path The [Path] to run queries against.
- * @param tolerance When [path] contains conic curves, defines the maximum distance between
- *        the original conic curve and its quadratic approximations. Set to 0.5 by default.
+ * @param tolerance When [path] contains conic curves, defines the maximum distance between the
+ *   original conic curve and its quadratic approximations. Set to 0.5 by default.
  */
-fun PathHitTester(
-    path: Path,
-    @FloatRange(from = 0.0) tolerance: Float = 0.5f
-) = PathHitTester().apply {
-    updatePath(path, tolerance)
-}
+fun PathHitTester(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) =
+    PathHitTester().apply { updatePath(path, tolerance) }
 
 private val EmptyPath = Path()
 
 /**
- * A [PathHitTester] is used to query whether certain x/y coordinates lie inside a
- * given [Path]. A [PathHitTester] is optimized to perform multiple queries against a
- * single path.
+ * A [PathHitTester] is used to query whether certain x/y coordinates lie inside a given [Path]. A
+ * [PathHitTester] is optimized to perform multiple queries against a single path.
  */
 class PathHitTester {
     private var path = EmptyPath
@@ -76,18 +68,18 @@ class PathHitTester {
     /**
      * Sets the [Path] to run queries against.
      *
-     * If [path] contains conic curves, they are converted to quadratic curves during the
-     * query process. This value defines the tolerance of that conversion.
+     * If [path] contains conic curves, they are converted to quadratic curves during the query
+     * process. This value defines the tolerance of that conversion.
      *
-     * The tolerance should be appropriate to the coordinate systems used by the caller.
-     * For instance if the path is defined in pixels, 0.5 (half a pixel) or 1.0 (a pixel)
-     * are appropriate tolerances. If the path is normalized and defined in the domain 0..1,
-     * the caller should choose a more appropriate tolerance close to or equal to one
-     * "query unit". The tolerance must be >= 0.
+     * The tolerance should be appropriate to the coordinate systems used by the caller. For
+     * instance if the path is defined in pixels, 0.5 (half a pixel) or 1.0 (a pixel) are
+     * appropriate tolerances. If the path is normalized and defined in the domain 0..1, the caller
+     * should choose a more appropriate tolerance close to or equal to one "query unit". The
+     * tolerance must be >= 0.
      *
      * @param path The [Path] to run queries against.
-     * @param tolerance When [path] contains conic curves, defines the maximum distance between
-     *        the original conic curve and its quadratic approximations. Set to 0.5 by default.
+     * @param tolerance When [path] contains conic curves, defines the maximum distance between the
+     *   original conic curve and its quadratic approximations. Set to 0.5 by default.
      */
     fun updatePath(path: Path, @FloatRange(from = 0.0) tolerance: Float = 0.5f) {
         this.path = path
@@ -116,8 +108,8 @@ class PathHitTester {
 
     /**
      * Queries whether the specified [position] is inside this [Path]. The
-     * [path's fill type][Path.fillType] is taken into account to determine if the point lies
-     * inside this path or not.
+     * [path's fill type][Path.fillType] is taken into account to determine if the point lies inside
+     * this path or not.
      *
      * @param position The x/y coordinates of the point to test.
      * @return True if [position] is inside this path, false otherwise.

@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AnimatorAnimationSpecsTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val tolerance = 0.01f
 
@@ -46,22 +45,26 @@ class AnimatorAnimationSpecsTest {
         val isAtEnd = mutableStateOf(false)
         rule.setContent {
             val transition = updateTransition(targetState = isAtEnd.value, label = "test")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
-            ) {
-                if (it) 1000f else 0f
-            }
-            val reversed = transition.animateFloat(
-                label = "reversed",
-                transitionSpec = {
-                    tween<Float>(durationMillis = 1000, easing = LinearEasing).reversed(1000)
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
+            val reversed =
+                transition.animateFloat(
+                    label = "reversed",
+                    transitionSpec = {
+                        tween<Float>(durationMillis = 1000, easing = LinearEasing).reversed(1000)
+                    }
+                ) {
+                    if (it) 1000f else 0f
+                }
             assertWithMessage("at playTimeNanos: ${transition.playTimeNanos}")
-                .that(reversed.value).isWithin(tolerance).of(control.value)
+                .that(reversed.value)
+                .isWithin(tolerance)
+                .of(control.value)
         }
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()
@@ -73,34 +76,39 @@ class AnimatorAnimationSpecsTest {
         val isAtEnd = mutableStateOf(false)
         rule.setContent {
             val transition = updateTransition(targetState = isAtEnd.value, label = "test")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    keyframes {
-                        durationMillis = 1000
-                        0f at 0 using LinearEasing
-                        100f at 100 using LinearEasing
-                        1000f at 1000 using LinearEasing
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        keyframes {
+                            durationMillis = 1000
+                            0f at 0 using LinearEasing
+                            100f at 100 using LinearEasing
+                            1000f at 1000 using LinearEasing
+                        }
                     }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
-            val reversed = transition.animateFloat(
-                label = "reversed",
-                transitionSpec = {
-                    keyframes<Float> {
-                        durationMillis = 1000
-                        1000f at 0 using LinearEasing
-                        100f at 900 using LinearEasing
-                        0f at 1000 using LinearEasing
-                    }.reversed(1000)
+            val reversed =
+                transition.animateFloat(
+                    label = "reversed",
+                    transitionSpec = {
+                        keyframes<Float> {
+                                durationMillis = 1000
+                                1000f at 0 using LinearEasing
+                                100f at 900 using LinearEasing
+                                0f at 1000 using LinearEasing
+                            }
+                            .reversed(1000)
+                    }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
             assertWithMessage("at playTimeNanos: ${transition.playTimeNanos}")
-                .that(reversed.value).isWithin(tolerance).of(control.value)
+                .that(reversed.value)
+                .isWithin(tolerance)
+                .of(control.value)
         }
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()
@@ -112,33 +120,38 @@ class AnimatorAnimationSpecsTest {
         val isAtEnd = mutableStateOf(false)
         rule.setContent {
             val transition = updateTransition(targetState = isAtEnd.value, label = "test")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    keyframes {
-                        durationMillis = 1000
-                        0f at 0 using LinearEasing
-                        1000f at 500 using LinearEasing
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        keyframes {
+                            durationMillis = 1000
+                            0f at 0 using LinearEasing
+                            1000f at 500 using LinearEasing
+                        }
                     }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
-            val reversed = transition.animateFloat(
-                label = "reversed",
-                transitionSpec = {
-                    keyframes<Float> {
-                        durationMillis = 1000
-                        1000f at 0 using LinearEasing
-                        1000f at 500 using LinearEasing
-                        0f at 1000 using LinearEasing
-                    }.reversed(1000)
+            val reversed =
+                transition.animateFloat(
+                    label = "reversed",
+                    transitionSpec = {
+                        keyframes<Float> {
+                                durationMillis = 1000
+                                1000f at 0 using LinearEasing
+                                1000f at 500 using LinearEasing
+                                0f at 1000 using LinearEasing
+                            }
+                            .reversed(1000)
+                    }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
             assertWithMessage("at playTimeNanos: ${transition.playTimeNanos}")
-                .that(reversed.value).isWithin(tolerance).of(control.value)
+                .that(reversed.value)
+                .isWithin(tolerance)
+                .of(control.value)
         }
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()
@@ -150,26 +163,26 @@ class AnimatorAnimationSpecsTest {
         val isAtEnd = mutableStateOf(false)
         rule.setContent {
             val transition = updateTransition(targetState = isAtEnd.value, label = "test")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
-            ) {
-                if (it) 1000f else 0f
-            }
-            val combined = transition.animateFloat(
-                label = "combined",
-                transitionSpec = {
-                    combined(
-                        listOf(
-                            0 to tween(durationMillis = 1000, easing = LinearEasing)
-                        )
-                    )
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
+            val combined =
+                transition.animateFloat(
+                    label = "combined",
+                    transitionSpec = {
+                        combined(listOf(0 to tween(durationMillis = 1000, easing = LinearEasing)))
+                    }
+                ) {
+                    if (it) 1000f else 0f
+                }
             assertWithMessage("at playTimeNanos: ${transition.playTimeNanos}")
-                .that(combined.value).isWithin(tolerance).of(control.value)
+                .that(combined.value)
+                .isWithin(tolerance)
+                .of(control.value)
         }
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()
@@ -181,41 +194,47 @@ class AnimatorAnimationSpecsTest {
         val isAtEnd = mutableStateOf(false)
         rule.setContent {
             val transition = updateTransition(targetState = isAtEnd.value, label = "test")
-            val control = transition.animateFloat(
-                label = "control",
-                transitionSpec = {
-                    keyframes {
-                        durationMillis = 1000
-                        0f at 0 using LinearEasing
-                        1000f at 1000 using LinearEasing
+            val control =
+                transition.animateFloat(
+                    label = "control",
+                    transitionSpec = {
+                        keyframes {
+                            durationMillis = 1000
+                            0f at 0 using LinearEasing
+                            1000f at 1000 using LinearEasing
+                        }
                     }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
-            val combined = transition.animateFloat(
-                label = "combined",
-                transitionSpec = {
-                    combined(
-                        listOf(
-                            0 to keyframes {
-                                durationMillis = 300
-                                0f at 0 using LinearEasing
-                                300f at 300 using LinearEasing
-                            },
-                            300 to keyframes {
-                                durationMillis = 700
-                                300f at 0 using LinearEasing
-                                1000f at 700 using LinearEasing
-                            }
+            val combined =
+                transition.animateFloat(
+                    label = "combined",
+                    transitionSpec = {
+                        combined(
+                            listOf(
+                                0 to
+                                    keyframes {
+                                        durationMillis = 300
+                                        0f at 0 using LinearEasing
+                                        300f at 300 using LinearEasing
+                                    },
+                                300 to
+                                    keyframes {
+                                        durationMillis = 700
+                                        300f at 0 using LinearEasing
+                                        1000f at 700 using LinearEasing
+                                    }
+                            )
                         )
-                    )
+                    }
+                ) {
+                    if (it) 1000f else 0f
                 }
-            ) {
-                if (it) 1000f else 0f
-            }
             assertWithMessage("at playTimeNanos: ${transition.playTimeNanos}")
-                .that(combined.value).isWithin(tolerance).of(control.value)
+                .that(combined.value)
+                .isWithin(tolerance)
+                .of(control.value)
         }
         rule.runOnIdle { isAtEnd.value = true }
         rule.waitForIdle()

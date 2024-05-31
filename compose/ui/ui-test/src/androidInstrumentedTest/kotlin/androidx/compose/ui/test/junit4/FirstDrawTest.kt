@@ -38,63 +38,69 @@ import org.junit.Test
 class FirstDrawTest {
 
     /**
-     * Tests that the compose tree has been drawn at least once when
-     * [ComposeUiTest.setContent] finishes.
+     * Tests that the compose tree has been drawn at least once when [ComposeUiTest.setContent]
+     * finishes.
      */
     @LargeTest
     @Test
     fun waitsForFirstDraw_withoutOnIdle() = runComposeUiTest {
         var drawn = false
-        setContent {
-            Canvas(Modifier.fillMaxSize()) {
-                drawn = true
-            }
-        }
+        setContent { Canvas(Modifier.fillMaxSize()) { drawn = true } }
         // waitForIdle() shouldn't be necessary
         assertThat(drawn).isTrue()
     }
 
     /**
-     * Tests that [ComposeUiTest.waitForIdle] doesn't timeout when the compose tree is
-     * completely off-screen and will hence not be drawn.
+     * Tests that [ComposeUiTest.waitForIdle] doesn't timeout when the compose tree is completely
+     * off-screen and will hence not be drawn.
      */
     @Test
-    fun waitsForOutOfBoundsComposeView() = runAndroidComposeUiTest<ComponentActivity> {
-        var drawn = false
+    fun waitsForOutOfBoundsComposeView() =
+        runAndroidComposeUiTest<ComponentActivity> {
+            var drawn = false
 
-        runOnUiThread {
-            // Set the compose content in a FrameLayout that is completely placed out of the
-            // screen, and set clipToPadding to make sure the content won't be drawn.
+            runOnUiThread {
+                // Set the compose content in a FrameLayout that is completely placed out of the
+                // screen, and set clipToPadding to make sure the content won't be drawn.
 
-            val root = object : FrameLayout(activity!!) {
-                override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-                    // Place our child out of bounds
-                    getChildAt(0).layout(-200, 0, -100, 100)
+                val root =
+                    object : FrameLayout(activity!!) {
+                            override fun onLayout(
+                                changed: Boolean,
+                                l: Int,
+                                t: Int,
+                                r: Int,
+                                b: Int
+                            ) {
+                                // Place our child out of bounds
+                                getChildAt(0).layout(-200, 0, -100, 100)
+                            }
+                        }
+                        .apply {
+                            // Enforce clipping:
+                            setPadding(1, 1, 1, 1)
+                            clipToPadding = true
+                        }
+
+                val outOfBoundsView =
+                    ComposeView(activity!!).apply {
+                        layoutParams = ViewGroup.MarginLayoutParams(100, 100)
+                    }
+
+                root.addView(outOfBoundsView)
+                activity!!.setContentView(root)
+                outOfBoundsView.setContent {
+                    // If you see this box when running the test, the test is setup incorrectly
+                    Canvas(Modifier.fillMaxSize()) {
+                        drawRect(Color.Yellow)
+                        drawn = true
+                    }
                 }
-            }.apply {
-                // Enforce clipping:
-                setPadding(1, 1, 1, 1)
-                clipToPadding = true
             }
 
-            val outOfBoundsView = ComposeView(activity!!).apply {
-                layoutParams = ViewGroup.MarginLayoutParams(100, 100)
-            }
-
-            root.addView(outOfBoundsView)
-            activity!!.setContentView(root)
-            outOfBoundsView.setContent {
-                // If you see this box when running the test, the test is setup incorrectly
-                Canvas(Modifier.fillMaxSize()) {
-                    drawRect(Color.Yellow)
-                    drawn = true
-                }
-            }
+            // onIdle shouldn't timeout
+            waitForIdle()
+            // The compose view was off-screen, so it hasn't drawn yet
+            assertThat(drawn).isFalse()
         }
-
-        // onIdle shouldn't timeout
-        waitForIdle()
-        // The compose view was off-screen, so it hasn't drawn yet
-        assertThat(drawn).isFalse()
-    }
 }

@@ -27,12 +27,10 @@ class ModifierTest {
     @Test
     fun wrapElementChain() {
         val chain = SampleModifier(1) then SampleModifier(2) then SampleModifier(3)
-        val forwards = chain.foldIn(emptyList<Int>()) { acc, e ->
-            acc + (e as SampleModifier).value
-        }
-        val backwards = chain.foldOut(emptyList<Int>()) { e, acc ->
-            acc + (e as SampleModifier).value
-        }
+        val forwards =
+            chain.foldIn(emptyList<Int>()) { acc, e -> acc + (e as SampleModifier).value }
+        val backwards =
+            chain.foldOut(emptyList<Int>()) { e, acc -> acc + (e as SampleModifier).value }
         assertEquals("1-3 folded in (forwards)", listOf(1, 2, 3), forwards)
         assertEquals("1-3 folded out (backwards)", listOf(3, 2, 1), backwards)
     }

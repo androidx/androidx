@@ -36,12 +36,9 @@ internal fun ComposeContentTestRule.setContentWithSimulatedSize(
 ) {
     setContent {
         val currentDensity = LocalDensity.current
-        val windowSize = with(currentDensity) {
-            currentWindowSize().toSize().toDpSize();
-        }
-        val simulatedDensity = Density(
-            currentDensity.density * (windowSize.width / simulatedWidth)
-        )
+        val windowSize = with(currentDensity) { currentWindowSize().toSize().toDpSize() }
+
+        val simulatedDensity = Density(currentDensity.density * (windowSize.width / simulatedWidth))
         CompositionLocalProvider(LocalDensity provides simulatedDensity) {
             Box(
                 Modifier.fillMaxWidth().height(simulatedHeight),

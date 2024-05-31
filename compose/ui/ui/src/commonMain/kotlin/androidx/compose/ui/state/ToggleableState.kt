@@ -19,21 +19,13 @@ package androidx.compose.ui.state
 import androidx.compose.ui.state.ToggleableState.Off
 import androidx.compose.ui.state.ToggleableState.On
 
-/**
- * Enum that represents possible toggleable states.
- */
+/** Enum that represents possible toggleable states. */
 enum class ToggleableState {
-    /**
-     * State that means a component is on
-     */
+    /** State that means a component is on */
     On,
-    /**
-     * State that means a component is off
-     */
+    /** State that means a component is off */
     Off,
-    /**
-     * State that means that on/off value of a component cannot be determined
-     */
+    /** State that means that on/off value of a component cannot be determined */
     Indeterminate
 }
 

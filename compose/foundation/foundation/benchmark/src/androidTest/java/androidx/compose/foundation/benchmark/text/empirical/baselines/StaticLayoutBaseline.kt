@@ -51,8 +51,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 23)
 open class StaticLayoutBaseline(private val size: Int) {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     companion object {
         @JvmStatic
@@ -113,23 +112,28 @@ fun makeStaticLayout(text: String, textPaint: TextPaint): StaticLayout {
         StaticLayoutBuilderCompat_Api23.build(text, textPaint)
     } else {
         @Suppress("DEPRECATION")
-        StaticLayout(/* source = */ text, /* paint = */
-            textPaint, /* width = */
-            Int.MAX_VALUE, /* align = */
-            Layout.Alignment.ALIGN_NORMAL, /* spacingmult = */
-            1.0f, /* spacingadd = */
-            0.0f, /* includepad = */
-            true)
+        StaticLayout(
+            /* source = */ text,
+            /* paint = */ textPaint,
+            /* width = */ Int.MAX_VALUE,
+            /* align = */ Layout.Alignment.ALIGN_NORMAL,
+            /* spacingmult = */ 1.0f,
+            /* spacingadd = */ 0.0f,
+            /* includepad = */ true
+        )
     }
 }
 
 @RequiresApi(23)
 object StaticLayoutBuilderCompat_Api23 {
     fun build(text: String, textPaint: TextPaint): StaticLayout {
-        return StaticLayout.Builder.obtain(/* source = */ text, /* start = */
-            0, /* end = */
-            text.length, /* paint = */
-            textPaint, /* width = */
-            Int.MAX_VALUE).build()
+        return StaticLayout.Builder.obtain(
+                /* source = */ text,
+                /* start = */ 0,
+                /* end = */ text.length,
+                /* paint = */ textPaint,
+                /* width = */ Int.MAX_VALUE
+            )
+            .build()
     }
 }

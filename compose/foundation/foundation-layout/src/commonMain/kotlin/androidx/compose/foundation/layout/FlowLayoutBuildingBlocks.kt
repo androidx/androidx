@@ -51,15 +51,14 @@ internal class FlowLayoutBuildingBlocks(
     ): WrapEllipsisInfo? {
         if (!wrapInfo.isLastItemInContainer) return null
 
-        val ellipsisInfo = overflow.ellipsisInfo(
-            hasNext,
-            lastContentLineIndex,
-            totalCrossAxisSize
-        ) ?: return null
+        val ellipsisInfo =
+            overflow.ellipsisInfo(hasNext, lastContentLineIndex, totalCrossAxisSize) ?: return null
 
-        val canFitLine = lastContentLineIndex >= 0 && (nextIndexInLine == 0 ||
-            !(leftOverMainAxis - ellipsisInfo.ellipsisSize.first < 0 ||
-                nextIndexInLine >= maxItemsInMainAxis))
+        val canFitLine =
+            lastContentLineIndex >= 0 &&
+                (nextIndexInLine == 0 ||
+                    !(leftOverMainAxis - ellipsisInfo.ellipsisSize.first < 0 ||
+                        nextIndexInLine >= maxItemsInMainAxis))
 
         ellipsisInfo.placeEllipsisOnLastContentLine = canFitLine
         return ellipsisInfo
@@ -78,109 +77,98 @@ internal class FlowLayoutBuildingBlocks(
     ): WrapInfo {
         var totalContainerCrossAxisSize = totalCrossAxisSize + currentLineCrossAxisSize
         if (nextSize == null) {
-            return WrapInfo(
-                isLastItemInLine = true,
-                isLastItemInContainer = true
-            )
+            return WrapInfo(isLastItemInLine = true, isLastItemInContainer = true)
         }
 
-        val willOverflowCrossAxis = when {
-            overflow.type == FlowLayoutOverflow.OverflowType.Visible -> false
-            lineIndex >= maxLines -> true
-            leftOver.second - nextSize.second < 0 -> true
-            else -> false
-        }
+        val willOverflowCrossAxis =
+            when {
+                overflow.type == FlowLayoutOverflow.OverflowType.Visible -> false
+                lineIndex >= maxLines -> true
+                leftOver.second - nextSize.second < 0 -> true
+                else -> false
+            }
 
         if (willOverflowCrossAxis) {
-            return WrapInfo(
-                isLastItemInLine = true,
-                isLastItemInContainer = true
-            )
+            return WrapInfo(isLastItemInLine = true, isLastItemInContainer = true)
         }
 
-        val shouldWrapItem = when {
-            nextIndexInLine == 0 -> false
-            nextIndexInLine >= maxItemsInMainAxis -> true
-            leftOver.first - nextSize.first < 0 -> true
-            else -> false
-        }
+        val shouldWrapItem =
+            when {
+                nextIndexInLine == 0 -> false
+                nextIndexInLine >= maxItemsInMainAxis -> true
+                leftOver.first - nextSize.first < 0 -> true
+                else -> false
+            }
 
         if (shouldWrapItem) {
             if (isWrappingRound) {
-                return WrapInfo(
-                    isLastItemInLine = true,
-                    isLastItemInContainer = true
-                )
+                return WrapInfo(isLastItemInLine = true, isLastItemInContainer = true)
             }
-            val wrapInfo = getWrapInfo(
-                nextItemHasNext,
-                nextIndexInLine = 0,
-                leftOver = IntIntPair(
-                    constraints.mainAxisMax,
-                    leftOver.second -
-                    crossAxisSpacing -
-                    currentLineCrossAxisSize
-                ),
-                // remove the mainAxisSpacing added to 2nd position or more indexed items.
-                IntIntPair(
-                    first = nextSize.first.minus(mainAxisSpacing),
-                    second = nextSize.second
-                ),
-                lineIndex = lineIndex + 1,
-                totalCrossAxisSize = totalContainerCrossAxisSize,
-                currentLineCrossAxisSize = 0,
-                isWrappingRound = true,
-                isEllipsisWrap = false
-            )
+            val wrapInfo =
+                getWrapInfo(
+                    nextItemHasNext,
+                    nextIndexInLine = 0,
+                    leftOver =
+                        IntIntPair(
+                            constraints.mainAxisMax,
+                            leftOver.second - crossAxisSpacing - currentLineCrossAxisSize
+                        ),
+                    // remove the mainAxisSpacing added to 2nd position or more indexed items.
+                    IntIntPair(
+                        first = nextSize.first.minus(mainAxisSpacing),
+                        second = nextSize.second
+                    ),
+                    lineIndex = lineIndex + 1,
+                    totalCrossAxisSize = totalContainerCrossAxisSize,
+                    currentLineCrossAxisSize = 0,
+                    isWrappingRound = true,
+                    isEllipsisWrap = false
+                )
             return WrapInfo(
                 isLastItemInLine = true,
                 isLastItemInContainer = wrapInfo.isLastItemInContainer
             )
         }
 
-        totalContainerCrossAxisSize = totalCrossAxisSize + max(
-            currentLineCrossAxisSize,
-            nextSize.second)
+        totalContainerCrossAxisSize =
+            totalCrossAxisSize + max(currentLineCrossAxisSize, nextSize.second)
 
-        val ellipsis = if (isEllipsisWrap) {
-            null
-        } else {
-            overflow.ellipsisSize(
-                nextItemHasNext,
-                lineIndex,
-                totalContainerCrossAxisSize
-            )
-        }
-        val shouldWrapEllipsis = ellipsis?.run {
-            when {
-                nextIndexInLine + 1 >= maxItemsInMainAxis -> true
-                leftOver.first - nextSize.first - mainAxisSpacing - ellipsis.first < 0 -> true
-                else -> false
+        val ellipsis =
+            if (isEllipsisWrap) {
+                null
+            } else {
+                overflow.ellipsisSize(nextItemHasNext, lineIndex, totalContainerCrossAxisSize)
             }
-        } ?: false
+        val shouldWrapEllipsis =
+            ellipsis?.run {
+                when {
+                    nextIndexInLine + 1 >= maxItemsInMainAxis -> true
+                    leftOver.first - nextSize.first - mainAxisSpacing - ellipsis.first < 0 -> true
+                    else -> false
+                }
+            } ?: false
 
         if (shouldWrapEllipsis) {
             if (isEllipsisWrap) {
-                return WrapInfo(
-                    isLastItemInLine = true,
-                    isLastItemInContainer = true
-                )
+                return WrapInfo(isLastItemInLine = true, isLastItemInContainer = true)
             }
-            val wrapInfo = getWrapInfo(
-                nextItemHasNext = false,
-                nextIndexInLine = 0,
-                IntIntPair(
-                    constraints.mainAxisMax,
-                    leftOver.second -
-                    crossAxisSpacing - max(currentLineCrossAxisSize, nextSize.second)
-                ),
-                ellipsis,
-                lineIndex = lineIndex + 1,
-                totalCrossAxisSize = totalContainerCrossAxisSize,
-                currentLineCrossAxisSize = 0,
-                isWrappingRound = true,
-                isEllipsisWrap = true
-            )
+            val wrapInfo =
+                getWrapInfo(
+                    nextItemHasNext = false,
+                    nextIndexInLine = 0,
+                    IntIntPair(
+                        constraints.mainAxisMax,
+                        leftOver.second -
+                            crossAxisSpacing -
+                            max(currentLineCrossAxisSize, nextSize.second)
+                    ),
+                    ellipsis,
+                    lineIndex = lineIndex + 1,
+                    totalCrossAxisSize = totalContainerCrossAxisSize,
+                    currentLineCrossAxisSize = 0,
+                    isWrappingRound = true,
+                    isEllipsisWrap = true
+                )
 
             return WrapInfo(
                 isLastItemInLine = wrapInfo.isLastItemInContainer,
@@ -188,9 +176,6 @@ internal class FlowLayoutBuildingBlocks(
             )
         }
 
-        return WrapInfo(
-            isLastItemInLine = false,
-            isLastItemInContainer = false
-        )
+        return WrapInfo(isLastItemInLine = false, isLastItemInContainer = false)
     }
 }

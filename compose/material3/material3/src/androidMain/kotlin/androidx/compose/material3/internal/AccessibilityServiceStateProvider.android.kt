@@ -49,9 +49,10 @@ internal actual fun rememberAccessibilityServiceState(
     val accessibilityManager =
         context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
 
-    val listener = remember(listenToTouchExplorationState, listenToSwitchAccessState) {
-        Listener(listenToTouchExplorationState, listenToSwitchAccessState)
-    }
+    val listener =
+        remember(listenToTouchExplorationState, listenToSwitchAccessState) {
+            Listener(listenToTouchExplorationState, listenToSwitchAccessState)
+        }
 
     ObserveState(
         lifecycleOwner = LocalLifecycleOwner.current,
@@ -60,9 +61,7 @@ internal actual fun rememberAccessibilityServiceState(
                 listener.register(accessibilityManager)
             }
         },
-        onDispose = {
-            listener.unregister(accessibilityManager)
-        }
+        onDispose = { listener.unregister(accessibilityManager) }
     )
 
     return listener
@@ -75,9 +74,7 @@ private fun ObserveState(
     onDispose: () -> Unit = {}
 ) {
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            handleEvent(event)
-        }
+        val observer = LifecycleEventObserver { _, event -> handleEvent(event) }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             onDispose()
@@ -93,17 +90,18 @@ private class Listener(
 ) : AccessibilityStateChangeListener, State<Boolean> {
     private var accessibilityEnabled by mutableStateOf(false)
 
-    private val touchExplorationListener = if (listenToTouchExplorationState) {
-        object : TouchExplorationStateChangeListener {
-            var enabled by mutableStateOf(false)
+    private val touchExplorationListener =
+        if (listenToTouchExplorationState) {
+            object : TouchExplorationStateChangeListener {
+                var enabled by mutableStateOf(false)
 
-            override fun onTouchExplorationStateChanged(enabled: Boolean) {
-                this.enabled = enabled
+                override fun onTouchExplorationStateChanged(enabled: Boolean) {
+                    this.enabled = enabled
+                }
             }
+        } else {
+            null
         }
-    } else {
-        null
-    }
 
     private val switchAccessListener =
         if (listenToSwitchAccessState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -119,13 +117,16 @@ private class Listener(
         }
 
     private val AccessibilityManager.switchAccessEnabled
-        get() = getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC)
-            .fastAny { it.settingsActivityName?.contains(SwitchAccessActivityName) == true }
+        get() =
+            getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_GENERIC).fastAny {
+                it.settingsActivityName?.contains(SwitchAccessActivityName) == true
+            }
 
     override val value: Boolean
-        get() = accessibilityEnabled &&
-            ((touchExplorationListener?.enabled ?: false) ||
-            (switchAccessListener?.enabled ?: false))
+        get() =
+            accessibilityEnabled &&
+                ((touchExplorationListener?.enabled ?: false) ||
+                    (switchAccessListener?.enabled ?: false))
 
     override fun onAccessibilityStateChanged(enabled: Boolean) {
         accessibilityEnabled = enabled
@@ -148,9 +149,7 @@ private class Listener(
 
     fun unregister(am: AccessibilityManager) {
         am.removeAccessibilityStateChangeListener(this)
-        touchExplorationListener?.let {
-            am.removeTouchExplorationStateChangeListener(it)
-        }
+        touchExplorationListener?.let { am.removeTouchExplorationStateChangeListener(it) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             switchAccessListener?.let {
                 Api33Impl.removeAccessibilityServicesStateChangeListener(am, it)

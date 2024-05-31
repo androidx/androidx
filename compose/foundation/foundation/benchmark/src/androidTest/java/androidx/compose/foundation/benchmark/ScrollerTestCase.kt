@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.runBlocking
 
 /**
- * Test case that puts a large number of boxes in a column in a vertical scroller to force scrolling.
+ * Test case that puts a large number of boxes in a column in a vertical scroller to force
+ * scrolling.
  */
 class ScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var scrollState: ScrollState

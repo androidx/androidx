@@ -89,15 +89,14 @@ abstract class AbstractCompilerTest(val useFir: Boolean) {
         }
 
         val defaultClassPath by lazy {
-            System.getProperty("java.class.path")!!.split(
-                System.getProperty("path.separator")!!
-            ).map { File(it) }
+            System.getProperty("java.class.path")!!.split(System.getProperty("path.separator")!!)
+                .map { File(it) }
         }
 
         val defaultClassPathRoots by lazy {
-            defaultClassPath.filter {
-                !it.path.contains("robolectric") && it.extension != "xml"
-            }.toList()
+            defaultClassPath
+                .filter { !it.path.contains("robolectric") && it.extension != "xml" }
+                .toList()
         }
     }
 
@@ -114,51 +113,57 @@ abstract class AbstractCompilerTest(val useFir: Boolean) {
         additionalPaths: List<File> = listOf(),
         forcedFirSetting: Boolean? = null,
         registerExtensions: (Project.(CompilerConfiguration) -> Unit)? = null
-    ) = KotlinCompilerFacade.create(
-        testRootDisposable,
-        updateConfiguration = {
-            val enableFir = if (forcedFirSetting != null) forcedFirSetting else useFir
-            val languageVersion =
-                if (enableFir) {
-                    LanguageVersion.KOTLIN_2_0
-                } else {
-                    LanguageVersion.KOTLIN_1_9
+    ) =
+        KotlinCompilerFacade.create(
+            testRootDisposable,
+            updateConfiguration = {
+                val enableFir = if (forcedFirSetting != null) forcedFirSetting else useFir
+                val languageVersion =
+                    if (enableFir) {
+                        LanguageVersion.KOTLIN_2_0
+                    } else {
+                        LanguageVersion.KOTLIN_1_9
+                    }
+                // For tests, allow unstable artifacts compiled with a pre-release compiler
+                // as input to stable compilations.
+                val analysisFlags: Map<AnalysisFlag<*>, Any?> =
+                    mapOf(
+                        AnalysisFlags.allowUnstableDependencies to true,
+                        AnalysisFlags.skipPrereleaseCheck to true
+                    )
+                languageVersionSettings =
+                    LanguageVersionSettingsImpl(
+                        languageVersion,
+                        ApiVersion.createByLanguageVersion(languageVersion),
+                        analysisFlags
+                    )
+                updateConfiguration()
+                addJvmClasspathRoots(additionalPaths)
+                addJvmClasspathRoots(defaultClassPathRoots)
+                if (
+                    !getBoolean(JVMConfigurationKeys.NO_JDK) &&
+                        get(JVMConfigurationKeys.JDK_HOME) == null
+                ) {
+                    // We need to set `JDK_HOME` explicitly to use JDK 17
+                    put(JVMConfigurationKeys.JDK_HOME, File(System.getProperty("java.home")!!))
                 }
-            // For tests, allow unstable artifacts compiled with a pre-release compiler
-            // as input to stable compilations.
-            val analysisFlags: Map<AnalysisFlag<*>, Any?> = mapOf(
-                AnalysisFlags.allowUnstableDependencies to true,
-                AnalysisFlags.skipPrereleaseCheck to true
-            )
-            languageVersionSettings = LanguageVersionSettingsImpl(
-                languageVersion,
-                ApiVersion.createByLanguageVersion(languageVersion),
-                analysisFlags
-            )
-            updateConfiguration()
-            addJvmClasspathRoots(additionalPaths)
-            addJvmClasspathRoots(defaultClassPathRoots)
-            if (!getBoolean(JVMConfigurationKeys.NO_JDK) &&
-                get(JVMConfigurationKeys.JDK_HOME) == null) {
-                // We need to set `JDK_HOME` explicitly to use JDK 17
-                put(JVMConfigurationKeys.JDK_HOME, File(System.getProperty("java.home")!!))
-            }
-            configureJdkClasspathRoots()
-        },
-        registerExtensions = registerExtensions ?: { configuration ->
-            ComposePluginRegistrar.registerCommonExtensions(this)
-            IrGenerationExtension.registerExtension(
-                this,
-                ComposePluginRegistrar.createComposeIrExtension(configuration)
-            )
-        }
-    )
+                configureJdkClasspathRoots()
+            },
+            registerExtensions =
+                registerExtensions
+                    ?: { configuration ->
+                        ComposePluginRegistrar.registerCommonExtensions(this)
+                        IrGenerationExtension.registerExtension(
+                            this,
+                            ComposePluginRegistrar.createComposeIrExtension(configuration)
+                        )
+                    }
+        )
 
     protected fun analyze(
         platformSources: List<SourceFile>,
         commonSources: List<SourceFile> = listOf()
-    ): AnalysisResult =
-        createCompilerFacade().analyze(platformSources, commonSources)
+    ): AnalysisResult = createCompilerFacade().analyze(platformSources, commonSources)
 
     protected fun compileToIr(
         sourceFiles: List<SourceFile>,
@@ -174,15 +179,15 @@ abstract class AbstractCompilerTest(val useFir: Boolean) {
         additionalPaths: List<File> = listOf(),
         forcedFirSetting: Boolean? = null
     ): GeneratedClassLoader {
-        val classLoader = URLClassLoader(
-            (additionalPaths + defaultClassPath).map {
-                it.toURI().toURL()
-            }.toTypedArray(),
-            this.javaClass.classLoader
-        )
+        val classLoader =
+            URLClassLoader(
+                (additionalPaths + defaultClassPath).map { it.toURI().toURL() }.toTypedArray(),
+                this.javaClass.classLoader
+            )
         return GeneratedClassLoader(
             createCompilerFacade(additionalPaths, forcedFirSetting)
-                .compile(platformSourceFiles, commonSourceFiles).factory,
+                .compile(platformSourceFiles, commonSourceFiles)
+                .factory,
             classLoader
         )
     }
@@ -212,8 +217,7 @@ fun printPublicApi(classDump: String, name: String): String {
                 )
             }
             if (it.startsWith("  ")) {
-                if (it.startsWith("   ")) false
-                else it[2] != '/' && it[2] != '@'
+                if (it.startsWith("   ")) false else it[2] != '/' && it[2] != '@'
             } else {
                 it == "}" || it.endsWith("{")
             }

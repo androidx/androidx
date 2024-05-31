@@ -40,8 +40,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @OptIn(ExperimentalComposeUiApi::class)
 class InputModeTest(private val param: Param) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var inputModeManager: InputModeManager
 
@@ -54,22 +53,19 @@ class InputModeTest(private val param: Param) {
 
     // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() = with(InstrumentationRegistry.getInstrumentation()) {
-        if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-    }
+    fun resetTouchMode() =
+        with(InstrumentationRegistry.getInstrumentation()) {
+            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
+        }
 
     @Test
     fun switchToTouchModeProgrammatically() {
         // Arrange.
-        rule.setContentWithInputManager {
-            Box {}
-        }
+        rule.setContentWithInputManager { Box {} }
         val initialMode = rule.runOnIdle { inputModeManager.inputMode }
 
         // Act.
-        val requestGranted = rule.runOnIdle {
-            inputModeManager.requestInputMode(Touch)
-        }
+        val requestGranted = rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         // Assert
         rule.runOnIdle {

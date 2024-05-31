@@ -50,26 +50,23 @@ fun Draggable2DSample() {
     var offsetPositionY by remember { mutableStateOf(0f) }
 
     Box(
-        modifier = Modifier
-            .width(max)
-            .height(max)
-            .draggable2D(
-                state = rememberDraggable2DState { delta ->
-                    val newValueX = offsetPositionX + delta.x
-                    val newValueY = offsetPositionY + delta.y
-                    offsetPositionX = newValueX.coerceIn(minPx, maxPx)
-                    offsetPositionY = newValueY.coerceIn(minPx, maxPx)
-                }
-            )
-            .background(Color.LightGray)
+        modifier =
+            Modifier.width(max)
+                .height(max)
+                .draggable2D(
+                    state =
+                        rememberDraggable2DState { delta ->
+                            val newValueX = offsetPositionX + delta.x
+                            val newValueY = offsetPositionY + delta.y
+                            offsetPositionX = newValueX.coerceIn(minPx, maxPx)
+                            offsetPositionY = newValueY.coerceIn(minPx, maxPx)
+                        }
+                )
+                .background(Color.LightGray)
     ) {
         Box(
-            Modifier
-                .offset {
-                    IntOffset(
-                        offsetPositionX.roundToInt(),
-                        offsetPositionY.roundToInt()
-                    )
+            Modifier.offset {
+                    IntOffset(offsetPositionX.roundToInt(), offsetPositionY.roundToInt())
                 }
                 .size(50.dp)
                 .background(Color.Red)

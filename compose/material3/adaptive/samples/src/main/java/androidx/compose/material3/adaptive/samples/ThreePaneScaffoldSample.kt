@@ -81,9 +81,7 @@ fun ListDetailPaneScaffoldSample() {
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
-                    onClick = {
-                        scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
-                    }
+                    onClick = { scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail) }
                 ) {
                     Text("List")
                 }
@@ -93,9 +91,7 @@ fun ListDetailPaneScaffoldSample() {
             AnimatedPane(modifier = Modifier) {
                 Surface(
                     color = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        scaffoldNavigator.navigateBack()
-                    }
+                    onClick = { scaffoldNavigator.navigateBack() }
                 ) {
                     Text("Details")
                 }
@@ -119,36 +115,26 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
-                    onClick = {
-                        scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
-                    }
+                    onClick = { scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail) }
                 ) {
                     Text("List")
                 }
             }
         },
         detailPane = {
-            AnimatedPane(
-                modifier = Modifier
-            ) {
+            AnimatedPane(modifier = Modifier) {
                 Surface(
                     color = MaterialTheme.colorScheme.primary,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text("Detail")
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Surface(
-                                onClick = {
-                                    scaffoldNavigator.navigateBack()
-                                },
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .fillMaxHeight(),
+                                onClick = { scaffoldNavigator.navigateBack() },
+                                modifier = Modifier.weight(0.5f).fillMaxHeight(),
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
                             ) {
                                 Box(
@@ -163,9 +149,7 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
                                 onClick = {
                                     scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
                                 },
-                                modifier = Modifier
-                                    .weight(0.5f)
-                                    .fillMaxHeight(),
+                                modifier = Modifier.weight(0.5f).fillMaxHeight(),
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                             ) {
                                 Box(
@@ -181,15 +165,11 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
             }
         },
         extraPane = {
-            AnimatedPane(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            AnimatedPane(modifier = Modifier.fillMaxSize()) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary,
-                    onClick = {
-                        scaffoldNavigator.navigateBack()
-                    }
+                    onClick = { scaffoldNavigator.navigateBack() }
                 ) {
                     Text("Extra")
                 }
@@ -210,10 +190,11 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
     val welcomeRoute = "welcome"
     val listDetailRoute = "listdetail"
     val items = List(15) { "Item $it" }
-    val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
-        "tempor incididunt ut labore et dolore magna aliqua. Dui nunc mattis enim ut tellus " +
-        "elementum sagittis. Nunc sed augue lacus viverra vitae. Sit amet dictum sit amet justo " +
-        "donec. Fringilla urna porttitor rhoncus dolor purus non enim praesent elementum."
+    val loremIpsum =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod " +
+            "tempor incididunt ut labore et dolore magna aliqua. Dui nunc mattis enim ut tellus " +
+            "elementum sagittis. Nunc sed augue lacus viverra vitae. Sit amet dictum sit amet justo " +
+            "donec. Fringilla urna porttitor rhoncus dolor purus non enim praesent elementum."
 
     @Composable
     fun ListCard(
@@ -222,13 +203,14 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
         modifier: Modifier = Modifier,
     ) {
         OutlinedCard(
-            colors = CardDefaults.outlinedCardColors(when {
-                highlight -> MaterialTheme.colorScheme.surfaceVariant
-                else -> MaterialTheme.colorScheme.surface
-            }),
-            modifier = modifier
-                .heightIn(min = 72.dp)
-                .fillMaxWidth(),
+            colors =
+                CardDefaults.outlinedCardColors(
+                    when {
+                        highlight -> MaterialTheme.colorScheme.surfaceVariant
+                        else -> MaterialTheme.colorScheme.surface
+                    }
+                ),
+            modifier = modifier.heightIn(min = 72.dp).fillMaxWidth(),
         ) {
             Text(
                 text = title,
@@ -251,9 +233,7 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
         ) { paddingValues ->
             Card(
                 colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceVariant),
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
+                modifier = Modifier.padding(paddingValues).fillMaxSize(),
             ) {
                 Text(
                     text = details,
@@ -282,15 +262,10 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
     ) {
         composable(welcomeRoute) {
             Scaffold(Modifier.fillMaxSize()) { paddingValues ->
-                Box(
-                    Modifier
-                        .padding(paddingValues)
-                        .fillMaxSize()) {
+                Box(Modifier.padding(paddingValues).fillMaxSize()) {
                     Text(
                         text = "Welcome Screen",
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 24.dp),
+                        modifier = Modifier.align(Alignment.TopCenter).padding(top = 24.dp),
                         style = MaterialTheme.typography.displayMedium,
                     )
                     Button(
@@ -334,16 +309,18 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
                                 items.forEach { item ->
                                     ListCard(
                                         title = item,
-                                        highlight = item == selectedItem &&
-                                            scaffoldNavigator.isDetailExpanded(),
-                                        modifier = Modifier.clickable {
-                                            if (item != selectedItem) {
-                                                scaffoldNavigator.navigateTo(
-                                                    pane = ListDetailPaneScaffoldRole.Detail,
-                                                    content = item,
-                                                )
+                                        highlight =
+                                            item == selectedItem &&
+                                                scaffoldNavigator.isDetailExpanded(),
+                                        modifier =
+                                            Modifier.clickable {
+                                                if (item != selectedItem) {
+                                                    scaffoldNavigator.navigateTo(
+                                                        pane = ListDetailPaneScaffoldRole.Detail,
+                                                        content = item,
+                                                    )
+                                                }
                                             }
-                                        }
                                     )
                                 }
                             }

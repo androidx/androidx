@@ -50,36 +50,32 @@ import androidx.compose.ui.unit.LayoutDirection
  * You can basically think of this as a `derivedStateOf` that combines all the inputs to text layout
  * — the text itself, configuration parameters, and layout inputs — and spits out a
  * [TextLayoutResult]. The [value] property will register snapshot reads for all the inputs and
- * either return a cached result or re-compute the result and cache it in the current snapshot.
- * The cache is snapshot aware: when a new layout is computed, it will only be cached in the current
+ * either return a cached result or re-compute the result and cache it in the current snapshot. The
+ * cache is snapshot aware: when a new layout is computed, it will only be cached in the current
  * snapshot. When the snapshot with the new result is applied, its cache will also be visible to the
  * parent snapshot.
  *
  * All the possible inputs to text layout are grouped into two groups: those that come from the
  * layout system ([MeasureInputs]) and those that are passed explicitly to the text field composable
  * ([NonMeasureInputs]). Each of these groups can only be updated in bulk, and each group is stored
- * in an instance of a dedicated class. This means for each type of update, only one state object
- * is needed.
+ * in an instance of a dedicated class. This means for each type of update, only one state object is
+ * needed.
  */
 internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject {
-    private var nonMeasureInputs: NonMeasureInputs? by mutableStateOf(
-        value = null,
-        policy = NonMeasureInputs.mutationPolicy
-    )
-    private var measureInputs: MeasureInputs? by mutableStateOf(
-        value = null,
-        policy = MeasureInputs.mutationPolicy
-    )
+    private var nonMeasureInputs: NonMeasureInputs? by
+        mutableStateOf(value = null, policy = NonMeasureInputs.mutationPolicy)
+    private var measureInputs: MeasureInputs? by
+        mutableStateOf(value = null, policy = MeasureInputs.mutationPolicy)
 
     /**
-     * Returns the [TextLayoutResult] for the current text field state and layout inputs, or null
-     * if the layout cannot be computed at this time.
+     * Returns the [TextLayoutResult] for the current text field state and layout inputs, or null if
+     * the layout cannot be computed at this time.
      *
      * This method will re-calculate the text layout if the text or any of the other layout inputs
      * have changed, otherwise it will return a cached value.
      *
-     * [updateNonMeasureInputs] and [layoutWithNewMeasureInputs] must both be called before this
-     * to initialize all the inputs, or it will return null.
+     * [updateNonMeasureInputs] and [layoutWithNewMeasureInputs] must both be called before this to
+     * initialize all the inputs, or it will return null.
      */
     override val value: TextLayoutResult?
         get() {
@@ -108,12 +104,13 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         singleLine: Boolean,
         softWrap: Boolean,
     ) {
-        nonMeasureInputs = NonMeasureInputs(
-            textFieldState = textFieldState,
-            textStyle = textStyle,
-            singleLine = singleLine,
-            softWrap = softWrap,
-        )
+        nonMeasureInputs =
+            NonMeasureInputs(
+                textFieldState = textFieldState,
+                textStyle = textStyle,
+                singleLine = singleLine,
+                softWrap = softWrap,
+            )
     }
 
     /**
@@ -131,16 +128,18 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         fontFamilyResolver: FontFamily.Resolver,
         constraints: Constraints,
     ): TextLayoutResult {
-        val measureInputs = MeasureInputs(
-            density = density,
-            layoutDirection = layoutDirection,
-            fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints,
-        )
+        val measureInputs =
+            MeasureInputs(
+                density = density,
+                layoutDirection = layoutDirection,
+                fontFamilyResolver = fontFamilyResolver,
+                constraints = constraints,
+            )
         this.measureInputs = measureInputs
-        val nonMeasureInputs = checkNotNull(nonMeasureInputs) {
-            "Called layoutWithNewMeasureInputs before updateNonMeasureInputs"
-        }
+        val nonMeasureInputs =
+            checkNotNull(nonMeasureInputs) {
+                "Called layoutWithNewMeasureInputs before updateNonMeasureInputs"
+            }
         return getOrComputeLayout(nonMeasureInputs, measureInputs)
     }
 
@@ -157,26 +156,32 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         record.withCurrent { cachedRecord ->
             val cachedResult = cachedRecord.layoutResult
 
-            if (cachedResult != null &&
-                cachedRecord.visualText?.contentEquals(visualText) == true &&
-                cachedRecord.composition == visualText.composition &&
-                cachedRecord.singleLine == nonMeasureInputs.singleLine &&
-                cachedRecord.softWrap == nonMeasureInputs.softWrap &&
-                cachedRecord.layoutDirection == measureInputs.layoutDirection &&
-                cachedRecord.densityValue == measureInputs.density.density &&
-                cachedRecord.fontScale == measureInputs.density.fontScale &&
-                cachedRecord.constraints == measureInputs.constraints &&
-                cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver &&
-                // one of the resolved fonts has updated, and this MultiParagraph is no longer
-                // valid for measure or display. This read is also a snapshot read guaranteeing
-                // that when the resolved font is stale, readers of text layout will be notified.
-                !cachedResult.multiParagraph.intrinsics.hasStaleResolvedFonts
+            if (
+                cachedResult != null &&
+                    cachedRecord.visualText?.contentEquals(visualText) == true &&
+                    cachedRecord.composition == visualText.composition &&
+                    cachedRecord.singleLine == nonMeasureInputs.singleLine &&
+                    cachedRecord.softWrap == nonMeasureInputs.softWrap &&
+                    cachedRecord.layoutDirection == measureInputs.layoutDirection &&
+                    cachedRecord.densityValue == measureInputs.density.density &&
+                    cachedRecord.fontScale == measureInputs.density.fontScale &&
+                    cachedRecord.constraints == measureInputs.constraints &&
+                    cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver &&
+                    // one of the resolved fonts has updated, and this MultiParagraph is no longer
+                    // valid for measure or display. This read is also a snapshot read guaranteeing
+                    // that when the resolved font is stale, readers of text layout will be
+                    // notified.
+                    !cachedResult.multiParagraph.intrinsics.hasStaleResolvedFonts
             ) {
-                val isLayoutAffectingSame = cachedRecord.textStyle
-                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+                val isLayoutAffectingSame =
+                    cachedRecord.textStyle?.hasSameLayoutAffectingAttributes(
+                        nonMeasureInputs.textStyle
+                    ) ?: false
 
-                val isDrawAffectingSame = cachedRecord.textStyle
-                    ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+                val isDrawAffectingSame =
+                    cachedRecord.textStyle?.hasSameDrawAffectingAttributes(
+                        nonMeasureInputs.textStyle
+                    ) ?: false
 
                 // Fast path: None of the inputs changed.
                 if (isLayoutAffectingSame && isDrawAffectingSame) {
@@ -185,45 +190,45 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 // Slightly slower than fast path: Layout did not change but TextLayoutInput did
                 if (isLayoutAffectingSame) {
                     return cachedResult.copy(
-                        layoutInput = TextLayoutInput(
-                            cachedResult.layoutInput.text,
-                            nonMeasureInputs.textStyle,
-                            cachedResult.layoutInput.placeholders,
-                            cachedResult.layoutInput.maxLines,
-                            cachedResult.layoutInput.softWrap,
-                            cachedResult.layoutInput.overflow,
-                            cachedResult.layoutInput.density,
-                            cachedResult.layoutInput.layoutDirection,
-                            cachedResult.layoutInput.fontFamilyResolver,
-                            cachedResult.layoutInput.constraints
-                        )
+                        layoutInput =
+                            TextLayoutInput(
+                                cachedResult.layoutInput.text,
+                                nonMeasureInputs.textStyle,
+                                cachedResult.layoutInput.placeholders,
+                                cachedResult.layoutInput.maxLines,
+                                cachedResult.layoutInput.softWrap,
+                                cachedResult.layoutInput.overflow,
+                                cachedResult.layoutInput.density,
+                                cachedResult.layoutInput.layoutDirection,
+                                cachedResult.layoutInput.fontFamilyResolver,
+                                cachedResult.layoutInput.constraints
+                            )
                     )
                 }
             }
 
             // Slow path: Some input changed, need to re-layout.
-            return computeLayout(visualText, nonMeasureInputs, measureInputs)
-                .also { newResult ->
-                    // Although the snapshot-aware cache is only updated when the current snapshot
-                    // is writable, we still would like to cache the results of text layout
-                    // computation since it's very likely that a follow-up access to the text layout
-                    // result will use the same measure and non-measure inputs. Therefore, we use
-                    // a `TextMeasurer` with a cache size of 1 to compute the text layout result.
-                    if (newResult != cachedResult) {
-                        updateCacheIfWritable {
-                            this.visualText = visualText
-                            this.singleLine = nonMeasureInputs.singleLine
-                            this.softWrap = nonMeasureInputs.softWrap
-                            this.textStyle = nonMeasureInputs.textStyle
-                            this.layoutDirection = measureInputs.layoutDirection
-                            this.densityValue = measureInputs.densityValue
-                            this.fontScale = measureInputs.fontScale
-                            this.constraints = measureInputs.constraints
-                            this.fontFamilyResolver = measureInputs.fontFamilyResolver
-                            this.layoutResult = newResult
-                        }
+            return computeLayout(visualText, nonMeasureInputs, measureInputs).also { newResult ->
+                // Although the snapshot-aware cache is only updated when the current snapshot
+                // is writable, we still would like to cache the results of text layout
+                // computation since it's very likely that a follow-up access to the text layout
+                // result will use the same measure and non-measure inputs. Therefore, we use
+                // a `TextMeasurer` with a cache size of 1 to compute the text layout result.
+                if (newResult != cachedResult) {
+                    updateCacheIfWritable {
+                        this.visualText = visualText
+                        this.singleLine = nonMeasureInputs.singleLine
+                        this.softWrap = nonMeasureInputs.softWrap
+                        this.textStyle = nonMeasureInputs.textStyle
+                        this.layoutDirection = measureInputs.layoutDirection
+                        this.densityValue = measureInputs.densityValue
+                        this.fontScale = measureInputs.fontScale
+                        this.constraints = measureInputs.constraints
+                        this.fontFamilyResolver = measureInputs.fontFamilyResolver
+                        this.layoutResult = newResult
                     }
                 }
+            }
         }
     }
 
@@ -242,16 +247,18 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
      * previously created. If a cached [TextMeasurer] is returned and [measureInputs] do not match
      * the attributes of previous instance, make sure to call [TextMeasurer.measure] with the
      * up-to-date parameters. [TextMeasurer] will override its fallback values for
-     * [FontFamily.Resolver], [Density], and [LayoutDirection] when these are passed explicitly
-     * to the [TextMeasurer.measure] function.
+     * [FontFamily.Resolver], [Density], and [LayoutDirection] when these are passed explicitly to
+     * the [TextMeasurer.measure] function.
      */
     private fun obtainTextMeasurer(measureInputs: MeasureInputs): TextMeasurer {
-        return textMeasurer ?: TextMeasurer(
-            defaultFontFamilyResolver = measureInputs.fontFamilyResolver,
-            defaultDensity = measureInputs.density,
-            defaultLayoutDirection = measureInputs.layoutDirection,
-            cacheSize = 1
-        ).also { textMeasurer = it }
+        return textMeasurer
+            ?: TextMeasurer(
+                    defaultFontFamilyResolver = measureInputs.fontFamilyResolver,
+                    defaultDensity = measureInputs.density,
+                    defaultLayoutDirection = measureInputs.layoutDirection,
+                    cacheSize = 1
+                )
+                .also { textMeasurer = it }
     }
 
     private fun computeLayout(
@@ -266,16 +273,17 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         val textMeasurer = obtainTextMeasurer(measureInputs)
 
         return textMeasurer.measure(
-            text = buildAnnotatedString {
-                append(visualText.toString())
-                if (visualText.composition != null) {
-                    addStyle(
-                        style = SpanStyle(textDecoration = TextDecoration.Underline),
-                        start = visualText.composition.min,
-                        end = visualText.composition.max
-                    )
-                }
-            },
+            text =
+                buildAnnotatedString {
+                    append(visualText.toString())
+                    if (visualText.composition != null) {
+                        addStyle(
+                            style = SpanStyle(textDecoration = TextDecoration.Underline),
+                            start = visualText.composition.min,
+                            end = visualText.composition.max
+                        )
+                    }
+                },
             style = nonMeasureInputs.textStyle,
             softWrap = nonMeasureInputs.softWrap,
             maxLines = if (nonMeasureInputs.singleLine) 1 else Int.MAX_VALUE,
@@ -355,20 +363,22 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             layoutResult = value.layoutResult
         }
 
-        override fun toString(): String = "CacheRecord(" +
-            "visualText=$visualText, " +
-            "composition=$composition, " +
-            "textStyle=$textStyle, " +
-            "singleLine=$singleLine, " +
-            "softWrap=$softWrap, " +
-            "densityValue=$densityValue, " +
-            "fontScale=$fontScale, " +
-            "layoutDirection=$layoutDirection, " +
-            "fontFamilyResolver=$fontFamilyResolver, " +
-            "constraints=$constraints, " +
-            "layoutResult=$layoutResult" +
-            ")"
+        override fun toString(): String =
+            "CacheRecord(" +
+                "visualText=$visualText, " +
+                "composition=$composition, " +
+                "textStyle=$textStyle, " +
+                "singleLine=$singleLine, " +
+                "softWrap=$softWrap, " +
+                "densityValue=$densityValue, " +
+                "fontScale=$fontScale, " +
+                "layoutDirection=$layoutDirection, " +
+                "fontFamilyResolver=$fontFamilyResolver, " +
+                "constraints=$constraints, " +
+                "layoutResult=$layoutResult" +
+                ")"
     }
+
     // endregion
 
     // region Input holders
@@ -379,12 +389,13 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         val softWrap: Boolean,
     ) {
 
-        override fun toString(): String = "NonMeasureInputs(" +
-            "textFieldState=$textFieldState, " +
-            "textStyle=$textStyle, " +
-            "singleLine=$singleLine, " +
-            "softWrap=$softWrap" +
-            ")"
+        override fun toString(): String =
+            "NonMeasureInputs(" +
+                "textFieldState=$textFieldState, " +
+                "textStyle=$textStyle, " +
+                "singleLine=$singleLine, " +
+                "softWrap=$softWrap" +
+                ")"
 
         companion object {
             /**
@@ -393,22 +404,27 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
              * property and compares only the text (not selection). This means that when the text
              * state changes it will invalidate any snapshot observer that sets this state.
              */
-            val mutationPolicy = object : SnapshotMutationPolicy<NonMeasureInputs?> {
-                override fun equivalent(a: NonMeasureInputs?, b: NonMeasureInputs?): Boolean =
-                    if (a != null && b != null) {
-                        // We don't need to compare text contents here because the text state is read
-                        // by getOrComputeLayout – if the text state changes, that method will already
-                        // be invalidated. The only reason to compare text here would be to avoid
-                        // invalidating if the TextFieldState is a different instance but with the same
-                        // text, but that is unlikely to happen.
-                        a.textFieldState === b.textFieldState &&
-                            a.textStyle == b.textStyle &&
-                            a.singleLine == b.singleLine &&
-                            a.softWrap == b.softWrap
-                    } else {
-                        !((a == null) xor (b == null))
-                    }
-            }
+            val mutationPolicy =
+                object : SnapshotMutationPolicy<NonMeasureInputs?> {
+                    override fun equivalent(a: NonMeasureInputs?, b: NonMeasureInputs?): Boolean =
+                        if (a != null && b != null) {
+                            // We don't need to compare text contents here because the text state is
+                            // read
+                            // by getOrComputeLayout – if the text state changes, that method will
+                            // already
+                            // be invalidated. The only reason to compare text here would be to
+                            // avoid
+                            // invalidating if the TextFieldState is a different instance but with
+                            // the same
+                            // text, but that is unlikely to happen.
+                            a.textFieldState === b.textFieldState &&
+                                a.textStyle == b.textStyle &&
+                                a.singleLine == b.singleLine &&
+                                a.softWrap == b.softWrap
+                        } else {
+                            !((a == null) xor (b == null))
+                        }
+                }
         }
     }
 
@@ -426,30 +442,33 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         val densityValue: Float = density.density
         val fontScale: Float = density.fontScale
 
-        override fun toString(): String = "MeasureInputs(" +
-            "density=$density, " +
-            "densityValue=$densityValue, " +
-            "fontScale=$fontScale, " +
-            "layoutDirection=$layoutDirection, " +
-            "fontFamilyResolver=$fontFamilyResolver, " +
-            "constraints=$constraints" +
-            ")"
+        override fun toString(): String =
+            "MeasureInputs(" +
+                "density=$density, " +
+                "densityValue=$densityValue, " +
+                "fontScale=$fontScale, " +
+                "layoutDirection=$layoutDirection, " +
+                "fontFamilyResolver=$fontFamilyResolver, " +
+                "constraints=$constraints" +
+                ")"
 
         companion object {
-            val mutationPolicy = object : SnapshotMutationPolicy<MeasureInputs?> {
-                override fun equivalent(a: MeasureInputs?, b: MeasureInputs?): Boolean =
-                    if (a != null && b != null) {
-                        // Don't compare density – we don't care if the density instance changed,
-                        // only if the actual values used in density calculations did.
-                        a.densityValue == b.densityValue &&
-                            a.fontScale == b.fontScale &&
-                            a.layoutDirection == b.layoutDirection &&
-                            a.fontFamilyResolver == b.fontFamilyResolver &&
-                            a.constraints == b.constraints
-                    } else {
-                        !((a == null) xor (b == null))
-                    }
-            }
+            val mutationPolicy =
+                object : SnapshotMutationPolicy<MeasureInputs?> {
+                    override fun equivalent(a: MeasureInputs?, b: MeasureInputs?): Boolean =
+                        if (a != null && b != null) {
+                            // Don't compare density – we don't care if the density instance
+                            // changed,
+                            // only if the actual values used in density calculations did.
+                            a.densityValue == b.densityValue &&
+                                a.fontScale == b.fontScale &&
+                                a.layoutDirection == b.layoutDirection &&
+                                a.fontFamilyResolver == b.fontFamilyResolver &&
+                                a.constraints == b.constraints
+                        } else {
+                            !((a == null) xor (b == null))
+                        }
+                }
         }
     }
     // endregion

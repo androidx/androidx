@@ -54,8 +54,7 @@ class CarouselTest {
 
     private lateinit var carouselState: CarouselState
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun carousel_horizontalScrollUpdatesState() {
@@ -64,13 +63,12 @@ class CarouselTest {
         assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 1000f) }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(centerRight, centerLeft, 1000f)
+        }
 
         // Assert
-        rule.runOnIdle {
-            assertThat(carouselState.pagerState.currentPage).isNotEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(carouselState.pagerState.currentPage).isNotEqualTo(0) }
     }
 
     @Test
@@ -80,15 +78,12 @@ class CarouselTest {
         assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput {
-                swipeWithVelocity(bottomCenter, topCenter, 1000f)
-            }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(bottomCenter, topCenter, 1000f)
+        }
 
         // Assert
-        rule.runOnIdle {
-            assertThat(carouselState.pagerState.currentPage).isNotEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(carouselState.pagerState.currentPage).isNotEqualTo(0) }
     }
 
     @Test
@@ -97,9 +92,7 @@ class CarouselTest {
         createCarousel(initialItem = 5, orientation = Orientation.Horizontal)
 
         // Assert
-        rule.runOnIdle {
-            assertThat(carouselState.pagerState.currentPage).isEqualTo(5)
-        }
+        rule.runOnIdle { assertThat(carouselState.pagerState.currentPage).isEqualTo(5) }
     }
 
     @Test
@@ -108,8 +101,9 @@ class CarouselTest {
         createCarousel()
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 1000f) }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(centerRight, centerLeft, 1000f)
+        }
 
         // Assert
         rule.runOnIdle {
@@ -123,8 +117,9 @@ class CarouselTest {
         createUncontainedCarousel()
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 1000f) }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(centerRight, centerLeft, 1000f)
+        }
 
         // Assert
         rule.runOnIdle {
@@ -139,21 +134,16 @@ class CarouselTest {
         assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput {
-                swipeWithVelocity(
-                    centerRight,
-                    centerLeft,
-                    10000f
-                )
-            }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(centerRight, centerLeft, 10000f)
+        }
 
         // Assert
         rule.runOnIdle {
             // A swipe from the very right to very left should be capped at
             // the item right after the visible pages onscreen regardless of velocity
-            assertThat(carouselState.pagerState.currentPage).isLessThan(
-                carouselState.pagerState.layoutInfo.visiblePagesInfo.size + 1)
+            assertThat(carouselState.pagerState.currentPage)
+                .isLessThan(carouselState.pagerState.layoutInfo.visiblePagesInfo.size + 1)
         }
     }
 
@@ -161,61 +151,57 @@ class CarouselTest {
     fun carouselMultibrowseFling_ScrollsToEnd() {
         // Arrange
         createCarousel(
-            flingBehavior =
-            { state: CarouselState -> CarouselDefaults.multiBrowseFlingBehavior(state) },
+            flingBehavior = { state: CarouselState ->
+                CarouselDefaults.multiBrowseFlingBehavior(state)
+            },
         )
         assertThat(carouselState.pagerState.currentPage).isEqualTo(0)
 
         // Act
-        rule.onNodeWithTag(CarouselTestTag)
-            .performTouchInput { swipeWithVelocity(centerRight, centerLeft, 10000f) }
+        rule.onNodeWithTag(CarouselTestTag).performTouchInput {
+            swipeWithVelocity(centerRight, centerLeft, 10000f)
+        }
 
         // Assert
         rule.runOnIdle {
             // A swipe from the very right to very left at a high velocity should go beyond
             // first item after the visible pages as it's not capped
-            assertThat(carouselState.pagerState.currentPage).isGreaterThan(
-                carouselState.pagerState.layoutInfo.visiblePagesInfo.size)
+            assertThat(carouselState.pagerState.currentPage)
+                .isGreaterThan(carouselState.pagerState.layoutInfo.visiblePagesInfo.size)
         }
     }
 
     @Test
     fun carousel_correctlyCalculatesMaxScrollOffsetWithItemSpacing() {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberCarouselState { 10 }.also {
-                carouselState = it
-            }
-            val strategy = Strategy(
-                defaultKeylines = keylineListOf(380f, 0f, CarouselAlignment.Start) {
-                        add(10f, isAnchor = true)
-                        add(186f)
-                        add(122f)
-                        add(56f)
-                        add(10f, isAnchor = true)
-                },
-                availableSpace = 380f,
-                itemSpacing = 8f,
-                beforeContentPadding = 0f,
-                afterContentPadding = 0f
-            )
+            val state = rememberCarouselState { 10 }.also { carouselState = it }
+            val strategy =
+                Strategy(
+                    defaultKeylines =
+                        keylineListOf(380f, 0f, CarouselAlignment.Start) {
+                            add(10f, isAnchor = true)
+                            add(186f)
+                            add(122f)
+                            add(56f)
+                            add(10f, isAnchor = true)
+                        },
+                    availableSpace = 380f,
+                    itemSpacing = 8f,
+                    beforeContentPadding = 0f,
+                    afterContentPadding = 0f
+                )
 
             // Max offset should only add item spacing between each item
             val expectedMaxScrollOffset = (186f * 10) + (8f * 9) - 380f
 
-            assertThat(calculateMaxScrollOffset(state, strategy)).isEqualTo(
-                expectedMaxScrollOffset
-            )
+            assertThat(calculateMaxScrollOffset(state, strategy)).isEqualTo(expectedMaxScrollOffset)
         }
     }
 
     @Composable
     internal fun Item(index: Int) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Blue)
-                .testTag("$index")
-                .focusable(),
+            modifier = Modifier.fillMaxSize().background(Color.Blue).testTag("$index").focusable(),
             contentAlignment = Alignment.Center
         ) {
             BasicText(text = index.toString())
@@ -225,21 +211,18 @@ class CarouselTest {
     private fun createCarousel(
         initialItem: Int = 0,
         itemCount: () -> Int = { DefaultItemCount },
-        modifier: Modifier = Modifier
-            .width(412.dp)
-            .height(221.dp),
+        modifier: Modifier = Modifier.width(412.dp).height(221.dp),
         orientation: Orientation = Orientation.Horizontal,
-        flingBehavior: @Composable (CarouselState) -> TargetedFlingBehavior = @Composable {
-            CarouselDefaults.singleAdvanceFlingBehavior(
-                state = it,
-            )
-        },
+        flingBehavior: @Composable (CarouselState) -> TargetedFlingBehavior =
+            @Composable {
+                CarouselDefaults.singleAdvanceFlingBehavior(
+                    state = it,
+                )
+            },
         content: @Composable CarouselItemScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberCarouselState(initialItem, itemCount).also {
-                carouselState = it
-            }
+            val state = rememberCarouselState(initialItem, itemCount).also { carouselState = it }
             val density = LocalDensity.current
             Carousel(
                 state = state,
@@ -266,15 +249,11 @@ class CarouselTest {
     private fun createUncontainedCarousel(
         initialItem: Int = 0,
         itemCount: () -> Int = { DefaultItemCount },
-        modifier: Modifier = Modifier
-            .width(412.dp)
-            .height(221.dp),
+        modifier: Modifier = Modifier.width(412.dp).height(221.dp),
         content: @Composable CarouselItemScope.(item: Int) -> Unit = { Item(index = it) }
     ) {
         rule.setMaterialContent(lightColorScheme()) {
-            val state = rememberCarouselState(initialItem, itemCount).also {
-                carouselState = it
-            }
+            val state = rememberCarouselState(initialItem, itemCount).also { carouselState = it }
             HorizontalUncontainedCarousel(
                 state = state,
                 itemWidth = 150.dp,

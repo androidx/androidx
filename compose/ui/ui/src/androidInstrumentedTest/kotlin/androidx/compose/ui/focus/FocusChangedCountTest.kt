@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FocusChangedCountTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun initially_focusChangedIsCalledOnce() {
@@ -45,10 +44,10 @@ class FocusChangedCountTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
 
@@ -60,9 +59,7 @@ class FocusChangedCountTest {
     fun initiallyNoFocusTarget_onFocusChangedIsCalledOnce() {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
-        rule.setFocusableContent {
-            Box(modifier = Modifier.onFocusChanged { focusStates.add(it) })
-        }
+        rule.setFocusableContent { Box(modifier = Modifier.onFocusChanged { focusStates.add(it) }) }
 
         // Assert.
         rule.runOnIdle { assertThat(focusStates).isExactly(Inactive) }
@@ -75,10 +72,10 @@ class FocusChangedCountTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
         rule.runOnIdle { focusStates.clear() }
@@ -97,10 +94,10 @@ class FocusChangedCountTest {
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -124,10 +121,10 @@ class FocusChangedCountTest {
         rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .focusRequester(focusRequester)
-                    .focusTarget()
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
             )
         }
         rule.runOnIdle {
@@ -151,10 +148,10 @@ class FocusChangedCountTest {
         rule.setFocusableContent {
             addFocusTarget = remember { mutableStateOf(true) }
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .focusRequester(focusRequester)
-                    .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .focusRequester(focusRequester)
+                        .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
             )
         }
         rule.runOnIdle {
@@ -177,9 +174,9 @@ class FocusChangedCountTest {
         rule.setFocusableContent {
             addFocusTarget = remember { mutableStateOf(true) }
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
             )
         }
         rule.runOnIdle { focusStates.clear() }
@@ -199,9 +196,9 @@ class FocusChangedCountTest {
         rule.setFocusableContent {
             addFocusTarget = remember { mutableStateOf(false) }
             Box(
-                modifier = Modifier
-                    .onFocusChanged { focusStates.add(it) }
-                    .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
+                modifier =
+                    Modifier.onFocusChanged { focusStates.add(it) }
+                        .then(if (addFocusTarget.value) Modifier.focusTarget() else Modifier)
             )
         }
         rule.runOnIdle { focusStates.clear() }

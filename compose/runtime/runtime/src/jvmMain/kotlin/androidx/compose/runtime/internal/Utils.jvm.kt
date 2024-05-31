@@ -20,18 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
 import kotlinx.coroutines.CancellationException
 
-internal actual fun identityHashCode(instance: Any?): Int =
-    System.identityHashCode(instance)
+internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
 
 internal actual fun invokeComposable(composer: Composer, composable: @Composable () -> Unit) {
-    @Suppress("UNCHECKED_CAST")
-    val realFn = composable as Function2<Composer, Int, Unit>
+    @Suppress("UNCHECKED_CAST") val realFn = composable as Function2<Composer, Int, Unit>
     realFn(composer, 1)
 }
 
-internal actual abstract class PlatformOptimizedCancellationException actual constructor(
-    message: String?
-) : CancellationException(message) {
+internal actual abstract class PlatformOptimizedCancellationException
+actual constructor(message: String?) : CancellationException(message) {
 
     override fun fillInStackTrace(): Throwable {
         // Avoid null.clone() on Android <= 6.0 when accessing stackTrace

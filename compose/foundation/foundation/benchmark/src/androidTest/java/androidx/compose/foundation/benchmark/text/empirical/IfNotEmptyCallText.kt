@@ -42,10 +42,7 @@ class IfNotEmptyCallText(private val text: String) : LayeredComposeTestCase(), T
     @Composable
     override fun MeasuredContent() {
         if (toggleText.value.isNotEmpty()) {
-            Text(
-                toggleText.value,
-                style = style
-            )
+            Text(toggleText.value, style = style)
         }
     }
 
@@ -74,9 +71,7 @@ open class IfNotEmptyParent(private val size: Int) : EmpiricalBench<IfNotEmptyCa
     }
 }
 
-/**
- * Metrics determined from all apps
- */
+/** Metrics determined from all apps */
 @LargeTest
 @RunWith(Parameterized::class)
 class AllAppsIfNotEmptyCallText(size: Int) : IfNotEmptyParent(size) {

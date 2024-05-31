@@ -25,64 +25,59 @@ fun CharSequence.substring(range: TextRange): String = this.substring(range.min,
 
 /**
  * An immutable text range class, represents a text range from [start] (inclusive) to [end]
- * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
- * used in order to fetch the values.
+ * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be used in
+ * order to fetch the values.
  *
  * @param start the inclusive start offset of the range. Must be non-negative, otherwise an
- * exception will be thrown.
- * @param end the exclusive end offset of the range. Must be non-negative, otherwise an
- * exception will be thrown.
+ *   exception will be thrown.
+ * @param end the exclusive end offset of the range. Must be non-negative, otherwise an exception
+ *   will be thrown.
  */
 fun TextRange(/*@IntRange(from = 0)*/ start: Int, /*@IntRange(from = 0)*/ end: Int) =
     TextRange(packWithCheck(start, end))
 
 /**
  * An immutable text range class, represents a text range from [start] (inclusive) to [end]
- * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be
- * used in order to fetch the values.
+ * (exclusive). [end] can be smaller than [start] and in those cases [min] and [max] can be used in
+ * order to fetch the values.
  */
 @kotlin.jvm.JvmInline
 @Immutable
 value class TextRange internal constructor(private val packedValue: Long) {
 
-    val start: Int get() = unpackInt1(packedValue)
+    val start: Int
+        get() = unpackInt1(packedValue)
 
-    val end: Int get() = unpackInt2(packedValue)
+    val end: Int
+        get() = unpackInt2(packedValue)
 
     /** The minimum offset of the range. */
-    val min: Int get() = if (start > end) end else start
+    val min: Int
+        get() = if (start > end) end else start
 
     /** The maximum offset of the range. */
-    val max: Int get() = if (start > end) start else end
+    val max: Int
+        get() = if (start > end) start else end
 
-    /**
-     * Returns true if the range is collapsed
-     */
-    val collapsed: Boolean get() = start == end
+    /** Returns true if the range is collapsed */
+    val collapsed: Boolean
+        get() = start == end
 
-    /**
-     * Returns true if the start offset is larger than the end offset.
-     */
-    val reversed: Boolean get() = start > end
+    /** Returns true if the start offset is larger than the end offset. */
+    val reversed: Boolean
+        get() = start > end
 
-    /**
-     * Returns the length of the range.
-     */
-    val length: Int get() = max - min
+    /** Returns the length of the range. */
+    val length: Int
+        get() = max - min
 
-    /**
-     * Returns true if the given range has intersection with this range
-     */
+    /** Returns true if the given range has intersection with this range */
     fun intersects(other: TextRange): Boolean = min < other.max && other.min < max
 
-    /**
-     * Returns true if this range covers including equals with the given range.
-     */
+    /** Returns true if this range covers including equals with the given range. */
     operator fun contains(other: TextRange): Boolean = min <= other.min && other.max <= max
 
-    /**
-     * Returns true if the given offset is a part of this range.
-     */
+    /** Returns true if the given offset is a part of this range. */
     operator fun contains(offset: Int): Boolean = offset in min until max
 
     override fun toString(): String {
@@ -94,9 +89,7 @@ value class TextRange internal constructor(private val packedValue: Long) {
     }
 }
 
-/**
- * Creates a [TextRange] where start is equal to end, and the value of those are [index].
- */
+/** Creates a [TextRange] where start is equal to end, and the value of those are [index]. */
 fun TextRange(index: Int): TextRange = TextRange(start = index, end = index)
 
 /**
@@ -118,11 +111,7 @@ fun TextRange.coerceIn(minimumValue: Int, maximumValue: Int): TextRange {
 }
 
 private fun packWithCheck(start: Int, end: Int): Long {
-    require(start >= 0) {
-        "start cannot be negative. [start: $start, end: $end]"
-    }
-    require(end >= 0) {
-        "end cannot be negative. [start: $start, end: $end]"
-    }
+    require(start >= 0) { "start cannot be negative. [start: $start, end: $end]" }
+    require(end >= 0) { "end cannot be negative. [start: $start, end: $end]" }
     return packInts(start, end)
 }

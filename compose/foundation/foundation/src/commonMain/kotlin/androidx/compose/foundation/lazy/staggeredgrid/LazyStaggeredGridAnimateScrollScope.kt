@@ -24,23 +24,23 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 
 @ExperimentalFoundationApi
-internal class LazyStaggeredGridAnimateScrollScope(
-    private val state: LazyStaggeredGridState
-) : LazyLayoutAnimateScrollScope {
+internal class LazyStaggeredGridAnimateScrollScope(private val state: LazyStaggeredGridState) :
+    LazyLayoutAnimateScrollScope {
 
-    override val firstVisibleItemIndex: Int get() = state.firstVisibleItemIndex
+    override val firstVisibleItemIndex: Int
+        get() = state.firstVisibleItemIndex
 
-    override val firstVisibleItemScrollOffset: Int get() = state.firstVisibleItemScrollOffset
+    override val firstVisibleItemScrollOffset: Int
+        get() = state.firstVisibleItemScrollOffset
 
     override val lastVisibleItemIndex: Int
         get() = state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-    override val itemCount: Int get() = state.layoutInfo.totalItemsCount
+    override val itemCount: Int
+        get() = state.layoutInfo.totalItemsCount
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
-        with(state) {
-            snapToItemInternal(index, scrollOffset, forceRemeasure = true)
-        }
+        with(state) { snapToItemInternal(index, scrollOffset, forceRemeasure = true) }
     }
 
     override fun calculateDistanceTo(targetIndex: Int): Float {
@@ -55,10 +55,11 @@ internal class LazyStaggeredGridAnimateScrollScope(
             averageMainAxisItemSize * lineDiff.toFloat() - firstVisibleItemScrollOffset
         } else {
             if (layoutInfo.orientation == Orientation.Vertical) {
-                visibleItem.offset.y
-            } else {
-                visibleItem.offset.x
-            }.toFloat()
+                    visibleItem.offset.y
+                } else {
+                    visibleItem.offset.x
+                }
+                .toFloat()
         }
     }
 
@@ -68,13 +69,14 @@ internal class LazyStaggeredGridAnimateScrollScope(
 
     private fun calculateVisibleItemsAverageSize(layoutInfo: LazyStaggeredGridLayoutInfo): Int {
         val visibleItems = layoutInfo.visibleItemsInfo
-        val itemSizeSum = visibleItems.fastSumBy {
-            if (layoutInfo.orientation == Orientation.Vertical) {
-                it.size.height
-            } else {
-                it.size.width
+        val itemSizeSum =
+            visibleItems.fastSumBy {
+                if (layoutInfo.orientation == Orientation.Vertical) {
+                    it.size.height
+                } else {
+                    it.size.width
+                }
             }
-        }
         return itemSizeSum / visibleItems.size + layoutInfo.mainAxisItemSpacing
     }
 }

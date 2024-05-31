@@ -41,21 +41,17 @@ import org.junit.Test
 @MediumTest
 class LockKeysTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {
         // Set content to a simple text field.
-        rule.setContent {
-            TestTextField()
-        }
+        rule.setContent { TestTextField() }
         // Bring text field into focus by clicking on it.
         rule.onNodeWithTag(Tag).performClick()
     }
 
-    @Test
-    fun lockKeys_startOff() = rule.performKeyInput { assertAllLockKeysOff() }
+    @Test fun lockKeys_startOff() = rule.performKeyInput { assertAllLockKeysOff() }
 
     @Test
     fun lockKeys_areOn_afterToggle() {
@@ -73,9 +69,7 @@ class LockKeysTest {
     @Test
     fun allLockKeysOn_withKeysToggled() {
         rule.performKeyInput {
-            withKeysToggled(
-                listOf(Key.CapsLock, Key.NumLock, Key.ScrollLock)
-            ) {
+            withKeysToggled(listOf(Key.CapsLock, Key.NumLock, Key.ScrollLock)) {
                 assertTrue(isCapsLockOn)
                 assertTrue(isNumLockOn)
                 assertTrue(isScrollLockOn)
@@ -108,7 +102,8 @@ class LockKeysTest {
                 pressKey(Key.B)
             }
             pressKey(Key.A)
-            pressKey(Key.B) }
+            pressKey(Key.B)
+        }
 
         rule.assertTyped("ABabAB")
     }
@@ -133,9 +128,7 @@ class LockKeysTest {
             pressKey(Key.NumLock)
             pressKey(Key.NumPad0)
             pressKey(Key.NumPad1)
-            withKeyToggled(Key.NumLock) {
-                pressKey(Key.NumPad0)
-            }
+            withKeyToggled(Key.NumLock) { pressKey(Key.NumPad0) }
         }
 
         rule.assertTyped("01")
@@ -156,7 +149,9 @@ class LockKeysTest {
             try {
                 // When an exception is thrown during withKeyToggled
                 withKeyToggled(Key.CapsLock) { error("") }
-            } catch (e: Exception) { /* ignore */ }
+            } catch (e: Exception) {
+                /* ignore */
+            }
             // The key was restored to turned off
             assertFalse(isCapsLockOn)
         }
@@ -168,7 +163,9 @@ class LockKeysTest {
             try {
                 // When an exception is thrown during withKeyToggled
                 withKeysToggled(listOf(Key.CapsLock, Key.NumLock)) { error("") }
-            } catch (e: Exception) { /* ignore */ }
+            } catch (e: Exception) {
+                /* ignore */
+            }
             // The keys were restored to turned off
             assertFalse(isCapsLockOn)
             assertFalse(isNumLockOn)

@@ -38,39 +38,50 @@ import org.junit.Assert
 
 object Utils {
 
-    enum class EnumState { One, Two, Three }
-
-    val nullableFloatConverter = TwoWayConverter<Float?, AnimationVector1D>({
-        AnimationVector1D(it ?: 0f)
-    }, { if (it.value == 0f) null else it.value })
-
-    val stringConverter = TwoWayConverter<String, AnimationVector1D>(
-        { AnimationVector1D(it.toFloat()) }, { it.value.toString() })
-
-    val enumConverter = object : TwoWayConverter<EnumState, AnimationVector> {
-        override val convertFromVector: (AnimationVector) -> EnumState
-            get() = { EnumState.One }
-
-        override val convertToVector: (EnumState) -> AnimationVector
-            get() = { AnimationVector(1f) }
+    enum class EnumState {
+        One,
+        Two,
+        Three
     }
 
-    val nullableEnumConverter = object :
-        TwoWayConverter<EnumState?, AnimationVector> {
-        override val convertFromVector: (AnimationVector) -> EnumState?
-            get() = { EnumState.One }
+    val nullableFloatConverter =
+        TwoWayConverter<Float?, AnimationVector1D>(
+            { AnimationVector1D(it ?: 0f) },
+            { if (it.value == 0f) null else it.value }
+        )
 
-        override val convertToVector: (EnumState?) -> AnimationVector
-            get() = { AnimationVector(1f) }
-    }
+    val stringConverter =
+        TwoWayConverter<String, AnimationVector1D>(
+            { AnimationVector1D(it.toFloat()) },
+            { it.value.toString() }
+        )
 
-    val booleanConverter = object : TwoWayConverter<Boolean, AnimationVector1D> {
-        override val convertFromVector: (AnimationVector1D) -> Boolean
-            get() = { it.value == 1f }
+    val enumConverter =
+        object : TwoWayConverter<EnumState, AnimationVector> {
+            override val convertFromVector: (AnimationVector) -> EnumState
+                get() = { EnumState.One }
 
-        override val convertToVector: (Boolean) -> AnimationVector1D
-            get() = { AnimationVector(if (it) 1f else 0f) }
-    }
+            override val convertToVector: (EnumState) -> AnimationVector
+                get() = { AnimationVector(1f) }
+        }
+
+    val nullableEnumConverter =
+        object : TwoWayConverter<EnumState?, AnimationVector> {
+            override val convertFromVector: (AnimationVector) -> EnumState?
+                get() = { EnumState.One }
+
+            override val convertToVector: (EnumState?) -> AnimationVector
+                get() = { AnimationVector(1f) }
+        }
+
+    val booleanConverter =
+        object : TwoWayConverter<Boolean, AnimationVector1D> {
+            override val convertFromVector: (AnimationVector1D) -> Boolean
+                get() = { it.value == 1f }
+
+            override val convertToVector: (Boolean) -> AnimationVector1D
+                get() = { AnimationVector(if (it) 1f else 0f) }
+        }
 
     @OptIn(UiToolingDataApi::class)
     internal fun ComposeContentTestRule.addAnimations(
@@ -79,15 +90,10 @@ object Utils {
         content: @Composable () -> Unit
     ) {
         val slotTableRecord = CompositionDataRecord.create()
-        this.setContent {
-            Inspectable(slotTableRecord) {
-                content()
-            }
-        }
+        this.setContent { Inspectable(slotTableRecord) { content() } }
         this.runOnIdle {
-            val groups = slotTableRecord.store.map {
-                it.asTree()
-            }.flatMap { tree -> tree.findAll { true } }
+            val groups =
+                slotTableRecord.store.map { it.asTree() }.flatMap { tree -> tree.findAll { true } }
             search.addAnimations(groups)
             additionalSearch?.addAnimations(groups)
         }
@@ -99,15 +105,10 @@ object Utils {
         content: @Composable () -> Unit
     ): Boolean {
         val slotTableRecord = CompositionDataRecord.create()
-        this.setContent {
-            Inspectable(slotTableRecord) {
-                content()
-            }
-        }
+        this.setContent { Inspectable(slotTableRecord) { content() } }
         return this.runOnIdle {
-            val groups = slotTableRecord.store.map {
-                it.asTree()
-            }.flatMap { tree -> tree.findAll { true } }
+            val groups =
+                slotTableRecord.store.map { it.asTree() }.flatMap { tree -> tree.findAll { true } }
             search.hasAnimations(groups)
         }
     }
@@ -117,16 +118,12 @@ object Utils {
         clock: PreviewAnimationClock,
         content: @Composable () -> Unit
     ) {
-        val search = AnimationSearch({ clock }) { }
+        val search = AnimationSearch({ clock }) {}
         val slotTableRecord = CompositionDataRecord.create()
-        this.setContent {
-            Inspectable(slotTableRecord) {
-                content()
-            }
-        }
+        this.setContent { Inspectable(slotTableRecord) { content() } }
         this.runOnUiThread {
-            val groups = slotTableRecord.store.map { it.asTree() }
-                .flatMap { tree -> tree.findAll { true } }
+            val groups =
+                slotTableRecord.store.map { it.asTree() }.flatMap { tree -> tree.findAll { true } }
             search.attachAllAnimations(groups)
         }
     }

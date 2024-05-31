@@ -42,9 +42,8 @@ import org.junit.Test
 class ComposeViewAdapterTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
     private lateinit var composeViewAdapter: ComposeViewAdapter
 
@@ -53,14 +52,10 @@ class ComposeViewAdapterTest {
         composeViewAdapter = activityTestRule.activity.findViewById(R.id.compose_view_adapter)
     }
 
-    /**
-     * Asserts that the given Composable method executes correct and outputs some [ViewInfo]s.
-     */
+    /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
     private fun assertRendersCorrectly(className: String, methodName: String): List<ViewInfo> {
         initAndWaitForDraw(className, methodName)
-        activityTestRule.runOnUiThread {
-            assertTrue(composeViewAdapter.viewInfos.isNotEmpty())
-        }
+        activityTestRule.runOnUiThread { assertTrue(composeViewAdapter.viewInfos.isNotEmpty()) }
 
         return composeViewAdapter.viewInfos
     }
@@ -82,9 +77,7 @@ class ComposeViewAdapterTest {
                 debugViewInfos = true,
                 lookForDesignInfoProviders = true,
                 designInfoProvidersArgument = designInfoProvidersArgument,
-                onCommit = {
-                    committed.set(true)
-                },
+                onCommit = { committed.set(true) },
                 onDraw = {
                     if (committed.get()) {
                         committedAndDrawn.countDown()
@@ -95,9 +88,7 @@ class ComposeViewAdapterTest {
 
         // Workaround for a problem described in b/174291742 where onLayout will not be called
         // after composition for the first test in the test suite.
-        activityTestRule.runOnUiThread {
-            composeViewAdapter.requestLayout()
-        }
+        activityTestRule.runOnUiThread { composeViewAdapter.requestLayout() }
 
         // Wait for the first draw after the Composable has been committed.
         committedAndDrawn.await()
@@ -105,12 +96,14 @@ class ComposeViewAdapterTest {
 
     @Test
     fun instantiateComposeViewAdapter() {
-        val viewInfos = assertRendersCorrectly(
-            "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
-            "SimpleComposablePreview"
-        ).flatMap { it.allChildren() + it }
-            .filter { it.fileName == "SimpleComposablePreview.kt" }
-            .toList()
+        val viewInfos =
+            assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                    "SimpleComposablePreview"
+                )
+                .flatMap { it.allChildren() + it }
+                .filter { it.fileName == "SimpleComposablePreview.kt" }
+                .toList()
 
         activityTestRule.runOnUiThread {
             assertTrue(viewInfos.isNotEmpty())
@@ -125,51 +118,50 @@ class ComposeViewAdapterTest {
     fun lazyColumn() {
         run {
             composeViewAdapter.stitchTrees = false
-            val viewInfos = assertRendersCorrectly(
-                "androidx.compose.ui.tooling.LazyColumnPreviewKt",
-                "SimpleLazyComposablePreview"
-            )
+            val viewInfos =
+                assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.LazyColumnPreviewKt",
+                    "SimpleLazyComposablePreview"
+                )
 
             assertEquals(
                 """
                     |<root>
-                    .|LazyColumnPreview.kt:35
-                    |<root>
-                    .|LazyColumnPreview.kt:35
-                    |<root>
-                    .|LazyColumnPreview.kt:35
+                    .|LazyColumnPreview.kt:31
                     |<root>
                     .|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:32
-                """.trimIndent(),
-                viewInfos.toDebugString {
-                it.fileName == "LazyColumnPreview.kt"
-            }.trimIndent())
+                    |<root>
+                    .|LazyColumnPreview.kt:31
+                    |<root>
+                    .|LazyColumnPreview.kt:31
+                    ..|LazyColumnPreview.kt:31
+                """
+                    .trimIndent(),
+                viewInfos.toDebugString { it.fileName == "LazyColumnPreview.kt" }.trimIndent()
+            )
         }
 
         run {
             composeViewAdapter.stitchTrees = true
-            val viewInfos = assertRendersCorrectly(
-                "androidx.compose.ui.tooling.LazyColumnPreviewKt",
-                "SimpleLazyComposablePreview"
-            )
+            val viewInfos =
+                assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.LazyColumnPreviewKt",
+                    "SimpleLazyComposablePreview"
+                )
 
-            assertEquals(
-                1,
-                viewInfos.size
-            )
+            assertEquals(1, viewInfos.size)
             assertEquals(
                 """
                     |<root>
                     .|LazyColumnPreview.kt:31
-                    ..|LazyColumnPreview.kt:32
-                    ...|LazyColumnPreview.kt:35
-                    ...|LazyColumnPreview.kt:35
-                    ...|LazyColumnPreview.kt:35
-                """.trimIndent(),
-                viewInfos.toDebugString() {
-                    it.fileName == "LazyColumnPreview.kt"
-                }.trimIndent())
+                    ..|LazyColumnPreview.kt:31
+                    ...|LazyColumnPreview.kt:31
+                    ...|LazyColumnPreview.kt:31
+                    ...|LazyColumnPreview.kt:31
+                """
+                    .trimIndent(),
+                viewInfos.toDebugString() { it.fileName == "LazyColumnPreview.kt" }.trimIndent()
+            )
         }
     }
 
@@ -177,29 +169,29 @@ class ComposeViewAdapterTest {
     fun complexTreeStitchLazyColumn() {
         run {
             composeViewAdapter.stitchTrees = true
-            val viewInfos = assertRendersCorrectly(
-                "androidx.compose.ui.tooling.LazyColumnPreviewKt",
-                "ComplexLazyComposablePreview"
-            )
+            val viewInfos =
+                assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.LazyColumnPreviewKt",
+                    "ComplexLazyComposablePreview"
+                )
 
             assertEquals(1, viewInfos.size)
             assertEquals(
                 """
                     |<root>
-                    .|LazyColumnPreview.kt:45
-                    ..|LazyColumnPreview.kt:46
-                    ...|LazyColumnPreview.kt:49
-                    ...|LazyColumnPreview.kt:50
-                    ....|LazyColumnPreview.kt:53
-                    ....|LazyColumnPreview.kt:53
-                    ....|LazyColumnPreview.kt:53
-                    .....|LazyColumnPreview.kt:54
-                    ....|LazyColumnPreview.kt:53
-                    .....|LazyColumnPreview.kt:54
-                """.trimIndent(),
-                viewInfos.toDebugString() {
-                    it.fileName == "LazyColumnPreview.kt"
-                }.trimIndent()
+                    .|LazyColumnPreview.kt:37
+                    ..|LazyColumnPreview.kt:38
+                    ...|LazyColumnPreview.kt:41
+                    ...|LazyColumnPreview.kt:42
+                    ....|LazyColumnPreview.kt:42
+                    ....|LazyColumnPreview.kt:42
+                    ....|LazyColumnPreview.kt:42
+                    .....|LazyColumnPreview.kt:42
+                    ....|LazyColumnPreview.kt:42
+                    .....|LazyColumnPreview.kt:42
+                """
+                    .trimIndent(),
+                viewInfos.toDebugString() { it.fileName == "LazyColumnPreview.kt" }.trimIndent()
             )
         }
     }
@@ -259,11 +251,7 @@ class ComposeViewAdapterTest {
 
     @Test
     fun transitionAnimationsAreSubscribedToTheClock() {
-        checkAnimationsAreSubscribed(
-            "TransitionPreview",
-            emptyList(),
-            listOf("checkBoxAnim")
-        )
+        checkAnimationsAreSubscribed("TransitionPreview", emptyList(), listOf("checkBoxAnim"))
     }
 
     @Test
@@ -288,11 +276,12 @@ class ComposeViewAdapterTest {
         AnimateXAsStateComposeAnimation.testOverrideAvailability(false)
         checkAnimationsAreSubscribed(
             "AllAnimations",
-            unsupported = listOf(
-                "animateContentSize",
-                "TargetBasedAnimation",
-                "DecayAnimation",
-            ),
+            unsupported =
+                listOf(
+                    "animateContentSize",
+                    "TargetBasedAnimation",
+                    "DecayAnimation",
+                ),
             transitions = listOf("checkBoxAnim", "Crossfade"),
             animatedContent = listOf("AnimatedContent"),
             animateXAsState = emptyList(),
@@ -317,11 +306,7 @@ class ComposeViewAdapterTest {
 
     @Test
     fun crossFadeIsSubscribed() {
-        checkAnimationsAreSubscribed(
-            "CrossFadePreview",
-            emptyList(),
-            listOf("Crossfade")
-        )
+        checkAnimationsAreSubscribed("CrossFadePreview", emptyList(), listOf("Crossfade"))
     }
 
     @Test
@@ -413,10 +398,7 @@ class ComposeViewAdapterTest {
         val clock = PreviewAnimationClock()
 
         activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.compose.ui.tooling.TestAnimationPreviewKt",
-                preview
-            )
+            composeViewAdapter.init("androidx.compose.ui.tooling.TestAnimationPreviewKt", preview)
             composeViewAdapter.clock = clock
             assertFalse(composeViewAdapter.hasAnimations())
             assertTrue(clock.transitionClocks.isEmpty())
@@ -436,13 +418,18 @@ class ComposeViewAdapterTest {
         activityTestRule.runOnUiThread {
             assertEquals(unsupported, clock.trackedUnsupportedAnimations.map { it.label })
             assertEquals(transitions, clock.transitionClocks.values.map { it.animation.label })
-            assertEquals(animateXAsState,
-                clock.animateXAsStateClocks.values.map { it.animation.label })
+            assertEquals(
+                animateXAsState,
+                clock.animateXAsStateClocks.values.map { it.animation.label }
+            )
             assertEquals(
                 animatedContent,
-                clock.animatedContentClocks.values.map { it.animation.label })
-            assertEquals(infiniteTransitions,
-                clock.infiniteTransitionClocks.values.map { it.animation.label })
+                clock.animatedContentClocks.values.map { it.animation.label }
+            )
+            assertEquals(
+                infiniteTransitions,
+                clock.infiniteTransitionClocks.values.map { it.animation.label }
+            )
             assertEquals(0, clock.animatedVisibilityClocks.size)
         }
     }
@@ -459,10 +446,7 @@ class ComposeViewAdapterTest {
 
     private fun findAnimationWithoutClock(preview: String) {
         activityTestRule.runOnUiThread {
-            composeViewAdapter.init(
-                "androidx.compose.ui.tooling.TestAnimationPreviewKt",
-                preview
-            )
+            composeViewAdapter.init("androidx.compose.ui.tooling.TestAnimationPreviewKt", preview)
             assertFalse(composeViewAdapter.hasAnimations())
         }
 
@@ -477,48 +461,42 @@ class ComposeViewAdapterTest {
 
     @Test
     fun lineNumberMapping() {
-        val viewInfos = assertRendersCorrectly(
-            "androidx.compose.ui.tooling.LineNumberPreviewKt",
-            "LineNumberPreview"
-        ).flatMap { it.allChildren() + it }
-            .filter { it.fileName == "LineNumberPreview.kt" }
-            .toList()
+        val viewInfos =
+            assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.LineNumberPreviewKt",
+                    "LineNumberPreview"
+                )
+                .flatMap { it.allChildren() + it }
+                .filter { it.fileName == "LineNumberPreview.kt" }
+                .toList()
 
         activityTestRule.runOnUiThread {
             // Verify all calls, generate the correct line number information
             assertArrayEquals(
-                arrayOf(36, 37, 38, 40, 43, 44, 45),
-                viewInfos
-                    .map { it.lineNumber }
-                    .sorted()
-                    .distinct()
-                    .toTypedArray()
+                arrayOf(35, 36, 37, 39, 42, 43, 44),
+                viewInfos.map { it.lineNumber }.sorted().distinct().toTypedArray()
             )
         }
     }
 
     //    @Test
     fun lineNumberLocationMapping() {
-        val viewInfos = assertRendersCorrectly(
-            "androidx.compose.ui.tooling.LineNumberPreviewKt",
-            "LineNumberPreview"
-        ).flatMap { it.allChildren() + it }
-            .filter { it.location?.let { it.sourceFile == "LineNumberPreview.kt" } == true }
-            .toList()
+        val viewInfos =
+            assertRendersCorrectly(
+                    "androidx.compose.ui.tooling.LineNumberPreviewKt",
+                    "LineNumberPreview"
+                )
+                .flatMap { it.allChildren() + it }
+                .filter { it.location?.let { it.sourceFile == "LineNumberPreview.kt" } == true }
+                .toList()
 
         activityTestRule.runOnUiThread {
             // Verify all calls, generate the correct line number information
-            val lines = viewInfos
-                .map { it.location?.lineNumber ?: -1 }
-                .sorted()
-                .toTypedArray()
+            val lines = viewInfos.map { it.location?.lineNumber ?: -1 }.sorted().toTypedArray()
             assertArrayEquals(arrayOf(36, 37, 38, 40, 40, 40, 43, 44, 44, 45, 45), lines)
 
             // Verify that all calls generate the correct offset information
-            val offsets = viewInfos
-                .map { it.location?.offset ?: -1 }
-                .sorted()
-                .toTypedArray()
+            val offsets = viewInfos.map { it.location?.offset ?: -1 }.sorted().toTypedArray()
             assertArrayEquals(
                 arrayOf(1235, 1272, 1293, 1421, 1421, 1421, 1469, 1491, 1508, 1531, 1548),
                 offsets
@@ -559,9 +537,9 @@ class ComposeViewAdapterTest {
     }
 
     /**
-     * Verifies the use of inline classes as preview default parameters. Methods with inline
-     * classes as parameters will get the name mangled so we need to ensure we invoke correctly
-     * the right method.
+     * Verifies the use of inline classes as preview default parameters. Methods with inline classes
+     * as parameters will get the name mangled so we need to ensure we invoke correctly the right
+     * method.
      */
     @Test
     fun defaultParametersComposableTest4() {
@@ -581,10 +559,7 @@ class ComposeViewAdapterTest {
 
     @Test
     fun previewInClass() {
-        assertRendersCorrectly(
-            "androidx.compose.ui.tooling.TestGroup",
-            "InClassPreview"
-        )
+        assertRendersCorrectly("androidx.compose.ui.tooling.TestGroup", "InClassPreview")
     }
 
     @Test
@@ -634,14 +609,12 @@ class ComposeViewAdapterTest {
             "Multipreview"
         )
         assertRendersCorrectly(
-                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
-                "MultiPreviews"
+            "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+            "MultiPreviews"
         )
     }
 
-    /**
-     * Check that no re-composition happens without forcing it.
-     */
+    /** Check that no re-composition happens without forcing it. */
     @LargeTest
     @Test
     fun testNoInvalidation() {
@@ -670,9 +643,7 @@ class ComposeViewAdapterTest {
         }
     }
 
-    /**
-     * Check re-composition happens when forced.
-     */
+    /** Check re-composition happens when forced. */
     @Test
     fun testInvalidation() {
         compositionCount.set(0)
@@ -685,9 +656,7 @@ class ComposeViewAdapterTest {
                 onDraw = { drawCountDownLatch.countDown() }
             )
         }
-        activityTestRule.runOnUiThread {
-            assertEquals(1, compositionCount.get())
-        }
+        activityTestRule.runOnUiThread { assertEquals(1, compositionCount.get()) }
         // Draw will keep happening so, eventually this will hit 0
         assertTrue(drawCountDownLatch.await(10, TimeUnit.SECONDS))
     }
@@ -729,18 +698,12 @@ class ComposeViewAdapterTest {
      * Waits for a given condition to be satisfied within a given timeout. Fails the test when
      * timing out. The condition is evaluated on the UI thread.
      */
-    private fun waitFor(
-        timeout: Long,
-        timeUnit: TimeUnit,
-        conditionExpression: () -> Boolean
-    ) {
+    private fun waitFor(timeout: Long, timeUnit: TimeUnit, conditionExpression: () -> Boolean) {
         val conditionSatisfied = AtomicBoolean(false)
         val now = System.nanoTime()
         val timeoutNanos = timeUnit.toNanos(timeout)
         while (!conditionSatisfied.get()) {
-            activityTestRule.runOnUiThread {
-                conditionSatisfied.set(conditionExpression())
-            }
+            activityTestRule.runOnUiThread { conditionSatisfied.set(conditionExpression()) }
             if ((System.nanoTime() - now) > timeoutNanos) {
                 // Some previews are expected not to have animations.
                 return

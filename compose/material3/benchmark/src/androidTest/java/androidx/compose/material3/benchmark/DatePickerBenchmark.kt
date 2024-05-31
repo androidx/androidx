@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DatePickerBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val datePickerTestCaseFactory = { DatePickerTestCase() }
     private val dateInputTestCaseFactory = { DateInputTestCase() }
@@ -101,9 +100,7 @@ class DatePickerBenchmark {
     }
 }
 
-/**
- * A [DatePicker] test case when initiated in its default picker mode.
- */
+/** A [DatePicker] test case when initiated in its default picker mode. */
 internal class DatePickerTestCase : LayeredComposeTestCase() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -114,15 +111,11 @@ internal class DatePickerTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
-/**
- * A [DatePicker] test case when initiated in an input mode.
- */
+/** A [DatePicker] test case when initiated in an input mode. */
 internal class DateInputTestCase : LayeredComposeTestCase() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -133,8 +126,6 @@ internal class DateInputTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

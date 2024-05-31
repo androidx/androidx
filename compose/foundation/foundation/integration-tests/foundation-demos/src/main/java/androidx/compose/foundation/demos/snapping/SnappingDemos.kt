@@ -44,12 +44,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-val SnappingDemos = listOf(
-    DemoCategory("Lazy List Snapping", LazyListSnappingDemos),
-    DemoCategory("Scrollable Row Snapping", RowSnappingDemos),
-    DemoCategory("Lazy Grid Snapping", LazyGridSnappingDemos),
-    ComposableDemo("Non Item based Snapping") { NonItemBasedLayout() },
-)
+val SnappingDemos =
+    listOf(
+        DemoCategory("Lazy List Snapping", LazyListSnappingDemos),
+        DemoCategory("Scrollable Row Snapping", RowSnappingDemos),
+        DemoCategory("Lazy Grid Snapping", LazyGridSnappingDemos),
+        ComposableDemo("Non Item based Snapping") { NonItemBasedLayout() },
+    )
 
 @Composable
 internal fun SnappingDemoMainLayout(
@@ -59,42 +60,32 @@ internal fun SnappingDemoMainLayout(
     content: @Composable (Int) -> Unit
 ) {
     LazyRow(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.LightGray)
-            .drawWithContent {
+        modifier =
+            Modifier.fillMaxSize().background(Color.LightGray).drawWithContent {
                 drawContent()
-                drawAnchor(
-                    CenterAnchor,
-                    contentPaddingValues,
-                    true,
-                    4.0f,
-                    4.0f
-                )
+                drawAnchor(CenterAnchor, contentPaddingValues, true, 4.0f, 4.0f)
             },
         contentPadding = contentPaddingValues,
         verticalAlignment = Alignment.CenterVertically,
         state = lazyListState,
         flingBehavior = flingBehavior
     ) {
-        items(ItemNumber) {
-            content(it)
-        }
+        items(ItemNumber) { content(it) }
     }
 }
 
 @Composable
 internal fun DefaultSnapDemoItem(position: Int) {
     Box(
-        modifier = Modifier
-            .width(200.dp)
-            .height(500.dp)
-            .padding(8.dp)
-            .background(Color.White)
-            .drawWithContent {
-                drawContent()
-                drawAnchor(CenterAnchor)
-            },
+        modifier =
+            Modifier.width(200.dp)
+                .height(500.dp)
+                .padding(8.dp)
+                .background(Color.White)
+                .drawWithContent {
+                    drawContent()
+                    drawAnchor(CenterAnchor)
+                },
         contentAlignment = Alignment.Center
     ) {
         Text(text = position.toString(), fontSize = 40.sp)
@@ -104,15 +95,15 @@ internal fun DefaultSnapDemoItem(position: Int) {
 @Composable
 internal fun ResizableSnapDemoItem(width: Dp, height: Dp, position: Int) {
     Box(
-        modifier = Modifier
-            .width(width)
-            .height(height)
-            .padding(8.dp)
-            .background(Color.White)
-            .drawWithContent {
-                drawContent()
-                drawAnchor(CenterAnchor)
-            },
+        modifier =
+            Modifier.width(width)
+                .height(height)
+                .padding(8.dp)
+                .background(Color.White)
+                .drawWithContent {
+                    drawContent()
+                    drawAnchor(CenterAnchor)
+                },
         contentAlignment = Alignment.Center
     ) {
         Text(text = position.toString(), fontSize = 40.sp)

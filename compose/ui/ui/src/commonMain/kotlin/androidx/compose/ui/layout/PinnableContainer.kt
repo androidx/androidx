@@ -29,8 +29,8 @@ val LocalPinnableContainer = compositionLocalOf<PinnableContainer?> { null }
 /**
  * Represents a container which can be pinned when the content of this container is important.
  *
- * For example, each item of lazy list represents one [PinnableContainer], and if this
- * container is pinned, this item will not be disposed when scrolled out of the viewport.
+ * For example, each item of lazy list represents one [PinnableContainer], and if this container is
+ * pinned, this item will not be disposed when scrolled out of the viewport.
  *
  * Pinning a currently focused item so the focus is not lost is one of the examples when this
  * functionality can be useful.
@@ -43,23 +43,21 @@ interface PinnableContainer {
     /**
      * Allows to pin this container when the associated content is considered important.
      *
-     * For example, if this [PinnableContainer] is an item of lazy list pinning will mean
-     * this item will not be disposed when scrolled out of the viewport.
+     * For example, if this [PinnableContainer] is an item of lazy list pinning will mean this item
+     * will not be disposed when scrolled out of the viewport.
      *
      * Don't forget to call [PinnedHandle.release] when this content is not important anymore.
      */
     fun pin(): PinnedHandle
 
-    /**
-     * This is an object returned by [pin] which allows to release the pinning.
-     */
+    /** This is an object returned by [pin] which allows to release the pinning. */
     @Suppress("NotCloseable")
     fun interface PinnedHandle {
         /**
          * Releases the pin.
          *
-         * For example, if this [PinnableContainer] is an item of lazy list releasing the
-         * pinning will allow lazy list to stop composing the item when it is not visible.
+         * For example, if this [PinnableContainer] is an item of lazy list releasing the pinning
+         * will allow lazy list to stop composing the item when it is not visible.
          */
         fun release()
     }

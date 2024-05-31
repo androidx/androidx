@@ -54,45 +54,45 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StatelessInputConnectionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var ic: StatelessInputConnection
-    private val activeSession: TextInputSession = object : TextInputSession {
-        override val text: TextFieldCharSequence
-            get() = this@StatelessInputConnectionTest.value
+    private val activeSession: TextInputSession =
+        object : TextInputSession {
+            override val text: TextFieldCharSequence
+                get() = this@StatelessInputConnectionTest.value
 
-        override fun onImeAction(imeAction: ImeAction) {
-            this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
-        }
+            override fun onImeAction(imeAction: ImeAction) {
+                this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
+            }
 
-        override fun requestEdit(block: EditingBuffer.() -> Unit) {
-            onRequestEdit?.invoke(block)
-        }
+            override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                onRequestEdit?.invoke(block)
+            }
 
-        override fun sendKeyEvent(keyEvent: KeyEvent) {
-            onSendKeyEvent?.invoke(keyEvent)
-        }
+            override fun sendKeyEvent(keyEvent: KeyEvent) {
+                onSendKeyEvent?.invoke(keyEvent)
+            }
 
-        override fun requestCursorUpdates(cursorUpdateMode: Int) {
-        }
+            override fun requestCursorUpdates(cursorUpdateMode: Int) {}
 
-        override fun onCommitContent(transferableContent: TransferableContent): Boolean {
-            return this@StatelessInputConnectionTest.onCommitContent?.invoke(transferableContent)
-                ?: false
-        }
+            override fun onCommitContent(transferableContent: TransferableContent): Boolean {
+                return this@StatelessInputConnectionTest.onCommitContent?.invoke(
+                    transferableContent
+                ) ?: false
+            }
 
-        override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
-            return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
-        }
+            override fun performHandwritingGesture(gesture: HandwritingGesture): Int {
+                return InputConnection.HANDWRITING_GESTURE_RESULT_UNSUPPORTED
+            }
 
-        override fun previewHandwritingGesture(
-            gesture: PreviewableHandwritingGesture,
-            cancellationSignal: CancellationSignal?
-        ): Boolean {
-            return false
+            override fun previewHandwritingGesture(
+                gesture: PreviewableHandwritingGesture,
+                cancellationSignal: CancellationSignal?
+            ): Boolean {
+                return false
+            }
         }
-    }
 
     private var state: TextFieldState = TextFieldState()
     private var value: TextFieldCharSequence = TextFieldCharSequence()
@@ -100,6 +100,7 @@ class StatelessInputConnectionTest {
             field = value
             state = TextFieldState(value.toString(), value.selection)
         }
+
     private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
@@ -116,28 +117,19 @@ class StatelessInputConnectionTest {
         Truth.assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
 
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange.Zero
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         Truth.assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("")
         Truth.assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("Hello, World")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(1)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(1))
 
         Truth.assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("H")
         Truth.assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("ello, World")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(12)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(12))
 
         Truth.assertThat(ic.getTextBeforeCursor(100, 0)).isEqualTo("Hello, World")
         Truth.assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
@@ -146,28 +138,19 @@ class StatelessInputConnectionTest {
     @Test
     fun getTextBeforeAndAfterCursorTest_maxCharTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange.Zero
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         Truth.assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("")
         Truth.assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("Hello")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(1)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(1))
 
         Truth.assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("H")
         Truth.assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("ello,")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(12)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(12))
 
         Truth.assertThat(ic.getTextBeforeCursor(5, 0)).isEqualTo("World")
         Truth.assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("")
@@ -176,26 +159,17 @@ class StatelessInputConnectionTest {
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange.Zero
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange.Zero)
 
         Truth.assertThat(ic.getSelectedText(0)).isNull()
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(0, 1)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(0, 1))
 
         Truth.assertThat(ic.getSelectedText(0)).isEqualTo("H")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        value = TextFieldCharSequence(
-            text = "Hello, World",
-            selection = TextRange(0, 12)
-        )
+        value = TextFieldCharSequence(text = "Hello, World", selection = TextRange(0, 12))
 
         Truth.assertThat(ic.getSelectedText(0)).isEqualTo("Hello, World")
     }
@@ -239,11 +213,12 @@ class StatelessInputConnectionTest {
         val linkUri = Uri.parse("https://example.com")
         val description = ClipDescription("label", arrayOf("text/plain"))
         val extras = Bundle().apply { putString("key", "value") }
-        val result = ic.commitContent(
-            InputContentInfo(contentUri, description, linkUri),
-            InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
-            extras
-        )
+        val result =
+            ic.commitContent(
+                InputContentInfo(contentUri, description, linkUri),
+                InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
+                extras
+            )
 
         Truth.assertThat(transferableContent).isNotNull()
         Truth.assertThat(transferableContent?.clipEntry).isNotNull()
@@ -266,9 +241,7 @@ class StatelessInputConnectionTest {
     @SdkSuppress(minSdkVersion = 25)
     @Test
     fun commitContent_returnsResultIfFalse() {
-        onCommitContent = {
-            false
-        }
+        onCommitContent = { false }
         val contentUri = Uri.parse("content://com.example/content")
         val description = ClipDescription("label", arrayOf("text/plain"))
         val result = ic.commitContent(InputContentInfo(contentUri, description), 0, null)
@@ -307,13 +280,14 @@ class StatelessInputConnectionTest {
         val description = ClipDescription("label", arrayOf("text/plain"))
         val extras = Bundle().apply { putString("key", "value") }
         // this will internally call performPrivateCommand when SDK <= 24
-        val result = InputConnectionCompat.commitContent(
-            ic,
-            editorInfo,
-            InputContentInfoCompat(contentUri, description, linkUri),
-            InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
-            extras
-        )
+        val result =
+            InputConnectionCompat.commitContent(
+                ic,
+                editorInfo,
+                InputContentInfoCompat(contentUri, description, linkUri),
+                InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
+                extras
+            )
 
         Truth.assertThat(transferableContent).isNotNull()
         Truth.assertThat(transferableContent?.clipEntry).isNotNull()
@@ -388,9 +362,7 @@ class StatelessInputConnectionTest {
     @Test
     fun sendKeyEvent_whenIMERequests() {
         val keyEvents = mutableListOf<KeyEvent>()
-        onSendKeyEvent = {
-            keyEvents += it
-        }
+        onSendKeyEvent = { keyEvents += it }
         val keyEvent1 = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0)
         val keyEvent2 = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_0)
         ic.sendKeyEvent(keyEvent1)
@@ -404,9 +376,7 @@ class StatelessInputConnectionTest {
     @Test
     fun performImeAction_whenIMERequests() {
         val receivedImeActions = mutableListOf<ImeAction>()
-        onImeAction = {
-            receivedImeActions += it
-        }
+        onImeAction = { receivedImeActions += it }
         ic.performEditorAction(EditorInfo.IME_ACTION_DONE)
         ic.performEditorAction(EditorInfo.IME_ACTION_GO)
         ic.performEditorAction(EditorInfo.IME_ACTION_NEXT)
@@ -417,17 +387,20 @@ class StatelessInputConnectionTest {
         ic.performEditorAction(EditorInfo.IME_ACTION_UNSPECIFIED)
         ic.performEditorAction(-1)
 
-        Truth.assertThat(receivedImeActions).isEqualTo(listOf(
-            ImeAction.Done,
-            ImeAction.Go,
-            ImeAction.Next,
-            ImeAction.Default, // None is evaluated back to Default.
-            ImeAction.Previous,
-            ImeAction.Search,
-            ImeAction.Send,
-            ImeAction.Default, // Unspecified is evaluated back to Default.
-            ImeAction.Default // Unrecognized is evaluated back to Default.
-        ))
+        Truth.assertThat(receivedImeActions)
+            .isEqualTo(
+                listOf(
+                    ImeAction.Done,
+                    ImeAction.Go,
+                    ImeAction.Next,
+                    ImeAction.Default, // None is evaluated back to Default.
+                    ImeAction.Previous,
+                    ImeAction.Search,
+                    ImeAction.Send,
+                    ImeAction.Default, // Unspecified is evaluated back to Default.
+                    ImeAction.Default // Unrecognized is evaluated back to Default.
+                )
+            )
     }
 
     @Test

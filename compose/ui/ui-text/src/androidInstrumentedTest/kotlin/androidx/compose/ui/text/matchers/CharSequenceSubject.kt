@@ -25,26 +25,31 @@ import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
 import kotlin.reflect.KClass
 
-/**
- * Truth extension for CharSequence used for Span related checks.
- */
-internal class CharSequenceSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: CharSequence?
-) : Subject(failureMetadata, subject) {
+/** Truth extension for CharSequence used for Span related checks. */
+internal class CharSequenceSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: CharSequence?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<CharSequenceSubject?, CharSequence?> =
-            Factory { failureMetadata, subject -> CharSequenceSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                CharSequenceSubject(failureMetadata, subject)
+            }
     }
 
     fun <T : Any> spans(spanClazz: KClass<out T>): SpanIterableSubject<T> {
         check("isNotNull()").that(subject).isNotNull()
         check("instanceOf()").that(subject).isInstanceOf(Spanned::class.java)
         val spanned = subject as Spanned
-        val spans = spanned.getSpans(0, spanned.length, spanClazz.java).map {
-            SpanInfo(it, spanned.getSpanStart(it), spanned.getSpanEnd(it), spanned.getSpanFlags(it))
-        }
+        val spans =
+            spanned.getSpans(0, spanned.length, spanClazz.java).map {
+                SpanInfo(
+                    it,
+                    spanned.getSpanStart(it),
+                    spanned.getSpanEnd(it),
+                    spanned.getSpanFlags(it)
+                )
+            }
         return assertAbout(SpanIterableSubject.factory(spanClazz)).that(spans)!!
     }
 
@@ -93,24 +98,20 @@ internal class CharSequenceSubject private constructor(
     }
 }
 
-/**
- * Truth extension for a list of Spans.
- */
-internal class SpanIterableSubject<T : Any> private constructor(
+/** Truth extension for a list of Spans. */
+internal class SpanIterableSubject<T : Any>
+private constructor(
     failureMetadata: FailureMetadata?,
     private val subjects: List<SpanInfo<out T>>?,
     private val spanClazz: KClass<out T>
 ) : IterableSubject(failureMetadata, subjects) {
 
     companion object {
-        fun <T : Any> factory(spanClazz: KClass<out T>): Factory<SpanIterableSubject<T>?,
-            List<SpanInfo<T>>?> {
+        fun <T : Any> factory(
+            spanClazz: KClass<out T>
+        ): Factory<SpanIterableSubject<T>?, List<SpanInfo<T>>?> {
             return Factory { failureMetadata, subject ->
-                SpanIterableSubject(
-                    failureMetadata,
-                    subject,
-                    spanClazz
-                )
+                SpanIterableSubject(failureMetadata, subject, spanClazz)
             }
         }
     }
@@ -136,15 +137,13 @@ internal class SpanIterableSubject<T : Any> private constructor(
         }
 
         failWithActual(
-            simpleFact(
-                "Can't find span $spanClazz at [$start, $end] ${toString(predicate)}"
-            )
+            simpleFact("Can't find span $spanClazz at [$start, $end] ${toString(predicate)}")
         )
     }
 
     /**
-     * Similar to [has] checks if the spans contain a span matching the given position and
-     * also that span is not covered by other spans.
+     * Similar to [has] checks if the spans contain a span matching the given position and also that
+     * span is not covered by other spans.
      *
      * @param start start position of the expected span
      * @param end end position of the expected span
@@ -158,8 +157,9 @@ internal class SpanIterableSubject<T : Any> private constructor(
             if (spanInfo.start == start || spanInfo.end == end) {
                 // Find the target span
                 if (predicate == null || predicate.invoke(spanInfo.span)) return
-            } else if (start in spanInfo.start until spanInfo.end ||
-                end in (spanInfo.start + 1)..spanInfo.end
+            } else if (
+                start in spanInfo.start until spanInfo.end ||
+                    end in (spanInfo.start + 1)..spanInfo.end
             ) {
                 // Find a span covers the given range.
                 // Impossible to find the target span on top.
@@ -168,9 +168,7 @@ internal class SpanIterableSubject<T : Any> private constructor(
         }
 
         failWithActual(
-            simpleFact(
-                "Can't find span $spanClazz at [$start, $end] ${toString(predicate)}"
-            )
+            simpleFact("Can't find span $spanClazz at [$start, $end] ${toString(predicate)}")
         )
     }
 
@@ -183,9 +181,7 @@ internal class SpanIterableSubject<T : Any> private constructor(
             return "{" +
                 subjects.joinToString(
                     separator = ", ",
-                    transform = {
-                        "${it.span::class.java.simpleName}[${it.start}, ${it.end}]"
-                    }
+                    transform = { "${it.span::class.java.simpleName}[${it.start}, ${it.end}]" }
                 ) +
                 "}"
         } else {

@@ -49,9 +49,7 @@ fun AnimateFadeIn() {
             clip = true
         }
     )
-    LaunchedEffect(animatedAlpha) {
-        animatedAlpha.animateTo(1f)
-    }
+    LaunchedEffect(animatedAlpha) { animatedAlpha.animateTo(1f) }
 }
 
 @Sampled
@@ -60,22 +58,18 @@ fun CompositingStrategyModulateAlpha() {
     Canvas(
         modifier =
             Modifier.size(100.dp)
-            .background(Color.Black)
-            .graphicsLayer(
-                alpha = 0.5f,
-                compositingStrategy = CompositingStrategy.ModulateAlpha
-            )
+                .background(Color.Black)
+                .graphicsLayer(
+                    alpha = 0.5f,
+                    compositingStrategy = CompositingStrategy.ModulateAlpha
+                )
     ) {
         // Configuring an alpha less than 1.0 and specifying
         // CompositingStrategy.ModulateAlpha ends up with the overlapping region
         // of the 2 draw rect calls to blend transparent blue and transparent red
         // against the black background instead of just transparent blue which is what would
         // occur with CompositingStrategy.Auto or CompositingStrategy.Offscreen
-        inset(0f, 0f, size.width / 3, size.height / 3) {
-            drawRect(color = Color.Red)
-        }
-        inset(size.width / 3, size.height / 3, 0f, 0f) {
-            drawRect(color = Color.Blue)
-        }
+        inset(0f, 0f, size.width / 3, size.height / 3) { drawRect(color = Color.Red) }
+        inset(size.width / 3, size.height / 3, 0f, 0f) { drawRect(color = Color.Blue) }
     }
 }

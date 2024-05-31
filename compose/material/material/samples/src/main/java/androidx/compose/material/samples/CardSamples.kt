@@ -29,9 +29,7 @@ import androidx.compose.runtime.setValue
 @Sampled
 @Composable
 fun CardSample() {
-    Card {
-        Text("Card Content")
-    }
+    Card { Text("Card Content") }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -39,7 +37,5 @@ fun CardSample() {
 @Composable
 fun ClickableCardSample() {
     var count by remember { mutableStateOf(0) }
-    Card(onClick = { count++ }) {
-        Text("Clickable card content with count: $count")
-    }
+    Card(onClick = { count++ }) { Text("Clickable card content with count: $count") }
 }

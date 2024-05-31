@@ -19,14 +19,15 @@ package androidx.compose.foundation.layout.demos
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 
-val LayoutDemos = DemoCategory(
-    "Layout",
-    listOf(
-        ComposableDemo("Row and column") { SimpleLayoutDemo() },
-        ComposableDemo("Flow Column") { SimpleFlowColumnDemo() },
-        ComposableDemo("Flow Row") { SimpleFlowRowDemo() },
-        ComposableDemo("Contextual Flow Row") { ContextualFlowRowDemo() },
-        ComposableDemo("Contextual FlowColumn") { ContextualFlowColumnDemo() },
-        ComposableDemo("Rtl support") { RtlDemo() }
+val LayoutDemos =
+    DemoCategory(
+        "Layout",
+        listOf(
+            ComposableDemo("Row and column") { SimpleLayoutDemo() },
+            ComposableDemo("Flow Column") { SimpleFlowColumnDemo() },
+            ComposableDemo("Flow Row") { SimpleFlowRowDemo() },
+            ComposableDemo("Contextual Flow Row") { ContextualFlowRowDemo() },
+            ComposableDemo("Contextual FlowColumn") { ContextualFlowColumnDemo() },
+            ComposableDemo("Rtl support") { RtlDemo() }
+        )
     )
-)

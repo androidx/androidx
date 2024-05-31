@@ -27,34 +27,21 @@ class PlatformTextStyleTest {
     @Test
     fun toParagraphStyle_returnsNullPlatformStyle_ifNull() {
         val style = TextStyle(platformStyle = null)
-        assertThat(style.toParagraphStyle()).isEqualTo(
-            ParagraphStyle(platformStyle = null)
-        )
+        assertThat(style.toParagraphStyle()).isEqualTo(ParagraphStyle(platformStyle = null))
     }
 
     @Test
     fun toParagraphStyle_returnsCorrectPlatformTextConfig_if_nonNull() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = true
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+        assertThat(style.toParagraphStyle())
+            .isEqualTo(
+                ParagraphStyle(platformStyle = PlatformParagraphStyle(includeFontPadding = true))
             )
-        )
-        assertThat(style.toParagraphStyle()).isEqualTo(
-            ParagraphStyle(
-                platformStyle = PlatformParagraphStyle(
-                    includeFontPadding = true
-                )
-            )
-        )
     }
 
     @Test
     fun merge_platformStyle_null_on_nonNull() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = true
-            )
-        )
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
         val otherStyle = TextStyle(platformStyle = null)
 
         val mergedStyle = style.merge(otherStyle)
@@ -65,11 +52,7 @@ class PlatformTextStyleTest {
     @Test
     fun merge_platformStyle_nonNull_on_null() {
         val style = TextStyle(platformStyle = null)
-        val otherStyle = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = true
-            )
-        )
+        val otherStyle = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
 
         val mergedStyle = style.merge(otherStyle)
 
@@ -78,16 +61,8 @@ class PlatformTextStyleTest {
 
     @Test
     fun merge_platformStyle_false_on_true() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = true
-            )
-        )
-        val otherStyle = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = false
-            )
-        )
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+        val otherStyle = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
 
         val mergedStyle = style.merge(otherStyle)
 
@@ -96,36 +71,23 @@ class PlatformTextStyleTest {
 
     @Test
     fun merge_platformStyle_handlesEmoji() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                emojiSupportMatch = EmojiSupportMatch.None
+        val style =
+            TextStyle(platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.None))
+        val otherStyle =
+            TextStyle(
+                platformStyle = PlatformTextStyle(emojiSupportMatch = EmojiSupportMatch.Default)
             )
-        )
-        val otherStyle = TextStyle(
-            platformStyle = PlatformTextStyle(
-                emojiSupportMatch = EmojiSupportMatch.Default
-            )
-        )
 
         val mergedStyle = style.merge(otherStyle)
 
-        assertThat(mergedStyle.platformStyle?.paragraphStyle?.emojiSupportMatch).isEqualTo(
-            EmojiSupportMatch.Default
-        )
+        assertThat(mergedStyle.platformStyle?.paragraphStyle?.emojiSupportMatch)
+            .isEqualTo(EmojiSupportMatch.Default)
     }
 
     @Test
     fun merge_platformStyle_true_on_false_on() {
-        val style = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = false
-            )
-        )
-        val otherStyle = TextStyle(
-            platformStyle = PlatformTextStyle(
-                includeFontPadding = true
-            )
-        )
+        val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        val otherStyle = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
 
         val mergedStyle = style.merge(otherStyle)
 

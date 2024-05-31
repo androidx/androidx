@@ -59,9 +59,7 @@ class ComposeIdlingResourceTest {
     private var animationRunning = false
     private val recordedAnimatedValues = mutableListOf<Float>()
 
-    /**
-     * High level test to only verify that [ComposeUiTest.runOnIdle] awaits animations.
-     */
+    /** High level test to only verify that [ComposeUiTest.runOnIdle] awaits animations. */
     @Test
     fun testRunOnIdle() = runComposeUiTest {
         val animationState = mutableStateOf(AnimationStates.From)
@@ -82,9 +80,7 @@ class ComposeIdlingResourceTest {
         }
     }
 
-    /**
-     * High level test to only verify that [Espresso.onIdle] awaits animations.
-     */
+    /** High level test to only verify that [Espresso.onIdle] awaits animations. */
     @Test
     fun testAnimationIdle_simple() = runComposeUiTest {
         val animationState = mutableStateOf(AnimationStates.From)
@@ -106,26 +102,27 @@ class ComposeIdlingResourceTest {
 
     @Test
     fun testIdlingResourcesAreQueried() = runComposeUiTest {
-        val idlingResource = object : IdlingResource {
-            var readCount = MutableStateFlow(0)
+        val idlingResource =
+            object : IdlingResource {
+                var readCount = MutableStateFlow(0)
 
-            override var isIdleNow: Boolean = false
-                get() {
-                    readCount.value++
-                    return field
-                }
+                override var isIdleNow: Boolean = false
+                    get() {
+                        readCount.value++
+                        return field
+                    }
 
-            // Returns a lambda that suspends until isIdleNow is queried 10 more times
-            fun delayedTransitionToIdle(): () -> Unit {
-                return {
-                    runBlocking {
-                        val start = readCount.value
-                        readCount.first { it == start + 10 }
-                        isIdleNow = true
+                // Returns a lambda that suspends until isIdleNow is queried 10 more times
+                fun delayedTransitionToIdle(): () -> Unit {
+                    return {
+                        runBlocking {
+                            val start = readCount.value
+                            readCount.first { it == start + 10 }
+                            isIdleNow = true
+                        }
                     }
                 }
             }
-        }
 
         registerIdlingResource(idlingResource)
         Executors.newSingleThreadExecutor().execute(idlingResource.delayedTransitionToIdle())
@@ -143,24 +140,22 @@ class ComposeIdlingResourceTest {
         Box(modifier = Modifier.background(color = Color.Yellow).fillMaxSize()) {
             val transition = updateTransition(animationState.value)
             animationRunning = transition.currentState != transition.targetState
-            val x by transition.animateFloat(
-                transitionSpec = {
-                    if (AnimationStates.From isTransitioningTo AnimationStates.To) {
-                        tween(
-                            easing = LinearEasing,
-                            durationMillis = nonIdleDuration.toInt()
-                        )
+            val x by
+                transition.animateFloat(
+                    transitionSpec = {
+                        if (AnimationStates.From isTransitioningTo AnimationStates.To) {
+                            tween(easing = LinearEasing, durationMillis = nonIdleDuration.toInt())
+                        } else {
+                            snap()
+                        }
+                    }
+                ) {
+                    if (it == AnimationStates.From) {
+                        animateFromX
                     } else {
-                        snap()
+                        animateToX
                     }
                 }
-            ) {
-                if (it == AnimationStates.From) {
-                    animateFromX
-                } else {
-                    animateToX
-                }
-            }
             Canvas(modifier = Modifier.fillMaxSize()) {
                 recordedAnimatedValues.add(x)
                 drawRect(Color.Cyan, Offset(x, 0f), rectSize)

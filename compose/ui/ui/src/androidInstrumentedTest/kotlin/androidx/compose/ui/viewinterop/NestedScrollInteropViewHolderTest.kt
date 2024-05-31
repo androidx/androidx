@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(AndroidJUnit4::class)
 class NestedScrollInteropViewHolderTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val connection = InspectableNestedScrollConnection()
     private val recyclerViewConsumptionTracker = RecyclerViewConsumptionTracker()
@@ -69,14 +68,11 @@ class NestedScrollInteropViewHolderTest {
         }
 
         // act
-        onView(withId(R.id.main_list)).perform(
-            scrollToPosition<NestedScrollInteropAdapter.SimpleTextViewHolder>(20)
-        )
+        onView(withId(R.id.main_list))
+            .perform(scrollToPosition<NestedScrollInteropAdapter.SimpleTextViewHolder>(20))
 
         // assert
-        rule.runOnIdle {
-            assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero)
-        }
+        rule.runOnIdle { assertThat(connection.offeredFromChild).isEqualTo(Offset.Zero) }
     }
 
     @Test
@@ -94,9 +90,7 @@ class NestedScrollInteropViewHolderTest {
         onView(withId(R.id.main_layout)).perform(swipeUp())
 
         // assert
-        rule.runOnIdle {
-            assertThat(connection.offeredFromChild).isNotEqualTo(Offset.Zero)
-        }
+        rule.runOnIdle { assertThat(connection.offeredFromChild).isNotEqualTo(Offset.Zero) }
     }
 
     @Test
@@ -158,9 +152,7 @@ class NestedScrollInteropViewHolderTest {
         }
 
         // act
-        Espresso.onView(withId(R.id.main_list)).perform(
-            swipeUp()
-        )
+        Espresso.onView(withId(R.id.main_list)).perform(swipeUp())
 
         // assert
         rule.runOnIdle {

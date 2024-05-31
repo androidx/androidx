@@ -39,9 +39,7 @@ fun TextWithLinks() {
 
     val annotatedString = buildAnnotatedString {
         append("Build better apps faster with ")
-        withLink(
-            LinkAnnotation.Url(url = url, styles = TextLinkStyles(style = linkStyle))
-        ) {
+        withLink(LinkAnnotation.Url(url = url, styles = TextLinkStyles(style = linkStyle))) {
             append("Jetpack Compose")
         }
     }

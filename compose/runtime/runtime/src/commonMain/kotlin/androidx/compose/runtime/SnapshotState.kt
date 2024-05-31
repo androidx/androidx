@@ -36,15 +36,18 @@ import kotlin.reflect.KProperty
 /**
  * Return a new [MutableState] initialized with the passed in [value]
  *
- * The MutableState class is a single value holder whose reads and writes are observed by
- * Compose. Additionally, writes to it are transacted as part of the [Snapshot] system.
+ * The MutableState class is a single value holder whose reads and writes are observed by Compose.
+ * Additionally, writes to it are transacted as part of the [Snapshot] system.
  *
  * @param value the initial value for the [MutableState]
  * @param policy a policy to controls how changes are handled in mutable snapshots.
  *
  * @sample androidx.compose.runtime.samples.SimpleStateSample
+ *
  * @sample androidx.compose.runtime.samples.DestructuredStateSample
+ *
  * @sample androidx.compose.runtime.samples.observeUserSample
+ *
  * @sample androidx.compose.runtime.samples.stateSample
  *
  * @see State
@@ -94,7 +97,9 @@ inline operator fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>)
 @Stable
 interface MutableState<T> : State<T> {
     override var value: T
+
     operator fun component1(): T
+
     operator fun component2(): (T) -> Unit
 }
 
@@ -108,9 +113,7 @@ inline operator fun <T> MutableState<T>.setValue(thisObj: Any?, property: KPrope
     this.value = value
 }
 
-/**
- * Returns platform specific implementation based on [SnapshotMutableStateImpl].
- */
+/** Returns platform specific implementation based on [SnapshotMutableStateImpl]. */
 internal expect fun <T> createSnapshotMutableState(
     value: T,
     policy: SnapshotMutationPolicy<T>
@@ -123,7 +126,6 @@ internal expect fun <T> createSnapshotMutableState(
  *
  * @param value the wrapped value
  * @param policy a policy to control how changes are handled in a mutable snapshot.
- *
  * @see mutableStateOf
  * @see SnapshotMutationPolicy
  */
@@ -134,19 +136,22 @@ internal open class SnapshotMutableStateImpl<T>(
     @Suppress("UNCHECKED_CAST")
     override var value: T
         get() = next.readable(this).value
-        set(value) = next.withCurrent {
-            if (!policy.equivalent(it.value, value)) {
-                next.overwritable(this, it) { this.value = value }
+        set(value) =
+            next.withCurrent {
+                if (!policy.equivalent(it.value, value)) {
+                    next.overwritable(this, it) { this.value = value }
+                }
             }
-        }
 
-    private var next: StateStateRecord<T> = StateStateRecord(value).also {
-        if (Snapshot.isInSnapshot) {
-            it.next = StateStateRecord(value).also { next ->
-                next.snapshotId = Snapshot.PreexistingSnapshotId
+    private var next: StateStateRecord<T> =
+        StateStateRecord(value).also {
+            if (Snapshot.isInSnapshot) {
+                it.next =
+                    StateStateRecord(value).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
             }
         }
-    }
 
     override val firstStateRecord: StateRecord
         get() = next
@@ -165,27 +170,20 @@ internal open class SnapshotMutableStateImpl<T>(
         val previousRecord = previous as StateStateRecord<T>
         val currentRecord = current as StateStateRecord<T>
         val appliedRecord = applied as StateStateRecord<T>
-        return if (policy.equivalent(currentRecord.value, appliedRecord.value))
-            current
+        return if (policy.equivalent(currentRecord.value, appliedRecord.value)) current
         else {
-            val merged = policy.merge(
-                previousRecord.value,
-                currentRecord.value,
-                appliedRecord.value
-            )
+            val merged =
+                policy.merge(previousRecord.value, currentRecord.value, appliedRecord.value)
             if (merged != null) {
-                appliedRecord.create().also {
-                    (it as StateStateRecord<T>).value = merged
-                }
+                appliedRecord.create().also { (it as StateStateRecord<T>).value = merged }
             } else {
                 null
             }
         }
     }
 
-    override fun toString(): String = next.withCurrent {
-        "MutableState(value=${it.value})@${hashCode()}"
-    }
+    override fun toString(): String =
+        next.withCurrent { "MutableState(value=${it.value})@${hashCode()}" }
 
     private class StateStateRecord<T>(myValue: T) : StateRecord() {
         override fun assign(value: StateRecord) {
@@ -218,8 +216,7 @@ internal open class SnapshotMutableStateImpl<T>(
      */
     @Suppress("unused")
     val debuggerDisplayValue: T
-        @JvmName("getDebuggerDisplayValue")
-        get() = next.withCurrent { it }.value
+        @JvmName("getDebuggerDisplayValue") get() = next.withCurrent { it }.value
 }
 
 /**
@@ -232,8 +229,7 @@ internal open class SnapshotMutableStateImpl<T>(
  * @see MutableList
  * @see Snapshot.takeSnapshot
  */
-@StateFactoryMarker
-fun <T> mutableStateListOf() = SnapshotStateList<T>()
+@StateFactoryMarker fun <T> mutableStateListOf() = SnapshotStateList<T>()
 
 /**
  * Create an instance of [MutableList]<T> that is observable and can be snapshot.
@@ -248,8 +244,7 @@ fun <T> mutableStateListOf(vararg elements: T) =
     SnapshotStateList<T>().also { it.addAll(elements.toList()) }
 
 /**
- * Create an instance of [MutableList]<T> from a collection that is observable and can be
- * snapshot.
+ * Create an instance of [MutableList]<T> from a collection that is observable and can be snapshot.
  */
 fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.addAll(this) }
 
@@ -263,8 +258,7 @@ fun <T> Collection<T>.toMutableStateList() = SnapshotStateList<T>().also { it.ad
  * @see MutableMap
  * @see Snapshot.takeSnapshot
  */
-@StateFactoryMarker
-fun <K, V> mutableStateMapOf() = SnapshotStateMap<K, V>()
+@StateFactoryMarker fun <K, V> mutableStateMapOf() = SnapshotStateMap<K, V>()
 
 /**
  * Create a instance of [MutableMap]<K, V> that is observable and can be snapshot.
@@ -287,15 +281,15 @@ fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
     SnapshotStateMap<K, V>().also { it.putAll(this.toMap()) }
 
 /**
- * [remember] a [mutableStateOf] [newValue] and update its value to [newValue] on each
- * recomposition of the [rememberUpdatedState] call.
+ * [remember] a [mutableStateOf] [newValue] and update its value to [newValue] on each recomposition
+ * of the [rememberUpdatedState] call.
  *
- * [rememberUpdatedState] should be used when parameters or values computed during composition
- * are referenced by a long-lived lambda or object expression. Recomposition will update the
- * resulting [State] without recreating the long-lived lambda or object, allowing that object to
- * persist without cancelling and resubscribing, or relaunching a long-lived operation that may
- * be expensive or prohibitive to recreate and restart.
- * This may be common when working with [DisposableEffect] or [LaunchedEffect], for example:
+ * [rememberUpdatedState] should be used when parameters or values computed during composition are
+ * referenced by a long-lived lambda or object expression. Recomposition will update the resulting
+ * [State] without recreating the long-lived lambda or object, allowing that object to persist
+ * without cancelling and resubscribing, or relaunching a long-lived operation that may be expensive
+ * or prohibitive to recreate and restart. This may be common when working with [DisposableEffect]
+ * or [LaunchedEffect], for example:
  *
  * @sample androidx.compose.runtime.samples.rememberUpdatedStateSampleWithDisposableEffect
  *
@@ -308,6 +302,5 @@ fun <K, V> Iterable<Pair<K, V>>.toMutableStateMap() =
  * By using [rememberUpdatedState] a composable function can update these operations in progress.
  */
 @Composable
-fun <T> rememberUpdatedState(newValue: T): State<T> = remember {
-    mutableStateOf(newValue)
-}.apply { value = newValue }
+fun <T> rememberUpdatedState(newValue: T): State<T> =
+    remember { mutableStateOf(newValue) }.apply { value = newValue }

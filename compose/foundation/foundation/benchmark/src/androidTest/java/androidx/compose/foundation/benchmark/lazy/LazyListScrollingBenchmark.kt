@@ -48,11 +48,8 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class LazyListScrollingBenchmark(
-    private val testCase: LazyListScrollingTestCase
-) {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase) {
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun scrollProgrammatically_noNewItems() {
@@ -155,16 +152,13 @@ class LazyListScrollingBenchmark(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<LazyListScrollingTestCase> =
-            arrayOf(
-                LazyColumn,
-                LazyRow
-            )
+        fun initParameters(): Array<LazyListScrollingTestCase> = arrayOf(LazyColumn, LazyRow)
 
         // Copied from AndroidComposeTestCaseRunner
         private val supportsRenderNode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-        private val supportsMRenderNode = Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+        private val supportsMRenderNode =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.P &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
     }
 }
 
@@ -178,54 +172,49 @@ class LazyListScrollingTestCase(
     }
 }
 
-private val LazyColumn = LazyListScrollingTestCase(
-    "LazyColumn",
-    isVertical = true
-) { state, useKeys ->
-    LazyColumn(
-        state = state,
-        modifier = Modifier
-            .requiredHeight(400.dp)
-            .fillMaxWidth(),
-        flingBehavior = NoFlingBehavior
-    ) {
-        item(key = if (useKeys) "header" else null) {
-            FirstLargeItem()
-        }
-        items(
-            items, key = if (useKeys) {
-                { it.index }
-            } else {
-                null
-            }) {
-            RegularItem()
+private val LazyColumn =
+    LazyListScrollingTestCase("LazyColumn", isVertical = true) { state, useKeys ->
+        LazyColumn(
+            state = state,
+            modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+            flingBehavior = NoFlingBehavior
+        ) {
+            item(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            items(
+                items,
+                key =
+                    if (useKeys) {
+                        { it.index }
+                    } else {
+                        null
+                    }
+            ) {
+                RegularItem()
+            }
         }
     }
-}
 
-private val LazyRow = LazyListScrollingTestCase(
-    "LazyRow",
-    isVertical = false
-) { state, useKeys ->
-    LazyRow(
-        state = state,
-        modifier = Modifier
-            .requiredWidth(400.dp)
-            .fillMaxHeight(),
-        flingBehavior = NoFlingBehavior
-    ) {
-        item(if (useKeys) "header" else null) {
-            FirstLargeItem()
-        }
-        items(items, key = if (useKeys) {
-            { it.index }
-        } else {
-            null
-        }) {
-            RegularItem()
+private val LazyRow =
+    LazyListScrollingTestCase("LazyRow", isVertical = false) { state, useKeys ->
+        LazyRow(
+            state = state,
+            modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
+            flingBehavior = NoFlingBehavior
+        ) {
+            item(if (useKeys) "header" else null) { FirstLargeItem() }
+            items(
+                items,
+                key =
+                    if (useKeys) {
+                        { it.index }
+                    } else {
+                        null
+                    }
+            ) {
+                RegularItem()
+            }
         }
     }
-}
 
 class ListRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
@@ -246,11 +235,12 @@ class ListRemeasureTestCase(
 
     @Composable
     override fun Content() {
-        val scrollBy = if (addNewItemOnToggle) {
-            with(LocalDensity.current) { 15.dp.roundToPx() }
-        } else {
-            5
-        }
+        val scrollBy =
+            if (addNewItemOnToggle) {
+                with(LocalDensity.current) { 15.dp.roundToPx() }
+            } else {
+                5
+            }
         InitializeScrollHelper(scrollAmount = scrollBy)
         listState = rememberLazyListState()
         content(listState, useKeys)
@@ -258,11 +248,7 @@ class ListRemeasureTestCase(
 
     @Composable
     fun RegularItem() {
-        Box(
-            Modifier
-                .requiredSize(20.dp)
-                .background(Color.Red, RoundedCornerShape(8.dp))
-        )
+        Box(Modifier.requiredSize(20.dp).background(Color.Red, RoundedCornerShape(8.dp)))
     }
 
     override fun beforeToggleCheck() {
@@ -276,15 +262,11 @@ class ListRemeasureTestCase(
     }
 
     override suspend fun programmaticScroll(amount: Int) {
-        runBlocking {
-            listState.scrollBy(amount.toFloat())
-        }
+        runBlocking { listState.scrollBy(amount.toFloat()) }
     }
 
     override fun setUp() {
-        runBlocking {
-            listState.scrollToItem(0, 0)
-        }
+        runBlocking { listState.scrollToItem(0, 0) }
     }
 
     override fun tearDown() {

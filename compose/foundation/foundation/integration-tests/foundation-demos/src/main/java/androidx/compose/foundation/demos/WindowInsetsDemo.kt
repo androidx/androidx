@@ -58,9 +58,7 @@ fun WindowInsetsDemo() {
         BasicTextField(
             value = "Click to show keyboard",
             onValueChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(),
+            modifier = Modifier.fillMaxWidth().wrapContentSize(),
             textStyle = TextStyle(color = Color.Black.copy(alpha = 0.5f))
         ) { field ->
             with(density) {
@@ -75,13 +73,7 @@ fun WindowInsetsDemo() {
                             insets.getLeft(density, layoutDirection).toDp().toString(),
                             style = MaterialTheme.typography.caption
                         )
-                        Box(
-                            Modifier
-                                .padding(2.dp)
-                                .border(1.dp, Color.Black)
-                        ) {
-                            field()
-                        }
+                        Box(Modifier.padding(2.dp).border(1.dp, Color.Black)) { field() }
                         Text(
                             insets.getRight(density, layoutDirection).toDp().toString(),
                             style = MaterialTheme.typography.caption

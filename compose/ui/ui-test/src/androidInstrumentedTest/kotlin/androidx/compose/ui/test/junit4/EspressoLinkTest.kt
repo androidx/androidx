@@ -30,9 +30,8 @@ import org.junit.Test
 
 class EspressoLinkTest {
     @OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class)
-    private val espressoLink = EspressoLink(
-        IdlingResourceRegistry(TestScope(UnconfinedTestDispatcher()))
-    )
+    private val espressoLink =
+        EspressoLink(IdlingResourceRegistry(TestScope(UnconfinedTestDispatcher())))
 
     @After
     fun tearDown() {
@@ -46,8 +45,8 @@ class EspressoLinkTest {
     /**
      * Tests that EspressoLink registers and unregisters itself synchronously to both the public
      * registry (IdlingRegistry) and the private registry (IdlingResourceRegistry). When the
-     * unregistration doesn't unregister itself synchronously anymore, we might have a memory
-     * leak (see b/202190483).
+     * unregistration doesn't unregister itself synchronously anymore, we might have a memory leak
+     * (see b/202190483).
      *
      * Also see b/205550018 for context.
      */

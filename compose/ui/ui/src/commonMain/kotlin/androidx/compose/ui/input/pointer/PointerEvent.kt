@@ -28,17 +28,15 @@ import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.IntSize
 
-/**
- * A [Modifier.Element] that can interact with pointer input.
- */
+/** A [Modifier.Element] that can interact with pointer input. */
 @JvmDefaultWithCompatibility
 interface PointerInputModifier : Modifier.Element {
     val pointerInputFilter: PointerInputFilter
 }
 
 /**
- * A PointerInputFilter represents a single entity that receives [PointerInputChange]s),
- * interprets them, and consumes the aspects of the changes that it is react to such that other
+ * A PointerInputFilter represents a single entity that receives [PointerInputChange]s), interprets
+ * them, and consumes the aspects of the changes that it is react to such that other
  * PointerInputFilters don't also react to them.
  */
 abstract class PointerInputFilter {
@@ -50,22 +48,17 @@ abstract class PointerInputFilter {
      * [PointerInputChange.consume].
      *
      * @param pointerEvent The list of [PointerInputChange]s with positions relative to this
-     * [PointerInputFilter].
+     *   [PointerInputFilter].
      * @param pass The [PointerEventPass] in which this function is being called.
      * @param bounds The width and height associated with this [PointerInputFilter].
-     *
      * @see PointerInputChange
      * @see PointerEventPass
      */
-    abstract fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    )
+    abstract fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize)
 
     /**
      * Invoked to notify the handler that no more calls to [PointerInputFilter] will be made, until
-     * at least new pointers exist.  This can occur for a few reasons:
+     * at least new pointers exist. This can occur for a few reasons:
      * 1. Android dispatches ACTION_CANCEL to Compose.
      * 2. This [PointerInputFilter] is no longer associated with a LayoutNode.
      * 3. This [PointerInputFilter]'s associated LayoutNode is no longer in the composition tree.
@@ -74,9 +67,7 @@ abstract class PointerInputFilter {
 
     internal var layoutCoordinates: LayoutCoordinates? = null
 
-    /**
-     * The layout size assigned to this [PointerInputFilter].
-     */
+    /** The layout size assigned to this [PointerInputFilter]. */
     val size: IntSize
         get() = layoutCoordinates?.size ?: IntSize.Zero
 
@@ -85,55 +76,44 @@ abstract class PointerInputFilter {
     /**
      * Intercept pointer input that children receive even if the pointer is out of bounds.
      *
-     * If `true`, and a child has been moved out of this layout and receives an event, this
-     * will receive that event. If `false`, a child receiving pointer input outside of the
-     * bounds of this layout will not trigger any events in this.
+     * If `true`, and a child has been moved out of this layout and receives an event, this will
+     * receive that event. If `false`, a child receiving pointer input outside of the bounds of this
+     * layout will not trigger any events in this.
      */
     open val interceptOutOfBoundsChildEvents: Boolean
         get() = false
 
     /**
-     * If `false`, then this [PointerInputFilter] will not allow siblings under it to respond
-     * to events. If `true`, this will have the first chance to respond and the next sibling
-     * under will then get a chance to respond as well. This trigger acts at the Layout
-     * level, so if any [PointerInputFilter]s on a Layout has [shareWithSiblings] set to `true`
-     * then the Layout will share with siblings.
+     * If `false`, then this [PointerInputFilter] will not allow siblings under it to respond to
+     * events. If `true`, this will have the first chance to respond and the next sibling under will
+     * then get a chance to respond as well. This trigger acts at the Layout level, so if any
+     * [PointerInputFilter]s on a Layout has [shareWithSiblings] set to `true` then the Layout will
+     * share with siblings.
      */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     open val shareWithSiblings: Boolean
         get() = false
 }
 
-/**
- * Describes a pointer input change event that has occurred at a particular point in time.
- */
-expect class PointerEvent internal constructor(
+/** Describes a pointer input change event that has occurred at a particular point in time. */
+expect class PointerEvent
+internal constructor(
     changes: List<PointerInputChange>,
     internalPointerEvent: InternalPointerEvent?
 ) {
-    /**
-     * @param changes The changes.
-     */
+    /** @param changes The changes. */
     constructor(changes: List<PointerInputChange>)
 
-    /**
-     * The changes.
-     */
+    /** The changes. */
     val changes: List<PointerInputChange>
 
-    /**
-     * The state of buttons (e.g. mouse or stylus buttons) during this event.
-     */
+    /** The state of buttons (e.g. mouse or stylus buttons) during this event. */
     val buttons: PointerButtons
 
-    /**
-     * The state of modifier keys during this event.
-     */
+    /** The state of modifier keys during this event. */
     val keyboardModifiers: PointerKeyboardModifiers
 
-    /**
-     * The primary reason the [PointerEvent] was sent.
-     */
+    /** The primary reason the [PointerEvent] was sent. */
     var type: PointerEventType
         internal set
 }
@@ -141,27 +121,23 @@ expect class PointerEvent internal constructor(
 // TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
 /* internal */ expect class NativePointerButtons
 
-/**
- * Contains the state of pointer buttons (e.g. mouse and stylus buttons).
- */
-@kotlin.jvm.JvmInline
-value class PointerButtons(internal val packedValue: NativePointerButtons)
+/** Contains the state of pointer buttons (e.g. mouse and stylus buttons). */
+@kotlin.jvm.JvmInline value class PointerButtons(internal val packedValue: NativePointerButtons)
 
 /**
- * `true` when the primary button (left mouse button) is pressed or `false` when
- * it isn't pressed.
+ * `true` when the primary button (left mouse button) is pressed or `false` when it isn't pressed.
  */
 expect val PointerButtons.isPrimaryPressed: Boolean
 
 /**
- * `true` when the secondary button (right mouse button) is pressed or `false` when
- * it isn't pressed.
+ * `true` when the secondary button (right mouse button) is pressed or `false` when it isn't
+ * pressed.
  */
 expect val PointerButtons.isSecondaryPressed: Boolean
 
 /**
- * `true` when the tertiary button (middle mouse button) is pressed or `false` when
- * it isn't pressed.
+ * `true` when the tertiary button (middle mouse button) is pressed or `false` when it isn't
+ * pressed.
  */
 expect val PointerButtons.isTertiaryPressed: Boolean
 
@@ -184,9 +160,7 @@ expect val PointerButtons.isForwardPressed: Boolean
  */
 expect fun PointerButtons.isPressed(buttonIndex: Int): Boolean
 
-/**
- * Returns `true` if any button is pressed or `false` if all buttons are released.
- */
+/** Returns `true` if any button is pressed or `false` if all buttons are released. */
 expect val PointerButtons.areAnyPressed: Boolean
 
 /**
@@ -203,8 +177,8 @@ expect fun PointerButtons.indexOfLastPressed(): Int
 /* internal */ expect class NativePointerKeyboardModifiers
 
 /**
- * Contains the state of modifier keys, such as Shift, Control, and Alt, as well as the state
- * of the lock keys, such as Caps Lock and Num Lock.
+ * Contains the state of modifier keys, such as Shift, Control, and Alt, as well as the state of the
+ * lock keys, such as Caps Lock and Num Lock.
  */
 @kotlin.jvm.JvmInline
 value class PointerKeyboardModifiers(internal val packedValue: NativePointerKeyboardModifiers)
@@ -212,14 +186,12 @@ value class PointerKeyboardModifiers(internal val packedValue: NativePointerKeyb
 // helps initialize `WindowInfo.keyboardModifiers` with a non-null value
 internal expect fun EmptyPointerKeyboardModifiers(): PointerKeyboardModifiers
 
-/**
- * `true` when the Control key is pressed.
- */
+/** `true` when the Control key is pressed. */
 expect val PointerKeyboardModifiers.isCtrlPressed: Boolean
 
 /**
- * `true` when the Meta key is pressed. This is commonly associated with the Windows or Command
- * key on some keyboards.
+ * `true` when the Meta key is pressed. This is commonly associated with the Windows or Command key
+ * on some keyboards.
  */
 expect val PointerKeyboardModifiers.isMetaPressed: Boolean
 
@@ -229,200 +201,165 @@ expect val PointerKeyboardModifiers.isMetaPressed: Boolean
  */
 expect val PointerKeyboardModifiers.isAltPressed: Boolean
 
-/**
- * `true` when the AltGraph key is pressed.
- */
+/** `true` when the AltGraph key is pressed. */
 expect val PointerKeyboardModifiers.isAltGraphPressed: Boolean
 
-/**
- * `true` when the Sym key is pressed.
- */
+/** `true` when the Sym key is pressed. */
 expect val PointerKeyboardModifiers.isSymPressed: Boolean
 
-/**
- * `true` when the Shift key is pressed.
- */
+/** `true` when the Shift key is pressed. */
 expect val PointerKeyboardModifiers.isShiftPressed: Boolean
 
-/**
- * `true` when the Function key is pressed.
- */
+/** `true` when the Function key is pressed. */
 expect val PointerKeyboardModifiers.isFunctionPressed: Boolean
 
-/**
- * `true` when the keyboard's Caps Lock is on.
- */
+/** `true` when the keyboard's Caps Lock is on. */
 expect val PointerKeyboardModifiers.isCapsLockOn: Boolean
 
-/**
- * `true` when the keyboard's Scroll Lock is on.
- */
+/** `true` when the keyboard's Scroll Lock is on. */
 expect val PointerKeyboardModifiers.isScrollLockOn: Boolean
 
-/**
- * `true` when the keyboard's Num Lock is on.
- */
+/** `true` when the keyboard's Num Lock is on. */
 expect val PointerKeyboardModifiers.isNumLockOn: Boolean
 
-/**
- * The device type that produces a [PointerInputChange], such as a mouse or stylus.
- */
+/** The device type that produces a [PointerInputChange], such as a mouse or stylus. */
 @kotlin.jvm.JvmInline
 value class PointerType private constructor(private val value: Int) {
 
-    override fun toString(): String = when (value) {
-        1 -> "Touch"
-        2 -> "Mouse"
-        3 -> "Stylus"
-        4 -> "Eraser"
-        else -> "Unknown"
-    }
+    override fun toString(): String =
+        when (value) {
+            1 -> "Touch"
+            2 -> "Mouse"
+            3 -> "Stylus"
+            4 -> "Eraser"
+            else -> "Unknown"
+        }
 
     companion object {
-        /**
-         * An unknown device type or the device type isn't relevant.
-         */
+        /** An unknown device type or the device type isn't relevant. */
         val Unknown = PointerType(0)
 
-        /**
-         * Touch (finger) input.
-         */
+        /** Touch (finger) input. */
         val Touch = PointerType(1)
 
-        /**
-         * A mouse pointer.
-         */
+        /** A mouse pointer. */
         val Mouse = PointerType(2)
 
-        /**
-         * A stylus.
-         */
+        /** A stylus. */
         val Stylus = PointerType(3)
 
-        /**
-         * An eraser or an inverted stylus.
-         */
+        /** An eraser or an inverted stylus. */
         val Eraser = PointerType(4)
     }
 }
 
-/**
- * Indicates the primary reason that the [PointerEvent] was sent.
- */
+/** Indicates the primary reason that the [PointerEvent] was sent. */
 @kotlin.jvm.JvmInline
 value class PointerEventType private constructor(internal val value: Int) {
     companion object {
-        /**
-         * An unknown reason for the event.
-         */
+        /** An unknown reason for the event. */
         val Unknown = PointerEventType(0)
 
-        /**
-         * A button on the device was pressed or a new pointer was detected.
-         */
+        /** A button on the device was pressed or a new pointer was detected. */
         val Press = PointerEventType(1)
 
-        /**
-         * A button on the device was released or a pointer was raised.
-         */
+        /** A button on the device was released or a pointer was raised. */
         val Release = PointerEventType(2)
 
-        /**
-         * The cursor or one or more touch pointers was moved.
-         */
+        /** The cursor or one or more touch pointers was moved. */
         val Move = PointerEventType(3)
 
         /**
          * The cursor has entered the input region. This will only be sent after the cursor is
          * hovering when in the input region.
          *
-         * For example, the user's cursor is outside the input region and presses the button
-         * prior to entering the input region. The [Enter] event will be sent when the button
-         * is released inside the input region.
+         * For example, the user's cursor is outside the input region and presses the button prior
+         * to entering the input region. The [Enter] event will be sent when the button is released
+         * inside the input region.
          */
         val Enter = PointerEventType(4)
 
         /**
-         * A cursor device or elevated stylus exited the input region. This will only follow
-         * an [Enter] event, so if a cursor with the button pressed enters and exits region,
-         * neither [Enter] nor [Exit] will be sent for the input region. However, if a cursor
-         * enters the input region, then a button is pressed, then the cursor exits and reenters,
-         * [Enter], [Exit], and [Enter] will be received.
+         * A cursor device or elevated stylus exited the input region. This will only follow an
+         * [Enter] event, so if a cursor with the button pressed enters and exits region, neither
+         * [Enter] nor [Exit] will be sent for the input region. However, if a cursor enters the
+         * input region, then a button is pressed, then the cursor exits and reenters, [Enter],
+         * [Exit], and [Enter] will be received.
          */
         val Exit = PointerEventType(5)
 
         /**
-         * A scroll event was sent. This can happen, for example, due to a mouse scroll wheel.
-         * This event indicates that the [PointerInputChange.scrollDelta]'s [Offset] is non-zero.
+         * A scroll event was sent. This can happen, for example, due to a mouse scroll wheel. This
+         * event indicates that the [PointerInputChange.scrollDelta]'s [Offset] is non-zero.
          */
         val Scroll = PointerEventType(6)
     }
 
-    override fun toString(): String = when (this) {
-        Press -> "Press"
-        Release -> "Release"
-        Move -> "Move"
-        Enter -> "Enter"
-        Exit -> "Exit"
-        Scroll -> "Scroll"
-        else -> "Unknown"
-    }
+    override fun toString(): String =
+        when (this) {
+            Press -> "Press"
+            Release -> "Release"
+            Move -> "Move"
+            Enter -> "Enter"
+            Exit -> "Exit"
+            Scroll -> "Scroll"
+            else -> "Unknown"
+        }
 }
 
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
  * has been consumed (meaning, used by a node in the UI).
  *
- * The [position] represents the position of the pointer relative to the element that
- * this [PointerInputChange] is being dispatched to.
+ * The [position] represents the position of the pointer relative to the element that this
+ * [PointerInputChange] is being dispatched to.
  *
  * Note 1: A [PointerEvent]'s [PointerEventType] is the cause of an event and the associated
- * [PointerInputChange]'s properties reflecting that. Most of those are exclusive, in other words,
- * a Press/Release [PointerEventType] will not cause a scrollDelta change and a
- * Scroll [PointerEventType] will not cause a pressed or previousPressed change. However, either a
- * a Scroll or a Press/Release may contain a position change in its [PointerInputChange]s.
- * (You can imagine one finger moving while another is lifted up.)
+ * [PointerInputChange]'s properties reflecting that. Most of those are exclusive, in other words, a
+ * Press/Release [PointerEventType] will not cause a scrollDelta change and a Scroll
+ * [PointerEventType] will not cause a pressed or previousPressed change. However, either a a Scroll
+ * or a Press/Release may contain a position change in its [PointerInputChange]s. (You can imagine
+ * one finger moving while another is lifted up.)
  *
  * Examples of [PointerEventType] and the associated [PointerInputChange] property changes:
- *  - Press -> press will change (position may change) but scroll delta will not.
- *  - Release -> press will change (position may change) but scroll delta will not.
- *  - Move -> position will change but press and scroll delta will not.
- *  - Scroll -> scroll delta will change (position may change) but press will not.
+ * - Press -> press will change (position may change) but scroll delta will not.
+ * - Release -> press will change (position may change) but scroll delta will not.
+ * - Move -> position will change but press and scroll delta will not.
+ * - Scroll -> scroll delta will change (position may change) but press will not.
  *
  * Note 2: The [position] values can be outside the actual bounds of the element itself meaning the
  * numbers can be negative or larger than the element bounds.
  *
- * The [previousPosition] represents the position of the pointer offset to the current
- * position of the pointer relative to the screen.
+ * The [previousPosition] represents the position of the pointer offset to the current position of
+ * the pointer relative to the screen.
  *
- * This means that [position] and [previousPosition] can always be used to understand how
- * much a pointer has moved relative to an element, even if that element is moving along with the
- * changes to the pointer.  For example, if a pointer touches a 1x1 pixel box in the middle,
- * [position] will report a position of (0, 0) when dispatched to it.  If the next event
- * moves x position 5 pixels, [position] will report (5, 0) and [previousPosition] will
- * report (0, 0). If the box moves all 5 pixels, and the next event represents the pointer moving
- * along the x axis for 5 more pixels, [position] will again report (5, 0) and
- * [previousPosition] will report (0, 0).
+ * This means that [position] and [previousPosition] can always be used to understand how much a
+ * pointer has moved relative to an element, even if that element is moving along with the changes
+ * to the pointer. For example, if a pointer touches a 1x1 pixel box in the middle, [position] will
+ * report a position of (0, 0) when dispatched to it. If the next event moves x position 5 pixels,
+ * [position] will report (5, 0) and [previousPosition] will report (0, 0). If the box moves all 5
+ * pixels, and the next event represents the pointer moving along the x axis for 5 more pixels,
+ * [position] will again report (5, 0) and [previousPosition] will report (0, 0).
  *
  * @param id The unique id of the pointer associated with this [PointerInputChange].
  * @param uptimeMillis The time of the current pointer event, in milliseconds. The start (`0`) time
- * is platform-dependent
- * @param position The [Offset] of the current pointer event, relative to the containing
- * element (values can be negative or larger than the element bounds).
- * @param pressed `true` if the pointer event is considered "pressed." For example, finger
- * touching the screen or a mouse button is pressed [pressed] would be `true`.
+ *   is platform-dependent
+ * @param position The [Offset] of the current pointer event, relative to the containing element
+ *   (values can be negative or larger than the element bounds).
+ * @param pressed `true` if the pointer event is considered "pressed." For example, finger touching
+ *   the screen or a mouse button is pressed [pressed] would be `true`.
  * @param pressure The pressure of the of the pointer event
  * @param previousUptimeMillis The [uptimeMillis] of the previous pointer event
- * @param previousPosition The [Offset] of the previous pointer event, offset to the
- * [position] and relative to the containing element.
- * @param previousPressed `true` if the pointer event was considered "pressed." For example , if
- * a finger was touching the screen or a mouse button was pressed, [previousPressed] would be
- * `true`.
- * @param isInitiallyConsumed whether the change was consumed from the start or not. This value
- * can change over time as change is propagated through the pointer handlers. To query the
- * actual status of the change use [isConsumed]
- * @param type The device type that produced the event, such as [mouse][PointerType.Mouse],
- * or [touch][PointerType.Touch].git
+ * @param previousPosition The [Offset] of the previous pointer event, offset to the [position] and
+ *   relative to the containing element.
+ * @param previousPressed `true` if the pointer event was considered "pressed." For example , if a
+ *   finger was touching the screen or a mouse button was pressed, [previousPressed] would be
+ *   `true`.
+ * @param isInitiallyConsumed whether the change was consumed from the start or not. This value can
+ *   change over time as change is propagated through the pointer handlers. To query the actual
+ *   status of the change use [isConsumed]
+ * @param type The device type that produced the event, such as [mouse][PointerType.Mouse], or
+ *   [touch][PointerType.Touch].git
  * @param scrollDelta The amount of scroll wheel movement in the horizontal and vertical directions.
  */
 @Immutable
@@ -466,11 +403,12 @@ class PointerInputChange(
 
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
-        replaceWith = ReplaceWith(
-            "this(id, uptimeMillis, position, pressed, previousUptimeMillis," +
-                " previousPosition, previousPressed," +
-                " consumed.downChange || consumed.positionChange, type, Offset.Zero)"
-        ),
+        replaceWith =
+            ReplaceWith(
+                "this(id, uptimeMillis, position, pressed, previousUptimeMillis," +
+                    " previousPosition, previousPressed," +
+                    " consumed.downChange || consumed.positionChange, type, Offset.Zero)"
+            ),
         message = "Use another constructor with `scrollDelta` and without `ConsumedData` instead"
     )
     @Suppress("DEPRECATION")
@@ -531,8 +469,8 @@ class PointerInputChange(
     }
 
     /**
-     * Optional high-frequency pointer moves in between the last two dispatched events.
-     * Can be used for extra accuracy when touchscreen rate exceeds framerate.
+     * Optional high-frequency pointer moves in between the last two dispatched events. Can be used
+     * for extra accuracy when touchscreen rate exceeds framerate.
      */
     // With these experimental annotations, the API can be either cleanly removed or
     // stabilized. It doesn't appear in current.txt; and in experimental_current.txt,
@@ -543,8 +481,7 @@ class PointerInputChange(
     val historical: List<HistoricalChange>
         get() = _historical ?: listOf()
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    private var _historical: List<HistoricalChange>? = null
+    @OptIn(ExperimentalComposeUiApi::class) private var _historical: List<HistoricalChange>? = null
 
     internal var originalEventPosition: Offset = Offset.Zero
 
@@ -579,10 +516,11 @@ class PointerInputChange(
     @OptIn(ExperimentalComposeUiApi::class)
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
-        replaceWith = ReplaceWith(
-            "copy(id,currentTime, currentPosition, currentPressed, previousTime," +
-                "previousPosition, previousPressed, consumed, type, this.scrollDelta)"
-        ),
+        replaceWith =
+            ReplaceWith(
+                "copy(id,currentTime, currentPosition, currentPressed, previousTime," +
+                    "previousPosition, previousPressed, consumed, type, this.scrollDelta)"
+            ),
         message = "Use another copy() method with scrollDelta parameter instead"
     )
     @Suppress("DEPRECATION")
@@ -596,23 +534,23 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         consumed: ConsumedData = this.consumed,
         type: PointerType = this.type,
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        this.pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        consumed.downChange || consumed.positionChange,
-        type,
-        this.historical,
-        this.scrollDelta,
-        this.originalEventPosition,
-    ).also {
-        this.consumed = consumed
-    }
+    ): PointerInputChange =
+        PointerInputChange(
+                id,
+                currentTime,
+                currentPosition,
+                currentPressed,
+                this.pressure,
+                previousTime,
+                previousPosition,
+                previousPressed,
+                consumed.downChange || consumed.positionChange,
+                type,
+                this.historical,
+                this.scrollDelta,
+                this.originalEventPosition,
+            )
+            .also { this.consumed = consumed }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -634,19 +572,20 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = copy(
-        id = id,
-        currentTime = currentTime,
-        currentPosition = currentPosition,
-        currentPressed = currentPressed,
-        pressure = this.pressure,
-        previousTime = previousTime,
-        previousPosition = previousPosition,
-        previousPressed = previousPressed,
-        type = type,
-        historical = this.historical,
-        scrollDelta = scrollDelta
-    )
+    ): PointerInputChange =
+        copy(
+            id = id,
+            currentTime = currentTime,
+            currentPosition = currentPosition,
+            currentPressed = currentPressed,
+            pressure = this.pressure,
+            previousTime = previousTime,
+            previousPosition = previousPosition,
+            previousPressed = previousPressed,
+            type = type,
+            historical = this.historical,
+            scrollDelta = scrollDelta
+        )
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
@@ -654,10 +593,11 @@ class PointerInputChange(
         "Partial consumption has been deprecated. Use copy() instead without `consumed` " +
             "parameter to create a shallow copy or a constructor to create a new " +
             "PointerInputChange",
-        replaceWith = ReplaceWith(
-            "copy(id, currentTime, currentPosition, currentPressed, previousTime, " +
-                "previousPosition, previousPressed, type, scrollDelta)"
-        )
+        replaceWith =
+            ReplaceWith(
+                "copy(id, currentTime, currentPosition, currentPressed, previousTime, " +
+                    "previousPosition, previousPressed, type, scrollDelta)"
+            )
     )
     fun copy(
         id: PointerId = this.id,
@@ -670,23 +610,23 @@ class PointerInputChange(
         consumed: ConsumedData,
         type: PointerType = this.type,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        this.pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        consumed.downChange || consumed.positionChange,
-        type,
-        this.historical,
-        scrollDelta,
-        this.originalEventPosition,
-    ).also {
-        this.consumed = consumed
-    }
+    ): PointerInputChange =
+        PointerInputChange(
+                id,
+                currentTime,
+                currentPosition,
+                currentPressed,
+                this.pressure,
+                previousTime,
+                previousPosition,
+                previousPressed,
+                consumed.downChange || consumed.positionChange,
+                type,
+                this.historical,
+                scrollDelta,
+                this.originalEventPosition,
+            )
+            .also { this.consumed = consumed }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -709,23 +649,23 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
-        type,
-        historical = this.historical,
-        scrollDelta,
-        this.originalEventPosition,
-    ).also {
-        it.consumed = this.consumed
-    }
+    ): PointerInputChange =
+        PointerInputChange(
+                id,
+                currentTime,
+                currentPosition,
+                currentPressed,
+                pressure,
+                previousTime,
+                previousPosition,
+                previousPressed,
+                isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
+                type,
+                historical = this.historical,
+                scrollDelta,
+                this.originalEventPosition,
+            )
+            .also { it.consumed = this.consumed }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -748,19 +688,20 @@ class PointerInputChange(
         type: PointerType = this.type,
         historical: List<HistoricalChange>,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = copy(
-        id = id,
-        currentTime = currentTime,
-        currentPosition = currentPosition,
-        currentPressed = currentPressed,
-        pressure = this.pressure,
-        previousTime = previousTime,
-        previousPosition = previousPosition,
-        previousPressed = previousPressed,
-        type = type,
-        historical = historical,
-        scrollDelta = scrollDelta
-    )
+    ): PointerInputChange =
+        copy(
+            id = id,
+            currentTime = currentTime,
+            currentPosition = currentPosition,
+            currentPressed = currentPressed,
+            pressure = this.pressure,
+            previousTime = previousTime,
+            previousPosition = previousPosition,
+            previousPressed = previousPressed,
+            type = type,
+            historical = historical,
+            scrollDelta = scrollDelta
+        )
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -784,23 +725,23 @@ class PointerInputChange(
         type: PointerType = this.type,
         historical: List<HistoricalChange> = this.historical,
         scrollDelta: Offset = this.scrollDelta
-    ): PointerInputChange = PointerInputChange(
-        id,
-        currentTime,
-        currentPosition,
-        currentPressed,
-        pressure,
-        previousTime,
-        previousPosition,
-        previousPressed,
-        isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
-        type,
-        historical,
-        scrollDelta,
-        originalEventPosition = this.originalEventPosition,
-    ).also {
-        it.consumed = this.consumed
-    }
+    ): PointerInputChange =
+        PointerInputChange(
+                id,
+                currentTime,
+                currentPosition,
+                currentPressed,
+                pressure,
+                previousTime,
+                previousPosition,
+                previousPressed,
+                isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
+                type,
+                historical,
+                scrollDelta,
+                originalEventPosition = this.originalEventPosition,
+            )
+            .also { it.consumed = this.consumed }
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun toString(): String {
@@ -822,20 +763,16 @@ class PointerInputChange(
 /**
  * Data structure for "historical" pointer moves.
  *
- * Optional high-frequency pointer moves in between the last two dispatched events:
- * can be used for extra accuracy when touchscreen rate exceeds framerate.
+ * Optional high-frequency pointer moves in between the last two dispatched events: can be used for
+ * extra accuracy when touchscreen rate exceeds framerate.
  *
- * @param uptimeMillis The time of the historical pointer event, in milliseconds. In between
- * the current and previous pointer event times.
- * @param position The [Offset] of the historical pointer event, relative to the containing
- * element.
+ * @param uptimeMillis The time of the historical pointer event, in milliseconds. In between the
+ *   current and previous pointer event times.
+ * @param position The [Offset] of the historical pointer event, relative to the containing element.
  */
 @Immutable
 @ExperimentalComposeUiApi
-class HistoricalChange(
-    val uptimeMillis: Long,
-    val position: Offset
-) {
+class HistoricalChange(val uptimeMillis: Long, val position: Offset) {
     internal var originalEventPosition: Offset = Offset.Zero
         private set
 
@@ -848,8 +785,7 @@ class HistoricalChange(
     }
 
     override fun toString(): String {
-        return "HistoricalChange(uptimeMillis=$uptimeMillis, " +
-            "position=$position)"
+        return "HistoricalChange(uptimeMillis=$uptimeMillis, " + "position=$position)"
     }
 }
 
@@ -858,8 +794,7 @@ class HistoricalChange(
  *
  * @param value The actual value of the id.
  */
-@kotlin.jvm.JvmInline
-value class PointerId(val value: Long)
+@kotlin.jvm.JvmInline value class PointerId(val value: Long)
 
 /**
  * Describes what aspects of a change has been consumed.
@@ -871,14 +806,17 @@ value class PointerId(val value: Long)
 class ConsumedData(
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    @Deprecated("Partial consumption was deprecated. Use PointerEvent.isConsumed " +
-        "and PointerEvent.consume() instead.")
+    @Deprecated(
+        "Partial consumption was deprecated. Use PointerEvent.isConsumed " +
+            "and PointerEvent.consume() instead."
+    )
     var positionChange: Boolean = false,
-
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
-    @Deprecated("Partial consumption was deprecated. Use PointerEvent.isConsumed " +
-        "and PointerEvent.consume() instead.")
+    @Deprecated(
+        "Partial consumption was deprecated. Use PointerEvent.isConsumed " +
+            "and PointerEvent.consume() instead."
+    )
     var downChange: Boolean = false
 )
 
@@ -886,44 +824,44 @@ class ConsumedData(
  * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
  *
  * PointerInputChanges traverse throw the hierarchy in the following passes:
- *
  * 1. [Initial]: Down the tree from ancestor to descendant.
  * 2. [Main]: Up the tree from descendant to ancestor.
  * 3. [Final]: Down the tree from ancestor to descendant.
  *
  * These passes serve the following purposes:
- *
- * 1. Initial: Allows ancestors to consume aspects of [PointerInputChange] before descendants.
- * This is where, for example, a scroller may block buttons from getting tapped by other fingers
- * once scrolling has started.
+ * 1. Initial: Allows ancestors to consume aspects of [PointerInputChange] before descendants. This
+ *    is where, for example, a scroller may block buttons from getting tapped by other fingers once
+ *    scrolling has started.
  * 2. Main: The primary pass where gesture filters should react to and consume aspects of
- * [PointerInputChange]s. This is the primary path where descendants will interact with
- * [PointerInputChange]s before parents. This allows for buttons to respond to a tap before a
- * container of the bottom to respond to a tap.
+ *    [PointerInputChange]s. This is the primary path where descendants will interact with
+ *    [PointerInputChange]s before parents. This allows for buttons to respond to a tap before a
+ *    container of the bottom to respond to a tap.
  * 3. Final: This pass is where children can learn what aspects of [PointerInputChange]s were
- * consumed by parents during the [Main] pass. For example, this is how a button determines that
- * it should no longer respond to fingers lifting off of it because a parent scroller has
- * consumed movement in a [PointerInputChange].
+ *    consumed by parents during the [Main] pass. For example, this is how a button determines that
+ *    it should no longer respond to fingers lifting off of it because a parent scroller has
+ *    consumed movement in a [PointerInputChange].
  */
 enum class PointerEventPass {
-    Initial, Main, Final
+    Initial,
+    Main,
+    Final
 }
 
 /**
- * True if this [PointerInputChange] represents a pointer coming in contact with the screen and
- * that change has not been consumed.
+ * True if this [PointerInputChange] represents a pointer coming in contact with the screen and that
+ * change has not been consumed.
  */
 fun PointerInputChange.changedToDown() = !isConsumed && !previousPressed && pressed
 
 /**
- * True if this [PointerInputChange] represents a pointer coming in contact with the screen,
- * whether or not that change has been consumed.
+ * True if this [PointerInputChange] represents a pointer coming in contact with the screen, whether
+ * or not that change has been consumed.
  */
 fun PointerInputChange.changedToDownIgnoreConsumed() = !previousPressed && pressed
 
 /**
- * True if this [PointerInputChange] represents a pointer breaking contact with the screen and
- * that change has not been consumed.
+ * True if this [PointerInputChange] represents a pointer breaking contact with the screen and that
+ * change has not been consumed.
  */
 fun PointerInputChange.changedToUp() = !isConsumed && previousPressed && !pressed
 
@@ -941,8 +879,8 @@ fun PointerInputChange.positionChanged() =
     this.positionChangeInternal(false) != Offset.Companion.Zero
 
 /**
- * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much
- * of that movement may have been consumed.
+ * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much of
+ * that movement may have been consumed.
  */
 fun PointerInputChange.positionChangedIgnoreConsumed() =
     this.positionChangeInternal(true) != Offset.Companion.Zero
@@ -953,8 +891,8 @@ fun PointerInputChange.positionChangedIgnoreConsumed() =
 fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
 
 /**
- * The distance that the pointer has moved on the screen, ignoring the fact that it might have
- * been consumed.
+ * The distance that the pointer has moved on the screen, ignoring the fact that it might have been
+ * consumed.
  */
 fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
 
@@ -967,18 +905,14 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
     return if (!ignoreConsumed && isConsumed) Offset.Zero else offset
 }
 
-/**
- * True if this [PointerInputChange]'s movement has been consumed.
- */
+/** True if this [PointerInputChange]'s movement has been consumed. */
 @Deprecated(
     "Partial consumption has been deprecated. Use isConsumed instead",
     replaceWith = ReplaceWith("isConsumed")
 )
 fun PointerInputChange.positionChangeConsumed() = isConsumed
 
-/**
- * True if any aspect of this [PointerInputChange] has been consumed.
- */
+/** True if any aspect of this [PointerInputChange] has been consumed. */
 @Deprecated(
     "Partial consumption has been deprecated. Use isConsumed instead",
     replaceWith = ReplaceWith("isConsumed")
@@ -999,9 +933,7 @@ fun PointerInputChange.consumeDownChange() {
     }
 }
 
-/**
- * Consume position change if there is any
- */
+/** Consume position change if there is any */
 @Deprecated(
     "Partial consumption has been deprecated. Use consume() instead.",
     replaceWith = ReplaceWith("if (positionChange() != Offset.Zero) consume()")
@@ -1012,18 +944,15 @@ fun PointerInputChange.consumePositionChange() {
     }
 }
 
-/**
- * Consumes all changes associated with the [PointerInputChange]
- */
+/** Consumes all changes associated with the [PointerInputChange] */
 @Deprecated("Use consume() instead", replaceWith = ReplaceWith("consume()"))
 fun PointerInputChange.consumeAllChanges() {
     consume()
 }
 
 /**
- * Returns `true` if the pointer has moved outside of the region of
- * `(0, 0, size.width, size.height)` or `false` if the current pointer is up or it is inside the
- * given bounds.
+ * Returns `true` if the pointer has moved outside of the region of `(0, 0, size.width,
+ * size.height)` or `false` if the current pointer is up or it is inside the given bounds.
  */
 @Deprecated(
     message = "Use isOutOfBounds() that supports minimum touch target",
@@ -1039,16 +968,15 @@ fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
 }
 
 /**
- * Returns `true` if the pointer has moved outside of the pointer region. For Touch
- * events, this is (-extendedTouchPadding.width, -extendedTouchPadding.height,
- * size.width + extendedTouchPadding.width, size.height + extendedTouchPadding.height) and
- * for other events, this is `(0, 0, size.width, size.height)`. Returns`false` if the
- * current pointer is up or it is inside the pointer region.
+ * Returns `true` if the pointer has moved outside of the pointer region. For Touch events, this is
+ * (-extendedTouchPadding.width, -extendedTouchPadding.height, size.width +
+ * extendedTouchPadding.width, size.height + extendedTouchPadding.height) and for other events, this
+ * is `(0, 0, size.width, size.height)`. Returns`false` if the current pointer is up or it is inside
+ * the pointer region.
  */
 fun PointerInputChange.isOutOfBounds(size: IntSize, extendedTouchPadding: Size): Boolean {
     if (type != PointerType.Touch) {
-        @Suppress("DEPRECATION")
-        return isOutOfBounds(size)
+        @Suppress("DEPRECATION") return isOutOfBounds(size)
     }
     val position = position
     val x = position.x

@@ -31,8 +31,8 @@ import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
 
 /**
- * Wrapper supporting [PinnableContainer] in lazy layout items. Each pinned item
- * is considered important to keep alive even if it would be discarded otherwise.
+ * Wrapper supporting [PinnableContainer] in lazy layout items. Each pinned item is considered
+ * important to keep alive even if it would be discarded otherwise.
  *
  * @param key key of the item inside the lazy layout
  * @param index index of the item inside the lazy layout
@@ -55,24 +55,19 @@ fun LazyLayoutPinnableItem(
     pinnableItem.index = index
     pinnableItem.parentPinnableContainer = LocalPinnableContainer.current
     DisposableEffect(pinnableItem) { onDispose { pinnableItem.onDisposed() } }
-    CompositionLocalProvider(
-        LocalPinnableContainer provides pinnableItem, content = content
-    )
+    CompositionLocalProvider(LocalPinnableContainer provides pinnableItem, content = content)
 }
 
 /**
- * Read-only list of pinned items in a lazy layout.
- * The items are modified internally by the [PinnableContainer] consumers, for example if something
- * inside item content is focused.
+ * Read-only list of pinned items in a lazy layout. The items are modified internally by the
+ * [PinnableContainer] consumers, for example if something inside item content is focused.
  *
- * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
- * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
- * change.
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy layouts.
+ * LazyLayout and all corresponding APIs are still under development and are subject to change.
  */
 @ExperimentalFoundationApi
-class LazyLayoutPinnedItemList private constructor(
-    private val items: MutableList<PinnedItem>
-) : List<LazyLayoutPinnedItemList.PinnedItem> by items {
+class LazyLayoutPinnedItemList private constructor(private val items: MutableList<PinnedItem>) :
+    List<LazyLayoutPinnedItemList.PinnedItem> by items {
     constructor() : this(SnapshotStateList())
 
     internal fun pin(item: PinnedItem) {
@@ -84,8 +79,8 @@ class LazyLayoutPinnedItemList private constructor(
     }
 
     /**
-     * Item pinned in a lazy layout. Pinned item should be always measured and laid out,
-     * even if the item is beyond the boundaries of the layout.
+     * Item pinned in a lazy layout. Pinned item should be always measured and laid out, even if the
+     * item is beyond the boundaries of the layout.
      *
      * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
      * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
@@ -93,14 +88,12 @@ class LazyLayoutPinnedItemList private constructor(
      */
     @ExperimentalFoundationApi
     sealed interface PinnedItem {
-        /**
-         * Key of the pinned item.
-         */
+        /** Key of the pinned item. */
         val key: Any?
 
         /**
-         * Last known index of the pinned item.
-         * Note: it is possible for index to change during lifetime of the object.
+         * Last known index of the pinned item. Note: it is possible for index to change during
+         * lifetime of the object.
          */
         val index: Int
     }
@@ -111,28 +104,25 @@ private class LazyLayoutPinnableItem(
     override val key: Any?,
     private val pinnedItemList: LazyLayoutPinnedItemList,
 ) : PinnableContainer, PinnableContainer.PinnedHandle, LazyLayoutPinnedItemList.PinnedItem {
-    /**
-     * Current index associated with this item.
-     */
+    /** Current index associated with this item. */
     override var index by mutableIntStateOf(-1)
 
     /**
-     * It is a valid use case when users of this class call [pin] multiple times individually,
-     * so we want to do the unpinning only when all of the users called [release].
+     * It is a valid use case when users of this class call [pin] multiple times individually, so we
+     * want to do the unpinning only when all of the users called [release].
      */
     private var pinsCount by mutableIntStateOf(0)
 
-    /**
-     * Handle associated with the current [parentPinnableContainer].
-     */
+    /** Handle associated with the current [parentPinnableContainer]. */
     private var parentHandle by mutableStateOf<PinnableContainer.PinnedHandle?>(null)
 
     /**
-     * Current parent [PinnableContainer].
-     * Note that we should correctly re-pin if we pinned the previous container.
+     * Current parent [PinnableContainer]. Note that we should correctly re-pin if we pinned the
+     * previous container.
      */
     private var _parentPinnableContainer by mutableStateOf<PinnableContainer?>(null)
-    var parentPinnableContainer: PinnableContainer? get() = _parentPinnableContainer
+    var parentPinnableContainer: PinnableContainer?
+        get() = _parentPinnableContainer
         set(value) {
             Snapshot.withoutReadObservation {
                 val previous = _parentPinnableContainer
@@ -166,8 +156,6 @@ private class LazyLayoutPinnableItem(
     }
 
     fun onDisposed() {
-        repeat(pinsCount) {
-            release()
-        }
+        repeat(pinsCount) { release() }
     }
 }

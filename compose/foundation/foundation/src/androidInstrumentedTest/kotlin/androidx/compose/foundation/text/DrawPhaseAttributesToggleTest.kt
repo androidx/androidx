@@ -60,126 +60,116 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
-        fun parameters() = arrayOf(
-            Config(
-                "color unspecified/color/unspecified",
-                initializeStyle = { it.copy(color = Color.Unspecified) },
-                updateStyle = { it.copy(color = Color.Blue) },
-            ),
-            Config(
-                "color colorA/colorB/colorA",
-                initializeStyle = { it.copy(color = Color.Black) },
-                updateStyle = { it.copy(color = Color.Blue) },
-            ),
-            Config(
-                "color colorA/brushA/colorA",
-                initializeStyle = {
-                    it.copy(color = Color.Red)
-                },
-                updateStyle = {
-                    it.copy(brush = Brush.verticalGradient(listOf(Color.Blue, Color.Magenta)))
-                }
-            ),
-            Config(
-                "brush brushA/brushB/brushA",
-                initializeStyle = {
-                    it.copy(brush = Brush.horizontalGradient(listOf(Color.Black, Color.Blue)))
-                },
-                updateStyle = {
-                    it.copy(brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
-                }
-            ),
-            Config(
-                "brush brushA/colorA/brushA",
-                initializeStyle = {
-                    it.copy(brush = Brush.horizontalGradient(listOf(Color.Black, Color.Blue)))
-                },
-                updateStyle = {
-                    it.copy(color = Color.Red)
-                }
-            ),
-            Config(
-                "alpha",
-                initializeStyle = {
-                    it.copy(
-                        alpha = 1f,
-                        brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
-                    )
-                },
-                updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
-            ),
-            Config(
-                "textDecoration none/lineThrough/none",
-                initializeStyle = { it.copy(textDecoration = TextDecoration.None) },
-                updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
-            ),
-            Config(
-                "textDecoration lineThrough/none/lineThrough",
-                initializeStyle = { it.copy(textDecoration = TextDecoration.LineThrough) },
-                updateStyle = { it.copy(textDecoration = TextDecoration.None) }
-            ),
-            Config(
-                "textDecoration null/lineThrough/null",
-                initializeStyle = { it.copy(textDecoration = null) },
-                updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
-            ),
-            Config(
-                "shadow null/shadow/null",
-                initializeStyle = { it.copy(shadow = null) },
-                updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
-            ),
-            Config(
-                "shadow shadowA/shadowB/shadowA",
-                initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
-                updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
-            ),
-            Config(
-                "shadow shadowA/null/shadowA",
-                initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
-                updateStyle = { it.copy(shadow = null) }
-            ),
-            Config(
-                "drawStyle null/drawStyle/null",
-                initializeStyle = { it.copy(drawStyle = null) },
-                updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
-            ),
-            Config(
-                "drawStyle drawStyleA/drawStyleB/drawStyleA",
-                initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
-            ),
-            Config(
-                "drawStyle drawStyle/null/drawStyle",
-                initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                updateStyle = { it.copy(drawStyle = null) }
-            ),
-            Config(
-                "drawStyle stroke/fill/stroke",
-                initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                updateStyle = { it.copy(drawStyle = Fill) }
+        fun parameters() =
+            arrayOf(
+                Config(
+                    "color unspecified/color/unspecified",
+                    initializeStyle = { it.copy(color = Color.Unspecified) },
+                    updateStyle = { it.copy(color = Color.Blue) },
+                ),
+                Config(
+                    "color colorA/colorB/colorA",
+                    initializeStyle = { it.copy(color = Color.Black) },
+                    updateStyle = { it.copy(color = Color.Blue) },
+                ),
+                Config(
+                    "color colorA/brushA/colorA",
+                    initializeStyle = { it.copy(color = Color.Red) },
+                    updateStyle = {
+                        it.copy(brush = Brush.verticalGradient(listOf(Color.Blue, Color.Magenta)))
+                    }
+                ),
+                Config(
+                    "brush brushA/brushB/brushA",
+                    initializeStyle = {
+                        it.copy(brush = Brush.horizontalGradient(listOf(Color.Black, Color.Blue)))
+                    },
+                    updateStyle = {
+                        it.copy(brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
+                    }
+                ),
+                Config(
+                    "brush brushA/colorA/brushA",
+                    initializeStyle = {
+                        it.copy(brush = Brush.horizontalGradient(listOf(Color.Black, Color.Blue)))
+                    },
+                    updateStyle = { it.copy(color = Color.Red) }
+                ),
+                Config(
+                    "alpha",
+                    initializeStyle = {
+                        it.copy(
+                            alpha = 1f,
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
+                        )
+                    },
+                    updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
+                ),
+                Config(
+                    "textDecoration none/lineThrough/none",
+                    initializeStyle = { it.copy(textDecoration = TextDecoration.None) },
+                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
+                ),
+                Config(
+                    "textDecoration lineThrough/none/lineThrough",
+                    initializeStyle = { it.copy(textDecoration = TextDecoration.LineThrough) },
+                    updateStyle = { it.copy(textDecoration = TextDecoration.None) }
+                ),
+                Config(
+                    "textDecoration null/lineThrough/null",
+                    initializeStyle = { it.copy(textDecoration = null) },
+                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
+                ),
+                Config(
+                    "shadow null/shadow/null",
+                    initializeStyle = { it.copy(shadow = null) },
+                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
+                ),
+                Config(
+                    "shadow shadowA/shadowB/shadowA",
+                    initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
+                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
+                ),
+                Config(
+                    "shadow shadowA/null/shadowA",
+                    initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
+                    updateStyle = { it.copy(shadow = null) }
+                ),
+                Config(
+                    "drawStyle null/drawStyle/null",
+                    initializeStyle = { it.copy(drawStyle = null) },
+                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
+                ),
+                Config(
+                    "drawStyle drawStyleA/drawStyleB/drawStyleA",
+                    initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
+                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
+                ),
+                Config(
+                    "drawStyle drawStyle/null/drawStyle",
+                    initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
+                    updateStyle = { it.copy(drawStyle = null) }
+                ),
+                Config(
+                    "drawStyle stroke/fill/stroke",
+                    initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
+                    updateStyle = { it.copy(drawStyle = Fill) }
+                )
             )
-        )
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun basicText() {
-        var style by mutableStateOf(
-            TextStyle(
-                color = Color.Black,
-                textDecoration = null,
-                shadow = null
-            ).let(config.initializeStyle)
-        )
+        var style by
+            mutableStateOf(
+                TextStyle(color = Color.Black, textDecoration = null, shadow = null)
+                    .let(config.initializeStyle)
+            )
 
         rule.setContent {
-            BasicText(
-                "TextPainter",
-                style = style,
-                modifier = Modifier.testTag(textTag)
-            )
+            BasicText("TextPainter", style = style, modifier = Modifier.testTag(textTag))
         }
 
         rule.waitForIdle()
@@ -202,13 +192,11 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
 
     @Test
     fun basicText_annotatedString() {
-        var style by mutableStateOf(
-            TextStyle(
-                color = Color.Black,
-                textDecoration = null,
-                shadow = null
-            ).let(config.initializeStyle)
-        )
+        var style by
+            mutableStateOf(
+                TextStyle(color = Color.Black, textDecoration = null, shadow = null)
+                    .let(config.initializeStyle)
+            )
 
         rule.setContent {
             BasicText(

@@ -40,23 +40,16 @@ class NestedListsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val itemCount = intent.getIntExtra(EXTRA_ITEM_COUNT, 3000)
-        val items = List(itemCount) { entryIndex ->
-            NestedListEntry(
-                buildList {
-                    repeat(10) {
-                        add("${entryIndex}x$it")
-                    }
-                }
-            )
-        }
+        val items =
+            List(itemCount) { entryIndex ->
+                NestedListEntry(buildList { repeat(10) { add("${entryIndex}x$it") } })
+            }
 
         setContent {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth().semantics { contentDescription = "IamLazy" }
             ) {
-                items(items) {
-                    ListRow(it)
-                }
+                items(items) { ListRow(it) }
             }
         }
 
@@ -72,9 +65,7 @@ class NestedListsActivity : ComponentActivity() {
 private fun ListRow(entry: NestedListEntry) {
     LazyRow(contentPadding = PaddingValues(16.dp)) {
         items(entry.list) {
-            Card(Modifier.size(108.dp)) {
-                Text(text = it)
-            }
+            Card(Modifier.size(108.dp)) { Text(text = it) }
             Spacer(Modifier.size(16.dp))
         }
     }

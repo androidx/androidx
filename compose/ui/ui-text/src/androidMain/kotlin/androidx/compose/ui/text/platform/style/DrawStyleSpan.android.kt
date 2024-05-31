@@ -28,12 +28,8 @@ import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 
-/**
- * A span that applies [ShaderBrush] to TextPaint after receiving a specified size
- */
-internal class DrawStyleSpan(
-    val drawStyle: DrawStyle
-) : CharacterStyle(), UpdateAppearance {
+/** A span that applies [ShaderBrush] to TextPaint after receiving a specified size */
+internal class DrawStyleSpan(val drawStyle: DrawStyle) : CharacterStyle(), UpdateAppearance {
     override fun updateDrawState(textPaint: TextPaint?) {
         textPaint?.run {
             when (drawStyle) {

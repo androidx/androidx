@@ -137,7 +137,17 @@ abstract class BaseKtfmtTask : DefaultTask() {
         // To hack around https://github.com/facebook/ktfmt/issues/406 we rewrite all the
         // @sample tags to ####### so that ktfmt would not move them around. We then
         // rewrite it back when returning the formatted code.
-        val originCode = input.readText().replace(SAMPLE, PLACEHOLDER)
+        // We also want to ensure the class name is always on the same line as the @sample tag, as
+        // otherwise, the class won't be linked to the tag, so make the class name shorter. For now,
+        // we only have to do this for the NavigationSuiteScaffold.kt class
+        val originCode =
+            input
+                .readText()
+                .replace(SAMPLE, PLACEHOLDER)
+                .replace(
+                    "$PLACEHOLDER androidx.compose.material3.adaptive.navigationsuite.samples.",
+                    "$PLACEHOLDER material3.adaptive.navigationsuite.samples."
+                )
         val formattedCode = format(Formatter.KOTLINLANG_FORMAT, originCode)
         return KtfmtResult(
             input = input,

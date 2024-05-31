@@ -29,9 +29,7 @@ object AllApps {
      *
      * Examples of typical text
      *
-     * "OK"
-     * "Close"
-     * "Click below to learn more"
+     * "OK" "Close" "Click below to learn more"
      */
     val TextLengths: Array<Any> = arrayOf(2, 16, 32, 64).filterForCi()
     val SpanCounts: Array<Any> = arrayOf(4, 16).filterForCi()
@@ -49,18 +47,14 @@ object SocialApps {
 }
 
 object ChatApps {
-    /**
-     * For chat apps, strings tend to be longer due to user generated content.
-     */
+    /** For chat apps, strings tend to be longer due to user generated content. */
     val TextLengths: Array<Any> = arrayOf(256, 512).filterForCi()
     val SpanCounts: Array<Any> = arrayOf(2).filterForCi()
     val TextLengthsWithSpans: List<Array<Any>> = TextLengths.cartesian(SpanCounts).filterForCi()
 }
 
 object ShoppingApps {
-    /**
-     * Shopping apps are more designed focused with short, intentional, text usage
-     */
+    /** Shopping apps are more designed focused with short, intentional, text usage */
     val TextLengths: Array<Any> = arrayOf(2, 64).filterForCi()
     val SpanCounts: Array<Any> = arrayOf(16).filterForCi()
     val TextLengthsWithSpans: List<Array<Any>> = TextLengths.cartesian(SpanCounts).filterForCi()
@@ -115,9 +109,7 @@ internal fun String.annotateWithSpans(spanCount: Int): AnnotatedString {
 
 internal const val BenchmarkInlineContentId = "BenchmarkInlineContent.Id"
 
-/**
- * Add inline content to a String.
- */
+/** Add inline content to a String. */
 internal fun String.annotateWithInlineContent(): AnnotatedString {
     return buildAnnotatedString {
         appendInlineContent(BenchmarkInlineContentId)
@@ -125,9 +117,7 @@ internal fun String.annotateWithInlineContent(): AnnotatedString {
     }
 }
 
-/**
- * ([1,2,3] X [A, B]) -> [[1, A], [1, B], [2, A], ...
- */
+/** ([1,2,3] X [A, B]) -> [[1, A], [1, B], [2, A], ... */
 private fun Array<Any>.cartesian(rhs: Array<Any>): List<Array<Any>> = flatMap { lhs ->
     rhs.map { arrayOf(lhs, it) }
 }

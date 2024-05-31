@@ -30,32 +30,25 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests the error states of [move] that are not tested in [SendMoveToTest] and [SendMoveByTest]
- */
+/** Tests the error states of [move] that are not tested in [SendMoveToTest] and [SendMoveByTest] */
 @MediumTest
 class SendMoveTest() {
     companion object {
         private val downPosition1 = Offset(10f, 10f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox()
-        }
+        rule.setContent { ClickableTestBox() }
     }
 
     @Suppress("DEPRECATION")
     @Test
     fun moveWithoutDown() {
-        expectError<IllegalStateException> {
-            rule.partialGesture { move() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { move() } }
     }
 
     @Suppress("DEPRECATION")
@@ -63,9 +56,7 @@ class SendMoveTest() {
     fun moveAfterUp() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { up() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { move() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { move() } }
     }
 
     @Suppress("DEPRECATION")
@@ -73,8 +64,6 @@ class SendMoveTest() {
     fun moveAfterCancel() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { cancel() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { move() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { move() } }
     }
 }

@@ -44,9 +44,8 @@ object ComposeErrors {
     val COMPOSABLE_INVOCATION by error0<PsiElement>()
 
     // error goes on the non-composable function with composable calls
-    val COMPOSABLE_EXPECTED by error0<PsiElement>(
-        SourceElementPositioningStrategies.DECLARATION_NAME
-    )
+    val COMPOSABLE_EXPECTED by
+        error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
     val NONREADONLY_CALL_IN_READONLY_COMPOSABLE by error0<PsiElement>()
 
@@ -55,39 +54,35 @@ object ComposeErrors {
 
     // composable calls are not allowed in try expressions
     // error goes on the `try` keyword
-    val ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE by error0<KtTryExpression>(
-        ComposeSourceElementPositioningStrategies.TRY_KEYWORD
-    )
+    val ILLEGAL_TRY_CATCH_AROUND_COMPOSABLE by
+        error0<KtTryExpression>(ComposeSourceElementPositioningStrategies.TRY_KEYWORD)
 
-    val MISSING_DISALLOW_COMPOSABLE_CALLS_ANNOTATION by error3<
-        PsiElement,
-        FirValueParameterSymbol, // unmarked
-        FirValueParameterSymbol, // marked
-        FirCallableSymbol<*>>()
+    val MISSING_DISALLOW_COMPOSABLE_CALLS_ANNOTATION by
+        error3<
+            PsiElement,
+            FirValueParameterSymbol, // unmarked
+            FirValueParameterSymbol, // marked
+            FirCallableSymbol<*>
+        >()
 
-    val COMPOSABLE_SUSPEND_FUN by error0<PsiElement>(
-        SourceElementPositioningStrategies.DECLARATION_NAME
-    )
+    val COMPOSABLE_SUSPEND_FUN by
+        error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
-    val COMPOSABLE_FUN_MAIN by error0<PsiElement>(
-        SourceElementPositioningStrategies.DECLARATION_NAME
-    )
+    val COMPOSABLE_FUN_MAIN by
+        error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
     val COMPOSABLE_FUNCTION_REFERENCE by error0<PsiElement>()
 
-    val COMPOSABLE_PROPERTY_BACKING_FIELD by error0<PsiElement>(
-        SourceElementPositioningStrategies.DECLARATION_NAME
-    )
+    val COMPOSABLE_PROPERTY_BACKING_FIELD by
+        error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
     val COMPOSABLE_VAR by error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
-    val COMPOSE_INVALID_DELEGATE by error0<PsiElement>(
-        ComposeSourceElementPositioningStrategies.DECLARATION_NAME_OR_DEFAULT
-    )
+    val COMPOSE_INVALID_DELEGATE by
+        error0<PsiElement>(ComposeSourceElementPositioningStrategies.DECLARATION_NAME_OR_DEFAULT)
 
-    val MISMATCHED_COMPOSABLE_IN_EXPECT_ACTUAL by error0<PsiElement>(
-        SourceElementPositioningStrategies.DECLARATION_NAME
-    )
+    val MISMATCHED_COMPOSABLE_IN_EXPECT_ACTUAL by
+        error0<PsiElement>(SourceElementPositioningStrategies.DECLARATION_NAME)
 
     init {
         RootDiagnosticRendererFactory.registerFactory(ComposeErrorMessages)
@@ -103,20 +98,20 @@ object ComposeSourceElementPositioningStrategies {
                 }
                 return PositioningStrategies.DEFAULT.mark(element)
             }
-    }
+        }
 
     private val LIGHT_TREE_TRY_KEYWORD: LightTreePositioningStrategy =
         object : LightTreePositioningStrategy() {
-        override fun mark(
-            node: LighterASTNode,
-            startOffset: Int,
-            endOffset: Int,
-            tree: FlyweightCapableTreeStructure<LighterASTNode>
-        ): List<TextRange> {
-            val target = tree.findChildByType(node, KtTokens.TRY_KEYWORD) ?: node
-            return markElement(target, startOffset, endOffset, tree, node)
+            override fun mark(
+                node: LighterASTNode,
+                startOffset: Int,
+                endOffset: Int,
+                tree: FlyweightCapableTreeStructure<LighterASTNode>
+            ): List<TextRange> {
+                val target = tree.findChildByType(node, KtTokens.TRY_KEYWORD) ?: node
+                return markElement(target, startOffset, endOffset, tree, node)
+            }
         }
-    }
 
     private val PSI_DECLARATION_NAME_OR_DEFAULT: PositioningStrategy<PsiElement> =
         object : PositioningStrategy<PsiElement>() {
@@ -128,13 +123,11 @@ object ComposeSourceElementPositioningStrategies {
             }
         }
 
-    val TRY_KEYWORD = SourceElementPositioningStrategy(
-        LIGHT_TREE_TRY_KEYWORD,
-        PSI_TRY_KEYWORD
-    )
+    val TRY_KEYWORD = SourceElementPositioningStrategy(LIGHT_TREE_TRY_KEYWORD, PSI_TRY_KEYWORD)
 
-    val DECLARATION_NAME_OR_DEFAULT = SourceElementPositioningStrategy(
-        LightTreePositioningStrategies.DECLARATION_NAME,
-        PSI_DECLARATION_NAME_OR_DEFAULT
-    )
+    val DECLARATION_NAME_OR_DEFAULT =
+        SourceElementPositioningStrategy(
+            LightTreePositioningStrategies.DECLARATION_NAME,
+            PSI_DECLARATION_NAME_OR_DEFAULT
+        )
 }

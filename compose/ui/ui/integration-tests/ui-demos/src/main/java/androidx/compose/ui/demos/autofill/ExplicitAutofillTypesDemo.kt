@@ -48,12 +48,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
 fun ExplicitAutofillTypesDemo() {
-    var name by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var email by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
+    var name by
+        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
+    var email by
+        rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
 
     Column {
         Autofill(
@@ -91,20 +89,21 @@ private fun Autofill(
 ) {
     val autofill = LocalAutofill.current
     val autofillTree = LocalAutofillTree.current
-    val autofillNode = remember(autofillTypes, onFill) {
-        AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
-    }
+    val autofillNode =
+        remember(autofillTypes, onFill) {
+            AutofillNode(onFill = onFill, autofillTypes = autofillTypes)
+        }
 
     Box(
-        modifier = Modifier
-            .onFocusChanged {
-                if (it.isFocused) {
-                    autofill?.requestAutofillForNode(autofillNode)
-                } else {
-                    autofill?.cancelAutofillForNode(autofillNode)
+        modifier =
+            Modifier.onFocusChanged {
+                    if (it.isFocused) {
+                        autofill?.requestAutofillForNode(autofillNode)
+                    } else {
+                        autofill?.cancelAutofillForNode(autofillNode)
+                    }
                 }
-            }
-            .onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() },
+                .onGloballyPositioned { autofillNode.boundingBox = it.boundsInWindow() },
         content = content
     )
 

@@ -25,15 +25,13 @@ import kotlin.math.sign
  *
  * @param density density of the display
  */
-class SplineBasedFloatDecayAnimationSpec(density: Density) :
-    FloatDecayAnimationSpec {
+class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayAnimationSpec {
 
-    private val flingCalculator = FlingCalculator(
-        friction = platformFlingScrollFriction,
-        density = density
-    )
+    private val flingCalculator =
+        FlingCalculator(friction = platformFlingScrollFriction, density = density)
 
-    override val absVelocityThreshold: Float get() = 0f
+    override val absVelocityThreshold: Float
+        get() = 0f
 
     private fun flingDistance(startVelocity: Float): Float =
         flingCalculator.flingDistance(startVelocity) * sign(startVelocity)

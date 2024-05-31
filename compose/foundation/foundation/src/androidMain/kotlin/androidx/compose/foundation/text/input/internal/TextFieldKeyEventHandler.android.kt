@@ -37,8 +37,9 @@ internal actual fun createTextFieldKeyEventHandler(): TextFieldKeyEventHandler =
     AndroidTextFieldKeyEventHandler()
 
 internal actual val KeyEvent.isFromSoftKeyboard: Boolean
-    get() = (nativeKeyEvent.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD) ==
-        android.view.KeyEvent.FLAG_SOFT_KEYBOARD
+    get() =
+        (nativeKeyEvent.flags and android.view.KeyEvent.FLAG_SOFT_KEYBOARD) ==
+            android.view.KeyEvent.FLAG_SOFT_KEYBOARD
 
 internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
 
@@ -58,7 +59,8 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
                 focusManager = focusManager,
                 keyboardController = keyboardController
             )
-        ) return true
+        )
+            return true
 
         val device = event.nativeKeyEvent.device
         return when {
@@ -76,7 +78,6 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
             // Ignore events that originate from a source that only identifies as keyboard.
             // This logic is taken from `android.widget.TextView#doKeyDown()` method.
             event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD -> false
-
             event.isKeyCode(KEYCODE_DPAD_UP) -> focusManager.moveFocus(FocusDirection.Up)
             event.isKeyCode(KEYCODE_DPAD_DOWN) -> focusManager.moveFocus(FocusDirection.Down)
             event.isKeyCode(KEYCODE_DPAD_LEFT) -> focusManager.moveFocus(FocusDirection.Left)
@@ -99,9 +100,10 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         singleLine: Boolean,
         onSubmit: () -> Unit
     ): Boolean {
-        if (event.type == KeyDown &&
-            event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
-            !event.isFromSoftKeyboard
+        if (
+            event.type == KeyDown &&
+                event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
+                !event.isFromSoftKeyboard
         ) {
             textFieldSelectionState.isInTouchMode = false
         }
@@ -117,5 +119,4 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
     }
 }
 
-private fun KeyEvent.isKeyCode(keyCode: Int): Boolean =
-    this.key.nativeKeyCode == keyCode
+private fun KeyEvent.isKeyCode(keyCode: Int): Boolean = this.key.nativeKeyCode == keyCode

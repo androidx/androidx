@@ -64,19 +64,20 @@ import kotlinx.coroutines.launch
  *
  * @param enabled Controls the enabled state. When `false`, element won't participate in the focus
  * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [FocusInteraction.Focus] when this element is being focused.
+ *   [FocusInteraction.Focus] when this element is being focused.
  */
 @Stable
 fun Modifier.focusable(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-) = this.then(
-    if (enabled) {
-        FocusableElement(interactionSource)
-    } else {
-        Modifier
-    }
-)
+) =
+    this.then(
+        if (enabled) {
+            FocusableElement(interactionSource)
+        } else {
+            Modifier
+        }
+    )
 
 /**
  * Creates a focus group or marks this component as a focus group. This means that when we move
@@ -85,8 +86,8 @@ fun Modifier.focusable(
  * the focus group will be given a higher priority before focus moves to items outside the focus
  * group.
  *
- * In the sample below, each column is a focus group, so pressing the tab key will move focus
- * to all the buttons in column 1 before visiting column 2.
+ * In the sample below, each column is a focus group, so pressing the tab key will move focus to all
+ * the buttons in column 1 before visiting column 2.
  *
  * @sample androidx.compose.foundation.samples.FocusGroupSample
  *
@@ -101,36 +102,28 @@ fun Modifier.focusable(
  */
 @Stable
 fun Modifier.focusGroup(): Modifier {
-    return this
-        .then(focusGroupInspectorInfo)
-        .focusProperties { canFocus = false }
-        .focusTarget()
+    return this.then(focusGroupInspectorInfo).focusProperties { canFocus = false }.focusTarget()
 }
 
-private val focusGroupInspectorInfo = InspectableModifier(
-    debugInspectorInfo { name = "focusGroup" }
-)
+private val focusGroupInspectorInfo =
+    InspectableModifier(debugInspectorInfo { name = "focusGroup" })
 
-internal class FocusableInNonTouchMode : Modifier.Node(), CompositionLocalConsumerModifierNode,
-    FocusPropertiesModifierNode {
+internal class FocusableInNonTouchMode :
+    Modifier.Node(), CompositionLocalConsumerModifierNode, FocusPropertiesModifierNode {
     override val shouldAutoInvalidate: Boolean = false
 
     private val inputModeManager: InputModeManager
         get() = currentValueOf(LocalInputModeManager)
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        focusProperties.apply {
-            canFocus = inputModeManager.inputMode != InputMode.Touch
-        }
+        focusProperties.apply { canFocus = inputModeManager.inputMode != InputMode.Touch }
     }
 }
 
-private class FocusableElement(
-    private val interactionSource: MutableInteractionSource?
-) : ModifierNodeElement<FocusableNode>() {
+private class FocusableElement(private val interactionSource: MutableInteractionSource?) :
+    ModifierNodeElement<FocusableNode>() {
 
-    override fun create(): FocusableNode =
-        FocusableNode(interactionSource)
+    override fun create(): FocusableNode = FocusableNode(interactionSource)
 
     override fun update(node: FocusableNode) {
         node.update(interactionSource)
@@ -155,10 +148,12 @@ private class FocusableElement(
     }
 }
 
-internal class FocusableNode(
-    interactionSource: MutableInteractionSource?
-) : DelegatingNode(), FocusEventModifierNode, SemanticsModifierNode,
-    GlobalPositionAwareModifierNode, FocusRequesterModifierNode {
+internal class FocusableNode(interactionSource: MutableInteractionSource?) :
+    DelegatingNode(),
+    FocusEventModifierNode,
+    SemanticsModifierNode,
+    GlobalPositionAwareModifierNode,
+    FocusRequesterModifierNode {
     override val shouldAutoInvalidate: Boolean = false
 
     private var focusState: FocusState? = null
@@ -191,9 +186,7 @@ internal class FocusableNode(
         if (this.focusState != focusState) { // focus state changed
             val isFocused = focusState.isFocused
             if (isFocused) {
-                coroutineScope.launch {
-                    scrollIntoView()
-                }
+                coroutineScope.launch { scrollIntoView() }
             }
             if (isAttached) invalidateSemantics()
             focusableInteractionNode.setFocus(isFocused)
@@ -205,27 +198,25 @@ internal class FocusableNode(
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         focused = focusState?.isFocused == true
-        requestFocus {
-            this@FocusableNode.requestFocus()
-        }
+        requestFocus { this@FocusableNode.requestFocus() }
     }
+
     // TODO(levima) Remove this once delegation can propagate this events on its own
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         focusedBoundsNode.onGloballyPositioned(coordinates)
     }
 }
 
-private class FocusableInteractionNode(
-    private var interactionSource: MutableInteractionSource?
-) : Modifier.Node() {
+private class FocusableInteractionNode(private var interactionSource: MutableInteractionSource?) :
+    Modifier.Node() {
     private var focusedInteraction: FocusInteraction.Focus? = null
 
     override val shouldAutoInvalidate: Boolean = false
 
     /**
      * Interaction source events will be controlled entirely by changes in focus events. The
-     * FocusEventNode will be the source of truth for this and will emit an event in case it
-     * is detached.
+     * FocusEventNode will be the source of truth for this and will emit an event in case it is
+     * detached.
      */
     fun setFocus(isFocused: Boolean) {
         interactionSource?.let { interactionSource ->
@@ -273,9 +264,8 @@ private class FocusableInteractionNode(
             // or always call tryEmit() as this will break other timing / cause some events to be
             // missed for other cases. Instead just make sure we call tryEmit if we cancel the
             // scope, before we finish emitting.
-            val handler = coroutineScope.coroutineContext[Job]?.invokeOnCompletion {
-                tryEmit(interaction)
-            }
+            val handler =
+                coroutineScope.coroutineContext[Job]?.invokeOnCompletion { tryEmit(interaction) }
             coroutineScope.launch {
                 emit(interaction)
                 handler?.dispose()
@@ -286,8 +276,8 @@ private class FocusableInteractionNode(
     }
 }
 
-private class FocusablePinnableContainerNode : Modifier.Node(),
-    CompositionLocalConsumerModifierNode, ObserverModifierNode {
+private class FocusablePinnableContainerNode :
+    Modifier.Node(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
     private var isFocused: Boolean = false
 
@@ -295,9 +285,7 @@ private class FocusablePinnableContainerNode : Modifier.Node(),
 
     private fun retrievePinnableContainer(): PinnableContainer? {
         var container: PinnableContainer? = null
-        observeReads {
-            container = currentValueOf(LocalPinnableContainer)
-        }
+        observeReads { container = currentValueOf(LocalPinnableContainer) }
         return container
     }
 

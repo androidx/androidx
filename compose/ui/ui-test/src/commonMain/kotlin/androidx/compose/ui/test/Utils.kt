@@ -20,8 +20,8 @@ import androidx.compose.ui.semantics.SemanticsNode
 
 /**
  * Executes [selector] on every parent of this [SemanticsNode] and returns the closest
- * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false
- * for all ancestors.
+ * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false for all
+ * ancestors.
  *
  * @param includeSelf Whether it should include self into the search.
  */

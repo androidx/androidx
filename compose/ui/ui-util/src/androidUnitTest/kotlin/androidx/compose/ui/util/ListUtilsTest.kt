@@ -30,9 +30,7 @@ class ListUtilsTest {
     fun regularIteration() {
         val list = listOf(1, 5, 10)
         val otherList = mutableListOf<Int>()
-        list.fastForEach {
-            otherList.add(it)
-        }
+        list.fastForEach { otherList.add(it) }
         // The correct iteration order, all items in there
         assertEquals(otherList, list)
     }
@@ -110,6 +108,7 @@ class ListUtilsTest {
         val list = listOf(0, -1, -500)
         assertNull(list.fastFirstOrNull { it > 0 })
     }
+
     @Test
     fun firstOrNullFound() {
         val list = listOf(0, -1, -500, 1)

@@ -39,6 +39,7 @@ private class LoggerNode(var log: MutableList<String>, name: String) : Modifier.
             log.add("update($field -> $value)")
             field = value
         }
+
     override fun onAttach() {
         log.add("attach($name)")
     }
@@ -71,8 +72,7 @@ private fun Modifier.logger(log: MutableList<String>, name: String) =
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeAttachOrderTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun attachOrderInitialComposition() {
@@ -83,19 +83,16 @@ class ModifierNodeAttachOrderTest {
         val c = LoggerNode(log, "c")
         val d = LoggerNode(log, "d")
 
-        rule.setContent {
-            Box(modifierOf(a, b)) {
-                Box(modifierOf(c, d))
-            }
-        }
+        rule.setContent { Box(modifierOf(a, b)) { Box(modifierOf(c, d)) } }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(a)",
-                "attach(b)",
-                "attach(c)",
-                "attach(d)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(a)",
+                    "attach(b)",
+                    "attach(c)",
+                    "attach(d)",
+                )
         }
     }
 
@@ -112,30 +109,21 @@ class ModifierNodeAttachOrderTest {
         var parentChain by mutableStateOf<Modifier>(padding)
         var childChain by mutableStateOf<Modifier>(padding)
 
-        rule.setContent {
-            Box(parentChain) {
-                Box(childChain)
-            }
+        rule.setContent { Box(parentChain) { Box(childChain) } }
+
+        rule.runOnIdle {
+            parentChain = Modifier.elementOf(a).then(padding).elementOf(b)
+            childChain = Modifier.elementOf(c).then(padding).elementOf(d)
         }
 
         rule.runOnIdle {
-            parentChain = Modifier
-                .elementOf(a)
-                .then(padding)
-                .elementOf(b)
-            childChain = Modifier
-                .elementOf(c)
-                .then(padding)
-                .elementOf(d)
-        }
-
-        rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(a)",
-                "attach(b)",
-                "attach(c)",
-                "attach(d)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(a)",
+                    "attach(b)",
+                    "attach(c)",
+                    "attach(d)",
+                )
         }
     }
 
@@ -143,52 +131,40 @@ class ModifierNodeAttachOrderTest {
     fun attachOrderWhenMiddleIsRemoved() {
         // Arrange.
         val log = mutableListOf<String>()
-        var parentChain by mutableStateOf<Modifier>(
-            Modifier
-                .logger(log, "a")
-                .logger(log, "b")
-                .logger(log, "c")
-        )
+        var parentChain by
+            mutableStateOf<Modifier>(Modifier.logger(log, "a").logger(log, "b").logger(log, "c"))
 
-        rule.setContent {
-            Box(parentChain)
-        }
+        rule.setContent { Box(parentChain) }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(a)",
-                "attach(b)",
-                "attach(c)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(a)",
+                    "attach(b)",
+                    "attach(c)",
+                )
             log.clear()
         }
 
-        rule.runOnIdle {
-            parentChain = Modifier
-                .logger(log, "a")
-                .logger(log, "c")
-        }
+        rule.runOnIdle { parentChain = Modifier.logger(log, "a").logger(log, "c") }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "detach(c)",
-                "update(b -> c)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "detach(c)",
+                    "update(b -> c)",
+                )
             log.clear()
         }
 
-        rule.runOnIdle {
-            parentChain = Modifier
-                .logger(log, "a")
-                .logger(log, "b")
-                .logger(log, "c")
-        }
+        rule.runOnIdle { parentChain = Modifier.logger(log, "a").logger(log, "b").logger(log, "c") }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(c)",
-                "update(c -> b)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(c)",
+                    "update(c -> b)",
+                )
             log.clear()
         }
     }
@@ -197,41 +173,38 @@ class ModifierNodeAttachOrderTest {
     fun addMultipleNodesInMiddle() {
         // Arrange.
         val log = mutableListOf<String>()
-        var parentChain by mutableStateOf<Modifier>(
-            Modifier
-                .logger(log, "a")
-                .padding(10)
-                .padding(10)
-                .logger(log, "z")
-        )
+        var parentChain by
+            mutableStateOf<Modifier>(
+                Modifier.logger(log, "a").padding(10).padding(10).logger(log, "z")
+            )
 
-        rule.setContent {
-            Box(parentChain)
-        }
+        rule.setContent { Box(parentChain) }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(a)",
-                "attach(z)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(a)",
+                    "attach(z)",
+                )
             log.clear()
         }
 
         rule.runOnIdle {
-            parentChain = Modifier
-                .logger(log, "a")
-                .padding(10)
-                .logger(log, "b")
-                .logger(log, "c")
-                .padding(10)
-                .logger(log, "z")
+            parentChain =
+                Modifier.logger(log, "a")
+                    .padding(10)
+                    .logger(log, "b")
+                    .logger(log, "c")
+                    .padding(10)
+                    .logger(log, "z")
         }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(c)",
-                "attach(b)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(c)",
+                    "attach(b)",
+                )
             log.clear()
         }
     }
@@ -240,65 +213,57 @@ class ModifierNodeAttachOrderTest {
     fun addMultipleNodesInMiddleMultipleLayouts() {
         // Arrange.
         val log = mutableListOf<String>()
-        var parentChain by mutableStateOf<Modifier>(
-            Modifier
-                .logger(log, "a")
-                .padding(10)
-                .padding(10)
-                .logger(log, "d")
-        )
+        var parentChain by
+            mutableStateOf<Modifier>(
+                Modifier.logger(log, "a").padding(10).padding(10).logger(log, "d")
+            )
 
-        var childChain by mutableStateOf<Modifier>(
-            Modifier
-                .logger(log, "e")
-                .padding(10)
-                .padding(10)
-                .logger(log, "h")
-        )
+        var childChain by
+            mutableStateOf<Modifier>(
+                Modifier.logger(log, "e").padding(10).padding(10).logger(log, "h")
+            )
 
-        rule.setContent {
-            Box(parentChain) {
-                Box(childChain)
-            }
-        }
+        rule.setContent { Box(parentChain) { Box(childChain) } }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                "attach(a)",
-                "attach(d)",
-                "attach(e)",
-                "attach(h)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    "attach(a)",
+                    "attach(d)",
+                    "attach(e)",
+                    "attach(h)",
+                )
             log.clear()
         }
 
         rule.runOnIdle {
-            parentChain = Modifier
-                .logger(log, "a")
-                .padding(10)
-                .logger(log, "b")
-                .logger(log, "c")
-                .padding(10)
-                .logger(log, "d")
+            parentChain =
+                Modifier.logger(log, "a")
+                    .padding(10)
+                    .logger(log, "b")
+                    .logger(log, "c")
+                    .padding(10)
+                    .logger(log, "d")
 
-            childChain = Modifier
-                .logger(log, "e")
-                .padding(10)
-                .logger(log, "f")
-                .logger(log, "g")
-                .padding(10)
-                .logger(log, "h")
+            childChain =
+                Modifier.logger(log, "e")
+                    .padding(10)
+                    .logger(log, "f")
+                    .logger(log, "g")
+                    .padding(10)
+                    .logger(log, "h")
         }
 
         rule.runOnIdle {
-            assertThat(log).containsExactly(
-                // parent updates first
-                "attach(c)",
-                "attach(b)",
-                // then child
-                "attach(g)",
-                "attach(f)",
-            )
+            assertThat(log)
+                .containsExactly(
+                    // parent updates first
+                    "attach(c)",
+                    "attach(b)",
+                    // then child
+                    "attach(g)",
+                    "attach(f)",
+                )
             log.clear()
         }
     }
@@ -309,32 +274,22 @@ class ModifierNodeAttachOrderTest {
         var active by mutableStateOf(true)
         var inBox by mutableStateOf(true)
         val content = movableContentOf {
-            SubcompositionReusableContentHost(active = active) {
-                BasicText("Hello World")
-            }
+            SubcompositionReusableContentHost(active = active) { BasicText("Hello World") }
         }
 
         rule.setContent {
             if (inBox) {
-                Box {
-                    content()
-                }
+                Box { content() }
             } else {
                 content()
             }
         }
 
-        rule.runOnIdle {
-            active = false
-        }
+        rule.runOnIdle { active = false }
 
-        rule.runOnIdle {
-            inBox = false
-        }
+        rule.runOnIdle { inBox = false }
 
-        rule.runOnIdle {
-            active = true
-        }
+        rule.runOnIdle { active = true }
 
         rule.waitForIdle()
     }

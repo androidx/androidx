@@ -28,16 +28,17 @@ import androidx.compose.ui.unit.toSize
 /**
  * Bring this node into bounds by making all the scrollable parents scroll appropriately.
  *
- * This method will not return until this request is satisfied or a newer request interrupts it.
- * If this call is interrupted by a newer call, this method will throw a
+ * This method will not return until this request is satisfied or a newer request interrupts it. If
+ * this call is interrupted by a newer call, this method will throw a
  * [CancellationException][kotlinx.coroutines.CancellationException].
  *
- * @param rect The rectangle (In local coordinates) that should be brought into view. If you
- * don't specify the coordinates, the coordinates of the
- * [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
- * [BringIntoViewRequester] will be used.
+ * @param rect The rectangle (In local coordinates) that should be brought into view. If you don't
+ *   specify the coordinates, the coordinates of the
+ *   [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
+ *   [BringIntoViewRequester] will be used.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
+ *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 // TODO(b/333421581) Make public.

@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("PLUGIN_ERROR")
+
 package androidx.compose.runtime
 
 import android.app.Activity
@@ -35,22 +36,25 @@ class TestActivity : ComponentActivity()
 @Suppress("DEPRECATION")
 fun makeTestActivityRule() = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
 
-internal val Activity.root get() = findViewById<ViewGroup>(android.R.id.content)
+internal val Activity.root
+    get() = findViewById<ViewGroup>(android.R.id.content)
 
 internal fun Activity.uiThread(block: () -> Unit) {
     val latch = CountDownLatch(1)
     var throwable: Throwable? = null
-    runOnUiThread(object : Runnable {
-        override fun run() {
-            try {
-                block()
-            } catch (e: Throwable) {
-                throwable = e
-            } finally {
-                latch.countDown()
+    runOnUiThread(
+        object : Runnable {
+            override fun run() {
+                try {
+                    block()
+                } catch (e: Throwable) {
+                    throwable = e
+                } finally {
+                    latch.countDown()
+                }
             }
         }
-    })
+    )
 
     val completed = latch.await(5, TimeUnit.SECONDS)
     if (!completed) error("UI thread work did not complete within 5 seconds")
@@ -58,10 +62,7 @@ internal fun Activity.uiThread(block: () -> Unit) {
         throw when (it) {
             is AssertionError -> AssertionError(it.localizedMessage, it)
             else ->
-                IllegalStateException(
-                    "UI thread threw an exception: ${it.localizedMessage}",
-                    it
-                )
+                IllegalStateException("UI thread threw an exception: ${it.localizedMessage}", it)
         }
     }
 }
@@ -78,9 +79,7 @@ internal fun Activity.waitForAFrame() {
         throw Exception("Cannot be run from the main thread")
     }
     val latch = CountDownLatch(1)
-    uiThread {
-        Choreographer.getInstance().postFrameCallback { latch.countDown() }
-    }
+    uiThread { Choreographer.getInstance().postFrameCallback { latch.countDown() } }
     assertTrue(latch.await(1, TimeUnit.MINUTES), "Time-out waiting for choreographer frame")
 }
 
@@ -89,29 +88,25 @@ abstract class BaseComposeTest {
     @Suppress("DEPRECATION")
     abstract val activityRule: androidx.test.rule.ActivityTestRule<TestActivity>
 
-    val activity get() = activityRule.activity
+    val activity
+        get() = activityRule.activity
 
-    fun compose(
-        composable: @Composable () -> Unit
-    ) = ComposeTester(
-        activity,
-        composable
-    )
+    fun compose(composable: @Composable () -> Unit) = ComposeTester(activity, composable)
 
     @Composable
     @Suppress("UNUSED_PARAMETER")
     fun subCompose(block: @Composable () -> Unit) {
-//        val reference = rememberCompositionContext()
-//        remember {
-//            Composition(
-//                UiApplier(View(activity)),
-//                reference
-//            )
-//        }.apply {
-//            setContent {
-//                block()
-//            }
-//        }
+        //        val reference = rememberCompositionContext()
+        //        remember {
+        //            Composition(
+        //                UiApplier(View(activity)),
+        //                reference
+        //            )
+        //        }.apply {
+        //            setContent {
+        //                block()
+        //            }
+        //        }
     }
 }
 
@@ -119,36 +114,24 @@ class ComposeTester(val activity: ComponentActivity, val composable: @Composable
     inner class ActiveTest(val activity: Activity) {
         fun then(block: ActiveTest.(activity: Activity) -> Unit): ActiveTest {
             activity.waitForAFrame()
-            activity.uiThread {
-                block(activity)
-            }
+            activity.uiThread { block(activity) }
             return this
         }
 
         fun done() {
-            activity.uiThread {
-                activity.setContentView(View(activity))
-            }
+            activity.uiThread { activity.setContentView(View(activity)) }
             activity.waitForAFrame()
         }
     }
 
     private fun initialComposition(composable: @Composable () -> Unit) {
-        activity.show {
-            CompositionLocalProvider(
-                LocalContext provides activity
-            ) {
-                composable()
-            }
-        }
+        activity.show { CompositionLocalProvider(LocalContext provides activity) { composable() } }
     }
 
     fun then(block: ComposeTester.(activity: Activity) -> Unit): ActiveTest {
         initialComposition(composable)
         activity.waitForAFrame()
-        activity.uiThread {
-            block(activity)
-        }
+        activity.uiThread { block(activity) }
         return ActiveTest(activity)
     }
 }

@@ -17,7 +17,5 @@
 package androidx.compose.ui.test
 
 internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction {
-    return performTouchInput {
-        click()
-    }
+    return performTouchInput { click() }
 }

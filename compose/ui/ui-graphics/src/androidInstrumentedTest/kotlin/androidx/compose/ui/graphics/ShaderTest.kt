@@ -40,15 +40,16 @@ class ShaderTest {
         val imageBitmap = ImageBitmap(100, 100)
         imageBitmap.drawInto {
             drawRect(
-                brush = Brush.linearGradient(
-                    0.0f to Color.Red,
-                    0.5f to Color.Red,
-                    0.5f to Color.Blue,
-                    1.0f to Color.Blue,
-                    start = Offset.Zero,
-                    end = Offset(0.0f, 100f),
-                    tileMode = TileMode.Clamp
-                )
+                brush =
+                    Brush.linearGradient(
+                        0.0f to Color.Red,
+                        0.5f to Color.Red,
+                        0.5f to Color.Blue,
+                        1.0f to Color.Blue,
+                        start = Offset.Zero,
+                        end = Offset(0.0f, 100f),
+                        tileMode = TileMode.Clamp
+                    )
             )
         }
 
@@ -69,15 +70,16 @@ class ShaderTest {
 
         imageBitmap.drawInto {
             drawCircle(
-                brush = Brush.radialGradient(
-                    0.0f to Color.Red,
-                    0.5f to Color.Red,
-                    0.5f to Color.Blue,
-                    1.0f to Color.Blue,
-                    center = Offset(50f, 50f),
-                    radius = 50f,
-                    tileMode = TileMode.Clamp
-                )
+                brush =
+                    Brush.radialGradient(
+                        0.0f to Color.Red,
+                        0.5f to Color.Red,
+                        0.5f to Color.Blue,
+                        1.0f to Color.Blue,
+                        center = Offset(50f, 50f),
+                        radius = 50f,
+                        tileMode = TileMode.Clamp
+                    )
             )
         }
 
@@ -101,13 +103,14 @@ class ShaderTest {
         val center = Offset(50f, 50f)
         imageBitmap.drawInto {
             drawRect(
-                brush = Brush.sweepGradient(
-                    0.0f to Color.Red,
-                    0.5f to Color.Red,
-                    0.5f to Color.Blue,
-                    1.0f to Color.Blue,
-                    center = center
-                )
+                brush =
+                    Brush.sweepGradient(
+                        0.0f to Color.Red,
+                        0.5f to Color.Red,
+                        0.5f to Color.Blue,
+                        1.0f to Color.Blue,
+                        center = center
+                    )
             )
         }
 
@@ -127,10 +130,11 @@ class ShaderTest {
         assertEquals(
             Size(100f, 200f),
             Brush.linearGradient(
-                listOf(Color.Red, Color.Blue),
-                start = Offset(200f, 100f),
-                end = Offset(300f, 300f)
-            ).intrinsicSize
+                    listOf(Color.Red, Color.Blue),
+                    start = Offset(200f, 100f),
+                    end = Offset(300f, 300f)
+                )
+                .intrinsicSize
         )
     }
 
@@ -139,10 +143,11 @@ class ShaderTest {
         assertEquals(
             Size(100f, 200f),
             Brush.linearGradient(
-                listOf(Color.Red, Color.Blue),
-                start = Offset(200f, 100f),
-                end = Offset(100f, -100f)
-            ).intrinsicSize
+                    listOf(Color.Red, Color.Blue),
+                    start = Offset(200f, 100f),
+                    end = Offset(100f, -100f)
+                )
+                .intrinsicSize
         )
     }
 
@@ -151,10 +156,11 @@ class ShaderTest {
         assertEquals(
             Size(Float.NaN, 200f),
             Brush.linearGradient(
-                listOf(Color.Red, Color.Blue),
-                start = Offset(Float.POSITIVE_INFINITY, 100f),
-                end = Offset(Float.POSITIVE_INFINITY, 300f)
-            ).intrinsicSize
+                    listOf(Color.Red, Color.Blue),
+                    start = Offset(Float.POSITIVE_INFINITY, 100f),
+                    end = Offset(Float.POSITIVE_INFINITY, 300f)
+                )
+                .intrinsicSize
         )
     }
 
@@ -163,10 +169,11 @@ class ShaderTest {
         assertEquals(
             Size(100f, Float.NaN),
             Brush.linearGradient(
-                listOf(Color.Red, Color.Blue),
-                start = Offset(100f, 0f),
-                end = Offset(200f, Float.POSITIVE_INFINITY)
-            ).intrinsicSize
+                    listOf(Color.Red, Color.Blue),
+                    start = Offset(100f, 0f),
+                    end = Offset(200f, Float.POSITIVE_INFINITY)
+                )
+                .intrinsicSize
         )
     }
 
@@ -184,10 +191,7 @@ class ShaderTest {
     fun testRadialGradientIntrinsicSize() {
         assertEquals(
             Size(100f, 100f),
-            Brush.radialGradient(
-                listOf(Color.Red, Color.Blue),
-                radius = 50f
-            ).intrinsicSize
+            Brush.radialGradient(listOf(Color.Red, Color.Blue), radius = 50f).intrinsicSize
         )
     }
 
@@ -246,13 +250,13 @@ class ShaderTest {
         assertNull(paint.shader)
     }
 
-    private fun ImageBitmap.drawInto(
-        block: DrawScope.() -> Unit
-    ) = CanvasDrawScope().draw(
-        Density(1.0f),
-        LayoutDirection.Ltr,
-        Canvas(this),
-        Size(width.toFloat(), height.toFloat()),
-        block
-    )
+    private fun ImageBitmap.drawInto(block: DrawScope.() -> Unit) =
+        CanvasDrawScope()
+            .draw(
+                Density(1.0f),
+                LayoutDirection.Ltr,
+                Canvas(this),
+                Size(width.toFloat(), height.toFloat()),
+                block
+            )
 }

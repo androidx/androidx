@@ -23,39 +23,31 @@ import androidx.compose.ui.text.emptyAnnotatedString
 import androidx.compose.ui.util.fastForEach
 
 /**
- * Helper class to apply [EditCommand]s on an internal buffer. Used by TextField Composable
- * to combine TextFieldValue lifecycle with the editing operations.
- *
+ * Helper class to apply [EditCommand]s on an internal buffer. Used by TextField Composable to
+ * combine TextFieldValue lifecycle with the editing operations.
  * * When a [TextFieldValue] is suggested by the developer, [reset] should be called.
- * * When [TextInputService] provides [EditCommand]s, they should be applied to the internal
- * buffer using [apply].
+ * * When [TextInputService] provides [EditCommand]s, they should be applied to the internal buffer
+ *   using [apply].
  */
 class EditProcessor {
 
-    /**
-     * The current state of the internal editing buffer as a [TextFieldValue].
-     */
+    /** The current state of the internal editing buffer as a [TextFieldValue]. */
     /*@VisibleForTesting*/
-    internal var mBufferState: TextFieldValue = TextFieldValue(
-        emptyAnnotatedString(),
-        TextRange.Zero,
-        null
-    )
+    internal var mBufferState: TextFieldValue =
+        TextFieldValue(emptyAnnotatedString(), TextRange.Zero, null)
         private set
 
     // The editing buffer used for applying editor commands from IME.
     /*@VisibleForTesting*/
-    internal var mBuffer: EditingBuffer = EditingBuffer(
-        text = mBufferState.annotatedString,
-        selection = mBufferState.selection
-    )
+    internal var mBuffer: EditingBuffer =
+        EditingBuffer(text = mBufferState.annotatedString, selection = mBufferState.selection)
         private set
 
     /**
      * Must be called whenever new editor model arrives.
      *
-     * This method updates the internal editing buffer with the given editor model.
-     * This method may tell the IME about the selection offset changes or extracted text changes.
+     * This method updates the internal editing buffer with the given editor model. This method may
+     * tell the IME about the selection offset changes or extracted text changes.
      */
     @Suppress("ReferencesDeprecated")
     fun reset(
@@ -67,10 +59,7 @@ class EditProcessor {
         val compositionChanged = value.composition != mBuffer.composition
 
         if (mBufferState.annotatedString != value.annotatedString) {
-            mBuffer = EditingBuffer(
-                text = value.annotatedString,
-                selection = value.selection
-            )
+            mBuffer = EditingBuffer(text = value.annotatedString, selection = value.selection)
             textChanged = true
         } else if (mBufferState.selection != value.selection) {
             mBuffer.setSelection(value.selection.min, value.selection.max)
@@ -86,12 +75,13 @@ class EditProcessor {
         // this is the same code as in TextInputServiceAndroid class where restartInput is decided
         // if restartInput is going to be called the composition has to be cleared otherwise it
         // results in keyboards behaving strangely.
-        val newValue = if (textChanged || (!selectionChanged && compositionChanged)) {
-            mBuffer.commitComposition()
-            value.copy(composition = null)
-        } else {
-            value
-        }
+        val newValue =
+            if (textChanged || (!selectionChanged && compositionChanged)) {
+                mBuffer.commitComposition()
+                value.copy(composition = null)
+            } else {
+                value
+            }
 
         val oldValue = mBufferState
         mBufferState = newValue
@@ -106,7 +96,6 @@ class EditProcessor {
      * [TextFieldValue]
      *
      * @param editCommands [EditCommand]s to be applied to the editing buffer.
-     *
      * @return the [TextFieldValue] representation of the final buffer state.
      */
     fun apply(editCommands: List<EditCommand>): TextFieldValue {
@@ -120,24 +109,24 @@ class EditProcessor {
             throw RuntimeException(generateBatchErrorMessage(editCommands, lastCommand), e)
         }
 
-        val newState = TextFieldValue(
-            annotatedString = mBuffer.toAnnotatedString(),
-            // preserve original reversed selection when creating new state.
-            // otherwise the text range may flicker to un-reversed for a frame,
-            // which can cause haptics and handles to be crossed.
-            selection = mBuffer.selection.run {
-                takeUnless { mBufferState.selection.reversed } ?: TextRange(max, min)
-            },
-            composition = mBuffer.composition
-        )
+        val newState =
+            TextFieldValue(
+                annotatedString = mBuffer.toAnnotatedString(),
+                // preserve original reversed selection when creating new state.
+                // otherwise the text range may flicker to un-reversed for a frame,
+                // which can cause haptics and handles to be crossed.
+                selection =
+                    mBuffer.selection.run {
+                        takeUnless { mBufferState.selection.reversed } ?: TextRange(max, min)
+                    },
+                composition = mBuffer.composition
+            )
 
         mBufferState = newState
         return newState
     }
 
-    /**
-     * Returns the current state of the internal editing buffer as a [TextFieldValue].
-     */
+    /** Returns the current state of the internal editing buffer as a [TextFieldValue]. */
     fun toTextFieldValue(): TextFieldValue = mBufferState
 
     private fun generateBatchErrorMessage(
@@ -161,21 +150,22 @@ class EditProcessor {
      * Generate a description of the command that is suitable for logging – this should not include
      * any user-entered text, which may be sensitive.
      */
-    private fun EditCommand.toStringForLog(): String = when (this) {
-        is CommitTextCommand ->
-            "CommitTextCommand(text.length=${text.length}, newCursorPosition=$newCursorPosition)"
-        is SetComposingTextCommand ->
-            "SetComposingTextCommand(text.length=${text.length}, " +
-                "newCursorPosition=$newCursorPosition)"
-        is SetComposingRegionCommand -> toString()
-        is DeleteSurroundingTextCommand -> toString()
-        is DeleteSurroundingTextInCodePointsCommand -> toString()
-        is SetSelectionCommand -> toString()
-        is FinishComposingTextCommand -> toString()
-        is BackspaceCommand -> toString()
-        is MoveCursorCommand -> toString()
-        is DeleteAllCommand -> toString()
-        // Do not return toString() by default, since that might contain sensitive text.
-        else -> "Unknown EditCommand: " + (this::class.simpleName ?: "{anonymous EditCommand}")
-    }
+    private fun EditCommand.toStringForLog(): String =
+        when (this) {
+            is CommitTextCommand ->
+                "CommitTextCommand(text.length=${text.length}, newCursorPosition=$newCursorPosition)"
+            is SetComposingTextCommand ->
+                "SetComposingTextCommand(text.length=${text.length}, " +
+                    "newCursorPosition=$newCursorPosition)"
+            is SetComposingRegionCommand -> toString()
+            is DeleteSurroundingTextCommand -> toString()
+            is DeleteSurroundingTextInCodePointsCommand -> toString()
+            is SetSelectionCommand -> toString()
+            is FinishComposingTextCommand -> toString()
+            is BackspaceCommand -> toString()
+            is MoveCursorCommand -> toString()
+            is DeleteAllCommand -> toString()
+            // Do not return toString() by default, since that might contain sensitive text.
+            else -> "Unknown EditCommand: " + (this::class.simpleName ?: "{anonymous EditCommand}")
+        }
 }

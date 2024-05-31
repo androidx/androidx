@@ -49,16 +49,12 @@ class PagerGestureTest(private val paramConfig: ParamConfig) : BasePagerTest(con
             }
         }
 
-        rule.onNodeWithTag(
-            max(
-                0,
-                initialPage - paramConfig.beyondViewportPageCount - 1
-            ).toString()
-        ).assertDoesNotExist()
+        rule
+            .onNodeWithTag(max(0, initialPage - paramConfig.beyondViewportPageCount - 1).toString())
+            .assertDoesNotExist()
     }
+
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun params() = AllOrientationsParams
+        @JvmStatic @Parameterized.Parameters(name = "{0}") fun params() = AllOrientationsParams
     }
 }

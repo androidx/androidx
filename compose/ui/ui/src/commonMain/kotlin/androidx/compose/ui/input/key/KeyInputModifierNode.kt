@@ -30,18 +30,18 @@ import androidx.compose.ui.node.DelegatableNode
 interface KeyInputModifierNode : DelegatableNode {
 
     /**
-     * This function is called when a [KeyEvent] is received by this node during the upward
-     * pass. While implementing this callback, return true to stop propagation of this event. If you
+     * This function is called when a [KeyEvent] is received by this node during the upward pass.
+     * While implementing this callback, return true to stop propagation of this event. If you
      * return false, the key event will be sent to this [KeyInputModifierNode]'s parent.
      */
     fun onKeyEvent(event: KeyEvent): Boolean
 
     /**
-     * This function is called when a [KeyEvent] is received by this node during the
-     * downward pass. It gives ancestors of a focused component the chance to intercept an event.
-     * Return true to stop propagation of this event. If you return false, the event will be sent
-     * to this [KeyInputModifierNode]'s child. If none of the children consume the event,
-     * it will be sent back up to the root using the [onKeyEvent] function.
+     * This function is called when a [KeyEvent] is received by this node during the downward pass.
+     * It gives ancestors of a focused component the chance to intercept an event. Return true to
+     * stop propagation of this event. If you return false, the event will be sent to this
+     * [KeyInputModifierNode]'s child. If none of the children consume the event, it will be sent
+     * back up to the root using the [onKeyEvent] function.
      */
     fun onPreKeyEvent(event: KeyEvent): Boolean
 }

@@ -65,9 +65,8 @@ internal fun ContextMenu(
     val status = state.status
     if (status !is Status.Open) return
 
-    val popupPositionProvider = remember(status) {
-        ContextMenuPopupPositionProvider(status.offset.round())
-    }
+    val popupPositionProvider =
+        remember(status) { ContextMenuPopupPositionProvider(status.offset.round()) }
 
     ContextMenuPopup(
         modifier = modifier,

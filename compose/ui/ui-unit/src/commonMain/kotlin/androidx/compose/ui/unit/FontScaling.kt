@@ -30,24 +30,18 @@ import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
 @Immutable
 @JvmDefaultWithCompatibility
 expect interface FontScaling {
-    /**
-     * Current user preference for the scaling factor for fonts.
-     */
-    @Stable
-    val fontScale: Float
+    /** Current user preference for the scaling factor for fonts. */
+    @Stable val fontScale: Float
 
-    /**
-     * Convert [Dp] to Sp. Sp is used for font size, etc.
-     */
-    @Stable
-    open fun Dp.toSp(): TextUnit
+    /** Convert [Dp] to Sp. Sp is used for font size, etc. */
+    @Stable open fun Dp.toSp(): TextUnit
 
     /**
      * Convert Sp to [Dp].
+     *
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
-    @Stable
-    open fun TextUnit.toDp(): Dp
+    @Stable open fun TextUnit.toDp(): Dp
 }
 
 /**
@@ -59,20 +53,15 @@ expect interface FontScaling {
 @JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FontScalingLinear {
-    /**
-     * Current user preference for the scaling factor for fonts.
-     */
-    @Stable
-    val fontScale: Float
+    /** Current user preference for the scaling factor for fonts. */
+    @Stable val fontScale: Float
 
-    /**
-     * Convert [Dp] to Sp. Sp is used for font size, etc.
-     */
-    @Stable
-    fun Dp.toSp(): TextUnit = (value / fontScale).sp
+    /** Convert [Dp] to Sp. Sp is used for font size, etc. */
+    @Stable fun Dp.toSp(): TextUnit = (value / fontScale).sp
 
     /**
      * Convert Sp to [Dp].
+     *
      * @throws IllegalStateException if TextUnit other than SP unit is specified.
      */
     @Stable

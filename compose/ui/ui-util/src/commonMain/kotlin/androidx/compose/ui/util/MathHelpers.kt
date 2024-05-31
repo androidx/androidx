@@ -17,31 +17,25 @@ package androidx.compose.ui.util
 
 import kotlin.math.roundToLong
 
-/**
- * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
- */
+/** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
 fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return (1 - fraction) * start + fraction * stop
 }
 
-/**
- * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
- */
+/** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
 fun lerp(start: Int, stop: Int, fraction: Float): Int {
     return start + ((stop - start) * fraction.toDouble()).fastRoundToInt()
 }
 
-/**
- * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
- */
+/** Linearly interpolate between [start] and [stop] with [fraction] fraction between them. */
 fun lerp(start: Long, stop: Long, fraction: Float): Long {
     return start + ((stop - start) * fraction.toDouble()).roundToLong()
 }
 
 /**
- * Returns the smaller of the given values. If any value is NaN, returns NaN.
- * Preferred over `kotlin.comparisons.minfOf()` for 4 arguments as it avoids
- * allocating an array because of the varargs.
+ * Returns the smaller of the given values. If any value is NaN, returns NaN. Preferred over
+ * `kotlin.comparisons.minfOf()` for 4 arguments as it avoids allocating an array because of the
+ * varargs.
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
@@ -50,9 +44,9 @@ inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
 }
 
 /**
- * Returns the largest of the given values. If any value is NaN, returns NaN.
- * Preferred over `kotlin.comparisons.maxOf()` for 4 arguments as it avoids
- * allocating an array because of the varargs.
+ * Returns the largest of the given values. If any value is NaN, returns NaN. Preferred over
+ * `kotlin.comparisons.maxOf()` for 4 arguments as it avoids allocating an array because of the
+ * varargs.
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
@@ -61,60 +55,50 @@ inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
 }
 
 /**
- * Returns this float value clamped in the inclusive range defined by
- * [minimumValue] and [maximumValue]. Unlike [Float.coerceIn], the range
- * is not validated: the caller must ensure that [minimumValue] is less than
- * [maximumValue].
+ * Returns this float value clamped in the inclusive range defined by [minimumValue] and
+ * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
+ * [minimumValue] is less than [maximumValue].
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceIn(minimumValue: Float, maximumValue: Float) =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
-/**
- * Ensures that this value is not less than the specified [minimumValue].
- */
+/** Ensures that this value is not less than the specified [minimumValue]. */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceAtLeast(minimumValue: Float): Float {
     return if (this < minimumValue) minimumValue else this
 }
 
-/**
- * Ensures that this value is not greater than the specified [maximumValue].
- */
+/** Ensures that this value is not greater than the specified [maximumValue]. */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
     return if (this > maximumValue) maximumValue else this
 }
 
 /**
- * Returns this double value clamped in the inclusive range defined by
- * [minimumValue] and [maximumValue]. Unlike [Float.coerceIn], the range
- * is not validated: the caller must ensure that [minimumValue] is less than
- * [maximumValue].
+ * Returns this double value clamped in the inclusive range defined by [minimumValue] and
+ * [maximumValue]. Unlike [Float.coerceIn], the range is not validated: the caller must ensure that
+ * [minimumValue] is less than [maximumValue].
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceIn(minimumValue: Double, maximumValue: Double) =
     this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
 
-/**
- * Ensures that this value is not less than the specified [minimumValue].
- */
+/** Ensures that this value is not less than the specified [minimumValue]. */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceAtLeast(minimumValue: Double): Double {
     return if (this < minimumValue) minimumValue else this
 }
 
-/**
- * Ensures that this value is not greater than the specified [maximumValue].
- */
+/** Ensures that this value is not greater than the specified [maximumValue]. */
 @Suppress("NOTHING_TO_INLINE")
 inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
     return if (this > maximumValue) maximumValue else this
 }
 
 /**
- * Fast, approximate cube root function. Returns the cube root
- * of [x]; for any [x] `fastCbrt(-x) == -fastCbrt(x)`.
+ * Fast, approximate cube root function. Returns the cube root of [x]; for any [x] `fastCbrt(-x) ==
+ * -fastCbrt(x)`.
  *
  * When [x] is:
  * - [Float.NaN], returns [Float.NaN]

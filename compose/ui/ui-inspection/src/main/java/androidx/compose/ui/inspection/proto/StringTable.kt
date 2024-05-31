@@ -37,10 +37,12 @@ class StringTable {
         val result = mutableListOf<LayoutInspectorComposeProtocol.StringEntry>()
         innerMap.forEach { key, value ->
             result.add(
-                LayoutInspectorComposeProtocol.StringEntry.newBuilder().apply {
-                    str = key
-                    id = value
-                }.build()
+                LayoutInspectorComposeProtocol.StringEntry.newBuilder()
+                    .apply {
+                        str = key
+                        id = value
+                    }
+                    .build()
             )
         }
         return result

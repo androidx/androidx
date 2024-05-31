@@ -50,45 +50,34 @@ class TextStyleLayoutAttributesTest {
     @Test
     fun returns_true_for_the_same_instance() {
         val style = TextStyle(lineHeight = 1.em)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(style)
-        ).isTrue()
+        assertThat(style.hasSameLayoutAffectingAttributes(style)).isTrue()
     }
 
     @Test
     fun returns_true_for_the_equal_instance() {
         val style = TextStyle(lineHeight = 1.em)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                style.copy()
-            )
-        ).isTrue()
+        assertThat(style.hasSameLayoutAffectingAttributes(style.copy())).isTrue()
     }
 
     @Test
     fun returns_true_for_color_change() {
         val style = TextStyle(color = Color.Red)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(color = Color.Green)
-            )
-        ).isTrue()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(color = Color.Green))).isTrue()
     }
 
     @Test
     fun returns_true_for_color_to_brush_change() {
         val style = TextStyle(color = Color.Red)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
-        ).isTrue()
+                style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
+            )
+            .isTrue()
     }
 
     @Test
     fun returns_true_for_brush_to_color_change() {
         val style = TextStyle(brush = SolidColor(Color.Green))
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(TextStyle(color = Color.Red))
-        ).isTrue()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(color = Color.Red))).isTrue()
     }
 
     @Test
@@ -96,47 +85,50 @@ class TextStyleLayoutAttributesTest {
         val style = TextStyle(brush = SolidColor(Color.Red))
         style.copy()
         assertThat(
-            style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
-        ).isTrue()
+                style.hasSameLayoutAffectingAttributes(TextStyle(brush = SolidColor(Color.Green)))
+            )
+            .isTrue()
     }
 
     @Test
     fun returns_true_for_brush_shader_change() {
         val style = TextStyle(brush = Brush.linearGradient(listOf(Color.Black, Color.White)))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(TextStyle(
-                brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))
-            ))
-        ).isTrue()
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(brush = Brush.linearGradient(listOf(Color.Red, Color.Blue)))
+                )
+            )
+            .isTrue()
     }
 
     @Test
     fun returns_true_for_brush_alpha_change() {
         val brush = Brush.linearGradient(listOf(Color.Black, Color.White))
         val style = TextStyle(brush = brush, alpha = 0.5f)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(TextStyle(brush = brush, alpha = 0.7f))
-        ).isTrue()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(brush = brush, alpha = 0.7f)))
+            .isTrue()
     }
 
     @Test
     fun returns_true_for_shadow_change() {
         val style = TextStyle(shadow = Shadow(color = Color.Red))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(shadow = Shadow(color = Color.Green))
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(shadow = Shadow(color = Color.Green))
+                )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun returns_true_for_textDecoration_change() {
         val style = TextStyle(textDecoration = TextDecoration.LineThrough)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(textDecoration = TextDecoration.Underline)
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(textDecoration = TextDecoration.Underline)
+                )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
@@ -144,141 +136,117 @@ class TextStyleLayoutAttributesTest {
         // even though background does not change metrics, without recreating layout background
         // color animations doesn't work, do not remove.
         val style = TextStyle(background = Color.Red)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(background = Color.Green)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(background = Color.Green)))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_fontSize_change() {
         val style = TextStyle(fontSize = 10.sp)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(fontSize = 11.sp)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(fontSize = 11.sp))).isFalse()
     }
 
     @Test
     fun returns_false_for_fontStyle_change() {
         val style = TextStyle(fontStyle = FontStyle.Italic)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(fontStyle = FontStyle.Normal)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(fontStyle = FontStyle.Normal)))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_fontSynthesis_change() {
         val style = TextStyle(fontSynthesis = FontSynthesis.Style)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(fontSynthesis = FontSynthesis.Weight)
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(fontSynthesis = FontSynthesis.Weight)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_fontFamily_change() {
         val style = TextStyle(fontFamily = FontFamily.SansSerif)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(fontFamily = FontFamily.Serif)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(fontFamily = FontFamily.Serif)))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_fontFeatureSettings_change() {
         val style = TextStyle(fontFeatureSettings = "abc")
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(fontFeatureSettings = "def")
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(fontFeatureSettings = "def")))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_letterSpacing_change() {
         val style = TextStyle(letterSpacing = 0.2.sp)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(letterSpacing = 0.3.sp)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(letterSpacing = 0.3.sp)))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_baselineShift_change() {
         val style = TextStyle(baselineShift = BaselineShift.Superscript)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(baselineShift = BaselineShift.Subscript)
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(baselineShift = BaselineShift.Subscript)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_textGeometricTransform_change() {
         val style = TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 1f))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 2f))
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 2f))
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_localeList_change() {
         val style = TextStyle(localeList = LocaleList("en-US"))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(localeList = LocaleList("en-CA"))
+                style.hasSameLayoutAffectingAttributes(TextStyle(localeList = LocaleList("en-CA")))
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_textAlign_change() {
         val style = TextStyle(textAlign = TextAlign.Start)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(textAlign = TextAlign.End)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(textAlign = TextAlign.End)))
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_textDirection_change() {
         val style = TextStyle(textDirection = TextDirection.Ltr)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(textDirection = TextDirection.Rtl)
+                style.hasSameLayoutAffectingAttributes(TextStyle(textDirection = TextDirection.Rtl))
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_lineHeight_change() {
         val style = TextStyle(lineHeight = 1.em)
-        assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(lineHeight = 1.1.em)
-            )
-        ).isFalse()
+        assertThat(style.hasSameLayoutAffectingAttributes(TextStyle(lineHeight = 1.1.em))).isFalse()
     }
 
     @Test
     fun returns_false_for_textIndent_change() {
         val style = TextStyle(textIndent = TextIndent(firstLine = 0.sp))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(textIndent = TextIndent(firstLine = 1.sp))
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(textIndent = TextIndent(firstLine = 1.sp))
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Suppress("DEPRECATION")
@@ -286,54 +254,48 @@ class TextStyleLayoutAttributesTest {
     fun returns_false_for_platformStyle_change() {
         val style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = true))
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_color_and_textAlign_change() {
         val style = TextStyle(color = Color.Red, textAlign = TextAlign.Start)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(color = Color.Blue, textAlign = TextAlign.End)
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(color = Color.Blue, textAlign = TextAlign.End)
+                )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_lineHeightStyle_change() {
-        val style = TextStyle(
-            lineHeightStyle = LineHeightStyle(
-                alignment = Alignment.Center,
-                trim = Trim.None
+        val style =
+            TextStyle(
+                lineHeightStyle = LineHeightStyle(alignment = Alignment.Center, trim = Trim.None)
             )
-        )
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(
-                    lineHeightStyle = LineHeightStyle(
-                        alignment = Alignment.Bottom,
-                        trim = Trim.Both
+                style.hasSameLayoutAffectingAttributes(
+                    TextStyle(
+                        lineHeightStyle =
+                            LineHeightStyle(alignment = Alignment.Bottom, trim = Trim.Both)
                     )
                 )
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
     fun returns_false_for_lineBreak_change() {
-        val style = TextStyle(
-            lineBreak = LineBreak.Heading
-        )
+        val style = TextStyle(lineBreak = LineBreak.Heading)
         assertThat(
-            style.hasSameLayoutAffectingAttributes(
-                TextStyle(
-                    lineBreak = LineBreak.Paragraph
-                )
+                style.hasSameLayoutAffectingAttributes(TextStyle(lineBreak = LineBreak.Paragraph))
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
@@ -341,61 +303,62 @@ class TextStyleLayoutAttributesTest {
         // TextLayoutHelper TextStyle.hasSameLayoutAffectingAttributes is very easy to forget
         // to update when TextStyle changes. Adding this test to fail so that when a new attribute
         // is added to TextStyle it will remind us that we need to update the function.
-        val knownProperties = listOf(
-            getProperty("color"),
-            getProperty("brush"),
-            getProperty("alpha"),
-            getProperty("shadow"),
-            getProperty("textDecoration"),
-            getProperty("fontSize"),
-            getProperty("fontWeight"),
-            getProperty("fontStyle"),
-            getProperty("fontSynthesis"),
-            getProperty("fontFamily"),
-            getProperty("fontFeatureSettings"),
-            getProperty("letterSpacing"),
-            getProperty("baselineShift"),
-            getProperty("textGeometricTransform"),
-            getProperty("localeList"),
-            getProperty("background"),
-            getProperty("drawStyle"),
-            getProperty("textAlign"),
-            getProperty("textDirection"),
-            getProperty("lineHeight"),
-            getProperty("textIndent"),
-            getProperty("platformStyle"),
-            // ParagraphStyle and SpanStyle properties are already compared, TextStyle should have
-            // paragraph style attributes is tested in:
-            // ui-text/../androidx/compose/ui/text/TextSpanParagraphStyleTest.kt
-            getProperty("paragraphStyle"),
-            getProperty("spanStyle"),
-            getProperty("lineHeightStyle"),
-            getProperty("hyphens"),
-            getProperty("lineBreak"),
-            getProperty("textMotion"),
-            // deprecated properties kept for binary compatibility
-            getProperty("deprecated_boxing_textAlign"),
-            getProperty("deprecated_boxing_textDirection"),
-            getProperty("deprecated_boxing_hyphens"),
-            getProperty("deprecated_boxing_lineBreak")
-        )
+        val knownProperties =
+            listOf(
+                getProperty("color"),
+                getProperty("brush"),
+                getProperty("alpha"),
+                getProperty("shadow"),
+                getProperty("textDecoration"),
+                getProperty("fontSize"),
+                getProperty("fontWeight"),
+                getProperty("fontStyle"),
+                getProperty("fontSynthesis"),
+                getProperty("fontFamily"),
+                getProperty("fontFeatureSettings"),
+                getProperty("letterSpacing"),
+                getProperty("baselineShift"),
+                getProperty("textGeometricTransform"),
+                getProperty("localeList"),
+                getProperty("background"),
+                getProperty("drawStyle"),
+                getProperty("textAlign"),
+                getProperty("textDirection"),
+                getProperty("lineHeight"),
+                getProperty("textIndent"),
+                getProperty("platformStyle"),
+                // ParagraphStyle and SpanStyle properties are already compared, TextStyle should
+                // have
+                // paragraph style attributes is tested in:
+                // ui-text/../androidx/compose/ui/text/TextSpanParagraphStyleTest.kt
+                getProperty("paragraphStyle"),
+                getProperty("spanStyle"),
+                getProperty("lineHeightStyle"),
+                getProperty("hyphens"),
+                getProperty("lineBreak"),
+                getProperty("textMotion"),
+                // deprecated properties kept for binary compatibility
+                getProperty("deprecated_boxing_textAlign"),
+                getProperty("deprecated_boxing_textDirection"),
+                getProperty("deprecated_boxing_hyphens"),
+                getProperty("deprecated_boxing_lineBreak")
+            )
 
         val textStyleProperties = TextStyle::class.memberProperties.map { Property(it) }
 
         assertWithMessage(
-            "New property is added to TextStyle, TextStyle.hasSameLayoutAffectingAttributes " +
-                "should be updated accordingly"
-        ).that(knownProperties).containsAtLeastElementsIn(textStyleProperties)
+                "New property is added to TextStyle, TextStyle.hasSameLayoutAffectingAttributes " +
+                    "should be updated accordingly"
+            )
+            .that(knownProperties)
+            .containsAtLeastElementsIn(textStyleProperties)
     }
 
     private fun getProperty(name: String): Property {
         return TextStyle::class.memberProperties.first { it.name == name }.let { Property(it) }
     }
 
-    private data class Property(
-        val name: String?,
-        val type: KType
-    ) {
+    private data class Property(val name: String?, val type: KType) {
         constructor(parameter: KProperty1<*, *>) : this(parameter.name, parameter.returnType)
     }
 }

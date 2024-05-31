@@ -61,12 +61,28 @@ class CacheTextLayoutInputTest {
 
     @Test
     fun placeholders_should_differ() {
-        val input1 = cacheTextLayoutInput(placeholders = listOf(AnnotatedString.Range(
-            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline), 0, 1
-        )))
-        val input2 = cacheTextLayoutInput(placeholders = listOf(AnnotatedString.Range(
-            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline), 1, 2
-        )))
+        val input1 =
+            cacheTextLayoutInput(
+                placeholders =
+                    listOf(
+                        AnnotatedString.Range(
+                            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline),
+                            0,
+                            1
+                        )
+                    )
+            )
+        val input2 =
+            cacheTextLayoutInput(
+                placeholders =
+                    listOf(
+                        AnnotatedString.Range(
+                            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline),
+                            1,
+                            2
+                        )
+                    )
+            )
 
         assertThat(input1.hashCode()).isNotEqualTo(input2.hashCode())
         assertThat(input1).isNotEqualTo(input2)
@@ -165,12 +181,10 @@ class CacheTextLayoutInputTest {
 
     @Test
     fun shadow_should_not_differ() {
-        val input1 = cacheTextLayoutInput(
-            style = TextStyle(shadow = Shadow(Color.Red, Offset(10f, 10f)))
-        )
-        val input2 = cacheTextLayoutInput(
-            style = TextStyle(shadow = Shadow(Color.Red, Offset(12f, 12f)))
-        )
+        val input1 =
+            cacheTextLayoutInput(style = TextStyle(shadow = Shadow(Color.Red, Offset(10f, 10f))))
+        val input2 =
+            cacheTextLayoutInput(style = TextStyle(shadow = Shadow(Color.Red, Offset(12f, 12f))))
 
         assertThat(input1.hashCode()).isEqualTo(input2.hashCode())
         assertThat(input1).isEqualTo(input2)
@@ -178,12 +192,10 @@ class CacheTextLayoutInputTest {
 
     @Test
     fun textDecoration_should_not_differ() {
-        val input1 = cacheTextLayoutInput(
-            style = TextStyle(textDecoration = TextDecoration.Underline)
-        )
-        val input2 = cacheTextLayoutInput(
-            style = TextStyle(textDecoration = TextDecoration.LineThrough)
-        )
+        val input1 =
+            cacheTextLayoutInput(style = TextStyle(textDecoration = TextDecoration.Underline))
+        val input2 =
+            cacheTextLayoutInput(style = TextStyle(textDecoration = TextDecoration.LineThrough))
 
         assertThat(input1.hashCode()).isEqualTo(input2.hashCode())
         assertThat(input1).isEqualTo(input2)

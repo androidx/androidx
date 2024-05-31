@@ -54,23 +54,29 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.max
 
 /**
- * <a href="https://m3.material.io/components/lists/overview" class="external" target="_blank">Material Design list item.</a>
+ * <a href="https://m3.material.io/components/lists/overview" class="external"
+ * target="_blank">Material Design list item.</a>
  *
  * Lists are continuous, vertical indexes of text or images.
  *
- * ![Lists image](https://developer.android.com/images/reference/androidx/compose/material3/lists.png)
+ * ![Lists
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/lists.png)
  *
  * This component can be used to achieve the list item templates existing in the spec. One-line list
  * items have a singular line of headline content. Two-line list items additionally have either
  * supporting or overline content. Three-line list items have either both supporting and overline
  * content, or extended (two-line) supporting text. For example:
  * - one-line item
+ *
  * @sample androidx.compose.material3.samples.OneLineListItem
  * - two-line item
+ *
  * @sample androidx.compose.material3.samples.TwoLineListItem
  * - three-line item with both overline and supporting content
+ *
  * @sample androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
  * - three-line item with extended supporting content
+ *
  * @sample androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
  *
  * @param headlineContent the headline content of the list item
@@ -80,7 +86,7 @@ import kotlin.math.max
  * @param leadingContent the leading content of the list item
  * @param trailingContent the trailing meta text, icon, switch or checkbox
  * @param colors [ListItemColors] that will be used to resolve the background and content color for
- * this list item in different states. See [ListItemDefaults.colors]
+ *   this list item in different states. See [ListItemDefaults.colors]
  * @param tonalElevation the tonal elevation of this list item
  * @param shadowElevation the shadow elevation of this list item
  */
@@ -103,50 +109,52 @@ fun ListItem(
             headlineContent
         )
     }
-    val decoratedSupportingContent: @Composable (() -> Unit)? = supportingContent?.let {
-        {
-            ProvideTextStyleFromToken(
-                colors.supportingColor(),
-                ListTokens.ListItemSupportingTextFont,
-                it
-            )
-        }
-    }
-    val decoratedOverlineContent: @Composable (() -> Unit)? = overlineContent?.let {
-        {
-            ProvideTextStyleFromToken(
-                colors.overlineColor(),
-                ListTokens.ListItemOverlineFont,
-                it
-            )
-        }
-    }
-    val decoratedLeadingContent: @Composable (() -> Unit)? = leadingContent?.let {
-        {
-            Box(Modifier.padding(end = LeadingContentEndPadding)) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.leadingIconColor(enabled = true),
-                    content = it
-                )
-            }
-        }
-    }
-    val decoratedTrailingContent: @Composable (() -> Unit)? = trailingContent?.let {
-        {
-            Box(Modifier.padding(start = TrailingContentStartPadding)) {
+    val decoratedSupportingContent: @Composable (() -> Unit)? =
+        supportingContent?.let {
+            {
                 ProvideTextStyleFromToken(
-                    colors.trailingIconColor(enabled = true),
-                    ListTokens.ListItemTrailingSupportingTextFont,
-                    content = it
+                    colors.supportingColor(),
+                    ListTokens.ListItemSupportingTextFont,
+                    it
                 )
             }
         }
-    }
+    val decoratedOverlineContent: @Composable (() -> Unit)? =
+        overlineContent?.let {
+            {
+                ProvideTextStyleFromToken(
+                    colors.overlineColor(),
+                    ListTokens.ListItemOverlineFont,
+                    it
+                )
+            }
+        }
+    val decoratedLeadingContent: @Composable (() -> Unit)? =
+        leadingContent?.let {
+            {
+                Box(Modifier.padding(end = LeadingContentEndPadding)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.leadingIconColor(enabled = true),
+                        content = it
+                    )
+                }
+            }
+        }
+    val decoratedTrailingContent: @Composable (() -> Unit)? =
+        trailingContent?.let {
+            {
+                Box(Modifier.padding(start = TrailingContentStartPadding)) {
+                    ProvideTextStyleFromToken(
+                        colors.trailingIconColor(enabled = true),
+                        ListTokens.ListItemTrailingSupportingTextFont,
+                        content = it
+                    )
+                }
+            }
+        }
 
     Surface(
-        modifier = Modifier
-            .semantics(mergeDescendants = true) {}
-            .then(modifier),
+        modifier = Modifier.semantics(mergeDescendants = true) {}.then(modifier),
         shape = ListItemDefaults.shape,
         color = colors.containerColor(),
         contentColor = colors.headlineColor(enabled = true),
@@ -173,13 +181,14 @@ private fun ListItemLayout(
 ) {
     val measurePolicy = remember { ListItemMeasurePolicy() }
     Layout(
-        contents = listOf(
-            headline,
-            overline ?: {},
-            supporting ?: {},
-            leading ?: {},
-            trailing ?: {},
-        ),
+        contents =
+            listOf(
+                headline,
+                overline ?: {},
+                supporting ?: {},
+                leading ?: {},
+                trailing ?: {},
+            ),
         measurePolicy = measurePolicy,
     )
 }
@@ -189,8 +198,13 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
         measurables: List<List<Measurable>>,
         constraints: Constraints
     ): MeasureResult {
-        val (headlineMeasurable, overlineMeasurable, supportingMeasurable, leadingMeasurable,
-            trailingMeasurable) = measurables
+        val (
+            headlineMeasurable,
+            overlineMeasurable,
+            supportingMeasurable,
+            leadingMeasurable,
+            trailingMeasurable) =
+            measurables
         var currentTotalWidth = 0
 
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
@@ -206,23 +220,26 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
         // 4. Actual leading/trailing measurement
         // 5. Actual supporting measurement
         // 6. Actual vertical padding
-        val intrinsicLeadingWidth = leadingMeasurable.firstOrNull()
-            ?.minIntrinsicWidth(constraints.maxHeight) ?: 0
-        val intrinsicTrailingWidth = trailingMeasurable.firstOrNull()
-            ?.minIntrinsicWidth(constraints.maxHeight) ?: 0
-        val intrinsicSupportingWidthConstraint = looseConstraints.maxWidth
-            .subtractConstraintSafely(
+        val intrinsicLeadingWidth =
+            leadingMeasurable.firstOrNull()?.minIntrinsicWidth(constraints.maxHeight) ?: 0
+        val intrinsicTrailingWidth =
+            trailingMeasurable.firstOrNull()?.minIntrinsicWidth(constraints.maxHeight) ?: 0
+        val intrinsicSupportingWidthConstraint =
+            looseConstraints.maxWidth.subtractConstraintSafely(
                 intrinsicLeadingWidth + intrinsicTrailingWidth + horizontalPadding
             )
-        val intrinsicSupportingHeight = supportingMeasurable.firstOrNull()
-            ?.minIntrinsicHeight(intrinsicSupportingWidthConstraint) ?: 0
+        val intrinsicSupportingHeight =
+            supportingMeasurable
+                .firstOrNull()
+                ?.minIntrinsicHeight(intrinsicSupportingWidthConstraint) ?: 0
         val intrinsicIsSupportingMultiline =
             isSupportingMultilineHeuristic(intrinsicSupportingHeight)
-        val intrinsicListItemType = ListItemType(
-            hasOverline = overlineMeasurable.firstOrNull() != null,
-            hasSupporting = supportingMeasurable.firstOrNull() != null,
-            isSupportingMultiline = intrinsicIsSupportingMultiline,
-        )
+        val intrinsicListItemType =
+            ListItemType(
+                hasOverline = overlineMeasurable.firstOrNull() != null,
+                hasSupporting = supportingMeasurable.firstOrNull() != null,
+                isSupportingMultiline = intrinsicIsSupportingMultiline,
+            )
         val intrinsicVerticalPadding = (verticalPadding(intrinsicListItemType) * 2).roundToPx()
 
         val paddedLooseConstraints =
@@ -234,66 +251,74 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
         val leadingPlaceable = leadingMeasurable.firstOrNull()?.measure(paddedLooseConstraints)
         currentTotalWidth += widthOrZero(leadingPlaceable)
 
-        val trailingPlaceable = trailingMeasurable.firstOrNull()?.measure(
-            paddedLooseConstraints.offset(
-                horizontal = -currentTotalWidth
-            )
-        )
+        val trailingPlaceable =
+            trailingMeasurable
+                .firstOrNull()
+                ?.measure(paddedLooseConstraints.offset(horizontal = -currentTotalWidth))
         currentTotalWidth += widthOrZero(trailingPlaceable)
 
         var currentTotalHeight = 0
 
-        val headlinePlaceable = headlineMeasurable.firstOrNull()?.measure(
-            paddedLooseConstraints.offset(
-                horizontal = -currentTotalWidth
-            )
-        )
+        val headlinePlaceable =
+            headlineMeasurable
+                .firstOrNull()
+                ?.measure(paddedLooseConstraints.offset(horizontal = -currentTotalWidth))
         currentTotalHeight += heightOrZero(headlinePlaceable)
 
-        val supportingPlaceable = supportingMeasurable.firstOrNull()?.measure(
-            paddedLooseConstraints.offset(
-                horizontal = -currentTotalWidth,
-                vertical = -currentTotalHeight
-            )
-        )
+        val supportingPlaceable =
+            supportingMeasurable
+                .firstOrNull()
+                ?.measure(
+                    paddedLooseConstraints.offset(
+                        horizontal = -currentTotalWidth,
+                        vertical = -currentTotalHeight
+                    )
+                )
         currentTotalHeight += heightOrZero(supportingPlaceable)
-        val isSupportingMultiline = supportingPlaceable != null &&
-            (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
+        val isSupportingMultiline =
+            supportingPlaceable != null &&
+                (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
 
-        val overlinePlaceable = overlineMeasurable.firstOrNull()?.measure(
-            paddedLooseConstraints.offset(
-                horizontal = -currentTotalWidth,
-                vertical = -currentTotalHeight
+        val overlinePlaceable =
+            overlineMeasurable
+                .firstOrNull()
+                ?.measure(
+                    paddedLooseConstraints.offset(
+                        horizontal = -currentTotalWidth,
+                        vertical = -currentTotalHeight
+                    )
+                )
+
+        val listItemType =
+            ListItemType(
+                hasOverline = overlinePlaceable != null,
+                hasSupporting = supportingPlaceable != null,
+                isSupportingMultiline = isSupportingMultiline,
             )
-        )
-
-        val listItemType = ListItemType(
-            hasOverline = overlinePlaceable != null,
-            hasSupporting = supportingPlaceable != null,
-            isSupportingMultiline = isSupportingMultiline,
-        )
         val topPadding = verticalPadding(listItemType)
         val verticalPadding = topPadding * 2
 
-        val width = calculateWidth(
-            leadingWidth = widthOrZero(leadingPlaceable),
-            trailingWidth = widthOrZero(trailingPlaceable),
-            headlineWidth = widthOrZero(headlinePlaceable),
-            overlineWidth = widthOrZero(overlinePlaceable),
-            supportingWidth = widthOrZero(supportingPlaceable),
-            horizontalPadding = horizontalPadding,
-            constraints = constraints,
-        )
-        val height = calculateHeight(
-            leadingHeight = heightOrZero(leadingPlaceable),
-            trailingHeight = heightOrZero(trailingPlaceable),
-            headlineHeight = heightOrZero(headlinePlaceable),
-            overlineHeight = heightOrZero(overlinePlaceable),
-            supportingHeight = heightOrZero(supportingPlaceable),
-            listItemType = listItemType,
-            verticalPadding = verticalPadding.roundToPx(),
-            constraints = constraints,
-        )
+        val width =
+            calculateWidth(
+                leadingWidth = widthOrZero(leadingPlaceable),
+                trailingWidth = widthOrZero(trailingPlaceable),
+                headlineWidth = widthOrZero(headlinePlaceable),
+                overlineWidth = widthOrZero(overlinePlaceable),
+                supportingWidth = widthOrZero(supportingPlaceable),
+                horizontalPadding = horizontalPadding,
+                constraints = constraints,
+            )
+        val height =
+            calculateHeight(
+                leadingHeight = heightOrZero(leadingPlaceable),
+                trailingHeight = heightOrZero(trailingPlaceable),
+                headlineHeight = heightOrZero(headlinePlaceable),
+                overlineHeight = heightOrZero(overlinePlaceable),
+                supportingHeight = heightOrZero(supportingPlaceable),
+                listItemType = listItemType,
+                verticalPadding = verticalPadding.roundToPx(),
+                constraints = constraints,
+            )
 
         return place(
             width = width,
@@ -335,8 +360,13 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
         height: Int,
         intrinsicMeasure: IntrinsicMeasurable.(height: Int) -> Int,
     ): Int {
-        val (headlineMeasurable, overlineMeasurable, supportingMeasurable, leadingMeasurable,
-            trailingMeasurable) = measurables
+        val (
+            headlineMeasurable,
+            overlineMeasurable,
+            supportingMeasurable,
+            leadingMeasurable,
+            trailingMeasurable) =
+            measurables
         return calculateWidth(
             leadingWidth = leadingMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
             trailingWidth = trailingMeasurable.firstOrNull()?.intrinsicMeasure(height) ?: 0,
@@ -353,36 +383,44 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
         width: Int,
         intrinsicMeasure: IntrinsicMeasurable.(width: Int) -> Int,
     ): Int {
-        val (headlineMeasurable, overlineMeasurable, supportingMeasurable, leadingMeasurable,
-            trailingMeasurable) = measurables
+        val (
+            headlineMeasurable,
+            overlineMeasurable,
+            supportingMeasurable,
+            leadingMeasurable,
+            trailingMeasurable) =
+            measurables
 
-        var remainingWidth = width.subtractConstraintSafely(
-            (ListItemStartPadding + ListItemEndPadding).roundToPx()
-        )
-        val leadingHeight = leadingMeasurable.firstOrNull()?.let {
-            val height = it.intrinsicMeasure(remainingWidth)
-            remainingWidth = remainingWidth.subtractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            height
-        } ?: 0
-        val trailingHeight = trailingMeasurable.firstOrNull()?.let {
-            val height = it.intrinsicMeasure(remainingWidth)
-            remainingWidth = remainingWidth.subtractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            height
-        } ?: 0
-        val overlineHeight = overlineMeasurable.firstOrNull()
-            ?.intrinsicMeasure(remainingWidth) ?: 0
-        val supportingHeight = supportingMeasurable.firstOrNull()
-            ?.intrinsicMeasure(remainingWidth) ?: 0
+        var remainingWidth =
+            width.subtractConstraintSafely((ListItemStartPadding + ListItemEndPadding).roundToPx())
+        val leadingHeight =
+            leadingMeasurable.firstOrNull()?.let {
+                val height = it.intrinsicMeasure(remainingWidth)
+                remainingWidth =
+                    remainingWidth.subtractConstraintSafely(
+                        it.maxIntrinsicWidth(Constraints.Infinity)
+                    )
+                height
+            } ?: 0
+        val trailingHeight =
+            trailingMeasurable.firstOrNull()?.let {
+                val height = it.intrinsicMeasure(remainingWidth)
+                remainingWidth =
+                    remainingWidth.subtractConstraintSafely(
+                        it.maxIntrinsicWidth(Constraints.Infinity)
+                    )
+                height
+            } ?: 0
+        val overlineHeight = overlineMeasurable.firstOrNull()?.intrinsicMeasure(remainingWidth) ?: 0
+        val supportingHeight =
+            supportingMeasurable.firstOrNull()?.intrinsicMeasure(remainingWidth) ?: 0
         val isSupportingMultiline = isSupportingMultilineHeuristic(supportingHeight)
-        val listItemType = ListItemType(
-            hasOverline = overlineHeight > 0,
-            hasSupporting = supportingHeight > 0,
-            isSupportingMultiline = isSupportingMultiline,
-        )
+        val listItemType =
+            ListItemType(
+                hasOverline = overlineHeight > 0,
+                hasSupporting = supportingHeight > 0,
+                isSupportingMultiline = isSupportingMultiline,
+            )
 
         return calculateHeight(
             leadingHeight = leadingHeight,
@@ -424,19 +462,18 @@ private fun IntrinsicMeasureScope.calculateHeight(
     verticalPadding: Int,
     constraints: Constraints,
 ): Int {
-    val defaultMinHeight = when (listItemType) {
-        ListItemType.OneLine -> ListTokens.ListItemOneLineContainerHeight
-        ListItemType.TwoLine -> ListTokens.ListItemTwoLineContainerHeight
-        else /* ListItemType.ThreeLine */ -> ListTokens.ListItemThreeLineContainerHeight
-    }
+    val defaultMinHeight =
+        when (listItemType) {
+            ListItemType.OneLine -> ListTokens.ListItemOneLineContainerHeight
+            ListItemType.TwoLine -> ListTokens.ListItemTwoLineContainerHeight
+            else /* ListItemType.ThreeLine */ -> ListTokens.ListItemThreeLineContainerHeight
+        }
     val minHeight = max(constraints.minHeight, defaultMinHeight.roundToPx())
 
     val mainContentHeight = headlineHeight + overlineHeight + supportingHeight
 
-    return max(
-        minHeight,
-        verticalPadding + maxOf(leadingHeight, mainContentHeight, trailingHeight)
-    ).coerceAtMost(constraints.maxHeight)
+    return max(minHeight, verticalPadding + maxOf(leadingHeight, mainContentHeight, trailingHeight))
+        .coerceAtMost(constraints.maxHeight)
 }
 
 private fun MeasureScope.place(
@@ -467,13 +504,16 @@ private fun MeasureScope.place(
         }
 
         val mainContentX = startPadding + widthOrZero(leadingPlaceable)
-        val mainContentY = if (isThreeLine) {
-            topPadding
-        } else {
-            val totalHeight = heightOrZero(headlinePlaceable) + heightOrZero(overlinePlaceable) +
-                heightOrZero(supportingPlaceable)
-            CenterVertically.align(totalHeight, height)
-        }
+        val mainContentY =
+            if (isThreeLine) {
+                topPadding
+            } else {
+                val totalHeight =
+                    heightOrZero(headlinePlaceable) +
+                        heightOrZero(overlinePlaceable) +
+                        heightOrZero(supportingPlaceable)
+                CenterVertically.align(totalHeight, height)
+            }
         var currentY = mainContentY
 
         overlinePlaceable?.placeRelative(mainContentX, currentY)
@@ -486,44 +526,38 @@ private fun MeasureScope.place(
     }
 }
 
-/**
- * Contains the default values used by list items.
- */
+/** Contains the default values used by list items. */
 object ListItemDefaults {
     /** The default elevation of a list item */
     val Elevation: Dp = ListTokens.ListItemContainerElevation
 
     /** The default shape of a list item */
     val shape: Shape
-        @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerShape.value
 
     /** The container color of a list item */
     val containerColor: Color
-        @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ListItemContainerColor.value
 
     /** The content color of a list item */
     val contentColor: Color
-        @Composable
-        @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
+        @Composable @ReadOnlyComposable get() = ListTokens.ListItemLabelTextColor.value
 
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
      * [ListItem].
      *
      * @param containerColor the container color of this list item when enabled.
-     * @param headlineColor the headline text content color of this list item when
-     * enabled.
+     * @param headlineColor the headline text content color of this list item when enabled.
      * @param leadingIconColor the color of this list item's leading content when enabled.
      * @param overlineColor the overline text color of this list item
      * @param supportingColor the supporting text color of this list item
      * @param trailingIconColor the color of this list item's trailing content when enabled.
      * @param disabledHeadlineColor the content color of this list item when not enabled.
      * @param disabledLeadingIconColor the color of this list item's leading content when not
-     * enabled.
+     *   enabled.
      * @param disabledTrailingIconColor the color of this list item's trailing content when not
-     * enabled.
+     *   enabled.
      */
     @Composable
     fun colors(
@@ -533,12 +567,18 @@ object ListItemDefaults {
         overlineColor: Color = ListTokens.ListItemOverlineColor.value,
         supportingColor: Color = ListTokens.ListItemSupportingTextColor.value,
         trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.value,
-        disabledHeadlineColor: Color = ListTokens.ListItemDisabledLabelTextColor.value
-            .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
-        disabledLeadingIconColor: Color = ListTokens.ListItemDisabledLeadingIconColor.value
-            .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
-        disabledTrailingIconColor: Color = ListTokens.ListItemDisabledTrailingIconColor.value
-            .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity)
+        disabledHeadlineColor: Color =
+            ListTokens.ListItemDisabledLabelTextColor.value.copy(
+                alpha = ListTokens.ListItemDisabledLabelTextOpacity
+            ),
+        disabledLeadingIconColor: Color =
+            ListTokens.ListItemDisabledLeadingIconColor.value.copy(
+                alpha = ListTokens.ListItemDisabledLeadingIconOpacity
+            ),
+        disabledTrailingIconColor: Color =
+            ListTokens.ListItemDisabledTrailingIconColor.value.copy(
+                alpha = ListTokens.ListItemDisabledTrailingIconOpacity
+            )
     ): ListItemColors =
         ListItemColors(
             containerColor = containerColor,
@@ -556,24 +596,21 @@ object ListItemDefaults {
 /**
  * Represents the container and content colors used in a list item in different states.
  *
- * @constructor create an instance with arbitrary colors.
- * See [ListItemDefaults.colors] for the default colors used in a [ListItem].
- *
  * @param containerColor the container color of this list item when enabled.
- * @param headlineColor the headline text content color of this list item when
- * enabled.
+ * @param headlineColor the headline text content color of this list item when enabled.
  * @param leadingIconColor the color of this list item's leading content when enabled.
  * @param overlineColor the overline text color of this list item
  * @param supportingTextColor the supporting text color of this list item
  * @param trailingIconColor the color of this list item's trailing content when enabled.
  * @param disabledHeadlineColor the content color of this list item when not enabled.
- * @param disabledLeadingIconColor the color of this list item's leading content when not
- * enabled.
- * @param disabledTrailingIconColor the color of this list item's trailing content when not
- * enabled.
+ * @param disabledLeadingIconColor the color of this list item's leading content when not enabled.
+ * @param disabledTrailingIconColor the color of this list item's trailing content when not enabled.
+ * @constructor create an instance with arbitrary colors. See [ListItemDefaults.colors] for the
+ *   default colors used in a [ListItem].
  */
 @Immutable
-class ListItemColors constructor(
+class ListItemColors
+constructor(
     val containerColor: Color,
     val headlineColor: Color,
     val leadingIconColor: Color,
@@ -601,12 +638,10 @@ class ListItemColors constructor(
         if (enabled) leadingIconColor else disabledLeadingIconColor
 
     /** The color of this [ListItem]'s overline text based on enabled state */
-    @Stable
-    internal fun overlineColor(): Color = overlineColor
+    @Stable internal fun overlineColor(): Color = overlineColor
 
     /** The color of this [ListItem]'s supporting text based on enabled state */
-    @Stable
-    internal fun supportingColor(): Color = supportingTextColor
+    @Stable internal fun supportingColor(): Color = supportingTextColor
 
     /** The color of this [ListItem]'s trailing content based on enabled state */
     @Stable
@@ -619,15 +654,14 @@ private fun ProvideTextStyleFromToken(
     color: Color,
     textToken: TypographyKeyTokens,
     content: @Composable () -> Unit,
-) = ProvideContentColorTextStyle(
-    contentColor = color,
-    textStyle = textToken.value,
-    content = content
-)
+) =
+    ProvideContentColorTextStyle(
+        contentColor = color,
+        textStyle = textToken.value,
+        content = content
+    )
 
-/**
- * Helper class to define list item type. Used for padding and sizing definition.
- */
+/** Helper class to define list item type. Used for padding and sizing definition. */
 @JvmInline
 private value class ListItemType private constructor(private val lines: Int) :
     Comparable<ListItemType> {
@@ -660,38 +694,32 @@ private value class ListItemType private constructor(private val lines: Int) :
 
 // Container related defaults
 // TODO: Make sure these values stay up to date until replaced with tokens.
-@VisibleForTesting
-internal val ListItemVerticalPadding = 8.dp
+@VisibleForTesting internal val ListItemVerticalPadding = 8.dp
 
-@VisibleForTesting
-internal val ListItemThreeLineVerticalPadding = 12.dp
+@VisibleForTesting internal val ListItemThreeLineVerticalPadding = 12.dp
 
-@VisibleForTesting
-internal val ListItemStartPadding = 16.dp
+@VisibleForTesting internal val ListItemStartPadding = 16.dp
 
-@VisibleForTesting
-internal val ListItemEndPadding = 16.dp
+@VisibleForTesting internal val ListItemEndPadding = 16.dp
 
 // Icon related defaults.
 // TODO: Make sure these values stay up to date until replaced with tokens.
-@VisibleForTesting
-internal val LeadingContentEndPadding = 16.dp
+@VisibleForTesting internal val LeadingContentEndPadding = 16.dp
 
 // Trailing related defaults.
 // TODO: Make sure these values stay up to date until replaced with tokens.
-@VisibleForTesting
-internal val TrailingContentStartPadding = 16.dp
+@VisibleForTesting internal val TrailingContentStartPadding = 16.dp
 
 // In the actual layout phase, we can query supporting baselines,
 // but for an intrinsic measurement pass, we have to estimate.
-private fun Density.isSupportingMultilineHeuristic(
-    estimatedSupportingHeight: Int
-): Boolean = estimatedSupportingHeight > 30.sp.roundToPx()
+private fun Density.isSupportingMultilineHeuristic(estimatedSupportingHeight: Int): Boolean =
+    estimatedSupportingHeight > 30.sp.roundToPx()
 
-private fun verticalPadding(listItemType: ListItemType): Dp = when (listItemType) {
-    ListItemType.ThreeLine -> ListItemThreeLineVerticalPadding
-    else -> ListItemVerticalPadding
-}
+private fun verticalPadding(listItemType: ListItemType): Dp =
+    when (listItemType) {
+        ListItemType.ThreeLine -> ListItemThreeLineVerticalPadding
+        else -> ListItemVerticalPadding
+    }
 
 private fun Int.subtractConstraintSafely(n: Int): Int {
     if (this == Constraints.Infinity) {

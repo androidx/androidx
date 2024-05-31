@@ -53,25 +53,25 @@ class TextPainterTest {
     private var defaultDensity = Density(density = 1f)
     private var layoutDirection = LayoutDirection.Ltr
 
-    private val longString = "Lorem ipsum dolor sit amet, consectetur " +
-        "adipiscing elit. Curabitur augue leo, finibus vitae felis ac, pretium condimentum " +
-        "augue. Nullam non libero sed lectus aliquet venenatis non at purus. Fusce id arcu " +
-        "eu mauris pulvinar laoreet."
+    private val longString =
+        "Lorem ipsum dolor sit amet, consectetur " +
+            "adipiscing elit. Curabitur augue leo, finibus vitae felis ac, pretium condimentum " +
+            "augue. Nullam non libero sed lectus aliquet venenatis non at purus. Fusce id arcu " +
+            "eu mauris pulvinar laoreet."
 
     private val longText = AnnotatedString(longString)
 
     @Test
     fun drawTextWithMeasurer_shouldBeEqualTo_drawTextLayoutResult() {
         val measurer = textMeasurer()
-        val textLayoutResult = measurer.measure(
-            text = longText,
-            style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
-            constraints = Constraints(maxWidth = 400, maxHeight = 400)
-        )
+        val textLayoutResult =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
+                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResult)
-        }
+        val bitmap = draw { drawText(textLayoutResult) }
         val bitmap2 = draw {
             drawText(
                 measurer,
@@ -91,36 +91,39 @@ class TextPainterTest {
         val measurer = textMeasurer()
 
         // No size constrained
-        val bitmap = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f)
-            )
-        }
+        val bitmap =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f)
+                )
+            }
 
         // size constrained but larger than drawing area
-        val bitmap2 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, 200f)
-            )
-        }
+        val bitmap2 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, 200f)
+                )
+            }
 
         // size constrained to drawing area
-        val bitmap3 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(100f, 100f)
-            )
-        }
+        val bitmap3 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(100f, 100f)
+                )
+            }
 
         // when size is not constrained by Size.Unspecified, default behavior should limit size to
         // drawing area. Hence bitmap != bitmap2, bitmap == bitmap3
@@ -133,37 +136,40 @@ class TextPainterTest {
         val measurer = textMeasurer()
 
         // No width constrained
-        val bitmap = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(Float.NaN, 200f)
-            )
-        }
+        val bitmap =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(Float.NaN, 200f)
+                )
+            }
 
         // width constrained but larger than drawing area
-        val bitmap2 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, 200f)
-            )
-        }
+        val bitmap2 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, 200f)
+                )
+            }
 
         // width constrained to drawing area
-        val bitmap3 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(100f, 200f)
-            )
-        }
+        val bitmap3 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(100f, 200f)
+                )
+            }
 
         // when width is not constrained by Float.NaN, default behavior should limit width to
         // drawing area. Hence bitmap != bitmap2, bitmap == bitmap3
@@ -176,37 +182,40 @@ class TextPainterTest {
         val measurer = textMeasurer()
 
         // No height constrained
-        val bitmap = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, Float.NaN)
-            )
-        }
+        val bitmap =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, Float.NaN)
+                )
+            }
 
         // height constrained but larger than drawing area
-        val bitmap2 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, 200f)
-            )
-        }
+        val bitmap2 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, 200f)
+                )
+            }
 
         // height constrained to drawing area
-        val bitmap3 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longString,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, 100f)
-            )
-        }
+        val bitmap3 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longString,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, 100f)
+                )
+            }
 
         // when height is not constrained by Float.NaN, default behavior should limit height to
         // drawing area. Hence bitmap != bitmap2, bitmap == bitmap3
@@ -220,24 +229,26 @@ class TextPainterTest {
         // canvas area.
         val measurer = textMeasurer()
 
-        val bitmap = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longText,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f)
-            )
-        }
+        val bitmap =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longText,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f)
+                )
+            }
 
-        val bitmap2 = draw(300f, 300f, 200f, 200f) {
-            drawText(
-                measurer,
-                text = longText,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                topLeft = Offset(100f, 100f),
-                size = Size(200f, 200f)
-            )
-        }
+        val bitmap2 =
+            draw(300f, 300f, 200f, 200f) {
+                drawText(
+                    measurer,
+                    text = longText,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
+                    topLeft = Offset(100f, 100f),
+                    size = Size(200f, 200f)
+                )
+            }
 
         assertThat(bitmap).isNotEqualToBitmap(bitmap2)
     }
@@ -250,11 +261,12 @@ class TextPainterTest {
             drawText(
                 textMeasurer = measurer,
                 text = longText,
-                style = TextStyle(
-                    color = Color.Red,
-                    fontFamily = fontFamilyMeasureFont,
-                    fontSize = 20.sp
-                ),
+                style =
+                    TextStyle(
+                        color = Color.Red,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
                 size = Size(400f, 400f)
             )
         }
@@ -262,11 +274,12 @@ class TextPainterTest {
             drawText(
                 textMeasurer = measurer,
                 text = longText,
-                style = TextStyle(
-                    color = Color.Blue,
-                    fontFamily = fontFamilyMeasureFont,
-                    fontSize = 20.sp
-                ),
+                style =
+                    TextStyle(
+                        color = Color.Blue,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
                 size = Size(400f, 400f)
             )
         }
@@ -301,32 +314,32 @@ class TextPainterTest {
     @Test
     fun drawTextLayout_shouldChangeColor() {
         val measurer = textMeasurer()
-        val textLayoutResultRed = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                color = Color.Red,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultRed =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        color = Color.Red,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val textLayoutResultBlue = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                color = Color.Blue,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultBlue =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        color = Color.Blue,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResultRed, color = Color.Blue)
-        }
-        val bitmap2 = draw {
-            drawText(textLayoutResultBlue)
-        }
+        val bitmap = draw { drawText(textLayoutResultRed, color = Color.Blue) }
+        val bitmap2 = draw { drawText(textLayoutResultBlue) }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -334,32 +347,32 @@ class TextPainterTest {
     @Test
     fun drawTextLayout_shouldChangeAlphaColor() {
         val measurer = textMeasurer()
-        val textLayoutResultOpaque = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                color = Color.Red,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultOpaque =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        color = Color.Red,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val textLayoutResultHalfOpaque = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                color = Color.Red.copy(alpha = 0.5f),
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultHalfOpaque =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        color = Color.Red.copy(alpha = 0.5f),
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResultOpaque, alpha = 0.5f)
-        }
-        val bitmap2 = draw {
-            drawText(textLayoutResultHalfOpaque)
-        }
+        val bitmap = draw { drawText(textLayoutResultOpaque, alpha = 0.5f) }
+        val bitmap2 = draw { drawText(textLayoutResultHalfOpaque) }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -369,32 +382,32 @@ class TextPainterTest {
         val rbBrush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
         val gyBrush = Brush.radialGradient(listOf(Color.Green, Color.Yellow))
         val measurer = textMeasurer()
-        val textLayoutResultRB = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                brush = rbBrush,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultRB =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        brush = rbBrush,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val textLayoutResultGY = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                brush = gyBrush,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultGY =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        brush = gyBrush,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResultRB, brush = gyBrush)
-        }
-        val bitmap2 = draw {
-            drawText(textLayoutResultGY)
-        }
+        val bitmap = draw { drawText(textLayoutResultRB, brush = gyBrush) }
+        val bitmap2 = draw { drawText(textLayoutResultGY) }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -403,34 +416,34 @@ class TextPainterTest {
     fun drawTextLayout_shouldChangeAlphaForBrush() {
         val rbBrush = Brush.radialGradient(listOf(Color.Red, Color.Blue))
         val measurer = textMeasurer()
-        val textLayoutResultOpaque = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                brush = rbBrush,
-                alpha = 1f,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultOpaque =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        brush = rbBrush,
+                        alpha = 1f,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val textLayoutResultHalfOpaque = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                brush = rbBrush,
-                alpha = 0.5f,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(400, 400)
-        )
+        val textLayoutResultHalfOpaque =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        brush = rbBrush,
+                        alpha = 0.5f,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints.fixed(400, 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResultOpaque, alpha = 0.5f)
-        }
-        val bitmap2 = draw {
-            drawText(textLayoutResultHalfOpaque)
-        }
+        val bitmap = draw { drawText(textLayoutResultOpaque, alpha = 0.5f) }
+        val bitmap2 = draw { drawText(textLayoutResultHalfOpaque) }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -440,32 +453,32 @@ class TextPainterTest {
         val fillDrawStyle = Fill
         val strokeDrawStyle = Stroke(8f, cap = StrokeCap.Round)
         val measurer = textMeasurer()
-        val textLayoutResultFill = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                drawStyle = fillDrawStyle,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints(maxWidth = 400, maxHeight = 400)
-        )
+        val textLayoutResultFill =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        drawStyle = fillDrawStyle,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+            )
 
-        val textLayoutResultStroke = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                drawStyle = strokeDrawStyle,
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints(maxWidth = 400, maxHeight = 400)
-        )
+        val textLayoutResultStroke =
+            measurer.measure(
+                text = longText,
+                style =
+                    TextStyle(
+                        drawStyle = strokeDrawStyle,
+                        fontFamily = fontFamilyMeasureFont,
+                        fontSize = 20.sp
+                    ),
+                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResultFill, drawStyle = strokeDrawStyle)
-        }
-        val bitmap2 = draw {
-            drawText(textLayoutResultStroke)
-        }
+        val bitmap = draw { drawText(textLayoutResultFill, drawStyle = strokeDrawStyle) }
+        val bitmap2 = draw { drawText(textLayoutResultStroke) }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -474,24 +487,22 @@ class TextPainterTest {
     fun textMeasurerDraw_isConstrainedTo_canvasSizeByDefault() {
         val measurer = textMeasurer()
         // coerceIn the width, height is ignored
-        val textLayoutResult = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            constraints = Constraints.fixed(200, 4000)
-        )
+        val textLayoutResult =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
+                constraints = Constraints.fixed(200, 4000)
+            )
 
-        val bitmap = draw(200f, 4000f) {
-            drawText(textLayoutResult)
-        }
-        val bitmap2 = draw(200f, 4000f) {
-            drawText(measurer, longText, style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ))
-        }
+        val bitmap = draw(200f, 4000f) { drawText(textLayoutResult) }
+        val bitmap2 =
+            draw(200f, 4000f) {
+                drawText(
+                    measurer,
+                    longText,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
+                )
+            }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
     }
@@ -500,26 +511,23 @@ class TextPainterTest {
     fun textMeasurerDraw_usesCanvasDensity_ByDefault() {
         val measurer = textMeasurer()
         // coerceIn the width, height is ignored
-        val textLayoutResult = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ),
-            density = Density(4f),
-            constraints = Constraints.fixed(1000, 1000)
-        )
+        val textLayoutResult =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
+                density = Density(4f),
+                constraints = Constraints.fixed(1000, 1000)
+            )
 
-        val bitmap = draw {
-            drawText(textLayoutResult)
-        }
+        val bitmap = draw { drawText(textLayoutResult) }
 
         defaultDensity = Density(4f)
         val bitmap2 = draw {
-            drawText(measurer, longText, style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
-            ))
+            drawText(
+                measurer,
+                longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
+            )
         }
 
         assertThat(bitmap).isEqualToBitmap(bitmap2)
@@ -529,27 +537,21 @@ class TextPainterTest {
     fun drawTextClipsTheContent_ifOverflowIsClip() {
         val measurer = textMeasurer()
         // coerceIn the width, height is ignored
-        val textLayoutResult = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 14.sp
-            ),
-            softWrap = false,
-            overflow = TextOverflow.Clip,
-            constraints = Constraints.fixed(200, 200)
-        )
+        val textLayoutResult =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
+                softWrap = false,
+                overflow = TextOverflow.Clip,
+                constraints = Constraints.fixed(200, 200)
+            )
 
-        val bitmap = draw(400f, 200f) {
-            drawText(textLayoutResult)
-        }
+        val bitmap = draw(400f, 200f) { drawText(textLayoutResult) }
         val croppedBitmap = Bitmap.createBitmap(bitmap, 200, 0, 200, 200)
 
         // cropped part should be empty
-        assertThat(croppedBitmap).isEqualToBitmap(Bitmap.createBitmap(
-            200,
-            200,
-            Bitmap.Config.ARGB_8888))
+        assertThat(croppedBitmap)
+            .isEqualToBitmap(Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888))
     }
 
     @Test
@@ -558,30 +560,21 @@ class TextPainterTest {
         with(defaultDensity) {
             val fontSize = 20.sp
             val height = fontSize.toPx().ceilToInt() / 2
-            val textLayoutResult = measurer.measure(
-                text = longText,
-                style = TextStyle(
-                    fontFamily = fontFamilyMeasureFont,
-                    fontSize = fontSize
-                ),
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis,
-                constraints = Constraints.fixed(200, height)
-            )
+            val textLayoutResult =
+                measurer.measure(
+                    text = longText,
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize),
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                    constraints = Constraints.fixed(200, height)
+                )
 
-            val bitmap = draw(200f, 200f) {
-                drawText(textLayoutResult)
-            }
+            val bitmap = draw(200f, 200f) { drawText(textLayoutResult) }
             val croppedBitmap = Bitmap.createBitmap(bitmap, 0, height, 200, 200 - height)
 
             // cropped part should be empty
-            assertThat(croppedBitmap).isEqualToBitmap(
-                Bitmap.createBitmap(
-                    200,
-                    200 - height,
-                    Bitmap.Config.ARGB_8888
-                )
-            )
+            assertThat(croppedBitmap)
+                .isEqualToBitmap(Bitmap.createBitmap(200, 200 - height, Bitmap.Config.ARGB_8888))
         }
     }
 
@@ -589,35 +582,27 @@ class TextPainterTest {
     fun drawTextDoesNotClipTheContent_ifOverflowIsVisible() {
         val measurer = textMeasurer()
         // coerceIn the width, height is ignored
-        val textLayoutResult = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 14.sp
-            ),
-            softWrap = false,
-            overflow = TextOverflow.Clip,
-            constraints = Constraints.fixed(400, 200)
-        )
+        val textLayoutResult =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
+                softWrap = false,
+                overflow = TextOverflow.Clip,
+                constraints = Constraints.fixed(400, 200)
+            )
 
-        val textLayoutResultNoClip = measurer.measure(
-            text = longText,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 14.sp
-            ),
-            softWrap = false,
-            overflow = TextOverflow.Visible,
-            constraints = Constraints.fixed(200, 200)
-        )
+        val textLayoutResultNoClip =
+            measurer.measure(
+                text = longText,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
+                softWrap = false,
+                overflow = TextOverflow.Visible,
+                constraints = Constraints.fixed(200, 200)
+            )
 
-        val bitmap = draw(400f, 200f) {
-            drawText(textLayoutResult)
-        }
+        val bitmap = draw(400f, 200f) { drawText(textLayoutResult) }
 
-        val bitmapNoClip = draw(400f, 200f) {
-            drawText(textLayoutResultNoClip)
-        }
+        val bitmapNoClip = draw(400f, 200f) { drawText(textLayoutResultNoClip) }
 
         // cropped part should be empty
         assertThat(bitmap).isEqualToBitmap(bitmapNoClip)
@@ -628,12 +613,7 @@ class TextPainterTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         cacheSize: Int = 0
-    ): TextMeasurer = TextMeasurer(
-        fontFamilyResolver,
-        density,
-        layoutDirection,
-        cacheSize
-    )
+    ): TextMeasurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, cacheSize)
 
     fun draw(
         bitmapWidth: Float = 1000f,
@@ -643,11 +623,12 @@ class TextPainterTest {
         block: DrawScope.() -> Unit
     ): Bitmap {
         val size = Size(bitmapWidth, bitmapHeight)
-        val bitmap = Bitmap.createBitmap(
-            size.width.toIntPx(),
-            size.height.toIntPx(),
-            Bitmap.Config.ARGB_8888
-        )
+        val bitmap =
+            Bitmap.createBitmap(
+                size.width.toIntPx(),
+                size.height.toIntPx(),
+                Bitmap.Config.ARGB_8888
+            )
         val canvas = Canvas(bitmap.asImageBitmap())
         val drawScope = CanvasDrawScope()
         drawScope.draw(

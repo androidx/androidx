@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BottomSheetBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val bottomSheetScaffoldTestCaseFactory = { BottomSheetScaffoldTestCase() }
     private val modalBottomSheetTestCaseFactory = { ModalBottomSheetTestCase() }
@@ -136,21 +135,17 @@ internal class BottomSheetScaffoldTestCase : LayeredComposeTestCase(), Toggleabl
 
     @Composable
     override fun MeasuredContent() {
-        state = rememberBottomSheetScaffoldState(
-            bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
-        )
+        state =
+            rememberBottomSheetScaffoldState(
+                bottomSheetState = rememberStandardBottomSheetState(skipHiddenState = false)
+            )
         scope = rememberCoroutineScope()
-        BottomSheetScaffold(
-            sheetContent = {},
-            scaffoldState = state
-        ) {}
+        BottomSheetScaffold(sheetContent = {}, scaffoldState = state) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {
@@ -181,9 +176,7 @@ internal class ModalBottomSheetTestCase : LayeredComposeTestCase(), ToggleableTe
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

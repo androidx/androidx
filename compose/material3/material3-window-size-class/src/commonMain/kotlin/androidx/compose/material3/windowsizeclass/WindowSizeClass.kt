@@ -25,8 +25,9 @@ import androidx.compose.ui.util.fastForEach
 
 /**
  * Window size classes are a set of opinionated viewport breakpoints to design, develop, and test
- * responsive application layouts against.
- * For more details check <a href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes" class="external" target="_blank">Support different screen sizes</a> documentation.
+ * responsive application layouts against. For more details check <a
+ * href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes"
+ * class="external" target="_blank">Support different screen sizes</a> documentation.
  *
  * WindowSizeClass contains a [WindowWidthSizeClass] and [WindowHeightSizeClass], representing the
  * window size classes for this window's width and height respectively.
@@ -37,14 +38,15 @@ import androidx.compose.ui.util.fastForEach
  * @property heightSizeClass height-based window size class ([WindowHeightSizeClass])
  */
 @Immutable
-class WindowSizeClass private constructor(
+class WindowSizeClass
+private constructor(
     val widthSizeClass: WindowWidthSizeClass,
     val heightSizeClass: WindowHeightSizeClass
 ) {
     companion object {
         /**
-         * Calculates the best matched [WindowSizeClass] for a given [size] according to
-         * the provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
+         * Calculates the best matched [WindowSizeClass] for a given [size] according to the
+         * provided [supportedWidthSizeClasses] and [supportedHeightSizeClasses].
          *
          * @param size of the window
          * @param supportedWidthSizeClasses the set of width size classes that are supported
@@ -59,14 +61,10 @@ class WindowSizeClass private constructor(
             supportedHeightSizeClasses: Set<WindowHeightSizeClass> =
                 WindowHeightSizeClass.DefaultSizeClasses
         ): WindowSizeClass {
-            val windowWidthSizeClass = WindowWidthSizeClass.fromWidth(
-                size.width,
-                supportedWidthSizeClasses
-            )
-            val windowHeightSizeClass = WindowHeightSizeClass.fromHeight(
-                size.height,
-                supportedHeightSizeClasses
-            )
+            val windowWidthSizeClass =
+                WindowWidthSizeClass.fromWidth(size.width, supportedWidthSizeClasses)
+            val windowHeightSizeClass =
+                WindowHeightSizeClass.fromHeight(size.height, supportedHeightSizeClasses)
             return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
         }
     }
@@ -99,7 +97,9 @@ class WindowSizeClass private constructor(
  * window size class breakpoint represents a majority case for typical device scenarios so your
  * layouts will work well on most devices and configurations.
  *
- * For more details see <a href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes" class="external" target="_blank">Window size classes documentation</a>.
+ * For more details see <a
+ * href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes"
+ * class="external" target="_blank">Window size classes documentation</a>.
  */
 @Immutable
 @kotlin.jvm.JvmInline
@@ -110,12 +110,13 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
         breakpoint().compareTo(other.breakpoint())
 
     override fun toString(): String {
-        return "WindowWidthSizeClass." + when (this) {
-            Compact -> "Compact"
-            Medium -> "Medium"
-            Expanded -> "Expanded"
-            else -> ""
-        }
+        return "WindowWidthSizeClass." +
+            when (this) {
+                Compact -> "Compact"
+                Medium -> "Medium"
+                Expanded -> "Expanded"
+                else -> ""
+            }
     }
 
     companion object {
@@ -138,8 +139,7 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
-        @Suppress("PrimitiveInCollection")
-        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        @Suppress("PrimitiveInCollection") val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
         @Suppress("PrimitiveInCollection")
         private val AllSizeClassList = listOf(Expanded, Medium, Compact)
@@ -170,8 +170,8 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
         }
 
         /**
-         * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and
-         * a given [Density] from [supportedSizeClasses].
+         * Calculates the best matched [WindowWidthSizeClass] for a given [width] in Pixels and a
+         * given [Density] from [supportedSizeClasses].
          */
         internal fun fromWidth(
             width: Dp,
@@ -202,7 +202,9 @@ value class WindowWidthSizeClass private constructor(private val value: Int) :
  * window size class breakpoint represents a majority case for typical device scenarios so your
  * layouts will work well on most devices and configurations.
  *
- * For more details see <a href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes" class="external" target="_blank">Window size classes documentation</a>.
+ * For more details see <a
+ * href="https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes#window_size_classes"
+ * class="external" target="_blank">Window size classes documentation</a>.
  */
 @Immutable
 @kotlin.jvm.JvmInline
@@ -213,12 +215,13 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
         breakpoint().compareTo(other.breakpoint())
 
     override fun toString(): String {
-        return "WindowHeightSizeClass." + when (this) {
-            Compact -> "Compact"
-            Medium -> "Medium"
-            Expanded -> "Expanded"
-            else -> ""
-        }
+        return "WindowHeightSizeClass." +
+            when (this) {
+                Compact -> "Compact"
+                Medium -> "Medium"
+                Expanded -> "Expanded"
+                else -> ""
+            }
     }
 
     companion object {
@@ -235,8 +238,7 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
          * The default set of size classes that includes [Compact], [Medium], and [Expanded] size
          * classes. Should never expand to ensure behavioral consistency.
          */
-        @Suppress("PrimitiveInCollection")
-        val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
+        @Suppress("PrimitiveInCollection") val DefaultSizeClasses = setOf(Compact, Medium, Expanded)
 
         @Suppress("PrimitiveInCollection")
         private val AllSizeClassList = listOf(Expanded, Medium, Compact)
@@ -267,8 +269,8 @@ value class WindowHeightSizeClass private constructor(private val value: Int) :
         }
 
         /**
-         * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and
-         * a given [Density] from [supportedSizeClasses].
+         * Calculates the best matched [WindowHeightSizeClass] for a given [height] in Pixels and a
+         * given [Density] from [supportedSizeClasses].
          */
         internal fun fromHeight(
             height: Dp,

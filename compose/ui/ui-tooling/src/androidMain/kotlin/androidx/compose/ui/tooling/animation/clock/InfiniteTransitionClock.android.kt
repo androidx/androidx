@@ -30,13 +30,12 @@ import kotlin.math.max
 /**
  * [ComposeAnimationClock] for [InfiniteTransition] animations.
  *
- *  @sample androidx.compose.animation.samples.InfiniteTransitionSample
+ * @sample androidx.compose.animation.samples.InfiniteTransitionSample
  */
 internal class InfiniteTransitionClock(
     override val animation: InfiniteTransitionComposeAnimation,
     private val maxDuration: () -> Long = { 0 }
-) :
-    ComposeAnimationClock<InfiniteTransitionComposeAnimation, TargetState<Any>> {
+) : ComposeAnimationClock<InfiniteTransitionComposeAnimation, TargetState<Any>> {
 
     /** [rememberInfiniteTransition] doesn't have a state. */
     override var state: TargetState<Any> = TargetState(0, 0)
@@ -44,18 +43,20 @@ internal class InfiniteTransitionClock(
     override fun setStateParameters(par1: Any, par2: Any?) {}
 
     override fun getAnimatedProperties(): List<ComposeAnimatedProperty> {
-        return animation.animationObject.animations.mapNotNull {
-            val value = it.value
-            value ?: return@mapNotNull null
-            ComposeAnimatedProperty(it.label, value)
-        }.filter { !IGNORE_TRANSITIONS.contains(it.label) }
+        return animation.animationObject.animations
+            .mapNotNull {
+                val value = it.value
+                value ?: return@mapNotNull null
+                ComposeAnimatedProperty(it.label, value)
+            }
+            .filter { !IGNORE_TRANSITIONS.contains(it.label) }
     }
 
     /** Max duration per iteration of the animation. */
     override fun getMaxDurationPerIteration(): Long {
-        return nanosToMillis(animation.animationObject.animations.maxOfOrNull {
-            it.getIterationDuration()
-        } ?: 0)
+        return nanosToMillis(
+            animation.animationObject.animations.maxOfOrNull { it.getIterationDuration() } ?: 0
+        )
     }
 
     /** Max duration of the animation. */
@@ -65,9 +66,10 @@ internal class InfiniteTransitionClock(
 
     override fun getTransitions(stepMillis: Long): List<TransitionInfo> {
         val transition = animation.animationObject
-        return transition.animations.map {
-            it.createTransitionInfo(stepMillis, getMaxDuration())
-        }.filter { !IGNORE_TRANSITIONS.contains(it.label) }.toList()
+        return transition.animations
+            .map { it.createTransitionInfo(stepMillis, getMaxDuration()) }
+            .filter { !IGNORE_TRANSITIONS.contains(it.label) }
+            .toList()
     }
 
     override fun setClockTime(animationTimeNanos: Long) {

@@ -17,14 +17,11 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-/**
- * Convert the [org.jetbrains.skia.PathMeasure] instance into a Compose-compatible PathMeasure
- */
+
+/** Convert the [org.jetbrains.skia.PathMeasure] instance into a Compose-compatible PathMeasure */
 fun org.jetbrains.skia.PathMeasure.asComposePathEffect(): PathMeasure = SkiaBackedPathMeasure(this)
 
-/**
- * Obtain a reference to skia PathMeasure type
- */
+/** Obtain a reference to skia PathMeasure type */
 fun PathMeasure.asSkiaPathMeasure(): org.jetbrains.skia.PathMeasure =
     (this as SkiaBackedPathMeasure).skia
 
@@ -41,19 +38,12 @@ internal class SkiaBackedPathMeasure(
         stopDistance: Float,
         destination: Path,
         startWithMoveTo: Boolean
-    ) = skia.getSegment(
-        startDistance,
-        stopDistance,
-        destination.asSkiaPath(),
-        startWithMoveTo
-    )
+    ) = skia.getSegment(startDistance, stopDistance, destination.asSkiaPath(), startWithMoveTo)
 
     override val length: Float
         get() = skia.length
 
-    override fun getPosition(
-        distance: Float
-    ): Offset {
+    override fun getPosition(distance: Float): Offset {
         val result = skia.getPosition(distance)
         return if (result != null) {
             Offset(result.x, result.y)
@@ -62,9 +52,7 @@ internal class SkiaBackedPathMeasure(
         }
     }
 
-    override fun getTangent(
-        distance: Float
-    ): Offset {
+    override fun getTangent(distance: Float): Offset {
         val result = skia.getTangent(distance)
         return if (result != null) {
             Offset(result.x, result.y)
@@ -74,5 +62,4 @@ internal class SkiaBackedPathMeasure(
     }
 }
 
-actual fun PathMeasure(): PathMeasure =
-    SkiaBackedPathMeasure()
+actual fun PathMeasure(): PathMeasure = SkiaBackedPathMeasure()

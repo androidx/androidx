@@ -28,9 +28,9 @@ import org.jetbrains.kotlin.fir.types.functionTypeKind
  * Report an error on composable function references.
  *
  * `FirFunctionTypeKindExtension` has very limited support for custom function references and
- * basically requires implementations to distinguish between reflective and non-reflective
- * function types. Since there are no reflective composable function types we cannot support
- * composable function references yet.
+ * basically requires implementations to distinguish between reflective and non-reflective function
+ * types. Since there are no reflective composable function types we cannot support composable
+ * function references yet.
  */
 object ComposableCallableReferenceChecker : FirCallableReferenceAccessChecker() {
     override fun check(

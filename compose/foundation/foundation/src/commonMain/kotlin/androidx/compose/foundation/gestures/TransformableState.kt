@@ -33,17 +33,17 @@ import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.coroutineScope
 
 /**
- * State of [transformable]. Allows for a granular control of how different gesture
- * transformations are consumed by the user as well as to write custom transformation methods
- * using [transform] suspend function.
+ * State of [transformable]. Allows for a granular control of how different gesture transformations
+ * are consumed by the user as well as to write custom transformation methods using [transform]
+ * suspend function.
  */
 @JvmDefaultWithCompatibility
 interface TransformableState {
     /**
      * Call this function to take control of transformations and gain the ability to send transform
-     * events via [TransformScope.transformBy]. All actions that change zoom, pan or rotation
-     * values must be performed within a [transform] block (even if they don't call any other
-     * methods on this object) in order to guarantee that mutual exclusion is enforced.
+     * events via [TransformScope.transformBy]. All actions that change zoom, pan or rotation values
+     * must be performed within a [transform] block (even if they don't call any other methods on
+     * this object) in order to guarantee that mutual exclusion is enforced.
      *
      * If [transform] is called from elsewhere with the [transformPriority] higher or equal to
      * ongoing transform, ongoing transform will be canceled.
@@ -60,14 +60,12 @@ interface TransformableState {
     val isTransformInProgress: Boolean
 }
 
-/**
- * Scope used for suspending transformation operations
- */
+/** Scope used for suspending transformation operations */
 @JvmDefaultWithCompatibility
 interface TransformScope {
     /**
-     * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in
-     * pixels and by [rotationChange] in degrees.
+     * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in pixels
+     * and by [rotationChange] in degrees.
      *
      * @param zoomChange scale factor multiplier change for zoom
      * @param panChange panning offset change, in [Offset] pixels
@@ -90,8 +88,8 @@ interface TransformScope {
  * call) with the deltas from the previous event.
  *
  * @param onTransformation callback invoked when transformation occurs. The callback receives the
- * change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels
- * for pan and degrees for rotation. Callers should update their state in this lambda.
+ *   change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels for
+ *   pan and degrees for rotation. Callers should update their state in this lambda.
  */
 fun TransformableState(
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
@@ -108,8 +106,8 @@ fun TransformableState(
  * call) with the deltas from the previous event.
  *
  * @param onTransformation callback invoked when transformation occurs. The callback receives the
- * change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels
- * for pan and degrees for rotation. Callers should update their state in this lambda.
+ *   change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels for
+ *   pan and degrees for rotation. Callers should update their state in this lambda.
  */
 @Composable
 fun rememberTransformableState(
@@ -122,17 +120,15 @@ fun rememberTransformableState(
 /**
  * Animate zoom by a ratio of [zoomFactor] over the current size and suspend until its finished.
  *
- * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor]
- * is `3f`, zoom will be increased 3 fold from the current value.
+ * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor] is
+ *   `3f`, zoom will be increased 3 fold from the current value.
  * @param animationSpec [AnimationSpec] to be used for animation
  */
 suspend fun TransformableState.animateZoomBy(
     zoomFactor: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow)
 ) {
-    require(zoomFactor > 0) {
-        "zoom value should be greater than 0"
-    }
+    require(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previous = 1f
     transform {
         AnimationState(initialValue = previous).animateTo(zoomFactor, animationSpec) {
@@ -175,15 +171,14 @@ suspend fun TransformableState.animatePanBy(
 ) {
     var previous = Offset.Zero
     transform {
-        AnimationState(
-            typeConverter = Offset.VectorConverter,
-            initialValue = previous
-        )
-            .animateTo(offset, animationSpec) {
-                val delta = this.value - previous
-                transformBy(panChange = delta)
-                previous = this.value
-            }
+        AnimationState(typeConverter = Offset.VectorConverter, initialValue = previous).animateTo(
+            offset,
+            animationSpec
+        ) {
+            val delta = this.value - previous
+            transformBy(panChange = delta)
+            previous = this.value
+        }
     }
 }
 
@@ -211,9 +206,7 @@ suspend fun TransformableState.rotateBy(degrees: Float) = transform {
  *
  * @param offset offset in pixels by which to pan
  */
-suspend fun TransformableState.panBy(offset: Offset) = transform {
-    transformBy(1f, offset, 0f)
-}
+suspend fun TransformableState.panBy(offset: Offset) = transform { transformBy(1f, offset, 0f) }
 
 /**
  * Stop and suspend until any ongoing [TransformableState.transform] with priority
@@ -233,10 +226,11 @@ private class DefaultTransformableState(
     val onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ) : TransformableState {
 
-    private val transformScope: TransformScope = object : TransformScope {
-        override fun transformBy(zoomChange: Float, panChange: Offset, rotationChange: Float) =
-            onTransformation(zoomChange, panChange, rotationChange)
-    }
+    private val transformScope: TransformScope =
+        object : TransformScope {
+            override fun transformBy(zoomChange: Float, panChange: Offset, rotationChange: Float) =
+                onTransformation(zoomChange, panChange, rotationChange)
+        }
 
     private val transformMutex = MutatorMutex()
 

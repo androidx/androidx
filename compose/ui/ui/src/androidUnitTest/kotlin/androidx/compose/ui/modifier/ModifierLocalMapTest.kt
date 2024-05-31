@@ -22,7 +22,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 
 class ModifierLocalMapTest {
-    @Test fun `empty modifier local map`() {
+    @Test
+    fun `empty modifier local map`() {
         // Act.
         val modifierLocalMap = modifierLocalMapOf()
 
@@ -30,7 +31,8 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap).isEqualTo(EmptyMap)
     }
 
-    @Test fun `modifier local map with a single null entry`() {
+    @Test
+    fun `modifier local map with a single null entry`() {
         // Arrange.
         val modifierLocal = modifierLocalOf { "" }
 
@@ -41,7 +43,9 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap).isInstanceOf(SingleLocalMap::class.java)
         assertThat(modifierLocalMap[modifierLocal]).isNull()
     }
-    @Test fun `modifier local map with two null entries`() {
+
+    @Test
+    fun `modifier local map with two null entries`() {
         // Arrange.
         val stringModifierLocal = modifierLocalOf<String?> { "" }
         val colorModifierLocal = modifierLocalOf<Color?> { Color.Unspecified }
@@ -55,7 +59,8 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap[colorModifierLocal]).isNull()
     }
 
-    @Test fun `modifier local map with three null entries`() {
+    @Test
+    fun `modifier local map with three null entries`() {
         // Arrange.
         val stringModifierLocal = modifierLocalOf { "" }
         val colorModifierLocal = modifierLocalOf { Color.Unspecified }
@@ -72,7 +77,8 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap[directionModifierLocal]).isNull()
     }
 
-    @Test fun `modifier local map with a single entry`() {
+    @Test
+    fun `modifier local map with a single entry`() {
         // Arrange.
         val modifierLocal = modifierLocalOf { "" }
 
@@ -84,16 +90,15 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap[modifierLocal]).isEqualTo("single")
     }
 
-    @Test fun `modifier local map with two values`() {
+    @Test
+    fun `modifier local map with two values`() {
         // Arrange.
         val stringModifierLocal = modifierLocalOf { "" }
         val colorModifierLocal = modifierLocalOf { Color.Unspecified }
 
         // Act.
-        val modifierLocalMap = modifierLocalMapOf(
-            stringModifierLocal to "first",
-            colorModifierLocal to Color.Red
-        )
+        val modifierLocalMap =
+            modifierLocalMapOf(stringModifierLocal to "first", colorModifierLocal to Color.Red)
 
         // Assert.
         assertThat(modifierLocalMap).isInstanceOf(MultiLocalMap::class.java)
@@ -101,18 +106,20 @@ class ModifierLocalMapTest {
         assertThat(modifierLocalMap[colorModifierLocal]).isEqualTo(Color.Red)
     }
 
-    @Test fun `modifier local map with three values`() {
+    @Test
+    fun `modifier local map with three values`() {
         // Arrange.
         val stringModifierLocal = modifierLocalOf { "" }
         val colorModifierLocal = modifierLocalOf { Color.Unspecified }
         val directionModifierLocal = modifierLocalOf { LayoutDirection.Ltr }
 
         // Act.
-        val modifierLocalMap = modifierLocalMapOf(
-            stringModifierLocal to "first",
-            colorModifierLocal to Color.Red,
-            directionModifierLocal to LayoutDirection.Rtl
-        )
+        val modifierLocalMap =
+            modifierLocalMapOf(
+                stringModifierLocal to "first",
+                colorModifierLocal to Color.Red,
+                directionModifierLocal to LayoutDirection.Rtl
+            )
 
         // Assert.
         assertThat(modifierLocalMap).isInstanceOf(MultiLocalMap::class.java)

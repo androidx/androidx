@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ScrollerBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val scrollerCaseFactory = { ScrollerTestCase() }
 
@@ -76,18 +75,12 @@ class ScrollerBenchmark {
 
     @Test
     fun changeScroll_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(
-            scrollerCaseFactory,
-            toggleCausesRecompose = false
-        )
+        benchmarkRule.toggleStateBenchmarkLayout(scrollerCaseFactory, toggleCausesRecompose = false)
     }
 
     @Test
     fun changeScroll_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(
-            scrollerCaseFactory,
-            toggleCausesRecompose = false
-        )
+        benchmarkRule.toggleStateBenchmarkDraw(scrollerCaseFactory, toggleCausesRecompose = false)
     }
 
     @Test

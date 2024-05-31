@@ -52,26 +52,23 @@ internal class Operations : OperationsDebugStringFormattable() {
     private var objectArgsSize = 0
 
     /*
-        The two masks below are used to track which arguments have been assigned for the most
-        recently pushed operation. When an argument is set, its corresponding bit is set to 1.
-        The bit indices correspond to the parameter's offset value. Offset 0 corresponds to the
-        least significant bit, so a parameter with offset 2 will correspond to the mask 0b100.
-     */
+       The two masks below are used to track which arguments have been assigned for the most
+       recently pushed operation. When an argument is set, its corresponding bit is set to 1.
+       The bit indices correspond to the parameter's offset value. Offset 0 corresponds to the
+       least significant bit, so a parameter with offset 2 will correspond to the mask 0b100.
+    */
     private var pushedIntMask = 0b0
     private var pushedObjectMask = 0b0
 
-    /**
-     * Returns the number of pending operations contained in this operation stack.
-     */
+    /** Returns the number of pending operations contained in this operation stack. */
     val size: Int
         get() = opCodesSize
 
     fun isEmpty() = size == 0
+
     fun isNotEmpty() = size != 0
 
-    /**
-     * Resets the collection to its initial state, clearing all stored operations and arguments.
-     */
+    /** Resets the collection to its initial state, clearing all stored operations and arguments. */
     fun clear() {
         // We don't technically need to clear the opCodes or intArgs arrays, because we ensure
         // that every operation that gets pushed to this data structure has all of its arguments
@@ -86,17 +83,16 @@ internal class Operations : OperationsDebugStringFormattable() {
     }
 
     /**
-     * Pushes [operation] to the stack, ensures that there is space in the backing argument
-     * arrays to store the parameters, and increments the internal pointers to track the
-     * operation's arguments.
+     * Pushes [operation] to the stack, ensures that there is space in the backing argument arrays
+     * to store the parameters, and increments the internal pointers to track the operation's
+     * arguments.
      *
-     * It is expected that the arguments of this operation will be added after [pushOp]
-     * returns. The index to write a parameter is `intArgsSize - operation.ints + arg.offset`
-     * for int arguments, and `objectArgsSize - operation.objects + arg.offset` for
-     * object arguments.
+     * It is expected that the arguments of this operation will be added after [pushOp] returns. The
+     * index to write a parameter is `intArgsSize - operation.ints + arg.offset` for int arguments,
+     * and `objectArgsSize - operation.objects + arg.offset` for object arguments.
      *
-     * Do not use this API outside of the [Operations] class directly. Use [push] instead.
-     * This function is kept visible so that it may be inlined.
+     * Do not use this API outside of the [Operations] class directly. Use [push] instead. This
+     * function is kept visible so that it may be inlined.
      */
     @InternalComposeApi
     fun pushOp(operation: Operation) {
@@ -139,35 +135,33 @@ internal class Operations : OperationsDebugStringFormattable() {
     /**
      * Adds an [operation] to the stack with no arguments.
      *
-     * If [operation] defines any arguments, you must use the overload that accepts an `args`
-     * lambda to provide those arguments. This function will throw an exception if the operation
-     * defines any arguments.
+     * If [operation] defines any arguments, you must use the overload that accepts an `args` lambda
+     * to provide those arguments. This function will throw an exception if the operation defines
+     * any arguments.
      */
     fun push(operation: Operation) {
         requirePrecondition(operation.ints == 0 && operation.objects == 0) {
             "Cannot push $operation without arguments because it expects " +
                 "${operation.ints} ints and ${operation.objects} objects."
         }
-        @OptIn(InternalComposeApi::class)
-        pushOp(operation)
+        @OptIn(InternalComposeApi::class) pushOp(operation)
     }
 
     /**
      * Adds an [operation] to the stack with arguments. To set arguments on the operation, call
      * [WriteScope.setObject] and [WriteScope.setInt] inside of the [args] lambda.
      *
-     * The [args] lambda is called exactly once inline. You must set all arguments defined on
-     * the [operation] exactly once. An exception is thrown if you attempt to call
-     * [WriteScope.setInt] or [WriteScope.setObject] on an argument you have already set, and
-     * when [args] returns if not all arguments were set.
+     * The [args] lambda is called exactly once inline. You must set all arguments defined on the
+     * [operation] exactly once. An exception is thrown if you attempt to call [WriteScope.setInt]
+     * or [WriteScope.setObject] on an argument you have already set, and when [args] returns if not
+     * all arguments were set.
      */
     @Suppress("BanInlineOptIn")
     @OptIn(ExperimentalContracts::class)
     inline fun push(operation: Operation, args: WriteScope.() -> Unit) {
         contract { callsInPlace(args, EXACTLY_ONCE) }
 
-        @OptIn(InternalComposeApi::class)
-        pushOp(operation)
+        @OptIn(InternalComposeApi::class) pushOp(operation)
         WriteScope(this).args()
 
         // Verify all arguments were written to.
@@ -205,8 +199,8 @@ internal class Operations : OperationsDebugStringFormattable() {
 
     /**
      * Returns a bitmask int where the bottommost [paramCount] bits are 1's, and the rest of the
-     * bits are 0's. This corresponds to what [pushedIntMask] and [pushedObjectMask] will equal
-     * if all [paramCount] arguments are set for the most recently pushed operation.
+     * bits are 0's. This corresponds to what [pushedIntMask] and [pushedObjectMask] will equal if
+     * all [paramCount] arguments are set for the most recently pushed operation.
      */
     private fun createExpectedArgMask(paramCount: Int): Int {
         // Calling ushr(32) no-ops instead of returning 0, so add a special case if paramCount is 0
@@ -224,13 +218,9 @@ internal class Operations : OperationsDebugStringFormattable() {
         val op = opCodes[--opCodesSize]!!
         opCodes[opCodesSize] = null
 
-        repeat(op.objects) {
-            objectArgs[--objectArgsSize] = null
-        }
+        repeat(op.objects) { objectArgs[--objectArgsSize] = null }
 
-        repeat(op.ints) {
-            intArgs[--intArgsSize] = 0
-        }
+        repeat(op.ints) { intArgs[--intArgsSize] = 0 }
     }
 
     /**
@@ -273,25 +263,21 @@ internal class Operations : OperationsDebugStringFormattable() {
      * Iterates through the stack in the order that items were added, calling [sink] for each
      * operation in the stack.
      *
-     * Iteration moves from oldest elements to newest (more like a queue than a stack). [drain] is
-     * a destructive operation that also clears the items in the stack, and is used to apply all
-     * of the operations in the stack, since they must be applied in the order they were added
-     * instead of being popped.
+     * Iteration moves from oldest elements to newest (more like a queue than a stack). [drain] is a
+     * destructive operation that also clears the items in the stack, and is used to apply all of
+     * the operations in the stack, since they must be applied in the order they were added instead
+     * of being popped.
      */
-    inline fun drain(
-        sink: OpIterator.() -> Unit
-    ) {
+    inline fun drain(sink: OpIterator.() -> Unit) {
         forEach(sink)
         clear()
     }
 
     /**
-     * Iterates through the stack, calling [action] for each operation in the stack. Iteration
-     * moves from oldest elements to newest (more like a queue than a stack).
+     * Iterates through the stack, calling [action] for each operation in the stack. Iteration moves
+     * from oldest elements to newest (more like a queue than a stack).
      */
-    inline fun forEach(
-        action: OpIterator.() -> Unit
-    ) {
+    inline fun forEach(action: OpIterator.() -> Unit) {
         if (isNotEmpty()) {
             val iterator = OpIterator()
             do {
@@ -307,11 +293,7 @@ internal class Operations : OperationsDebugStringFormattable() {
     ) {
         drain {
             with(operation) {
-                execute(
-                    applier = applier,
-                    slots = slots,
-                    rememberManager = rememberManager
-                )
+                execute(applier = applier, slots = slots, rememberManager = rememberManager)
             }
         }
     }
@@ -331,23 +313,25 @@ internal class Operations : OperationsDebugStringFormattable() {
         val operation: Operation
             get() = stack.peekOperation()
 
-        fun setInt(parameter: IntParameter, value: Int) = with(stack) {
-            val mask = 0b1 shl parameter.offset
-            checkPrecondition(pushedIntMask and mask == 0) {
-                "Already pushed argument ${operation.intParamName(parameter)}"
+        fun setInt(parameter: IntParameter, value: Int) =
+            with(stack) {
+                val mask = 0b1 shl parameter.offset
+                checkPrecondition(pushedIntMask and mask == 0) {
+                    "Already pushed argument ${operation.intParamName(parameter)}"
+                }
+                pushedIntMask = pushedIntMask or mask
+                intArgs[topIntIndexOf(parameter)] = value
             }
-            pushedIntMask = pushedIntMask or mask
-            intArgs[topIntIndexOf(parameter)] = value
-        }
 
-        fun <T> setObject(parameter: ObjectParameter<T>, value: T) = with(stack) {
-            val mask = 0b1 shl parameter.offset
-            checkPrecondition(pushedObjectMask and mask == 0) {
-                "Already pushed argument ${operation.objectParamName(parameter)}"
+        fun <T> setObject(parameter: ObjectParameter<T>, value: T) =
+            with(stack) {
+                val mask = 0b1 shl parameter.offset
+                checkPrecondition(pushedObjectMask and mask == 0) {
+                    "Already pushed argument ${operation.objectParamName(parameter)}"
+                }
+                pushedObjectMask = pushedObjectMask or mask
+                objectArgs[topObjectIndexOf(parameter)] = value
             }
-            pushedObjectMask = pushedObjectMask or mask
-            objectArgs[topObjectIndexOf(parameter)] = value
-        }
     }
 
     inner class OpIterator : OperationArgContainer {
@@ -365,9 +349,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             return opIdx < opCodesSize
         }
 
-        /**
-         * Returns the [Operation] at the current position of the iterator in the [Operations].
-         */
+        /** Returns the [Operation] at the current position of the iterator in the [Operations]. */
         val operation: Operation
             get() = opCodes[opIdx]!!
 
@@ -375,8 +357,7 @@ internal class Operations : OperationsDebugStringFormattable() {
          * Returns the value of [parameter] for the operation at the current position of the
          * iterator.
          */
-        override fun getInt(parameter: IntParameter): Int =
-            intArgs[intIdx + parameter.offset]
+        override fun getInt(parameter: IntParameter): Int = intArgs[intIdx + parameter.offset]
 
         /**
          * Returns the value of [parameter] for the operation at the current position of the
@@ -413,56 +394,54 @@ internal class Operations : OperationsDebugStringFormattable() {
         }
     }
 
-    private fun Operations.OpIterator.currentOpToDebugString(
-        linePrefix: String
-    ): String {
+    private fun Operations.OpIterator.currentOpToDebugString(linePrefix: String): String {
         val operation = operation
         return if (operation.ints == 0 && operation.objects == 0) {
             operation.name
-        } else buildString {
-            append(operation.name)
-            append('(')
-            var isFirstParam = true
-            val argLinePrefix = linePrefix.indent()
-            repeat(operation.ints) { offset ->
-                val param = Operation.IntParameter(offset)
-                val name = operation.intParamName(param)
-                if (!isFirstParam) append(", ") else isFirstParam = false
+        } else
+            buildString {
+                append(operation.name)
+                append('(')
+                var isFirstParam = true
+                val argLinePrefix = linePrefix.indent()
+                repeat(operation.ints) { offset ->
+                    val param = Operation.IntParameter(offset)
+                    val name = operation.intParamName(param)
+                    if (!isFirstParam) append(", ") else isFirstParam = false
+                    appendLine()
+                    append(argLinePrefix)
+                    append(name)
+                    append(" = ")
+                    append(getInt(param))
+                }
+                repeat(operation.objects) { offset ->
+                    val param = Operation.ObjectParameter<Any?>(offset)
+                    val name = operation.objectParamName(param)
+                    if (!isFirstParam) append(", ") else isFirstParam = false
+                    appendLine()
+                    append(argLinePrefix)
+                    append(name)
+                    append(" = ")
+                    append(getObject(param).formatOpArgumentToString(argLinePrefix))
+                }
                 appendLine()
-                append(argLinePrefix)
-                append(name)
-                append(" = ")
-                append(getInt(param))
+                append(linePrefix)
+                append(")")
             }
-            repeat(operation.objects) { offset ->
-                val param = Operation.ObjectParameter<Any?>(offset)
-                val name = operation.objectParamName(param)
-                if (!isFirstParam) append(", ") else isFirstParam = false
-                appendLine()
-                append(argLinePrefix)
-                append(name)
-                append(" = ")
-                append(getObject(param).formatOpArgumentToString(argLinePrefix))
-            }
-            appendLine()
-            append(linePrefix)
-            append(")")
-        }
     }
 
-    private fun Any?.formatOpArgumentToString(
-        linePrefix: String
-    ) = when (this) {
-        null -> "null"
-        is Array<*> -> asIterable().toCollectionString(linePrefix)
-        is IntArray -> asIterable().toCollectionString(linePrefix)
-        is LongArray -> asIterable().toCollectionString(linePrefix)
-        is FloatArray -> asIterable().toCollectionString(linePrefix)
-        is DoubleArray -> asIterable().toCollectionString(linePrefix)
-        is Iterable<*> -> toCollectionString(linePrefix)
-        is OperationsDebugStringFormattable -> toDebugString(linePrefix)
-        else -> toString()
-    }
+    private fun Any?.formatOpArgumentToString(linePrefix: String) =
+        when (this) {
+            null -> "null"
+            is Array<*> -> asIterable().toCollectionString(linePrefix)
+            is IntArray -> asIterable().toCollectionString(linePrefix)
+            is LongArray -> asIterable().toCollectionString(linePrefix)
+            is FloatArray -> asIterable().toCollectionString(linePrefix)
+            is DoubleArray -> asIterable().toCollectionString(linePrefix)
+            is Iterable<*> -> toCollectionString(linePrefix)
+            is OperationsDebugStringFormattable -> toDebugString(linePrefix)
+            else -> toString()
+        }
 
     private fun <T> Iterable<T>.toCollectionString(linePrefix: String): String =
         joinToString(prefix = "[", postfix = "]", separator = ", ") {

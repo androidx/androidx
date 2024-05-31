@@ -23,12 +23,9 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
 internal fun XmlPullParser.isAtEnd(): Boolean =
-    eventType == XmlPullParser.END_DOCUMENT ||
-        (depth < 1 && eventType == XmlPullParser.END_TAG)
+    eventType == XmlPullParser.END_DOCUMENT || (depth < 1 && eventType == XmlPullParser.END_TAG)
 
-/**
- * Helper method to seek to the first tag within the VectorDrawable xml asset
- */
+/** Helper method to seek to the first tag within the VectorDrawable xml asset */
 @Throws(XmlPullParserException::class)
 internal fun XmlPullParser.seekToStartTag(): XmlPullParser {
     var type = next()
@@ -46,10 +43,7 @@ internal fun XmlPullParser.seekToStartTag(): XmlPullParser {
  * Assuming that we are at the [XmlPullParser.START_TAG start] of the specified [tag], iterates
  * though the events until we see a corresponding [XmlPullParser.END_TAG].
  */
-internal inline fun XmlPullParser.forEachChildOf(
-    tag: String,
-    action: XmlPullParser.() -> Unit
-) {
+internal inline fun XmlPullParser.forEachChildOf(tag: String, action: XmlPullParser.() -> Unit) {
     next()
     while (!isAtEnd()) {
         if (eventType == XmlPullParser.END_TAG && name == tag) {
@@ -66,8 +60,9 @@ internal inline fun <T> AttributeSet.attrs(
     styleable: IntArray,
     body: (a: TypedArray) -> T
 ): T {
-    val a = theme?.obtainStyledAttributes(this, styleable, 0, 0)
-        ?: res.obtainAttributes(this, styleable)
+    val a =
+        theme?.obtainStyledAttributes(this, styleable, 0, 0)
+            ?: res.obtainAttributes(this, styleable)
     try {
         return body(a)
     } finally {

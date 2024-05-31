@@ -17,8 +17,8 @@
 package androidx.compose.animation.core
 
 @RequiresOptIn(
-    message = "This is an experimental animation API for AnimationSpec. " +
-        "It may change in the future."
+    message =
+        "This is an experimental animation API for AnimationSpec. " + "It may change in the future."
 )
 @Retention(AnnotationRetention.BINARY)
 annotation class ExperimentalAnimationSpecApi

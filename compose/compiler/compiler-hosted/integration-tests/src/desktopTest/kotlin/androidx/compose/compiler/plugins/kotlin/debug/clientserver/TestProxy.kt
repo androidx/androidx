@@ -46,8 +46,6 @@ class TestProxy(
     private fun filterOutJdkJars(classPath: List<URL>): List<URL> {
         val javaHome = System.getProperty("java.home") ?: error("java.home is not")
         val javaFolder = File(javaHome)
-        return classPath.filterNot {
-            File(it.file).startsWith(javaFolder)
-        }
+        return classPath.filterNot { File(it.file).startsWith(javaFolder) }
     }
 }

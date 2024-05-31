@@ -18,13 +18,13 @@ package androidx.compose.compiler.plugins.kotlin
 
 import org.junit.Test
 
-class FunctionalInterfaceTransformTests(
-    useFir: Boolean
-) : AbstractControlFlowTransformTests(useFir) {
+class FunctionalInterfaceTransformTests(useFir: Boolean) :
+    AbstractControlFlowTransformTests(useFir) {
     @Test
     fun testFunctionalInterfaceWithExtensionReceiverTransformation() {
         verifyGoldenComposeIrTransform(
-            source = """
+            source =
+                """
                 import androidx.compose.runtime.*
                 fun interface TestContent {
                     @Composable
@@ -41,13 +41,15 @@ class FunctionalInterfaceTransformTests(
                 fun CallTest() {
                     Test { this.length }
                 }
-            """.trimIndent()
+            """
+                    .trimIndent()
         )
     }
 
     @Test
-    fun testFunInterfaces() = verifyGoldenComposeIrTransform(
-        """
+    fun testFunInterfaces() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface A {
@@ -59,11 +61,12 @@ class FunctionalInterfaceTransformTests(
                 Example { it -> a.compute(it) }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableFunInterfaces() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposableFunInterfaces() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface A {
@@ -73,11 +76,12 @@ class FunctionalInterfaceTransformTests(
                 Example { it -> a.compute(it) }
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableFunInterfacesInVariance() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposableFunInterfacesInVariance() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface Consumer<T> {
@@ -94,11 +98,12 @@ class FunctionalInterfaceTransformTests(
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testCaptureStableFunInterface() = verifyGoldenComposeIrTransform(
-        """
+    fun testCaptureStableFunInterface() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface Consumer {
@@ -114,11 +119,12 @@ class FunctionalInterfaceTransformTests(
             @Composable inline fun Example(consumer: Consumer) {
             }
             """
-    )
+        )
 
     @Test
-    fun testNoCaptureFunInterface() = verifyGoldenComposeIrTransform(
-        """
+    fun testNoCaptureFunInterface() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface Consumer {
@@ -134,11 +140,12 @@ class FunctionalInterfaceTransformTests(
             @Composable inline fun Example(consumer: Consumer) {
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableFunInterfaceWAnonymousParam() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposableFunInterfaceWAnonymousParam() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             fun interface Consumer {
@@ -153,11 +160,12 @@ class FunctionalInterfaceTransformTests(
             @Composable fun Example(consumer: Consumer) {
             }
         """
-    )
+        )
 
     @Test
-    fun testComposableFunInterfaceWComposableLambda() = verifyGoldenComposeIrTransform(
-        """
+    fun testComposableFunInterfaceWComposableLambda() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -179,10 +187,10 @@ class FunctionalInterfaceTransformTests(
                 @Composable fun Decoration(content: @Composable () -> Unit)
             }
         """,
-        """
+            """
             fun used(any: Any?) {}
         """
-    )
+        )
 
     @Test
     fun testComposableFunInterfaceWComposableLambdaCaptureVariable() =

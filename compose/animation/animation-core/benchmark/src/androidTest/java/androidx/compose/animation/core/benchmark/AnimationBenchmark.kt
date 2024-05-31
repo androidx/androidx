@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AnimationBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun animationSpec1D() {
@@ -128,13 +127,16 @@ class AnimationBenchmark {
     fun animationSpec4D() {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
-        val anim = VectorizedKeyframesSpec<AnimationVector4D>(
-            keyframes = mapOf(
-                0 to (start to LinearEasing),
-                900 to (start to FastOutSlowInEasing), 1000 to (end to LinearOutSlowInEasing)
-            ),
-            durationMillis = 1000
-        )
+        val anim =
+            VectorizedKeyframesSpec<AnimationVector4D>(
+                keyframes =
+                    mapOf(
+                        0 to (start to LinearEasing),
+                        900 to (start to FastOutSlowInEasing),
+                        1000 to (end to LinearOutSlowInEasing)
+                    ),
+                durationMillis = 1000
+            )
 
         benchmarkRule.measureRepeated {
             for (time in 0..1000 step 20) {
@@ -147,13 +149,16 @@ class AnimationBenchmark {
     fun animation4D() {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
-        val anim = VectorizedKeyframesSpec<AnimationVector4D>(
-            keyframes = mapOf(
-                0 to (start to LinearEasing),
-                900 to (start to FastOutSlowInEasing), 1000 to (end to LinearOutSlowInEasing)
-            ),
-            durationMillis = 1000
-        )
+        val anim =
+            VectorizedKeyframesSpec<AnimationVector4D>(
+                keyframes =
+                    mapOf(
+                        0 to (start to LinearEasing),
+                        900 to (start to FastOutSlowInEasing),
+                        1000 to (end to LinearOutSlowInEasing)
+                    ),
+                durationMillis = 1000
+            )
         val fixedAnimation = anim.createAnimation(start, end, start)
 
         benchmarkRule.measureRepeated {

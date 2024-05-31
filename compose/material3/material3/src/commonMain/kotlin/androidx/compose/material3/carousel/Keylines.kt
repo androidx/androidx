@@ -26,11 +26,10 @@ import kotlin.math.min
 /**
  * Creates a list of keylines that arranges items into a multi-browse configuration.
  *
- * Note that this function may adjust the size of large items. In order to ensure large, medium,
- * and small items fit perfectly into the available space and are numbered/arranged in a
- * visually pleasing and opinionated way, this strategy finds the nearest number of large items that
- * will fit into an approved arrangement that requires the least amount of size adjustment
- * necessary.
+ * Note that this function may adjust the size of large items. In order to ensure large, medium, and
+ * small items fit perfectly into the available space and are numbered/arranged in a visually
+ * pleasing and opinionated way, this strategy finds the nearest number of large items that will fit
+ * into an approved arrangement that requires the least amount of size adjustment necessary.
  *
  * For more information, see <a href="https://material.io/components/carousel/overview">design
  * guidelines</a>.
@@ -77,27 +76,28 @@ internal fun multiBrowseKeylineList(
 
     // Find the minimum space left for large items after filling the carousel with the most
     // permissible medium and small items to determine a plausible minimum large count.
-    val minAvailableLargeSpace = carouselMainAxisSize - targetMediumSize * mediumCounts.max() -
-        maxSmallItemSize * smallCounts.max()
-    val minLargeCount = max(
-        1,
-        floor(minAvailableLargeSpace / targetLargeSize).toInt())
+    val minAvailableLargeSpace =
+        carouselMainAxisSize -
+            targetMediumSize * mediumCounts.max() -
+            maxSmallItemSize * smallCounts.max()
+    val minLargeCount = max(1, floor(minAvailableLargeSpace / targetLargeSize).toInt())
     val maxLargeCount = ceil(carouselMainAxisSize / targetLargeSize).toInt()
 
     val largeCounts = IntArray(maxLargeCount - minLargeCount + 1) { maxLargeCount - it }
     val anchorSize = with(density) { CarouselDefaults.AnchorSize.toPx() }
-    var arrangement = Arrangement.findLowestCostArrangement(
-        availableSpace = carouselMainAxisSize,
-        itemSpacing = itemSpacing,
-        targetSmallSize = targetSmallSize,
-        minSmallSize = minSmallItemSize,
-        maxSmallSize = maxSmallItemSize,
-        smallCounts = smallCounts,
-        targetMediumSize = targetMediumSize,
-        mediumCounts = mediumCounts,
-        targetLargeSize = targetLargeSize,
-        largeCounts = largeCounts,
-    )
+    var arrangement =
+        Arrangement.findLowestCostArrangement(
+            availableSpace = carouselMainAxisSize,
+            itemSpacing = itemSpacing,
+            targetSmallSize = targetSmallSize,
+            minSmallSize = minSmallItemSize,
+            maxSmallSize = maxSmallItemSize,
+            smallCounts = smallCounts,
+            targetMediumSize = targetMediumSize,
+            mediumCounts = mediumCounts,
+            targetLargeSize = targetLargeSize,
+            largeCounts = largeCounts,
+        )
 
     if (arrangement != null && arrangement.itemCount() > itemCount) {
         var keylineSurplus = arrangement.itemCount() - itemCount
@@ -115,18 +115,19 @@ internal fun multiBrowseKeylineList(
             // are already fully unmasked.
             keylineSurplus -= 1
         }
-        arrangement = Arrangement.findLowestCostArrangement(
-            availableSpace = carouselMainAxisSize,
-            itemSpacing = itemSpacing,
-            targetSmallSize = targetSmallSize,
-            minSmallSize = minSmallItemSize,
-            maxSmallSize = maxSmallItemSize,
-            smallCounts = intArrayOf(smallCount),
-            targetMediumSize = targetMediumSize,
-            mediumCounts = intArrayOf(mediumCount),
-            targetLargeSize = targetLargeSize,
-            largeCounts = largeCounts,
-        )
+        arrangement =
+            Arrangement.findLowestCostArrangement(
+                availableSpace = carouselMainAxisSize,
+                itemSpacing = itemSpacing,
+                targetSmallSize = targetSmallSize,
+                minSmallSize = minSmallItemSize,
+                maxSmallSize = maxSmallItemSize,
+                smallCounts = intArrayOf(smallCount),
+                targetMediumSize = targetMediumSize,
+                mediumCounts = intArrayOf(mediumCount),
+                targetLargeSize = targetLargeSize,
+                largeCounts = largeCounts,
+            )
     }
 
     if (arrangement == null) {
@@ -193,19 +194,13 @@ internal fun uncontainedKeylineList(
     val mediumCount = if (remainingSpace > 0) 1 else 0
 
     val defaultAnchorSize = with(density) { CarouselDefaults.AnchorSize.toPx() }
-    val mediumItemSize = calculateMediumChildSize(
-        minimumMediumSize = defaultAnchorSize,
-        largeItemSize = largeItemSize,
-        remainingSpace = remainingSpace)
-    val arrangement = Arrangement(
-        0,
-        0F,
-        0,
-        mediumItemSize,
-        mediumCount,
-        largeItemSize,
-        largeCount
-    )
+    val mediumItemSize =
+        calculateMediumChildSize(
+            minimumMediumSize = defaultAnchorSize,
+            largeItemSize = largeItemSize,
+            remainingSpace = remainingSpace
+        )
+    val arrangement = Arrangement(0, 0F, 0, mediumItemSize, mediumCount, largeItemSize, largeCount)
 
     val xSmallSize = min(defaultAnchorSize, itemSize)
     // Make the left anchor size half the cut off item size to make the motion at the left closer
@@ -221,9 +216,9 @@ internal fun uncontainedKeylineList(
 }
 
 /**
- * Calculates a size of a medium item in the carousel that is not bigger than the large item
- * size, and arbitrarily chooses a size small enough such that there is a size disparity between
- * the medium and large sizes, but large enough to have a sufficient percentage cut off.
+ * Calculates a size of a medium item in the carousel that is not bigger than the large item size,
+ * and arbitrarily chooses a size small enough such that there is a size disparity between the
+ * medium and large sizes, but large enough to have a sufficient percentage cut off.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 private fun calculateMediumChildSize(
@@ -241,8 +236,7 @@ private fun calculateMediumChildSize(
     // If the medium child is larger than the threshold percentage of the large child size,
     // it's too similar and won't create sufficient motion when scrolling items between the large
     // items and the medium item.
-    val largeItemThreshold: Float =
-        largeItemSize * CarouselDefaults.MediumLargeItemDiffThreshold
+    val largeItemThreshold: Float = largeItemSize * CarouselDefaults.MediumLargeItemDiffThreshold
     if (mediumItemSize > largeItemThreshold) {
         // Choose whichever is bigger between the maximum threshold of the medium child size, or
         // a size such that only 20% of the space is cut off.

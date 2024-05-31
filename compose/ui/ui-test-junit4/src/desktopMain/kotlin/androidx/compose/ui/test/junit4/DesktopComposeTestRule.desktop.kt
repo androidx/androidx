@@ -46,9 +46,8 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
 
 @InternalTestApi
 @OptIn(ExperimentalTestApi::class)
-class DesktopComposeTestRule private constructor(
-    private val composeTest: DesktopComposeUiTest
-) : ComposeContentTestRule {
+class DesktopComposeTestRule private constructor(private val composeTest: DesktopComposeUiTest) :
+    ComposeContentTestRule {
 
     constructor() : this(DesktopComposeUiTest())
 
@@ -66,9 +65,7 @@ class DesktopComposeTestRule private constructor(
     override fun apply(base: Statement, description: Description?): Statement {
         return object : Statement() {
             override fun evaluate() {
-                composeTest.runTest {
-                    base.evaluate()
-                }
+                composeTest.runTest { base.evaluate() }
             }
         }
     }

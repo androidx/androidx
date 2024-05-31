@@ -45,11 +45,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class DividerScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val Tag = "Divider"
 
@@ -62,7 +60,8 @@ class DividerScreenshotTest {
                 Spacer(Modifier.size(10.dp))
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "divider_lightTheme")
     }
@@ -79,7 +78,8 @@ class DividerScreenshotTest {
                 Spacer(Modifier.size(10.dp))
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "divider_darkTheme")
     }
@@ -93,7 +93,8 @@ class DividerScreenshotTest {
                 Spacer(Modifier.size(10.dp))
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "divider_vertical_lightTheme")
     }
@@ -107,7 +108,8 @@ class DividerScreenshotTest {
                 Spacer(Modifier.size(10.dp))
             }
         }
-        composeTestRule.onNodeWithTag(Tag)
+        composeTestRule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "divider_hairlineThickness")
     }

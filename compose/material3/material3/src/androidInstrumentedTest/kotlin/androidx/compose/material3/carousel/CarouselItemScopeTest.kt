@@ -52,29 +52,29 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3Api::class)
 class CarouselItemScopeTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     val testTag = "ItemTag"
 
     @Test
     fun mask_fullyUnmaskedShouldMatchSize() {
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 100.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(0.dp, 0.dp, 100.dp, 100.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 100.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(0.dp, 0.dp, 100.dp, 100.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = RoundedCornerShape(28.dp))
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = RoundedCornerShape(28.dp))
+                            .background(Color.Red)
                 )
             }
         }
@@ -85,18 +85,20 @@ class CarouselItemScopeTest {
     @Test
     fun mask_halfMaksedShouldIntersectSize() {
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 50.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(25.dp, 25.dp, 75.dp, 75.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 50.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(25.dp, 25.dp, 75.dp, 75.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = RoundedCornerShape(10.dp))
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = RoundedCornerShape(10.dp))
+                            .background(Color.Red)
                 )
             }
         }
@@ -110,18 +112,20 @@ class CarouselItemScopeTest {
             addOval(Rect(0f, 0f, size.width, size.height))
         }
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 50.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(25.dp, 0.dp, 75.dp, 100.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 50.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(25.dp, 0.dp, 75.dp, 100.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = ovalPathShape)
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = ovalPathShape)
+                            .background(Color.Red)
                 )
             }
         }
@@ -132,18 +136,20 @@ class CarouselItemScopeTest {
     @Test
     fun mask_squareMaskShouldIntersectSize() {
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 50.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(25.dp, 0.dp, 75.dp, 100.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 50.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(25.dp, 0.dp, 75.dp, 100.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = RoundedCornerShape(0.dp))
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = RoundedCornerShape(0.dp))
+                            .background(Color.Red)
                 )
             }
         }
@@ -154,22 +160,24 @@ class CarouselItemScopeTest {
     @Test
     fun maskBorder_fullyUnmaskedShouldMatchSize() {
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 100.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(0.dp, 0.dp, 100.dp, 100.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 100.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(0.dp, 0.dp, 100.dp, 100.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = RoundedCornerShape(10.dp))
-                    .maskBorder(
-                        border = BorderStroke(5.dp, Color.Blue),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = RoundedCornerShape(10.dp))
+                            .maskBorder(
+                                border = BorderStroke(5.dp, Color.Blue),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .background(Color.Red)
                 )
             }
         }
@@ -186,22 +194,21 @@ class CarouselItemScopeTest {
             close()
         }
         rule.setMaterialContent(lightColorScheme()) {
-            val scope = createCarouselItemScope(
-                size = 100.dp,
-                minSize = 10.dp,
-                maxSize = 100.dp,
-                maskRect = DpRect(25.dp, 25.dp, 75.dp, 75.dp)
-            )
+            val scope =
+                createCarouselItemScope(
+                    size = 100.dp,
+                    minSize = 10.dp,
+                    maxSize = 100.dp,
+                    maskRect = DpRect(25.dp, 25.dp, 75.dp, 75.dp)
+                )
             with(scope) {
-                Box(modifier = Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .maskClip(shape = triangle)
-                    .maskBorder(
-                        border = BorderStroke(5.dp, Color.Blue),
-                        shape = triangle
-                    )
-                    .background(Color.Red)
+                Box(
+                    modifier =
+                        Modifier.testTag(testTag)
+                            .size(100.dp)
+                            .maskClip(shape = triangle)
+                            .maskBorder(border = BorderStroke(5.dp, Color.Blue), shape = triangle)
+                            .background(Color.Red)
                 )
             }
         }
@@ -215,24 +222,22 @@ class CarouselItemScopeTest {
         maxSize: Dp,
         maskRect: DpRect
     ): CarouselItemScope {
-        return CarouselItemScopeImpl(CarouselItemInfoImpl().apply {
-
-            with(rule.density) {
-                sizeState = size.toPx()
-                minSizeState = minSize.toPx()
-                maxSizeState = maxSize.toPx()
-                maskRectState = maskRect.toRect()
+        return CarouselItemScopeImpl(
+            CarouselItemInfoImpl().apply {
+                with(rule.density) {
+                    sizeState = size.toPx()
+                    minSizeState = minSize.toPx()
+                    maxSizeState = maxSize.toPx()
+                    maskRectState = maskRect.toRect()
+                }
             }
-        })
+        )
     }
 
     private fun assertCarouselAgainstGolden(goldenIdentifier: String) {
         rule
             .onNodeWithTag(testTag)
             .captureToImage()
-            .assertAgainstGolden(
-                screenshotRule,
-                "carousel_$goldenIdentifier"
-            )
+            .assertAgainstGolden(screenshotRule, "carousel_$goldenIdentifier")
     }
 }

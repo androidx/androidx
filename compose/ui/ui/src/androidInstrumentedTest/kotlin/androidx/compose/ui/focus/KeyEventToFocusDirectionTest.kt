@@ -46,16 +46,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalComposeUiApi::class)
 class KeyEventToFocusDirectionTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var owner: Owner
 
     @Before
     fun setup() {
-        rule.setContent {
-            owner = LocalView.current as Owner
-        }
+        rule.setContent { owner = LocalView.current as Owner }
     }
 
     @Test
@@ -163,8 +160,7 @@ class KeyEventToFocusDirectionTest {
         val focusDirection = owner.getFocusDirection(keyEvent)
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assertThat(focusDirection).isEqualTo(Enter)
+        @OptIn(ExperimentalComposeUiApi::class) assertThat(focusDirection).isEqualTo(Enter)
     }
 
     @Test
@@ -176,8 +172,7 @@ class KeyEventToFocusDirectionTest {
         val focusDirection = owner.getFocusDirection(keyEvent)
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assertThat(focusDirection).isEqualTo(Enter)
+        @OptIn(ExperimentalComposeUiApi::class) assertThat(focusDirection).isEqualTo(Enter)
     }
 
     @Test
@@ -189,8 +184,7 @@ class KeyEventToFocusDirectionTest {
         val focusDirection = owner.getFocusDirection(keyEvent)
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assertThat(focusDirection).isEqualTo(Enter)
+        @OptIn(ExperimentalComposeUiApi::class) assertThat(focusDirection).isEqualTo(Enter)
     }
 
     @Test
@@ -202,8 +196,7 @@ class KeyEventToFocusDirectionTest {
         val focusDirection = owner.getFocusDirection(keyEvent)
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assertThat(focusDirection).isEqualTo(Exit)
+        @OptIn(ExperimentalComposeUiApi::class) assertThat(focusDirection).isEqualTo(Exit)
     }
 
     @Test
@@ -215,7 +208,6 @@ class KeyEventToFocusDirectionTest {
         val focusDirection = owner.getFocusDirection(keyEvent)
 
         // Assert.
-        @OptIn(ExperimentalComposeUiApi::class)
-        assertThat(focusDirection).isEqualTo(Exit)
+        @OptIn(ExperimentalComposeUiApi::class) assertThat(focusDirection).isEqualTo(Exit)
     }
 }

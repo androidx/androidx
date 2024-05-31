@@ -18,14 +18,14 @@ package androidx.compose.runtime
 
 internal interface ValueHolder<T> {
     fun readValue(map: PersistentCompositionLocalMap): T
+
     fun toProvided(local: CompositionLocal<T>): ProvidedValue<T>
 }
 
-/**
- * A StaticValueHolder holds a value that will never change.
- */
+/** A StaticValueHolder holds a value that will never change. */
 internal data class StaticValueHolder<T>(val value: T) : ValueHolder<T> {
     override fun readValue(map: PersistentCompositionLocalMap): T = value
+
     override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
         ProvidedValue(
             compositionLocal = local,
@@ -46,15 +46,15 @@ internal class LazyValueHolder<T>(valueProducer: () -> T) : ValueHolder<T> {
     private val current by lazy(valueProducer)
 
     override fun readValue(map: PersistentCompositionLocalMap): T = current
+
     override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
         composeRuntimeError("Cannot produce a provider from a lazy value holder")
 }
 
-internal data class ComputedValueHolder<T>(
-    val compute: CompositionLocalAccessorScope.() -> T
-) : ValueHolder<T> {
-    override fun readValue(map: PersistentCompositionLocalMap): T =
-        map.compute()
+internal data class ComputedValueHolder<T>(val compute: CompositionLocalAccessorScope.() -> T) :
+    ValueHolder<T> {
+    override fun readValue(map: PersistentCompositionLocalMap): T = map.compute()
+
     override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
         ProvidedValue(
             compositionLocal = local,
@@ -69,6 +69,7 @@ internal data class ComputedValueHolder<T>(
 
 internal data class DynamicValueHolder<T>(val state: MutableState<T>) : ValueHolder<T> {
     override fun readValue(map: PersistentCompositionLocalMap): T = state.value
+
     override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
         ProvidedValue(
             compositionLocal = local,

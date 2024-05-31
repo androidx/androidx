@@ -28,6 +28,7 @@ internal const val STABILITY_GENERIC_INCLUDE = "*"
 internal const val STABILITY_GENERIC_EXCLUDE = "_"
 internal const val STABILITY_GENERIC_SEPARATOR = ","
 internal const val STABILITY_PACKAGE_SEPARATOR = '.'
+
 class FqNameMatcherCollection(private val matchers: Set<FqNameMatcher>) {
     // Cache of external types already matched
     private val externalTypesMatched: MutableMap<FqName, Boolean> = mutableMapOf()
@@ -53,21 +54,18 @@ class FqNameMatcherCollection(private val matchers: Set<FqNameMatcher>) {
 
         val superTypeNames = superTypes.mapNotNull { it.classFqName }
         return (matcherTree.findFirstPositiveMatcher(name) != null ||
-            superTypeNames.any { superName ->
-                matcherTree.findFirstPositiveMatcher(superName) != null
-            })
-            .also {
-                externalTypesMatched[name] = it
-            }
+                superTypeNames.any { superName ->
+                    matcherTree.findFirstPositiveMatcher(superName) != null
+                })
+            .also { externalTypesMatched[name] = it }
     }
 }
 
 /**
- * A tree of matchers for faster lookup.
- * The tree is structured around package segments. e.g. com.google.foo = com -> google -> foo
- * Because multiple matchers could match the same fqName due to wildcards, matchers are
- * stored in the tree at the point of their first wildcard. In the case of no wildcards,
- * matchers are stored at the end of the branch.
+ * A tree of matchers for faster lookup. The tree is structured around package segments. e.g.
+ * com.google.foo = com -> google -> foo Because multiple matchers could match the same fqName due
+ * to wildcards, matchers are stored in the tree at the point of their first wildcard. In the case
+ * of no wildcards, matchers are stored at the end of the branch.
  */
 private class MutableMatcherTree {
     private val root = Node()
@@ -115,20 +113,16 @@ private class MutableMatcherTree {
 }
 
 class FqNameMatcher(val pattern: String) {
-    /**
-     * A key for storing this matcher.
-     */
+    /** A key for storing this matcher. */
     val key: String
-    /**
-     * Mask for generic type inclusion in stability calculation
-     */
+    /** Mask for generic type inclusion in stability calculation */
     val mask: Int
 
     private val regex: Regex?
 
     init {
-        val matchResult = validPatternMatcher.matchEntire(pattern)
-            ?: error("$pattern is not a valid pattern")
+        val matchResult =
+            validPatternMatcher.matchEntire(pattern) ?: error("$pattern is not a valid pattern")
 
         val regexPatternBuilder = StringBuilder()
         val keyBuilder = StringBuilder()
@@ -142,7 +136,7 @@ class FqNameMatcher(val pattern: String) {
                     hasWildcard = true
                     if (pattern.getOrNull(index + 1) == STABILITY_WILDCARD_SINGLE) {
                         regexPatternBuilder.append(PATTERN_MULTI_WILD)
-                        index ++ // Skip a char to take the multi
+                        index++ // Skip a char to take the multi
                     } else {
                         regexPatternBuilder.append(PATTERN_SINGLE_WILD)
                     }
@@ -171,27 +165,27 @@ class FqNameMatcher(val pattern: String) {
 
         // Pre-alloc regex for pattern having a wildcard at the end of the string
         // because it should be common.
-        regex = if (regexPatternBuilder.isNotEmpty()) {
-            when (val regexPattern = regexPatternBuilder.toString()) {
-                singleWildcardSuffix.pattern -> singleWildcardSuffix
-                multiWildcardSuffix.pattern -> multiWildcardSuffix
-                else -> Regex(regexPattern)
+        regex =
+            if (regexPatternBuilder.isNotEmpty()) {
+                when (val regexPattern = regexPatternBuilder.toString()) {
+                    singleWildcardSuffix.pattern -> singleWildcardSuffix
+                    multiWildcardSuffix.pattern -> multiWildcardSuffix
+                    else -> Regex(regexPattern)
+                }
+            } else {
+                null
             }
-        } else {
-            null
-        }
 
         val genericMask = matchResult.groups["genericmask"]
         if (genericMask == null) {
             key = keyBuilder.toString()
             mask = 0.inv()
         } else {
-            mask = genericMask.value
-                .split(STABILITY_GENERIC_SEPARATOR)
-                .map { if (it == STABILITY_GENERIC_INCLUDE) 1 else 0 }
-                .reduceIndexed { i, acc, flag ->
-                    acc or (flag shl i)
-                }
+            mask =
+                genericMask.value
+                    .split(STABILITY_GENERIC_SEPARATOR)
+                    .map { if (it == STABILITY_GENERIC_INCLUDE) 1 else 0 }
+                    .reduceIndexed { i, acc, flag -> acc or (flag shl i) }
 
             key = keyBuilder.subSequence(0, genericMask.range.first - 1).toString()
         }
@@ -223,8 +217,10 @@ class FqNameMatcher(val pattern: String) {
         private const val PATTERN_PACKAGE_SEGMENT = "\\."
 
         private val validPatternMatcher =
-            Regex("((\\w+\\*{0,2}|\\*{1,2})\\.)*" +
-                "((\\w+(<?(?<genericmask>([*|_],)*[*|_])>)+)|(\\w+\\*{0,2}|\\*{1,2}))")
+            Regex(
+                "((\\w+\\*{0,2}|\\*{1,2})\\.)*" +
+                    "((\\w+(<?(?<genericmask>([*|_],)*[*|_])>)+)|(\\w+\\*{0,2}|\\*{1,2}))"
+            )
         private val singleWildcardSuffix = Regex(PATTERN_SINGLE_WILD)
         private val multiWildcardSuffix = Regex(PATTERN_MULTI_WILD)
     }

@@ -435,26 +435,27 @@ class AndroidBlendModeTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     fun testBlendModeToPorterDuffCompatibility() {
-        val supportedBlendModes = setOf(
-            BlendMode.Clear,
-            BlendMode.Src,
-            BlendMode.Dst,
-            BlendMode.SrcOver,
-            BlendMode.DstOver,
-            BlendMode.SrcIn,
-            BlendMode.DstIn,
-            BlendMode.SrcOut,
-            BlendMode.DstOut,
-            BlendMode.SrcAtop,
-            BlendMode.DstAtop,
-            BlendMode.Xor,
-            BlendMode.Plus,
-            BlendMode.Screen,
-            BlendMode.Overlay,
-            BlendMode.Darken,
-            BlendMode.Lighten,
-            BlendMode.Modulate
-        )
+        val supportedBlendModes =
+            setOf(
+                BlendMode.Clear,
+                BlendMode.Src,
+                BlendMode.Dst,
+                BlendMode.SrcOver,
+                BlendMode.DstOver,
+                BlendMode.SrcIn,
+                BlendMode.DstIn,
+                BlendMode.SrcOut,
+                BlendMode.DstOut,
+                BlendMode.SrcAtop,
+                BlendMode.DstAtop,
+                BlendMode.Xor,
+                BlendMode.Plus,
+                BlendMode.Screen,
+                BlendMode.Overlay,
+                BlendMode.Darken,
+                BlendMode.Lighten,
+                BlendMode.Modulate
+            )
         val blendModes = BlendMode.values()
         for (blendMode in blendModes) {
             if (supportedBlendModes.contains(blendMode)) {

@@ -29,8 +29,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LambdaLocationTest {
 
-    @get:Rule
-    val rule = JvmtiRule()
+    @get:Rule val rule = JvmtiRule()
 
     @Test
     fun test() {
@@ -41,8 +40,8 @@ class LambdaLocationTest {
         assertThat(LambdaLocation.resolve(TestLambdas.inlined))
             .isEqualTo(LambdaLocation("TestLambdas.kt", 29, 30))
         assertThat(LambdaLocation.resolve(TestLambdas.inlinedParameter))
-            .isEqualTo(LambdaLocation("TestLambdas.kt", 33, 33))
+            .isEqualTo(LambdaLocation("TestLambdas.kt", 32, 32))
         assertThat(LambdaLocation.resolve(TestLambdas.unnamed))
-            .isEqualTo(LambdaLocation("TestLambdas.kt", 35, 35))
+            .isEqualTo(LambdaLocation("TestLambdas.kt", 33, 33))
     }
 }

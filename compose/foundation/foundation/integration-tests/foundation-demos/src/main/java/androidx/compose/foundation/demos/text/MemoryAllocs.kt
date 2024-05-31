@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private val style = TextStyle.Default
+
 /**
  * These demos are for using the memory profiler to observe initial compo and recompo memory
  * pressure.
@@ -45,11 +46,13 @@ private val style = TextStyle.Default
 @Composable
 fun MemoryAllocsSetText() {
     Column {
-        Preamble("""
+        Preamble(
+            """
             @Composable
             fun SetText(text: State<String>) {
                 Text(text.value)
-            }""".trimIndent()
+            }"""
+                .trimIndent()
         )
         SetText(textToggler())
     }
@@ -64,13 +67,15 @@ fun MemoryAllocsSetText() {
 @Composable
 fun MemoryAllocsIfNotEmptyText() {
     Column {
-        Preamble("""
+        Preamble(
+            """
             @Composable
             fun IfNotEmptyText(text: State<String>) {
                 if (text.value.isNotEmpty()) {
                     Text(text.value)
                 }
-            }""".trimIndent()
+            }"""
+                .trimIndent()
         )
         IfNotEmptyText(textToggler())
     }
@@ -80,9 +85,12 @@ fun MemoryAllocsIfNotEmptyText() {
 fun MemoryAllocsLazyList() {
     val states = produceLazyListReuseDriver()
     Column {
-        Preamble(sourceCode = """
+        Preamble(
+            sourceCode =
+                """
                 item { Text("Some static text") }
-            """.trimIndent()
+            """
+                    .trimIndent()
         )
         LazyListReuse(states)
     }
@@ -91,28 +99,21 @@ fun MemoryAllocsLazyList() {
 @Composable
 fun Preamble(sourceCode: String) {
     Text("Run in memory profiler to emulate text behavior during observable loads")
-    Text(text = sourceCode,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(220, 230, 240)),
+    Text(
+        text = sourceCode,
+        modifier = Modifier.fillMaxWidth().background(Color(220, 230, 240)),
         fontFamily = FontFamily.Monospace,
         color = Color(41, 17, 27),
         fontSize = 10.sp
     )
-    Divider(
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp))
+    Divider(Modifier.fillMaxWidth().padding(vertical = 8.dp))
     Text("\uD83D\uDC47 running here \uD83D\uDC47")
 }
 
 @Composable
 fun IfNotEmptyText(text: State<String>) {
     if (text.value.isNotEmpty()) {
-        Text(
-            text.value,
-            style = style
-        )
+        Text(text.value, style = style)
     }
 }
 
@@ -121,11 +122,7 @@ fun LazyListReuse(active: State<Pair<Boolean, Int>>) {
     // this emulates what a LazyList does during reuse
     ReusableContentHost(active.value.first) {
         ReusableContent(active.value.second) {
-            Text(
-                "Some static text",
-                style = style,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text("Some static text", style = style, modifier = Modifier.fillMaxWidth())
         }
     }
 }
@@ -136,28 +133,32 @@ private fun SetText(text: State<String>) {
 }
 
 @Composable
-private fun textToggler(): State<String> = produceState("") {
-    while (true) {
-        withFrameMillis {
-            value = if (value.isEmpty()) {
-                "This text and empty string swap every frame"
-            } else {
-                ""
+private fun textToggler(): State<String> =
+    produceState("") {
+        while (true) {
+            withFrameMillis {
+                value =
+                    if (value.isEmpty()) {
+                        "This text and empty string swap every frame"
+                    } else {
+                        ""
+                    }
             }
         }
     }
-}
 
 @Composable
-fun produceLazyListReuseDriver(): State<Pair<Boolean, Int>> = produceState(false to 0) {
-    while (true) {
-        withFrameMillis {
-            val (oldToggle, oldCount) = value
-            value = if (oldToggle) {
-                false to oldCount
-            } else {
-                true to oldCount + 1
+fun produceLazyListReuseDriver(): State<Pair<Boolean, Int>> =
+    produceState(false to 0) {
+        while (true) {
+            withFrameMillis {
+                val (oldToggle, oldCount) = value
+                value =
+                    if (oldToggle) {
+                        false to oldCount
+                    } else {
+                        true to oldCount + 1
+                    }
             }
         }
     }
-}

@@ -65,12 +65,9 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-/**
- * Test for [BottomNavigation] and [BottomNavigationItem].
- */
+/** Test for [BottomNavigation] and [BottomNavigationItem]. */
 class BottomNavigationTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun defaultSemantics() {
@@ -78,25 +75,23 @@ class BottomNavigationTest {
             BottomNavigation {
                 BottomNavigationItem(
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = {}
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsEnabled()
             .assertHasClickAction()
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .onParent()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
     }
@@ -108,19 +103,16 @@ class BottomNavigationTest {
                 BottomNavigationItem(
                     enabled = false,
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = {}
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
+        rule
+            .onNodeWithTag("item")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))
             .assertIsSelected()
             .assertIsNotEnabled()
@@ -130,9 +122,8 @@ class BottomNavigationTest {
     @Test
     fun bottomNavigation_size() {
         val height = 56.dp
-        rule.setMaterialContentForSizeAssertions {
-            BottomNavigationSample()
-        }
+        rule
+            .setMaterialContentForSizeAssertions { BottomNavigationSample() }
             .assertWidthIsEqualTo(rule.rootWidth())
             .assertHeightIsEqualTo(height)
     }
@@ -141,23 +132,24 @@ class BottomNavigationTest {
     fun bottomNavigation_size_withInsets() {
         val height = 56.dp
         val fakeInset = 5.dp
-        rule.setMaterialContentForSizeAssertions {
-            var selectedItem by remember { mutableStateOf(0) }
-            val items = listOf("Songs", "Artists", "Playlists")
+        rule
+            .setMaterialContentForSizeAssertions {
+                var selectedItem by remember { mutableStateOf(0) }
+                val items = listOf("Songs", "Artists", "Playlists")
 
-            BottomNavigation(
-                windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
-            ) {
-                items.forEachIndexed { index, item ->
-                    BottomNavigationItem(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                        label = { Text(item) },
-                        selected = selectedItem == index,
-                        onClick = { selectedItem = index }
-                    )
+                BottomNavigation(
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                ) {
+                    items.forEachIndexed { index, item ->
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+                            label = { Text(item) },
+                            selected = selectedItem == index,
+                            onClick = { selectedItem = index }
+                        )
+                    }
                 }
             }
-        }
             .assertWidthIsEqualTo(rule.rootWidth())
             .assertHeightIsEqualTo(height + fakeInset * 2)
     }
@@ -167,9 +159,7 @@ class BottomNavigationTest {
         lateinit var parentCoords: LayoutCoordinates
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
         rule.setMaterialContent(
-            Modifier.onGloballyPositioned { coords: LayoutCoordinates ->
-                parentCoords = coords
-            }
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
                 BottomNavigation {
@@ -179,9 +169,10 @@ class BottomNavigationTest {
                             label = { Text("Item $index") },
                             selected = index == 0,
                             onClick = {},
-                            modifier = Modifier.onGloballyPositioned { coords ->
-                                itemCoords[index] = coords
-                            }
+                            modifier =
+                                Modifier.onGloballyPositioned { coords ->
+                                    itemCoords[index] = coords
+                                }
                         )
                     }
                 }
@@ -200,7 +191,8 @@ class BottomNavigationTest {
                 Truth.assertThat(coord.size.width.toFloat()).isWithin(1f).of(expectedItemWidth)
                 Truth.assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
                 Truth.assertThat(coord.positionInWindow().x)
-                    .isWithin(1f).of(expectedItemWidth * index)
+                    .isWithin(1f)
+                    .of(expectedItemWidth * index)
             }
         }
     }
@@ -211,9 +203,7 @@ class BottomNavigationTest {
         val itemCoords = mutableMapOf<Int, LayoutCoordinates>()
         val fakeInset = 6.dp
         rule.setMaterialContent(
-            Modifier.onGloballyPositioned { coords: LayoutCoordinates ->
-                parentCoords = coords
-            }
+            Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
                 BottomNavigation(
@@ -225,9 +215,10 @@ class BottomNavigationTest {
                             label = { Text("Item $index") },
                             selected = index == 0,
                             onClick = {},
-                            modifier = Modifier.onGloballyPositioned { coords ->
-                                itemCoords[index] = coords
-                            }
+                            modifier =
+                                Modifier.onGloballyPositioned { coords ->
+                                    itemCoords[index] = coords
+                                }
                         )
                     }
                 }
@@ -246,9 +237,9 @@ class BottomNavigationTest {
                 Truth.assertThat(coord.size.width.toFloat()).isWithin(1f).of(expectedItemWidth)
                 Truth.assertThat(coord.size.height.toFloat()).isWithin(1f).of(expectedItemHeight)
                 Truth.assertThat(coord.positionInWindow().x)
-                    .isWithin(1f).of(expectedItemWidth * index + fakeInset.toPx())
-                Truth.assertThat(coord.positionInWindow().y)
-                    .isWithin(1f).of(fakeInset.toPx())
+                    .isWithin(1f)
+                    .of(expectedItemWidth * index + fakeInset.toPx())
+                Truth.assertThat(coord.positionInWindow().y).isWithin(1f).of(fakeInset.toPx())
             }
         }
     }
@@ -279,12 +270,8 @@ class BottomNavigationTest {
                 BottomNavigation {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                        label = { Text("ItemText") },
                         selected = true,
                         onClick = {}
                     )
@@ -293,8 +280,8 @@ class BottomNavigationTest {
         }
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
         val textBounds = rule.onNodeWithText("ItemText").getUnclippedBoundsInRoot()
 
         val topPadding = 8.dp
@@ -310,7 +297,8 @@ class BottomNavigationTest {
         // Text baseline should be 12.dp from the bottom of the icon
         absoluteTextBaseline.assertIsEqualTo(iconBottom + textBaseline)
 
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             // The icon should be horizontally centered in the item
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             // The icon is 8.dp from the top
@@ -324,12 +312,8 @@ class BottomNavigationTest {
                 BottomNavigation {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
-                        label = {
-                            Text("ItemText")
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                        label = { Text("ItemText") },
                         selected = false,
                         onClick = {},
                         alwaysShowLabel = false
@@ -343,10 +327,11 @@ class BottomNavigationTest {
         rule.onNodeWithText("ItemText", useUnmergedTree = true).assertIsNotDisplayed()
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
@@ -358,9 +343,7 @@ class BottomNavigationTest {
                 BottomNavigation {
                     BottomNavigationItem(
                         modifier = Modifier.testTag("item"),
-                        icon = {
-                            Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon"))
-                        },
+                        icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                         label = null,
                         selected = false,
                         onClick = {}
@@ -370,23 +353,23 @@ class BottomNavigationTest {
         }
 
         val itemBounds = rule.onNodeWithTag("item").getUnclippedBoundsInRoot()
-        val iconBounds = rule.onNodeWithTag("icon", useUnmergedTree = true)
-            .getUnclippedBoundsInRoot()
+        val iconBounds =
+            rule.onNodeWithTag("icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         // The icon should be centered in the item, as there is no text placeable provided
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((itemBounds.width - iconBounds.width) / 2)
             .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
     }
 
     @Test
     fun bottomNavigation_selectNewItem() {
-        rule.setMaterialContent {
-            BottomNavigationSample()
-        }
+        rule.setMaterialContent { BottomNavigationSample() }
 
         // Find all items and ensure there are 3
-        rule.onAllNodes(isSelectable())
+        rule
+            .onAllNodes(isSelectable())
             .assertCountEquals(3)
             // Ensure semantics match for selected state of the items
             .apply {
@@ -395,9 +378,7 @@ class BottomNavigationTest {
                 get(2).assertIsNotSelected()
             }
             // Click the last item
-            .apply {
-                get(2).performClick()
-            }
+            .apply { get(2).performClick() }
             .apply {
                 get(0).assertIsNotSelected()
                 get(1).assertIsNotSelected()
@@ -413,23 +394,16 @@ class BottomNavigationTest {
                 BottomNavigationItem(
                     enabled = false,
                     modifier = Modifier.testTag("item"),
-                    icon = {
-                        Icon(Icons.Filled.Favorite, null)
-                    },
-                    label = {
-                        Text("ItemText")
-                    },
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
                     selected = true,
                     onClick = { clicks++ }
                 )
             }
         }
 
-        rule.onNodeWithTag("item")
-            .performClick()
+        rule.onNodeWithTag("item").performClick()
 
-        rule.runOnIdle {
-            Truth.assertThat(clicks).isEqualTo(0)
-        }
+        rule.runOnIdle { Truth.assertThat(clicks).isEqualTo(0) }
     }
 }

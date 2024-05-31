@@ -37,9 +37,7 @@ class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
          */
         val Empty = LocaleList(emptyList())
 
-        /**
-         * Returns Locale object which represents current locale
-         */
+        /** Returns Locale object which represents current locale */
         val current: LocaleList
             get() = platformLocaleDelegate.current
     }
@@ -48,14 +46,13 @@ class LocaleList(val localeList: List<Locale>) : Collection<Locale> {
      * Create a [LocaleList] object from comma separated language tags.
      *
      * @param languageTags A comma separated [IETF BCP47](https://tools.ietf.org/html/bcp47)
-     * compliant language tag.
+     *   compliant language tag.
      */
-    constructor(languageTags: String) :
-        this(languageTags.split(",").fastMap { it.trim() }.fastMap { Locale(it) })
+    constructor(
+        languageTags: String
+    ) : this(languageTags.split(",").fastMap { it.trim() }.fastMap { Locale(it) })
 
-    /**
-     * Creates a [LocaleList] object from a list of [Locale]s.
-     */
+    /** Creates a [LocaleList] object from a list of [Locale]s. */
     constructor(vararg locales: Locale) : this(locales.toList())
 
     operator fun get(i: Int) = localeList[i]

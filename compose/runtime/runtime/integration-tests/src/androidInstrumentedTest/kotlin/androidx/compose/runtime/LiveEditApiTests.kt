@@ -32,15 +32,13 @@ var someData = mutableStateOf(0)
 @OptIn(InternalComposeApi::class)
 @RunWith(AndroidJUnit4::class)
 class LiveEditApiTests : BaseComposeTest() {
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     private fun invalidateGroup(key: Int) {
         invalidateGroupsWithKey(key)
     }
 
-    private fun compositionErrors(): List<Pair<Exception, Boolean>> =
-        currentCompositionErrors()
+    private fun compositionErrors(): List<Pair<Exception, Boolean>> = currentCompositionErrors()
 
     @Before
     fun setUp() {
@@ -80,9 +78,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun forceRecompose_Simple() {
         val activity = activityRule.activity
-        activity.show {
-            TestSimple()
-        }
+        activity.show { TestSimple() }
         activity.waitForAFrame()
 
         val someFunctionStart = someFunctionInvoked
@@ -90,10 +86,7 @@ class LiveEditApiTests : BaseComposeTest() {
         invalidateGroup(someFunctionKey)
         activity.waitForAFrame()
 
-        assertTrue(
-            "SomeFunction should have been invoked",
-            someFunctionInvoked > someFunctionStart
-        )
+        assertTrue("SomeFunction should have been invoked", someFunctionInvoked > someFunctionStart)
         assertTrue(
             "NestedContent should have been invoked",
             nestedContentInvoked > nestedContentStart
@@ -104,9 +97,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun forceRecompose_NonRestartable() {
         val activity = activityRule.activity
-        activity.show {
-            TestNonRestartable()
-        }
+        activity.show { TestNonRestartable() }
         activity.waitForAFrame()
 
         val nonRestartableStart = nonRestartableInvoked
@@ -141,9 +132,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @Test
     @MediumTest
     fun throwError_doesntCrash() {
-        activity.show {
-            TestError()
-        }
+        activity.show { TestError() }
 
         activity.waitForAFrame()
 
@@ -152,10 +141,7 @@ class LiveEditApiTests : BaseComposeTest() {
             val errorStart = errorInvoked
             invalidateGroup(errorKey)
 
-            assertTrue(
-                "TestError should have been invoked",
-                errorInvoked > errorStart
-            )
+            assertTrue("TestError should have been invoked", errorInvoked > errorStart)
         }
     }
 
@@ -164,9 +150,7 @@ class LiveEditApiTests : BaseComposeTest() {
     fun throwError_invalidatesOnlyAfterHotReloadCall() {
         val shouldThrow = mutableStateOf(true)
 
-        activity.show {
-            TestError { shouldThrow.value }
-        }
+        activity.show { TestError { shouldThrow.value } }
 
         activity.waitForAFrame()
 
@@ -176,16 +160,10 @@ class LiveEditApiTests : BaseComposeTest() {
 
             activity.waitForAFrame()
 
-            assertTrue(
-                "TestError should not have been invoked",
-                errorInvoked == errorStart
-            )
+            assertTrue("TestError should not have been invoked", errorInvoked == errorStart)
 
             invalidateGroup(errorKey)
-            assertTrue(
-                "TestError should have been invoked",
-                errorInvoked > errorStart
-            )
+            assertTrue("TestError should have been invoked", errorInvoked > errorStart)
         }
     }
 
@@ -193,9 +171,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwError_recompose_doesntCrash() {
         val shouldThrow = mutableStateOf(false)
-        activity.show {
-            TestError { shouldThrow.value }
-        }
+        activity.show { TestError { shouldThrow.value } }
 
         activity.waitForAFrame()
 
@@ -217,9 +193,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwError_recompose_clearErrorOnInvalidate() {
         var shouldThrow by mutableStateOf(false)
-        activity.show {
-            TestError { shouldThrow }
-        }
+        activity.show { TestError { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -245,9 +219,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwError_returnsCurrentError() {
         var shouldThrow by mutableStateOf(true)
-        activity.show {
-            TestError { shouldThrow }
-        }
+        activity.show { TestError { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -268,9 +240,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @Test
     @MediumTest
     fun throwErrorInEffect_doesntCrash() {
-        activity.show {
-            TestEffectError()
-        }
+        activity.show { TestEffectError() }
 
         activity.waitForAFrame()
 
@@ -296,9 +266,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwErrorInEffect_doesntRecoverOnInvalidate() {
         var shouldThrow = true
-        activity.show {
-            TestEffectError { shouldThrow }
-        }
+        activity.show { TestEffectError { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -320,9 +288,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwErrorInEffect_recoversOnReload() {
         var shouldThrow = true
-        activity.show {
-            TestEffectError { shouldThrow }
-        }
+        activity.show { TestEffectError { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -347,9 +313,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwErrorOnReload_recoversAfterInvalidate() {
         var shouldThrow = false
-        activity.show {
-            TestError { shouldThrow }
-        }
+        activity.show { TestError { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -377,9 +341,7 @@ class LiveEditApiTests : BaseComposeTest() {
     @MediumTest
     fun throwErrorOnReload_withNode() {
         var shouldThrow = false
-        activity.show {
-            TestTextWError(text = "abc") { shouldThrow }
-        }
+        activity.show { TestTextWError(text = "abc") { shouldThrow } }
 
         activity.waitForAFrame()
 
@@ -406,6 +368,7 @@ class LiveEditApiTests : BaseComposeTest() {
 
 const val someFunctionKey = -1580285603 // Extracted from .class file
 var someFunctionInvoked = 0
+
 @Composable
 fun SomeFunction(a: Int) {
     Text("a = $a, someData = ${someData.value}")
@@ -415,6 +378,7 @@ fun SomeFunction(a: Int) {
 
 const val nestedContentKey = 1771808426 // Extracted from .class file
 var nestedContentInvoked = 0
+
 @Composable
 fun NestedContent() {
     Text("Some nested content: ${someData.value}")
@@ -423,6 +387,7 @@ fun NestedContent() {
 
 const val nonRestartableKey = 1860384 // Extracted from .class file
 var nonRestartableInvoked = 0
+
 @Composable
 @NonRestartableComposable
 fun NonRestartable() {
@@ -432,6 +397,7 @@ fun NonRestartable() {
 
 const val nonRestartWrapperKey = 1287143243 // Extracted from .class file
 var nonRestartWrapperInvoked = 0
+
 @Composable
 @NonRestartableComposable
 fun NonRestartWrapper(block: @Composable () -> Unit) {
@@ -443,6 +409,7 @@ fun NonRestartWrapper(block: @Composable () -> Unit) {
 
 const val restartableWrapperKey = -153795690 // Extracted from .class file
 var restartWrapperInvoked = 0
+
 @Composable
 fun RestartableWrapper(block: @Composable () -> Unit) {
     Text("Before")
@@ -453,6 +420,7 @@ fun RestartableWrapper(block: @Composable () -> Unit) {
 
 const val readOnlyKey = -1414835162 // Extracted from .class file
 var readOnlyInvoked = 0
+
 @Composable
 @ReadOnlyComposable
 fun ReadOnly() {
@@ -478,13 +446,12 @@ fun TestReadOnly() {
 
 @Composable
 fun TestReadOnlyNested() {
-    RestartableWrapper {
-        ReadOnly()
-    }
+    RestartableWrapper { ReadOnly() }
 }
 
 private const val errorKey = -0x3d6d007a // Extracted from .class file
 private var errorInvoked = 0
+
 @Composable
 fun TestError(shouldThrow: () -> Boolean = { true }) {
     errorInvoked++
@@ -496,6 +463,7 @@ fun TestError(shouldThrow: () -> Boolean = { true }) {
 
 private const val effectErrorKey = -0x43852062 // Extracted from .class file
 private var effectErrorInvoked = 0
+
 @Composable
 fun TestEffectError(shouldThrow: () -> Boolean = { true }) {
     effectErrorInvoked++
@@ -508,6 +476,7 @@ fun TestEffectError(shouldThrow: () -> Boolean = { true }) {
 }
 
 private var textInvoked = 0
+
 @Composable
 fun TestTextWError(text: String, shouldThrow: () -> Boolean = { true }) {
     textInvoked++

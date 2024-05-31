@@ -52,8 +52,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextBrushTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val TAG = "TAG"
 
@@ -65,14 +64,13 @@ class BasicTextBrushTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 BasicText(
                     text = "Hello",
-                    style = TextStyle(
-                        brush = colorState.value,
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 20.sp
-                    ),
-                    modifier = Modifier
-                        .background(Color.Black)
-                        .testTag(TAG)
+                    style =
+                        TextStyle(
+                            brush = colorState.value,
+                            fontFamily = TEST_FONT_FAMILY,
+                            fontSize = 20.sp
+                        ),
+                    modifier = Modifier.background(Color.Black).testTag(TAG)
                 )
             }
         }
@@ -100,14 +98,13 @@ class BasicTextBrushTest {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 BasicText(
                     text = "Hello",
-                    style = TextStyle(
-                        brush = brushState.value,
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 20.sp
-                    ),
-                    modifier = Modifier
-                        .background(Color.Black)
-                        .testTag(TAG)
+                    style =
+                        TextStyle(
+                            brush = brushState.value,
+                            fontFamily = TEST_FONT_FAMILY,
+                            fontSize = 20.sp
+                        ),
+                    modifier = Modifier.background(Color.Black).testTag(TAG)
                 )
             }
         }
@@ -131,27 +128,23 @@ class BasicTextBrushTest {
     @Test
     fun toggleCustomShaderBrush() {
         var color by mutableStateOf(Color.Red)
-        val brush = object : ShaderBrush() {
-            override fun createShader(size: Size): Shader {
-                return LinearGradientShader(
-                    Offset.Zero,
-                    Offset(200f, 200f),
-                    listOf(color, color),
-                )
+        val brush =
+            object : ShaderBrush() {
+                override fun createShader(size: Size): Shader {
+                    return LinearGradientShader(
+                        Offset.Zero,
+                        Offset(200f, 200f),
+                        listOf(color, color),
+                    )
+                }
             }
-        }
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 BasicText(
                     text = "Hello",
-                    style = TextStyle(
-                        brush = brush,
-                        fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 20.sp
-                    ),
-                    modifier = Modifier
-                        .background(Color.Black)
-                        .testTag(TAG)
+                    style =
+                        TextStyle(brush = brush, fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                    modifier = Modifier.background(Color.Black).testTag(TAG)
                 )
             }
         }

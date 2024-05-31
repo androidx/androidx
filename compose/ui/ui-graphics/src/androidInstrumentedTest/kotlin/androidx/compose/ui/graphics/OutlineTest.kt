@@ -38,22 +38,21 @@ class OutlineTest {
 
     @Test
     fun testRoundRectOutlineBounds() {
-        val roundRectOutline = Outline.Rounded(
-            RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f))
-        )
+        val roundRectOutline = Outline.Rounded(RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f)))
         assertEquals(Rect(5f, 10f, 15f, 20f), roundRectOutline.bounds)
     }
 
     @Test
     fun testPathOutlineBounds() {
-        val pathOutline = Outline.Generic(
-            Path().apply {
-                moveTo(5f, 15f)
-                lineTo(100f, 200f)
-                lineTo(0f, 200f)
-                close()
-            }
-        )
+        val pathOutline =
+            Outline.Generic(
+                Path().apply {
+                    moveTo(5f, 15f)
+                    lineTo(100f, 200f)
+                    lineTo(0f, 200f)
+                    close()
+                }
+            )
         assertEquals(Rect(0f, 15f, 100f, 200f), pathOutline.bounds)
     }
 
@@ -68,27 +67,23 @@ class OutlineTest {
 
     @Test
     fun testRoundRectOutlineEquality() {
-        val roundRectOutline = Outline.Rounded(
-            RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f))
-        )
-        val equalRoundRectOutline = Outline.Rounded(
-            RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f))
-        )
-        val differentRoundRectOutline = Outline.Rounded(
-            RoundRect(20f, 15f, 10f, 5f, CornerRadius(3f))
-        )
+        val roundRectOutline = Outline.Rounded(RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f)))
+        val equalRoundRectOutline = Outline.Rounded(RoundRect(5f, 10f, 15f, 20f, CornerRadius(7f)))
+        val differentRoundRectOutline =
+            Outline.Rounded(RoundRect(20f, 15f, 10f, 5f, CornerRadius(3f)))
         assertEquals(roundRectOutline, equalRoundRectOutline)
         assertNotEquals(roundRectOutline, differentRoundRectOutline)
     }
 
     @Test
     fun testPathOutlineEquality() {
-        val path = Path().apply {
-            moveTo(5f, 15f)
-            lineTo(100f, 200f)
-            lineTo(0f, 200f)
-            close()
-        }
+        val path =
+            Path().apply {
+                moveTo(5f, 15f)
+                lineTo(100f, 200f)
+                lineTo(0f, 200f)
+                close()
+            }
         val pathOutline = Outline.Generic(path)
         val pathOutline2 = Outline.Generic(path)
 

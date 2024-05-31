@@ -23,10 +23,8 @@ import org.jetbrains.kotlin.diagnostics.rendering.Renderers
 import org.jetbrains.kotlin.diagnostics.rendering.Renderers.RENDER_TYPE_WITH_ANNOTATIONS
 
 class ComposeErrorMessages : DefaultErrorMessages.Extension {
-    private val MAP =
-        DiagnosticFactoryToRendererMap(
-            "Compose"
-        )
+    private val MAP = DiagnosticFactoryToRendererMap("Compose")
+
     override fun getMap() = MAP
 
     init {
@@ -76,9 +74,7 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
         MAP.put(
             ComposeErrors.CONFLICTING_OVERLOADS,
             "@Composable annotation mismatch with overridden function: {0}",
-            CommonRenderers.commaSeparated(
-                Renderers.FQ_NAMES_IN_TYPES_WITH_ANNOTATIONS
-            )
+            CommonRenderers.commaSeparated(Renderers.FQ_NAMES_IN_TYPES_WITH_ANNOTATIONS)
         )
 
         MAP.put(
@@ -136,7 +132,7 @@ class ComposeErrorMessages : DefaultErrorMessages.Extension {
         MAP.put(
             ComposeErrors.NAMED_ARGUMENTS_NOT_ALLOWED,
             "Named arguments in composable function types are deprecated." +
-            " This will become an error in Kotlin 2.0"
+                " This will become an error in Kotlin 2.0"
         )
     }
 }

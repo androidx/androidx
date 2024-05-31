@@ -25,10 +25,10 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 
 /**
- * Detects pointer events that result from pointer movements and feed said events to the
- * [onMove] function. When multiple pointers are being used, only the first one is tracked.
- * If the first pointer is then removed, the second pointer will take its place as the first
- * pointer and be tracked.
+ * Detects pointer events that result from pointer movements and feed said events to the [onMove]
+ * function. When multiple pointers are being used, only the first one is tracked. If the first
+ * pointer is then removed, the second pointer will take its place as the first pointer and be
+ * tracked.
  *
  * @param pointerEventPass which pass to capture the pointer event from, see [PointerEventPass]
  * @param onMove function that handles the position of move events
@@ -43,8 +43,12 @@ internal suspend fun PointerInputScope.detectMoves(
         while (currentContext.isActive) {
             val event = awaitPointerEvent(pointerEventPass)
             when (event.type) {
-                PointerEventType.Move, PointerEventType.Enter, PointerEventType.Exit ->
-                    event.changes.first().position
+                PointerEventType.Move,
+                PointerEventType.Enter,
+                PointerEventType.Exit ->
+                    event.changes
+                        .first()
+                        .position
                         .takeUnless { it == previousPosition }
                         ?.let { position ->
                             previousPosition = position

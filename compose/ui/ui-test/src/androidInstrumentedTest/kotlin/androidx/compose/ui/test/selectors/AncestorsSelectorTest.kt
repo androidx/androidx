@@ -35,29 +35,23 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AncestorsSelectorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun threeAncestors() {
         rule.setContent {
             BoundaryNode(testTag = "NodeA") {
                 BoundaryNode(testTag = "NodeB") {
-                    BoundaryNode(testTag = "NodeC") {
-                        BoundaryNode(testTag = "NodeD")
-                    }
+                    BoundaryNode(testTag = "NodeC") { BoundaryNode(testTag = "NodeD") }
                 }
             }
         }
 
-        rule.onNodeWithTag("NodeD")
-            .onAncestors()
-            .assertCountEquals(4)
-            .apply {
-                get(0).assert(hasTestTag("NodeC"))
-                get(1).assert(hasTestTag("NodeB"))
-                get(2).assert(hasTestTag("NodeA"))
-            }
+        rule.onNodeWithTag("NodeD").onAncestors().assertCountEquals(4).apply {
+            get(0).assert(hasTestTag("NodeC"))
+            get(1).assert(hasTestTag("NodeB"))
+            get(2).assert(hasTestTag("NodeA"))
+        }
     }
 
     @Test
@@ -65,14 +59,13 @@ class AncestorsSelectorTest {
         rule.setContent {
             BoundaryNode(testTag = "NodeA") {
                 BoundaryNode(testTag = "NodeB") {
-                    BoundaryNode(testTag = "NodeC") {
-                        BoundaryNode(testTag = "NodeD")
-                    }
+                    BoundaryNode(testTag = "NodeC") { BoundaryNode(testTag = "NodeD") }
                 }
             }
         }
 
-        rule.onNodeWithTag("NodeD")
+        rule
+            .onNodeWithTag("NodeD")
             .onAncestors()
             .onFirst()
             .onAncestors()
@@ -85,13 +78,8 @@ class AncestorsSelectorTest {
 
     @Test
     fun noAncestors() {
-        rule.setContent {
-            BoundaryNode(testTag = "Node")
-        }
+        rule.setContent { BoundaryNode(testTag = "Node") }
 
-        rule.onNodeWithTag("Node")
-            .onParent()
-            .onAncestors()
-            .assertCountEquals(0)
+        rule.onNodeWithTag("Node").onParent().onAncestors().assertCountEquals(0)
     }
 }

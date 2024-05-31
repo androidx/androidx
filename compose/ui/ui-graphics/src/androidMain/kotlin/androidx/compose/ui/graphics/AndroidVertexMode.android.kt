@@ -16,9 +16,10 @@
 
 package androidx.compose.ui.graphics
 
-fun VertexMode.toAndroidVertexMode() = when (this) {
-    VertexMode.Triangles -> android.graphics.Canvas.VertexMode.TRIANGLES
-    VertexMode.TriangleStrip -> android.graphics.Canvas.VertexMode.TRIANGLE_STRIP
-    VertexMode.TriangleFan -> android.graphics.Canvas.VertexMode.TRIANGLE_FAN
-    else -> android.graphics.Canvas.VertexMode.TRIANGLES
-}
+fun VertexMode.toAndroidVertexMode() =
+    when (this) {
+        VertexMode.Triangles -> android.graphics.Canvas.VertexMode.TRIANGLES
+        VertexMode.TriangleStrip -> android.graphics.Canvas.VertexMode.TRIANGLE_STRIP
+        VertexMode.TriangleFan -> android.graphics.Canvas.VertexMode.TRIANGLE_FAN
+        else -> android.graphics.Canvas.VertexMode.TRIANGLES
+    }

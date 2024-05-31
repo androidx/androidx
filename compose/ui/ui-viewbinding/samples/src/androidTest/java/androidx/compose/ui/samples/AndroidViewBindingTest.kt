@@ -49,8 +49,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AndroidViewBindingTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun drawing() {
@@ -77,16 +76,14 @@ class AndroidViewBindingTest {
 
         val size = 50.dp
         val sizePx = with(rule.density) { size.roundToPx() }
-        rule.onNodeWithTag("layout").captureToImage()
-            .assertPixels(IntSize(sizePx, sizePx * 2)) {
-                if (it.y < sizePx) Color.Blue else color.value
-            }
+        rule.onNodeWithTag("layout").captureToImage().assertPixels(IntSize(sizePx, sizePx * 2)) {
+            if (it.y < sizePx) Color.Blue else color.value
+        }
 
         rule.runOnIdle { color.value = Color.DarkGray }
-        rule.onNodeWithTag("layout").captureToImage()
-            .assertPixels(IntSize(sizePx, sizePx * 2)) {
-                if (it.y < sizePx) Color.Blue else color.value
-            }
+        rule.onNodeWithTag("layout").captureToImage().assertPixels(IntSize(sizePx, sizePx * 2)) {
+            if (it.y < sizePx) Color.Blue else color.value
+        }
     }
 
     @Test

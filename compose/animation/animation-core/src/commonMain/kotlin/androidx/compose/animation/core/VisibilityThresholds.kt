@@ -28,87 +28,84 @@ import androidx.compose.ui.unit.dp
 private const val DpVisibilityThreshold = 0.1f
 private const val PxVisibilityThreshold = 0.5f
 
-private val rectVisibilityThreshold = Rect(
-    PxVisibilityThreshold,
-    PxVisibilityThreshold,
-    PxVisibilityThreshold,
-    PxVisibilityThreshold
-)
+private val rectVisibilityThreshold =
+    Rect(PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
- * Visibility threshold for [IntOffset]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [IntOffset]. This defines the amount of value change that is considered
+ * to be no longer visible. The animation system uses this to signal to some default [spring]
+ * animations to stop when the value is close enough to the target.
  */
 val IntOffset.Companion.VisibilityThreshold: IntOffset
     get() = IntOffset(1, 1)
 
 /**
- * Visibility threshold for [Offset]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [Offset]. This defines the amount of value change that is considered to
+ * be no longer visible. The animation system uses this to signal to some default [spring]
+ * animations to stop when the value is close enough to the target.
  */
 val Offset.Companion.VisibilityThreshold: Offset
     get() = Offset(PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
- * Visibility threshold for [Int]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [Int]. This defines the amount of value change that is considered to be
+ * no longer visible. The animation system uses this to signal to some default [spring] animations
+ * to stop when the value is close enough to the target.
  */
 val Int.Companion.VisibilityThreshold: Int
     get() = 1
 
 /**
- * Visibility threshold for [Dp]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [Dp]. This defines the amount of value change that is considered to be
+ * no longer visible. The animation system uses this to signal to some default [spring] animations
+ * to stop when the value is close enough to the target.
  */
 val Dp.Companion.VisibilityThreshold: Dp
     get() = DpVisibilityThreshold.dp
 
 /**
- * Visibility threshold for [DpOffset]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [DpOffset]. This defines the amount of value change that is considered
+ * to be no longer visible. The animation system uses this to signal to some default [spring]
+ * animations to stop when the value is close enough to the target.
  */
 val DpOffset.Companion.VisibilityThreshold: DpOffset
     get() = DpOffset(Dp.VisibilityThreshold, Dp.VisibilityThreshold)
 
 /**
- * Visibility threshold for [Size]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [Size]. This defines the amount of value change that is considered to be
+ * no longer visible. The animation system uses this to signal to some default [spring] animations
+ * to stop when the value is close enough to the target.
  */
 val Size.Companion.VisibilityThreshold: Size
     get() = Size(PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
- * Visibility threshold for [IntSize]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [IntSize]. This defines the amount of value change that is considered to
+ * be no longer visible. The animation system uses this to signal to some default [spring]
+ * animations to stop when the value is close enough to the target.
  */
 val IntSize.Companion.VisibilityThreshold: IntSize
     get() = IntSize(1, 1)
 
 /**
- * Visibility threshold for [Rect]. This defines the amount of value change that is
- * considered to be no longer visible. The animation system uses this to signal to some default
- * [spring] animations to stop when the value is close enough to the target.
+ * Visibility threshold for [Rect]. This defines the amount of value change that is considered to be
+ * no longer visible. The animation system uses this to signal to some default [spring] animations
+ * to stop when the value is close enough to the target.
  */
 val Rect.Companion.VisibilityThreshold: Rect
     get() = rectVisibilityThreshold
 
 // TODO: Add Dp.DefaultAnimation = spring<Dp>(visibilityThreshold = Dp.VisibilityThreshold)
 
-internal val visibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> = mapOf(
-    Int.VectorConverter to 1f,
-    IntSize.VectorConverter to 1f,
-    IntOffset.VectorConverter to 1f,
-    Float.VectorConverter to 0.01f,
-    Rect.VectorConverter to PxVisibilityThreshold,
-    Size.VectorConverter to PxVisibilityThreshold,
-    Offset.VectorConverter to PxVisibilityThreshold,
-    Dp.VectorConverter to DpVisibilityThreshold,
-    DpOffset.VectorConverter to DpVisibilityThreshold
-)
+internal val visibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> =
+    mapOf(
+        Int.VectorConverter to 1f,
+        IntSize.VectorConverter to 1f,
+        IntOffset.VectorConverter to 1f,
+        Float.VectorConverter to 0.01f,
+        Rect.VectorConverter to PxVisibilityThreshold,
+        Size.VectorConverter to PxVisibilityThreshold,
+        Offset.VectorConverter to PxVisibilityThreshold,
+        Dp.VectorConverter to DpVisibilityThreshold,
+        DpOffset.VectorConverter to DpVisibilityThreshold
+    )

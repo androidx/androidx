@@ -55,8 +55,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class HardwareKeyboardTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     @Test
@@ -158,13 +157,14 @@ class HardwareKeyboardTest {
     @Test
     fun textField_delete_atEnd() {
         val text = "hello"
-        val value = mutableStateOf(
-            TextFieldValue(
-                text,
-                // Place cursor at end.
-                selection = TextRange(text.length)
+        val value =
+            mutableStateOf(
+                TextFieldValue(
+                    text,
+                    // Place cursor at end.
+                    selection = TextRange(text.length)
+                )
             )
-        )
         keysSequenceTest(value = value) {
             Key.Delete.downAndUp()
             expectedText("hello")
@@ -422,10 +422,7 @@ class HardwareKeyboardTest {
 
     @Test
     fun textField_pageNavigation() {
-        keysSequenceTest(
-            initText = "1\n2\n3\n4\n5",
-            modifier = Modifier.requiredSize(27.dp)
-        ) {
+        keysSequenceTest(initText = "1\n2\n3\n4\n5", modifier = Modifier.requiredSize(27.dp)) {
             // By page down, the cursor should be at the visible top line. In this case the height
             // constraint is 27dp which covers from 1, 2 and middle of 3. Thus, by page down, the
             // first line should be 3, and cursor should be the before letter 3, i.e. index = 4.
@@ -547,15 +544,11 @@ class HardwareKeyboardTest {
         }
 
         fun expectedText(text: String) {
-            rule.runOnIdle {
-                assertThat(state.value.text).isEqualTo(text)
-            }
+            rule.runOnIdle { assertThat(state.value.text).isEqualTo(text) }
         }
 
         fun expectedSelection(selection: TextRange) {
-            rule.runOnIdle {
-                assertThat(state.value.selection).isEqualTo(selection)
-            }
+            rule.runOnIdle { assertThat(state.value.selection).isEqualTo(selection) }
         }
     }
 
@@ -586,10 +579,7 @@ class HardwareKeyboardTest {
             clipboardManager = LocalClipboardManager.current
             BasicTextField(
                 value = value.value,
-                textStyle = TextStyle(
-                    fontFamily = TEST_FONT_FAMILY,
-                    fontSize = 10.sp
-                ),
+                textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 10.sp),
                 modifier = modifier.testTag("textfield"),
                 onValueChange = onValueChange,
                 singleLine = singleLine,
@@ -597,9 +587,7 @@ class HardwareKeyboardTest {
         }
 
         rule.onNodeWithTag("textfield").requestFocus()
-        rule.runOnIdle {
-            clipboardManager.setText(AnnotatedString("InitialTestText"))
-        }
+        rule.runOnIdle { clipboardManager.setText(AnnotatedString("InitialTestText")) }
 
         sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
     }

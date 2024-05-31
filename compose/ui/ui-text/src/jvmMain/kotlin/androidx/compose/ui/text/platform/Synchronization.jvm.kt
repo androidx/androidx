@@ -16,8 +16,7 @@
 
 package androidx.compose.ui.text.platform
 
-@PublishedApi
-internal actual class SynchronizedObject
+@PublishedApi internal actual class SynchronizedObject
 
 internal actual fun createSynchronizedObject() = SynchronizedObject()
 

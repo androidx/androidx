@@ -20,11 +20,13 @@ package androidx.compose.ui.platform
 internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
 
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
-    val className = name ?: if (obj::class.java.isAnonymousClass) {
-        obj::class.java.name
-    } else {
-        obj::class.java.simpleName
-    }
+    val className =
+        name
+            ?: if (obj::class.java.isAnonymousClass) {
+                obj::class.java.name
+            } else {
+                obj::class.java.simpleName
+            }
 
     return className + "@" + String.format("%07x", System.identityHashCode(obj))
 }

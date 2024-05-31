@@ -30,24 +30,20 @@ import androidx.compose.ui.window.WindowState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun FrameWindowScope.MainMenuBar(
-    windowState: WindowState,
-    trayState: TrayState
-) = MenuBar {
-    Menu("Actions") {
-        ActionItems(trayState, withShortcuts = true)
-    }
+fun FrameWindowScope.MainMenuBar(windowState: WindowState, trayState: TrayState) = MenuBar {
+    Menu("Actions") { ActionItems(trayState, withShortcuts = true) }
     Menu("About") {
         CheckboxItem(
             "Fullscreen",
             windowState.placement == WindowPlacement.Fullscreen,
             shortcut = KeyShortcut(Key.F, ctrl = true)
         ) { checked ->
-            windowState.placement = if (checked) {
-                WindowPlacement.Fullscreen
-            } else {
-                WindowPlacement.Floating
-            }
+            windowState.placement =
+                if (checked) {
+                    WindowPlacement.Fullscreen
+                } else {
+                    WindowPlacement.Floating
+                }
         }
         Item("About", shortcut = KeyShortcut(Key.I, ctrl = true)) {
             println("This is PopUpExampleApp")
@@ -57,10 +53,7 @@ fun FrameWindowScope.MainMenuBar(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun MenuScope.ActionItems(
-    trayState: TrayState,
-    withShortcuts: Boolean = false
-) {
+fun MenuScope.ActionItems(trayState: TrayState, withShortcuts: Boolean = false) {
     Item(
         "Send tray notification",
         shortcut = KeyShortcut(Key.N, ctrl = true).takeIf { withShortcuts }
@@ -69,10 +62,7 @@ fun MenuScope.ActionItems(
             Notification("New Notification from JB", "JetBrains send you a message!")
         )
     }
-    Item(
-        "Increment amount",
-        shortcut = KeyShortcut(Key.A, ctrl = true).takeIf { withShortcuts }
-    ) {
+    Item("Increment amount", shortcut = KeyShortcut(Key.A, ctrl = true).takeIf { withShortcuts }) {
         AppState.amount.value++
     }
     Item(

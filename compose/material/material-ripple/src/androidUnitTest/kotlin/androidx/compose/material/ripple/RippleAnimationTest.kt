@@ -43,10 +43,11 @@ class RippleAnimationTest {
         val height = 160f
         val size = Size(width, height)
         val density = Density(2f)
-        val expectedRadius = with(density) {
-            // 10 is an extra offset from spec
-            halfDistance(width, height) + 10.dp.toPx()
-        }
+        val expectedRadius =
+            with(density) {
+                // 10 is an extra offset from spec
+                halfDistance(width, height) + 10.dp.toPx()
+            }
         val result = with(density) { getRippleEndRadius(true, size) }
         assertThat(result).isEqualTo(expectedRadius)
     }

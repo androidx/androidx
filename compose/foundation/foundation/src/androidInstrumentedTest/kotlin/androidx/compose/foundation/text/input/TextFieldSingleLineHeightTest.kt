@@ -46,8 +46,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
     // Arabic and Thai characters combined for super tall script
     private val tallText = "\u0627\u0644\u0646\u0635\u0E17\u0E35\u0E48"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun singleLineTextField_fromEmptyToTallText_updatesHeight() {
@@ -57,9 +56,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.onSizeChanged {
-                    reportedSize = it
-                }
+                modifier = Modifier.onSizeChanged { reportedSize = it }
             )
         }
 
@@ -82,9 +79,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.onSizeChanged {
-                    reportedSize = it
-                }
+                modifier = Modifier.onSizeChanged { reportedSize = it }
             )
         }
 

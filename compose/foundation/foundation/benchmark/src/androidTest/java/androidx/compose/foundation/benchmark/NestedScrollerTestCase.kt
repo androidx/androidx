@@ -40,9 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 
-/**
- * Test case that puts many horizontal scrollers in a vertical scroller
- */
+/** Test case that puts many horizontal scrollers in a vertical scroller */
 class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     // ScrollerPosition must now be constructed during composition to obtain the Density
     private lateinit var scrollState: ScrollState
@@ -51,9 +49,7 @@ class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     override fun MeasuredContent() {
         scrollState = rememberScrollState()
         Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-            repeat(5) { index ->
-                SquareRow(index == 0)
-            }
+            repeat(5) { index -> SquareRow(index == 0) }
         }
     }
 
@@ -74,15 +70,8 @@ class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(
-                            Modifier
-                                .size(350f.toDp())
-                                .background(color = color))
-                        Text(
-                            text = "Some title",
-                            color = Color.Black,
-                            fontSize = 60f.toSp()
-                        )
+                        Box(Modifier.size(350f.toDp()).background(color = color))
+                        Text(text = "Some title", color = Color.Black, fontSize = 60f.toSp())
                         Row(Modifier.fillMaxWidth()) {
                             Text(
                                 "3.5 ★",
@@ -90,8 +79,7 @@ class NestedScrollerTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                                 modifier = Modifier.align(Alignment.CenterVertically)
                             )
                             Box(
-                                Modifier
-                                    .align(Alignment.CenterVertically)
+                                Modifier.align(Alignment.CenterVertically)
                                     .size(40f.toDp())
                                     .background(color = playStoreColor)
                             )

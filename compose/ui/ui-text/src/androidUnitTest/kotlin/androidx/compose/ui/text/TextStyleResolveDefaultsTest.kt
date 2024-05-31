@@ -82,306 +82,332 @@ class TextStyleResolveDefaultsTest {
     fun test_use_provided_values_brush() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
 
-        assertThat(
-            resolveDefaults(
-                TextStyle(brush = brush),
-                direction = LayoutDirection.Ltr
-            ).brush
-        ).isEqualTo(brush)
+        assertThat(resolveDefaults(TextStyle(brush = brush), direction = LayoutDirection.Ltr).brush)
+            .isEqualTo(brush)
     }
 
     @Test
     fun test_use_provided_values_hyphens() {
         assertThat(
-            resolveDefaults(
-                TextStyle(hyphens = Hyphens.Auto),
-                direction = LayoutDirection.Ltr
-            ).hyphens
-        ).isEqualTo(Hyphens.Auto)
+                resolveDefaults(TextStyle(hyphens = Hyphens.Auto), direction = LayoutDirection.Ltr)
+                    .hyphens
+            )
+            .isEqualTo(Hyphens.Auto)
     }
 
     @Test
     fun test_use_provided_values_shader_brush_color_unspecified() {
         val brush = Brush.linearGradient(listOf(Color.White, Color.Black))
 
-        assertThat(
-            resolveDefaults(
-                TextStyle(brush = brush),
-                direction = LayoutDirection.Ltr
-            ).color
-        ).isEqualTo(Color.Unspecified)
+        assertThat(resolveDefaults(TextStyle(brush = brush), direction = LayoutDirection.Ltr).color)
+            .isEqualTo(Color.Unspecified)
     }
 
     @Test
     fun test_use_provided_values_color() {
         assertThat(
-            resolveDefaults(
-                TextStyle(color = Color.Red),
-                direction = LayoutDirection.Ltr
-            ).color
-        ).isEqualTo(Color.Red)
+                resolveDefaults(TextStyle(color = Color.Red), direction = LayoutDirection.Ltr).color
+            )
+            .isEqualTo(Color.Red)
     }
 
     @Test
     fun test_use_provided_values_fontSize() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontSize = DefaultFontSize * 2),
-                direction = LayoutDirection.Ltr
-            ).fontSize
-        ).isEqualTo(DefaultFontSize * 2)
+                resolveDefaults(
+                        TextStyle(fontSize = DefaultFontSize * 2),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontSize
+            )
+            .isEqualTo(DefaultFontSize * 2)
     }
 
     @Test
     fun test_use_provided_values_fontWeight() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontWeight = FontWeight.W900),
-                direction = LayoutDirection.Ltr
-            ).fontWeight
-        ).isEqualTo(FontWeight.W900)
+                resolveDefaults(
+                        TextStyle(fontWeight = FontWeight.W900),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontWeight
+            )
+            .isEqualTo(FontWeight.W900)
     }
 
     @Test
     fun test_use_provided_values_fontStyle() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontStyle = FontStyle.Italic),
-                direction = LayoutDirection.Ltr
-            ).fontStyle
-        ).isEqualTo(FontStyle.Italic)
+                resolveDefaults(
+                        TextStyle(fontStyle = FontStyle.Italic),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontStyle
+            )
+            .isEqualTo(FontStyle.Italic)
     }
 
     @Test
     fun test_use_provided_values_fontSynthesis() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontSynthesis = FontSynthesis.Weight),
-                direction = LayoutDirection.Ltr
-            ).fontSynthesis
-        ).isEqualTo(FontSynthesis.Weight)
+                resolveDefaults(
+                        TextStyle(fontSynthesis = FontSynthesis.Weight),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontSynthesis
+            )
+            .isEqualTo(FontSynthesis.Weight)
     }
 
     @Test
     fun test_use_provided_values_fontFamily() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontFamily = FontFamily.Cursive),
-                direction = LayoutDirection.Ltr
-            ).fontFamily
-        ).isEqualTo(FontFamily.Cursive)
+                resolveDefaults(
+                        TextStyle(fontFamily = FontFamily.Cursive),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontFamily
+            )
+            .isEqualTo(FontFamily.Cursive)
     }
 
     @Test
     fun test_use_provided_values_fontFeatureSettings() {
         assertThat(
-            resolveDefaults(
-                TextStyle(fontFeatureSettings = "'liga': off"),
-                direction = LayoutDirection.Ltr
-            ).fontFeatureSettings
-        ).isEqualTo("'liga': off")
+                resolveDefaults(
+                        TextStyle(fontFeatureSettings = "'liga': off"),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .fontFeatureSettings
+            )
+            .isEqualTo("'liga': off")
     }
 
     @Test
     fun test_use_provided_values_letterSpacing() {
         assertThat(
-            resolveDefaults(
-                TextStyle(letterSpacing = 1.2.em),
-                direction = LayoutDirection.Ltr
-            ).letterSpacing
-        ).isEqualTo(1.2.em)
+                resolveDefaults(TextStyle(letterSpacing = 1.2.em), direction = LayoutDirection.Ltr)
+                    .letterSpacing
+            )
+            .isEqualTo(1.2.em)
     }
 
     @Test
     fun test_use_provided_values_baselineShift() {
         assertThat(
-            resolveDefaults(
-                TextStyle(baselineShift = BaselineShift.Superscript),
-                direction = LayoutDirection.Ltr
-            ).baselineShift
-        ).isEqualTo(BaselineShift.Superscript)
+                resolveDefaults(
+                        TextStyle(baselineShift = BaselineShift.Superscript),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .baselineShift
+            )
+            .isEqualTo(BaselineShift.Superscript)
     }
 
     @Test
     fun test_use_provided_values_textGeometricTransform() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 10.0f)),
-                direction = LayoutDirection.Ltr
-            ).textGeometricTransform
-        ).isEqualTo(TextGeometricTransform(scaleX = 10.0f))
+                resolveDefaults(
+                        TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 10.0f)),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textGeometricTransform
+            )
+            .isEqualTo(TextGeometricTransform(scaleX = 10.0f))
     }
 
     @Test
     fun test_use_provided_values_localeList() {
         assertThat(
-            resolveDefaults(
-                TextStyle(localeList = LocaleList("fr-FR")),
-                direction = LayoutDirection.Ltr
-            ).localeList
-        ).isEqualTo(LocaleList("fr-FR"))
+                resolveDefaults(
+                        TextStyle(localeList = LocaleList("fr-FR")),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .localeList
+            )
+            .isEqualTo(LocaleList("fr-FR"))
     }
 
     @Test
     fun test_use_provided_values_background() {
         assertThat(
-            resolveDefaults(
-                TextStyle(background = Color.Blue),
-                direction = LayoutDirection.Ltr
-            ).background
-        ).isEqualTo(Color.Blue)
+                resolveDefaults(TextStyle(background = Color.Blue), direction = LayoutDirection.Ltr)
+                    .background
+            )
+            .isEqualTo(Color.Blue)
     }
 
     @Test
     fun test_use_provided_values_textDecoration() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textDecoration = TextDecoration.LineThrough),
-                direction = LayoutDirection.Ltr
-            ).textDecoration
-        ).isEqualTo(TextDecoration.LineThrough)
+                resolveDefaults(
+                        TextStyle(textDecoration = TextDecoration.LineThrough),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDecoration
+            )
+            .isEqualTo(TextDecoration.LineThrough)
     }
 
     @Test
     fun test_use_provided_values_shadow() {
         assertThat(
-            resolveDefaults(
-                TextStyle(shadow = Shadow(color = Color.Yellow)),
-                direction = LayoutDirection.Ltr
-            ).shadow
-        ).isEqualTo(Shadow(color = Color.Yellow))
+                resolveDefaults(
+                        TextStyle(shadow = Shadow(color = Color.Yellow)),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .shadow
+            )
+            .isEqualTo(Shadow(color = Color.Yellow))
     }
 
     @Test
     fun test_use_provided_values_textAlign() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textAlign = TextAlign.Right),
-                direction = LayoutDirection.Ltr
-            ).textAlign
-        ).isEqualTo(TextAlign.Right)
+                resolveDefaults(
+                        TextStyle(textAlign = TextAlign.Right),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textAlign
+            )
+            .isEqualTo(TextAlign.Right)
     }
 
     @Test
     fun test_use_provided_values_lineHeight() {
         assertThat(
-            resolveDefaults(
-                TextStyle(lineHeight = 12.sp),
-                direction = LayoutDirection.Ltr
-            ).lineHeight
-        ).isEqualTo(12.sp)
+                resolveDefaults(TextStyle(lineHeight = 12.sp), direction = LayoutDirection.Ltr)
+                    .lineHeight
+            )
+            .isEqualTo(12.sp)
     }
 
     @Test
     fun test_use_provided_values_textIndent() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textIndent = TextIndent(12.sp, 13.sp)),
-                direction = LayoutDirection.Ltr
-            ).textIndent
-        ).isEqualTo(TextIndent(12.sp, 13.sp))
+                resolveDefaults(
+                        TextStyle(textIndent = TextIndent(12.sp, 13.sp)),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textIndent
+            )
+            .isEqualTo(TextIndent(12.sp, 13.sp))
     }
 
     @Test
     fun test_use_provided_values_lineBreak() {
         assertThat(
-            resolveDefaults(
-                TextStyle(lineBreak = LineBreak.Heading),
-                direction = LayoutDirection.Ltr
-            ).lineBreak
-        ).isEqualTo(LineBreak.Heading)
+                resolveDefaults(
+                        TextStyle(lineBreak = LineBreak.Heading),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .lineBreak
+            )
+            .isEqualTo(LineBreak.Heading)
     }
 
     @Test
     fun test_use_provided_values_textDirection_with_LTR_layoutDirection() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Content),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Content),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Ltr),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.Ltr)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Ltr),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.Ltr)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Rtl),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.Rtl)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Rtl),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.Rtl)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.ContentOrLtr),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrRtl),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrRtl)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.ContentOrRtl),
+                        direction = LayoutDirection.Ltr
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
     fun test_use_provided_values_textDirection_with_RTL_layoutDirection() {
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Content),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrRtl)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Content),
+                        direction = LayoutDirection.Rtl
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrRtl)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Ltr),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.Ltr)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Ltr),
+                        direction = LayoutDirection.Rtl
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.Ltr)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.Rtl),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.Rtl)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.Rtl),
+                        direction = LayoutDirection.Rtl
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.Rtl)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrLtr),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrLtr)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.ContentOrLtr),
+                        direction = LayoutDirection.Rtl
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrLtr)
 
         assertThat(
-            resolveDefaults(
-                TextStyle(textDirection = TextDirection.ContentOrRtl),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.ContentOrRtl)
+                resolveDefaults(
+                        TextStyle(textDirection = TextDirection.ContentOrRtl),
+                        direction = LayoutDirection.Rtl
+                    )
+                    .textDirection
+            )
+            .isEqualTo(TextDirection.ContentOrRtl)
     }
 
     @Test
     fun test_default_direction_algorithm_with_provided_layoutDirection() {
-        assertThat(
-            resolveDefaults(
-                TextStyle(),
-                direction = LayoutDirection.Ltr
-            ).textDirection
-        ).isEqualTo(TextDirection.Ltr)
+        assertThat(resolveDefaults(TextStyle(), direction = LayoutDirection.Ltr).textDirection)
+            .isEqualTo(TextDirection.Ltr)
 
-        assertThat(
-            resolveDefaults(
-                TextStyle(),
-                direction = LayoutDirection.Rtl
-            ).textDirection
-        ).isEqualTo(TextDirection.Rtl)
+        assertThat(resolveDefaults(TextStyle(), direction = LayoutDirection.Rtl).textDirection)
+            .isEqualTo(TextDirection.Rtl)
     }
 }

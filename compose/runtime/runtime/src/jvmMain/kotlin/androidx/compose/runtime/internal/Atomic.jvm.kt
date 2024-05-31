@@ -26,6 +26,8 @@ internal actual class AtomicInt actual constructor(value: Int) : AtomicInteger(v
 
     // These are implemented by Number, but Kotlin fails to resolve them
     override fun toByte(): Byte = toInt().toByte()
+
     override fun toShort(): Short = toInt().toShort()
+
     override fun toChar(): Char = toInt().toChar()
 }

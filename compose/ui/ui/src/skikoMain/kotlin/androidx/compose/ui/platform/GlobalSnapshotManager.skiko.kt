@@ -17,15 +17,15 @@
 package androidx.compose.ui.platform
 
 /**
- * Platform-specific mechanism for starting a monitor of global snapshot state writes
- * in order to schedule the periodic dispatch of snapshot apply notifications.
- * This process should remain platform-specific; it is tied to the threading and update model of
- * a particular platform and framework target.
+ * Platform-specific mechanism for starting a monitor of global snapshot state writes in order to
+ * schedule the periodic dispatch of snapshot apply notifications. This process should remain
+ * platform-specific; it is tied to the threading and update model of a particular platform and
+ * framework target.
  *
  * Composition bootstrapping mechanisms for a particular platform/framework should call
- * [ensureStarted] during setup to initialize periodic global snapshot notifications.
- * For desktop, these notifications are always sent on [Dispatchers.Swing]. Other platforms
- * may establish different policies for these notifications.
+ * [ensureStarted] during setup to initialize periodic global snapshot notifications. For desktop,
+ * these notifications are always sent on [Dispatchers.Swing]. Other platforms may establish
+ * different policies for these notifications.
  */
 internal expect object GlobalSnapshotManager {
     fun ensureStarted()

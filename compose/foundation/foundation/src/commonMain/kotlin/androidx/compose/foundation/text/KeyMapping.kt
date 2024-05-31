@@ -31,9 +31,7 @@ internal interface KeyMapping {
 // desktop, the value depends on the current OS
 internal expect val platformDefaultKeyMapping: KeyMapping
 
-/**
- * Copied from [Key] as the constants there are experimental
- */
+/** Copied from [Key] as the constants there are experimental */
 internal expect object MappedKeys {
     val A: Key
     val C: Key
@@ -62,9 +60,7 @@ internal expect object MappedKeys {
 }
 
 // It's common for all platforms key mapping
-internal fun commonKeyMapping(
-    shortcutModifier: (KeyEvent) -> Boolean
-): KeyMapping {
+internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMapping {
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
             return when {
@@ -75,7 +71,8 @@ internal fun commonKeyMapping(
                     }
                 shortcutModifier(event) ->
                     when (event.key) {
-                        MappedKeys.C, MappedKeys.Insert -> KeyCommand.COPY
+                        MappedKeys.C,
+                        MappedKeys.Insert -> KeyCommand.COPY
                         MappedKeys.V -> KeyCommand.PASTE
                         MappedKeys.X -> KeyCommand.CUT
                         MappedKeys.A -> KeyCommand.SELECT_ALL

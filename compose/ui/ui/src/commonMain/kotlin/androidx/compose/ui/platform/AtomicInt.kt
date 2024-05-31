@@ -18,5 +18,6 @@ package androidx.compose.ui.platform
 
 internal expect class AtomicInt(value: Int) {
     fun addAndGet(delta: Int): Int
+
     fun compareAndSet(expected: Int, new: Int): Boolean
 }

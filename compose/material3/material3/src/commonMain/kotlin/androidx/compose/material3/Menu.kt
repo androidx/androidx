@@ -66,12 +66,14 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design dropdown menu</a>.
+ * <a href="https://m3.material.io/components/menus/overview" class="external"
+ * target="_blank">Material Design dropdown menu</a>.
  *
  * Menus display a list of choices on a temporary surface. They appear when users interact with a
  * button, action, or other control.
  *
- * ![Dropdown menu image](https://developer.android.com/images/reference/androidx/compose/material3/menu.png)
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/menu.png)
  *
  * A [DropdownMenu] behaves similarly to a [Popup], and will use the position of the parent layout
  * to position itself on screen. Commonly a [DropdownMenu] will be placed in a [Box] with a sibling
@@ -79,12 +81,12 @@ import kotlin.math.min
  * space in a layout, as the menu is displayed in a separate window, on top of other content.
  *
  * The [content] of a [DropdownMenu] will typically be [DropdownMenuItem]s, as well as custom
- * content. Using [DropdownMenuItem]s will result in a menu that matches the Material
- * specification for menus. Also note that the [content] is placed inside a scrollable [Column],
- * so using a [LazyColumn] as the root layout inside [content] is unsupported.
+ * content. Using [DropdownMenuItem]s will result in a menu that matches the Material specification
+ * for menus. Also note that the [content] is placed inside a scrollable [Column], so using a
+ * [LazyColumn] as the root layout inside [content] is unsupported.
  *
- * [onDismissRequest] will be called when the menu should close - for example when there is a
- * tap outside the menu, or when the back key is pressed.
+ * [onDismissRequest] will be called when the menu should close - for example when there is a tap
+ * outside the menu, or when the back key is pressed.
  *
  * [DropdownMenu] changes its positioning depending on the available space, always trying to be
  * fully visible. Depending on layout direction, first it will try to align its start to the start
@@ -96,24 +98,26 @@ import kotlin.math.min
  * bounds of its parent do not coincide with its visual bounds.
  *
  * Example usage:
+ *
  * @sample androidx.compose.material3.samples.MenuSample
  *
  * Example usage with a [ScrollState] to control the menu items scroll position:
+ *
  * @sample androidx.compose.material3.samples.MenuWithScrollStateSample
  *
  * @param expanded whether the menu is expanded or not
  * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
- * outside the menu's bounds
+ *   outside the menu's bounds
  * @param modifier [Modifier] to be applied to the menu's content
  * @param offset [DpOffset] from the original position of the menu. The offset respects the
- * [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
+ *   [LayoutDirection], so the offset's x position will be added in LTR and subtracted in RTL.
  * @param scrollState a [ScrollState] to used by the menu's content for items vertical scrolling
  * @param properties [PopupProperties] for further customization of this popup's behavior
  * @param shape the shape of the menu
  * @param containerColor the container color of the menu
  * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
- * overlay is applied on top of the container. A higher tonal elevation value will result in a
- * darker color in light theme and lighter color in dark theme. See also: [Surface].
+ *   overlay is applied on top of the container. A higher tonal elevation value will result in a
+ *   darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param shadowElevation the elevation for the shadow below the menu
  * @param border the border to draw around the container of the menu. Pass `null` for no border.
  * @param content the content of this dropdown menu, typically a [DropdownMenuItem]
@@ -135,14 +139,17 @@ expect fun DropdownMenu(
 )
 
 /**
- * <a href="https://m3.material.io/components/menus/overview" class="external" target="_blank">Material Design dropdown menu</a> item.
+ * <a href="https://m3.material.io/components/menus/overview" class="external"
+ * target="_blank">Material Design dropdown menu</a> item.
  *
  * Menus display a list of choices on a temporary surface. They appear when users interact with a
  * button, action, or other control.
  *
- * ![Dropdown menu image](https://developer.android.com/images/reference/androidx/compose/material3/menu.png)
+ * ![Dropdown menu
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/menu.png)
  *
  * Example usage:
+ *
  * @sample androidx.compose.material3.samples.MenuSample
  *
  * @param text text of the menu item
@@ -150,17 +157,17 @@ expect fun DropdownMenu(
  * @param modifier the [Modifier] to be applied to this menu item
  * @param leadingIcon optional leading icon to be displayed at the beginning of the item's text
  * @param trailingIcon optional trailing icon to be displayed at the end of the item's text. This
- * trailing icon slot can also accept [Text] to indicate a keyboard shortcut.
+ *   trailing icon slot can also accept [Text] to indicate a keyboard shortcut.
  * @param enabled controls the enabled state of this menu item. When `false`, this component will
- * not respond to user input, and it will appear visually disabled and disabled to accessibility
- * services.
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
  * @param colors [MenuItemColors] that will be used to resolve the colors used for this menu item in
- * different states. See [MenuDefaults.itemColors].
+ *   different states. See [MenuDefaults.itemColors].
  * @param contentPadding the padding applied to the content of this menu item
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this menu item. You can use this to change the menu item's appearance
- * or preview the menu item in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this menu item. You can use this to change the menu item's
+ *   appearance or preview the menu item in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  */
 @Composable
 expect fun DropdownMenuItem(
@@ -175,9 +182,7 @@ expect fun DropdownMenuItem(
     interactionSource: MutableInteractionSource? = null,
 )
 
-/**
- * Contains default values used for [DropdownMenu] and [DropdownMenuItem].
- */
+/** Contains default values used for [DropdownMenu] and [DropdownMenuItem]. */
 object MenuDefaults {
     /** The default tonal elevation for a menu. */
     val TonalElevation = ElevationTokens.Level0
@@ -186,17 +191,18 @@ object MenuDefaults {
     val ShadowElevation = MenuTokens.ContainerElevation
 
     /** The default shape for a menu. */
-    val shape @Composable get() = MenuTokens.ContainerShape.value
+    val shape
+        @Composable get() = MenuTokens.ContainerShape.value
 
     /** The default container color for a menu. */
-    val containerColor @Composable get() = MenuTokens.ContainerColor.value
+    val containerColor
+        @Composable get() = MenuTokens.ContainerColor.value
 
     /**
      * Creates a [MenuItemColors] that represents the default text and icon colors used in a
      * [DropdownMenuItemContent].
      */
-    @Composable
-    fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
+    @Composable fun itemColors() = MaterialTheme.colorScheme.defaultMenuItemColors
 
     /**
      * Creates a [MenuItemColors] that represents the default text and icon colors used in a
@@ -205,12 +211,12 @@ object MenuDefaults {
      * @param textColor the text color of this [DropdownMenuItemContent] when enabled
      * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
      * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
-     * enabled
+     *   enabled
      * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
      * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
-     * not enabled
+     *   not enabled
      * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
-     * when not enabled
+     *   when not enabled
      */
     @Composable
     fun itemColors(
@@ -220,39 +226,39 @@ object MenuDefaults {
         disabledTextColor: Color = Color.Unspecified,
         disabledLeadingIconColor: Color = Color.Unspecified,
         disabledTrailingIconColor: Color = Color.Unspecified,
-    ): MenuItemColors = MaterialTheme.colorScheme.defaultMenuItemColors.copy(
-        textColor = textColor,
-        leadingIconColor = leadingIconColor,
-        trailingIconColor = trailingIconColor,
-        disabledTextColor = disabledTextColor,
-        disabledLeadingIconColor = disabledLeadingIconColor,
-        disabledTrailingIconColor = disabledTrailingIconColor,
-    )
+    ): MenuItemColors =
+        MaterialTheme.colorScheme.defaultMenuItemColors.copy(
+            textColor = textColor,
+            leadingIconColor = leadingIconColor,
+            trailingIconColor = trailingIconColor,
+            disabledTextColor = disabledTextColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+        )
 
     internal val ColorScheme.defaultMenuItemColors: MenuItemColors
         get() {
-            return defaultMenuItemColorsCached ?: MenuItemColors(
-                textColor = fromToken(ListTokens.ListItemLabelTextColor),
-                leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
-                trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
-                disabledTextColor = fromToken(ListTokens.ListItemDisabledLabelTextColor)
-                    .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
-                disabledLeadingIconColor = fromToken(ListTokens.ListItemDisabledLeadingIconColor)
-                    .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
-                disabledTrailingIconColor = fromToken(ListTokens.ListItemDisabledTrailingIconColor)
-                    .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
-            ).also {
-                defaultMenuItemColorsCached = it
-            }
+            return defaultMenuItemColorsCached
+                ?: MenuItemColors(
+                        textColor = fromToken(ListTokens.ListItemLabelTextColor),
+                        leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
+                        trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                        disabledTextColor =
+                            fromToken(ListTokens.ListItemDisabledLabelTextColor)
+                                .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                        disabledLeadingIconColor =
+                            fromToken(ListTokens.ListItemDisabledLeadingIconColor)
+                                .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                        disabledTrailingIconColor =
+                            fromToken(ListTokens.ListItemDisabledTrailingIconColor)
+                                .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
+                    )
+                    .also { defaultMenuItemColorsCached = it }
         }
 
-    /**
-     * Default padding used for [DropdownMenuItem].
-     */
-    val DropdownMenuItemContentPadding = PaddingValues(
-        horizontal = DropdownMenuItemHorizontalPadding,
-        vertical = 0.dp
-    )
+    /** Default padding used for [DropdownMenuItem]. */
+    val DropdownMenuItemContentPadding =
+        PaddingValues(horizontal = DropdownMenuItemHorizontalPadding, vertical = 0.dp)
 }
 
 // TODO: Consider to move into public [MenuDefaults]
@@ -261,18 +267,16 @@ internal expect val DefaultMenuProperties: PopupProperties
 /**
  * Represents the text and icon colors used in a menu item at different states.
  *
- * @constructor create an instance with arbitrary colors.
- * See [MenuDefaults.itemColors] for the default colors used in a [DropdownMenuItemContent].
- *
  * @param textColor the text color of this [DropdownMenuItemContent] when enabled
  * @param leadingIconColor the leading icon color of this [DropdownMenuItemContent] when enabled
- * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
- * enabled
+ * @param trailingIconColor the trailing icon color of this [DropdownMenuItemContent] when enabled
  * @param disabledTextColor the text color of this [DropdownMenuItemContent] when not enabled
- * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when
- * not enabled
- * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent]
- * when not enabled
+ * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItemContent] when not
+ *   enabled
+ * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItemContent] when
+ *   not enabled
+ * @constructor create an instance with arbitrary colors. See [MenuDefaults.itemColors] for the
+ *   default colors used in a [DropdownMenuItemContent].
  */
 @Immutable
 class MenuItemColors(
@@ -285,8 +289,8 @@ class MenuItemColors(
 ) {
 
     /**
-     * Returns a copy of this MenuItemColors, optionally overriding some of the values.
-     * This uses the Color.Unspecified to mean “use the value from the source”
+     * Returns a copy of this MenuItemColors, optionally overriding some of the values. This uses
+     * the Color.Unspecified to mean “use the value from the source”
      */
     fun copy(
         textColor: Color = this.textColor,
@@ -295,14 +299,15 @@ class MenuItemColors(
         disabledTextColor: Color = this.disabledTextColor,
         disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
         disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
-    ) = MenuItemColors(
-        textColor.takeOrElse { this.textColor },
-        leadingIconColor.takeOrElse { this.leadingIconColor },
-        trailingIconColor.takeOrElse { this.trailingIconColor },
-        disabledTextColor.takeOrElse { this.disabledTextColor },
-        disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
-        disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
-    )
+    ) =
+        MenuItemColors(
+            textColor.takeOrElse { this.textColor },
+            leadingIconColor.takeOrElse { this.leadingIconColor },
+            trailingIconColor.takeOrElse { this.trailingIconColor },
+            disabledTextColor.takeOrElse { this.disabledTextColor },
+            disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+            disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
+        )
 
     /**
      * Represents the text color for a menu item, depending on its [enabled] state.
@@ -310,8 +315,7 @@ class MenuItemColors(
      * @param enabled whether the menu item is enabled
      */
     @Stable
-    internal fun textColor(enabled: Boolean): Color =
-        if (enabled) textColor else disabledTextColor
+    internal fun textColor(enabled: Boolean): Color = if (enabled) textColor else disabledTextColor
 
     /**
      * Represents the leading icon color for a menu item, depending on its [enabled] state.
@@ -370,60 +374,53 @@ internal fun DropdownMenuContent(
     content: @Composable ColumnScope.() -> Unit
 ) {
     // Menu open/close animation.
-    @Suppress("DEPRECATION")
-    val transition = updateTransition(expandedState, "DropDownMenu")
+    @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
 
-    val scale by transition.animateFloat(
-        transitionSpec = {
-            if (false isTransitioningTo true) {
-                // Dismissed to expanded
-                tween(
-                    durationMillis = InTransitionDuration,
-                    easing = LinearOutSlowInEasing
-                )
-            } else {
-                // Expanded to dismissed.
-                tween(
-                    durationMillis = 1,
-                    delayMillis = OutTransitionDuration - 1
-                )
+    val scale by
+        transition.animateFloat(
+            transitionSpec = {
+                if (false isTransitioningTo true) {
+                    // Dismissed to expanded
+                    tween(durationMillis = InTransitionDuration, easing = LinearOutSlowInEasing)
+                } else {
+                    // Expanded to dismissed.
+                    tween(durationMillis = 1, delayMillis = OutTransitionDuration - 1)
+                }
             }
+        ) { expanded ->
+            if (expanded) ExpandedScaleTarget else ClosedScaleTarget
         }
-    ) { expanded ->
-        if (expanded) ExpandedScaleTarget else ClosedScaleTarget
-    }
 
-    val alpha by transition.animateFloat(
-        transitionSpec = {
-            if (false isTransitioningTo true) {
-                // Dismissed to expanded
-                tween(durationMillis = 30)
-            } else {
-                // Expanded to dismissed.
-                tween(durationMillis = OutTransitionDuration)
+    val alpha by
+        transition.animateFloat(
+            transitionSpec = {
+                if (false isTransitioningTo true) {
+                    // Dismissed to expanded
+                    tween(durationMillis = 30)
+                } else {
+                    // Expanded to dismissed.
+                    tween(durationMillis = OutTransitionDuration)
+                }
             }
+        ) { expanded ->
+            if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
         }
-    ) { expanded ->
-        if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
-    }
 
     val isInspecting = LocalInspectionMode.current
     Surface(
-        modifier = Modifier.graphicsLayer {
-            scaleX =
-                if (!isInspecting) scale
-                else if (expandedState.targetState) ExpandedScaleTarget
-                else ClosedScaleTarget
-            scaleY =
-                if (!isInspecting) scale
-                else if (expandedState.targetState) ExpandedScaleTarget
-                else ClosedScaleTarget
-            this.alpha =
-                if (!isInspecting) alpha
-                else if (expandedState.targetState) ExpandedAlphaTarget
-                else ClosedAlphaTarget
-            transformOrigin = transformOriginState.value
-        },
+        modifier =
+            Modifier.graphicsLayer {
+                scaleX =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                scaleY =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                this.alpha =
+                    if (!isInspecting) alpha
+                    else if (expandedState.targetState) ExpandedAlphaTarget else ClosedAlphaTarget
+                transformOrigin = transformOriginState.value
+            },
         shape = shape,
         color = containerColor,
         tonalElevation = tonalElevation,
@@ -431,10 +428,11 @@ internal fun DropdownMenuContent(
         border = border,
     ) {
         Column(
-            modifier = modifier
-                .padding(vertical = DropdownMenuVerticalPadding)
-                .width(IntrinsicSize.Max)
-                .verticalScroll(scrollState),
+            modifier =
+                modifier
+                    .padding(vertical = DropdownMenuVerticalPadding)
+                    .width(IntrinsicSize.Max)
+                    .verticalScroll(scrollState),
             content = content
         )
     }
@@ -453,21 +451,22 @@ internal fun DropdownMenuItemContent(
     interactionSource: MutableInteractionSource?
 ) {
     Row(
-        modifier = modifier
-            .clickable(
-                enabled = enabled,
-                onClick = onClick,
-                interactionSource = interactionSource,
-                indication = rippleOrFallbackImplementation(true)
-            )
-            .fillMaxWidth()
-            // Preferred min and max width used during the intrinsic measurement.
-            .sizeIn(
-                minWidth = DropdownMenuItemDefaultMinWidth,
-                maxWidth = DropdownMenuItemDefaultMaxWidth,
-                minHeight = MenuListItemContainerHeight
-            )
-            .padding(contentPadding),
+        modifier =
+            modifier
+                .clickable(
+                    enabled = enabled,
+                    onClick = onClick,
+                    interactionSource = interactionSource,
+                    indication = rippleOrFallbackImplementation(true)
+                )
+                .fillMaxWidth()
+                // Preferred min and max width used during the intrinsic measurement.
+                .sizeIn(
+                    minWidth = DropdownMenuItemDefaultMinWidth,
+                    maxWidth = DropdownMenuItemDefaultMaxWidth,
+                    minHeight = MenuListItemContainerHeight
+                )
+                .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // TODO(b/271818892): Align menu list item style with general list item style.
@@ -483,19 +482,20 @@ internal fun DropdownMenuItemContent(
             }
             CompositionLocalProvider(LocalContentColor provides colors.textColor(enabled)) {
                 Box(
-                    Modifier
-                        .weight(1f)
+                    Modifier.weight(1f)
                         .padding(
-                            start = if (leadingIcon != null) {
-                                DropdownMenuItemHorizontalPadding
-                            } else {
-                                0.dp
-                            },
-                            end = if (trailingIcon != null) {
-                                DropdownMenuItemHorizontalPadding
-                            } else {
-                                0.dp
-                            }
+                            start =
+                                if (leadingIcon != null) {
+                                    DropdownMenuItemHorizontalPadding
+                                } else {
+                                    0.dp
+                                },
+                            end =
+                                if (trailingIcon != null) {
+                                    DropdownMenuItemHorizontalPadding
+                                } else {
+                                    0.dp
+                                }
                         )
                 ) {
                     text()
@@ -514,32 +514,31 @@ internal fun DropdownMenuItemContent(
     }
 }
 
-internal fun calculateTransformOrigin(
-    anchorBounds: IntRect,
-    menuBounds: IntRect
-): TransformOrigin {
-    val pivotX = when {
-        menuBounds.left >= anchorBounds.right -> 0f
-        menuBounds.right <= anchorBounds.left -> 1f
-        menuBounds.width == 0 -> 0f
-        else -> {
-            val intersectionCenter =
-                (max(anchorBounds.left, menuBounds.left) +
-                    min(anchorBounds.right, menuBounds.right)) / 2
-            (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
+internal fun calculateTransformOrigin(anchorBounds: IntRect, menuBounds: IntRect): TransformOrigin {
+    val pivotX =
+        when {
+            menuBounds.left >= anchorBounds.right -> 0f
+            menuBounds.right <= anchorBounds.left -> 1f
+            menuBounds.width == 0 -> 0f
+            else -> {
+                val intersectionCenter =
+                    (max(anchorBounds.left, menuBounds.left) +
+                        min(anchorBounds.right, menuBounds.right)) / 2
+                (intersectionCenter - menuBounds.left).toFloat() / menuBounds.width
+            }
         }
-    }
-    val pivotY = when {
-        menuBounds.top >= anchorBounds.bottom -> 0f
-        menuBounds.bottom <= anchorBounds.top -> 1f
-        menuBounds.height == 0 -> 0f
-        else -> {
-            val intersectionCenter =
-                (max(anchorBounds.top, menuBounds.top) +
-                    min(anchorBounds.bottom, menuBounds.bottom)) / 2
-            (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
+    val pivotY =
+        when {
+            menuBounds.top >= anchorBounds.bottom -> 0f
+            menuBounds.bottom <= anchorBounds.top -> 1f
+            menuBounds.height == 0 -> 0f
+            else -> {
+                val intersectionCenter =
+                    (max(anchorBounds.top, menuBounds.top) +
+                        min(anchorBounds.bottom, menuBounds.bottom)) / 2
+                (intersectionCenter - menuBounds.top).toFloat() / menuBounds.height
+            }
         }
-    }
     return TransformOrigin(pivotX, pivotY)
 }
 

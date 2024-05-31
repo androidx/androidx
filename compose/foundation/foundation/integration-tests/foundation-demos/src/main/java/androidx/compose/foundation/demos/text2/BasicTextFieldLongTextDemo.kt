@@ -36,19 +36,18 @@ fun BasicTextFieldLongTextDemo() {
     Column(Modifier.imePadding()) {
         BasicTextField(
             state = text,
-            modifier = Modifier
-                .weight(1f)
-                .then(demoTextFieldModifiers),
+            modifier = Modifier.weight(1f).then(demoTextFieldModifiers),
             lineLimits = MultiLine(maxHeightInLines = 20)
         )
         Text("Char count: ${text.text.length}")
     }
 }
 
-private fun generateString(charCount: Int): String = buildString(capacity = charCount) {
-    val wordIterator = loremIpsumWords().iterator()
-    while (length < charCount) {
-        append(wordIterator.next().take(charCount - length - 1))
-        append(' ')
+private fun generateString(charCount: Int): String =
+    buildString(capacity = charCount) {
+        val wordIterator = loremIpsumWords().iterator()
+        while (length < charCount) {
+            append(wordIterator.next().take(charCount - length - 1))
+            append(' ')
+        }
     }
-}

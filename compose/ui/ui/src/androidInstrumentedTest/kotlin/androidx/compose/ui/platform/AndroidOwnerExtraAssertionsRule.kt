@@ -21,18 +21,14 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * Enables extra assertions inside [Owner].
- */
+/** Enables extra assertions inside [Owner]. */
 class AndroidOwnerExtraAssertionsRule : TestRule {
 
     override fun apply(base: Statement, description: Description?): Statement {
         return ExtraValidationsStatement(base)
     }
 
-    inner class ExtraValidationsStatement(
-        private val base: Statement
-    ) : Statement() {
+    inner class ExtraValidationsStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
             Owner.enableExtraAssertions = true
             try {

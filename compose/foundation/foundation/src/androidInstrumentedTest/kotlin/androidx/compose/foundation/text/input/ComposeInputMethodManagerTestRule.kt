@@ -34,7 +34,7 @@ internal class ComposeInputMethodManagerTestRule : TestRule {
      * Replaces the [ComposeInputMethodManager] factory with the given [factory].
      *
      * @return The initial factory that can be used to delegate select calls to not fully override
-     * the default [ComposeInputMethodManager].
+     *   the default [ComposeInputMethodManager].
      */
     fun setFactory(
         factory: (View) -> ComposeInputMethodManager

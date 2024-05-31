@@ -37,8 +37,8 @@ class VectorInvalidationTestCase() {
     internal var measured: Boolean = false
 
     /**
-     * Queries the size of the underlying vector image to draw
-     * This assumes both width and height are the same
+     * Queries the size of the underlying vector image to draw This assumes both width and height
+     * are the same
      */
     var vectorSize: Int = 0
 
@@ -51,27 +51,23 @@ class VectorInvalidationTestCase() {
         with(LocalDensity.current) {
             val width = imageVector.intrinsicSize.width.toInt()
             vectorSize = width
-            AtLeastSize(
-                size = width,
-                modifier = WhiteBackground.paint(imageVector)
-            ) {
+            AtLeastSize(size = width, modifier = WhiteBackground.paint(imageVector)) {
                 measured = true
             }
         }
     }
 
-    val WhiteBackground = Modifier.drawBehind {
-        drawRect(Color.White)
-    }
+    val WhiteBackground = Modifier.drawBehind { drawRect(Color.White) }
 
     fun toggle() {
         val state = vectorState
         if (state != null) {
-            state.value = if (state.value == R.drawable.ic_triangle) {
-                R.drawable.ic_triangle2
-            } else {
-                R.drawable.ic_triangle
-            }
+            state.value =
+                if (state.value == R.drawable.ic_triangle) {
+                    R.drawable.ic_triangle2
+                } else {
+                    R.drawable.ic_triangle
+                }
         }
     }
 }

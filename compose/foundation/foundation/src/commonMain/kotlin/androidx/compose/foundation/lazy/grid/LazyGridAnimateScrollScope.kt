@@ -24,18 +24,20 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyGridAnimateScrollScope(
-    private val state: LazyGridState
-) : LazyLayoutAnimateScrollScope {
+internal class LazyGridAnimateScrollScope(private val state: LazyGridState) :
+    LazyLayoutAnimateScrollScope {
 
-    override val firstVisibleItemIndex: Int get() = state.firstVisibleItemIndex
+    override val firstVisibleItemIndex: Int
+        get() = state.firstVisibleItemIndex
 
-    override val firstVisibleItemScrollOffset: Int get() = state.firstVisibleItemScrollOffset
+    override val firstVisibleItemScrollOffset: Int
+        get() = state.firstVisibleItemScrollOffset
 
     override val lastVisibleItemIndex: Int
         get() = state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-    override val itemCount: Int get() = state.layoutInfo.totalItemsCount
+    override val itemCount: Int
+        get() = state.layoutInfo.totalItemsCount
 
     override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
         state.snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
@@ -56,16 +58,15 @@ internal class LazyGridAnimateScrollScope(
             (averageLineMainAxisSize * linesDiff).toFloat() - firstVisibleItemScrollOffset
         } else {
             if (layoutInfo.orientation == Orientation.Vertical) {
-                visibleItem.offset.y
-            } else {
-                visibleItem.offset.x
-            }.toFloat()
+                    visibleItem.offset.y
+                } else {
+                    visibleItem.offset.x
+                }
+                .toFloat()
         }
     }
 
-    private fun calculateLineAverageMainAxisSize(
-        layoutInfo: LazyGridLayoutInfo
-    ): Int {
+    private fun calculateLineAverageMainAxisSize(layoutInfo: LazyGridLayoutInfo): Int {
         val isVertical = layoutInfo.orientation == Orientation.Vertical
         val visibleItems = layoutInfo.visibleItemsInfo
         val lineOf: (Int) -> Int = {
@@ -87,14 +88,15 @@ internal class LazyGridAnimateScrollScope(
             var lineMainAxisSize = 0
             var lineEndIndex = lineStartIndex
             while (lineEndIndex < visibleItems.size && lineOf(lineEndIndex) == currentLine) {
-                lineMainAxisSize = max(
-                    lineMainAxisSize,
-                    if (isVertical) {
-                        visibleItems[lineEndIndex].size.height
-                    } else {
-                        visibleItems[lineEndIndex].size.width
-                    }
-                )
+                lineMainAxisSize =
+                    max(
+                        lineMainAxisSize,
+                        if (isVertical) {
+                            visibleItems[lineEndIndex].size.height
+                        } else {
+                            visibleItems[lineEndIndex].size.width
+                        }
+                    )
                 ++lineEndIndex
             }
 

@@ -46,18 +46,20 @@ fun MenuDemo() {
         for (i in 0..10) {
             for (j in 0..10) {
                 MenuInstance(
-                    Modifier.fillMaxSize().wrapContentSize(
-                        object : Alignment {
-                            override fun align(
-                                size: IntSize,
-                                space: IntSize,
-                                layoutDirection: LayoutDirection
-                            ) = IntOffset(
-                                (space.width * i / 10f).roundToInt(),
-                                (space.height * j / 10f).roundToInt()
-                            )
-                        }
-                    )
+                    Modifier.fillMaxSize()
+                        .wrapContentSize(
+                            object : Alignment {
+                                override fun align(
+                                    size: IntSize,
+                                    space: IntSize,
+                                    layoutDirection: LayoutDirection
+                                ) =
+                                    IntOffset(
+                                        (space.width * i / 10f).roundToInt(),
+                                        (space.height * j / 10f).roundToInt()
+                                    )
+                            }
+                        )
                 )
             }
         }
@@ -66,30 +68,18 @@ fun MenuDemo() {
 
 @Composable
 fun MenuInstance(modifier: Modifier = Modifier) {
-    val options = listOf(
-        "Refresh",
-        "Settings",
-        "Send Feedback",
-        "Help",
-        "Signout"
-    )
+    val options = listOf("Refresh", "Settings", "Send Feedback", "Help", "Signout")
 
     var expanded by remember { mutableStateOf(false) }
 
     Box(modifier) {
-        IconButton(onClick = { expanded = true }) {
-            Icon(Icons.Default.MoreVert, null)
-        }
+        IconButton(onClick = { expanded = true }) { Icon(Icons.Default.MoreVert, null) }
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(24.dp, 0.dp),
         ) {
-            options.forEach {
-                DropdownMenuItem(onClick = {}) {
-                    Text(it)
-                }
-            }
+            options.forEach { DropdownMenuItem(onClick = {}) { Text(it) } }
         }
     }
 }

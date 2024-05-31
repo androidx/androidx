@@ -48,15 +48,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark that runs [RectsInColumnTestCase].
- */
+/** Benchmark that runs [RectsInColumnTestCase]. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ResizeComposeViewBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val rectsInColumnCaseFactory = { ComposeViewTestCase() }
 
@@ -92,43 +89,45 @@ class ComposeViewTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                 AndroidView(
                     modifier = Modifier.fillMaxSize(),
                     factory = { context ->
-                        val column = LinearLayout(context).apply {
-                            orientation = LinearLayout.VERTICAL
-                        }
+                        val column =
+                            LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
                         repeat(10) {
-                            val row = ComposeView(context).apply {
-                                setContent {
-                                    Layout(content = {
-                                        with(LocalDensity.current) {
-                                            repeat(20) {
-                                                Row(Modifier.size(10.toDp())) {
-                                                    repeat(10) {
-                                                        Box(
-                                                            Modifier
-                                                                .width(1.toDp())
-                                                                .fillMaxHeight()
-                                                        )
+                            val row =
+                                ComposeView(context).apply {
+                                    setContent {
+                                        Layout(
+                                            content = {
+                                                with(LocalDensity.current) {
+                                                    repeat(20) {
+                                                        Row(Modifier.size(10.toDp())) {
+                                                            repeat(10) {
+                                                                Box(
+                                                                    Modifier.width(1.toDp())
+                                                                        .fillMaxHeight()
+                                                                )
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                    }) { measurables, constraints ->
-                                        val width = constraints.constrainWidth(400)
-                                        val height = constraints.constrainWidth(400)
-                                        layout(width, height) {
-                                            measurables.forEachIndexed { i, m ->
-                                                val p = m.measure(Constraints.fixed(10, 10))
-                                                p.place(i * 10, 0)
+                                        ) { measurables, constraints ->
+                                            val width = constraints.constrainWidth(400)
+                                            val height = constraints.constrainWidth(400)
+                                            layout(width, height) {
+                                                measurables.forEachIndexed { i, m ->
+                                                    val p = m.measure(Constraints.fixed(10, 10))
+                                                    p.place(i * 10, 0)
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                            val layoutParams = LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                0,
-                                1f
-                            )
+                            val layoutParams =
+                                LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.MATCH_PARENT,
+                                    0,
+                                    1f
+                                )
                             column.addView(row, layoutParams)
                         }
                         column

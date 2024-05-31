@@ -73,9 +73,8 @@ fun ModalBottomSheetSample() {
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
     var skipPartiallyExpanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = skipPartiallyExpanded
-    )
+    val bottomSheetState =
+        rememberModalBottomSheetState(skipPartiallyExpanded = skipPartiallyExpanded)
 
     // App content
     Column(
@@ -113,11 +112,13 @@ fun ModalBottomSheetSample() {
                     // Note: If you provide logic outside of onDismissRequest to remove the sheet,
                     // you must additionally handle intended state cleanup, if any.
                     onClick = {
-                        scope.launch { bottomSheetState.hide() }.invokeOnCompletion {
-                            if (!bottomSheetState.isVisible) {
-                                openBottomSheet = false
+                        scope
+                            .launch { bottomSheetState.hide() }
+                            .invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) {
+                                    openBottomSheet = false
+                                }
                             }
-                        }
                     }
                 ) {
                     Text("Hide Bottom Sheet")
@@ -140,9 +141,10 @@ fun ModalBottomSheetSample() {
                                 contentDescription = "Localized description"
                             )
                         },
-                        colors = ListItemDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                        ),
+                        colors =
+                            ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            ),
                     )
                 }
             }
@@ -162,33 +164,22 @@ fun SimpleBottomSheetScaffoldSample() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = 128.dp,
         sheetContent = {
-            Column(
-                Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(128.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.fillMaxWidth().height(128.dp), contentAlignment = Alignment.Center) {
                     Text("Swipe up to expand sheet")
                 }
                 Text("Sheet content")
                 Button(
                     modifier = Modifier.padding(bottom = 64.dp),
-                    onClick = {
-                        scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                    }
+                    onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } }
                 ) {
                     Text("Click to collapse sheet")
                 }
             }
-        }) { innerPadding ->
+        }
+    ) { innerPadding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
             Text("Scaffold Content")
@@ -200,13 +191,14 @@ fun SimpleBottomSheetScaffoldSample() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetScaffoldNestedScrollSample() {
-    val colors = listOf(
-        Color(0xFFffd7d7.toInt()),
-        Color(0xFFffe9d6.toInt()),
-        Color(0xFFfffbd0.toInt()),
-        Color(0xFFe3ffd9.toInt()),
-        Color(0xFFd0fff8.toInt())
-    )
+    val colors =
+        listOf(
+            Color(0xFFffd7d7.toInt()),
+            Color(0xFFffe9d6.toInt()),
+            Color(0xFFfffbd0.toInt()),
+            Color(0xFFe3ffd9.toInt()),
+            Color(0xFFd0fff8.toInt())
+        )
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -224,9 +216,10 @@ fun BottomSheetScaffoldNestedScrollSample() {
                                 contentDescription = "Localized description"
                             )
                         },
-                        colors = ListItemDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-                        ),
+                        colors =
+                            ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            ),
                     )
                 }
             }
@@ -247,12 +240,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             items(100) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .background(colors[it % colors.size])
-                )
+                Box(Modifier.fillMaxWidth().height(50.dp).background(colors[it % colors.size]))
             }
         }
     }

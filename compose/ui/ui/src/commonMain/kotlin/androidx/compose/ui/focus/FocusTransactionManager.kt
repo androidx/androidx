@@ -21,10 +21,9 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.internal.checkPreconditionNotNull
 
 /**
- * This manager provides a way to ensure that only one focus transaction is running at a time.
- * We use this to prevent re-entrant focus operations. Starting a new transaction automatically
- * cancels the previous transaction and reverts any focus state changes made during that
- * transaction.
+ * This manager provides a way to ensure that only one focus transaction is running at a time. We
+ * use this to prevent re-entrant focus operations. Starting a new transaction automatically cancels
+ * the previous transaction and reverts any focus state changes made during that transaction.
  */
 internal class FocusTransactionManager {
     private val states = mutableScatterMapOf<FocusTargetNode, FocusStateImpl>()
@@ -40,38 +39,41 @@ internal class FocusTransactionManager {
     inline fun <T> withNewTransaction(
         noinline onCancelled: (() -> Unit)? = null,
         block: () -> T
-    ): T = try {
-        if (ongoingTransaction) cancelTransaction()
-        beginTransaction()
-        onCancelled?.let { cancellationListener += it }
-        block()
-    } finally {
-        commitTransaction()
-    }
+    ): T =
+        try {
+            if (ongoingTransaction) cancelTransaction()
+            beginTransaction()
+            onCancelled?.let { cancellationListener += it }
+            block()
+        } finally {
+            commitTransaction()
+        }
 
     /**
-     * If another transaction is ongoing, this runs the specified [block] within that
-     * transaction, and it commits any changes to focus state at the end of that transaction. If
-     * there is no ongoing transaction, this will start a new transaction. If an [onCancelled]
-     * lambda is specified, it will be called if this transaction is cancelled by a new invocation
-     * to [withNewTransaction].
+     * If another transaction is ongoing, this runs the specified [block] within that transaction,
+     * and it commits any changes to focus state at the end of that transaction. If there is no
+     * ongoing transaction, this will start a new transaction. If an [onCancelled] lambda is
+     * specified, it will be called if this transaction is cancelled by a new invocation to
+     * [withNewTransaction].
      */
     inline fun <T> withExistingTransaction(
         noinline onCancelled: (() -> Unit)? = null,
         block: () -> T
     ): T {
         onCancelled?.let { cancellationListener += it }
-        return if (ongoingTransaction) block() else try {
-            beginTransaction()
-            block()
-        } finally {
-            commitTransaction()
-        }
+        return if (ongoingTransaction) block()
+        else
+            try {
+                beginTransaction()
+                block()
+            } finally {
+                commitTransaction()
+            }
     }
 
     /**
-     * The focus state for the specified [node][FocusTargetNode] if the state was changed during
-     * the current transaction.
+     * The focus state for the specified [node][FocusTargetNode] if the state was changed during the
+     * current transaction.
      */
     var FocusTargetNode.uncommittedFocusState: FocusStateImpl?
         get() = states[this]
@@ -84,9 +86,7 @@ internal class FocusTransactionManager {
     }
 
     private fun commitTransaction() {
-        states.forEachKey { focusTargetNode ->
-            focusTargetNode.commitFocusState()
-        }
+        states.forEachKey { focusTargetNode -> focusTargetNode.commitFocusState() }
         states.clear()
         ongoingTransaction = false
         cancellationListener.clear()

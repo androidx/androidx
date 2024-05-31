@@ -55,8 +55,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class IndicationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val testTag = "indication"
 
@@ -74,15 +73,9 @@ class IndicationTest {
     fun indication_drawIsCalled() {
         val interactionSource = MutableInteractionSource()
         val countDownLatch = CountDownLatch(1)
-        val indication = TestPressIndication {
-            countDownLatch.countDown()
-        }
+        val indication = TestPressIndication { countDownLatch.countDown() }
         rule.setContent {
-            Box(
-                Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .indication(interactionSource, indication))
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -91,15 +84,10 @@ class IndicationTest {
     fun indicationNodeFactory_drawIsCalled() {
         val interactionSource = MutableInteractionSource()
         val countDownLatch = CountDownLatch(1)
-        val indication = TestPressIndicationNodeFactory(onCreate = null, onDraw = {
-            countDownLatch.countDown()
-        })
+        val indication =
+            TestPressIndicationNodeFactory(onCreate = null, onDraw = { countDownLatch.countDown() })
         rule.setContent {
-            Box(
-                Modifier
-                    .testTag(testTag)
-                    .size(100.dp)
-                    .indication(interactionSource, indication))
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
         assertThat(countDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
@@ -113,9 +101,7 @@ class IndicationTest {
 
         val interactionSource = MutableInteractionSource()
 
-        val indication = TestPressIndication {
-            drawCalls++
-        }
+        val indication = TestPressIndication { drawCalls++ }
 
         rule.setContent {
             Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
@@ -124,20 +110,12 @@ class IndicationTest {
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 1 }
 
-        rule.runOnUiThread {
-            runBlocking {
-                interactionSource.emit(press)
-            }
-        }
+        rule.runOnUiThread { runBlocking { interactionSource.emit(press) } }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 2 }
 
-        rule.runOnUiThread {
-            runBlocking {
-                interactionSource.emit(release)
-            }
-        }
+        rule.runOnUiThread { runBlocking { interactionSource.emit(release) } }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 3 }
@@ -152,12 +130,7 @@ class IndicationTest {
 
         val interactionSource = MutableInteractionSource()
 
-        val indication = TestPressIndicationNodeFactory(
-            onDraw = {
-                drawCalls++
-            },
-            onCreate = null
-        )
+        val indication = TestPressIndicationNodeFactory(onDraw = { drawCalls++ }, onCreate = null)
 
         rule.setContent {
             Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
@@ -166,20 +139,12 @@ class IndicationTest {
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 1 }
 
-        rule.runOnUiThread {
-            runBlocking {
-                interactionSource.emit(press)
-            }
-        }
+        rule.runOnUiThread { runBlocking { interactionSource.emit(press) } }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 2 }
 
-        rule.runOnUiThread {
-            runBlocking {
-                interactionSource.emit(release)
-            }
-        }
+        rule.runOnUiThread { runBlocking { interactionSource.emit(release) } }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
         rule.waitUntil { drawCalls == 3 }
@@ -193,10 +158,8 @@ class IndicationTest {
             val modifier = Modifier.indication(state, indication) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("indication")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
-                "indication",
-                "interactionSource"
-            )
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+                .containsExactly("indication", "interactionSource")
         }
     }
 
@@ -208,10 +171,8 @@ class IndicationTest {
             val modifier = Modifier.indication(state, indication) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("indication")
             assertThat(modifier.valueOverride).isNull()
-            assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
-                "indication",
-                "interactionSource"
-            )
+            assertThat(modifier.inspectableElements.map { it.name }.asIterable())
+                .containsExactly("indication", "interactionSource")
         }
     }
 
@@ -220,19 +181,11 @@ class IndicationTest {
         var interactionSource by mutableStateOf(MutableInteractionSource())
         var createCalls = 0
         var drawCalls = 0
-        val indication = TestPressIndicationNodeFactory(
-            onCreate = {
-                createCalls++
-            },
-            onDraw = {
-                drawCalls++
-            }
-        )
+        val indication =
+            TestPressIndicationNodeFactory(onCreate = { createCalls++ }, onDraw = { drawCalls++ })
 
         rule.setContent {
-            Box(
-                Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication)
-            )
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
@@ -260,23 +213,15 @@ class IndicationTest {
     fun indicationNodeFactory_reuse_sameIndicationInstance() {
         val interactionSource = MutableInteractionSource()
         var createCalls = 0
-        val onCreate: () -> Unit = {
-            createCalls++
-        }
-        val indication = TestPressIndicationNodeFactory(
-            onCreate = onCreate,
-            onDraw = null
-        )
+        val onCreate: () -> Unit = { createCalls++ }
+        val indication = TestPressIndicationNodeFactory(onCreate = onCreate, onDraw = null)
 
         var state by mutableStateOf(false)
 
         rule.setContent {
             // state read to force recomposition
-            @Suppress("UNUSED_VARIABLE")
-            val readState = state
-            Box(
-                Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication)
-            )
+            @Suppress("UNUSED_VARIABLE") val readState = state
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
         rule.runOnIdle {
@@ -295,18 +240,12 @@ class IndicationTest {
     fun indicationNodeFactory_reuse_differentIndicationInstance_comparesEqual() {
         val interactionSource = MutableInteractionSource()
         var createCalls = 0
-        val onCreate: () -> Unit = {
-            createCalls++
-        }
-        var indication by mutableStateOf(TestPressIndicationNodeFactory(
-            onCreate = onCreate,
-            onDraw = null
-        ))
+        val onCreate: () -> Unit = { createCalls++ }
+        var indication by
+            mutableStateOf(TestPressIndicationNodeFactory(onCreate = onCreate, onDraw = null))
 
         rule.setContent {
-            Box(
-                Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication)
-            )
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
         rule.runOnIdle {
@@ -326,19 +265,16 @@ class IndicationTest {
         val interactionSource = MutableInteractionSource()
         var createCalls = 0
         var drawnNode = 0
-        var indication by mutableStateOf(TestPressIndicationNodeFactory(
-            onCreate = {
-                createCalls++
-            },
-            onDraw = {
-                 drawnNode = 1
-            }
-        ))
+        var indication by
+            mutableStateOf(
+                TestPressIndicationNodeFactory(
+                    onCreate = { createCalls++ },
+                    onDraw = { drawnNode = 1 }
+                )
+            )
 
         rule.setContent {
-            Box(
-                Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication)
-            )
+            Box(Modifier.testTag(testTag).size(100.dp).indication(interactionSource, indication))
         }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
@@ -350,14 +286,11 @@ class IndicationTest {
             // Reset drawn node
             drawnNode = 0
             // Create a new indication instance that should not compare equal
-            indication = TestPressIndicationNodeFactory(
-                onCreate = {
-                    createCalls++
-                },
-                onDraw = {
-                    drawnNode = 2
-                }
-            )
+            indication =
+                TestPressIndicationNodeFactory(
+                    onCreate = { createCalls++ },
+                    onDraw = { drawnNode = 2 }
+                )
         }
 
         // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
@@ -373,8 +306,8 @@ class IndicationTest {
 }
 
 /**
- * Simple [Indication] that draws a black overlay for pressed state. [rememberUpdatedInstance]
- * is deprecated, but this exists to test the backwards compat path for older indication
+ * Simple [Indication] that draws a black overlay for pressed state. [rememberUpdatedInstance] is
+ * deprecated, but this exists to test the backwards compat path for older indication
  * implementations.
  *
  * @param onDraw lambda executed when draw is called for the created instance
@@ -419,8 +352,7 @@ private class TestPressIndicationNodeFactory(
                     val pressInteractions = mutableListOf<PressInteraction.Press>()
                     interactionSource.interactions.collect { interaction ->
                         when (interaction) {
-                            is PressInteraction.Press ->
-                                pressInteractions.add(interaction)
+                            is PressInteraction.Press -> pressInteractions.add(interaction)
                             is PressInteraction.Release ->
                                 pressInteractions.remove(interaction.press)
                             is PressInteraction.Cancel ->

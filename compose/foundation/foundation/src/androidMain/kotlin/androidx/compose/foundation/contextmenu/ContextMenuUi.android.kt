@@ -83,14 +83,16 @@ internal object ContextMenuSpec {
     val FontWeight = Medium
     val LineHeight = 20.sp
     val LetterSpacing = 0.1f.sp
-    fun textStyle(color: Color): TextStyle = TextStyle(
-        color = color,
-        textAlign = LabelHorizontalTextAlignment,
-        fontSize = FontSize,
-        fontWeight = FontWeight,
-        lineHeight = LineHeight,
-        letterSpacing = LetterSpacing,
-    )
+
+    fun textStyle(color: Color): TextStyle =
+        TextStyle(
+            color = color,
+            textAlign = LabelHorizontalTextAlignment,
+            fontSize = FontSize,
+            fontWeight = FontWeight,
+            lineHeight = LineHeight,
+            letterSpacing = LetterSpacing,
+        )
 }
 
 private val DefaultPopupProperties = PopupProperties(focusable = true)
@@ -144,15 +146,16 @@ internal fun ContextMenuColumn(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
-        modifier = modifier
-            .shadow(
-                ContextMenuSpec.MenuContainerElevation,
-                RoundedCornerShape(ContextMenuSpec.CornerRadius)
-            )
-            .background(colors.backgroundColor)
-            .width(IntrinsicSize.Max)
-            .padding(vertical = ContextMenuSpec.VerticalPadding)
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            modifier
+                .shadow(
+                    ContextMenuSpec.MenuContainerElevation,
+                    RoundedCornerShape(ContextMenuSpec.CornerRadius)
+                )
+                .background(colors.backgroundColor)
+                .width(IntrinsicSize.Max)
+                .padding(vertical = ContextMenuSpec.VerticalPadding)
+                .verticalScroll(rememberScrollState()),
         content = content,
     )
 }
@@ -167,63 +170,66 @@ internal fun ContextMenuItem(
     colors: ContextMenuColors,
     modifier: Modifier = Modifier,
     /**
-     * Icon to place in front of the label. If null, the icon will not be rendered
-     * and the text will instead be further towards the start. The `iconColor` will
-     * change based on whether the item is disabled or not.
+     * Icon to place in front of the label. If null, the icon will not be rendered and the text will
+     * instead be further towards the start. The `iconColor` will change based on whether the item
+     * is disabled or not.
      */
     leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
     /**
      * Lambda called when this item is clicked.
      *
-     * Note: If you want the context menu to close when this item is clicked,
-     * you will have to do it in this lambda via [ContextMenuState.close].
+     * Note: If you want the context menu to close when this item is clicked, you will have to do it
+     * in this lambda via [ContextMenuState.close].
      */
     onClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = ContextMenuSpec.LabelVerticalTextAlignment,
         horizontalArrangement = Arrangement.spacedBy(ContextMenuSpec.HorizontalPadding),
-        modifier = modifier
-            .clickable(
-                enabled = enabled,
-                onClickLabel = label,
-            ) {
-                // Semantics can call this even if it is disabled (at least in tests),
-                // so check enabled status again before invoking any callbacks.
-                if (enabled) onClick()
-            }
-            .fillMaxWidth()
-            .sizeIn(
-                minWidth = ContextMenuSpec.ContainerWidthMin,
-                maxWidth = ContextMenuSpec.ContainerWidthMax,
-                minHeight = ContextMenuSpec.ListItemHeight,
-                maxHeight = ContextMenuSpec.ListItemHeight,
-            )
-            .padding(horizontal = ContextMenuSpec.HorizontalPadding)
+        modifier =
+            modifier
+                .clickable(
+                    enabled = enabled,
+                    onClickLabel = label,
+                ) {
+                    // Semantics can call this even if it is disabled (at least in tests),
+                    // so check enabled status again before invoking any callbacks.
+                    if (enabled) onClick()
+                }
+                .fillMaxWidth()
+                .sizeIn(
+                    minWidth = ContextMenuSpec.ContainerWidthMin,
+                    maxWidth = ContextMenuSpec.ContainerWidthMax,
+                    minHeight = ContextMenuSpec.ListItemHeight,
+                    maxHeight = ContextMenuSpec.ListItemHeight,
+                )
+                .padding(horizontal = ContextMenuSpec.HorizontalPadding)
     ) {
         leadingIcon?.let { icon ->
             Box(
-                modifier = Modifier.requiredSizeIn(
-                    minWidth = ContextMenuSpec.IconSize,
-                    maxWidth = ContextMenuSpec.IconSize,
-                    maxHeight = ContextMenuSpec.IconSize,
-                )
-            ) { icon(if (enabled) colors.iconColor else colors.disabledIconColor) }
+                modifier =
+                    Modifier.requiredSizeIn(
+                        minWidth = ContextMenuSpec.IconSize,
+                        maxWidth = ContextMenuSpec.IconSize,
+                        maxHeight = ContextMenuSpec.IconSize,
+                    )
+            ) {
+                icon(if (enabled) colors.iconColor else colors.disabledIconColor)
+            }
         }
         BasicText(
             text = label,
-            style = ContextMenuSpec.textStyle(
-                color = if (enabled) colors.textColor else colors.disabledTextColor,
-            ),
+            style =
+                ContextMenuSpec.textStyle(
+                    color = if (enabled) colors.textColor else colors.disabledTextColor,
+                ),
             maxLines = 1,
             modifier = Modifier.weight(1f, fill = true)
         )
     }
 }
 
-/**
- * Scope used to add components to a context menu.
- */
+/** Scope used to add components to a context menu. */
 // We cannot expose a @Composable in the context menu API because we don't want folks adding
 // arbitrary composables into a context menu. Instead, we expose this API which then maps to
 // context menu composables.
@@ -244,31 +250,31 @@ internal class ContextMenuScope internal constructor() {
      *
      * @param label string to display in the text of the item.
      * @param modifier [Modifier] to apply to the item.
-     * @param enabled whether or not the item should be enabled.
-     * This affects whether the item is clickable, has a hover indication, and the text styling.
-     * @param leadingIcon Composable to put in the leading icon position.
-     * The color is the color to draw with and will change based on if the item is enabled or not.
-     * This will measured with a required width of `24.dp` and a required maxHeight of `24.dp`.
-     * The result will be centered vertically in the row.
-     * @param onClick Action to perform on the item being clicked.
-     * Returns whether or not the context menu should be dismissed.
+     * @param enabled whether or not the item should be enabled. This affects whether the item is
+     *   clickable, has a hover indication, and the text styling.
+     * @param leadingIcon Composable to put in the leading icon position. The color is the color to
+     *   draw with and will change based on if the item is enabled or not. This will measured with a
+     *   required width of `24.dp` and a required maxHeight of `24.dp`. The result will be centered
+     *   vertically in the row.
+     * @param onClick Action to perform on the item being clicked. Returns whether or not the
+     *   context menu should be dismissed.
      */
     fun item(
         label: @Composable () -> String,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
         /**
-         * Icon to place in front of the label. If null, the icon will not be rendered
-         * and the text will instead be further towards the start. The `iconColor` will
-         * change based on whether the item is disabled or not. The size of this composable
-         * will be [ContextMenuSpec.IconSize].
+         * Icon to place in front of the label. If null, the icon will not be rendered and the text
+         * will instead be further towards the start. The `iconColor` will change based on whether
+         * the item is disabled or not. The size of this composable will be
+         * [ContextMenuSpec.IconSize].
          */
         leadingIcon: @Composable ((iconColor: Color) -> Unit)? = null,
         /**
          * Lambda called when this item is clicked.
          *
-         * Note: If you want the context menu to close when this item is clicked,
-         * you will have to do it in this lambda via [ContextMenuState.close].
+         * Note: If you want the context menu to close when this item is clicked, you will have to
+         * do it in this lambda via [ContextMenuState.close].
          */
         onClick: () -> Unit,
     ) {
@@ -290,13 +296,14 @@ internal class ContextMenuScope internal constructor() {
 private const val DisabledAlpha = 0.38f
 
 @VisibleForTesting
-internal val DefaultContextMenuColors = ContextMenuColors(
-    backgroundColor = Color.White,
-    textColor = Color.Black,
-    iconColor = Color.Black,
-    disabledTextColor = Color.Black.copy(alpha = DisabledAlpha),
-    disabledIconColor = Color.Black.copy(alpha = DisabledAlpha),
-)
+internal val DefaultContextMenuColors =
+    ContextMenuColors(
+        backgroundColor = Color.White,
+        textColor = Color.Black,
+        iconColor = Color.Black,
+        disabledTextColor = Color.Black.copy(alpha = DisabledAlpha),
+        disabledIconColor = Color.Black.copy(alpha = DisabledAlpha),
+    )
 
 /**
  * Colors to apply to the context menu.
@@ -338,13 +345,14 @@ internal class ContextMenuColors(
         return result
     }
 
-    override fun toString(): String = "ContextMenuColors(" +
-        "backgroundColor=$backgroundColor, " +
-        "textColor=$textColor, " +
-        "iconColor=$iconColor, " +
-        "disabledTextColor=$disabledTextColor, " +
-        "disabledIconColor=$disabledIconColor" +
-        ")"
+    override fun toString(): String =
+        "ContextMenuColors(" +
+            "backgroundColor=$backgroundColor, " +
+            "textColor=$textColor, " +
+            "iconColor=$iconColor, " +
+            "disabledTextColor=$disabledTextColor, " +
+            "disabledIconColor=$disabledIconColor" +
+            ")"
 }
 
 @VisibleForTesting
@@ -355,16 +363,18 @@ internal fun computeContextMenuColors(
 ): ContextMenuColors {
     val context = LocalContext.current
     return remember(context, LocalConfiguration.current) {
-        val backgroundColor = context.resolveColor(
-            backgroundStyleId,
-            R.attr.colorBackground,
-            DefaultContextMenuColors.backgroundColor,
-        )
+        val backgroundColor =
+            context.resolveColor(
+                backgroundStyleId,
+                R.attr.colorBackground,
+                DefaultContextMenuColors.backgroundColor,
+            )
 
-        val textColorStateList = context.resolveColorStateList(
-            foregroundStyleId,
-            R.attr.textColorPrimary,
-        )
+        val textColorStateList =
+            context.resolveColorStateList(
+                foregroundStyleId,
+                R.attr.textColorPrimary,
+            )
         val enabledColor = textColorStateList.enabledColor(DefaultContextMenuColors.textColor)
         val disabledColor =
             textColorStateList.disabledColor(DefaultContextMenuColors.disabledTextColor)

@@ -30,8 +30,7 @@ import org.junit.runners.JUnit4
 @OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class KeyTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun desktopKey_to_composeKey() {

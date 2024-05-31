@@ -20,10 +20,11 @@ import org.jetbrains.skia.FilterTileMode
 
 actual fun TileMode.isSupported(): Boolean = true
 
-internal fun TileMode.toSkiaTileMode(): FilterTileMode = when (this) {
-    TileMode.Clamp -> FilterTileMode.CLAMP
-    TileMode.Repeated -> FilterTileMode.REPEAT
-    TileMode.Mirror -> FilterTileMode.MIRROR
-    TileMode.Decal -> FilterTileMode.DECAL
-    else -> FilterTileMode.CLAMP
-}
+internal fun TileMode.toSkiaTileMode(): FilterTileMode =
+    when (this) {
+        TileMode.Clamp -> FilterTileMode.CLAMP
+        TileMode.Repeated -> FilterTileMode.REPEAT
+        TileMode.Mirror -> FilterTileMode.MIRROR
+        TileMode.Decal -> FilterTileMode.DECAL
+        else -> FilterTileMode.CLAMP
+    }

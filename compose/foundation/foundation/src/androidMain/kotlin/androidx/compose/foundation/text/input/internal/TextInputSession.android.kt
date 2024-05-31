@@ -48,34 +48,22 @@ internal interface TextInputSession {
      */
     fun requestEdit(block: EditingBuffer.() -> Unit)
 
-    /**
-     * Delegates IME requested KeyEvents.
-     */
+    /** Delegates IME requested KeyEvents. */
     fun sendKeyEvent(keyEvent: KeyEvent)
 
-    /**
-     * Callback to run when IME sends an action via [InputConnection.performEditorAction]
-     */
+    /** Callback to run when IME sends an action via [InputConnection.performEditorAction] */
     fun onImeAction(imeAction: ImeAction)
 
-    /**
-     * Callback to run when IME sends a content via [InputConnection.commitContent]
-     */
+    /** Callback to run when IME sends a content via [InputConnection.commitContent] */
     fun onCommitContent(transferableContent: TransferableContent): Boolean
 
-    /**
-     * Called from [InputConnection.requestCursorUpdates].
-     */
+    /** Called from [InputConnection.requestCursorUpdates]. */
     fun requestCursorUpdates(cursorUpdateMode: Int)
 
-    /**
-     * Called from [InputConnection.performHandwritingGesture].
-     */
+    /** Called from [InputConnection.performHandwritingGesture]. */
     fun performHandwritingGesture(gesture: HandwritingGesture): Int
 
-    /**
-     * Called from [InputConnection.previewHandwritingGesture].
-     */
+    /** Called from [InputConnection.previewHandwritingGesture]. */
     fun previewHandwritingGesture(
         gesture: PreviewableHandwritingGesture,
         cancellationSignal: CancellationSignal?

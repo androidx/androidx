@@ -38,18 +38,15 @@ import androidx.compose.ui.unit.dp
  * Note: Each rectangle has its own model so changes should always affect only the first one.
  */
 @OptIn(ExperimentalLayoutApi::class)
-class RectsInFlowColumnTestCase(
-    private val amountOfRectangles: Int
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class RectsInFlowColumnTestCase(private val amountOfRectangles: Int) :
+    LayeredComposeTestCase(), ToggleableTestCase {
 
     private val states = mutableListOf<MutableState<Color>>()
 
     @Composable
     override fun MeasuredContent() {
         FlowColumn(maxItemsInEachColumn = 3) {
-            repeat(amountOfRectangles) {
-                ColoredRectWithModel()
-            }
+            repeat(amountOfRectangles) { ColoredRectWithModel() }
         }
     }
 
@@ -66,9 +63,6 @@ class RectsInFlowColumnTestCase(
     fun ColoredRectWithModel() {
         val state = remember { mutableStateOf(Color.Black) }
         states.add(state)
-        Box(
-            Modifier
-                .size(100.dp, 50.dp)
-                .background(color = state.value))
+        Box(Modifier.size(100.dp, 50.dp).background(color = state.value))
     }
 }

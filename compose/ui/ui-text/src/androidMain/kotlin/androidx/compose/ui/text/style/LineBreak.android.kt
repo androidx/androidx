@@ -24,26 +24,24 @@ import androidx.compose.ui.text.style.LineBreak.WordBreak
 
 // TODO(b/246340708): Remove @sample LineBreakSample from the actual class
 /**
- * When soft wrap is enabled and the width of the text exceeds the width of its container,
- * line breaks are inserted in the text to split it over multiple lines.
+ * When soft wrap is enabled and the width of the text exceeds the width of its container, line
+ * breaks are inserted in the text to split it over multiple lines.
  *
- * There are a number of parameters that affect how the line breaks are inserted.
- * For example, the breaking algorithm can be changed to one with improved readability
- * at the cost of speed.
- * Another example is the strictness, which in some languages determines which symbols can appear
- * at the start of a line.
+ * There are a number of parameters that affect how the line breaks are inserted. For example, the
+ * breaking algorithm can be changed to one with improved readability at the cost of speed. Another
+ * example is the strictness, which in some languages determines which symbols can appear at the
+ * start of a line.
  *
- * This represents a configuration for line breaking on Android, describing [Strategy], [Strictness],
- * and [WordBreak].
+ * This represents a configuration for line breaking on Android, describing [Strategy],
+ * [Strictness], and [WordBreak].
  *
  * @sample androidx.compose.ui.text.samples.LineBreakSample
+ *
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
 @Immutable
 @JvmInline
-actual value class LineBreak private constructor(
-    internal val mask: Int
-) {
+actual value class LineBreak private constructor(internal val mask: Int) {
 
     /**
      * This represents a configuration for line breaking on Android, describing [Strategy],
@@ -57,11 +55,7 @@ actual value class LineBreak private constructor(
         strategy: Strategy,
         strictness: Strictness,
         wordBreak: WordBreak
-    ) : this(packBytes(
-        strategy.value,
-        strictness.value,
-        wordBreak.value
-    ))
+    ) : this(packBytes(strategy.value, strictness.value, wordBreak.value))
 
     val strategy: Strategy
         get() = Strategy(unpackByte1(mask))
@@ -76,20 +70,15 @@ actual value class LineBreak private constructor(
         strategy: Strategy = this.strategy,
         strictness: Strictness = this.strictness,
         wordBreak: WordBreak = this.wordBreak
-    ): LineBreak = LineBreak(
-        strategy = strategy,
-        strictness = strictness,
-        wordBreak = wordBreak
-    )
+    ): LineBreak = LineBreak(strategy = strategy, strictness = strictness, wordBreak = wordBreak)
 
     override fun toString(): String =
         "LineBreak(strategy=$strategy, strictness=$strictness, wordBreak=$wordBreak)"
 
     actual companion object {
         /**
-         * The greedy, fast line breaking algorithm. Ideal for text that updates often,
-         * such as a text editor, as the text will reflow minimally.
-         *
+         * The greedy, fast line breaking algorithm. Ideal for text that updates often, such as a
+         * text editor, as the text will reflow minimally.
          * <pre>
          * +---------+
          * | This is |
@@ -105,18 +94,14 @@ actual value class LineBreak private constructor(
          * </pre>
          */
         @Stable
-        actual val Simple: LineBreak = LineBreak(
-            packBytes(
-                Strategy.Simple.value,
-                Strictness.Normal.value,
-                WordBreak.Default.value
+        actual val Simple: LineBreak =
+            LineBreak(
+                packBytes(Strategy.Simple.value, Strictness.Normal.value, WordBreak.Default.value)
             )
-        )
 
         /**
-         * Balanced line lengths, hyphenation, and phrase-based breaking.
-         * Suitable for short text such as titles or narrow newspaper columns.
-         *
+         * Balanced line lengths, hyphenation, and phrase-based breaking. Suitable for short text
+         * such as titles or narrow newspaper columns.
          * <pre>
          * +---------+
          * | This    |
@@ -132,18 +117,14 @@ actual value class LineBreak private constructor(
          * </pre>
          */
         @Stable
-        actual val Heading: LineBreak = LineBreak(
-            packBytes(
-                Strategy.Balanced.value,
-                Strictness.Loose.value,
-                WordBreak.Phrase.value
+        actual val Heading: LineBreak =
+            LineBreak(
+                packBytes(Strategy.Balanced.value, Strictness.Loose.value, WordBreak.Phrase.value)
             )
-        )
 
         /**
-         * Slower, higher quality line breaking for improved readability.
-         * Suitable for larger amounts of text.
-         *
+         * Slower, higher quality line breaking for improved readability. Suitable for larger
+         * amounts of text.
          * <pre>
          * +---------+
          * | This    |
@@ -159,32 +140,29 @@ actual value class LineBreak private constructor(
          * </pre>
          */
         @Stable
-        actual val Paragraph: LineBreak = LineBreak(
-            packBytes(
-                Strategy.HighQuality.value,
-                Strictness.Strict.value,
-                WordBreak.Default.value
+        actual val Paragraph: LineBreak =
+            LineBreak(
+                packBytes(
+                    Strategy.HighQuality.value,
+                    Strictness.Strict.value,
+                    WordBreak.Default.value
+                )
             )
-        )
 
         /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value
-         * is desired.
+         * This represents an unset value, a usual replacement for "null" when a primitive value is
+         * desired.
          */
-        @Stable
-        actual val Unspecified: LineBreak = LineBreak(0)
+        @Stable actual val Unspecified: LineBreak = LineBreak(0)
     }
 
-    /**
-     * The strategy used for line breaking.
-     */
+    /** The strategy used for line breaking. */
     @JvmInline
     value class Strategy internal constructor(internal val value: Int) {
         companion object {
             /**
-             * Basic, fast break strategy. Hyphenation, if enabled, is done only for words
-             * that don't fit on an entire line by themselves.
-             *
+             * Basic, fast break strategy. Hyphenation, if enabled, is done only for words that
+             * don't fit on an entire line by themselves.
              * <pre>
              * +---------+
              * | This is |
@@ -197,9 +175,8 @@ actual value class LineBreak private constructor(
             val Simple: Strategy = Strategy(1)
 
             /**
-             * Does whole paragraph optimization for more readable text,
-             * including hyphenation if enabled.
-             *
+             * Does whole paragraph optimization for more readable text, including hyphenation if
+             * enabled.
              * <pre>
              * +---------+
              * | This    |
@@ -212,9 +189,8 @@ actual value class LineBreak private constructor(
             val HighQuality: Strategy = Strategy(2)
 
             /**
-             * Attempts to balance the line lengths of the text, also applying automatic
-             * hyphenation if enabled. Suitable for small screens.
-             *
+             * Attempts to balance the line lengths of the text, also applying automatic hyphenation
+             * if enabled. Suitable for small screens.
              * <pre>
              * +-----------------------+
              * | This is an            |
@@ -231,18 +207,19 @@ actual value class LineBreak private constructor(
             val Unspecified: Strategy = Strategy(0)
         }
 
-        override fun toString(): String = when (this) {
-            Simple -> "Strategy.Simple"
-            HighQuality -> "Strategy.HighQuality"
-            Balanced -> "Strategy.Balanced"
-            Unspecified -> "Strategy.Unspecified"
-            else -> "Invalid"
-        }
+        override fun toString(): String =
+            when (this) {
+                Simple -> "Strategy.Simple"
+                HighQuality -> "Strategy.HighQuality"
+                Balanced -> "Strategy.Balanced"
+                Unspecified -> "Strategy.Unspecified"
+                else -> "Invalid"
+            }
     }
 
     /**
-     * Describes the strictness of line breaking, determining before which characters
-     * line breaks can be inserted. It is useful when working with CJK scripts.
+     * Describes the strictness of line breaking, determining before which characters line breaks
+     * can be inserted. It is useful when working with CJK scripts.
      */
     @JvmInline
     value class Strictness internal constructor(internal val value: Int) {
@@ -262,16 +239,16 @@ actual value class LineBreak private constructor(
             /**
              * The most common rules for line breaking.
              *
-             * For example, in Japanese it allows breaking before characters like
-             * small hiragana (ぁ), small katakana (ァ), halfwidth variants (ｧ).
+             * For example, in Japanese it allows breaking before characters like small hiragana
+             * (ぁ), small katakana (ァ), halfwidth variants (ｧ).
              */
             val Normal: Strictness = Strictness(3)
 
             /**
              * The most stringent rules for line breaking.
              *
-             * For example, in Japanese it does not allow breaking before characters like
-             * small hiragana (ぁ), small katakana (ァ), halfwidth variants (ｧ).
+             * For example, in Japanese it does not allow breaking before characters like small
+             * hiragana (ぁ), small katakana (ァ), halfwidth variants (ｧ).
              */
             val Strict: Strictness = Strictness(4)
 
@@ -282,28 +259,25 @@ actual value class LineBreak private constructor(
             val Unspecified: Strictness = Strictness(0)
         }
 
-        override fun toString(): String = when (this) {
-            Default -> "Strictness.None"
-            Loose -> "Strictness.Loose"
-            Normal -> "Strictness.Normal"
-            Strict -> "Strictness.Strict"
-            Unspecified -> "Strictness.Unspecified"
-            else -> "Invalid"
-        }
+        override fun toString(): String =
+            when (this) {
+                Default -> "Strictness.None"
+                Loose -> "Strictness.Loose"
+                Normal -> "Strictness.Normal"
+                Strict -> "Strictness.Strict"
+                Unspecified -> "Strictness.Unspecified"
+                else -> "Invalid"
+            }
     }
 
-    /**
-     * Describes how line breaks should be inserted within words.
-     */
+    /** Describes how line breaks should be inserted within words. */
     @JvmInline
     value class WordBreak internal constructor(internal val value: Int) {
         companion object {
             /**
-             * Default word breaking rules for the locale.
-             * In latin scripts this means inserting line breaks between words,
-             * while in languages that don't use whitespace (e.g. Japanese) the line can break
-             * between characters.
-             *
+             * Default word breaking rules for the locale. In latin scripts this means inserting
+             * line breaks between words, while in languages that don't use whitespace (e.g.
+             * Japanese) the line can break between characters.
              * <pre>
              * +---------+
              * | This is |
@@ -321,11 +295,9 @@ actual value class LineBreak private constructor(
             val Default: WordBreak = WordBreak(1)
 
             /**
-             * Line breaking is based on phrases.
-             * In languages that don't use whitespace (e.g. Japanese), line breaks are not inserted
-             * between characters that are part of the same phrase unit.
-             * This is ideal for short text such as titles and UI labels.
-             *
+             * Line breaking is based on phrases. In languages that don't use whitespace (e.g.
+             * Japanese), line breaks are not inserted between characters that are part of the same
+             * phrase unit. This is ideal for short text such as titles and UI labels.
              * <pre>
              * +---------+
              * | This    |
@@ -349,12 +321,13 @@ actual value class LineBreak private constructor(
             val Unspecified: WordBreak = WordBreak(0)
         }
 
-        override fun toString(): String = when (this) {
-            Default -> "WordBreak.None"
-            Phrase -> "WordBreak.Phrase"
-            Unspecified -> "WordBreak.Unspecified"
-            else -> "Invalid"
-        }
+        override fun toString(): String =
+            when (this) {
+                Default -> "WordBreak.None"
+                Phrase -> "WordBreak.Phrase"
+                Unspecified -> "WordBreak.Unspecified"
+                else -> "Invalid"
+            }
     }
 }
 
@@ -364,7 +337,6 @@ actual value class LineBreak private constructor(
  * A byte can represent any value between 0 and 256.
  *
  * Only the 8 least significant bits of any given value are packed into the returned Integer.
- *
  */
 private fun packBytes(i1: Int, i2: Int, i3: Int): Int {
     return i1 or (i2 shl 8) or (i3 shl 16)

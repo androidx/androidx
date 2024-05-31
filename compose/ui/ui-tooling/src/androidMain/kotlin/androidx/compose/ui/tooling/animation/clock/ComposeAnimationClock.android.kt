@@ -26,37 +26,33 @@ internal interface ComposeAnimationClock<T : ComposeAnimation, TState : ComposeA
     val animation: T
     var state: TState
 
-    /** Get duration of the animation (ms).*/
+    /** Get duration of the animation (ms). */
     fun getMaxDuration(): Long
 
     /**
-     * Get duration of one iteration for the animation (ms).
-     * Applicable for repeatable animations with multiple iterations.
-     * For non-repeatable animations [getMaxDuration] and [getMaxDurationPerIteration] are the same.
+     * Get duration of one iteration for the animation (ms). Applicable for repeatable animations
+     * with multiple iterations. For non-repeatable animations [getMaxDuration] and
+     * [getMaxDurationPerIteration] are the same.
+     *
      * TODO(b/177895209) Add support for repeatable animations.
      */
     fun getMaxDurationPerIteration(): Long
 
     /**
-     * Get the list of [ComposeAnimatedProperty].
-     * It changes everytime time if [state] or clock time is changed.
+     * Get the list of [ComposeAnimatedProperty]. It changes everytime time if [state] or clock time
+     * is changed.
      */
     fun getAnimatedProperties(): List<ComposeAnimatedProperty>
 
-    /**
-     * Get the list of [TransitionInfo].
-     * It changes if [state] is changed.
-     */
+    /** Get the list of [TransitionInfo]. It changes if [state] is changed. */
     fun getTransitions(stepMillis: Long): List<TransitionInfo>
 
-    /**
-     * Set clock time for the animation.
-     */
+    /** Set clock time for the animation. */
     fun setClockTime(animationTimeNanos: Long)
 
     /**
-     * Setter for [state] can be removed.
-     * [setStateParameters] allows to update [state] in that case.
+     * Setter for [state] can be removed. [setStateParameters] allows to update [state] in that
+     * case.
      */
     fun setStateParameters(par1: Any, par2: Any? = null)
 }

@@ -22,9 +22,8 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyStaggeredGridIntervalContent(
-    content: LazyStaggeredGridScope.() -> Unit
-) : LazyStaggeredGridScope, LazyLayoutIntervalContent<LazyStaggeredGridInterval>() {
+internal class LazyStaggeredGridIntervalContent(content: LazyStaggeredGridScope.() -> Unit) :
+    LazyStaggeredGridScope, LazyLayoutIntervalContent<LazyStaggeredGridInterval>() {
 
     override val intervals = MutableIntervalList<LazyStaggeredGridInterval>()
 
@@ -56,15 +55,7 @@ internal class LazyStaggeredGridIntervalContent(
         span: ((index: Int) -> StaggeredGridItemSpan)?,
         itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit
     ) {
-        intervals.addInterval(
-            count,
-            LazyStaggeredGridInterval(
-                key,
-                contentType,
-                span,
-                itemContent
-            )
-        )
+        intervals.addInterval(count, LazyStaggeredGridInterval(key, contentType, span, itemContent))
     }
 }
 

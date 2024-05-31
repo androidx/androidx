@@ -38,19 +38,15 @@ internal fun PaneExpansionDragHandle(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier
-        .paneExpansionDragHandle(state)
-        .size(24.dp, 48.dp),
+    Box(
+        modifier = modifier.paneExpansionDragHandle(state).size(24.dp, 48.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
-            modifier = Modifier
-                .size(4.dp, 48.dp)
-                .graphicsLayer(
-                    shape = CircleShape,
-                    clip = true
-                )
-                .background(color)
+            modifier =
+                Modifier.size(4.dp, 48.dp)
+                    .graphicsLayer(shape = CircleShape, clip = true)
+                    .background(color)
         )
     }
 }
@@ -58,9 +54,10 @@ internal fun PaneExpansionDragHandle(
 @ExperimentalMaterial3AdaptiveApi
 internal fun Modifier.paneExpansionDragHandle(state: PaneExpansionState): Modifier =
     this.draggable(
-        state = state,
-        orientation = Orientation.Horizontal,
-        onDragStopped = { velocity -> state.settleToAnchorIfNeeded(velocity) }
-    ).systemGestureExclusion()
+            state = state,
+            orientation = Orientation.Horizontal,
+            onDragStopped = { velocity -> state.settleToAnchorIfNeeded(velocity) }
+        )
+        .systemGestureExclusion()
 
 internal expect fun Modifier.systemGestureExclusion(): Modifier

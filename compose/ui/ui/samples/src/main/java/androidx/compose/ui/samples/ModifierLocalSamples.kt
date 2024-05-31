@@ -50,7 +50,6 @@ fun ModifierLocalParentChildCommunicationWithinLayoutNodeSample() {
                     .modifierLocalConsumer { message = ModifierLocalMessage.current }
                     .clickable { println("Hello $message") }
             }
-
     )
 }
 

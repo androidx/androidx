@@ -27,26 +27,24 @@ import kotlin.coroutines.resume
 import kotlin.runCatching
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/**
- * Android implementation for [Font.ResourceLoader]. It is designed to load only [ResourceFont].
- */
-internal class AndroidFontLoader(
-    context: Context
-) : PlatformFontLoader {
+/** Android implementation for [Font.ResourceLoader]. It is designed to load only [ResourceFont]. */
+internal class AndroidFontLoader(context: Context) : PlatformFontLoader {
     private val context = context.applicationContext
 
     @OptIn(ExperimentalTextApi::class)
     override fun loadBlocking(font: Font): Typeface? {
         return when (font) {
             is AndroidFont -> font.typefaceLoader.loadBlocking(context, font)
-            is ResourceFont -> when (font.loadingStrategy) {
-                Blocking -> font.load(context)
-                OptionalLocal -> runCatching { font.load(context) }.getOrNull()
-                Async -> throw UnsupportedOperationException("Unsupported Async font load path")
-                else -> throw IllegalArgumentException(
-                    "Unknown loading type ${font.loadingStrategy}"
-                )
-            }.setFontVariationSettings(font.variationSettings, context)
+            is ResourceFont ->
+                when (font.loadingStrategy) {
+                    Blocking -> font.load(context)
+                    OptionalLocal -> runCatching { font.load(context) }.getOrNull()
+                    Async -> throw UnsupportedOperationException("Unsupported Async font load path")
+                    else ->
+                        throw IllegalArgumentException(
+                            "Unknown loading type ${font.loadingStrategy}"
+                        )
+                }.setFontVariationSettings(font.variationSettings, context)
             else -> null
         }
     }
@@ -55,8 +53,8 @@ internal class AndroidFontLoader(
     override suspend fun awaitLoad(font: Font): Typeface? {
         return when (font) {
             is AndroidFont -> font.typefaceLoader.awaitLoad(context, font)
-            is ResourceFont -> font.loadAsync(context)
-                .setFontVariationSettings(font.variationSettings, context)
+            is ResourceFont ->
+                font.loadAsync(context).setFontVariationSettings(font.variationSettings, context)
             else -> throw IllegalArgumentException("Unknown font type: $font")
         }
     }
@@ -70,16 +68,23 @@ private fun ResourceFont.load(context: Context): Typeface =
 // TODO(seanmcq): Move to core-ktx to dedup
 private suspend fun ResourceFont.loadAsync(context: Context): Typeface {
     return suspendCancellableCoroutine { continuation ->
-        ResourcesCompat.getFont(context, resId, object : ResourcesCompat.FontCallback() {
-            override fun onFontRetrieved(typeface: Typeface) {
-                continuation.resume(typeface)
-            }
+        ResourcesCompat.getFont(
+            context,
+            resId,
+            object : ResourcesCompat.FontCallback() {
+                override fun onFontRetrieved(typeface: Typeface) {
+                    continuation.resume(typeface)
+                }
 
-            override fun onFontRetrievalFailed(reason: Int) {
-                continuation.cancel(
-                    IllegalStateException("Unable to load font ${this@loadAsync} (reason=$reason)")
-                )
-            }
-        }, null)
+                override fun onFontRetrievalFailed(reason: Int) {
+                    continuation.cancel(
+                        IllegalStateException(
+                            "Unable to load font ${this@loadAsync} (reason=$reason)"
+                        )
+                    )
+                }
+            },
+            null
+        )
     }
 }

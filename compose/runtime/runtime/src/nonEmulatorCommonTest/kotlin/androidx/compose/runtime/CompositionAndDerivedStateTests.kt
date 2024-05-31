@@ -28,9 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Tests the interaction between [derivedStateOf] and composition.
- */
+/** Tests the interaction between [derivedStateOf] and composition. */
 @Stable
 class CompositionAndDerivedStateTests {
 
@@ -40,13 +38,9 @@ class CompositionAndDerivedStateTests {
         var b by mutableStateOf(10)
         val answer by derivedStateOf { a + b }
 
-        compose {
-            Text("The answer is $answer")
-        }
+        compose { Text("The answer is $answer") }
 
-        validate {
-            Text("The answer is ${a + b}")
-        }
+        validate { Text("The answer is ${a + b}") }
 
         a++
         expectChanges()
@@ -63,13 +57,9 @@ class CompositionAndDerivedStateTests {
         var b by mutableStateOf(10)
         val answer by derivedStateOf { a + b }
 
-        compose {
-            Text("The answer is $answer")
-        }
+        compose { Text("The answer is $answer") }
 
-        validate {
-            Text("The answer is ${a + b}")
-        }
+        validate { Text("The answer is ${a + b}") }
 
         // A snapshot is necessary here otherwise the ui thread might see one changed but not
         // the other. A snapshot ensures that both modifications will be seen together.
@@ -109,13 +99,9 @@ class CompositionAndDerivedStateTests {
         var b by mutableStateOf(mutableListOf(10), referentialEqualityPolicy())
         val answer by derivedStateOf { a + b }
 
-        compose {
-            Text("The answer is $answer")
-        }
+        compose { Text("The answer is $answer") }
 
-        validate {
-            Text("The answer is ${a + b}")
-        }
+        validate { Text("The answer is ${a + b}") }
 
         // A snapshot is necessary here otherwise the ui thread might see one changed but not
         // the other. A snapshot ensures that both modifications will be seen together.
@@ -162,22 +148,28 @@ class CompositionAndDerivedStateTests {
         }
 
         var dCalculated = 0
-        val d = "d" to derivedStateOf {
-            dCalculated++
-            a
-        }
+        val d =
+            "d" to
+                derivedStateOf {
+                    dCalculated++
+                    a
+                }
 
         var eCalculated = 0
-        val e = "e" to derivedStateOf {
-            eCalculated++
-            a + 100
-        }
+        val e =
+            "e" to
+                derivedStateOf {
+                    eCalculated++
+                    a + 100
+                }
 
         var fCalculated = 0
-        val f = "f" to derivedStateOf {
-            fCalculated++
-            a + 1000
-        }
+        val f =
+            "f" to
+                derivedStateOf {
+                    fCalculated++
+                    a + 1000
+                }
 
         var dExpected = 0
         var eExpected = 0
@@ -188,9 +180,10 @@ class CompositionAndDerivedStateTests {
             if (modified and useE == useE) eExpected++
             if (modified and useF == useF) fExpected++
 
-            val additionalInfo = if (previous >= 0) {
-                " switching from ${useToString(previous)} to ${useToString(modified)}"
-            } else ""
+            val additionalInfo =
+                if (previous >= 0) {
+                    " switching from ${useToString(previous)} to ${useToString(modified)}"
+                } else ""
             assertEquals(dExpected, dCalculated, "d calculated an unexpected amount$additionalInfo")
             assertEquals(eExpected, eCalculated, "e calculated an unexpected amount$additionalInfo")
             assertEquals(fExpected, fCalculated, "f calculated an unexpected amount$additionalInfo")
@@ -275,15 +268,16 @@ class CompositionAndDerivedStateTests {
         switchTo(useD or useE)
         switchTo(useD or useF)
 
-        val states = listOf(
-            useE,
-            useF,
-            useD or useE,
-            useD or useF,
-            useD or useE or useF,
-            useE or useF,
-            useNone
-        )
+        val states =
+            listOf(
+                useE,
+                useF,
+                useD or useE,
+                useD or useF,
+                useD or useE or useF,
+                useE or useF,
+                useNone
+            )
         for (newUse in states) {
             switchTo(newUse)
         }
@@ -294,10 +288,12 @@ class CompositionAndDerivedStateTests {
         var a by mutableStateOf(11)
         var dCalculated = 0
         var dChanged = false
-        val d = "d" to derivedStateOf {
-            dCalculated++
-            a + 10
-        }
+        val d =
+            "d" to
+                derivedStateOf {
+                    dCalculated++
+                    a + 10
+                }
 
         compose {
             Text("a = $a")
@@ -394,18 +390,12 @@ class CompositionAndDerivedStateTests {
         var reload by mutableStateOf(0)
 
         compose {
-            val items = remember(reload) {
-                derivedStateOf {
-                    List(10) { it }
-                }
-            }
+            val items = remember(reload) { derivedStateOf { List(10) { it } } }
 
             Text("List of size ${items.value.size}")
         }
 
-        validate {
-            Text("List of size 10")
-        }
+        validate { Text("List of size 10") }
 
         repeat(10) {
             reload++
@@ -426,11 +416,7 @@ class CompositionAndDerivedStateTests {
         var count by mutableStateOf(0)
 
         compose {
-            val items by remember {
-                derivedStateOf {
-                    List(count) { it }
-                }
-            }
+            val items by remember { derivedStateOf { List(count) { it } } }
 
             Linear {
                 if (observeInFirstScope) {
@@ -438,19 +424,13 @@ class CompositionAndDerivedStateTests {
                 }
             }
 
-            Linear {
-                Text("List of size ${items.size}")
-            }
+            Linear { Text("List of size ${items.size}") }
         }
 
         validate {
-            Linear {
-                Text("List of size 0")
-            }
+            Linear { Text("List of size 0") }
 
-            Linear {
-                Text("List of size 0")
-            }
+            Linear { Text("List of size 0") }
         }
 
         observeInFirstScope = false
@@ -459,12 +439,9 @@ class CompositionAndDerivedStateTests {
         advance()
 
         validate {
-            Linear {
-            }
+            Linear {}
 
-            Linear {
-                Text("List of size 1")
-            }
+            Linear { Text("List of size 1") }
         }
     }
 
@@ -473,24 +450,14 @@ class CompositionAndDerivedStateTests {
         var reload by mutableStateOf(0)
 
         compose {
-            val itemValue = remember(reload) {
-                derivedStateOf {
-                    reload
-                }
-            }
+            val itemValue = remember(reload) { derivedStateOf { reload } }
 
-            val items = remember(reload) {
-                derivedStateOf {
-                    List(10) { itemValue.value }
-                }
-            }
+            val items = remember(reload) { derivedStateOf { List(10) { itemValue.value } } }
 
             Text("List of size ${items.value.size}")
         }
 
-        validate {
-            Text("List of size 10")
-        }
+        validate { Text("List of size 10") }
 
         repeat(10) {
             reload++
@@ -509,24 +476,18 @@ class CompositionAndDerivedStateTests {
         var reload by mutableStateOf(0)
 
         compose {
-            val itemValue = remember(reload) {
-                derivedStateOf { 1 }
-            }
+            val itemValue = remember(reload) { derivedStateOf { 1 } }
 
             val intermediateState = rememberUpdatedState(itemValue)
 
             val snapshot = remember {
-                derivedStateOf {
-                    List(10) { intermediateState.value.value }
-                }
+                derivedStateOf { List(10) { intermediateState.value.value } }
             }
 
             Text("List of size ${snapshot.value.size}")
         }
 
-        validate {
-            Text("List of size 10")
-        }
+        validate { Text("List of size 10") }
 
         repeat(10) {
             reload++
@@ -535,27 +496,21 @@ class CompositionAndDerivedStateTests {
 
         revalidate()
 
-        // Validate there are only 2 observed dependencies, one for intermediateState, one for itemValue
+        // Validate there are only 2 observed dependencies, one for intermediateState, one for
+        // itemValue
         val observed = (composition as? CompositionImpl)?.derivedStateDependencies ?: emptyList()
         assertEquals(2, observed.count())
     }
 
     @Test
     fun changingDerivedStateShouldNotAccumulateConditionalScopes() = compositionTest {
-
         var reload by mutableStateOf(0)
 
         compose {
-            val derivedState = remember {
-                derivedStateOf {
-                    List(reload) { it }
-                }
-            }
+            val derivedState = remember { derivedStateOf { List(reload) { it } } }
 
             if (reload % 2 == 0) {
-                Wrap {
-                    Text("${derivedState.value.size}")
-                }
+                Wrap { Text("${derivedState.value.size}") }
             }
         }
 
@@ -575,13 +530,9 @@ class CompositionAndDerivedStateTests {
         val transient by derivedStateOf { a + b }
         val answer by derivedStateOf { transient - 1 }
 
-        compose {
-            Text("The answer is $answer")
-        }
+        compose { Text("The answer is $answer") }
 
-        validate {
-            Text("The answer is ${a + b - 1}")
-        }
+        validate { Text("The answer is ${a + b - 1}") }
 
         a++
         expectChanges()
@@ -603,13 +554,9 @@ class CompositionAndDerivedStateTests {
             transient
         }
 
-        compose {
-            Text("The answer is $answer")
-        }
+        compose { Text("The answer is $answer") }
 
-        validate {
-            Text("The answer is ${(a + b) / 10}")
-        }
+        validate { Text("The answer is ${(a + b) / 10}") }
 
         assertEquals(1, invalidateCount)
 
@@ -628,9 +575,7 @@ class CompositionAndDerivedStateTests {
     fun derivedStateOfStructuralMutationPolicyDoesntRecompose() = compositionTest {
         var a by mutableStateOf(30)
         var b by mutableStateOf(10)
-        val answer by derivedStateOf(structuralEqualityPolicy()) {
-            listOf(a >= 30, b >= 10)
-        }
+        val answer by derivedStateOf(structuralEqualityPolicy()) { listOf(a >= 30, b >= 10) }
         var compositionCount = 0
 
         compose {
@@ -641,11 +586,7 @@ class CompositionAndDerivedStateTests {
             }
         }
 
-        validate {
-            Linear {
-                Text("The answer is ${listOf(true, true)}")
-            }
-        }
+        validate { Linear { Text("The answer is ${listOf(true, true)}") } }
 
         assertEquals(1, compositionCount)
 
@@ -664,9 +605,7 @@ class CompositionAndDerivedStateTests {
     fun derivedStateOfReferencialMutationPolicyRecomposes() = compositionTest {
         var a by mutableStateOf(30)
         var b by mutableStateOf(10)
-        val answer by derivedStateOf(referentialEqualityPolicy()) {
-            listOf(a >= 30, b >= 10)
-        }
+        val answer by derivedStateOf(referentialEqualityPolicy()) { listOf(a >= 30, b >= 10) }
         var compositionCount = 0
 
         compose {
@@ -677,11 +616,7 @@ class CompositionAndDerivedStateTests {
             }
         }
 
-        validate {
-            Linear {
-                Text("The answer is ${listOf(true, true)}")
-            }
-        }
+        validate { Linear { Text("The answer is ${listOf(true, true)}") } }
 
         assertEquals(1, compositionCount)
 

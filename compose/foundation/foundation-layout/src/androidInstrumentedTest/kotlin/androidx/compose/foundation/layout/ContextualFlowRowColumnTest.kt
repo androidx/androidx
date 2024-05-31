@@ -59,8 +59,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ContextualFlowRowColumnTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun testContextualFlowRow_wrapsToTheNextLine() {
@@ -70,10 +69,7 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         itemCount = 6
                     ) {
                         Box(Modifier.size(20.toDp()))
@@ -94,15 +90,10 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         itemCount = 3
                     ) {
-                        repeat(2) {
-                            Box(Modifier.size(20.toDp()))
-                        }
+                        repeat(2) { Box(Modifier.size(20.toDp())) }
                     }
                 }
             }
@@ -120,16 +111,11 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         itemCount = 3
                     ) { index ->
                         if (index == 0) {
-                            repeat(5) {
-                                Box(Modifier.size(20.toDp()))
-                            }
+                            repeat(5) { Box(Modifier.size(20.toDp())) }
                         } else if (index == 1) {
                             Box(Modifier.size(20.toDp()))
                         }
@@ -150,10 +136,7 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            },
+                        modifier = Modifier.onSizeChanged { width = it.width },
                         itemCount = 6
                     ) {
                         Box(Modifier.size(20.toDp()))
@@ -174,10 +157,7 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         itemCount = 10
                     ) {
                         Box(Modifier.size(20.toDp()))
@@ -198,10 +178,7 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(100.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            },
+                        modifier = Modifier.onSizeChanged { width = it.width },
                         itemCount = 10
                     ) {
                         Box(Modifier.size(20.toDp()))
@@ -222,10 +199,7 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         itemCount = 6
                     ) {
                         Box(Modifier.size(20.toDp()))
@@ -245,30 +219,19 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .wrapContentHeight(),
+                        modifier = Modifier.fillMaxWidth(1f).wrapContentHeight(),
                         horizontalArrangement = Arrangement.spacedBy(20.toDp()),
                         itemCount = 10
                     ) {
-                        if (it in 2..5 || it == 9) {
-                        } else {
-                            Box(
-                                Modifier
-                                    .size(20.toDp())
-                                    .onPlaced {
-                                        itemShown++
-                                    }
-                            )
+                        if (it in 2..5 || it == 9) {} else {
+                            Box(Modifier.size(20.toDp()).onPlaced { itemShown++ })
                         }
                     }
                 }
             }
         }
         rule.waitForIdle()
-        rule.runOnIdle {
-            Truth.assertThat(itemShown).isEqualTo(5)
-        }
+        rule.runOnIdle { Truth.assertThat(itemShown).isEqualTo(5) }
     }
 
     @Test
@@ -280,10 +243,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowColumn(
                         itemCount = 6,
-                        Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            }
+                        Modifier.onSizeChanged { width = it.width }
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -304,10 +264,8 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowRow(
                         itemCount = 6,
-                        Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            }, maxItemsInEachRow = 2
+                        Modifier.onSizeChanged { height = it.height },
+                        maxItemsInEachRow = 2
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -328,10 +286,8 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowColumn(
                         itemCount = 6,
-                        Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            }, maxItemsInEachColumn = 2
+                        Modifier.onSizeChanged { width = it.width },
+                        maxItemsInEachColumn = 2
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -352,16 +308,10 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowRow(
                         itemCount = 6,
-                        Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            }, maxItemsInEachRow = 2
+                        Modifier.onSizeChanged { height = it.height },
+                        maxItemsInEachRow = 2
                     ) {
-                        Box(
-                            Modifier
-                                .size(20.toDp())
-                                .weight(1f, true)
-                        )
+                        Box(Modifier.size(20.toDp()).weight(1f, true))
                     }
                 }
             }
@@ -380,16 +330,10 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(60.toDp())) {
                     ContextualFlowColumn(
                         itemCount = 6,
-                        Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            }, maxItemsInEachColumn = 2
+                        Modifier.onSizeChanged { width = it.width },
+                        maxItemsInEachColumn = 2
                     ) {
-                        Box(
-                            Modifier
-                                .size(20.toDp())
-                                .weight(1f, true)
-                        )
+                        Box(Modifier.size(20.toDp()).weight(1f, true))
                     }
                 }
             }
@@ -408,10 +352,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(50.toDp())) {
                     ContextualFlowRow(
                         itemCount = 2,
-                        Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            }
+                        Modifier.onSizeChanged { height = it.height }
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -434,38 +375,32 @@ class ContextualFlowRowColumnTest {
         var mainAxisSpacing = 10
         var crossAxisSpacing = 20
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                var maxLines by remember {
-                    mutableStateOf(2)
-                }
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                var maxLines by remember { mutableStateOf(2) }
                 Box(modifier = Modifier.width(320.dp).wrapContentHeight()) {
                     ContextualFlowRow(
                         itemCount = totalCount,
-                        Modifier
-                            .fillMaxWidth(1f)
-                            .wrapContentHeight(align = Alignment.Top),
+                        Modifier.fillMaxWidth(1f).wrapContentHeight(align = Alignment.Top),
                         horizontalArrangement = Arrangement.spacedBy(mainAxisSpacing.dp),
                         verticalArrangement = Arrangement.spacedBy(crossAxisSpacing.dp),
                         maxLines = maxLines,
-                        overflow = ContextualFlowRowOverflow.expandIndicator {
-                            Box(modifier = Modifier
-                                .fillMaxWidth(1f)
-                                .height(eachSize.dp)
-                                .background(Color.Green)
-                                .clickable {
-                                    maxLines += 2
-                                }.onPlaced {
-                                    seeMorePosition = it.positionInParent()
-                                    seeMoreSize = it.size
-                                }
-                            ) {}
-                        },
+                        overflow =
+                            ContextualFlowRowOverflow.expandIndicator {
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxWidth(1f)
+                                            .height(eachSize.dp)
+                                            .background(Color.Green)
+                                            .clickable { maxLines += 2 }
+                                            .onPlaced {
+                                                seeMorePosition = it.positionInParent()
+                                                seeMoreSize = it.size
+                                            }
+                                ) {}
+                            },
                     ) { index ->
                         Box(
-                            Modifier
-                                .width(eachSize.dp)
+                            Modifier.width(eachSize.dp)
                                 .height(50.dp)
                                 .background(Color.Green)
                                 .onPlaced {
@@ -483,13 +418,9 @@ class ContextualFlowRowColumnTest {
         var expectedYPosition = 0
         Truth.assertThat(positions.size).isEqualTo(5)
         positions.forEach { position ->
-            Truth
-                .assertThat(position.x)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position.x).isEqualTo(expectedXPosition)
 
-            Truth
-                .assertThat(position.y)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position.y).isEqualTo(expectedYPosition)
             expectedXPosition += eachSize + mainAxisSpacing
         }
         expectedYPosition += eachSize + crossAxisSpacing
@@ -510,42 +441,34 @@ class ContextualFlowRowColumnTest {
         var mainAxisSpacing = 10
         var crossAxisSpacing = 20
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                var maxLines by remember {
-                    mutableStateOf(2)
-                }
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                var maxLines by remember { mutableStateOf(2) }
                 Box(modifier = Modifier.height(320.dp).wrapContentWidth()) {
                     ContextualFlowColumn(
                         itemCount = totalCount,
-                        Modifier
-                            .fillMaxHeight(1f)
-                            .wrapContentWidth(align = Alignment.Start),
+                        Modifier.fillMaxHeight(1f).wrapContentWidth(align = Alignment.Start),
                         verticalArrangement = Arrangement.spacedBy(mainAxisSpacing.dp),
                         horizontalArrangement = Arrangement.spacedBy(crossAxisSpacing.dp),
                         maxLines = maxLines,
-                        overflow = ContextualFlowColumnOverflow.expandIndicator {
-                            Box(modifier = Modifier
-                                .fillMaxHeight(1f)
-                                .width(eachSize.dp)
-                                .clickable {
-                                    maxLines += 2
-                                }.onPlaced {
-                                    seeMorePosition = it.positionInParent()
-                                    seeMoreSize = it.size
-                                }
-                            ) {}
-                        }
+                        overflow =
+                            ContextualFlowColumnOverflow.expandIndicator {
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxHeight(1f)
+                                            .width(eachSize.dp)
+                                            .clickable { maxLines += 2 }
+                                            .onPlaced {
+                                                seeMorePosition = it.positionInParent()
+                                                seeMoreSize = it.size
+                                            }
+                                ) {}
+                            }
                     ) { index ->
                         Box(
-                            Modifier
-                                .width(eachSize.dp)
-                                .height(eachSize.dp)
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    positions.add(index, positionInParent)
-                                }
+                            Modifier.width(eachSize.dp).height(eachSize.dp).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                positions.add(index, positionInParent)
+                            }
                         ) {}
                     }
                 }
@@ -557,13 +480,9 @@ class ContextualFlowRowColumnTest {
         var expectedYPosition = 0
         Truth.assertThat(positions.size).isEqualTo(5)
         positions.forEach { position ->
-            Truth
-                .assertThat(position.x)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position.x).isEqualTo(expectedXPosition)
 
-            Truth
-                .assertThat(position.y)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position.y).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize + mainAxisSpacing
         }
         expectedXPosition += eachSize + crossAxisSpacing
@@ -578,13 +497,10 @@ class ContextualFlowRowColumnTest {
         val listOfHeights = mutableListOf<Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = 9,
-                    Modifier
-                        .fillMaxWidth(1f)
+                    Modifier.fillMaxWidth(1f)
                         .padding(20.dp)
                         .wrapContentHeight(align = Alignment.Top),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -592,10 +508,7 @@ class ContextualFlowRowColumnTest {
                     maxItemsInEachRow = 3,
                 ) {
                     Box(
-                        Modifier
-                            .onSizeChanged {
-                                listOfHeights.add(it.height)
-                            }
+                        Modifier.onSizeChanged { listOfHeights.add(it.height) }
                             .width(100.dp)
                             .background(Color.Green)
                             .fillMaxRowHeight()
@@ -623,13 +536,10 @@ class ContextualFlowRowColumnTest {
         val listOfHeights = mutableListOf<Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = 9,
-                    Modifier
-                        .fillMaxWidth(1f)
+                    Modifier.fillMaxWidth(1f)
                         .padding(20.dp)
                         .wrapContentHeight(align = Alignment.Top),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -637,10 +547,7 @@ class ContextualFlowRowColumnTest {
                     maxItemsInEachRow = 3,
                 ) {
                     Box(
-                        Modifier
-                            .onSizeChanged {
-                                listOfHeights.add(it.height)
-                            }
+                        Modifier.onSizeChanged { listOfHeights.add(it.height) }
                             .width(100.dp)
                             .weight(1f, true)
                             .background(Color.Green)
@@ -669,14 +576,11 @@ class ContextualFlowRowColumnTest {
         val listOfHeights = mutableMapOf<Int, Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 with(LocalDensity.current) {
                     ContextualFlowRow(
                         itemCount = 9,
-                        Modifier
-                            .fillMaxWidth(1f)
+                        Modifier.fillMaxWidth(1f)
                             .padding(20.dp)
                             .wrapContentHeight(align = Alignment.Top, unbounded = true),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -684,10 +588,7 @@ class ContextualFlowRowColumnTest {
                         maxItemsInEachRow = 3,
                     ) {
                         Box(
-                            Modifier
-                                .onSizeChanged { item ->
-                                    listOfHeights[it] = item.height
-                                }
+                            Modifier.onSizeChanged { item -> listOfHeights[it] = item.height }
                                 .width(100.dp)
                                 .background(Color.Green)
                                 .run {
@@ -726,13 +627,10 @@ class ContextualFlowRowColumnTest {
         val listOfWidths = mutableMapOf<Int, Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = 9,
-                    Modifier
-                        .wrapContentWidth(align = Alignment.Start)
+                    Modifier.wrapContentWidth(align = Alignment.Start)
                         .padding(20.dp)
                         .fillMaxHeight(1f),
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -740,10 +638,7 @@ class ContextualFlowRowColumnTest {
                     maxItemsInEachColumn = 3,
                 ) {
                     Box(
-                        Modifier
-                            .onSizeChanged { item ->
-                                listOfWidths[it] = item.width
-                            }
+                        Modifier.onSizeChanged { item -> listOfWidths[it] = item.width }
                             .height(100.dp)
                             .background(Color.Green)
                             .fillMaxColumnWidth()
@@ -772,13 +667,10 @@ class ContextualFlowRowColumnTest {
         val listOfWidths = mutableListOf<Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = 9,
-                    Modifier
-                        .wrapContentWidth(align = Alignment.Start)
+                    Modifier.wrapContentWidth(align = Alignment.Start)
                         .fillMaxHeight(1f)
                         .padding(20.dp),
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -786,10 +678,7 @@ class ContextualFlowRowColumnTest {
                     maxItemsInEachColumn = 3,
                 ) {
                     Box(
-                        Modifier
-                            .onSizeChanged {
-                                listOfWidths.add(it.width)
-                            }
+                        Modifier.onSizeChanged { listOfWidths.add(it.width) }
                             .height(100.dp)
                             .weight(1f, true)
                             .background(Color.Green)
@@ -818,13 +707,10 @@ class ContextualFlowRowColumnTest {
         val listOfWidths = mutableMapOf<Int, Int>()
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = 9,
-                    Modifier
-                        .wrapContentWidth(align = Alignment.Start, unbounded = true)
+                    Modifier.wrapContentWidth(align = Alignment.Start, unbounded = true)
                         .padding(20.dp)
                         .fillMaxWidth(1f),
                     horizontalArrangement = Arrangement.spacedBy(20.dp),
@@ -832,10 +718,7 @@ class ContextualFlowRowColumnTest {
                     maxItemsInEachColumn = 3,
                 ) { index ->
                     Box(
-                        Modifier
-                            .onSizeChanged {
-                                listOfWidths[index] = it.width
-                            }
+                        Modifier.onSizeChanged { listOfWidths[index] = it.width }
                             .height(100.dp)
                             .background(Color.Green)
                             .run {
@@ -877,10 +760,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(50.toDp())) {
                     ContextualFlowColumn(
                         itemCount = 2,
-                        Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            }
+                        Modifier.onSizeChanged { width = it.width }
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -901,10 +781,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(50.toDp())) {
                     ContextualFlowRow(
                         itemCount = 3,
-                        Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            }
+                        Modifier.onSizeChanged { height = it.height }
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -925,10 +802,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(50.toDp())) {
                     ContextualFlowColumn(
                         itemCount = 3,
-                        Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            }
+                        Modifier.onSizeChanged { width = it.width }
                     ) {
                         Box(Modifier.size(20.toDp()))
                     }
@@ -949,11 +823,10 @@ class ContextualFlowRowColumnTest {
             Box(Modifier.size(100.dp)) {
                 ContextualFlowRow(
                     itemCount = 0,
-                    Modifier
-                        .onSizeChanged {
-                            height = it.height
-                            width = it.width
-                        }
+                    Modifier.onSizeChanged {
+                        height = it.height
+                        width = it.width
+                    }
                 ) {}
             }
         }
@@ -972,11 +845,10 @@ class ContextualFlowRowColumnTest {
             Box(Modifier.size(100.dp)) {
                 ContextualFlowColumn(
                     itemCount = 0,
-                    Modifier
-                        .onSizeChanged {
-                            height = it.height
-                            width = it.width
-                        }
+                    Modifier.onSizeChanged {
+                        height = it.height
+                        width = it.width
+                    }
                 ) {}
             }
         }
@@ -996,15 +868,10 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(itemCount = 5) {
                         Box(
-                            Modifier
-                                .size(
-                                    20.toDp(),
-                                    shorterHeight.toDp()
-                                )
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    positionInParentY = positionInParent.y
-                                }
+                            Modifier.size(20.toDp(), shorterHeight.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                positionInParentY = positionInParent.y
+                            }
                         )
                     }
                 }
@@ -1026,8 +893,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(itemCount = 5) { index ->
                         Box(
-                            Modifier
-                                .align(Alignment.CenterVertically)
+                            Modifier.align(Alignment.CenterVertically)
                                 .size(
                                     20.toDp(),
                                     if (index == 4) {
@@ -1041,7 +907,8 @@ class ContextualFlowRowColumnTest {
                                         val positionInParent = it.positionInParent()
                                         positionInParentY = positionInParent.y
                                     }
-                                })
+                                }
+                        )
                     }
                 }
             }
@@ -1061,15 +928,10 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(itemCount = 5) {
                         Box(
-                            Modifier
-                                .size(
-                                    shorterWidth.toDp(),
-                                    20.toDp()
-                                )
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    positionInParentX = positionInParent.x
-                                }
+                            Modifier.size(shorterWidth.toDp(), 20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                positionInParentX = positionInParent.x
+                            }
                         )
                     }
                 }
@@ -1091,8 +953,7 @@ class ContextualFlowRowColumnTest {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(itemCount = 5) { index ->
                         Box(
-                            Modifier
-                                .align(Alignment.CenterHorizontally)
+                            Modifier.align(Alignment.CenterHorizontally)
                                 .size(
                                     if (index == 4) {
                                         shorterWidth.toDp()
@@ -1135,13 +996,11 @@ class ContextualFlowRowColumnTest {
                         horizontalArrangement = Arrangement.SpaceAround
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -1167,9 +1026,7 @@ class ContextualFlowRowColumnTest {
         val spacing = 20
         var itemsShownCount = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
                     modifier = Modifier.width(200.dp),
@@ -1178,11 +1035,8 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowRowOverflow.Visible
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1200,9 +1054,7 @@ class ContextualFlowRowColumnTest {
         val spacing = 20
         var itemsShownCount = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
                     modifier = Modifier.height(200.dp),
@@ -1211,11 +1063,8 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowColumnOverflow.Visible
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1234,24 +1083,17 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(maxHeight.dp),
+                    modifier = Modifier.width(200.dp).height(maxHeight.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     overflow = ContextualFlowRowOverflow.Visible
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1270,24 +1112,17 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(maxWidth.dp),
+                    modifier = Modifier.height(200.dp).width(maxWidth.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     overflow = ContextualFlowColumnOverflow.Visible
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1306,9 +1141,7 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
                     modifier = Modifier.width(200.dp),
@@ -1317,11 +1150,8 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowRowOverflow.Clip
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1340,9 +1170,7 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
                     modifier = Modifier.height(200.dp),
@@ -1351,11 +1179,8 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowColumnOverflow.Clip
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1374,24 +1199,17 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(maxHeight.dp),
+                    modifier = Modifier.width(200.dp).height(maxHeight.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     overflow = ContextualFlowRowOverflow.Clip
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1410,24 +1228,17 @@ class ContextualFlowRowColumnTest {
         var itemsShownCount = 0
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(maxWidth.dp),
+                    modifier = Modifier.height(200.dp).width(maxWidth.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     overflow = ContextualFlowColumnOverflow.Clip
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1449,38 +1260,32 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
                     modifier = Modifier.width(200.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowRowOverflow.expandIndicator {
-                        seeMoreTag = "seeMoreTag$shownItemCount"
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    itemsShownCount = 0
-                                    seeMoreShown = false
-                                    maxLines += 2
-                                    finalMaxLines = maxLines
-                                }
-                                .size(itemSize.dp)
-                                .testTag(seeMoreTag)
-                                .onPlaced {
-                                    seeMoreShown = true
-                                }
-                        )
-                    }
+                    overflow =
+                        ContextualFlowRowOverflow.expandIndicator {
+                            seeMoreTag = "seeMoreTag$shownItemCount"
+                            Box(
+                                modifier =
+                                    Modifier.clickable {
+                                            itemsShownCount = 0
+                                            seeMoreShown = false
+                                            maxLines += 2
+                                            finalMaxLines = maxLines
+                                        }
+                                        .size(itemSize.dp)
+                                        .testTag(seeMoreTag)
+                                        .onPlaced { seeMoreShown = true }
+                            )
+                        }
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1491,8 +1296,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownCount).isEqualTo(5)
             Truth.assertThat(seeMoreShown).isTrue()
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -1502,8 +1306,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isTrue()
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1525,38 +1328,32 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
                     modifier = Modifier.height(200.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowColumnOverflow.expandIndicator {
-                        seeMoreTag = "SeeMoreTag$shownItemCount"
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    itemsShownCount = 0
-                                    seeMoreShown = false
-                                    maxLines += 2
-                                    finalMaxLines = maxLines
-                                }
-                                .size(itemSize.dp)
-                                .testTag(seeMoreTag)
-                                .onPlaced {
-                                    seeMoreShown = true
-                                }
-                        )
-                    }
+                    overflow =
+                        ContextualFlowColumnOverflow.expandIndicator {
+                            seeMoreTag = "SeeMoreTag$shownItemCount"
+                            Box(
+                                modifier =
+                                    Modifier.clickable {
+                                            itemsShownCount = 0
+                                            seeMoreShown = false
+                                            maxLines += 2
+                                            finalMaxLines = maxLines
+                                        }
+                                        .size(itemSize.dp)
+                                        .testTag(seeMoreTag)
+                                        .onPlaced { seeMoreShown = true }
+                            )
+                        }
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1567,8 +1364,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownCount).isEqualTo(5)
             Truth.assertThat(seeMoreShown).isTrue()
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -1578,8 +1374,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isTrue()
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1601,38 +1396,32 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxHeight by remember { mutableStateOf(120.dp) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(maxHeight),
+                    modifier = Modifier.width(200.dp).height(maxHeight),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
-                    overflow = ContextualFlowRowOverflow.expandIndicator {
-                        seeMoreTag = "seeMoreTag$shownItemCount"
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    itemsShownCount = 0
-                                    seeMoreShown = false
-                                    maxHeight += 100.dp + (spacing.dp * 2)
-                                    finalMaxHeight = maxHeight
-                                }
-                                .size(itemSize.dp)
-                                .testTag(seeMoreTag)
-                                .onGloballyPositioned {
-                                    seeMoreShown = true
-                                }
-                        )
-                    }
+                    overflow =
+                        ContextualFlowRowOverflow.expandIndicator {
+                            seeMoreTag = "seeMoreTag$shownItemCount"
+                            Box(
+                                modifier =
+                                    Modifier.clickable {
+                                            itemsShownCount = 0
+                                            seeMoreShown = false
+                                            maxHeight += 100.dp + (spacing.dp * 2)
+                                            finalMaxHeight = maxHeight
+                                        }
+                                        .size(itemSize.dp)
+                                        .testTag(seeMoreTag)
+                                        .onGloballyPositioned { seeMoreShown = true }
+                            )
+                        }
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onGloballyPositioned {
+                        modifier =
+                            Modifier.size(itemSize.dp).onGloballyPositioned {
                                 itemsShownCount = index + 1
                             }
                     )
@@ -1646,8 +1435,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isTrue()
             itemsShownCount = 0
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -1658,8 +1446,7 @@ class ContextualFlowRowColumnTest {
             itemsShownCount = 0
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1681,38 +1468,32 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxWidth by remember { mutableStateOf(120.dp) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(maxWidth),
+                    modifier = Modifier.height(200.dp).width(maxWidth),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
-                    overflow = ContextualFlowColumnOverflow.expandIndicator {
-                        seeMoreTag = "seeMoreTag$shownItemCount"
-                        Box(
-                            modifier = Modifier
-                                .clickable {
-                                    itemsShownCount = 0
-                                    seeMoreShown = false
-                                    maxWidth += 100.dp + (spacing.dp * 2)
-                                    finalMaxWidth = maxWidth
-                                }
-                                .size(itemSize.dp)
-                                .testTag(seeMoreTag)
-                                .onGloballyPositioned {
-                                    seeMoreShown = true
-                                }
-                        )
-                    }
+                    overflow =
+                        ContextualFlowColumnOverflow.expandIndicator {
+                            seeMoreTag = "seeMoreTag$shownItemCount"
+                            Box(
+                                modifier =
+                                    Modifier.clickable {
+                                            itemsShownCount = 0
+                                            seeMoreShown = false
+                                            maxWidth += 100.dp + (spacing.dp * 2)
+                                            finalMaxWidth = maxWidth
+                                        }
+                                        .size(itemSize.dp)
+                                        .testTag(seeMoreTag)
+                                        .onGloballyPositioned { seeMoreShown = true }
+                            )
+                        }
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onGloballyPositioned {
+                        modifier =
+                            Modifier.size(itemSize.dp).onGloballyPositioned {
                                 itemsShownCount = index + 1
                             }
                     )
@@ -1726,8 +1507,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isTrue()
             itemsShownCount = 0
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -1738,8 +1518,7 @@ class ContextualFlowRowColumnTest {
             itemsShownCount = 0
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1757,45 +1536,35 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
                     modifier = Modifier.width(200.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            val remainingItems = totalItems - shownItemCount
-                            if (remainingItems > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            maxLines += 2
-                                        }
-                                        .size(itemSize.dp)
-                                )
+                    overflow =
+                        ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                val remainingItems = totalItems - shownItemCount
+                                if (remainingItems > 0) {
+                                    Box(
+                                        modifier =
+                                            Modifier.clickable { maxLines += 2 }.size(itemSize.dp)
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                val remainingItems = totalItems - shownItemCount
+                                if (remainingItems > 0) {
+                                    Box(
+                                        modifier =
+                                            Modifier.clickable { maxLines += 2 }.size(itemSize.dp)
+                                    )
+                                }
                             }
-                        },
-                        collapseIndicator = {
-                            val remainingItems = totalItems - shownItemCount
-                            if (remainingItems > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            maxLines += 2
-                                        }
-                                        .size(itemSize.dp)
-                                )
-                            }
-                        }
-                    )
+                        )
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                    )
+                    Box(modifier = Modifier.size(itemSize.dp))
                 }
             }
         }
@@ -1809,45 +1578,35 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
                     modifier = Modifier.height(200.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            val remainingItems = totalItems - shownItemCount
-                            if (remainingItems > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            maxLines += 2
-                                        }
-                                        .size(itemSize.dp)
-                                )
+                    overflow =
+                        ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                val remainingItems = totalItems - shownItemCount
+                                if (remainingItems > 0) {
+                                    Box(
+                                        modifier =
+                                            Modifier.clickable { maxLines += 2 }.size(itemSize.dp)
+                                    )
+                                }
+                            },
+                            collapseIndicator = {
+                                val remainingItems = totalItems - shownItemCount
+                                if (remainingItems > 0) {
+                                    Box(
+                                        modifier =
+                                            Modifier.clickable { maxLines += 2 }.size(itemSize.dp)
+                                    )
+                                }
                             }
-                        },
-                        collapseIndicator = {
-                            val remainingItems = totalItems - shownItemCount
-                            if (remainingItems > 0) {
-                                Box(
-                                    modifier = Modifier
-                                        .clickable {
-                                            maxLines += 2
-                                        }
-                                        .size(itemSize.dp)
-                                )
-                            }
-                        }
-                    )
+                        )
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                    )
+                    Box(modifier = Modifier.size(itemSize.dp))
                 }
             }
         }
@@ -1869,67 +1628,55 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     itemCount = totalItems,
                     modifier = Modifier.width(200.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            expandOnScope = this
-                            seeMoreTag = "seeMoreTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines += 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(seeMoreTag)
-                                    .onGloballyPositioned {
-                                        seeMoreShown = true
-                                    }
-                                    .onPlaced {
-                                        seeMoreShown = true
-                                    }
-                            )
-                        },
-                        collapseIndicator = {
-                            collapseOnScope = this
-                            collapseTag = "collapseTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines = 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(collapseTag)
-                                    .onGloballyPositioned {
-                                        collapseShown = true
-                                    }
-                                    .onPlaced {
-                                        collapseShown = true
-                                    }
-                            )
-                        }
-                    )
+                    overflow =
+                        ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                expandOnScope = this
+                                seeMoreTag = "seeMoreTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines += 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(seeMoreTag)
+                                            .onGloballyPositioned { seeMoreShown = true }
+                                            .onPlaced { seeMoreShown = true }
+                                )
+                            },
+                            collapseIndicator = {
+                                collapseOnScope = this
+                                collapseTag = "collapseTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines = 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(collapseTag)
+                                            .onGloballyPositioned { collapseShown = true }
+                                            .onPlaced { collapseShown = true }
+                                )
+                            }
+                        )
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -1943,8 +1690,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -1957,8 +1703,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1970,8 +1715,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -1982,8 +1726,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(collapseTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(collapseTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2012,67 +1755,55 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     itemCount = totalItems,
                     modifier = Modifier.height(200.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            itemsShownOnExpand = shownItemCount
-                            seeMoreTag = "seeMoreTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines += 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(seeMoreTag)
-                                    .onGloballyPositioned {
-                                        seeMoreShown = true
-                                    }
-                                    .onPlaced {
-                                        seeMoreShown = true
-                                    }
-                            )
-                        },
-                        collapseIndicator = {
-                            itemsShownOnCollapse = shownItemCount
-                            collapseTag = "collapseTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines = 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(collapseTag)
-                                    .onGloballyPositioned {
-                                        collapseShown = true
-                                    }
-                                    .onPlaced {
-                                        collapseShown = true
-                                    }
-                            )
-                        }
-                    )
+                    overflow =
+                        ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                itemsShownOnExpand = shownItemCount
+                                seeMoreTag = "seeMoreTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines += 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(seeMoreTag)
+                                            .onGloballyPositioned { seeMoreShown = true }
+                                            .onPlaced { seeMoreShown = true }
+                                )
+                            },
+                            collapseIndicator = {
+                                itemsShownOnCollapse = shownItemCount
+                                collapseTag = "collapseTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines = 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(collapseTag)
+                                            .onGloballyPositioned { collapseShown = true }
+                                            .onPlaced { collapseShown = true }
+                                )
+                            }
+                        )
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -2086,8 +1817,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnCollapse).isEqualTo(0)
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2099,8 +1829,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2111,8 +1840,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2122,8 +1850,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isFalse()
             Truth.assertThat(itemsShownOnCollapse).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(collapseTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(collapseTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2153,60 +1880,53 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowRow(
                     modifier = Modifier.width(200.dp),
                     horizontalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            seeMoreTag = "seeMoreTag$shownItemCount"
-                            itemsShownOnExpand = shownItemCount
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines += 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(seeMoreTag)
-                                    .onPlaced {
-                                        seeMoreShown = true
-                                    }
-                            )
-                        },
-                        collapseIndicator = {
-                            collapseTag = "collapseTag$shownItemCount"
-                            itemsShownOnCollapse = shownItemCount
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines = 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(collapseSize.dp)
-                                    .testTag(collapseTag)
-                                    .onPlaced {
-                                        collapseShown = true
-                                    }
-                            )
-                        }),
+                    overflow =
+                        ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                seeMoreTag = "seeMoreTag$shownItemCount"
+                                itemsShownOnExpand = shownItemCount
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines += 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(seeMoreTag)
+                                            .onPlaced { seeMoreShown = true }
+                                )
+                            },
+                            collapseIndicator = {
+                                collapseTag = "collapseTag$shownItemCount"
+                                itemsShownOnCollapse = shownItemCount
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines = 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(collapseSize.dp)
+                                            .testTag(collapseTag)
+                                            .onPlaced { collapseShown = true }
+                                )
+                            }
+                        ),
                     itemCount = totalItems
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -2219,8 +1939,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(collapseShown).isFalse()
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2233,8 +1952,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2246,8 +1964,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2258,8 +1975,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isFalse()
             Truth.assertThat(itemsShownOnCollapse).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(collapseTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(collapseTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2288,61 +2004,53 @@ class ContextualFlowRowColumnTest {
 
         rule.setContent {
             var maxLines by remember { mutableStateOf(2) }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 ContextualFlowColumn(
                     modifier = Modifier.height(200.dp),
                     verticalArrangement = Arrangement.spacedBy(spacing.dp),
                     maxLines = maxLines,
-                    overflow = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-                        expandIndicator = {
-                            itemsShownOnExpand = shownItemCount
-                            seeMoreTag = "seeMoreTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines += 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(itemSize.dp)
-                                    .testTag(seeMoreTag)
-                                    .onPlaced {
-                                        seeMoreShown = true
-                                    }
-                            )
-                        },
-                        collapseIndicator = {
-                            itemsShownOnCollapse = shownItemCount
-                            collapseTag = "collapseTag$shownItemCount"
-                            Box(
-                                modifier = Modifier
-                                    .clickable {
-                                        itemsShownCount = 0
-                                        seeMoreShown = false
-                                        collapseShown = false
-                                        maxLines = 2
-                                        finalMaxLines = maxLines
-                                    }
-                                    .size(collapseSize.dp)
-                                    .testTag(collapseTag)
-                                    .onPlaced {
-                                        collapseShown = true
-                                    }
-                            )
-                        }
-                    ),
+                    overflow =
+                        ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                            expandIndicator = {
+                                itemsShownOnExpand = shownItemCount
+                                seeMoreTag = "seeMoreTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines += 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(itemSize.dp)
+                                            .testTag(seeMoreTag)
+                                            .onPlaced { seeMoreShown = true }
+                                )
+                            },
+                            collapseIndicator = {
+                                itemsShownOnCollapse = shownItemCount
+                                collapseTag = "collapseTag$shownItemCount"
+                                Box(
+                                    modifier =
+                                        Modifier.clickable {
+                                                itemsShownCount = 0
+                                                seeMoreShown = false
+                                                collapseShown = false
+                                                maxLines = 2
+                                                finalMaxLines = maxLines
+                                            }
+                                            .size(collapseSize.dp)
+                                            .testTag(collapseTag)
+                                            .onPlaced { collapseShown = true }
+                                )
+                            }
+                        ),
                     itemCount = totalItems
                 ) { index ->
                     Box(
-                        modifier = Modifier
-                            .size(itemSize.dp)
-                            .onPlaced {
-                                itemsShownCount = index + 1
-                            }
+                        modifier =
+                            Modifier.size(itemSize.dp).onPlaced { itemsShownCount = index + 1 }
                     )
                 }
             }
@@ -2355,8 +2063,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(collapseShown).isFalse()
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2369,8 +2076,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2382,8 +2088,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownOnExpand).isEqualTo(itemsShownCount)
         }
 
-        rule.onNodeWithTag(seeMoreTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
 
         advanceClock()
         rule.runOnIdle {
@@ -2394,8 +2099,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(seeMoreShown).isFalse()
             Truth.assertThat(itemsShownOnCollapse).isEqualTo(itemsShownCount)
         }
-        rule.onNodeWithTag(collapseTag)
-            .performTouchInput { click() }
+        rule.onNodeWithTag(collapseTag).performTouchInput { click() }
 
         advanceClock()
 
@@ -2425,19 +2129,16 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(1f),
+                        modifier = Modifier.fillMaxHeight(1f),
                         verticalArrangement = Arrangement.SpaceAround,
                         itemCount = 5
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -2449,9 +2150,7 @@ class ContextualFlowRowColumnTest {
         yPositions.forEach {
             val yPosition = it
             expectedYPosition += gapSize
-            Truth
-                .assertThat(yPosition)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(yPosition).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize
             expectedYPosition += gapSize
         }
@@ -2474,20 +2173,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .fillMaxWidth(1f),
+                        modifier = Modifier.fillMaxWidth(1f),
                         horizontalArrangement = Arrangement.SpaceAround,
                         maxItemsInEachRow = 5,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -2501,9 +2197,7 @@ class ContextualFlowRowColumnTest {
                 expectedXPosition = 0
             }
             expectedXPosition += gapSize
-            Truth
-                .assertThat(xPosition)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(xPosition).isEqualTo(expectedXPosition)
             expectedXPosition += eachSize
             expectedXPosition += gapSize
         }
@@ -2523,20 +2217,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(1f),
+                        modifier = Modifier.fillMaxHeight(1f),
                         verticalArrangement = Arrangement.SpaceAround,
                         maxItemsInEachColumn = 5,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -2550,9 +2241,7 @@ class ContextualFlowRowColumnTest {
                 expectedYPosition = 0
             }
             expectedYPosition += gapSize
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize
             expectedYPosition += gapSize
         }
@@ -2572,20 +2261,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .fillMaxWidth(1f),
+                        modifier = Modifier.fillMaxWidth(1f),
                         horizontalArrangement = Arrangement.End,
                         maxItemsInEachRow = 5,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -2598,9 +2284,7 @@ class ContextualFlowRowColumnTest {
             if (index % 5 == 0) {
                 expectedXPosition = gapSize
             }
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
             expectedXPosition += eachSize
         }
     }
@@ -2618,20 +2302,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(1f),
+                        modifier = Modifier.fillMaxHeight(1f),
                         verticalArrangement = Arrangement.Bottom,
                         maxItemsInEachColumn = 5,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -2644,9 +2325,7 @@ class ContextualFlowRowColumnTest {
             if (index % 5 == 0) {
                 expectedYPosition = gapSize
             }
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize
         }
     }
@@ -2667,13 +2346,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -2683,9 +2360,7 @@ class ContextualFlowRowColumnTest {
         rule.waitForIdle()
         var expectedXPosition = 0
         xPositions.forEachIndexed { index, position ->
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
             if (index == (maxItemsInMainAxis - 1)) {
                 expectedXPosition = 0
             } else {
@@ -2714,29 +2389,26 @@ class ContextualFlowRowColumnTest {
             var maxLines by remember { maxLinesState }
             var minLinesToShowCollapse by remember { minLinesToShowCollapseState }
             var minHeightToShowCollapse by remember { minHeightToShowCollapseState }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                seeMoreOrCollapse = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-                    expandIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                seeMoreOrCollapse =
+                    ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                        expandIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     seeMoreXPosition = it.positionInParent().x
-                                })
-                    },
-                    collapseIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+                                }
+                            )
+                        },
+                        collapseIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     collapseXPosition = it.positionInParent().x
-                                })
-                    },
-                    minLinesToShowCollapse,
-                    minHeightToShowCollapse
-                )
+                                }
+                            )
+                        },
+                        minLinesToShowCollapse,
+                        minHeightToShowCollapse
+                    )
                 Box(Modifier.size(200.dp)) {
                     ContextualFlowRow(
                         horizontalArrangement = Arrangement.Start,
@@ -2746,13 +2418,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = total
                     ) {
                         Box(
-                            Modifier
-                                .size(eachSize.dp)
-                                .onGloballyPositioned {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions.add(xPosition)
-                                }
+                            Modifier.size(eachSize.dp).onGloballyPositioned {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions.add(xPosition)
+                            }
                         )
                     }
                 }
@@ -2761,14 +2431,10 @@ class ContextualFlowRowColumnTest {
 
         rule.waitForIdle()
         rule.runOnIdle {
-            Truth.assertThat(xPositions.size).isEqualTo(
-                maxItemsInMainAxis * maxLinesState.value
-            )
+            Truth.assertThat(xPositions.size).isEqualTo(maxItemsInMainAxis * maxLinesState.value)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -2776,27 +2442,23 @@ class ContextualFlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value = ContextualFlowRowOverflow.expandIndicator {
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .onGloballyPositioned {
+            overflowState.value =
+                ContextualFlowRowOverflow.expandIndicator {
+                    Box(
+                        Modifier.size(20.dp).onGloballyPositioned {
                             val positionInParent = it.positionInParent()
                             seeMoreXPosition = positionInParent.x
-                        })
-            }
+                        }
+                    )
+                }
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -2812,15 +2474,11 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -2835,15 +2493,11 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -2865,15 +2519,11 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value), total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value), total)
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -2905,29 +2555,26 @@ class ContextualFlowRowColumnTest {
             var maxLines by remember { maxLinesState }
             var minLinesToShowCollapse by remember { minLinesToShowCollapseState }
             var minHeightToShowCollapse by remember { minHeightToShowCollapseState }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                seeMoreOrCollapse = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-                    expandIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                seeMoreOrCollapse =
+                    ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                        expandIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     seeMoreYPosition = it.positionInParent().y
-                                })
-                    },
-                    collapseIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+                                }
+                            )
+                        },
+                        collapseIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     collapseYPosition = it.positionInParent().y
-                                })
-                    },
-                    minLinesToShowCollapse,
-                    minHeightToShowCollapse
-                )
+                                }
+                            )
+                        },
+                        minLinesToShowCollapse,
+                        minHeightToShowCollapse
+                    )
                 Box(Modifier.size(200.dp)) {
                     ContextualFlowColumn(
                         verticalArrangement = Arrangement.Top,
@@ -2937,13 +2584,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = total
                     ) {
                         Box(
-                            Modifier
-                                .size(eachSize.dp)
-                                .onGloballyPositioned {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions.add(yPosition)
-                                }
+                            Modifier.size(eachSize.dp).onGloballyPositioned {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions.add(yPosition)
+                            }
                         )
                     }
                 }
@@ -2953,9 +2598,7 @@ class ContextualFlowRowColumnTest {
         // Assertions and interaction logic
         rule.waitForIdle()
         rule.runOnIdle {
-            Truth.assertThat(yPositions.size).isEqualTo(
-                maxItemsInMainAxis * maxLinesState.value
-            )
+            Truth.assertThat(yPositions.size).isEqualTo(maxItemsInMainAxis * maxLinesState.value)
             var expectedYPosition = 0
             yPositions.forEachIndexed { index, position ->
                 Truth.assertThat(position).isEqualTo(expectedYPosition)
@@ -2966,23 +2609,20 @@ class ContextualFlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value = ContextualFlowColumnOverflow.expandIndicator {
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .onGloballyPositioned {
+            overflowState.value =
+                ContextualFlowColumnOverflow.expandIndicator {
+                    Box(
+                        Modifier.size(20.dp).onGloballyPositioned {
                             val positionInParent = it.positionInParent()
                             seeMoreYPosition = positionInParent.y
                         }
-                )
-            }
+                    )
+                }
         }
         // Continuing from the previous logic
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(yPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedYPosition = 0
             yPositions.forEachIndexed { index, position ->
@@ -3002,9 +2642,7 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(yPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedYPosition = 0
             yPositions.forEachIndexed { index, position ->
@@ -3023,9 +2661,7 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value) - 1, total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value) - 1, total)
             Truth.assertThat(yPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedYPosition = 0
             yPositions.forEachIndexed { index, position ->
@@ -3051,9 +2687,7 @@ class ContextualFlowRowColumnTest {
         }
         advanceClock()
         rule.runOnIdle {
-            val maxItemsThatCanFit = min(
-                (maxItemsInMainAxis * maxLinesState.value), total
-            )
+            val maxItemsThatCanFit = min((maxItemsInMainAxis * maxLinesState.value), total)
             Truth.assertThat(yPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedYPosition = 0
             yPositions.forEachIndexed { index, position ->
@@ -3089,34 +2723,27 @@ class ContextualFlowRowColumnTest {
             var maxHeight by remember { maxHeightState }
             var minLinesToShowCollapse by remember { minLinesToShowCollapseState }
             var minHeightToShowCollapse by remember { minHeightToShowCollapseState }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                seeMoreOrCollapse = ContextualFlowRowOverflow.expandOrCollapseIndicator(
-                    expandIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                seeMoreOrCollapse =
+                    ContextualFlowRowOverflow.expandOrCollapseIndicator(
+                        expandIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     seeMoreXPosition = it.positionInParent().x
-                                })
-                    },
-                    collapseIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+                                }
+                            )
+                        },
+                        collapseIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     collapseXPosition = it.positionInParent().x
-                                })
-                    },
-                    minLinesToShowCollapse,
-                    minHeightToShowCollapse
-                )
-                Box(
-                    Modifier
-                        .width(200.dp)
-                        .height(maxHeight)
-                ) {
+                                }
+                            )
+                        },
+                        minLinesToShowCollapse,
+                        minHeightToShowCollapse
+                    )
+                Box(Modifier.width(200.dp).height(maxHeight)) {
                     ContextualFlowRow(
                         horizontalArrangement = Arrangement.Start,
                         maxItemsInEachRow = maxItemsInMainAxis,
@@ -3124,13 +2751,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = total
                     ) {
                         Box(
-                            Modifier
-                                .size(eachSize.dp)
-                                .onGloballyPositioned {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions.add(xPosition)
-                                }
+                            Modifier.size(eachSize.dp).onGloballyPositioned {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions.add(xPosition)
+                            }
                         )
                     }
                 }
@@ -3142,9 +2767,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(xPositions.size).isEqualTo(10)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -3152,15 +2775,15 @@ class ContextualFlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value = ContextualFlowRowOverflow.expandIndicator {
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .onGloballyPositioned {
+            overflowState.value =
+                ContextualFlowRowOverflow.expandIndicator {
+                    Box(
+                        Modifier.size(20.dp).onGloballyPositioned {
                             val positionInParent = it.positionInParent()
                             seeMoreXPosition = positionInParent.x
-                        })
-            }
+                        }
+                    )
+                }
         }
         advanceClock()
         rule.runOnIdle {
@@ -3168,9 +2791,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -3190,9 +2811,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -3211,9 +2830,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -3239,9 +2856,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(xPositions.size).isEqualTo(maxItemsThatCanFit)
             var expectedXPosition = 0
             xPositions.forEachIndexed { index, position ->
-                Truth
-                    .assertThat(position)
-                    .isEqualTo(expectedXPosition)
+                Truth.assertThat(position).isEqualTo(expectedXPosition)
                 if ((index + 1) % maxItemsInMainAxis == 0) {
                     expectedXPosition = 0
                 } else {
@@ -3269,13 +2884,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -3292,9 +2905,7 @@ class ContextualFlowRowColumnTest {
                 expectedXPosition += spaceAligned
             }
 
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
         }
     }
 
@@ -3318,34 +2929,27 @@ class ContextualFlowRowColumnTest {
             var maxWidth by remember { maxWidthState }
             var minLinesToShowCollapse by remember { minLinesToShowCollapseState }
             var minHeightToShowCollapse by remember { minHeightToShowCollapseState }
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
-                seeMoreOrCollapse = ContextualFlowColumnOverflow.expandOrCollapseIndicator(
-                    expandIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
+                seeMoreOrCollapse =
+                    ContextualFlowColumnOverflow.expandOrCollapseIndicator(
+                        expandIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     seeMoreYPosition = it.positionInParent().y
-                                })
-                    },
-                    collapseIndicator = {
-                        Box(
-                            Modifier
-                                .size(20.dp)
-                                .onGloballyPositioned {
+                                }
+                            )
+                        },
+                        collapseIndicator = {
+                            Box(
+                                Modifier.size(20.dp).onGloballyPositioned {
                                     collapseYPosition = it.positionInParent().y
-                                })
-                    },
-                    minLinesToShowCollapse,
-                    minHeightToShowCollapse
-                )
-                Box(
-                    Modifier
-                        .height(200.dp)
-                        .width(maxWidth)
-                ) {
+                                }
+                            )
+                        },
+                        minLinesToShowCollapse,
+                        minHeightToShowCollapse
+                    )
+                Box(Modifier.height(200.dp).width(maxWidth)) {
                     ContextualFlowColumn(
                         verticalArrangement = Arrangement.Top,
                         maxItemsInEachColumn = maxItemsInMainAxis,
@@ -3353,13 +2957,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = total
                     ) {
                         Box(
-                            Modifier
-                                .size(eachSize.dp)
-                                .onGloballyPositioned {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions.add(yPosition)
-                                }
+                            Modifier.size(eachSize.dp).onGloballyPositioned {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions.add(yPosition)
+                            }
                         )
                     }
                 }
@@ -3380,15 +2982,15 @@ class ContextualFlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value = ContextualFlowColumnOverflow.expandIndicator {
-                Box(
-                    Modifier
-                        .size(20.dp)
-                        .onGloballyPositioned {
+            overflowState.value =
+                ContextualFlowColumnOverflow.expandIndicator {
+                    Box(
+                        Modifier.size(20.dp).onGloballyPositioned {
                             val positionInParent = it.positionInParent()
                             seeMoreYPosition = positionInParent.y
-                        })
-            }
+                        }
+                    )
+                }
         }
         advanceClock()
         rule.runOnIdle {
@@ -3474,11 +3076,10 @@ class ContextualFlowRowColumnTest {
     }
 
     /**
-     * Should space something like this:
-     * 1 2 3
+     * Should space something like this: 1 2 3
+     *
      * # SpaceAligned
-     * 4 5 6
-     * No Space here
+     * 4 5 6 No Space here
      */
     @Test
     fun testContextualFlowRow_crossAxisSpacedBy() {
@@ -3493,22 +3094,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                heightResult = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { heightResult = it.height },
                         verticalArrangement = Arrangement.spacedBy(spaceAligned.toDp()),
                         maxItemsInEachRow = 1,
                         itemCount = noOfItems
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -3516,14 +3112,10 @@ class ContextualFlowRowColumnTest {
         }
 
         rule.waitForIdle()
-        Truth
-            .assertThat(heightResult)
-            .isEqualTo(expectedHeight)
+        Truth.assertThat(heightResult).isEqualTo(expectedHeight)
         var expectedYPosition = 0
         yPositions.forEachIndexed { index, position ->
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize
             if (index < (noOfItems - 1)) {
                 expectedYPosition += spaceAligned
@@ -3544,22 +3136,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(200.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                widthResult = it.width
-                            },
+                        modifier = Modifier.onSizeChanged { widthResult = it.width },
                         horizontalArrangement = Arrangement.spacedBy(spaceAligned.toDp()),
                         maxItemsInEachColumn = 1,
                         itemCount = noOfItems
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -3568,13 +3155,9 @@ class ContextualFlowRowColumnTest {
 
         rule.waitForIdle()
         var expectedXPosition = 0
-        Truth
-            .assertThat(widthResult)
-            .isEqualTo(expectedWidth)
+        Truth.assertThat(widthResult).isEqualTo(expectedWidth)
         xPositions.forEachIndexed { index, position ->
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
             expectedXPosition += eachSize
             if (index < (noOfItems - 1)) {
                 expectedXPosition += spaceAligned
@@ -3598,13 +3181,11 @@ class ContextualFlowRowColumnTest {
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val position = positionInParent.y
-                                    yPositions[index] = position
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val position = positionInParent.y
+                                yPositions[index] = position
+                            }
                         )
                     }
                 }
@@ -3621,9 +3202,7 @@ class ContextualFlowRowColumnTest {
                 expectedYPosition += spaceAligned
             }
 
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
         }
     }
 
@@ -3639,27 +3218,19 @@ class ContextualFlowRowColumnTest {
         val xPositions = FloatArray(10)
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .widthIn(30.toDp(), 40.toDp())
-                ) {
+                Box(Modifier.widthIn(30.toDp(), 40.toDp())) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                width = it.width
-                            },
+                        modifier = Modifier.onSizeChanged { width = it.width },
                         horizontalArrangement = Arrangement.spacedBy(spaceAligned.toDp()),
                         maxItemsInEachRow = maxItemsInMainAxis,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val xPosition = positionInParent.x
-                                    xPositions[index] = xPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val xPosition = positionInParent.x
+                                xPositions[index] = xPosition
+                            }
                         )
                     }
                 }
@@ -3677,9 +3248,7 @@ class ContextualFlowRowColumnTest {
                 expectedXPosition += spaceAligned
             }
 
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
         }
     }
 
@@ -3695,28 +3264,19 @@ class ContextualFlowRowColumnTest {
         val yPositions = FloatArray(10)
         rule.setContent {
             with(LocalDensity.current) {
-                Box(
-                    Modifier
-                        .heightIn(30.toDp(), 40.toDp())
-
-                ) {
+                Box(Modifier.heightIn(30.toDp(), 40.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.onSizeChanged { height = it.height },
                         verticalArrangement = Arrangement.spacedBy(spaceAligned.toDp()),
                         maxItemsInEachColumn = maxItemsInMainAxis,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(eachSize.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(eachSize.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -3734,9 +3294,7 @@ class ContextualFlowRowColumnTest {
                 expectedYPosition += spaceAligned
             }
 
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
         }
     }
 
@@ -3751,20 +3309,17 @@ class ContextualFlowRowColumnTest {
             with(LocalDensity.current) {
                 Box(Modifier.size(size.toDp())) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(1f),
+                        modifier = Modifier.fillMaxHeight(1f),
                         verticalArrangement = Arrangement.Top,
                         maxItemsInEachColumn = maxItemsInMainAxis,
                         itemCount = 10
                     ) { index ->
                         Box(
-                            Modifier
-                                .size(20.toDp())
-                                .onPlaced {
-                                    val positionInParent = it.positionInParent()
-                                    val yPosition = positionInParent.y
-                                    yPositions[index] = yPosition
-                                }
+                            Modifier.size(20.toDp()).onPlaced {
+                                val positionInParent = it.positionInParent()
+                                val yPosition = positionInParent.y
+                                yPositions[index] = yPosition
+                            }
                         )
                     }
                 }
@@ -3777,9 +3332,7 @@ class ContextualFlowRowColumnTest {
             if (index % 5 == 0) {
                 expectedYPosition = 0
             }
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedYPosition)
+            Truth.assertThat(position).isEqualTo(expectedYPosition)
             expectedYPosition += eachSize
         }
     }
@@ -3795,26 +3348,21 @@ class ContextualFlowRowColumnTest {
 
         val xPositions = FloatArray(6)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
                         ContextualFlowRow(
-                            modifier = Modifier
-                                .fillMaxWidth(1f),
+                            modifier = Modifier.fillMaxWidth(1f),
                             horizontalArrangement = Arrangement.Start,
                             maxItemsInEachRow = maxItemsInMainAxis,
                             itemCount = 6
                         ) { index ->
                             Box(
-                                Modifier
-                                    .size(eachSize.toDp())
-                                    .onPlaced {
-                                        val positionInParent = it.positionInParent()
-                                        val xPosition = positionInParent.x
-                                        xPositions[index] = xPosition
-                                    }
+                                Modifier.size(eachSize.toDp()).onPlaced {
+                                    val positionInParent = it.positionInParent()
+                                    val xPosition = positionInParent.x
+                                    xPositions[index] = xPosition
+                                }
                             )
                         }
                     }
@@ -3825,9 +3373,7 @@ class ContextualFlowRowColumnTest {
         rule.waitForIdle()
         var expectedXPosition = size.toInt() - eachSize
         xPositions.forEachIndexed { index, position ->
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
             if (index == (maxItemsInMainAxis - 1)) {
                 expectedXPosition = size.toInt() - eachSize
             } else {
@@ -3844,28 +3390,22 @@ class ContextualFlowRowColumnTest {
 
         val xYPositions = Array(10) { Pair(0f, 0f) }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
                         ContextualFlowColumn(
-                            modifier = Modifier
-                                .fillMaxHeight(1f)
-                                .fillMaxWidth(1f),
+                            modifier = Modifier.fillMaxHeight(1f).fillMaxWidth(1f),
                             verticalArrangement = Arrangement.Top,
                             maxItemsInEachColumn = maxItemsInMainAxis,
                             itemCount = 10
                         ) { index ->
                             Box(
-                                Modifier
-                                    .size(20.toDp())
-                                    .onPlaced {
-                                        val positionInParent = it.positionInParent()
-                                        val yPosition = positionInParent.y
-                                        val xPosition = positionInParent.x
-                                        xYPositions[index] = Pair(xPosition, yPosition)
-                                    }
+                                Modifier.size(20.toDp()).onPlaced {
+                                    val positionInParent = it.positionInParent()
+                                    val yPosition = positionInParent.y
+                                    val xPosition = positionInParent.x
+                                    xYPositions[index] = Pair(xPosition, yPosition)
+                                }
                             )
                         }
                     }
@@ -3883,12 +3423,8 @@ class ContextualFlowRowColumnTest {
             if (index % 5 == 0) {
                 expectedYPosition = 0
             }
-            Truth
-                .assertThat(yPosition)
-                .isEqualTo(expectedYPosition)
-            Truth
-                .assertThat(xPosition)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(yPosition).isEqualTo(expectedYPosition)
+            Truth.assertThat(xPosition).isEqualTo(expectedXPosition)
             if (index == (maxItemsInMainAxis - 1)) {
                 expectedXPosition -= eachSize
             }
@@ -3906,15 +3442,12 @@ class ContextualFlowRowColumnTest {
         var width = 0
         val xYPositions = Array(10) { Pair(0f, 0f) }
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(size.toDp())) {
                         ContextualFlowColumn(
-                            modifier = Modifier
-                                .fillMaxHeight(1f)
-                                .onSizeChanged {
+                            modifier =
+                                Modifier.fillMaxHeight(1f).onSizeChanged {
                                     width = it.width
                                     itemsThatCanFit = it.height / eachSize
                                 },
@@ -3923,14 +3456,12 @@ class ContextualFlowRowColumnTest {
                             itemCount = 10
                         ) { index ->
                             Box(
-                                Modifier
-                                    .size(20.toDp())
-                                    .onPlaced {
-                                        val positionInParent = it.positionInParent()
-                                        val xPosition = positionInParent.x
-                                        val yPosition = positionInParent.y
-                                        xYPositions[index] = Pair(xPosition, yPosition)
-                                    }
+                                Modifier.size(20.toDp()).onPlaced {
+                                    val positionInParent = it.positionInParent()
+                                    val xPosition = positionInParent.x
+                                    val yPosition = positionInParent.y
+                                    xYPositions[index] = Pair(xPosition, yPosition)
+                                }
                             )
                         }
                     }
@@ -3946,19 +3477,13 @@ class ContextualFlowRowColumnTest {
             val pair = xYPositions[index]
             val xPosition = pair.first
             val yPosition = pair.second
-            if (index % maxItemsInMainAxis == 0 ||
-                fittedItems == itemsThatCanFit
-            ) {
+            if (index % maxItemsInMainAxis == 0 || fittedItems == itemsThatCanFit) {
                 expectedYPosition = 0
                 expectedXPosition -= eachSize
                 fittedItems = 0
             }
-            Truth
-                .assertThat(yPosition)
-                .isEqualTo(expectedYPosition)
-            Truth
-                .assertThat(xPosition)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(yPosition).isEqualTo(expectedYPosition)
+            Truth.assertThat(xPosition).isEqualTo(expectedXPosition)
             expectedYPosition += eachSize
             fittedItems++
         }
@@ -3975,9 +3500,7 @@ class ContextualFlowRowColumnTest {
 
         val xPositions = FloatArray(6)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Rtl
-            ) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 with(LocalDensity.current) {
                     Box(Modifier.size(200.toDp())) {
                         ContextualFlowRow(
@@ -3986,13 +3509,11 @@ class ContextualFlowRowColumnTest {
                             itemCount = 6
                         ) { index ->
                             Box(
-                                Modifier
-                                    .size(20.toDp())
-                                    .onPlaced {
-                                        val positionInParent = it.positionInParent()
-                                        val xPosition = positionInParent.x
-                                        xPositions[index] = xPosition
-                                    }
+                                Modifier.size(20.toDp()).onPlaced {
+                                    val positionInParent = it.positionInParent()
+                                    val xPosition = positionInParent.x
+                                    xPositions[index] = xPosition
+                                }
                             )
                         }
                     }
@@ -4002,9 +3523,7 @@ class ContextualFlowRowColumnTest {
         rule.waitForIdle()
         var expectedXPosition = maxMainAxisSize - eachSize
         xPositions.forEachIndexed { index, position ->
-            Truth
-                .assertThat(position)
-                .isEqualTo(expectedXPosition)
+            Truth.assertThat(position).isEqualTo(expectedXPosition)
             if (index == (maxItemsInMainAxis - 1)) {
                 expectedXPosition = maxMainAxisSize - eachSize
             } else {
@@ -4018,28 +3537,22 @@ class ContextualFlowRowColumnTest {
         var width = 0
         var noOfItemsPlaced = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 Box(Modifier.size(200.dp)) {
                     ContextualFlowRow(
-                        modifier = Modifier
-                            .fillMaxWidth(1f)
-                            .onSizeChanged {
-                                width = it.width
-                            },
+                        modifier = Modifier.fillMaxWidth(1f).onSizeChanged { width = it.width },
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                         itemCount = 2,
                         overflow = ContextualFlowRowOverflow.Clip
                     ) { index ->
                         Layout(
-                            modifier = Modifier
-                                .requiredSize(250.dp)
-                                .onPlaced {
+                            modifier =
+                                Modifier.requiredSize(250.dp).onPlaced {
                                     noOfItemsPlaced = index + 1
                                 }
                         ) { _, _ ->
-                            layout(250, 250) {} }
+                            layout(250, 250) {}
+                        }
                     }
                 }
             }
@@ -4054,28 +3567,22 @@ class ContextualFlowRowColumnTest {
         var height = 0
         var noOfItemsPlaced = 0
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 Box(Modifier.size(200.dp)) {
                     ContextualFlowColumn(
-                        modifier = Modifier
-                            .fillMaxHeight(1f)
-                            .onSizeChanged {
-                                height = it.height
-                            },
+                        modifier = Modifier.fillMaxHeight(1f).onSizeChanged { height = it.height },
                         horizontalArrangement = Arrangement.spacedBy(20.dp),
                         itemCount = 2,
                         overflow = ContextualFlowColumnOverflow.Clip
                     ) { index ->
                         Layout(
-                            modifier = Modifier
-                                .requiredSize(250.dp)
-                                .onPlaced {
+                            modifier =
+                                Modifier.requiredSize(250.dp).onPlaced {
                                     noOfItemsPlaced = index + 1
                                 }
                         ) { _, _ ->
-                            layout(250, 250) {} }
+                            layout(250, 250) {}
+                        }
                     }
                 }
             }
@@ -4098,16 +3605,13 @@ class ContextualFlowRowColumnTest {
         val maxItemsInMainAxis = mutableIntStateOf(4)
         val itemCount = 12
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 val heightState = remember { crossAxisSize }
                 val widthState by remember { mainAxisSize }
                 val maxItemsInMainAxisState by remember { maxItemsInMainAxis }
                 ContextualFlowRow(
-                    modifier = Modifier
-                        .width(widthState)
-                        .run {
+                    modifier =
+                        Modifier.width(widthState).run {
                             val heightValue = heightState.value
                             if (heightValue == Dp.Infinity) {
                                 this.wrapContentHeight()
@@ -4122,8 +3626,7 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowRowOverflow.Clip
                 ) {
                     Box(
-                        Modifier
-                            .width(if (lineIndex == 0) lineOneItemSize else itemSize)
+                        Modifier.width(if (lineIndex == 0) lineOneItemSize else itemSize)
                             .height(
                                 if (lineIndex == 0) {
                                     // choose varying heights, to
@@ -4137,14 +3640,10 @@ class ContextualFlowRowColumnTest {
                                 } else {
                                     itemSize
                                 }
-                            ).onGloballyPositioned {
+                            )
+                            .onGloballyPositioned {
                                 list.add(
-                                    FlowLineInfo(
-                                        lineIndex,
-                                        indexInLine,
-                                        maxWidthInLine,
-                                        maxHeight
-                                    )
+                                    FlowLineInfo(lineIndex, indexInLine, maxWidthInLine, maxHeight)
                                 )
                             }
                     )
@@ -4224,16 +3723,13 @@ class ContextualFlowRowColumnTest {
         val itemCount = 12
         val maxItemsInMainAxis = mutableIntStateOf(4)
         rule.setContent {
-            CompositionLocalProvider(
-                LocalDensity provides NoOpDensity
-            ) {
+            CompositionLocalProvider(LocalDensity provides NoOpDensity) {
                 val widthState = remember { crossAxisSize }
                 val heightState by remember { mainAxisSize }
                 val maxItemsInMainAxisState by remember { maxItemsInMainAxis }
                 ContextualFlowColumn(
-                    modifier = Modifier
-                        .height(heightState)
-                        .run {
+                    modifier =
+                        Modifier.height(heightState).run {
                             val widthValue = widthState.value
                             if (widthValue == Dp.Infinity) {
                                 this.wrapContentWidth()
@@ -4248,8 +3744,7 @@ class ContextualFlowRowColumnTest {
                     overflow = ContextualFlowColumnOverflow.Clip
                 ) {
                     Box(
-                        Modifier
-                            .height(if (lineIndex == 0) lineOneItemSize else itemSize)
+                        Modifier.height(if (lineIndex == 0) lineOneItemSize else itemSize)
                             .width(
                                 if (lineIndex == 0) {
                                     // choose varying heights, to
@@ -4263,7 +3758,8 @@ class ContextualFlowRowColumnTest {
                                 } else {
                                     itemSize
                                 }
-                            ).onGloballyPositioned {
+                            )
+                            .onGloballyPositioned {
                                 list.add(
                                     FlowLineInfo(
                                         lineIndex,
@@ -4347,19 +3843,15 @@ class ContextualFlowRowColumnTest {
         crossAxisSpacing: Dp
     ) {
         var leftOver = mainAxisSize
-        val lineInfo = FlowLineInfo(
-            0,
-            0,
-            leftOver,
-            maxCrossAxis
-        )
+        val lineInfo = FlowLineInfo(0, 0, leftOver, maxCrossAxis)
         var leftOverCrossAxis = maxCrossAxis
         list.forEach { info ->
-            val lineItemSize = if (info.lineIndex == 0) {
-                lineOneItemSize
-            } else {
-                itemSize
-            }
+            val lineItemSize =
+                if (info.lineIndex == 0) {
+                    lineOneItemSize
+                } else {
+                    itemSize
+                }
             Truth.assertThat(info.positionInLine).isEqualTo(lineInfo.positionInLine)
             Truth.assertThat(info.maxMainAxisSize).isEqualTo(lineInfo.maxMainAxisSize)
             Truth.assertThat(info.maxCrossAxisSize).isEqualTo(lineInfo.maxCrossAxisSize)

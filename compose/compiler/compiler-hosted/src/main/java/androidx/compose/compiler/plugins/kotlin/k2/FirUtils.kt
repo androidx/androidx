@@ -67,8 +67,7 @@ fun FirAnnotationContainer.hasDisallowComposableCallsAnnotation(session: FirSess
 
 fun FirCallableSymbol<*>.isComposable(session: FirSession): Boolean =
     when (this) {
-        is FirFunctionSymbol<*> ->
-            hasComposableAnnotation(session)
+        is FirFunctionSymbol<*> -> hasComposableAnnotation(session)
         is FirPropertySymbol ->
             getterSymbol?.let {
                 it.hasComposableAnnotation(session) || it.isComposableDelegate(session)
@@ -78,37 +77,28 @@ fun FirCallableSymbol<*>.isComposable(session: FirSession): Boolean =
 
 fun FirCallableSymbol<*>.isReadOnlyComposable(session: FirSession): Boolean =
     when (this) {
-        is FirFunctionSymbol<*> ->
-            hasReadOnlyComposableAnnotation(session)
-        is FirPropertySymbol ->
-            getterSymbol?.hasReadOnlyComposableAnnotation(session) ?: false
+        is FirFunctionSymbol<*> -> hasReadOnlyComposableAnnotation(session)
+        is FirPropertySymbol -> getterSymbol?.hasReadOnlyComposableAnnotation(session) ?: false
         else -> false
     }
 
 @OptIn(SymbolInternals::class)
 private fun FirPropertyAccessorSymbol.isComposableDelegate(session: FirSession): Boolean {
     if (!propertySymbol.hasDelegate) return false
-    return ((fir
-        .body
-        ?.statements
-        ?.singleOrNull() as? FirReturnExpression)
-        ?.result as? FirFunctionCall)
+    return ((fir.body?.statements?.singleOrNull() as? FirReturnExpression)?.result
+            as? FirFunctionCall)
         ?.calleeReference
         ?.toResolvedCallableSymbol()
-        ?.isComposable(session)
-        ?: false
+        ?.isComposable(session) ?: false
 }
 
-fun FirFunction.getDirectOverriddenFunctions(
-    context: CheckerContext
-): List<FirFunctionSymbol<*>> {
+fun FirFunction.getDirectOverriddenFunctions(context: CheckerContext): List<FirFunctionSymbol<*>> {
     if (!isOverride && (this as? FirPropertyAccessor)?.propertySymbol?.isOverride != true)
         return listOf()
 
-    val scope = (containingClassLookupTag()
-        ?.toSymbol(context.session) as? FirClassSymbol<*>)
-        ?.unsubstitutedScope(context)
-        ?: return listOf()
+    val scope =
+        (containingClassLookupTag()?.toSymbol(context.session) as? FirClassSymbol<*>)
+            ?.unsubstitutedScope(context) ?: return listOf()
 
     return when (val symbol = symbol) {
         is FirNamedFunctionSymbol -> {
@@ -147,8 +137,8 @@ fun FirFunctionSymbol<*>.isMain(session: FirSession): Boolean {
         1 -> {
             val type = parameterTypes.single()
             if (!type.isArrayType || type.typeArguments.size != 1) return false
-            val elementType = type.typeArguments[0].takeIf { it.kind != ProjectionKind.IN }?.type
-                ?: return false
+            val elementType =
+                type.typeArguments[0].takeIf { it.kind != ProjectionKind.IN }?.type ?: return false
             if (!elementType.isString) return false
         }
         else -> return false
@@ -165,10 +155,10 @@ fun FirFunctionSymbol<*>.isMain(session: FirSession): Boolean {
 }
 
 private fun FirNamedFunctionSymbol.jvmNameAsString(session: FirSession): String =
-    getAnnotationStringParameter(StandardClassIds.Annotations.JvmName, session)
-        ?: name.asString()
+    getAnnotationStringParameter(StandardClassIds.Annotations.JvmName, session) ?: name.asString()
 
 private val FirFunctionSymbol<*>.explicitParameterTypes: List<ConeKotlinType>
-    get() = resolvedContextReceivers.map { it.typeRef.coneType } +
-        listOfNotNull(receiverParameter?.typeRef?.coneType) +
-        valueParameterSymbols.map { it.resolvedReturnType }
+    get() =
+        resolvedContextReceivers.map { it.typeRef.coneType } +
+            listOfNotNull(receiverParameter?.typeRef?.coneType) +
+            valueParameterSymbols.map { it.resolvedReturnType }

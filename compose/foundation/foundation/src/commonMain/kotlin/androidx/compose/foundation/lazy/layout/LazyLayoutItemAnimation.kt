@@ -49,37 +49,32 @@ internal class LazyLayoutItemAnimation(
 
     var isRunningMovingAwayAnimation = false
         private set
+
     /**
-     * Returns true when the placement animation is currently in progress so the parent
-     * should continue composing this item.
+     * Returns true when the placement animation is currently in progress so the parent should
+     * continue composing this item.
      */
     var isPlacementAnimationInProgress by mutableStateOf(false)
         private set
 
-    /**
-     * Returns true when the appearance animation is currently in progress.
-     */
+    /** Returns true when the appearance animation is currently in progress. */
     var isAppearanceAnimationInProgress by mutableStateOf(false)
         private set
 
-    /**
-     * Returns true when the disappearance animation is currently in progress.
-     */
+    /** Returns true when the disappearance animation is currently in progress. */
     var isDisappearanceAnimationInProgress by mutableStateOf(false)
         private set
 
-    /**
-     * Returns true when the disappearance animation has been finished.
-     */
+    /** Returns true when the disappearance animation has been finished. */
     var isDisappearanceAnimationFinished by mutableStateOf(false)
         private set
 
     /**
-     * This property is managed by the animation manager and is not directly used by this class.
-     * It represents the last known offset of this item in the lazy layout coordinate space.
-     * It will be updated on every scroll and is allowing the manager to track when the item
-     * position changes not because of the scroll event in order to start the animation.
-     * When there is an active animation it represents the final/target offset.
+     * This property is managed by the animation manager and is not directly used by this class. It
+     * represents the last known offset of this item in the lazy layout coordinate space. It will be
+     * updated on every scroll and is allowing the manager to track when the item position changes
+     * not because of the scroll event in order to start the animation. When there is an active
+     * animation it represents the final/target offset.
      */
     var rawOffset: IntOffset = NotInitialized
 
@@ -89,9 +84,7 @@ internal class LazyLayoutItemAnimation(
      */
     var finalOffset: IntOffset = IntOffset.Zero
 
-    /**
-     * Current [GraphicsLayer]. It will be set to null in [release].
-     */
+    /** Current [GraphicsLayer]. It will be set to null in [release]. */
     var layer: GraphicsLayer? = graphicsContext?.createGraphicsLayer()
         private set
 
@@ -100,15 +93,13 @@ internal class LazyLayoutItemAnimation(
     private val visibilityAnimation = Animatable(1f, Float.VectorConverter)
 
     /**
-     * Current delta to apply for a placement offset. Updates every animation frame.
-     * The settled value is [IntOffset.Zero] so the animation is always targeting this value.
+     * Current delta to apply for a placement offset. Updates every animation frame. The settled
+     * value is [IntOffset.Zero] so the animation is always targeting this value.
      */
     var placementDelta by mutableStateOf(IntOffset.Zero)
         private set
 
-    /**
-     * Cancels the ongoing placement animation if there is one.
-     */
+    /** Cancels the ongoing placement animation if there is one. */
     fun cancelPlacementAnimation() {
         if (isPlacementAnimationInProgress) {
             coroutineScope.launch {
@@ -125,9 +116,7 @@ internal class LazyLayoutItemAnimation(
      */
     var lookaheadOffset: IntOffset = NotInitialized
 
-    /**
-     * Animate the placement by the given [delta] offset.
-     */
+    /** Animate the placement by the given [delta] offset. */
     fun animatePlacementDelta(delta: IntOffset, isMovingAway: Boolean) {
         val spec = placementSpec ?: return
         val totalDelta = placementDelta - delta
@@ -136,16 +125,17 @@ internal class LazyLayoutItemAnimation(
         isRunningMovingAwayAnimation = isMovingAway
         coroutineScope.launch {
             try {
-                val finalSpec = if (placementDeltaAnimation.isRunning) {
-                    // when interrupted, use the default spring, unless the spec is a spring.
-                    if (spec is SpringSpec<IntOffset>) {
-                        spec
+                val finalSpec =
+                    if (placementDeltaAnimation.isRunning) {
+                        // when interrupted, use the default spring, unless the spec is a spring.
+                        if (spec is SpringSpec<IntOffset>) {
+                            spec
+                        } else {
+                            InterruptionSpec
+                        }
                     } else {
-                        InterruptionSpec
+                        spec
                     }
-                } else {
-                    spec
-                }
                 if (!placementDeltaAnimation.isRunning) {
                     // if not running we can snap to the initial value and animate to zero
                     placementDeltaAnimation.snapTo(totalDelta)
@@ -178,9 +168,7 @@ internal class LazyLayoutItemAnimation(
                 // we have an active disappearance, and then appearance was requested, but the user
                 // provided null spec for the appearance. we need to immediately switch to 1f
                 layer?.alpha = 1f
-                coroutineScope.launch {
-                    visibilityAnimation.snapTo(1f)
-                }
+                coroutineScope.launch { visibilityAnimation.snapTo(1f) }
             }
             return
         }
@@ -227,21 +215,15 @@ internal class LazyLayoutItemAnimation(
     fun release() {
         if (isPlacementAnimationInProgress) {
             isPlacementAnimationInProgress = false
-            coroutineScope.launch {
-                placementDeltaAnimation.stop()
-            }
+            coroutineScope.launch { placementDeltaAnimation.stop() }
         }
         if (isAppearanceAnimationInProgress) {
             isAppearanceAnimationInProgress = false
-            coroutineScope.launch {
-                visibilityAnimation.stop()
-            }
+            coroutineScope.launch { visibilityAnimation.stop() }
         }
         if (isDisappearanceAnimationInProgress) {
             isDisappearanceAnimationInProgress = false
-            coroutineScope.launch {
-                visibilityAnimation.stop()
-            }
+            coroutineScope.launch { visibilityAnimation.stop() }
         }
         isRunningMovingAwayAnimation = false
         placementDelta = IntOffset.Zero
@@ -265,11 +247,7 @@ internal data class LazyLayoutAnimateItemElement(
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
 
     override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(
-            fadeInSpec,
-            placementSpec,
-            fadeOutSpec
-        )
+        LazyLayoutAnimationSpecsNode(fadeInSpec, placementSpec, fadeOutSpec)
 
     override fun update(node: LazyLayoutAnimationSpecsNode) {
         node.fadeInSpec = fadeInSpec
@@ -294,10 +272,9 @@ internal class LazyLayoutAnimationSpecsNode(
     override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
 }
 
-/**
- * We switch to this spec when a duration based animation is being interrupted.
- */
-private val InterruptionSpec = spring(
-    stiffness = Spring.StiffnessMediumLow,
-    visibilityThreshold = IntOffset.VisibilityThreshold
-)
+/** We switch to this spec when a duration based animation is being interrupted. */
+private val InterruptionSpec =
+    spring(
+        stiffness = Spring.StiffnessMediumLow,
+        visibilityThreshold = IntOffset.VisibilityThreshold
+    )

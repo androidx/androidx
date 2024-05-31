@@ -42,16 +42,12 @@ import org.junit.Test
 
 class BasicTextFieldLayoutPhaseToggleTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var state: TextFieldState
 
     private val fontSize = 20.sp
-    private val textStyle = TextStyle(
-        fontSize = fontSize,
-        fontFamily = TEST_FONT_FAMILY
-    )
+    private val textStyle = TextStyle(fontSize = fontSize, fontFamily = TEST_FONT_FAMILY)
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

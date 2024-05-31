@@ -44,12 +44,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LazyCustomKeysTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    val itemSize = with(rule.density) {
-        100.toDp()
-    }
+    val itemSize = with(rule.density) { 100.toDp() }
     val columns = 2
 
     @Test
@@ -58,9 +55,7 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item("${it.id}")
-                }
+                items(list, key = { it.id }) { Item("${it.id}") }
             }
         }
 
@@ -73,26 +68,18 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item(remember { "${it.id}" })
-                }
+                items(list, key = { it.id }) { Item(remember { "${it.id}" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = listOf(list[0], list[2])
-        }
+        rule.runOnIdle { list = listOf(list[0], list[2]) }
 
         assertItems("0", "2")
     }
 
     @Test
     fun reordering_statesAreMoved_list() {
-        testReordering { grid ->
-            items(grid, key = { it.id }) {
-                Item(remember { "${it.id}" })
-            }
-        }
+        testReordering { grid -> items(grid, key = { it.id }) { Item(remember { "${it.id}" }) } }
     }
 
     @Test
@@ -108,9 +95,7 @@ class LazyCustomKeysTest {
     fun reordering_statesAreMoved_array() {
         testReordering { grid ->
             val array = grid.toTypedArray()
-            items(array, key = { it.id }) {
-                Item(remember { "${it.id}" })
-            }
+            items(array, key = { it.id }) { Item(remember { "${it.id}" }) }
         }
     }
 
@@ -127,9 +112,7 @@ class LazyCustomKeysTest {
     @Test
     fun reordering_statesAreMoved_itemsWithCount() {
         testReordering { grid ->
-            items(grid.size, key = { grid[it].id }) {
-                Item(remember { "${grid[it].id}" })
-            }
+            items(grid.size, key = { grid[it].id }) { Item(remember { "${grid[it].id}" }) }
         }
     }
 
@@ -140,15 +123,11 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item(remember { counter++ }.toString())
-                }
+                items(list, key = { it.id }) { Item(remember { counter++ }.toString()) }
             }
         }
 
-        rule.runOnIdle {
-            list = listOf(MyClass(3), MyClass(4), MyClass(5), MyClass(6))
-        }
+        rule.runOnIdle { list = listOf(MyClass(3), MyClass(4), MyClass(5), MyClass(6)) }
 
         assertItems("3", "4", "5", "6")
     }
@@ -160,15 +139,11 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item(remember { counter++ }.toString())
-                }
+                items(list, key = { it.id }) { Item(remember { counter++ }.toString()) }
             }
         }
 
-        rule.runOnIdle {
-            list = listOf(MyClass(1))
-        }
+        rule.runOnIdle { list = listOf(MyClass(1)) }
 
         assertItems("1")
     }
@@ -180,15 +155,11 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item(remember { counter++ }.toString())
-                }
+                items(list, key = { it.id }) { Item(remember { counter++ }.toString()) }
             }
         }
 
-        rule.runOnIdle {
-            list = listOf(MyClass(1), MyClass(3))
-        }
+        rule.runOnIdle { list = listOf(MyClass(1), MyClass(3)) }
 
         assertItems("1", "3")
     }
@@ -196,9 +167,7 @@ class LazyCustomKeysTest {
     @Test
     fun mixingKeyedItemsAndNot() {
         testReordering { list ->
-            item {
-                Item("${list.first().id}")
-            }
+            item { Item("${list.first().id}") }
             items(list.subList(fromIndex = 1, toIndex = list.size), key = { it.id }) {
                 Item(remember { "${it.id}" })
             }
@@ -210,24 +179,18 @@ class LazyCustomKeysTest {
         val state = mutableStateOf(emptyList<Int>())
 
         rule.setContent {
-            LaunchedEffect(Unit) {
-                state.value = listOf(4, 1, 3)
-            }
+            LaunchedEffect(Unit) { state.value = listOf(4, 1, 3) }
 
             val list = state.value
 
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.fillMaxSize()) {
-                items(list, key = { it }) {
-                    Item(it.toString())
-                }
+                items(list, key = { it }) { Item(it.toString()) }
             }
         }
 
         assertItems("4", "1", "3")
 
-        rule.runOnIdle {
-            state.value = listOf(2, 4, 6, 1, 3, 5)
-        }
+        rule.runOnIdle { state.value = listOf(2, 4, 6, 1, 3, 5) }
 
         assertItems("2", "4", "6", "1", "3", "5")
     }
@@ -238,15 +201,11 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(columns)) {
-                items(list, key = { it.id }) {
-                    Item(remember { "${it.id}" })
-                }
+                items(list, key = { it.id }) { Item(remember { "${it.id}" }) }
             }
         }
 
-        rule.runOnIdle {
-            list.add(list.removeAt(1))
-        }
+        rule.runOnIdle { list.add(list.removeAt(1)) }
 
         assertItems("0", "2", "1")
     }
@@ -259,17 +218,11 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState()
             LazyVerticalGrid(GridCells.Fixed(columns), state = state) {
-                items(list, key = { it.id }) {
-                    Item(remember { "${it.id}" })
-                }
+                items(list, key = { it.id }) { Item(remember { "${it.id}" }) }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(0, 1, 2))
-        }
+        rule.runOnIdle { assertThat(state.visibleKeys).isEqualTo(listOf(0, 1, 2)) }
     }
 
     @Test
@@ -280,21 +233,13 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState()
             LazyVerticalGrid(columns = GridCells.Fixed(columns), state = state) {
-                items(list, key = { it.id }) {
-                    Item(remember { "${it.id}" })
-                }
+                items(list, key = { it.id }) { Item(remember { "${it.id}" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = listOf(list[0], list[2], list[1])
-        }
+        rule.runOnIdle { list = listOf(list[0], list[2], list[1]) }
 
-        rule.runOnIdle {
-            assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(0, 2, 1))
-        }
+        rule.runOnIdle { assertThat(state.visibleKeys).isEqualTo(listOf(0, 2, 1)) }
     }
 
     @Test
@@ -305,19 +250,13 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState()
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
-                items(list) {
-                    Item(remember { "$it" })
-                }
+                items(list) { Item(remember { "$it" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = (0..15).toList()
-        }
+        rule.runOnIdle { list = (0..15).toList() }
 
-        rule.runOnIdle {
-            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(state.firstVisibleItemIndex).isEqualTo(0) }
     }
 
     @Test
@@ -328,21 +267,15 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState()
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
-                items(list, key = { it }) {
-                    Item(remember { "$it" })
-                }
+                items(list, key = { it }) { Item(remember { "$it" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = (0..15).toList()
-        }
+        rule.runOnIdle { list = (0..15).toList() }
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(10)
-            assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(10, 11, 12, 13, 14, 15))
+            assertThat(state.visibleKeys).isEqualTo(listOf(10, 11, 12, 13, 14, 15))
         }
     }
 
@@ -354,21 +287,15 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState(5)
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
-                items(list, key = { it }) {
-                    Item(remember { "$it" })
-                }
+                items(list, key = { it }) { Item(remember { "$it" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = (0..15).toList()
-        }
+        rule.runOnIdle { list = (0..15).toList() }
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(4)
-            assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(4, 5, 6, 7, 8, 9))
+            assertThat(state.visibleKeys).isEqualTo(listOf(4, 5, 6, 7, 8, 9))
         }
     }
 
@@ -380,21 +307,15 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState(10) // key 20 is the first item
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
-                items(list, key = { it }) {
-                    Item(remember { "$it" })
-                }
+                items(list, key = { it }) { Item(remember { "$it" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = (0..30).toList()
-        }
+        rule.runOnIdle { list = (0..30).toList() }
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(20)
-            assertThat(
-                state.visibleKeys
-            ).isEqualTo(listOf(20, 21, 22, 23, 24, 25))
+            assertThat(state.visibleKeys).isEqualTo(listOf(20, 21, 22, 23, 24, 25))
         }
     }
 
@@ -406,15 +327,11 @@ class LazyCustomKeysTest {
         rule.setContent {
             state = rememberLazyGridState(8)
             LazyVerticalGrid(GridCells.Fixed(columns), Modifier.size(itemSize * 2.5f), state) {
-                items(list, key = { it }) {
-                    Item(remember { "$it" })
-                }
+                items(list, key = { it }) { Item(remember { "$it" }) }
             }
         }
 
-        rule.runOnIdle {
-            list = (0..20) - 8
-        }
+        rule.runOnIdle { list = (0..20) - 8 }
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(8)
@@ -428,32 +345,27 @@ class LazyCustomKeysTest {
 
         rule.setContent {
             LazyVerticalGrid(GridCells.Fixed(1)) {
-                items(1, key = {
-                    keyCalls++
-                    0
-                }) {
+                items(
+                    1,
+                    key = {
+                        keyCalls++
+                        0
+                    }
+                ) {
                     Item("item")
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(keyCalls).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(keyCalls).isEqualTo(1) }
     }
 
     private fun testReordering(content: LazyGridScope.(List<MyClass>) -> Unit) {
         var list by mutableStateOf(listOf(MyClass(0), MyClass(1), MyClass(2)))
 
-        rule.setContent {
-            LazyVerticalGrid(GridCells.Fixed(columns)) {
-                content(list)
-            }
-        }
+        rule.setContent { LazyVerticalGrid(GridCells.Fixed(columns)) { content(list) } }
 
-        rule.runOnIdle {
-            list = listOf(list[0], list[2], list[1])
-        }
+        rule.runOnIdle { list = listOf(list[0], list[2], list[1]) }
 
         assertItems("0", "2", "1")
     }
@@ -462,7 +374,8 @@ class LazyCustomKeysTest {
         var currentTop = 0.dp
         var column = 0
         tags.forEach {
-            rule.onNodeWithTag(it)
+            rule
+                .onNodeWithTag(it)
                 .assertTopPositionInRootIsEqualTo(currentTop)
                 .assertHeightIsEqualTo(itemSize)
             ++column
@@ -475,12 +388,11 @@ class LazyCustomKeysTest {
 
     @Composable
     private fun Item(tag: String) {
-        Spacer(
-            Modifier.testTag(tag).size(itemSize)
-        )
+        Spacer(Modifier.testTag(tag).size(itemSize))
     }
 
     private class MyClass(val id: Int)
 }
 
-val LazyGridState.visibleKeys: List<Any> get() = layoutInfo.visibleItemsInfo.map { it.key }
+val LazyGridState.visibleKeys: List<Any>
+    get() = layoutInfo.visibleItemsInfo.map { it.key }

@@ -18,8 +18,6 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.PathEffect as SkPathEffect
 
-/**
- * Obtain a reference to the desktop PathEffect type
- */
+/** Obtain a reference to the desktop PathEffect type */
 @Deprecated("Use asSkiaPathEffect()", replaceWith = ReplaceWith("asSkiaPathEffect()"))
 fun PathEffect.asDesktopPathEffect(): SkPathEffect = asSkiaPathEffect()

@@ -67,26 +67,27 @@ fun ConditionalFocusabilityDemo() {
              but clicking on it will request the system
              to switch to keyboard mode, and then call
              request focus.
-             """.trimIndent()
+             """
+                .trimIndent()
         )
         Text(
             text = "Focusable in all modes",
-            modifier = Modifier
-                .focusAwareBackground()
-                .focusRequester(item1)
-                .pointerInput(item1) { detectTapGestures { item1.requestFocus() } }
-                .focusable()
+            modifier =
+                Modifier.focusAwareBackground()
+                    .focusRequester(item1)
+                    .pointerInput(item1) { detectTapGestures { item1.requestFocus() } }
+                    .focusable()
         )
         Row {
             var item2active by remember { mutableStateOf(false) }
             Text(
                 text = "focusable item that is " + if (item2active) "activated" else "deactivated",
-                modifier = Modifier
-                    .focusAwareBackground()
-                    .focusRequester(item2)
-                    .pointerInput(item2) { detectTapGestures { item2.requestFocus() } }
-                    .focusProperties { canFocus = item2active }
-                    .focusable()
+                modifier =
+                    Modifier.focusAwareBackground()
+                        .focusRequester(item2)
+                        .pointerInput(item2) { detectTapGestures { item2.requestFocus() } }
+                        .focusProperties { canFocus = item2active }
+                        .focusable()
             )
             Button(onClick = { item2active = !item2active }) {
                 Text("${if (item2active) "deactivate" else "activate"} item 2")
@@ -94,37 +95,35 @@ fun ConditionalFocusabilityDemo() {
         }
         Text(
             text = "Focusable in keyboard mode",
-            modifier = Modifier
-                .focusAwareBackground()
-                .focusRequester(item3)
-                .pointerInput(item3) { detectTapGestures { item3.requestFocus() } }
-                .focusProperties { canFocus = localInputModeManager.inputMode == Keyboard }
-                .focusable()
+            modifier =
+                Modifier.focusAwareBackground()
+                    .focusRequester(item3)
+                    .pointerInput(item3) { detectTapGestures { item3.requestFocus() } }
+                    .focusProperties { canFocus = localInputModeManager.inputMode == Keyboard }
+                    .focusable()
         )
         Text(
             text = "Request focus by touch",
-            modifier = Modifier
-                .focusAwareBackground()
-                .focusRequester(item4)
-                .pointerInput(item4) {
-                    detectTapGestures {
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (localInputModeManager.requestInputMode(Keyboard)) {
-                            item4.requestFocus()
+            modifier =
+                Modifier.focusAwareBackground()
+                    .focusRequester(item4)
+                    .pointerInput(item4) {
+                        detectTapGestures {
+                            @OptIn(ExperimentalComposeUiApi::class)
+                            if (localInputModeManager.requestInputMode(Keyboard)) {
+                                item4.requestFocus()
+                            }
                         }
                     }
-                }
-                .focusProperties { canFocus = localInputModeManager.inputMode == Keyboard }
-                .focusable()
+                    .focusProperties { canFocus = localInputModeManager.inputMode == Keyboard }
+                    .focusable()
         )
     }
 }
 
 private fun Modifier.focusAwareBackground() = composed {
     var color by remember { mutableStateOf(Gray) }
-    Modifier
-        .padding(10.dp)
-        .size(150.dp, 50.dp)
-        .background(color)
-        .onFocusChanged { color = if (it.isFocused) Red else Gray }
+    Modifier.padding(10.dp).size(150.dp, 50.dp).background(color).onFocusChanged {
+        color = if (it.isFocused) Red else Gray
+    }
 }

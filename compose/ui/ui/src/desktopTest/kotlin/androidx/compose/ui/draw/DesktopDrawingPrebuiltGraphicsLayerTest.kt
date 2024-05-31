@@ -57,8 +57,7 @@ import org.junit.Test
 @OptIn(InternalTestApi::class)
 class DesktopDrawingPrebuiltGraphicsLayerTest {
 
-    @get:Rule
-    val rule = DesktopComposeTestRule()
+    @get:Rule val rule = DesktopComposeTestRule()
 
     private val size = 2
     private val sizeDp = with(rule.density) { size.toDp() }
@@ -71,9 +70,7 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
     @After
     fun releaseLayer() {
         rule.runOnUiThread {
-            layer?.let {
-                context!!.releaseGraphicsLayer(it)
-            }
+            layer?.let { context!!.releaseGraphicsLayer(it) }
             layer = null
         }
     }
@@ -88,24 +85,18 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             }
         }
 
-        rule.runOnIdle {
-            drawPrebuiltLayer = true
-        }
+        rule.runOnIdle { drawPrebuiltLayer = true }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red
+        }
     }
 
     @Test
     fun sizeIsCorrect() {
-        rule.setContent {
-            ColoredBox()
-        }
+        rule.setContent { ColoredBox() }
 
-        rule.runOnIdle {
-            Truth.assertThat(layer!!.size).isEqualTo(IntSize(size, size))
-        }
+        rule.runOnIdle { Truth.assertThat(layer!!.size).isEqualTo(IntSize(size, size)) }
     }
 
     @Test
@@ -123,9 +114,9 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             layer!!.alpha = 0.5f
         }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red.copy(alpha = 0.5f).compositeOver(Color.White) }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
+        }
     }
 
     @Ignore("b/329262831")
@@ -142,27 +133,21 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             }
         }
 
-        rule.runOnIdle {
-            drawPrebuiltLayer = true
+        rule.runOnIdle { drawPrebuiltLayer = true }
+
+        rule.onNodeWithTag(ColoredBoxTag).captureToImage().assertPixels(expectedSize) { Color.Blue }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Blue
         }
 
-        rule.onNodeWithTag(ColoredBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Blue }
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Blue }
+        rule.runOnUiThread { color = Color.Green }
 
-        rule.runOnUiThread {
-            color = Color.Green
+        rule.onNodeWithTag(ColoredBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Green
         }
-
-        rule.onNodeWithTag(ColoredBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Green }
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Green }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Green
+        }
     }
 
     @Test
@@ -170,11 +155,7 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         rule.setContent {
             if (!drawPrebuiltLayer) {
                 Box(Modifier.drawIntoLayer()) {
-                    Canvas(
-                        Modifier
-                            .size(sizeDp)
-                            .drawIntoLayer(rememberGraphicsLayer())
-                    ) {
+                    Canvas(Modifier.size(sizeDp).drawIntoLayer(rememberGraphicsLayer())) {
                         drawRect(Color.Red)
                     }
                 }
@@ -183,13 +164,11 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             }
         }
 
-        rule.runOnIdle {
-            drawPrebuiltLayer = true
-        }
+        rule.runOnIdle { drawPrebuiltLayer = true }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red
+        }
     }
 
     @Test
@@ -197,16 +176,8 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         rule.setContent {
             if (!drawPrebuiltLayer) {
                 Box(Modifier.drawIntoLayer()) {
-                    Box(
-                        Modifier.drawIntoLayer(
-                            rememberGraphicsLayer()
-                        )
-                    ) {
-                        Canvas(
-                            Modifier
-                                .size(sizeDp)
-                                .drawIntoLayer(rememberGraphicsLayer())
-                        ) {
+                    Box(Modifier.drawIntoLayer(rememberGraphicsLayer())) {
+                        Canvas(Modifier.size(sizeDp).drawIntoLayer(rememberGraphicsLayer())) {
                             drawRect(Color.Red)
                         }
                     }
@@ -216,13 +187,11 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             }
         }
 
-        rule.runOnIdle {
-            drawPrebuiltLayer = true
-        }
+        rule.runOnIdle { drawPrebuiltLayer = true }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red
+        }
     }
 
     @Ignore("remove annotation when Modifier.graphicsLayer() will use the same layer mechanism")
@@ -231,16 +200,8 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         rule.setContent {
             if (!drawPrebuiltLayer) {
                 Box(Modifier.drawIntoLayer()) {
-                    Box(
-                        Modifier.graphicsLayer()
-                    ) {
-                        Canvas(
-                            Modifier
-                                .size(sizeDp)
-                                .graphicsLayer()
-                        ) {
-                            drawRect(Color.Red)
-                        }
+                    Box(Modifier.graphicsLayer()) {
+                        Canvas(Modifier.size(sizeDp).graphicsLayer()) { drawRect(Color.Red) }
                     }
                 }
             } else {
@@ -248,13 +209,11 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             }
         }
 
-        rule.runOnIdle {
-            drawPrebuiltLayer = true
-        }
+        rule.runOnIdle { drawPrebuiltLayer = true }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red
+        }
     }
 
     @Test
@@ -262,10 +221,12 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         val counter = mutableStateOf(0)
         rule.setContent {
             if (!drawPrebuiltLayer) {
-                ColoredBox(color = {
-                    counter.value
-                    Color.Red
-                })
+                ColoredBox(
+                    color = {
+                        counter.value
+                        Color.Red
+                    }
+                )
             } else {
                 LayerDrawingBox()
             }
@@ -279,9 +240,9 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             counter.value++
         }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red
+        }
     }
 
     @Ignore("b/329417380")
@@ -300,25 +261,16 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
             layer!!.alpha = 1f
         }
 
-        rule.runOnIdle {
-            layer!!.alpha = 0.5f
-        }
+        rule.runOnIdle { layer!!.alpha = 0.5f }
 
-        rule.onNodeWithTag(LayerDrawingBoxTag)
-            .captureToImage()
-            .assertPixels(expectedSize) { Color.Red.copy(alpha = 0.5f).compositeOver(Color.White) }
+        rule.onNodeWithTag(LayerDrawingBoxTag).captureToImage().assertPixels(expectedSize) {
+            Color.Red.copy(alpha = 0.5f).compositeOver(Color.White)
+        }
     }
 
     @Composable
     private fun ColoredBox(modifier: Modifier = Modifier, color: () -> Color = { Color.Red }) {
-        Canvas(
-            modifier
-                .size(sizeDp)
-                .testTag(ColoredBoxTag)
-                .drawIntoLayer()
-        ) {
-            drawRect(color())
-        }
+        Canvas(modifier.size(sizeDp).testTag(ColoredBoxTag).drawIntoLayer()) { drawRect(color()) }
     }
 
     @Composable
@@ -328,28 +280,18 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
     }
 
     @Composable
-    private fun Modifier.drawIntoLayer(
-        layer: GraphicsLayer = obtainLayer()
-    ): Modifier {
+    private fun Modifier.drawIntoLayer(layer: GraphicsLayer = obtainLayer()): Modifier {
         return drawWithContent {
-            layer.record {
-                this@drawWithContent.drawContent()
-            }
+            layer.record { this@drawWithContent.drawContent() }
             drawLayer(layer)
         }
     }
 
     @Composable
     private fun LayerDrawingBox() {
-        Canvas(
-            Modifier
-                .size(sizeDp)
-                .testTag(LayerDrawingBoxTag)
-        ) {
+        Canvas(Modifier.size(sizeDp).testTag(LayerDrawingBoxTag)) {
             drawRect(Color.White)
-            layer?.let {
-                drawLayer(it)
-            }
+            layer?.let { drawLayer(it) }
         }
     }
 
@@ -360,14 +302,15 @@ class DesktopDrawingPrebuiltGraphicsLayerTest {
         rule.scene.render(canvas, rule.mainClock.currentTime * 1_000_000)
 
         val bounds = getBoundsInRoot()
-        val rect = with(rule.density) {
-            IRect.makeLTRB(
-                bounds.left.roundToPx(),
-                bounds.top.roundToPx(),
-                bounds.right.roundToPx(),
-                bounds.bottom.roundToPx(),
-            )
-        }
+        val rect =
+            with(rule.density) {
+                IRect.makeLTRB(
+                    bounds.left.roundToPx(),
+                    bounds.top.roundToPx(),
+                    bounds.right.roundToPx(),
+                    bounds.bottom.roundToPx(),
+                )
+            }
         return surface.makeImageSnapshot(rect)!!.toComposeImageBitmap()
     }
 }
@@ -381,9 +324,8 @@ private val ColoredBoxTag = "RedBoxTag"
  * A helper function to run asserts on [ImageBitmap].
  *
  * @param expectedSize The expected size of the bitmap. Leave null to skip the check.
- * @param expectedColorProvider Returns the expected color for the provided pixel position.
- * The returned color is then asserted as the expected one on the given bitmap.
- *
+ * @param expectedColorProvider Returns the expected color for the provided pixel position. The
+ *   returned color is then asserted as the expected one on the given bitmap.
  * @throws AssertionError if size or colors don't match.
  */
 fun ImageBitmap.assertPixels(
@@ -393,8 +335,7 @@ fun ImageBitmap.assertPixels(
     if (expectedSize != null) {
         if (width != expectedSize.width || height != expectedSize.height) {
             throw AssertionError(
-                "Bitmap size is wrong! Expected '$expectedSize' but got " +
-                    "'$width x $height'"
+                "Bitmap size is wrong! Expected '$expectedSize' but got " + "'$width x $height'"
             )
         }
     }
@@ -411,9 +352,7 @@ fun ImageBitmap.assertPixels(
     }
 }
 
-/**
- * Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected].
- */
+/** Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected]. */
 fun PixelMap.assertPixelColor(
     expected: Color,
     x: Int,

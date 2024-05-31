@@ -25,15 +25,15 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 interface GraphicsContext {
 
     /**
-     * Create a [GraphicsLayer] instance. This may internally return a previously
-     * released [GraphicsLayer] instance passed to [releaseGraphicsLayer]
+     * Create a [GraphicsLayer] instance. This may internally return a previously released
+     * [GraphicsLayer] instance passed to [releaseGraphicsLayer]
      */
     fun createGraphicsLayer(): GraphicsLayer
 
     /**
-     * Releases a [GraphicsLayer] instance so it can be re-used. After this method is
-     * invoked, it is an error to use this [GraphicsLayer] instance again. The [GraphicsLayer]
-     * maybe reused internally and obtained again through a subsequent call to [createGraphicsLayer]
+     * Releases a [GraphicsLayer] instance so it can be re-used. After this method is invoked, it is
+     * an error to use this [GraphicsLayer] instance again. The [GraphicsLayer] maybe reused
+     * internally and obtained again through a subsequent call to [createGraphicsLayer]
      */
     fun releaseGraphicsLayer(layer: GraphicsLayer)
 }

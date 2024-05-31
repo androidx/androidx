@@ -26,10 +26,11 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class TextField2SelectionGesturesLtrTest : TextField2SelectionGesturesTest(
-    initialText = "line1\nline2 text1 text2\nline3",
-    layoutDirection = LayoutDirection.Ltr,
-) {
+internal class TextField2SelectionGesturesLtrTest :
+    TextField2SelectionGesturesTest(
+        initialText = "line1\nline2 text1 text2\nline3",
+        layoutDirection = LayoutDirection.Ltr,
+    ) {
     override val word = "hello"
 
     override fun characterPosition(offset: Int): Offset {

@@ -56,13 +56,7 @@ class TestScheme {
 
     @Test
     fun canCreateOpenBindings() {
-        val scheme = Scheme(
-            Open(0),
-            listOf(
-                Scheme(Open(0)),
-                Scheme(Open(2))
-            )
-        )
+        val scheme = Scheme(Open(0), listOf(Scheme(Open(0)), Scheme(Open(2))))
         val bindings = Bindings()
         val context = mutableListOf<Binding>()
         val t1 = scheme.target.toBinding(bindings, context)
@@ -122,27 +116,22 @@ class TestScheme {
         val z = Open(0)
         val one = Open(1)
         val oneScheme = Scheme(one)
-        val schemes = listOf(
-            ui,
-            Scheme(z, listOf(Scheme(z))),
-            Scheme(Token("This is a really long token with special chars [],_,123")),
-            Scheme(Token("Contains a \" character")),
-            Scheme(Token("Contains a \\ character")),
-            Scheme(one, listOf(Scheme(Open(2), listOf(Scheme(Open(3)))))),
-            Scheme(uiToken, listOf(ui, ui, ui, ui, ui, ui)),
-            Scheme(a, listOf(aScheme, aScheme, aScheme)),
-            Scheme(one, listOf(oneScheme, aScheme, oneScheme, aScheme)),
-            Scheme(Open(Int.MAX_VALUE), listOf(Scheme(Open(Int.MAX_VALUE)))),
-            Scheme(Open(Int.MIN_VALUE), listOf(Scheme(Open(Int.MIN_VALUE)))),
-            Scheme(
-                target = z,
-                result = oneScheme
-            ),
-            Scheme(
-                target = z,
-                anyParameters = true
+        val schemes =
+            listOf(
+                ui,
+                Scheme(z, listOf(Scheme(z))),
+                Scheme(Token("This is a really long token with special chars [],_,123")),
+                Scheme(Token("Contains a \" character")),
+                Scheme(Token("Contains a \\ character")),
+                Scheme(one, listOf(Scheme(Open(2), listOf(Scheme(Open(3)))))),
+                Scheme(uiToken, listOf(ui, ui, ui, ui, ui, ui)),
+                Scheme(a, listOf(aScheme, aScheme, aScheme)),
+                Scheme(one, listOf(oneScheme, aScheme, oneScheme, aScheme)),
+                Scheme(Open(Int.MAX_VALUE), listOf(Scheme(Open(Int.MAX_VALUE)))),
+                Scheme(Open(Int.MIN_VALUE), listOf(Scheme(Open(Int.MIN_VALUE)))),
+                Scheme(target = z, result = oneScheme),
+                Scheme(target = z, anyParameters = true)
             )
-        )
 
         for (scheme in schemes) {
             val serialized = scheme.serialize()
@@ -153,18 +142,19 @@ class TestScheme {
 
     @Test
     fun invalidDeserializationCanBeCaught() {
-        val invalids = listOf(
-            "",
-            "[ ]",
-            "[123123123123123123123123123123123123]",
-            "[\"",
-            "[a[a[a[a[a",
-            "[a[a[a[a[a[\"",
-            "[UI] ",
-            "[\"\\u0000\"]",
-            "[0*[0]]",
-            "[0[0]*]"
-        )
+        val invalids =
+            listOf(
+                "",
+                "[ ]",
+                "[123123123123123123123123123123123123]",
+                "[\"",
+                "[a[a[a[a[a",
+                "[a[a[a[a[a[\"",
+                "[UI] ",
+                "[\"\\u0000\"]",
+                "[0*[0]]",
+                "[0[0]*]"
+            )
         for (invalid in invalids) {
             val result = deserializeScheme(invalid)
             assertNull(result)

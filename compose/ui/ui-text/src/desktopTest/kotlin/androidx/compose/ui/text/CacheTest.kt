@@ -23,6 +23,7 @@ import org.junit.runners.JUnit4
 
 private class MockedTimeProvider : ExpireAfterAccessCache.TimeProvider {
     var currentTime: Long = 0
+
     override fun getTime() = currentTime
 }
 
@@ -32,17 +33,17 @@ private const val tenMillisInNanos = 10_000_000
 @RunWith(JUnit4::class)
 class CacheTest {
     private val time = MockedTimeProvider()
-    private val cache = ExpireAfterAccessCache<String, String>(
-        expireAfterNanos = 1_000_000_000L, // 1 second
-        timeProvider = time
-    )
+    private val cache =
+        ExpireAfterAccessCache<String, String>(
+            expireAfterNanos = 1_000_000_000L, // 1 second
+            timeProvider = time
+        )
+
     @Test
     fun single_key() {
         cache.get("k1") { "v1" }
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k1")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k1")
 
         var valueFromCache = cache.get("k1") { "v1_2" }
         Truth.assertThat(valueFromCache).isEqualTo("v1")
@@ -52,8 +53,7 @@ class CacheTest {
         valueFromCache = cache.get("k1") { "v1_3" }
         Truth.assertThat(valueFromCache).isEqualTo("v1")
 
-        Truth.assertThat(cache.accessQueue.head!!.accessTime)
-            .isEqualTo(twoSecondsInNanos)
+        Truth.assertThat(cache.accessQueue.head!!.accessTime).isEqualTo(twoSecondsInNanos)
     }
 
     @Test
@@ -64,10 +64,8 @@ class CacheTest {
 
         cache.get("k2") { "v2" }
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k2")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k2")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k1")
 
         time.currentTime += tenMillisInNanos
 
@@ -75,22 +73,17 @@ class CacheTest {
 
         Truth.assertThat(valueFromCache).isEqualTo("v1")
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k1")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k2")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k2")
 
         // expiration
         time.currentTime += twoSecondsInNanos
         cache.get("k1") { "v1_3" }
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k1")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k1")
 
-        Truth.assertThat(cache.map.size)
-            .isEqualTo(1)
+        Truth.assertThat(cache.map.size).isEqualTo(1)
     }
 
     @Test
@@ -99,31 +92,23 @@ class CacheTest {
         cache.get("k2") { "v2" }
         cache.get("k3") { "v3" }
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k3")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k3")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k1")
 
         cache.get("k2") { "v2_2" }
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k2")
-        Truth.assertThat(cache.accessQueue.tail!!.key)
-            .isEqualTo("k1")
-        Truth.assertThat(cache.accessQueue.tail!!.nextInAccess!!.key)
-            .isEqualTo("k3")
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k2")
+        Truth.assertThat(cache.accessQueue.tail!!.key).isEqualTo("k1")
+        Truth.assertThat(cache.accessQueue.tail!!.nextInAccess!!.key).isEqualTo("k3")
 
         time.currentTime += twoSecondsInNanos
         cache.get("k3") { "v3_3" }
 
-        Truth.assertThat(cache.accessQueue.head!!.key)
-            .isEqualTo("k3")
-        Truth.assertThat(cache.accessQueue.head!!)
-            .isEqualTo(cache.accessQueue.tail!!)
+        Truth.assertThat(cache.accessQueue.head!!.key).isEqualTo("k3")
+        Truth.assertThat(cache.accessQueue.head!!).isEqualTo(cache.accessQueue.tail!!)
         Truth.assertThat(cache.accessQueue.tail!!.prevInAccess).isNull()
         Truth.assertThat(cache.accessQueue.tail!!.nextInAccess).isNull()
 
-        Truth.assertThat(cache.map.size)
-            .isEqualTo(1)
+        Truth.assertThat(cache.map.size).isEqualTo(1)
     }
 }

@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.platform.jvm.isJvm
 enum class StabilityBits(val bits: Int) {
     UNSTABLE(0b100),
     STABLE(0b000);
+
     fun bitsForSlot(slot: Int): Int = bits shl (1 + slot * 3)
 }
 
@@ -68,7 +69,8 @@ class ClassStabilityTransformer(
     stabilityInferencer: StabilityInferencer,
     private val classStabilityInferredCollection: ClassStabilityInferredCollection? = null,
     featureFlags: FeatureFlags,
-) : AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
+) :
+    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
     ClassLoweringPass,
     ModuleLoweringPass {
 
@@ -80,8 +82,7 @@ class ClassStabilityTransformer(
         module.transformChildrenVoid(this)
     }
 
-    override fun lower(irClass: IrClass) {
-    }
+    override fun lower(irClass: IrClass) {}
 
     override fun lower(irFile: IrFile) {
         irFile.transformChildrenVoid(this)
@@ -93,22 +94,22 @@ class ClassStabilityTransformer(
 
         if (
             (
-                // Including public AND internal to support incremental compilation, which
-                // is separated by file.
-                cls.visibility != DescriptorVisibilities.PUBLIC &&
-                    cls.visibility != DescriptorVisibilities.INTERNAL
-            ) ||
-            cls.isEnumClass ||
-            cls.isEnumEntry ||
-            cls.isInterface ||
-            cls.isAnnotationClass ||
-            cls.isAnonymousObject ||
-            cls.isExpect ||
-            cls.isInner ||
-            cls.isFileClass ||
-            cls.isCompanion ||
-            cls.defaultType.isInlineClassType()
-        ) return cls
+            // Including public AND internal to support incremental compilation, which
+            // is separated by file.
+            cls.visibility != DescriptorVisibilities.PUBLIC &&
+                cls.visibility != DescriptorVisibilities.INTERNAL) ||
+                cls.isEnumClass ||
+                cls.isEnumEntry ||
+                cls.isInterface ||
+                cls.isAnnotationClass ||
+                cls.isAnonymousObject ||
+                cls.isExpect ||
+                cls.isInner ||
+                cls.isFileClass ||
+                cls.isCompanion ||
+                cls.defaultType.isInlineClassType()
+        )
+            return cls
 
         if (declaration.hasStableMarker()) {
             metrics.recordClass(
@@ -143,7 +144,6 @@ class ClassStabilityTransformer(
                             externalParameters = true
                         }
                     }
-
                     else -> {
                         /* No action necessary */
                     }
@@ -152,33 +152,28 @@ class ClassStabilityTransformer(
             if (stability.knownStable() && symbols.size < 32) {
                 parameterMask = parameterMask or (0b1 shl symbols.size)
             }
-            stableExpr = if (externalParameters)
-                irConst(UNSTABLE)
-            else
-                stability.irStableExpression { irConst(STABLE) } ?: irConst(UNSTABLE)
+            stableExpr =
+                if (externalParameters) irConst(UNSTABLE)
+                else stability.irStableExpression { irConst(STABLE) } ?: irConst(UNSTABLE)
         } else {
             stableExpr = stability.irStableExpression() ?: irConst(UNSTABLE)
             if (stability.knownStable()) {
                 parameterMask = 0b1
             }
         }
-        metrics.recordClass(
-            declaration,
-            marked = false,
-            stability = stability
-        )
-        val annotation = IrConstructorCallImpl(
-            UNDEFINED_OFFSET,
-            UNDEFINED_OFFSET,
-            StabilityInferredClass.defaultType,
-            StabilityInferredClass.constructors.first(),
-            0,
-            0,
-            1,
-            null
-        ).also {
-            it.putValueArgument(0, irConst(parameterMask))
-        }
+        metrics.recordClass(declaration, marked = false, stability = stability)
+        val annotation =
+            IrConstructorCallImpl(
+                    UNDEFINED_OFFSET,
+                    UNDEFINED_OFFSET,
+                    StabilityInferredClass.defaultType,
+                    StabilityInferredClass.constructors.first(),
+                    0,
+                    0,
+                    1,
+                    null
+                )
+                .also { it.putValueArgument(0, irConst(parameterMask)) }
 
         if (useK2) {
             context.annotationsRegistrar.addMetadataVisibleAnnotationsToElement(cls, annotation)
@@ -192,13 +187,11 @@ class ClassStabilityTransformer(
     }
 
     private fun IrClass.addStabilityMarkerField(stabilityExpression: IrExpression) {
-        val stabilityField = this.makeStabilityField().apply {
-            initializer = IrExpressionBodyImpl(
-                UNDEFINED_OFFSET,
-                UNDEFINED_OFFSET,
-                stabilityExpression
-            )
-        }
+        val stabilityField =
+            this.makeStabilityField().apply {
+                initializer =
+                    IrExpressionBodyImpl(UNDEFINED_OFFSET, UNDEFINED_OFFSET, stabilityExpression)
+            }
 
         if (context.platform.isJvm()) {
             declarations += stabilityField

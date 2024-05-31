@@ -20,30 +20,30 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.intl.LocaleList
 
 /**
- * The IME configuration options for [TextInputService]. It is not guaranteed if IME
- * will comply with the options provided here.
+ * The IME configuration options for [TextInputService]. It is not guaranteed if IME will comply
+ * with the options provided here.
  *
- * @param singleLine informs the IME that the text field is single line and IME
- * should not show return key.
- * @param capitalization informs the IME whether to automatically capitalize characters,
- * words or sentences. Only applicable to only text based [KeyboardType]s such as
- * [KeyboardType.Text], [KeyboardType.Ascii]. It will not be applied to [KeyboardType]s such as
- * [KeyboardType.Number] or [KeyboardType.Decimal].
- * @param autoCorrect informs the IME whether to enable auto correct. Only applicable to
- * text based [KeyboardType]s such as [KeyboardType.Email], [KeyboardType.Uri]. It will not be
- * applied to [KeyboardType]s such as [KeyboardType.Number] or [KeyboardType.Decimal]. Most of IME
- * implementations ignore this value for [KeyboardType]s such as [KeyboardType.Text].
- * @param keyboardType The keyboard type to be used in this text field. Note that this input type
- * is honored by IME and shows corresponding keyboard but this is not guaranteed. For example,
- * some IME may send non-ASCII character even if you set [KeyboardType.Ascii].
- * @param imeAction The IME action. This IME action is honored by IME and may show specific icons
- * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
- * When [singleLine] is false, the IME might show return key rather than the action requested here.
+ * @param singleLine informs the IME that the text field is single line and IME should not show
+ *   return key.
+ * @param capitalization informs the IME whether to automatically capitalize characters, words or
+ *   sentences. Only applicable to only text based [KeyboardType]s such as [KeyboardType.Text],
+ *   [KeyboardType.Ascii]. It will not be applied to [KeyboardType]s such as [KeyboardType.Number]
+ *   or [KeyboardType.Decimal].
+ * @param autoCorrect informs the IME whether to enable auto correct. Only applicable to text based
+ *   [KeyboardType]s such as [KeyboardType.Email], [KeyboardType.Uri]. It will not be applied to
+ *   [KeyboardType]s such as [KeyboardType.Number] or [KeyboardType.Decimal]. Most of IME
+ *   implementations ignore this value for [KeyboardType]s such as [KeyboardType.Text].
+ * @param keyboardType The keyboard type to be used in this text field. Note that this input type is
+ *   honored by IME and shows corresponding keyboard but this is not guaranteed. For example, some
+ *   IME may send non-ASCII character even if you set [KeyboardType.Ascii].
+ * @param imeAction The IME action. This IME action is honored by IME and may show specific icons on
+ *   the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified. When
+ *   [singleLine] is false, the IME might show return key rather than the action requested here.
  * @param platformImeOptions defines the platform specific IME options.
  * @param hintLocales List of the languages that the user is supposed to switch to no matter what
- * input method subtype is currently used. This special "hint" can be used mainly for, but not
- * limited to, multilingual users who want IMEs to switch language based on editor's context.
- * Pass [LocaleList.Empty] to express the intention that a specific hint should not be set.
+ *   input method subtype is currently used. This special "hint" can be used mainly for, but not
+ *   limited to, multilingual users who want IMEs to switch language based on editor's context. Pass
+ *   [LocaleList.Empty] to express the intention that a specific hint should not be set.
  */
 @Immutable
 class ImeOptions(
@@ -56,9 +56,7 @@ class ImeOptions(
     val hintLocales: LocaleList = LocaleList.Empty
 ) {
     companion object {
-        /**
-         * Default [ImeOptions]. Please see parameter descriptions for default values.
-         */
+        /** Default [ImeOptions]. Please see parameter descriptions for default values. */
         val Default = ImeOptions()
     }
 

@@ -55,10 +55,10 @@ fun CaptureFocusDemo() {
                 shortString = it
                 if (shortString.length > 5) shortWord.captureFocus() else shortWord.freeFocus()
             },
-            modifier = Modifier
-                .border(2.dp, shortStringBorder)
-                .focusRequester(shortWord)
-                .onFocusChanged { shortStringBorder = if (it.isCaptured) Red else Transparent }
+            modifier =
+                Modifier.border(2.dp, shortStringBorder).focusRequester(shortWord).onFocusChanged {
+                    shortStringBorder = if (it.isCaptured) Red else Transparent
+                }
         )
 
         Spacer(Modifier.height(30.dp))
@@ -74,10 +74,10 @@ fun CaptureFocusDemo() {
                 longString = it
                 if (longString.length < 5) longWord.captureFocus() else longWord.freeFocus()
             },
-            modifier = Modifier
-                .border(2.dp, longStringBorder)
-                .focusRequester(longWord)
-                .onFocusChanged { longStringBorder = if (it.isCaptured) Red else Transparent }
+            modifier =
+                Modifier.border(2.dp, longStringBorder).focusRequester(longWord).onFocusChanged {
+                    longStringBorder = if (it.isCaptured) Red else Transparent
+                }
         )
     }
 }

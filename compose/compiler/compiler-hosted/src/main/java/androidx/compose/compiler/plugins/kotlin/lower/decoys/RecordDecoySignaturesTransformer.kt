@@ -1,5 +1,3 @@
-
-
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -47,14 +45,16 @@ class RecordDecoySignaturesTransformer(
     val mangler: KotlinMangler.IrMangler,
     stabilityInferencer: StabilityInferencer,
     featureFlags: FeatureFlags,
-) : AbstractDecoysLowering(
-    pluginContext = pluginContext,
-    symbolRemapper = symbolRemapper,
-    metrics = metrics,
-    signatureBuilder = signatureBuilder,
-    stabilityInferencer = stabilityInferencer,
-    featureFlags = featureFlags,
-), ModuleLoweringPass {
+) :
+    AbstractDecoysLowering(
+        pluginContext = pluginContext,
+        symbolRemapper = symbolRemapper,
+        metrics = metrics,
+        signatureBuilder = signatureBuilder,
+        stabilityInferencer = stabilityInferencer,
+        featureFlags = featureFlags,
+    ),
+    ModuleLoweringPass {
 
     override fun lower(module: IrModuleFragment) {
         module.transformChildrenVoid()
@@ -90,9 +90,7 @@ class RecordDecoySignaturesTransformer(
         return super.visitFunction(declaration)
     }
 
-    private fun findNearestCommonSignature(
-        sig: IdSignature
-    ): IdSignature.CommonSignature? {
+    private fun findNearestCommonSignature(sig: IdSignature): IdSignature.CommonSignature? {
         return when (sig) {
             is IdSignature.CommonSignature -> sig
             is IdSignature.CompositeSignature -> findNearestCommonSignature(sig.inner)

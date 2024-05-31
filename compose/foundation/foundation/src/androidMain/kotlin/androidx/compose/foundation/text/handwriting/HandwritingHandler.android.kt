@@ -39,8 +39,8 @@ import kotlinx.coroutines.launch
  * field to be shown. To support handwriting initiation in this case, a [handwritingDetector]
  * modifier can be applied to the fake text input field to configure it as a detector, and this
  * modifier can be applied to the real text input field. The `callback` implementation for the fake
- * text field's [handwritingDetector] modifier is typically the same as the `onClick`
- * implementation its [clickable] modifier, which shows and focuses the real text input field.
+ * text field's [handwritingDetector] modifier is typically the same as the `onClick` implementation
+ * its [clickable] modifier, which shows and focuses the real text input field.
  *
  * This function returns a no-op modifier on API levels below Android U (34) as stylus handwriting
  * is not supported.
@@ -66,9 +66,8 @@ private class HandwritingHandlerElement : ModifierNodeElement<HandwritingHandler
 
 private class HandwritingHandlerNode : FocusEventModifierNode, Modifier.Node() {
     private var focusState: FocusState? = null
-    private val composeImm by lazy(LazyThreadSafetyMode.NONE) {
-        ComposeInputMethodManager(requireView())
-    }
+    private val composeImm by
+        lazy(LazyThreadSafetyMode.NONE) { ComposeInputMethodManager(requireView()) }
 
     override fun onFocusEvent(focusState: FocusState) {
         if (this.focusState != focusState) {

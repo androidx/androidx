@@ -56,21 +56,16 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-/**
- * Test for [IconButton] and [IconToggleButton].
- */
+/** Test for [IconButton] and [IconToggleButton]. */
 class IconButtonTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun iconButton_size() {
         val width = 48.dp
         val height = 48.dp
         rule
-            .setMaterialContentForSizeAssertions {
-                IconButtonSample()
-            }
+            .setMaterialContentForSizeAssertions { IconButtonSample() }
             .assertWidthIsEqualTo(width)
             .assertHeightIsEqualTo(height)
     }
@@ -94,37 +89,26 @@ class IconButtonTest {
 
     @Test
     fun iconButton_defaultSemantics() {
-        rule.setMaterialContent {
-            IconButtonSample()
-        }
-        rule.onNode(hasClickAction()).apply {
-            assertIsEnabled()
-        }
+        rule.setMaterialContent { IconButtonSample() }
+        rule.onNode(hasClickAction()).apply { assertIsEnabled() }
     }
 
     @Test
     fun iconButton_disabledSemantics() {
-        rule.setMaterialContent {
-            IconButton(onClick = {}, enabled = false) {}
-        }
-        rule.onNode(hasClickAction()).apply {
-            assertIsNotEnabled()
-        }
+        rule.setMaterialContent { IconButton(onClick = {}, enabled = false) {} }
+        rule.onNode(hasClickAction()).apply { assertIsNotEnabled() }
     }
 
     @Test
     fun iconButton_materialIconSize_iconPositioning() {
         val diameter = 24.dp
         rule.setMaterialContent {
-            Box {
-                IconButton(onClick = {}) {
-                    Box(Modifier.size(diameter).testTag("icon"))
-                }
-            }
+            Box { IconButton(onClick = {}) { Box(Modifier.size(diameter).testTag("icon")) } }
         }
 
         // Icon should be centered inside the IconButton
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -134,15 +118,12 @@ class IconButtonTest {
         val width = 36.dp
         val height = 14.dp
         rule.setMaterialContent {
-            Box {
-                IconButton(onClick = {}) {
-                    Box(Modifier.size(width, height).testTag("icon"))
-                }
-            }
+            Box { IconButton(onClick = {}) { Box(Modifier.size(width, height).testTag("icon")) } }
         }
 
         // Icon should be centered inside the IconButton
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
@@ -161,17 +142,11 @@ class IconButtonTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(contentAlpha!!).isEqualTo(highContentAlpha!!)
-        }
+        rule.runOnIdle { Truth.assertThat(contentAlpha!!).isEqualTo(highContentAlpha!!) }
 
-        rule.runOnIdle {
-            enabled = false
-        }
+        rule.runOnIdle { enabled = false }
 
-        rule.runOnIdle {
-            Truth.assertThat(contentAlpha!!).isEqualTo(disabledContentAlpha!!)
-        }
+        rule.runOnIdle { Truth.assertThat(contentAlpha!!).isEqualTo(disabledContentAlpha!!) }
     }
 
     @Test
@@ -179,9 +154,7 @@ class IconButtonTest {
         val width = 48.dp
         val height = 48.dp
         rule
-            .setMaterialContentForSizeAssertions {
-                IconToggleButtonSample()
-            }
+            .setMaterialContentForSizeAssertions { IconToggleButtonSample() }
             .assertWidthIsEqualTo(width)
             .assertHeightIsEqualTo(height)
     }
@@ -205,9 +178,7 @@ class IconButtonTest {
 
     @Test
     fun iconToggleButton_defaultSemantics() {
-        rule.setMaterialContent {
-            IconToggleButtonSample()
-        }
+        rule.setMaterialContent { IconToggleButtonSample() }
         rule.onNode(isToggleable()).apply {
             assertIsEnabled()
             assertIsOff()
@@ -239,7 +210,8 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(24.dp / 2)
             .assertTopPositionInRootIsEqualTo(24.dp / 2)
     }
@@ -257,7 +229,8 @@ class IconButtonTest {
         }
 
         // Icon should be centered inside the IconButton
-        rule.onNodeWithTag("icon", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo((48.dp - width) / 2)
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
@@ -276,43 +249,38 @@ class IconButtonTest {
             }
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(contentAlpha!!).isEqualTo(highContentAlpha!!)
-        }
+        rule.runOnIdle { Truth.assertThat(contentAlpha!!).isEqualTo(highContentAlpha!!) }
 
-        rule.runOnIdle {
-            enabled = false
-        }
+        rule.runOnIdle { enabled = false }
 
-        rule.runOnIdle {
-            Truth.assertThat(contentAlpha!!).isEqualTo(disabledContentAlpha!!)
-        }
+        rule.runOnIdle { Truth.assertThat(contentAlpha!!).isEqualTo(disabledContentAlpha!!) }
     }
 
     @Test
-    fun iconToggleButton_clickInMinimumTouchTarget(): Unit = with(rule.density) {
-        val tag = "iconToggleButton"
-        var checked by mutableStateOf(false)
-        rule.setMaterialContent {
-            // Box is needed because otherwise the control will be expanded to fill its parent
-            Box(Modifier.fillMaxSize()) {
-                IconToggleButton(
-                    checked = checked,
-                    onCheckedChange = { checked = it },
-                    modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
-                ) {
-                    Box(Modifier.size(2.dp))
+    fun iconToggleButton_clickInMinimumTouchTarget(): Unit =
+        with(rule.density) {
+            val tag = "iconToggleButton"
+            var checked by mutableStateOf(false)
+            rule.setMaterialContent {
+                // Box is needed because otherwise the control will be expanded to fill its parent
+                Box(Modifier.fillMaxSize()) {
+                    IconToggleButton(
+                        checked = checked,
+                        onCheckedChange = { checked = it },
+                        modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
+                    ) {
+                        Box(Modifier.size(2.dp))
+                    }
                 }
             }
+            rule
+                .onNodeWithTag(tag)
+                .assertIsOff()
+                .assertWidthIsEqualTo(2.dp)
+                .assertHeightIsEqualTo(2.dp)
+                .assertTouchWidthIsEqualTo(48.dp)
+                .assertTouchHeightIsEqualTo(48.dp)
+                .performTouchInput { click(position = Offset(-1f, -1f)) }
+                .assertIsOn()
         }
-        rule.onNodeWithTag(tag)
-            .assertIsOff()
-            .assertWidthIsEqualTo(2.dp)
-            .assertHeightIsEqualTo(2.dp)
-            .assertTouchWidthIsEqualTo(48.dp)
-            .assertTouchHeightIsEqualTo(48.dp)
-            .performTouchInput {
-                click(position = Offset(-1f, -1f))
-            }.assertIsOn()
-    }
 }

@@ -37,66 +37,72 @@ import org.jetbrains.uast.UImportStatement
 class MaterialImportDetector : Detector(), SourceCodeScanner {
     override fun getApplicableUastTypes() = listOf(UImportStatement::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        // Currently we only check for imports, not FQN references - if a developer is
-        // explicitly doing androidx.compose.material.Button() in their code it's probably
-        // intentional.
-        override fun visitImportStatement(node: UImportStatement) {
-            val reference = node.importReference ?: return
-            val importString = reference.asSourceString()
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            // Currently we only check for imports, not FQN references - if a developer is
+            // explicitly doing androidx.compose.material.Button() in their code it's probably
+            // intentional.
+            override fun visitImportStatement(node: UImportStatement) {
+                val reference = node.importReference ?: return
+                val importString = reference.asSourceString()
 
-            if (
-                // Wildcard reference - so the import string is exactly androidx.compose.material
-                importString == MaterialPackage ||
-                // The prefix is androidx.compose.material - ignore material3* and other prefixes
-                importString.contains("$MaterialPackage.")
-            ) {
-                // Ignore explicitly allowed imports
-                if (AllowlistedSubpackages.any { importString.contains(it) }) return
-                if (AllowlistedImports.any { importString == it }) return
+                if (
+                    // Wildcard reference - so the import string is exactly
+                    // androidx.compose.material
+                    importString == MaterialPackage ||
+                        // The prefix is androidx.compose.material - ignore material3* and other
+                        // prefixes
+                        importString.contains("$MaterialPackage.")
+                ) {
+                    // Ignore explicitly allowed imports
+                    if (AllowlistedSubpackages.any { importString.contains(it) }) return
+                    if (AllowlistedImports.any { importString == it }) return
 
-                context.report(
-                    UsingMaterialAndMaterial3Libraries,
-                    reference,
-                    context.getLocation(reference),
-                    "Using a material import while also using the material3 library"
-                )
+                    context.report(
+                        UsingMaterialAndMaterial3Libraries,
+                        reference,
+                        context.getLocation(reference),
+                        "Using a material import while also using the material3 library"
+                    )
+                }
             }
         }
-    }
 
     companion object {
-        val UsingMaterialAndMaterial3Libraries = Issue.create(
-            "UsingMaterialAndMaterial3Libraries",
-            "material and material3 are separate, incompatible design system libraries",
-            "material and material3 are separate design system libraries that are " +
-                "incompatible with each other, as they have their own distinct theming systems. " +
-                "Using components from both libraries concurrently can cause issues: for example " +
-                "material components will not pick up the correct content color from a material3 " +
-                "container, and vice versa.",
-            Category.CORRECTNESS, 3, Severity.WARNING,
-            Implementation(
-                MaterialImportDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val UsingMaterialAndMaterial3Libraries =
+            Issue.create(
+                "UsingMaterialAndMaterial3Libraries",
+                "material and material3 are separate, incompatible design system libraries",
+                "material and material3 are separate design system libraries that are " +
+                    "incompatible with each other, as they have their own distinct theming systems. " +
+                    "Using components from both libraries concurrently can cause issues: for example " +
+                    "material components will not pick up the correct content color from a material3 " +
+                    "container, and vice versa.",
+                Category.CORRECTNESS,
+                3,
+                Severity.WARNING,
+                Implementation(
+                    MaterialImportDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 
 private const val MaterialPackage = "androidx.compose.material"
 
-private val AllowlistedSubpackages = listOf(
-    // material-icons is a separate library that is compatible with both
-    "$MaterialPackage.icons",
-    // material-ripple is a separate library that is compatible with both
-    "$MaterialPackage.ripple",
-    // TODO: b/261760718 - remove this when pullrefresh is added to m3
-    // pullrefresh currently only exists in m2, so there is no alternative for m3, so temporarily
-    // ignore
-    "$MaterialPackage.pullrefresh"
-)
+private val AllowlistedSubpackages =
+    listOf(
+        // material-icons is a separate library that is compatible with both
+        "$MaterialPackage.icons",
+        // material-ripple is a separate library that is compatible with both
+        "$MaterialPackage.ripple",
+        // TODO: b/261760718 - remove this when pullrefresh is added to m3
+        // pullrefresh currently only exists in m2, so there is no alternative for m3, so
+        // temporarily
+        // ignore
+        "$MaterialPackage.pullrefresh"
+    )
 
 // TODO: b/261760718 - remove this when pullrefresh is added to m3
-private val AllowlistedImports = listOf(
-    "$MaterialPackage.ExperimentalMaterialApi"
-)
+private val AllowlistedImports = listOf("$MaterialPackage.ExperimentalMaterialApi")

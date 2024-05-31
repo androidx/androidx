@@ -55,9 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
- * Test case simulating an app that uses [BoxWithConstraints] to make complex layout changes.
- */
+/** Test case simulating an app that uses [BoxWithConstraints] to make complex layout changes. */
 class BoxWithConstraintsAppTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     private val phoneWidth = 360.dp
     private val tabletWidth = 900.dp
@@ -67,9 +65,7 @@ class BoxWithConstraintsAppTestCase : LayeredComposeTestCase(), ToggleableTestCa
     @Composable
     override fun MeasuredContent() {
         val width = screenWidth.value
-        Box(Modifier.requiredWidth(width)) {
-            App()
-        }
+        Box(Modifier.requiredWidth(width)) { App() }
     }
 
     @Composable
@@ -86,8 +82,8 @@ class BoxWithConstraintsAppTestCase : LayeredComposeTestCase(), ToggleableTestCa
 }
 
 /**
- * Test case simulating an app that uses a theoretical screen width CompositionLocal to make
- * complex layout changes.
+ * Test case simulating an app that uses a theoretical screen width CompositionLocal to make complex
+ * layout changes.
  */
 class CompositionLocalAppTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     private val phoneWidth = 360.dp
@@ -101,9 +97,7 @@ class CompositionLocalAppTestCase : LayeredComposeTestCase(), ToggleableTestCase
     override fun MeasuredContent() {
         val width = screenWidth.value
         CompositionLocalProvider(LocalScreenWidth provides width) {
-            Box(Modifier.requiredWidth(width)) {
-                App()
-            }
+            Box(Modifier.requiredWidth(width)) { App() }
         }
     }
 
@@ -170,25 +164,19 @@ private fun TabletScreen(gridColumns: Int) {
 
 @Composable
 private fun Grid(gridColumns: Int, modifier: Modifier = Modifier) {
-    LazyVerticalGrid(
-        modifier = modifier,
-        columns = GridCells.Fixed(gridColumns)
-    ) {
+    LazyVerticalGrid(modifier = modifier, columns = GridCells.Fixed(gridColumns)) {
         items(100) {
             Text(
                 text = "$it",
                 fontSize = 20.sp,
-                modifier = Modifier
-                    .background(Color.Gray.copy(alpha = (it % 10) / 10f))
-                    .padding(8.dp)
+                modifier =
+                    Modifier.background(Color.Gray.copy(alpha = (it % 10) / 10f)).padding(8.dp)
             )
         }
     }
 }
 
-/**
- * A simpler test case just using normal [Box]
- */
+/** A simpler test case just using normal [Box] */
 class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
     private lateinit var state: MutableState<Dp>
@@ -207,9 +195,7 @@ class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
     }
 }
 
-/**
- * A simple test case just using normal [BoxWithConstraints]
- */
+/** A simple test case just using normal [BoxWithConstraints] */
 class BoxWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
     private lateinit var state: MutableState<Dp>

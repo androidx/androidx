@@ -66,9 +66,7 @@ val northClicks = mutableStateOf(0)
 val westClicks = mutableStateOf(0)
 val eastClicks = mutableStateOf(0)
 
-fun main() = SwingUtilities.invokeLater {
-    SwingComposeWindow()
-}
+fun main() = SwingUtilities.invokeLater { SwingComposeWindow() }
 
 fun SwingComposeWindow() {
     // creating ComposePanel
@@ -81,19 +79,11 @@ fun SwingComposeWindow() {
     // setting the content
     composePanelTop.setContent {
         ComposeContent(background = Color(55, 155, 55))
-        DisposableEffect(Unit) {
-            onDispose {
-                println("Dispose composition")
-            }
-        }
+        DisposableEffect(Unit) { onDispose { println("Dispose composition") } }
     }
     composePanelBottom.setContent {
         ComposeContent(background = Color(55, 55, 155))
-        DisposableEffect(Unit) {
-            onDispose {
-                println("Dispose composition")
-            }
-        }
+        DisposableEffect(Unit) { onDispose { println("Dispose composition") } }
     }
 
     val window = JFrame()
@@ -109,9 +99,7 @@ fun SwingComposeWindow() {
         actionButton(
             text = "SOUTH/REMOVE COMPOSE",
             size = IntSize(40, 40),
-            action = {
-                panel.remove(composePanelBottom)
-            }
+            action = { panel.remove(composePanelBottom) }
         ),
         BorderLayout.SOUTH
     )
@@ -132,11 +120,13 @@ fun actionButton(
     val button = JButton(text)
     button.setToolTipText("Tooltip for $text button.")
     button.setPreferredSize(Dimension(size.width, size.height))
-    button.addActionListener(object : ActionListener {
-        public override fun actionPerformed(e: ActionEvent) {
-            action?.invoke()
+    button.addActionListener(
+        object : ActionListener {
+            public override fun actionPerformed(e: ActionEvent) {
+                action?.invoke()
+            }
         }
-    })
+    )
 
     return button
 }
@@ -148,9 +138,7 @@ fun ComposeContent(background: Color = Color.White) {
         contentAlignment = Alignment.Center
     ) {
         Column {
-            Row(
-                modifier = Modifier.height(40.dp)
-            ) {
+            Row(modifier = Modifier.height(40.dp)) {
                 Button(
                     modifier = Modifier.height(35.dp).padding(top = 3.dp),
                     onClick = {
@@ -232,13 +220,8 @@ fun Counter(text: String, counter: MutableState<Int>) {
                 Text(text = "${text}Clicks: ${counter.value}")
             }
             Spacer(modifier = Modifier.height(25.dp))
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Button(onClick = { counter.value++ }) {
-                    Text(text = text, color = Color.White)
-                }
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Button(onClick = { counter.value++ }) { Text(text = text, color = Color.White) }
             }
         }
     }
@@ -246,10 +229,7 @@ fun Counter(text: String, counter: MutableState<Int>) {
 
 @Composable
 fun ApplicationScope.SecondWindowContent() {
-    Box(
-        Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
             Box(
                 modifier = Modifier.height(30.dp).fillMaxWidth(),
@@ -262,9 +242,7 @@ fun ApplicationScope.SecondWindowContent() {
                 modifier = Modifier.height(30.dp).fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Button(onClick = { exitApplication() }) {
-                    Text("Close", color = Color.White)
-                }
+                Button(onClick = { exitApplication() }) { Text("Close", color = Color.White) }
             }
         }
     }

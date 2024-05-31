@@ -35,14 +35,10 @@ import androidx.preference.PreferenceManager
  * The state will be automatically updated whenever the shared preference changes.
  */
 @Composable
-internal fun <T> preferenceAsState(
-    key: String,
-    readValue: SharedPreferences.() -> T
-): State<T> {
+internal fun <T> preferenceAsState(key: String, readValue: SharedPreferences.() -> T): State<T> {
     val context = LocalContext.current
-    val sharedPreferences = remember(context) {
-        PreferenceManager.getDefaultSharedPreferences(context)
-    }
+    val sharedPreferences =
+        remember(context) { PreferenceManager.getDefaultSharedPreferences(context) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     // De-duplicate passing keys explicitly to remembers and effects below.
@@ -57,9 +53,7 @@ internal fun <T> preferenceAsState(
                 }
             }
             sharedPreferences.registerOnSharedPreferenceChangeListener(listener)
-            onDispose {
-                sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener)
-            }
+            onDispose { sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
         }
 
         // Also update the value when resumed.
@@ -70,9 +64,7 @@ internal fun <T> preferenceAsState(
                 }
             }
             lifecycle.addObserver(obs)
-            onDispose {
-                lifecycle.removeObserver(obs)
-            }
+            onDispose { lifecycle.removeObserver(obs) }
         }
 
         return@key value

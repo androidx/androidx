@@ -28,52 +28,55 @@ class DurableFunctionKeyCodegenTests(useFir: Boolean) : AbstractCodegenSignature
     }
 
     @Test
-    fun testSimpleComposable(): Unit = validateBytecode(
-        """
+    fun testSimpleComposable(): Unit =
+        validateBytecode(
+            """
             @Composable fun Example() {}
         """
-    ) { bytecode ->
-        bytecode.assertKeyMetaClass(1)
-        bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
-        bytecode.assertFunctionKeyMetaAnnotationCount(1)
-    }
+        ) { bytecode ->
+            bytecode.assertKeyMetaClass(1)
+            bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
+            bytecode.assertFunctionKeyMetaAnnotationCount(1)
+        }
 
     @Test
-    fun testMultipleComposables(): Unit = validateBytecode(
-        """
+    fun testMultipleComposables(): Unit =
+        validateBytecode(
+            """
             @Composable fun Example1() {}
             @Composable fun Example2() {}
         """
-    ) { bytecode ->
-        bytecode.assertKeyMetaClass(1)
-        bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
-        bytecode.assertFunctionKeyMetaAnnotationCount(2)
-    }
+        ) { bytecode ->
+            bytecode.assertKeyMetaClass(1)
+            bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
+            bytecode.assertFunctionKeyMetaAnnotationCount(2)
+        }
 
     @Test
-    fun testComposableLambdas(): Unit = validateBytecode(
-        """
+    fun testComposableLambdas(): Unit =
+        validateBytecode(
+            """
             @Composable fun Row(content: @Composable () -> Unit) { content() }
             @Composable fun Example2() {
                 Row {}
             }
         """
-    ) { bytecode ->
-        bytecode.assertKeyMetaClass(1)
-        bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
-        bytecode.assertFunctionKeyMetaAnnotationCount(3)
-    }
+        ) { bytecode ->
+            bytecode.assertKeyMetaClass(1)
+            bytecode.assertFunctionKeyMetaClassAnnotationCount(1)
+            bytecode.assertFunctionKeyMetaAnnotationCount(3)
+        }
 
     private fun String.assertKeyMetaClass(expected: Int) {
-        assertEquals(expected,
-            lines().count {
-                it.contains("final class") && it.endsWith("%KeyMeta {")
-            }
+        assertEquals(
+            expected,
+            lines().count { it.contains("final class") && it.endsWith("%KeyMeta {") }
         )
     }
 
     private fun String.assertFunctionKeyMetaClassAnnotationCount(expected: Int) {
-        assertEquals(expected,
+        assertEquals(
+            expected,
             lines().count {
                 it.contains("@Landroidx/compose/runtime/internal/FunctionKeyMetaClass;")
             }
@@ -81,10 +84,13 @@ class DurableFunctionKeyCodegenTests(useFir: Boolean) : AbstractCodegenSignature
     }
 
     private fun String.assertFunctionKeyMetaAnnotationCount(expected: Int) {
-        assertEquals(expected,
+        assertEquals(
+            expected,
             lines().sumOf {
                 when {
-                    it.contains("@Landroidx/compose/runtime/internal/FunctionKeyMeta%Container;") -> {
+                    it.contains(
+                        "@Landroidx/compose/runtime/internal/FunctionKeyMeta%Container;"
+                    ) -> {
                         it.occurrences("@Landroidx/compose/runtime/internal/FunctionKeyMeta;")
                     }
                     it.contains("@Landroidx/compose/runtime/internal/FunctionKeyMeta;") -> 1
@@ -94,7 +100,6 @@ class DurableFunctionKeyCodegenTests(useFir: Boolean) : AbstractCodegenSignature
         )
     }
 
-    private fun String.occurrences(substring: String): Int = split(substring)
-        .dropLastWhile { it.isEmpty() }
-        .count() - 1
+    private fun String.occurrences(substring: String): Int =
+        split(substring).dropLastWhile { it.isEmpty() }.count() - 1
 }

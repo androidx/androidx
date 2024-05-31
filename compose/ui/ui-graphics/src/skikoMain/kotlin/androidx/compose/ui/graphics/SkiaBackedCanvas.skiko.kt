@@ -39,26 +39,25 @@ actual typealias NativeCanvas = org.jetbrains.skia.Canvas
 
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas {
     val skiaBitmap = image.asSkiaBitmap()
-    require(!skiaBitmap.isImmutable) {
-        "Cannot draw on immutable ImageBitmap"
-    }
+    require(!skiaBitmap.isImmutable) { "Cannot draw on immutable ImageBitmap" }
     return SkiaBackedCanvas(org.jetbrains.skia.Canvas(skiaBitmap))
 }
 
-/**
- * Convert the [org.jetbrains.skia.Canvas] instance into a Compose-compatible Canvas
- */
+/** Convert the [org.jetbrains.skia.Canvas] instance into a Compose-compatible Canvas */
 fun org.jetbrains.skia.Canvas.asComposeCanvas(): Canvas = SkiaBackedCanvas(this)
 
-actual val Canvas.nativeCanvas: NativeCanvas get() = (this as SkiaBackedCanvas).skia
+actual val Canvas.nativeCanvas: NativeCanvas
+    get() = (this as SkiaBackedCanvas).skia
 
 class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
 
     var alphaMultiplier: Float = 1.0f
 
-    private val Paint.skia get() = (this as SkiaBackedPaint).apply {
-        this.alphaMultiplier = this@SkiaBackedCanvas.alphaMultiplier
-    }.skia
+    private val Paint.skia
+        get() =
+            (this as SkiaBackedPaint)
+                .apply { this.alphaMultiplier = this@SkiaBackedCanvas.alphaMultiplier }
+                .skia
 
     override fun save() {
         skia.save()
@@ -69,13 +68,7 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     }
 
     override fun saveLayer(bounds: Rect, paint: Paint) {
-        skia.saveLayer(
-            bounds.left,
-            bounds.top,
-            bounds.right,
-            bounds.bottom,
-            paint.skia
-        )
+        skia.saveLayer(bounds.left, bounds.top, bounds.right, bounds.bottom, paint.skia)
     }
 
     override fun translate(dx: Float, dy: Float) {
@@ -132,17 +125,7 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         radiusY: Float,
         paint: Paint
     ) {
-        skia.drawRRect(
-            SkRRect.makeLTRB(
-                left,
-                top,
-                right,
-                bottom,
-                radiusX,
-                radiusY
-            ),
-            paint.skia
-        )
+        skia.drawRRect(SkRRect.makeLTRB(left, top, right, bottom, radiusX, radiusY), paint.skia)
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
@@ -163,16 +146,7 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         useCenter: Boolean,
         paint: Paint
     ) {
-        skia.drawArc(
-            left,
-            top,
-            right,
-            bottom,
-            startAngle,
-            sweepAngle,
-            useCenter,
-            paint.skia
-        )
+        skia.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint.skia)
     }
 
     override fun drawPath(path: Path, paint: Paint) {
@@ -220,18 +194,8 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         Image.makeFromBitmap(bitmap).use { skiaImage ->
             skia.drawImageRect(
                 skiaImage,
-                SkRect.makeXYWH(
-                    srcOffset.x,
-                    srcOffset.y,
-                    srcSize.width,
-                    srcSize.height
-                ),
-                SkRect.makeXYWH(
-                    dstOffset.x,
-                    dstOffset.y,
-                    dstSize.width,
-                    dstSize.height
-                ),
+                SkRect.makeXYWH(srcOffset.x, srcOffset.y, srcSize.width, srcSize.height),
+                SkRect.makeXYWH(dstOffset.x, dstOffset.y, dstSize.width, dstSize.height),
                 paint.filterQuality.toSkia(),
                 paint.skia,
                 true
@@ -258,24 +222,17 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     override fun disableZ() = Unit
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
-        points.fastForEach { point ->
-            skia.drawPoint(
-                point.x,
-                point.y,
-                paint.skia
-            )
-        }
+        points.fastForEach { point -> skia.drawPoint(point.x, point.y, paint.skia) }
     }
 
     /**
      * Draw lines connecting points based on the corresponding step.
      *
-     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points
-     * and another between the second and third
+     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points and
+     * another between the second and third
      *
      * ex. 4 points with a step of 2 would draw 2 lines between the first and second and another
-     * between the third and fourth. If there is an odd number of points, the last point is
-     * ignored
+     * between the third and fourth. If there is an odd number of points, the last point is ignored
      *
      * @see drawRawLines
      */
@@ -284,20 +241,12 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
             for (i in 0 until points.size - 1 step stepBy) {
                 val p1 = points[i]
                 val p2 = points[i + 1]
-                skia.drawLine(
-                    p1.x,
-                    p1.y,
-                    p2.x,
-                    p2.y,
-                    paint.skia
-                )
+                skia.drawLine(p1.x, p1.y, p2.x, p2.y, paint.skia)
             }
         }
     }
 
-    /**
-     * @throws IllegalArgumentException if a non even number of points is provided
-     */
+    /** @throws IllegalArgumentException if a non even number of points is provided */
     override fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint) {
         if (points.size % 2 != 0) {
             throw IllegalArgumentException("points must have an even number of values")
@@ -320,15 +269,14 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     }
 
     /**
-     * Draw lines connecting points based on the corresponding step. The points are interpreted
-     * as x, y coordinate pairs in alternating index positions
+     * Draw lines connecting points based on the corresponding step. The points are interpreted as
+     * x, y coordinate pairs in alternating index positions
      *
-     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points
-     * and another between the second and third
+     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points and
+     * another between the second and third
      *
      * ex. 4 points with a step of 2 would draw 2 lines between the first and second and another
-     * between the third and fourth. If there is an odd number of points, the last point is
-     * ignored
+     * between the third and fourth. If there is an odd number of points, the last point is ignored
      *
      * @see drawLines
      */
@@ -341,13 +289,7 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
                 val y1 = points[i + 1]
                 val x2 = points[i + 2]
                 val y2 = points[i + 3]
-                skia.drawLine(
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    paint.skia
-                )
+                skia.drawLine(x1, y1, x2, y2, paint.skia)
             }
         }
     }
@@ -364,41 +306,41 @@ class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         )
     }
 
-    private fun ClipOp.toSkia() = when (this) {
-        ClipOp.Difference -> SkClipMode.DIFFERENCE
-        ClipOp.Intersect -> SkClipMode.INTERSECT
-        else -> SkClipMode.INTERSECT
-    }
+    private fun ClipOp.toSkia() =
+        when (this) {
+            ClipOp.Difference -> SkClipMode.DIFFERENCE
+            ClipOp.Intersect -> SkClipMode.INTERSECT
+            else -> SkClipMode.INTERSECT
+        }
 
-    private fun Matrix.toSkia() = Matrix44(
-        this[0, 0],
-        this[1, 0],
-        this[2, 0],
-        this[3, 0],
-
-        this[0, 1],
-        this[1, 1],
-        this[2, 1],
-        this[3, 1],
-
-        this[0, 2],
-        this[1, 2],
-        this[2, 2],
-        this[3, 2],
-
-        this[0, 3],
-        this[1, 3],
-        this[2, 3],
-        this[3, 3]
-    )
+    private fun Matrix.toSkia() =
+        Matrix44(
+            this[0, 0],
+            this[1, 0],
+            this[2, 0],
+            this[3, 0],
+            this[0, 1],
+            this[1, 1],
+            this[2, 1],
+            this[3, 1],
+            this[0, 2],
+            this[1, 2],
+            this[2, 2],
+            this[3, 2],
+            this[0, 3],
+            this[1, 3],
+            this[2, 3],
+            this[3, 3]
+        )
 
     // These constants are chosen to correspond the old implementation of SkFilterQuality:
     // https://github.com/google/skia/blob/1f193df9b393d50da39570dab77a0bb5d28ec8ef/src/image/SkImage.cpp#L809
     // https://github.com/google/skia/blob/1f193df9b393d50da39570dab77a0bb5d28ec8ef/include/core/SkSamplingOptions.h#L86
-    private fun FilterQuality.toSkia(): SamplingMode = when (this) {
-        FilterQuality.Low -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NONE)
-        FilterQuality.Medium -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NEAREST)
-        FilterQuality.High -> CubicResampler(1 / 3.0f, 1 / 3.0f)
-        else -> FilterMipmap(FilterMode.NEAREST, MipmapMode.NONE)
-    }
+    private fun FilterQuality.toSkia(): SamplingMode =
+        when (this) {
+            FilterQuality.Low -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NONE)
+            FilterQuality.Medium -> FilterMipmap(FilterMode.LINEAR, MipmapMode.NEAREST)
+            FilterQuality.High -> CubicResampler(1 / 3.0f, 1 / 3.0f)
+            else -> FilterMipmap(FilterMode.NEAREST, MipmapMode.NONE)
+        }
 }

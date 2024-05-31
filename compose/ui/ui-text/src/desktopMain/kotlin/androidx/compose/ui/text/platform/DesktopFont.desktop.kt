@@ -48,10 +48,7 @@ internal val GenericFontFamiliesMapping by lazy {
             )
         Platform.MacOS ->
             mapOf(
-                FontFamily.SansSerif.name to listOf(
-                    "Helvetica Neue",
-                    "Helvetica"
-                ),
+                FontFamily.SansSerif.name to listOf("Helvetica Neue", "Helvetica"),
                 FontFamily.Serif.name to listOf("Times"),
                 FontFamily.Monospace.name to listOf("Courier"),
                 FontFamily.Cursive.name to listOf("Apple Chancery")
@@ -78,15 +75,14 @@ internal val GenericFontFamiliesMapping by lazy {
  * Defines a Font using resource name.
  *
  * @param name The resource name in classpath.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
-
-class ResourceFont internal constructor(
+class ResourceFont
+internal constructor(
     val name: String,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal
@@ -126,11 +122,10 @@ class ResourceFont internal constructor(
  * Creates a Font using resource name.
  *
  * @param resource The resource name in classpath.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 fun Font(
@@ -143,14 +138,14 @@ fun Font(
  * Defines a Font using file path.
  *
  * @param file File path to font.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
-class FileFont internal constructor(
+class FileFont
+internal constructor(
     val file: File,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
@@ -190,11 +185,10 @@ class FileFont internal constructor(
  * Creates a Font using file path.
  *
  * @param file File path to font.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param weight The weight of the font. The system uses this to match a font to a font request that
+ *   is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ *   font request that is given in a [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 fun Font(
@@ -236,10 +230,9 @@ internal actual val typefacesCache: Cache<String, SkTypeface> =
     )
 
 private fun typefaceResource(resourceName: String): SkTypeface {
-    val resource = Thread
-        .currentThread()
-        .contextClassLoader
-        .getResourceAsStream(resourceName) ?: error("Can't load font from $resourceName")
+    val resource =
+        Thread.currentThread().contextClassLoader.getResourceAsStream(resourceName)
+            ?: error("Can't load font from $resourceName")
     val bytes = resource.readAllBytes()
     return SkTypeface.makeFromData(Data.makeFromBytes(bytes))
 }

@@ -56,18 +56,16 @@ fun Home(
             columns = GridCells.Adaptive(HomeCellMinSize),
             content = {
                 items(components) { component ->
-                    ComponentItem(
-                        component = component,
-                        onClick = onComponentClick
-                    )
+                    ComponentItem(component = component, onClick = onComponentClick)
                 }
             },
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateStartPadding(ltr) + HomePadding,
-                top = paddingValues.calculateTopPadding() + HomePadding,
-                end = paddingValues.calculateEndPadding(ltr) + HomePadding,
-                bottom = paddingValues.calculateBottomPadding() + HomePadding
-            )
+            contentPadding =
+                PaddingValues(
+                    start = paddingValues.calculateStartPadding(ltr) + HomePadding,
+                    top = paddingValues.calculateTopPadding() + HomePadding,
+                    end = paddingValues.calculateEndPadding(ltr) + HomePadding,
+                    bottom = paddingValues.calculateBottomPadding() + HomePadding
+                )
         )
     }
 }

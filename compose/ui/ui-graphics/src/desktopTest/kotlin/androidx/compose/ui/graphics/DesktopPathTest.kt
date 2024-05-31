@@ -30,10 +30,11 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun arc() {
-        val path = Path().apply {
-            addArc(Rect(0f, 0f, 16f, 16f), 0f, 90f)
-            arcTo(Rect(0f, 0f, 16f, 16f), 90f, 90f, true)
-        }
+        val path =
+            Path().apply {
+                addArc(Rect(0f, 0f, 16f, 16f), 0f, 90f)
+                arcTo(Rect(0f, 0f, 16f, 16f), 90f, 90f, true)
+            }
 
         canvas.drawPath(path, redPaint)
 
@@ -42,9 +43,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun clipPath() {
-        val path = Path().apply {
-            addOval(Rect(0f, 0f, 16f, 8f))
-        }
+        val path = Path().apply { addOval(Rect(0f, 0f, 16f, 8f)) }
 
         canvas.withSave {
             canvas.clipPath(path, ClipOp.Intersect)
@@ -61,9 +60,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun bezier() {
-        val path = Path().apply {
-            quadraticTo(0f, 16f, 16f, 16f)
-        }
+        val path = Path().apply { quadraticTo(0f, 16f, 16f, 16f) }
 
         canvas.drawPath(path, redPaint)
 
@@ -72,9 +69,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun cubic() {
-        val path = Path().apply {
-            cubicTo(0f, 12f, 0f, 16f, 16f, 16f)
-        }
+        val path = Path().apply { cubicTo(0f, 12f, 0f, 16f, 16f, 16f) }
 
         canvas.drawPath(path, redPaint)
 
@@ -83,11 +78,12 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun figures() {
-        val path = Path().apply {
-            addOval(Rect(0f, 0f, 8f, 4f))
-            addRect(Rect(12f, 0f, 16f, 8f))
-            addRoundRect(RoundRect(0f, 8f, 4f, 16f, 4f, 4f))
-        }
+        val path =
+            Path().apply {
+                addOval(Rect(0f, 0f, 8f, 4f))
+                addRect(Rect(12f, 0f, 16f, 8f))
+                addRoundRect(RoundRect(0f, 8f, 4f, 16f, 4f, 4f))
+            }
 
         canvas.drawPath(path, redPaint)
 
@@ -96,11 +92,12 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun fillTypeEvenOdd() {
-        val path = Path().apply {
-            fillType = PathFillType.EvenOdd
-            addRect(Rect(0f, 0f, 8f, 8f))
-            addRect(Rect(4f, 4f, 12f, 12f))
-        }
+        val path =
+            Path().apply {
+                fillType = PathFillType.EvenOdd
+                addRect(Rect(0f, 0f, 8f, 8f))
+                addRect(Rect(4f, 4f, 12f, 12f))
+            }
 
         canvas.drawPath(path, redPaint)
 
@@ -109,10 +106,11 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun fillTypeNonZero() {
-        val path = Path().apply {
-            addRect(Rect(0f, 0f, 8f, 8f))
-            addRect(Rect(4f, 4f, 12f, 12f))
-        }
+        val path =
+            Path().apply {
+                addRect(Rect(0f, 0f, 8f, 8f))
+                addRect(Rect(4f, 4f, 12f, 12f))
+            }
 
         assertEquals(PathFillType.NonZero, path.fillType)
         canvas.drawPath(path, redPaint)
@@ -122,16 +120,17 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun linesFill() {
-        val path = Path().apply {
-            moveTo(0f, 0f)
-            lineTo(8f, 8f)
-            lineTo(0f, 8f)
+        val path =
+            Path().apply {
+                moveTo(0f, 0f)
+                lineTo(8f, 8f)
+                lineTo(0f, 8f)
 
-            moveTo(8f, 8f)
-            lineTo(8f, 16f)
-            lineTo(16f, 16f)
-            relativeLineTo(0f, -8f)
-        }
+                moveTo(8f, 8f)
+                lineTo(8f, 16f)
+                lineTo(16f, 16f)
+                relativeLineTo(0f, -8f)
+            }
 
         assertEquals(PaintingStyle.Fill, redPaint.style)
         canvas.drawPath(path, redPaint)
@@ -141,17 +140,18 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun linesStroke() {
-        val path = Path().apply {
-            moveTo(0f, 0f)
-            lineTo(8f, 8f)
-            lineTo(0f, 8f)
-            close()
+        val path =
+            Path().apply {
+                moveTo(0f, 0f)
+                lineTo(8f, 8f)
+                lineTo(0f, 8f)
+                close()
 
-            moveTo(8f, 8f)
-            lineTo(8f, 16f)
-            lineTo(16f, 16f)
-            relativeLineTo(0f, -8f)
-        }
+                moveTo(8f, 8f)
+                lineTo(8f, 16f)
+                lineTo(16f, 16f)
+                relativeLineTo(0f, -8f)
+            }
 
         canvas.drawPath(
             path,
@@ -216,9 +216,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
 
     @Test
     fun testRewind() {
-        val path = Path().apply {
-            addRect(Rect(0f, 0f, 100f, 200f))
-        }
+        val path = Path().apply { addRect(Rect(0f, 0f, 100f, 200f)) }
         assertFalse(path.isEmpty)
 
         path.rewind()
@@ -233,12 +231,11 @@ class DesktopPathTest : DesktopGraphicsTest() {
         val image = ImageBitmap(width, height)
         val canvas = Canvas(image)
 
-        val path = Path().apply {
-            addRect(Rect(0f, 0f, 50f, 50f))
-            transform(
-                Matrix().apply { translate(50f, 50f) }
-            )
-        }
+        val path =
+            Path().apply {
+                addRect(Rect(0f, 0f, 50f, 50f))
+                transform(Matrix().apply { translate(50f, 50f) })
+            }
 
         val paint = Paint().apply { color = Color.Black }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)

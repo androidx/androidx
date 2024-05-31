@@ -21,6 +21,5 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
 // TODO(demin): implement HapticFeedback
 internal class DefaultHapticFeedback : HapticFeedback {
-    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
-    }
+    override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {}
 }

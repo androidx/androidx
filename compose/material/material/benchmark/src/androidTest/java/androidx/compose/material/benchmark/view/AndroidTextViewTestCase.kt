@@ -24,32 +24,34 @@ import android.widget.TextView
 import androidx.compose.testutils.benchmark.android.AndroidTestCase
 import kotlin.math.roundToInt
 
-class AndroidTextViewTestCase(
-    private val texts: List<String>
-) : AndroidTestCase {
+class AndroidTextViewTestCase(private val texts: List<String>) : AndroidTestCase {
 
     private var fontSize = 8f
 
     override fun getContent(activity: Activity): ViewGroup {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
-        column.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        column.layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         for (text in texts) {
             val textView = TextView(activity)
             textView.text = text
-            textView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            textView.layoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
 
-            textView.width = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                160f,
-                activity.resources.displayMetrics
-            ).roundToInt()
+            textView.width =
+                TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        160f,
+                        activity.resources.displayMetrics
+                    )
+                    .roundToInt()
 
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize)
             column.addView(textView)

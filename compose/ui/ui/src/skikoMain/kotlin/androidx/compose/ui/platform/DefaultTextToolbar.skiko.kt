@@ -23,8 +23,7 @@ internal class DefaultTextToolbar : TextToolbar {
     override val status: TextToolbarStatus
         get() = TextToolbarStatus.Hidden
 
-    override fun hide() {
-    }
+    override fun hide() {}
 
     override fun showMenu(
         rect: Rect,
@@ -32,6 +31,5 @@ internal class DefaultTextToolbar : TextToolbar {
         onPasteRequested: (() -> Unit)?,
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?
-    ) {
-    }
+    ) {}
 }

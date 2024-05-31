@@ -44,48 +44,44 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class BoundsTest : ToolingTest() {
-    fun Group.all(): Collection<Group> =
-        listOf(this) + this.children.flatMap { it.all() }
+    fun Group.all(): Collection<Group> = listOf(this) + this.children.flatMap { it.all() }
 
     @Test
     fun testBounds() {
         val slotTableRecord = CompositionDataRecord.create()
         show {
             Inspectable(slotTableRecord) {
-                Box {
-                    Column(Modifier.padding(10.dp)) {
-                        Text("Hello", Modifier.padding(5.dp))
-                    }
-                }
+                Box { Column(Modifier.padding(10.dp)) { Text("Hello", Modifier.padding(5.dp)) } }
             }
         }
 
         activityTestRule.runOnUiThread {
             val tree = slotTableRecord.store.first().asTree()
 
-            val boundingBoxes = tree.firstOrNull {
-                it.location?.sourceFile?.equals("BoundsTest.kt") == true && it.box.right > 0
-            }!!
-                .all()
-                .filter {
-                    val name = it.location?.sourceFile
-                    name != null && name.equals("BoundsTest.kt")
-                }
-                .map {
-                    it.box.left
-                }
-                .distinct()
-                .sorted()
-                .toTypedArray()
+            val boundingBoxes =
+                tree
+                    .firstOrNull {
+                        it.location?.sourceFile?.equals("BoundsTest.kt") == true && it.box.right > 0
+                    }!!
+                    .all()
+                    .filter {
+                        val name = it.location?.sourceFile
+                        name != null && name.equals("BoundsTest.kt")
+                    }
+                    .map { it.box.left }
+                    .distinct()
+                    .sorted()
+                    .toTypedArray()
             with(Density(activityTestRule.activity)) {
                 println(boundingBoxes.contentDeepToString())
                 arrayOf(
-                    0.dp.roundToPx(), // Root
-                    10.dp.roundToPx(), // Column
-                    15.dp.roundToPx() // Text
-                ).forEachIndexed { index, value ->
-                    Assert.assertTrue(boundingBoxes[index] in value - 1..value + 1)
-                }
+                        0.dp.roundToPx(), // Root
+                        10.dp.roundToPx(), // Column
+                        15.dp.roundToPx() // Text
+                    )
+                    .forEachIndexed { index, value ->
+                        Assert.assertTrue(boundingBoxes[index] in value - 1..value + 1)
+                    }
             }
         }
     }
@@ -97,23 +93,21 @@ class BoundsTest : ToolingTest() {
         val slotTableRecord = CompositionDataRecord.create()
         show {
             Inspectable(slotTableRecord) {
-                Box {
-                    Column(Modifier.padding(10.dp)) {
-                        Text("Hello", Modifier.padding(5.dp))
-                    }
-                }
+                Box { Column(Modifier.padding(10.dp)) { Text("Hello", Modifier.padding(5.dp)) } }
             }
         }
 
         activityTestRule.runOnUiThread {
-            slotTableRecord.store.first().mapTree<Any>({ group, context, _ ->
-                if (context.location?.sourceFile == "BoundsTest.kt") {
-                    with(Density(activityTestRule.activity)) {
-                        lefts[context.name!!] = context.bounds.left.toDp()
-                        anchors[context.name!!] = group.identity
+            slotTableRecord.store
+                .first()
+                .mapTree<Any>({ group, context, _ ->
+                    if (context.location?.sourceFile == "BoundsTest.kt") {
+                        with(Density(activityTestRule.activity)) {
+                            lefts[context.name!!] = context.bounds.left.toDp()
+                            anchors[context.name!!] = group.identity
+                        }
                     }
-                }
-            })
+                })
 
             assertThat(lefts["Box"]?.value).isWithin(1f).of(0f)
             assertThat(lefts["Column"]?.value).isWithin(1f).of(10f)
@@ -133,12 +127,8 @@ class BoundsTest : ToolingTest() {
             Inspectable(slotTableRecord) {
                 BoxWithConstraints {
                     Column {
-                        Box {
-                            Text("Hello")
-                        }
-                        Box {
-                            Text("Hello")
-                        }
+                        Box { Text("Hello") }
+                        Box { Text("Hello") }
                     }
                 }
             }
@@ -148,11 +138,15 @@ class BoundsTest : ToolingTest() {
             val store = slotTableRecord.store
             Assert.assertTrue(store.size > 1)
             val trees = slotTableRecord.store.map { it.asTree() }
-            val boundingBoxes = trees.map {
-                it.all().filter {
-                    it.box.right > 0 && it.location?.sourceFile == "BoundsTest.kt"
-                }
-            }.flatten().groupBy { it.location }
+            val boundingBoxes =
+                trees
+                    .map {
+                        it.all().filter {
+                            it.box.right > 0 && it.location?.sourceFile == "BoundsTest.kt"
+                        }
+                    }
+                    .flatten()
+                    .groupBy { it.location }
 
             Assert.assertTrue(boundingBoxes.size >= 4)
         }

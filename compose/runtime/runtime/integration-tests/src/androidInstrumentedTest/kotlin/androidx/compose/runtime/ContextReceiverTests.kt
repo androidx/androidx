@@ -27,8 +27,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ContextReceiverTests : BaseComposeTest() {
 
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test
     fun testDefaultParams() {
@@ -50,7 +49,8 @@ class ContextReceiverTests : BaseComposeTest() {
     }
 
     context(CtxA)
-    @Composable fun composableA(
+    @Composable
+    fun composableA(
         param1: Int,
         param2: String = "Hello",
         onBodyInvoked: (Int, String, String) -> Unit
@@ -73,18 +73,15 @@ class ContextReceiverTests : BaseComposeTest() {
     }
 
     context(CtxA)
-    @Composable fun composableAB(
-        param1: Int = 1,
-        onBodyInvoked: (Int, String, String) -> Unit
-    ) {
+    @Composable
+    fun composableAB(param1: Int = 1, onBodyInvoked: (Int, String, String) -> Unit) {
         val ctx = CtxB()
-        with(ctx) {
-            composableB(param1 = param1, onBodyInvoked = onBodyInvoked)
-        }
+        with(ctx) { composableB(param1 = param1, onBodyInvoked = onBodyInvoked) }
     }
 
     context(CtxA, CtxB)
-    @Composable fun composableB(
+    @Composable
+    fun composableB(
         param1: Int,
         param2: String = "Hello",
         onBodyInvoked: (Int, String, String) -> Unit
@@ -96,6 +93,7 @@ class ContextReceiverTests : BaseComposeTest() {
     class CtxA {
         fun getA() = "A"
     }
+
     class CtxB {
         fun getB() = "B"
     }

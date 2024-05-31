@@ -55,42 +55,35 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.propertyIfAccessor
 import org.jetbrains.kotlin.resolve.multiplatform.findCompatibleActualsForExpected
 
 /**
- * [ComposableFunctionBodyTransformer] relies on presence of default values in
- * Composable functions' parameters.
- * If Composable function is declared as `expect fun` with default value parameter, then
+ * [ComposableFunctionBodyTransformer] relies on presence of default values in Composable functions'
+ * parameters. If Composable function is declared as `expect fun` with default value parameter, then
  * [ComposableFunctionBodyTransformer] will not find any default value in `actual fun` - IrFunction.
  *
  * [CopyDefaultValuesFromExpectLowering] sets default values to parameters of actual functions by
- * taking them from their corresponding `expect fun` declarations.
- * This lowering needs to run before [ComposableFunctionBodyTransformer] and
- * before [ComposerParamTransformer].
+ * taking them from their corresponding `expect fun` declarations. This lowering needs to run before
+ * [ComposableFunctionBodyTransformer] and before [ComposerParamTransformer].
  *
- * Fixes:
- * https://github.com/JetBrains/compose-jb/issues/1407
+ * Fixes: https://github.com/JetBrains/compose-jb/issues/1407
  * https://github.com/JetBrains/compose-multiplatform/issues/2816
  * https://github.com/JetBrains/compose-multiplatform/issues/2806
  *
- * This implementation is borrowed from Kotlin's ExpectToActualDefaultValueCopier.
- * Currently, it heavily relies on descriptors to find expect for actuals or vice versa:
- * findCompatibleActualsForExpected.
- * Unlike ExpectToActualDefaultValueCopier, this lowering performs its transformations
- * only for functions marked with @Composable annotation or
- * for functions with @Composable lambdas in parameters.
+ * This implementation is borrowed from Kotlin's ExpectToActualDefaultValueCopier. Currently, it
+ * heavily relies on descriptors to find expect for actuals or vice versa:
+ * findCompatibleActualsForExpected. Unlike ExpectToActualDefaultValueCopier, this lowering performs
+ * its transformations only for functions marked with @Composable annotation or for functions
+ * with @Composable lambdas in parameters.
  *
  * This lowering is K1 specific and should not be run in K2.
  */
 @OptIn(ObsoleteDescriptorBasedAPI::class)
-class CopyDefaultValuesFromExpectLowering(
-    private val pluginContext: IrPluginContext
-) : ModuleLoweringPass, IrElementTransformerVoid() {
+class CopyDefaultValuesFromExpectLowering(private val pluginContext: IrPluginContext) :
+    ModuleLoweringPass, IrElementTransformerVoid() {
 
     private val symbolTable = pluginContext.symbolTable
 
     private fun isApplicable(declaration: IrFunction): Boolean {
         return declaration.hasComposableAnnotation() ||
-            declaration.valueParameters.any {
-                it.type.hasAnnotation(ComposeFqNames.Composable)
-            }
+            declaration.valueParameters.any { it.type.hasAnnotation(ComposeFqNames.Composable) }
     }
 
     override fun visitFunction(declaration: IrFunction): IrStatement {
@@ -106,9 +99,10 @@ class CopyDefaultValuesFromExpectLowering(
             val actualValueParameter = actualForExpected.valueParameters[index]
             val expectDefaultValue = expectValueParameter.defaultValue
             if (expectDefaultValue != null) {
-                actualValueParameter.defaultValue = expectDefaultValue
-                    .remapExpectValueSymbols()
-                    .patchDeclarationParents(actualForExpected)
+                actualValueParameter.defaultValue =
+                    expectDefaultValue
+                        .remapExpectValueSymbols()
+                        .patchDeclarationParents(actualForExpected)
 
                 // Remove a default value in the expect fun in order to prevent
                 // Kotlin expect/actual-related lowerings trying to copy the default values again
@@ -133,19 +127,13 @@ class CopyDefaultValuesFromExpectLowering(
     }
 
     private fun IrProperty.findActualForExpected(): IrProperty =
-        symbolTable.descriptorExtension.referenceProperty(
-            descriptor.findActualForExpect()
-        ).owner
+        symbolTable.descriptorExtension.referenceProperty(descriptor.findActualForExpect()).owner
 
     private fun IrClass.findActualForExpected(): IrClass =
-        symbolTable.descriptorExtension.referenceClass(
-            descriptor.findActualForExpect()
-        ).owner
+        symbolTable.descriptorExtension.referenceClass(descriptor.findActualForExpect()).owner
 
     private fun IrEnumEntry.findActualForExpected(): IrEnumEntry =
-        symbolTable.descriptorExtension.referenceEnumEntry(
-            descriptor.findActualForExpect()
-        ).owner
+        symbolTable.descriptorExtension.referenceEnumEntry(descriptor.findActualForExpect()).owner
 
     private inline fun <reified T : MemberDescriptor> T.findActualForExpect(): T {
         if (!this.isExpect) error(this)
@@ -155,8 +143,7 @@ class CopyDefaultValuesFromExpectLowering(
     private fun IrExpressionBody.remapExpectValueSymbols(): IrExpressionBody {
         class SymbolRemapper : DeepCopySymbolRemapper() {
             override fun getReferencedClass(symbol: IrClassSymbol) =
-                if (symbol.descriptor.isExpect)
-                    symbol.owner.findActualForExpected().symbol
+                if (symbol.descriptor.isExpect) symbol.owner.findActualForExpected().symbol
                 else super.getReferencedClass(symbol)
 
             override fun getReferencedClassOrNull(symbol: IrClassSymbol?) =
@@ -170,8 +157,7 @@ class CopyDefaultValuesFromExpectLowering(
                 }
 
             override fun getReferencedConstructor(symbol: IrConstructorSymbol) =
-                if (symbol.descriptor.isExpect)
-                    symbol.owner.findActualForExpected().symbol
+                if (symbol.descriptor.isExpect) symbol.owner.findActualForExpected().symbol
                 else super.getReferencedConstructor(symbol)
 
             override fun getReferencedFunction(symbol: IrFunctionSymbol): IrFunctionSymbol =
@@ -181,34 +167,30 @@ class CopyDefaultValuesFromExpectLowering(
                     else -> error("Unexpected symbol $symbol ${symbol.descriptor}")
                 }
 
-            override fun getReferencedSimpleFunction(symbol: IrSimpleFunctionSymbol) = when {
-                symbol.descriptor.isExpect -> symbol.owner.findActualForExpected().symbol
-
-                symbol.descriptor.propertyIfAccessor.isExpect -> {
-                    val property = symbol.owner.correspondingPropertySymbol!!.owner
-                    val actualPropertyDescriptor = property.descriptor.findActualForExpect()
-                    val accessorDescriptor = when (symbol.owner) {
-                        property.getter -> actualPropertyDescriptor.getter!!
-                        property.setter -> actualPropertyDescriptor.setter!!
-                        else -> error("Unexpected accessor of $symbol ${symbol.descriptor}")
+            override fun getReferencedSimpleFunction(symbol: IrSimpleFunctionSymbol) =
+                when {
+                    symbol.descriptor.isExpect -> symbol.owner.findActualForExpected().symbol
+                    symbol.descriptor.propertyIfAccessor.isExpect -> {
+                        val property = symbol.owner.correspondingPropertySymbol!!.owner
+                        val actualPropertyDescriptor = property.descriptor.findActualForExpect()
+                        val accessorDescriptor =
+                            when (symbol.owner) {
+                                property.getter -> actualPropertyDescriptor.getter!!
+                                property.setter -> actualPropertyDescriptor.setter!!
+                                else -> error("Unexpected accessor of $symbol ${symbol.descriptor}")
+                            }
+                        symbolTable.referenceFunction(accessorDescriptor) as IrSimpleFunctionSymbol
                     }
-                    symbolTable.referenceFunction(accessorDescriptor) as IrSimpleFunctionSymbol
+                    else -> super.getReferencedSimpleFunction(symbol)
                 }
 
-                else -> super.getReferencedSimpleFunction(symbol)
-            }
-
             override fun getReferencedProperty(symbol: IrPropertySymbol) =
-                if (symbol.descriptor.isExpect)
-                    symbol.owner.findActualForExpected().symbol
-                else
-                    super.getReferencedProperty(symbol)
+                if (symbol.descriptor.isExpect) symbol.owner.findActualForExpected().symbol
+                else super.getReferencedProperty(symbol)
 
             override fun getReferencedEnumEntry(symbol: IrEnumEntrySymbol): IrEnumEntrySymbol =
-                if (symbol.descriptor.isExpect)
-                    symbol.owner.findActualForExpected().symbol
-                else
-                    super.getReferencedEnumEntry(symbol)
+                if (symbol.descriptor.isExpect) symbol.owner.findActualForExpected().symbol
+                else super.getReferencedEnumEntry(symbol)
 
             override fun getReferencedValue(symbol: IrValueSymbol) =
                 remapExpectValue(symbol)?.symbol ?: super.getReferencedValue(symbol)
@@ -218,9 +200,8 @@ class CopyDefaultValuesFromExpectLowering(
         acceptVoid(symbolRemapper)
 
         return transform(
-            transformer = DeepCopyIrTreeWithSymbols(
-                symbolRemapper, DeepCopyTypeRemapper(symbolRemapper)
-            ),
+            transformer =
+                DeepCopyIrTreeWithSymbols(symbolRemapper, DeepCopyTypeRemapper(symbolRemapper)),
             data = null
         )
     }
@@ -231,15 +212,11 @@ class CopyDefaultValuesFromExpectLowering(
 
         return when (parent) {
             is IrClass ->
-                if (!parent.descriptor.isExpect)
-                    parameter
+                if (!parent.descriptor.isExpect) parameter
                 else parent.findActualForExpected().typeParameters[parameter.index]
-
             is IrFunction ->
-                if (!parent.descriptor.isExpect)
-                    parameter
+                if (!parent.descriptor.isExpect) parameter
                 else parent.findActualForExpected().typeParameters[parameter.index]
-
             else -> error(parent)
         }
     }
@@ -254,29 +231,24 @@ class CopyDefaultValuesFromExpectLowering(
 
         return when (parent) {
             is IrClass ->
-                if (!parent.descriptor.isExpect)
-                    null
+                if (!parent.descriptor.isExpect) null
                 else {
                     assert(parameter == parent.thisReceiver)
                     parent.findActualForExpected().thisReceiver!!
                 }
-
             is IrFunction ->
-                if (!parent.descriptor.isExpect)
-                    null
-                else when (parameter) {
-                    parent.dispatchReceiverParameter ->
-                        parent.findActualForExpected().dispatchReceiverParameter!!
-
-                    parent.extensionReceiverParameter ->
-                        parent.findActualForExpected().extensionReceiverParameter!!
-
-                    else -> {
-                        assert(parent.valueParameters[parameter.index] == parameter)
-                        parent.findActualForExpected().valueParameters[parameter.index]
+                if (!parent.descriptor.isExpect) null
+                else
+                    when (parameter) {
+                        parent.dispatchReceiverParameter ->
+                            parent.findActualForExpected().dispatchReceiverParameter!!
+                        parent.extensionReceiverParameter ->
+                            parent.findActualForExpected().extensionReceiverParameter!!
+                        else -> {
+                            assert(parent.valueParameters[parameter.index] == parameter)
+                            parent.findActualForExpected().valueParameters[parameter.index]
+                        }
                     }
-                }
-
             else -> error(parent)
         }
     }

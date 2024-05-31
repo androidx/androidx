@@ -22,60 +22,55 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 
-/**
- *  An interface allowing a composable to subscribe and unsubscribe to selection changes.
- */
+/** An interface allowing a composable to subscribe and unsubscribe to selection changes. */
 internal interface SelectionRegistrar {
     /**
-     * The map stored current selection information on each [Selectable]. A selectable can query
-     * its selected range using its [Selectable.selectableId]. This field is backed by a
-     * [MutableState]. And any composable reading this field will be recomposed once its value
-     * changed.
+     * The map stored current selection information on each [Selectable]. A selectable can query its
+     * selected range using its [Selectable.selectableId]. This field is backed by a [MutableState].
+     * And any composable reading this field will be recomposed once its value changed.
      */
     val subselections: LongObjectMap<Selection>
 
     /**
      * Subscribe to SelectionContainer selection changes.
+     *
      * @param selectable the [Selectable] that is subscribing to this [SelectionRegistrar].
      */
     fun subscribe(selectable: Selectable): Selectable
 
     /**
      * Unsubscribe from SelectionContainer selection changes.
+     *
      * @param selectable the [Selectable] that is unsubscribing to this [SelectionRegistrar].
      */
     fun unsubscribe(selectable: Selectable)
 
     /**
      * Return a unique ID for a [Selectable].
+     *
      * @see [Selectable.selectableId]
      */
     fun nextSelectableId(): Long
 
-    /**
-     * When the Global Position of a subscribed [Selectable] changes, this method
-     * is called.
-     */
+    /** When the Global Position of a subscribed [Selectable] changes, this method is called. */
     fun notifyPositionChange(selectableId: Long)
 
     /**
      * Call this method to notify the [SelectionContainer] that the selection has been initiated.
      * Depends on the input, [notifySelectionUpdate] may be called repeatedly after
      * [notifySelectionUpdateStart] is called. And [notifySelectionUpdateEnd] should always be
-     * called after selection finished.
-     * For example:
-     *  1. User long pressed the text and then release. [notifySelectionUpdateStart] should be
-     *  called followed by [notifySelectionUpdateEnd] being called once.
-     *  2. User long pressed the text and then drag a distance and then release.
-     *  [notifySelectionUpdateStart] should be called first after the user long press, and then
-     *  [notifySelectionUpdate] is called several times reporting the updates, in the end
-     *  [notifySelectionUpdateEnd] is called to finish the selection.
+     * called after selection finished. For example:
+     * 1. User long pressed the text and then release. [notifySelectionUpdateStart] should be called
+     *    followed by [notifySelectionUpdateEnd] being called once.
+     * 2. User long pressed the text and then drag a distance and then release.
+     *    [notifySelectionUpdateStart] should be called first after the user long press, and then
+     *    [notifySelectionUpdate] is called several times reporting the updates, in the end
+     *    [notifySelectionUpdateEnd] is called to finish the selection.
      *
      * @param layoutCoordinates [LayoutCoordinates] of the [Selectable].
      * @param startPosition coordinates of where the selection is initiated.
      * @param adjustment selection should be adjusted according to this param
      * @param isInTouchMode whether the update is from a touch pointer
-     *
      * @see notifySelectionUpdate
      * @see notifySelectionUpdateEnd
      */
@@ -97,10 +92,9 @@ internal interface SelectionRegistrar {
 
     /**
      * Call this method to notify the [SelectionContainer] that one of the selection handle has
-     * moved and selection should be updated.
-     * The caller of this method should make sure that [notifySelectionUpdateStart] is always
-     * called once before calling this function. And [notifySelectionUpdateEnd] is always called
-     * once after the all updates finished.
+     * moved and selection should be updated. The caller of this method should make sure that
+     * [notifySelectionUpdateStart] is always called once before calling this function. And
+     * [notifySelectionUpdateEnd] is always called once after the all updates finished.
      *
      * @param layoutCoordinates [LayoutCoordinates] of the [Selectable].
      * @param previousPosition coordinates of where the selection starts.
@@ -108,12 +102,12 @@ internal interface SelectionRegistrar {
      * @param isStartHandle whether the moving selection handle the start handle.
      * @param adjustment selection should be adjusted according to this parameter
      * @param isInTouchMode whether the update is from a touch pointer
-     *
-     * @return true if the selection handle movement is consumed. This function acts like a
-     * pointer input consumer when a selection handle is dragged. It expects the caller to
-     * accumulate the unconsumed pointer movement:
+     * @return true if the selection handle movement is consumed. This function acts like a pointer
+     *   input consumer when a selection handle is dragged. It expects the caller to accumulate the
+     *   unconsumed pointer movement:
      * 1. if it returns true, the caller will zero out the previous movement.
      * 2. if it returns false, the caller will continue accumulate pointer movement.
+     *
      * @see notifySelectionUpdateStart
      * @see notifySelectionUpdateEnd
      */
@@ -135,24 +129,20 @@ internal interface SelectionRegistrar {
     fun notifySelectionUpdateEnd()
 
     /**
-     * Call this method to notify the [SelectionContainer] that the content of the passed
-     * selectable has been changed.
+     * Call this method to notify the [SelectionContainer] that the content of the passed selectable
+     * has been changed.
      *
      * @param selectableId the ID of the selectable whose the content has been updated.
      */
     fun notifySelectableChange(selectableId: Long)
 
     companion object {
-        /**
-         * Representing an invalid ID for [Selectable].
-         */
+        /** Representing an invalid ID for [Selectable]. */
         const val InvalidSelectableId = 0L
     }
 }
 
-/**
- * Helper function that checks if there is a selection on this CoreText.
- */
+/** Helper function that checks if there is a selection on this CoreText. */
 internal fun SelectionRegistrar?.hasSelection(selectableId: Long): Boolean {
     return this?.subselections?.containsKey(selectableId) ?: false
 }

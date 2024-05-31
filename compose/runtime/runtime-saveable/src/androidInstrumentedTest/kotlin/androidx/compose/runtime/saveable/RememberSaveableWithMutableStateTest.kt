@@ -31,17 +31,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RememberSaveableWithMutableStateTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val restorationTester = StateRestorationTester(rule)
 
     @Test
     fun simpleRestore() {
         var state: MutableState<Int>? = null
-        restorationTester.setContent {
-            state = rememberSaveable { mutableStateOf(0) }
-        }
+        restorationTester.setContent { state = rememberSaveable { mutableStateOf(0) } }
 
         rule.runOnUiThread {
             assertThat(state!!.value).isEqualTo(0)
@@ -53,18 +50,14 @@ class RememberSaveableWithMutableStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnUiThread {
-            assertThat(state!!.value).isEqualTo(1)
-        }
+        rule.runOnUiThread { assertThat(state!!.value).isEqualTo(1) }
     }
 
     @Test
     fun restoreWithSaver() {
         var state: MutableState<Holder>? = null
         restorationTester.setContent {
-            state = rememberSaveable(stateSaver = HolderSaver) {
-                mutableStateOf(Holder(0))
-            }
+            state = rememberSaveable(stateSaver = HolderSaver) { mutableStateOf(Holder(0)) }
         }
 
         rule.runOnIdle {
@@ -77,17 +70,13 @@ class RememberSaveableWithMutableStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnIdle {
-            assertThat(state!!.value).isEqualTo(Holder(1))
-        }
+        rule.runOnIdle { assertThat(state!!.value).isEqualTo(Holder(1)) }
     }
 
     @Test
     fun nullableStateRestoresNonNullValue() {
         var state: MutableState<String?>? = null
-        restorationTester.setContent {
-            state = rememberSaveable { mutableStateOf(null) }
-        }
+        restorationTester.setContent { state = rememberSaveable { mutableStateOf(null) } }
 
         rule.runOnUiThread {
             assertThat(state!!.value).isNull()
@@ -99,17 +88,13 @@ class RememberSaveableWithMutableStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnUiThread {
-            assertThat(state!!.value).isEqualTo("value")
-        }
+        rule.runOnUiThread { assertThat(state!!.value).isEqualTo("value") }
     }
 
     @Test
     fun nullableStateRestoresNullValue() {
         var state: MutableState<String?>? = null
-        restorationTester.setContent {
-            state = rememberSaveable { mutableStateOf("initial") }
-        }
+        restorationTester.setContent { state = rememberSaveable { mutableStateOf("initial") } }
 
         rule.runOnUiThread {
             assertThat(state!!.value).isEqualTo("initial")
@@ -121,26 +106,19 @@ class RememberSaveableWithMutableStateTest {
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnUiThread {
-            assertThat(state!!.value).isNull()
-        }
+        rule.runOnUiThread { assertThat(state!!.value).isNull() }
     }
 
     @Test
     fun stateSaverReturnsNull() {
         var state: MutableState<String>? = null
-        val saver = Saver<String, String>(
-            save = { null },
-            restore = { it }
-        )
+        val saver = Saver<String, String>(save = { null }, restore = { it })
         restorationTester.setContent {
             state = rememberSaveable(stateSaver = saver) { mutableStateOf("value") }
         }
 
         restorationTester.emulateSavedInstanceStateRestore()
 
-        rule.runOnUiThread {
-            assertThat(state!!.value).isEqualTo("value")
-        }
+        rule.runOnUiThread { assertThat(state!!.value).isEqualTo("value") }
     }
 }

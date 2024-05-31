@@ -39,9 +39,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [up] works
- */
+/** Tests if [up] works */
 @Suppress("DEPRECATION")
 @MediumTest
 class SendUpTest {
@@ -50,17 +48,14 @@ class SendUpTest {
         private val downPosition2 = Offset(20f, 20f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
@@ -121,34 +116,26 @@ class SendUpTest {
 
     @Test
     fun upWithoutDown() {
-        expectError<IllegalStateException> {
-            rule.partialGesture { up() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { up() } }
     }
 
     @Test
     fun upWrongPointerId() {
         rule.partialGesture { down(1, downPosition1) }
-        expectError<IllegalArgumentException> {
-            rule.partialGesture { up(2) }
-        }
+        expectError<IllegalArgumentException> { rule.partialGesture { up(2) } }
     }
 
     @Test
     fun upAfterUp() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { up() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { up() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { up() } }
     }
 
     @Test
     fun upAfterCancel() {
         rule.partialGesture { down(downPosition1) }
         rule.partialGesture { cancel() }
-        expectError<IllegalStateException> {
-            rule.partialGesture { up() }
-        }
+        expectError<IllegalStateException> { rule.partialGesture { up() } }
     }
 }

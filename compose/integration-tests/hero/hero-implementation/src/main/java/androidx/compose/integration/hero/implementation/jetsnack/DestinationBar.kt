@@ -51,9 +51,7 @@ fun DestinationBar(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(1f)
-                    .align(Alignment.CenterVertically)
+                modifier = Modifier.weight(1f).align(Alignment.CenterVertically)
             )
             IconButton(
                 onClick = { /* todo */ },

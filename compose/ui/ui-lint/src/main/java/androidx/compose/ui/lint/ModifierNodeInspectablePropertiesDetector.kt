@@ -38,10 +38,10 @@ import org.jetbrains.uast.toUElement
  * function. Classes that extend from another class which overrides this function satisfy the
  * inspection.
  *
- * We suggest overriding this method to provide more accurate, complete, and consistent data in
- * the layout inspector. This check reports an error for AndroidX libraries, since we want to ensure
- * each modifier has full inspection support. Additionally, the base implementation can only work
- * if kotlin-reflect is in the classpath, which is avoided by having a custom implementation.
+ * We suggest overriding this method to provide more accurate, complete, and consistent data in the
+ * layout inspector. This check reports an error for AndroidX libraries, since we want to ensure
+ * each modifier has full inspection support. Additionally, the base implementation can only work if
+ * kotlin-reflect is in the classpath, which is avoided by having a custom implementation.
  */
 class ModifierNodeInspectablePropertiesDetector : Detector(), Detector.UastScanner {
 
@@ -73,9 +73,9 @@ class ModifierNodeInspectablePropertiesDetector : Detector(), Detector.UastScann
             return null
         }
 
-        return uastDeclarations
-            .filterIsInstance<UMethod>()
-            .firstOrNull { it.hasInspectablePropertiesSignature() }
+        return uastDeclarations.filterIsInstance<UMethod>().firstOrNull {
+            it.hasInspectablePropertiesSignature()
+        }
             ?: UastFacade.convertWithParent<UClass>(javaPsi.superClass)
                 ?.getInspectablePropertiesFunctionOverride()
     }
@@ -97,18 +97,21 @@ class ModifierNodeInspectablePropertiesDetector : Detector(), Detector.UastScann
         private const val InspectionFunName = "inspectableProperties"
         private const val InspectionFunFqReceiver = "androidx.compose.ui.platform.InspectorInfo"
 
-        val ModifierNodeInspectableProperties = Issue.create(
-            "ModifierNodeInspectableProperties",
-            "ModifierNodeElement missing inspectableProperties",
-            "ModifierNodeElements may override inspectableProperties() to provide information " +
-                "about the modifier in the layout inspector. The default implementation attempts " +
-                "to read all of the properties on the class reflectively, which may not " +
-                "comprehensively or effectively describe the modifier.",
-            Category.PRODUCTIVITY, 4, Severity.INFORMATIONAL,
-            Implementation(
-                ModifierNodeInspectablePropertiesDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ModifierNodeInspectableProperties =
+            Issue.create(
+                "ModifierNodeInspectableProperties",
+                "ModifierNodeElement missing inspectableProperties",
+                "ModifierNodeElements may override inspectableProperties() to provide information " +
+                    "about the modifier in the layout inspector. The default implementation attempts " +
+                    "to read all of the properties on the class reflectively, which may not " +
+                    "comprehensively or effectively describe the modifier.",
+                Category.PRODUCTIVITY,
+                4,
+                Severity.INFORMATIONAL,
+                Implementation(
+                    ModifierNodeInspectablePropertiesDetector::class.java,
+                    Scope.JAVA_FILE_SCOPE
+                )
             )
-        )
     }
 }

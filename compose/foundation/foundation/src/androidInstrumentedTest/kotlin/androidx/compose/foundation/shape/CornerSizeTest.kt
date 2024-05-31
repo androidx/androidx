@@ -63,16 +63,12 @@ class CornerSizeTest {
 
     @Test
     fun pxCornersAreEquals() {
-        assertThat(CornerSize(24.0f)).isEqualTo(
-            CornerSize(24.0f)
-        )
+        assertThat(CornerSize(24.0f)).isEqualTo(CornerSize(24.0f))
     }
 
     @Test
     fun dpCornersAreEquals() {
-        assertThat(CornerSize(8.dp)).isEqualTo(
-            CornerSize(8.dp)
-        )
+        assertThat(CornerSize(8.dp)).isEqualTo(CornerSize(8.dp))
     }
 
     private fun CornerSize.inspectorValue() = (this as InspectableValue).valueOverride

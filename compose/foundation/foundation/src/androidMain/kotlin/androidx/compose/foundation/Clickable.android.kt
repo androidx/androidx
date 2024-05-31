@@ -63,7 +63,10 @@ internal actual val KeyEvent.isClick: Boolean
     get() = type == KeyUp && isEnter
 
 private val KeyEvent.isEnter: Boolean
-    get() = when (key.nativeKeyCode) {
-        KEYCODE_DPAD_CENTER, KEYCODE_ENTER, KEYCODE_NUMPAD_ENTER -> true
-        else -> false
-    }
+    get() =
+        when (key.nativeKeyCode) {
+            KEYCODE_DPAD_CENTER,
+            KEYCODE_ENTER,
+            KEYCODE_NUMPAD_ENTER -> true
+            else -> false
+        }

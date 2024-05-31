@@ -34,13 +34,12 @@ class TransformedTextFieldStateTest {
     @Test
     fun outputTransformationAffectsPresentedAndVisualText() {
         val state = TextFieldState("hello")
-        val outputTransformation = OutputTransformation {
-            append("world")
-        }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val outputTransformation = OutputTransformation { append("world") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.untransformedText.toString()).isEqualTo("hello")
         assertThat(transformedState.outputText.toString()).isEqualTo("helloworld")
@@ -55,10 +54,11 @@ class TransformedTextFieldStateTest {
             insert(0, "aa")
             append("cc")
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("aazzbbzzcc")
         assertThat(transformedState.mapToTransformed(0)).isEqualTo(TextRange(0, 2))
@@ -78,10 +78,11 @@ class TransformedTextFieldStateTest {
             delete(4, 6)
             delete(0, 2)
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("zzzz")
         assertThat(transformedState.mapToTransformed(0)).isEqualTo(TextRange(0))
@@ -106,10 +107,11 @@ class TransformedTextFieldStateTest {
             replace(2, 4, "ddd")
             replace(0, 2, "c")
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("cddd")
         assertThat(transformedState.mapToTransformed(0)).isEqualTo(TextRange(0))
@@ -129,10 +131,11 @@ class TransformedTextFieldStateTest {
             insert(0, "aa")
             append("cc")
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("aazzbbzzcc")
         assertThat(transformedState.mapFromTransformed(0)).isEqualTo(TextRange(0))
@@ -158,10 +161,11 @@ class TransformedTextFieldStateTest {
             delete(4, 6)
             delete(0, 2)
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("zzzz")
         assertThat(transformedState.mapFromTransformed(0)).isEqualTo(TextRange(0, 2))
@@ -180,10 +184,11 @@ class TransformedTextFieldStateTest {
             replace(2, 4, "ddd")
             replace(0, 2, "c")
         }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
 
         assertThat(transformedState.outputText.toString()).isEqualTo("cddd")
         assertThat(transformedState.mapFromTransformed(0)).isEqualTo(TextRange(0))
@@ -198,13 +203,12 @@ class TransformedTextFieldStateTest {
     @Test
     fun textFieldStateSelection_isTransformed_toPresentedText() {
         val state = TextFieldState("hello")
-        val outputTransformation = OutputTransformation {
-            insert(0, "aa")
-        }
-        val transformedState = TransformedTextFieldState(
-            textFieldState = state,
-            outputTransformation = outputTransformation
-        )
+        val outputTransformation = OutputTransformation { insert(0, "aa") }
+        val transformedState =
+            TransformedTextFieldState(
+                textFieldState = state,
+                outputTransformation = outputTransformation
+            )
         assertThat(transformedState.outputText.toString()).isEqualTo("aahello")
 
         state.edit { selection = TextRange(0, 2) }

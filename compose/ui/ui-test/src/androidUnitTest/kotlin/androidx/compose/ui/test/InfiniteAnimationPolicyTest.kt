@@ -31,39 +31,32 @@ class InfiniteAnimationPolicyTest {
 
     @Test
     fun withInfiniteAnimationFrameNanos_policyIsApplied() {
-        withInfiniteAnimationFrame_policyIsApplied {
-            withInfiniteAnimationFrameNanos {}
-        }
+        withInfiniteAnimationFrame_policyIsApplied { withInfiniteAnimationFrameNanos {} }
     }
 
     @Test
     fun withInfiniteAnimationFrameMillis_policyIsApplied() {
-        withInfiniteAnimationFrame_policyIsApplied {
-            withInfiniteAnimationFrameMillis {}
-        }
+        withInfiniteAnimationFrame_policyIsApplied { withInfiniteAnimationFrameMillis {} }
     }
 
     private fun <R> withInfiniteAnimationFrame_policyIsApplied(block: suspend () -> R) {
         var applied = false
-        val policy = object : InfiniteAnimationPolicy {
-            override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
-                applied = true
-                // We don't need to run the `block()` in our test, but we do need a return value
-                // of R. Throw a CancellationException to cancel the coroutine instead.
-                throw CancellationException()
+        val policy =
+            object : InfiniteAnimationPolicy {
+                override suspend fun <R> onInfiniteOperation(block: suspend () -> R): R {
+                    applied = true
+                    // We don't need to run the `block()` in our test, but we do need a return value
+                    // of R. Throw a CancellationException to cancel the coroutine instead.
+                    throw CancellationException()
 
-                // The reason why we can't run block() here, is because block() calls through to
-                // `DefaultMonotonicFrameClock.withFrameNanos`, which in host side tests
-                // dispatches on the main thread. But we're already blocking the main thread, so
-                // that would deadlock.
+                    // The reason why we can't run block() here, is because block() calls through to
+                    // `DefaultMonotonicFrameClock.withFrameNanos`, which in host side tests
+                    // dispatches on the main thread. But we're already blocking the main thread, so
+                    // that would deadlock.
+                }
             }
-        }
 
-        val caught = runCatching {
-            runBlocking(policy) {
-                block()
-            }
-        }
+        val caught = runCatching { runBlocking(policy) { block() } }
 
         assertThat(applied).isTrue()
         assertThat(caught.exceptionOrNull()).isInstanceOf(CancellationException::class.java)

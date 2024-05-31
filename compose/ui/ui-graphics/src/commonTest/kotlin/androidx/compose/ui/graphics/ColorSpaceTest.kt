@@ -58,74 +58,41 @@ class ColorSpaceTest {
     @Test
     fun testEmptyName() {
         assertFailsWith<IllegalArgumentException> {
-            Rgb(
-                "",
-                FloatArray(6),
-                WhitePoint(0f, 0f),
-                sIdentity,
-                sIdentity,
-                0.0f,
-                1.0f
-            )
+            Rgb("", FloatArray(6), WhitePoint(0f, 0f), sIdentity, sIdentity, 0.0f, 1.0f)
         }
     }
 
     @Test
     fun testName() {
-        val cs = Rgb(
-            "Test", FloatArray(6), WhitePoint(0f, 0f),
-            sIdentity, sIdentity, 0.0f, 1.0f
-        )
+        val cs = Rgb("Test", FloatArray(6), WhitePoint(0f, 0f), sIdentity, sIdentity, 0.0f, 1.0f)
         assertEquals("Test", cs.name)
     }
 
     @Test
     fun testPrimariesLength() {
         assertFailsWith<IllegalArgumentException> {
-            Rgb(
-                "Test",
-                FloatArray(7),
-                WhitePoint(0f, 0f),
-                sIdentity,
-                sIdentity,
-                0.0f,
-                1.0f
-            )
+            Rgb("Test", FloatArray(7), WhitePoint(0f, 0f), sIdentity, sIdentity, 0.0f, 1.0f)
         }
     }
 
     @Test
     fun testOETF() {
         val op: (Double) -> Double = { x -> sqrt(x) }
-        val cs = Rgb(
-            "Test", FloatArray(6), WhitePoint(0f, 0f),
-            op, sIdentity, 0.0f, 1.0f
-        )
+        val cs = Rgb("Test", FloatArray(6), WhitePoint(0f, 0f), op, sIdentity, 0.0f, 1.0f)
         assertEquals(0.5, cs.oetfFunc.invoke(0.25), 1e-5)
     }
 
     @Test
     fun testEOTF() {
         val op: (Double) -> Double = { x -> x * x }
-        val cs = Rgb(
-            "Test", FloatArray(6), WhitePoint(0f, 0f),
-            sIdentity, op, 0.0f, 1.0f
-        )
+        val cs = Rgb("Test", FloatArray(6), WhitePoint(0f, 0f), sIdentity, op, 0.0f, 1.0f)
         assertEquals(0.0625, cs.eotfFunc.invoke(0.25), 1e-5)
     }
 
     @Test
     fun testInvalidRange() {
         assertFailsWith<IllegalArgumentException> {
-            Rgb(
-                "Test",
-                FloatArray(6),
-                WhitePoint(0f, 0f),
-                sIdentity,
-                sIdentity,
-                2.0f,
-                1.0f
-            )
+            Rgb("Test", FloatArray(6), WhitePoint(0f, 0f), sIdentity, sIdentity, 2.0f, 1.0f)
         }
     }
 
@@ -237,10 +204,8 @@ class ColorSpaceTest {
 
     @Test
     fun testXYZFromPrimaries_xyY() {
-        val cs = Rgb(
-            "Test", SRGB_PRIMARIES_xyY, SRGB_WHITE_POINT_xyY,
-            sIdentity, sIdentity, 0.0f, 1.0f
-        )
+        val cs =
+            Rgb("Test", SRGB_PRIMARIES_xyY, SRGB_WHITE_POINT_xyY, sIdentity, sIdentity, 0.0f, 1.0f)
 
         val rgbToXYZ = cs.getTransform()
         for (i in 0..8) {
@@ -255,10 +220,8 @@ class ColorSpaceTest {
 
     @Test
     fun testXYZFromPrimaries_XYZ() {
-        val cs = Rgb(
-            "Test", SRGB_PRIMARIES_XYZ, SRGB_WHITE_POINT_XYZ,
-            sIdentity, sIdentity, 0.0f, 1.0f
-        )
+        val cs =
+            Rgb("Test", SRGB_PRIMARIES_XYZ, SRGB_WHITE_POINT_XYZ, sIdentity, sIdentity, 0.0f, 1.0f)
 
         val primaries = cs.getPrimaries()
 
@@ -297,10 +260,7 @@ class ColorSpaceTest {
         assertEquals(3, ColorSpaces.Srgb.componentCount.toLong())
         assertEquals(3, ColorSpaces.LinearSrgb.componentCount.toLong())
         assertEquals(3, ColorSpaces.ExtendedSrgb.componentCount.toLong())
-        assertEquals(
-            3,
-            ColorSpaces.LinearExtendedSrgb.componentCount.toLong()
-        )
+        assertEquals(3, ColorSpaces.LinearExtendedSrgb.componentCount.toLong())
         assertEquals(3, ColorSpaces.DisplayP3.componentCount.toLong())
         assertEquals(3, ColorSpaces.CieLab.componentCount.toLong())
         assertEquals(3, ColorSpaces.CieXyz.componentCount.toLong())
@@ -312,17 +272,11 @@ class ColorSpaceTest {
             if (colorSpace === ColorSpaces.Srgb) {
                 assertTrue(colorSpace.isSrgb)
             } else {
-                assertFalse(
-                    colorSpace.isSrgb,
-                    "Incorrectly treating $colorSpace as SRGB!"
-                )
+                assertFalse(colorSpace.isSrgb, "Incorrectly treating $colorSpace as SRGB!")
             }
         }
 
-        val cs = Rgb(
-            "Almost sRGB", SRGB_TO_XYZ,
-            { x -> x.pow(1.0 / 2.2) }, { x -> x.pow(2.2) }
-        )
+        val cs = Rgb("Almost sRGB", SRGB_TO_XYZ, { x -> x.pow(1.0 / 2.2) }, { x -> x.pow(2.2) })
         assertFalse(cs.isSrgb)
     }
 
@@ -507,10 +461,8 @@ class ColorSpaceTest {
     @Test
     fun testAdaptedConnectorWithRenderIntent() {
         // Connect a wider color space to a narrow color space
-        var connector: Connector = ColorSpaces.DciP3.connect(
-            ColorSpaces.Srgb,
-            RenderIntent.Relative
-        )
+        var connector: Connector =
+            ColorSpaces.DciP3.connect(ColorSpaces.Srgb, RenderIntent.Relative)
 
         val source = floatArrayOf(0.9f, 0.9f, 0.9f)
 
@@ -520,10 +472,7 @@ class ColorSpaceTest {
         assertArrayNotEquals(source, relative, 1e-5f)
         assertArrayEquals(floatArrayOf(0.8862f, 0.8862f, 0.8862f), relative, 1e-4f)
 
-        connector = ColorSpaces.DciP3.connect(
-            ColorSpaces.Srgb,
-            RenderIntent.Absolute
-        )
+        connector = ColorSpaces.DciP3.connect(ColorSpaces.Srgb, RenderIntent.Absolute)
 
         val absolute = connector.transform(source[0], source[1], source[2])
         assertNotNull(absolute)
@@ -568,28 +517,24 @@ class ColorSpaceTest {
 
     @Test
     fun testAdaptation() {
-        var adapted = ColorSpaces.Srgb.adapt(
-            Illuminant.D50
-        )
+        var adapted = ColorSpaces.Srgb.adapt(Illuminant.D50)
 
-        val sRGBD50 = floatArrayOf(
-            0.43602175f,
-            0.22247513f,
-            0.01392813f,
-            0.38510883f,
-            0.71690667f,
-            0.09710153f,
-            0.14308129f,
-            0.06061824f,
-            0.71415880f
-        )
+        val sRGBD50 =
+            floatArrayOf(
+                0.43602175f,
+                0.22247513f,
+                0.01392813f,
+                0.38510883f,
+                0.71690667f,
+                0.09710153f,
+                0.14308129f,
+                0.06061824f,
+                0.71415880f
+            )
 
         assertArrayEquals(sRGBD50, (adapted as Rgb).getTransform(), 1e-7f)
 
-        adapted = ColorSpaces.Srgb.adapt(
-            Illuminant.D50,
-            Adaptation.Bradford
-        )
+        adapted = ColorSpaces.Srgb.adapt(Illuminant.D50, Adaptation.Bradford)
         assertArrayEquals(sRGBD50, (adapted as Rgb).getTransform(), 1e-7f)
     }
 
@@ -599,14 +544,13 @@ class ColorSpaceTest {
 
         assertSame(ColorSpaces.Srgb, connector1.destination)
 
-        val connector2 = ColorSpaces.DciP3.connect(
-            ColorSpaces.Srgb
-        )
+        val connector2 = ColorSpaces.DciP3.connect(ColorSpaces.Srgb)
 
         val source = floatArrayOf(0.6f, 0.9f, 0.7f)
         assertArrayEquals(
             connector1.transform(source[0], source[1], source[2]),
-            connector2.transform(source[0], source[1], source[2]), 1e-7f
+            connector2.transform(source[0], source[1], source[2]),
+            1e-7f
         )
     }
 
@@ -770,8 +714,7 @@ class ColorSpaceTest {
 
     @Test
     fun testIdempotentTransferFunctions() {
-        ColorSpacesArray
-            .filter { cs -> cs.model == ColorModel.Rgb }
+        ColorSpacesArray.filter { cs -> cs.model == ColorModel.Rgb }
             .map { cs -> cs as Rgb }
             .forEach { cs ->
                 val source = floatArrayOf(0.0f, 0.5f, 1.0f)
@@ -789,10 +732,7 @@ class ColorSpaceTest {
                 if (rgb !== ColorSpaces.ExtendedSrgb && rgb !== ColorSpaces.LinearExtendedSrgb) {
                     // match() uses CIE XYZ D50
                     rgb = rgb.adapt(Illuminant.D50) as Rgb
-                    assertSame(
-                        cs,
-                        ColorSpaces.match(rgb.getTransform(), rgb.transferParameters!!)
-                    )
+                    assertSame(cs, ColorSpaces.match(rgb.getTransform(), rgb.transferParameters!!))
                 }
             }
         }
@@ -840,58 +780,62 @@ class ColorSpaceTest {
 
     companion object {
         // Column-major RGB->XYZ transform matrix for the sRGB color space
-        private val SRGB_TO_XYZ = floatArrayOf(
-            0.412391f,
-            0.212639f,
-            0.019331f,
-            0.357584f,
-            0.715169f,
-            0.119195f,
-            0.180481f,
-            0.072192f,
-            0.950532f
-        )
+        private val SRGB_TO_XYZ =
+            floatArrayOf(
+                0.412391f,
+                0.212639f,
+                0.019331f,
+                0.357584f,
+                0.715169f,
+                0.119195f,
+                0.180481f,
+                0.072192f,
+                0.950532f
+            )
         // Column-major XYZ->RGB transform matrix for the sRGB color space
-        private val XYZ_TO_SRGB = floatArrayOf(
-            3.240970f,
-            -0.969244f,
-            0.055630f,
-            -1.537383f,
-            1.875968f,
-            -0.203977f,
-            -0.498611f,
-            0.041555f,
-            1.056971f
-        )
+        private val XYZ_TO_SRGB =
+            floatArrayOf(
+                3.240970f,
+                -0.969244f,
+                0.055630f,
+                -1.537383f,
+                1.875968f,
+                -0.203977f,
+                -0.498611f,
+                0.041555f,
+                1.056971f
+            )
 
         // Column-major RGB->XYZ transform matrix for the sRGB color space and a D50 white point
-        private val SRGB_TO_XYZ_D50 = floatArrayOf(
-            0.4360747f,
-            0.2225045f,
-            0.0139322f,
-            0.3850649f,
-            0.7168786f,
-            0.0971045f,
-            0.1430804f,
-            0.0606169f,
-            0.7141733f
-        )
+        private val SRGB_TO_XYZ_D50 =
+            floatArrayOf(
+                0.4360747f,
+                0.2225045f,
+                0.0139322f,
+                0.3850649f,
+                0.7168786f,
+                0.0971045f,
+                0.1430804f,
+                0.0606169f,
+                0.7141733f
+            )
 
         private val SRGB_PRIMARIES_xyY =
             floatArrayOf(0.640f, 0.330f, 0.300f, 0.600f, 0.150f, 0.060f)
         private val SRGB_WHITE_POINT_xyY = WhitePoint(0.3127f, 0.3290f)
 
-        private val SRGB_PRIMARIES_XYZ = floatArrayOf(
-            1.939394f,
-            1.000000f,
-            0.090909f,
-            0.500000f,
-            1.000000f,
-            0.166667f,
-            2.500000f,
-            1.000000f,
-            13.166667f
-        )
+        private val SRGB_PRIMARIES_XYZ =
+            floatArrayOf(
+                1.939394f,
+                1.000000f,
+                0.090909f,
+                0.500000f,
+                1.000000f,
+                0.166667f,
+                2.500000f,
+                1.000000f,
+                13.166667f
+            )
         private val SRGB_WHITE_POINT_XYZ = WhitePoint(0.950456f, 1.000f, 1.089058f)
 
         private val sIdentity: (Double) -> Double = { x -> x }

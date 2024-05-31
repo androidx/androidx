@@ -74,8 +74,7 @@ class TextDecorationTest {
 
     @Test
     fun `toString with multiple textDecorations`() {
-        assertThat(
-            (TextDecoration.Underline + TextDecoration.LineThrough).toString()
-        ).isEqualTo("TextDecoration[Underline, LineThrough]")
+        assertThat((TextDecoration.Underline + TextDecoration.LineThrough).toString())
+            .isEqualTo("TextDecoration[Underline, LineThrough]")
     }
 }

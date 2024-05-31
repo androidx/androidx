@@ -39,20 +39,16 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AlertDialogScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun alertDialog_lightTheme() {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             AlertDialog(
                 onDismissRequest = {},
-                title = {
-                    Text(text = "Title")
-                },
+                title = { Text(text = "Title") },
                 text = {
                     Text(
                         "This area typically contains the supportive text " +
@@ -60,14 +56,10 @@ class AlertDialogScreenshotTest {
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Dismiss")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                 }
             )
         }
@@ -80,9 +72,7 @@ class AlertDialogScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             AlertDialog(
                 onDismissRequest = {},
-                title = {
-                    Text(text = "Title")
-                },
+                title = { Text(text = "Title") },
                 text = {
                     Text(
                         "This area typically contains the supportive text " +
@@ -90,14 +80,10 @@ class AlertDialogScreenshotTest {
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Dismiss")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                 }
             )
         }
@@ -111,9 +97,7 @@ class AlertDialogScreenshotTest {
             AlertDialog(
                 onDismissRequest = {},
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                title = {
-                    Text(text = "Title")
-                },
+                title = { Text(text = "Title") },
                 text = {
                     Text(
                         "This area typically contains the supportive text " +
@@ -121,14 +105,10 @@ class AlertDialogScreenshotTest {
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Dismiss")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                 }
             )
         }
@@ -142,9 +122,7 @@ class AlertDialogScreenshotTest {
             AlertDialog(
                 onDismissRequest = {},
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                title = {
-                    Text(text = "Title")
-                },
+                title = { Text(text = "Title") },
                 text = {
                     Text(
                         "This area typically contains the supportive text " +
@@ -152,14 +130,10 @@ class AlertDialogScreenshotTest {
                     )
                 },
                 confirmButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Confirm")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { /* doSomething() */ }) {
-                        Text("Dismiss")
-                    }
+                    TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                 }
             )
         }
@@ -173,9 +147,7 @@ class AlertDialogScreenshotTest {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 AlertDialog(
                     onDismissRequest = {},
-                    title = {
-                        Text(text = "Title")
-                    },
+                    title = { Text(text = "Title") },
                     text = {
                         Text(
                             "This area typically contains the supportive text " +
@@ -183,14 +155,10 @@ class AlertDialogScreenshotTest {
                         )
                     },
                     confirmButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Confirm")
-                        }
+                        TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { /* doSomething() */ }) {
-                            Text("Dismiss")
-                        }
+                        TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
                     }
                 )
             }
@@ -199,7 +167,8 @@ class AlertDialogScreenshotTest {
     }
 
     private fun assertAlertDialogAgainstGolden(goldenIdentifier: String) {
-        composeTestRule.onNode(isDialog())
+        composeTestRule
+            .onNode(isDialog())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenIdentifier)
     }

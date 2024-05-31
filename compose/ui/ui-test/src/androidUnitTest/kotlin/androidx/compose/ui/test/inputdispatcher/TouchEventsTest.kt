@@ -37,9 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/**
- * Tests if [AndroidInputDispatcher.enqueueTouchDown] and friends work.
- */
+/** Tests if [AndroidInputDispatcher.enqueueTouchDown] and friends work. */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
 class TouchEventsTest : InputDispatcherTest() {
@@ -634,124 +632,94 @@ class TouchEventsTest : InputDispatcherTest() {
     @Test
     fun enqueueTouchDown_afterDown() {
         subject.enqueueTouchDown(pointer1, position1)
-        expectError<IllegalArgumentException> {
-            subject.enqueueTouchDown(pointer1, position2)
-        }
+        expectError<IllegalArgumentException> { subject.enqueueTouchDown(pointer1, position2) }
     }
 
     @Test
     fun updateTouchPointer_withoutDown() {
-        expectError<IllegalStateException> {
-            subject.updateTouchPointer(pointer1, position1_1)
-        }
+        expectError<IllegalStateException> { subject.updateTouchPointer(pointer1, position1_1) }
     }
 
     @Test
     fun updateTouchPointer_wrongPointerId() {
         subject.enqueueTouchDown(pointer1, position1_1)
-        expectError<IllegalArgumentException> {
-            subject.updateTouchPointer(pointer2, position1_2)
-        }
+        expectError<IllegalArgumentException> { subject.updateTouchPointer(pointer2, position1_2) }
     }
 
     @Test
     fun updateTouchPointer_afterUp() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchUp(pointer1)
-        expectError<IllegalStateException> {
-            subject.updateTouchPointer(pointer1, position1_2)
-        }
+        expectError<IllegalStateException> { subject.updateTouchPointer(pointer1, position1_2) }
     }
 
     @Test
     fun updateTouchPointer_afterCancel() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchCancel()
-        expectError<IllegalStateException> {
-            subject.updateTouchPointer(pointer1, position1_2)
-        }
+        expectError<IllegalStateException> { subject.updateTouchPointer(pointer1, position1_2) }
     }
 
     @Test
     fun enqueueTouchMove_withoutDown() {
-        expectError<IllegalStateException> {
-            subject.enqueueTouchMove()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchMove() }
     }
 
     @Test
     fun enqueueTouchMove_afterUp() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchUp(pointer1)
-        expectError<IllegalStateException> {
-            subject.enqueueTouchMove()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchMove() }
     }
 
     @Test
     fun enqueueTouchMove_afterCancel() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchCancel()
-        expectError<IllegalStateException> {
-            subject.enqueueTouchMove()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchMove() }
     }
 
     @Test
     fun enqueueTouchUp_withoutDown() {
-        expectError<IllegalStateException> {
-            subject.enqueueTouchUp(pointer1)
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchUp(pointer1) }
     }
 
     @Test
     fun enqueueTouchUp_wrongPointerId() {
         subject.enqueueTouchDown(pointer1, position1_1)
-        expectError<IllegalArgumentException> {
-            subject.enqueueTouchUp(pointer2)
-        }
+        expectError<IllegalArgumentException> { subject.enqueueTouchUp(pointer2) }
     }
 
     @Test
     fun enqueueTouchUp_afterUp() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchUp(pointer1)
-        expectError<IllegalStateException> {
-            subject.enqueueTouchUp(pointer1)
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchUp(pointer1) }
     }
 
     @Test
     fun enqueueTouchUp_afterCancel() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchCancel()
-        expectError<IllegalStateException> {
-            subject.enqueueTouchUp(pointer1)
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchUp(pointer1) }
     }
 
     @Test
     fun enqueueTouchCancel_withoutDown() {
-        expectError<IllegalStateException> {
-            subject.enqueueTouchCancel()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchCancel() }
     }
 
     @Test
     fun enqueueTouchCancel_afterUp() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchUp(pointer1)
-        expectError<IllegalStateException> {
-            subject.enqueueTouchCancel()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchCancel() }
     }
 
     @Test
     fun enqueueTouchCancel_afterCancel() {
         subject.enqueueTouchDown(pointer1, position1_1)
         subject.enqueueTouchCancel()
-        expectError<IllegalStateException> {
-            subject.enqueueTouchCancel()
-        }
+        expectError<IllegalStateException> { subject.enqueueTouchCancel() }
     }
 }

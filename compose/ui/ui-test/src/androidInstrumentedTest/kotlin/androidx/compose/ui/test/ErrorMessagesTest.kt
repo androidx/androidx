@@ -49,76 +49,63 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ErrorMessagesTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun findByTag_assertHasClickAction() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
-        rule.onNodeWithTag("MyButton")
-            .assertHasClickAction()
+        rule.onNodeWithTag("MyButton").assertHasClickAction()
     }
 
     @Test
     fun findByTag_assertExists_butNoElementFound() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessage(
             """
                 Failed: assertExists.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithTag("MyButton3")
-                .assertExists()
+            rule.onNodeWithTag("MyButton3").assertExists()
         }
     }
 
     @Test
     fun findByTag_doClick_butNoElementFound() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessage(
             """
                 Failed to inject touch input.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
-            """.trimIndent()
-
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithTag("MyButton3")
-                .performClick()
+            rule.onNodeWithTag("MyButton3").performClick()
         }
     }
 
     @Test
     fun findByPredicate_doClick_butNoElementFound() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessage(
             """
                 Failed to inject touch input.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: ((TestTag = 'MyButton3') && (OnClick is defined))
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNode(hasTestTag("MyButton3") and hasClickAction())
-                .performClick()
+            rule.onNode(hasTestTag("MyButton3") and hasClickAction()).performClick()
         }
     }
 
     @Test
     fun findByText_doClick_butMoreThanOneElementFound() {
-        rule.setContentWithoutMinimumTouchTarget {
-            ComposeSimpleCase()
-        }
+        rule.setContentWithoutMinimumTouchTarget { ComposeSimpleCase() }
 
         expectErrorMessageStartsWith(
             """
@@ -126,35 +113,31 @@ class ErrorMessagesTest {
                 Reason: Expected exactly '1' node but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
                 Nodes found:
                 1) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'MyButton'
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithText("Toggle")
-                .performClick()
+            rule.onNodeWithText("Toggle").performClick()
         }
     }
 
     @Test
     fun findByTag_callSemanticsAction_butElementDoesNotExist() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessageStartsWith(
             """
                 Failed to perform OnClick action.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'MyButton3')
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithTag("MyButton3")
-                .performSemanticsAction(SemanticsActions.OnClick)
+            rule.onNodeWithTag("MyButton3").performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
     @Test
     fun findByTag_assertDoesNotExist_butElementFound() {
-        rule.setContentWithoutMinimumTouchTarget {
-            ComposeSimpleCase()
-        }
+        rule.setContentWithoutMinimumTouchTarget { ComposeSimpleCase() }
 
         expectErrorMessageStartsWith(
             """
@@ -162,18 +145,16 @@ class ErrorMessagesTest {
                 Reason: Did not expect any node but found '1' node that satisfies: (TestTag = 'MyButton')
                 Node found:
                 Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'MyButton'
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithTag("MyButton")
-                .assertDoesNotExist()
+            rule.onNodeWithTag("MyButton").assertDoesNotExist()
         }
     }
 
     @Test
     fun findAll_assertMultiple_butIsDifferentAmount() {
-        rule.setContentWithoutMinimumTouchTarget {
-            ComposeSimpleCase()
-        }
+        rule.setContentWithoutMinimumTouchTarget { ComposeSimpleCase() }
 
         expectErrorMessageStartsWith(
             """
@@ -181,41 +162,35 @@ class ErrorMessagesTest {
                 Reason: Expected '3' nodes but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
                 Nodes found:
                 1) Node #X at (l=X, t=X, r=X, b=X)px
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onAllNodesWithText("Toggle")
-                .assertCountEquals(3)
+            rule.onAllNodesWithText("Toggle").assertCountEquals(3)
         }
     }
 
     @Test
     fun findAll_assertMultiple_butIsZero() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessage(
             """
                 Failed to assert count of nodes.
                 Reason: Expected '3' nodes but could not find any node that satisfies: (Text + EditableText contains 'Toggle2' (ignoreCase: false))
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onAllNodesWithText("Toggle2")
-                .assertCountEquals(3)
+            rule.onAllNodesWithText("Toggle2").assertCountEquals(3)
         }
     }
 
     @Test
     fun findOne_hideIt_tryToClickIt_butDoesNotExist() {
-        rule.setContent {
-            ComposeTextToHideCase()
-        }
+        rule.setContent { ComposeTextToHideCase() }
 
-        val node = rule.onNodeWithText("Hello")
-            .assertExists()
+        val node = rule.onNodeWithText("Hello").assertExists()
 
-        rule.onNodeWithTag("MyButton")
-            .performClick()
+        rule.onNodeWithTag("MyButton").performClick()
 
         expectErrorMessage(
             """
@@ -226,7 +201,8 @@ class ErrorMessagesTest {
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
             node.performClick()
         }
@@ -234,16 +210,12 @@ class ErrorMessagesTest {
 
     @Test
     fun findOne_removeIt_assertExists_butDoesNotExist() {
-        rule.setContent {
-            ComposeTextToHideCase()
-        }
+        rule.setContent { ComposeTextToHideCase() }
 
-        val node = rule.onNodeWithText("Hello")
-            .assertExists()
+        val node = rule.onNodeWithText("Hello").assertExists()
 
         // Hide text
-        rule.onNodeWithTag("MyButton")
-            .performClick()
+        rule.onNodeWithTag("MyButton").performClick()
 
         expectErrorMessage(
             """
@@ -254,7 +226,8 @@ class ErrorMessagesTest {
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
             node.assertExists()
         }
@@ -262,16 +235,12 @@ class ErrorMessagesTest {
 
     @Test
     fun findOne_removeIt_assertHasClickAction_butDoesNotExist() {
-        rule.setContent {
-            ComposeTextToHideCase()
-        }
+        rule.setContent { ComposeTextToHideCase() }
 
-        val node = rule.onNodeWithText("Hello")
-            .assertExists()
+        val node = rule.onNodeWithText("Hello").assertExists()
 
         // Hide text
-        rule.onNodeWithTag("MyButton")
-            .performClick()
+        rule.onNodeWithTag("MyButton").performClick()
 
         expectErrorMessage(
             """
@@ -282,7 +251,8 @@ class ErrorMessagesTest {
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
             node.assertHasClickAction()
         }
@@ -290,54 +260,49 @@ class ErrorMessagesTest {
 
     @Test
     fun findByTag_assertExists_noElementFoundButFoundInMerged() {
-        rule.setContent {
-            ComposeMerged()
-        }
+        rule.setContent { ComposeMerged() }
 
         expectErrorMessage(
             """
                 Failed: assertExists.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithText("Banana")
-                .assertExists()
+            rule.onNodeWithText("Banana").assertExists()
         }
     }
+
     @Test
     fun findByTag_assertExists_NoElementFoundButMultipleFoundInMerged() {
-        rule.setContent {
-            ComposeMerged(5)
-        }
+        rule.setContent { ComposeMerged(5) }
 
         expectErrorMessage(
             """
                 Failed: assertExists.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '5' nodes that match. Are you missing `useUnmergedNode = true` in your finder?
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithText("Banana")
-                .assertExists()
+            rule.onNodeWithText("Banana").assertExists()
         }
     }
 
     @Test
     fun findByTag_performAction_NoElementFoundButFoundInMerged() {
-        rule.setContent {
-            ComposeMerged()
-        }
+        rule.setContent { ComposeMerged() }
 
         expectErrorMessage(
             """
                 Failed to inject touch input.
                 Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
-            """.trimIndent()
+            """
+                .trimIndent()
         ) {
-            rule.onNodeWithText("Banana")
-                .performClick()
+            rule.onNodeWithText("Banana").performClick()
         }
     }
 
@@ -345,12 +310,8 @@ class ErrorMessagesTest {
     fun ComposeSimpleCase() {
         MaterialTheme {
             Column {
-                TestButton(Modifier.testTag("MyButton")) {
-                    Text("Toggle")
-                }
-                TestButton(Modifier.testTag("MyButton2")) {
-                    Text("Toggle")
-                }
+                TestButton(Modifier.testTag("MyButton")) { Text("Toggle") }
+                TestButton(Modifier.testTag("MyButton2")) { Text("Toggle") }
             }
         }
     }
@@ -377,13 +338,12 @@ class ErrorMessagesTest {
     fun ComposeMerged(numberOfTexts: Int = 1) {
         Column {
             TestButton(
-                modifier = Modifier
-                    .testTag("MyButton")
-                    .clearAndSetSemantics { text = AnnotatedString("Not Banana") }
+                modifier =
+                    Modifier.testTag("MyButton").clearAndSetSemantics {
+                        text = AnnotatedString("Not Banana")
+                    }
             ) {
-                repeat(numberOfTexts) {
-                    Text("Banana")
-                }
+                repeat(numberOfTexts) { Text("Banana") }
             }
         }
     }
@@ -402,18 +362,17 @@ class ErrorMessagesTest {
     }
 }
 
-fun ComposeContentTestRule.setContentWithoutMinimumTouchTarget(
-    composable: @Composable () -> Unit
-) {
+fun ComposeContentTestRule.setContentWithoutMinimumTouchTarget(composable: @Composable () -> Unit) {
     setContent {
         val oldViewConfiguration = LocalViewConfiguration.current
-        val viewConfiguration = TestViewConfiguration(
-            longPressTimeoutMillis = oldViewConfiguration.longPressTimeoutMillis,
-            doubleTapTimeoutMillis = oldViewConfiguration.doubleTapTimeoutMillis,
-            doubleTapMinTimeMillis = oldViewConfiguration.doubleTapMinTimeMillis,
-            touchSlop = oldViewConfiguration.touchSlop,
-            minimumTouchTargetSize = DpSize.Zero
-        )
+        val viewConfiguration =
+            TestViewConfiguration(
+                longPressTimeoutMillis = oldViewConfiguration.longPressTimeoutMillis,
+                doubleTapTimeoutMillis = oldViewConfiguration.doubleTapTimeoutMillis,
+                doubleTapMinTimeMillis = oldViewConfiguration.doubleTapMinTimeMillis,
+                touchSlop = oldViewConfiguration.touchSlop,
+                minimumTouchTargetSize = DpSize.Zero
+            )
         CompositionLocalProvider(
             LocalViewConfiguration provides viewConfiguration,
             content = composable

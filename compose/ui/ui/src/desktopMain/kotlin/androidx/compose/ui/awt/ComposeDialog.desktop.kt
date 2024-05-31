@@ -28,13 +28,11 @@ import javax.swing.JDialog
 import org.jetbrains.skiko.GraphicsApi
 
 /**
- * ComposeDialog is a dialog for building UI using Compose for Desktop.
- * ComposeDialog inherits javax.swing.JDialog.
+ * ComposeDialog is a dialog for building UI using Compose for Desktop. ComposeDialog inherits
+ * javax.swing.JDialog.
  */
-class ComposeDialog(
-    owner: Window? = null,
-    modalityType: ModalityType = ModalityType.MODELESS
-) : JDialog(owner, modalityType) {
+class ComposeDialog(owner: Window? = null, modalityType: ModalityType = ModalityType.MODELESS) :
+    JDialog(owner, modalityType) {
     private val delegate = ComposeWindowDelegate(this, ::isUndecorated)
 
     init {
@@ -51,25 +49,20 @@ class ComposeDialog(
      * @param content Composable content of the ComposeDialog.
      */
     @OptIn(ExperimentalComposeUiApi::class)
-    fun setContent(
-        content: @Composable DialogWindowScope.() -> Unit
-    ) = setContent(
-        onPreviewKeyEvent = { false },
-        onKeyEvent = { false },
-        content = content
-    )
+    fun setContent(content: @Composable DialogWindowScope.() -> Unit) =
+        setContent(onPreviewKeyEvent = { false }, onKeyEvent = { false }, content = content)
 
     /**
      * Composes the given composable into the ComposeDialog.
      *
      * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
-     * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
-     * Return true to stop propagation of this event. If you return false, the key event will be
-     * sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event,
-     * it will be sent back up to the root using the onKeyEvent callback.
+     *   keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
+     *   Return true to stop propagation of this event. If you return false, the key event will be
+     *   sent to this [onPreviewKeyEvent]'s child. If none of the children consume the event, it
+     *   will be sent back up to the root using the onKeyEvent callback.
      * @param onKeyEvent This callback is invoked when the user interacts with the hardware
-     * keyboard. While implementing this callback, return true to stop propagation of this event.
-     * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
+     *   keyboard. While implementing this callback, return true to stop propagation of this event.
+     *   If you return false, the key event will be sent to this [onKeyEvent]'s parent.
      * @param content Composable content of the ComposeWindow.
      */
     @ExperimentalComposeUiApi
@@ -78,9 +71,11 @@ class ComposeDialog(
         onKeyEvent: ((KeyEvent) -> Boolean) = { false },
         content: @Composable DialogWindowScope.() -> Unit
     ) {
-        val scope = object : DialogWindowScope {
-            override val window: ComposeDialog get() = this@ComposeDialog
-        }
+        val scope =
+            object : DialogWindowScope {
+                override val window: ComposeDialog
+                    get() = this@ComposeDialog
+            }
         delegate.setContent(
             onPreviewKeyEvent,
             onKeyEvent,
@@ -105,39 +100,38 @@ class ComposeDialog(
     }
 
     /**
-     * `true` if background of the window is transparent, `false` otherwise
-     * Transparency should be set only if window is not showing and `isUndecorated` is set to
-     * `true`, otherwise AWT will throw an exception.
+     * `true` if background of the window is transparent, `false` otherwise Transparency should be
+     * set only if window is not showing and `isUndecorated` is set to `true`, otherwise AWT will
+     * throw an exception.
      */
     var isTransparent: Boolean by delegate::isTransparent
 
-    /**
-     * Registers a task to run when the rendering API changes.
-     */
+    /** Registers a task to run when the rendering API changes. */
     fun onRenderApiChanged(action: () -> Unit) {
         delegate.onRenderApiChanged(action)
     }
 
     /**
      * Retrieve underlying platform-specific operating system handle for the root window where
-     * ComposeDialog is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
-     * on macOS.
+     * ComposeDialog is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow on
+     * macOS.
      */
-    val windowHandle: Long get() = delegate.windowHandle
+    val windowHandle: Long
+        get() = delegate.windowHandle
 
     /**
      * Returns low-level rendering API used for rendering in this ComposeDialog. API is
      * automatically selected based on operating system, graphical hardware and `SKIKO_RENDER_API`
      * environment variable.
      */
-    val renderApi: GraphicsApi get() = delegate.renderApi
+    val renderApi: GraphicsApi
+        get() = delegate.renderApi
 
     // We need overridden listeners because we mix Swing and AWT components in the
     // org.jetbrains.skiko.SkiaLayer, they don't work well together.
     // TODO(demin): is it possible to fix that without overriding?
 
-    override fun addMouseListener(listener: MouseListener) =
-        delegate.addMouseListener(listener)
+    override fun addMouseListener(listener: MouseListener) = delegate.addMouseListener(listener)
 
     override fun removeMouseListener(listener: MouseListener) =
         delegate.removeMouseListener(listener)

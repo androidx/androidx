@@ -37,14 +37,14 @@ interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
      * doFrame. However this is useful in case you need to benchmark the first composition.
      *
      * If you want to call this multiple times, make sure you call [disposeContent] and
-     * [createTestCase] in between. If you don't need to measure this but need to setup the
-     * content consider using [setupContent].
+     * [createTestCase] in between. If you don't need to measure this but need to setup the content
+     * consider using [setupContent].
      */
     fun emitContent()
 
     /**
-     * Request layout on the underlying view. This is should typically not be needed if your
-     * changes invalidate layout by default.
+     * Request layout on the underlying view. This is should typically not be needed if your changes
+     * invalidate layout by default.
      */
     fun requestLayout()
 
@@ -54,24 +54,16 @@ interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
      */
     fun invalidateViews()
 
-    /**
-     * Preparation for [draw]. Do not measure this in benchmark.
-     */
+    /** Preparation for [draw]. Do not measure this in benchmark. */
     fun drawPrepare()
 
-    /**
-     * To be run in benchmark. Call [drawPrepare] before and [drawFinish] after.
-     */
+    /** To be run in benchmark. Call [drawPrepare] before and [drawFinish] after. */
     fun draw()
 
-    /**
-     * Final step after [draw]. Do not measure this in benchmark.
-     */
+    /** Final step after [draw]. Do not measure this in benchmark. */
     fun drawFinish()
 
-    /**
-     * Calls measureWithSpec on the underlying view.
-     */
+    /** Calls measureWithSpec on the underlying view. */
     // TODO(b/143754545): Try to remove this.
     fun measureWithSpec(widthSpec: Int, heightSpec: Int)
 
@@ -82,9 +74,7 @@ interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
      */
     fun disposeContent()
 
-    /**
-     * Closes the recomposer when benchmark is finished.
-     */
+    /** Closes the recomposer when benchmark is finished. */
     fun close()
 
     /**

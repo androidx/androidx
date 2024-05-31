@@ -23,28 +23,29 @@ import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.preference.DropDownPreference
 import androidx.preference.Preference.SummaryProvider
 
-/**
- * Setting that determines which soft input mode the demo activity's window is configured with.
- */
+/** Setting that determines which soft input mode the demo activity's window is configured with. */
 internal object LayoutDirectionSetting : DemoSetting<LayoutDirection> {
     private const val Key = "layoutDirection"
 
-    override fun createPreference(context: Context) = DropDownPreference(context).apply {
-        title = "Layout direction"
-        key = Key
-        LayoutDirection.values().map { it.name }.toTypedArray().also {
-            entries = it
-            entryValues = it
+    override fun createPreference(context: Context) =
+        DropDownPreference(context).apply {
+            title = "Layout direction"
+            key = Key
+            LayoutDirection.values()
+                .map { it.name }
+                .toTypedArray()
+                .also {
+                    entries = it
+                    entryValues = it
+                }
+            summaryProvider = SummaryProvider<DropDownPreference> { it.entry }
+            setDefaultValue(Ltr.name)
         }
-        summaryProvider = SummaryProvider<DropDownPreference> {
-            it.entry
-        }
-        setDefaultValue(Ltr.name)
-    }
 
     @Composable
-    fun asState() = preferenceAsState(Key) {
-        val value = getString(Key, Ltr.name) ?: Ltr.name
-        LayoutDirection.valueOf(value)
-    }
+    fun asState() =
+        preferenceAsState(Key) {
+            val value = getString(Key, Ltr.name) ?: Ltr.name
+            LayoutDirection.valueOf(value)
+        }
 }

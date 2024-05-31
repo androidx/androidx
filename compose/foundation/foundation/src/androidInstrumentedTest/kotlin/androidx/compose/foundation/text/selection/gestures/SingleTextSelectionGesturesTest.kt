@@ -46,36 +46,37 @@ internal class SingleTextSelectionGesturesTest : TextSelectionGesturesTest() {
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = textContent.value,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { selection.value },
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(SelectionSubject.withContent(textContent))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
+        asserter =
+            object :
+                TextSelectionAsserter(
+                    textContent = textContent.value,
+                    rule = rule,
+                    textToolbar = textToolbar,
+                    hapticFeedback = hapticFeedback,
+                    getActual = { selection.value },
+                ) {
+                override fun subAssert() {
+                    Truth.assertAbout(SelectionSubject.withContent(textContent))
+                        .that(getActual())
+                        .hasSelection(
+                            expected = selection,
+                            startTextDirection = startLayoutDirection,
+                            endTextDirection = endLayoutDirection,
+                        )
+                }
             }
-        }
     }
 
     @Composable
     override fun TextContent() {
         BasicText(
             text = textContent.value,
-            style = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag(testTag),
+            style =
+                TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize,
+                ),
+            modifier = Modifier.fillMaxWidth().testTag(testTag),
         )
     }
 

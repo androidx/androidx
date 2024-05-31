@@ -59,23 +59,25 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
 
     @Before
     fun setupAsserter() {
-        asserter = object : TextSelectionAsserter(
-            textContent = textContent.value,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { currentSelection.value },
-        ) {
-            override fun subAssert() {
-                Truth.assertAbout(SelectionSubject.withContent(textContent))
-                    .that(getActual())
-                    .hasSelection(
-                        expected = selection,
-                        startTextDirection = startLayoutDirection,
-                        endTextDirection = endLayoutDirection,
-                    )
+        asserter =
+            object :
+                TextSelectionAsserter(
+                    textContent = textContent.value,
+                    rule = rule,
+                    textToolbar = textToolbar,
+                    hapticFeedback = hapticFeedback,
+                    getActual = { currentSelection.value },
+                ) {
+                override fun subAssert() {
+                    Truth.assertAbout(SelectionSubject.withContent(textContent))
+                        .that(getActual())
+                        .hasSelection(
+                            expected = selection,
+                            startTextDirection = startLayoutDirection,
+                            endTextDirection = endLayoutDirection,
+                        )
+                }
             }
-        }
     }
 
     @Composable
@@ -87,14 +89,12 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         ) {
             BasicText(
                 text = textContent.value,
-                style = TextStyle(
-                    fontFamily = fontFamily,
-                    fontSize = fontSize,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .testTag(pointerAreaTag),
+                style =
+                    TextStyle(
+                        fontFamily = fontFamily,
+                        fontSize = fontSize,
+                    ),
+                modifier = Modifier.fillMaxWidth().wrapContentHeight().testTag(pointerAreaTag),
             )
         }
     }
@@ -105,9 +105,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenTouchHandle_verifyOneCharStaysSelected_withinLine() {
-        performTouchGesture {
-            longClick(characterPosition(14))
-        }
+        performTouchGesture { longClick(characterPosition(14)) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -144,9 +142,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
 
     @Test
     fun whenTouchHandle_magnifierReplacesToolbar() {
-        performTouchGesture {
-            longClick(characterBox(13).centerLeft)
-        }
+        performTouchGesture { longClick(characterBox(13).centerLeft) }
 
         asserter.applyAndAssert {
             selection = 12 to 17
@@ -238,9 +234,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         rule.waitForIdle()
         asserter.applyAndAssert { textContent = content }
 
-        performTouchGesture {
-            longClick(characterPosition(content.lastIndex))
-        }
+        performTouchGesture { longClick(characterPosition(content.lastIndex)) }
 
         asserter.applyAndAssert {
             selection = 0 to content.length
@@ -268,13 +262,14 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
     }
 
     private fun HandlePressedScope.moveHandleToCharacter(characterOffset: Int) {
-        val destinationPosition = characterBox(characterOffset).run {
-            when (fetchHandleInfo().handle) {
-                Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
-                Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
-                Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+        val destinationPosition =
+            characterBox(characterOffset).run {
+                when (fetchHandleInfo().handle) {
+                    Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
+                    Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
+                    Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+                }
             }
-        }
         moveHandleTo(destinationPosition)
     }
 

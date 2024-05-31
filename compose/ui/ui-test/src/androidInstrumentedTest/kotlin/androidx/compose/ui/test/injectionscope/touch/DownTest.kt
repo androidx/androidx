@@ -34,9 +34,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [TouchInjectionScope.down] works
- */
+/** Tests if [TouchInjectionScope.down] works */
 @MediumTest
 class DownTest {
     companion object {
@@ -44,17 +42,14 @@ class DownTest {
         private val position2 = Offset(7f, 7f)
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = MultiPointerInputRecorder()
 
     @Before
     fun setUp() {
         // Given some content
-        rule.setContent {
-            ClickableTestBox(recorder)
-        }
+        rule.setContent { ClickableTestBox(recorder) }
     }
 
     @Test
@@ -107,8 +102,6 @@ class DownTest {
         // When we inject two down events with the same pointer id
         rule.performTouchInput { down(1, position1) }
         // Then the second throws an exception
-        expectError<IllegalArgumentException> {
-            rule.performTouchInput { down(1, position1) }
-        }
+        expectError<IllegalArgumentException> { rule.performTouchInput { down(1, position1) } }
     }
 }

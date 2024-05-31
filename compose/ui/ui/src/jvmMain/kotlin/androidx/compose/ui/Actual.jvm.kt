@@ -30,9 +30,7 @@ internal actual fun classKeyForObject(a: Any): Any {
 
 // TODO: For non-JVM platforms, you can revive the kotlin-reflect implementation from
 //  https://android-review.googlesource.com/c/platform/frameworks/support/+/2441379
-internal actual fun InspectorInfo.tryPopulateReflectively(
-    element: ModifierNodeElement<*>
-) {
+internal actual fun InspectorInfo.tryPopulateReflectively(element: ModifierNodeElement<*>) {
     element.javaClass.declaredFields
         // Sort by the field name to make the result more well-defined
         .sortedBy { it.name }

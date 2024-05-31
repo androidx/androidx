@@ -56,8 +56,7 @@ import kotlin.math.max
 
 internal fun Modifier.increaseSemanticsBounds(): Modifier {
     val padding = 10.dp
-    return this
-        .layout { measurable, constraints ->
+    return this.layout { measurable, constraints ->
             val paddingPx = padding.roundToPx()
             // We need to add vertical padding to the semantics bounds in other to meet
             // screenreader green box minimum size, but we also want to
@@ -71,39 +70,39 @@ internal fun Modifier.increaseSemanticsBounds(): Modifier {
             // space. Place the placeable where it would've been without any extra padding.
             val height = placeable.height - paddingPx * 2
             val width = placeable.width
-            layout(width, height) {
-                placeable.place(0, -paddingPx)
-            }
+            layout(width, height) { placeable.place(0, -paddingPx) }
         }
         .semantics(mergeDescendants = true) {}
         .padding(vertical = padding)
 }
 
 /**
- * Determinate <a href="https://material.io/components/progress-indicators#linear-progress-indicators" class="external" target="_blank">Material Design linear progress indicator</a>.
+ * Determinate <a
+ * href="https://material.io/components/progress-indicators#linear-progress-indicators"
+ * class="external" target="_blank">Material Design linear progress indicator</a>.
  *
  * Progress indicators express an unspecified wait time or display the length of a process.
  *
- * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
+ * ![Linear progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
- * [AnimationSpec] when animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
+ * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.LinearProgressIndicatorSample
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
- * represents full progress. Values outside of this range are coerced into the range.
+ *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color The color of the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
 fun LinearProgressIndicator(
-    @FloatRange(from = 0.0, to = 1.0)
-    progress: Float,
+    @FloatRange(from = 0.0, to = 1.0) progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity),
@@ -123,16 +122,19 @@ fun LinearProgressIndicator(
 }
 
 /**
- * Indeterminate <a href="https://material.io/components/progress-indicators#linear-progress-indicators" class="external" target="_blank">Material Design linear progress indicator</a>.
+ * Indeterminate <a
+ * href="https://material.io/components/progress-indicators#linear-progress-indicators"
+ * class="external" target="_blank">Material Design linear progress indicator</a>.
  *
  * Progress indicators express an unspecified wait time or display the length of a process.
  *
- * ![Linear progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
+ * ![Linear progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material/linear-progress-indicator.png)
  *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color The color of the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
@@ -146,50 +148,58 @@ fun LinearProgressIndicator(
     // Fractional position of the 'head' and 'tail' of the two lines drawn. I.e if the head is 0.8
     // and the tail is 0.2, there is a line drawn from between 20% along to 80% along the total
     // width.
-    val firstLineHead by infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineHeadDelay using FirstLineHeadEasing
-                1f at FirstLineHeadDuration + FirstLineHeadDelay
-            }
+    val firstLineHead by
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineHeadDelay using FirstLineHeadEasing
+                        1f at FirstLineHeadDuration + FirstLineHeadDelay
+                    }
+            )
         )
-    )
-    val firstLineTail by infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineTailDelay using FirstLineTailEasing
-                1f at FirstLineTailDuration + FirstLineTailDelay
-            }
+    val firstLineTail by
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineTailDelay using FirstLineTailEasing
+                        1f at FirstLineTailDuration + FirstLineTailDelay
+                    }
+            )
         )
-    )
-    val secondLineHead by infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineHeadDelay using SecondLineHeadEasing
-                1f at SecondLineHeadDuration + SecondLineHeadDelay
-            }
+    val secondLineHead by
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineHeadDelay using SecondLineHeadEasing
+                        1f at SecondLineHeadDuration + SecondLineHeadDelay
+                    }
+            )
         )
-    )
-    val secondLineTail by infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineTailDelay using SecondLineTailEasing
-                1f at SecondLineTailDuration + SecondLineTailDelay
-            }
+    val secondLineTail by
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineTailDelay using SecondLineTailEasing
+                        1f at SecondLineTailDuration + SecondLineTailDelay
+                    }
+            )
         )
-    )
     Canvas(
         modifier
             .increaseSemanticsBounds()
@@ -226,13 +236,14 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity)
-) = LinearProgressIndicator(
-    progress,
-    modifier,
-    color,
-    backgroundColor,
-    strokeCap = StrokeCap.Butt,
-)
+) =
+    LinearProgressIndicator(
+        progress,
+        modifier,
+        color,
+        backgroundColor,
+        strokeCap = StrokeCap.Butt,
+    )
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
@@ -240,12 +251,13 @@ fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     backgroundColor: Color = color.copy(alpha = IndicatorBackgroundOpacity)
-) = LinearProgressIndicator(
-    modifier,
-    color,
-    backgroundColor,
-    strokeCap = StrokeCap.Butt,
-)
+) =
+    LinearProgressIndicator(
+        modifier,
+        color,
+        backgroundColor,
+        strokeCap = StrokeCap.Butt,
+    )
 
 private fun DrawScope.drawLinearIndicator(
     startFraction: Float,
@@ -294,31 +306,33 @@ private fun DrawScope.drawLinearIndicatorBackground(
 ) = drawLinearIndicator(0f, 1f, color, strokeWidth, strokeCap)
 
 /**
- * Determinate <a href="https://material.io/components/progress-indicators#circular-progress-indicators" class="external" target="_blank">Material Design circular progress indicator</a>.
+ * Determinate <a
+ * href="https://material.io/components/progress-indicators#circular-progress-indicators"
+ * class="external" target="_blank">Material Design circular progress indicator</a>.
  *
  * Progress indicators express an unspecified wait time or display the length of a process.
  *
- * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
+ * ![Circular progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
  *
  * By default there is no animation between [progress] values. You can use
- * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended
- * [AnimationSpec] when animating progress, such as in the following example:
+ * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
+ * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material.samples.CircularProgressIndicatorSample
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
- * represents full progress. Values outside of this range are coerced into the range.
+ *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color The color of the progress indicator.
  * @param strokeWidth The stroke width for the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
 fun CircularProgressIndicator(
-    @FloatRange(from = 0.0, to = 1.0)
-    progress: Float,
+    @FloatRange(from = 0.0, to = 1.0) progress: Float,
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
@@ -326,14 +340,8 @@ fun CircularProgressIndicator(
     strokeCap: StrokeCap = StrokeCap.Butt,
 ) {
     val coercedProgress = progress.fastCoerceIn(0f, 1f)
-    val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = strokeCap)
-    }
-    Canvas(
-        modifier
-            .progressSemantics(coercedProgress)
-            .size(CircularIndicatorDiameter)
-    ) {
+    val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
+    Canvas(modifier.progressSemantics(coercedProgress).size(CircularIndicatorDiameter)) {
         // Start at 12 O'clock
         val startAngle = 270f
         val sweep = coercedProgress * 360f
@@ -343,17 +351,20 @@ fun CircularProgressIndicator(
 }
 
 /**
- * Indeterminate <a href="https://material.io/components/progress-indicators#circular-progress-indicators" class="external" target="_blank">Material Design circular progress indicator</a>.
+ * Indeterminate <a
+ * href="https://material.io/components/progress-indicators#circular-progress-indicators"
+ * class="external" target="_blank">Material Design circular progress indicator</a>.
  *
  * Progress indicators express an unspecified wait time or display the length of a process.
  *
- * ![Circular progress indicator image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
+ * ![Circular progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material/circular-progress-indicator.png)
  *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color The color of the progress indicator.
  * @param strokeWidth The stroke width for the progress indicator.
  * @param backgroundColor The color of the background behind the indicator, visible when the
- * progress has not reached that area of the overall indicator yet.
+ *   progress has not reached that area of the overall indicator yet.
  * @param strokeCap stroke cap to use for the ends of this progress indicator
  */
 @Composable
@@ -364,63 +375,61 @@ fun CircularProgressIndicator(
     backgroundColor: Color = Color.Transparent,
     strokeCap: StrokeCap = StrokeCap.Square,
 ) {
-    val stroke = with(LocalDensity.current) {
-        Stroke(width = strokeWidth.toPx(), cap = strokeCap)
-    }
+    val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
 
     val transition = rememberInfiniteTransition()
     // The current rotation around the circle, so we know where to start the rotation from
-    val currentRotation by transition.animateValue(
-        0,
-        RotationsPerCycle,
-        Int.VectorConverter,
-        infiniteRepeatable(
-            animation = tween(
-                durationMillis = RotationDuration * RotationsPerCycle,
-                easing = LinearEasing
+    val currentRotation by
+        transition.animateValue(
+            0,
+            RotationsPerCycle,
+            Int.VectorConverter,
+            infiniteRepeatable(
+                animation =
+                    tween(
+                        durationMillis = RotationDuration * RotationsPerCycle,
+                        easing = LinearEasing
+                    )
             )
         )
-    )
     // How far forward (degrees) the base point should be from the start point
-    val baseRotation by transition.animateFloat(
-        0f,
-        BaseRotationAngle,
-        infiniteRepeatable(
-            animation = tween(
-                durationMillis = RotationDuration,
-                easing = LinearEasing
+    val baseRotation by
+        transition.animateFloat(
+            0f,
+            BaseRotationAngle,
+            infiniteRepeatable(
+                animation = tween(durationMillis = RotationDuration, easing = LinearEasing)
             )
         )
-    )
     // How far forward (degrees) both the head and tail should be from the base point
-    val endAngle by transition.animateFloat(
-        0f,
-        JumpRotationAngle,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at 0 using CircularEasing
-                JumpRotationAngle at HeadAndTailAnimationDuration
-            }
+    val endAngle by
+        transition.animateFloat(
+            0f,
+            JumpRotationAngle,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                        0f at 0 using CircularEasing
+                        JumpRotationAngle at HeadAndTailAnimationDuration
+                    }
+            )
         )
-    )
 
-    val startAngle by transition.animateFloat(
-        0f,
-        JumpRotationAngle,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
-                0f at HeadAndTailDelayDuration using CircularEasing
-                JumpRotationAngle at durationMillis
-            }
+    val startAngle by
+        transition.animateFloat(
+            0f,
+            JumpRotationAngle,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = HeadAndTailAnimationDuration + HeadAndTailDelayDuration
+                        0f at HeadAndTailDelayDuration using CircularEasing
+                        JumpRotationAngle at durationMillis
+                    }
+            )
         )
-    )
-    Canvas(
-        modifier
-            .progressSemantics()
-            .size(CircularIndicatorDiameter)
-    ) {
+    Canvas(modifier.progressSemantics().size(CircularIndicatorDiameter)) {
         drawCircularIndicatorBackground(backgroundColor, stroke)
 
         val currentRotationAngleOffset = (currentRotation * RotationAngleOffset) % 360f
@@ -441,14 +450,15 @@ fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth
-) = CircularProgressIndicator(
-    progress,
-    modifier,
-    color,
-    strokeWidth,
-    backgroundColor = Color.Transparent,
-    strokeCap = StrokeCap.Butt,
-)
+) =
+    CircularProgressIndicator(
+        progress,
+        modifier,
+        color,
+        strokeWidth,
+        backgroundColor = Color.Transparent,
+        strokeCap = StrokeCap.Butt,
+    )
 
 @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
@@ -456,13 +466,14 @@ fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.primary,
     strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth
-) = CircularProgressIndicator(
-    modifier,
-    color,
-    strokeWidth,
-    backgroundColor = Color.Transparent,
-    strokeCap = StrokeCap.Square,
-)
+) =
+    CircularProgressIndicator(
+        modifier,
+        color,
+        strokeWidth,
+        backgroundColor = Color.Transparent,
+        strokeCap = StrokeCap.Square,
+    )
 
 private fun DrawScope.drawCircularIndicator(
     startAngle: Float,
@@ -485,10 +496,8 @@ private fun DrawScope.drawCircularIndicator(
     )
 }
 
-private fun DrawScope.drawCircularIndicatorBackground(
-    color: Color,
-    stroke: Stroke
-) = drawCircularIndicator(0f, 360f, color, stroke)
+private fun DrawScope.drawCircularIndicatorBackground(color: Color, stroke: Stroke) =
+    drawCircularIndicator(0f, 360f, color, stroke)
 
 /**
  * Contains the default values used for [LinearProgressIndicator] and [CircularProgressIndicator].
@@ -498,8 +507,8 @@ object ProgressIndicatorDefaults {
      * Default stroke width for [CircularProgressIndicator], and default height for
      * [LinearProgressIndicator].
      *
-     * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator],
-     * and by passing a layout modifier setting the height for [LinearProgressIndicator].
+     * This can be customized with the `strokeWidth` parameter on [CircularProgressIndicator], and
+     * by passing a layout modifier setting the height for [LinearProgressIndicator].
      */
     val StrokeWidth = 4.dp
 
@@ -513,13 +522,14 @@ object ProgressIndicatorDefaults {
      * The default [AnimationSpec] that should be used when animating between progress in a
      * determinate progress indicator.
      */
-    val ProgressAnimationSpec = SpringSpec(
-        dampingRatio = Spring.DampingRatioNoBouncy,
-        stiffness = Spring.StiffnessVeryLow,
-        // The default threshold is 0.01, or 1% of the overall progress range, which is quite
-        // large and noticeable.
-        visibilityThreshold = 1 / 1000f
-    )
+    val ProgressAnimationSpec =
+        SpringSpec(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessVeryLow,
+            // The default threshold is 0.01, or 1% of the overall progress range, which is quite
+            // large and noticeable.
+            visibilityThreshold = 1 / 1000f
+        )
 }
 
 private fun DrawScope.drawDeterminateCircularIndicator(
@@ -536,14 +546,15 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
     color: Color,
     stroke: Stroke
 ) {
-    val strokeCapOffset = if (stroke.cap == StrokeCap.Butt) {
-        0f
-    } else {
-        // Length of arc is angle * radius
-        // Angle (radians) is length / radius
-        // The length should be the same as the stroke width for calculating the min angle
-        (180.0 / PI).toFloat() * (strokeWidth / (CircularIndicatorDiameter / 2)) / 2f
-    }
+    val strokeCapOffset =
+        if (stroke.cap == StrokeCap.Butt) {
+            0f
+        } else {
+            // Length of arc is angle * radius
+            // Angle (radians) is length / radius
+            // The length should be the same as the stroke width for calculating the min angle
+            (180.0 / PI).toFloat() * (strokeWidth / (CircularIndicatorDiameter / 2)) / 2f
+        }
 
     // Adding a stroke cap draws half the stroke width behind the start point, so we want to
     // move it forward by that amount so the arc visually appears in the correct place

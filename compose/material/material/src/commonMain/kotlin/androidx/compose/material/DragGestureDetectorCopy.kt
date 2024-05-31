@@ -37,12 +37,13 @@ internal suspend fun AwaitPointerEventScope.awaitHorizontalPointerSlopOrCancella
     pointerId: PointerId,
     pointerType: PointerType,
     onPointerSlopReached: (change: PointerInputChange, overSlop: Float) -> Unit
-) = awaitPointerSlopOrCancellation(
-    pointerId = pointerId,
-    pointerType = pointerType,
-    onPointerSlopReached = onPointerSlopReached,
-    getDragDirectionValue = { it.x }
-)
+) =
+    awaitPointerSlopOrCancellation(
+        pointerId = pointerId,
+        pointerType = pointerType,
+        onPointerSlopReached = onPointerSlopReached,
+        getDragDirectionValue = { it.x }
+    )
 
 private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation(
     pointerId: PointerId,
@@ -73,8 +74,8 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
         } else {
             val currentPosition = dragEvent.position
             val previousPosition = dragEvent.previousPosition
-            val positionChange = getDragDirectionValue(currentPosition) -
-                getDragDirectionValue(previousPosition)
+            val positionChange =
+                getDragDirectionValue(currentPosition) - getDragDirectionValue(previousPosition)
             totalPositionChange += positionChange
 
             val inDirection = abs(totalPositionChange)

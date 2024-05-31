@@ -63,10 +63,11 @@ class ParcelablePrimitiveMutableStateTests {
     }
 
     private inline fun <reified T> recreateViaParcel(value: T): T {
-        val parcel = Parcel.obtain().apply {
-            writeParcelable(value as Parcelable, 0)
-            setDataPosition(0)
-        }
+        val parcel =
+            Parcel.obtain().apply {
+                writeParcelable(value as Parcelable, 0)
+                setDataPosition(0)
+            }
         @Suppress("DEPRECATION")
         return parcel.readParcelable<Parcelable>(javaClass.classLoader) as T
     }

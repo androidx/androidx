@@ -39,16 +39,15 @@ import androidx.compose.ui.unit.IntSize
  * enable the size of one component to affect the size of another.
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
  */
 @Stable
-fun Modifier.onSizeChanged(
-    onSizeChanged: (IntSize) -> Unit
-) = this.then(OnSizeChangedModifier(onSizeChanged = onSizeChanged))
+fun Modifier.onSizeChanged(onSizeChanged: (IntSize) -> Unit) =
+    this.then(OnSizeChangedModifier(onSizeChanged = onSizeChanged))
 
-private class OnSizeChangedModifier(
-    private val onSizeChanged: (IntSize) -> Unit
-) : ModifierNodeElement<OnSizeChangedNode>() {
+private class OnSizeChangedModifier(private val onSizeChanged: (IntSize) -> Unit) :
+    ModifierNodeElement<OnSizeChangedNode>() {
     override fun create(): OnSizeChangedNode = OnSizeChangedNode(onSizeChanged)
 
     override fun update(node: OnSizeChangedNode) {
@@ -72,9 +71,8 @@ private class OnSizeChangedModifier(
     }
 }
 
-private class OnSizeChangedNode(
-    private var onSizeChanged: (IntSize) -> Unit
-) : Modifier.Node(), LayoutAwareModifierNode {
+private class OnSizeChangedNode(private var onSizeChanged: (IntSize) -> Unit) :
+    Modifier.Node(), LayoutAwareModifierNode {
     // When onSizeChanged changes, we want to invalidate so onRemeasured is called again
     override val shouldAutoInvalidate: Boolean = true
     private var previousSize = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
@@ -95,16 +93,15 @@ private class OnSizeChangedNode(
 }
 
 /**
- * A modifier whose [onRemeasured] is called when the layout content is remeasured. The
- * most common usage is [onSizeChanged].
+ * A modifier whose [onRemeasured] is called when the layout content is remeasured. The most common
+ * usage is [onSizeChanged].
  *
  * Example usage:
+ *
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
  */
 @JvmDefaultWithCompatibility
 interface OnRemeasuredModifier : Modifier.Element {
-    /**
-     * Called after a layout's contents have been remeasured.
-     */
+    /** Called after a layout's contents have been remeasured. */
     fun onRemeasured(size: IntSize)
 }

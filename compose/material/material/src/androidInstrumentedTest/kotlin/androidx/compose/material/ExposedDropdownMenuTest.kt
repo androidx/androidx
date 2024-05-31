@@ -69,8 +69,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExposedDropdownMenuTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val EDMBoxTag = "ExposedDropdownMenuBoxTag"
     private val TFTag = "TextFieldTag"
@@ -87,9 +86,7 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                }
+                onTextFieldBoundsChanged = { textFieldBounds = it }
             )
         }
 
@@ -102,10 +99,11 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
 
         // Click outside EDM
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(
-            (textFieldBounds.right + 1).toInt(),
-            (textFieldBounds.bottom + 1).toInt(),
-        )
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .click(
+                (textFieldBounds.right + 1).toInt(),
+                (textFieldBounds.bottom + 1).toInt(),
+            )
 
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
@@ -114,10 +112,7 @@ class ExposedDropdownMenuTest {
     fun expandedBehaviour_collapseOnTextFieldClick() {
         rule.setMaterialContent {
             var expanded by remember { mutableStateOf(true) }
-            ExposedDropdownMenuForTest(
-                expanded = expanded,
-                onExpandChange = { expanded = it }
-            )
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         rule.onNodeWithTag(TFTag).assertIsDisplayed()
@@ -134,10 +129,7 @@ class ExposedDropdownMenuTest {
     fun edm_doesNotCollapse_whenTypingOnSoftKeyboard() {
         rule.setMaterialContent {
             var expanded by remember { mutableStateOf(false) }
-            ExposedDropdownMenuForTest(
-                expanded = expanded,
-                onExpandChange = { expanded = it }
-            )
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         rule.onNodeWithTag(TFTag).performClick()
@@ -159,9 +151,7 @@ class ExposedDropdownMenuTest {
         }
 
         val matcher = hasText("zzz")
-        rule.waitUntil {
-            matcher.matches(rule.onNodeWithTag(TFTag).fetchSemanticsNode())
-        }
+        rule.waitUntil { matcher.matches(rule.onNodeWithTag(TFTag).fetchSemanticsNode()) }
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
     }
 
@@ -193,9 +183,7 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                }
+                onTextFieldBoundsChanged = { textFieldBounds = it }
             )
         }
 
@@ -242,11 +230,14 @@ class ExposedDropdownMenuTest {
                         modifier = Modifier.padding(8.dp),
                     ) {
                         TextField(
-                            modifier = Modifier.then(
-                                if (index == testIndex) Modifier.testTag(TFTag).onSizeChanged {
-                                    textFieldSize = it
-                                } else { Modifier }
-                            ),
+                            modifier =
+                                Modifier.then(
+                                    if (index == testIndex)
+                                        Modifier.testTag(TFTag).onSizeChanged { textFieldSize = it }
+                                    else {
+                                        Modifier
+                                    }
+                                ),
                             value = selectedOptionText,
                             onValueChange = { selectedOptionText = it },
                             label = { Text("Label") },
@@ -254,9 +245,12 @@ class ExposedDropdownMenuTest {
                             colors = ExposedDropdownMenuDefaults.textFieldColors()
                         )
                         ExposedDropdownMenu(
-                            modifier = if (index == testIndex) {
-                                Modifier.testTag(EDMTag)
-                            } else { Modifier },
+                            modifier =
+                                if (index == testIndex) {
+                                    Modifier.testTag(EDMTag)
+                                } else {
+                                    Modifier
+                                },
                             expanded = expanded,
                             onDismissRequest = { expanded = false }
                         ) {
@@ -265,9 +259,12 @@ class ExposedDropdownMenuTest {
                                     selectedOptionText = OptionName
                                     expanded = false
                                 },
-                                modifier = if (index == testIndex) {
-                                    Modifier.testTag(MenuItemTag)
-                                } else { Modifier }
+                                modifier =
+                                    if (index == testIndex) {
+                                        Modifier.testTag(MenuItemTag)
+                                    } else {
+                                        Modifier
+                                    }
                             ) {
                                 Text(OptionName)
                             }
@@ -311,31 +308,22 @@ class ExposedDropdownMenuTest {
             ExposedDropdownMenuForTest(
                 expanded = expanded,
                 onExpandChange = { expanded = it },
-                onTextFieldBoundsChanged = {
-                    textFieldBounds = it
-                },
-                onMenuBoundsChanged = {
-                    menuBounds = it
-                }
+                onTextFieldBoundsChanged = { textFieldBounds = it },
+                onMenuBoundsChanged = { menuBounds = it }
             )
         }
 
         rule.onNodeWithTag(TFTag).assertIsDisplayed()
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
 
-        rule.runOnIdle {
-            assertThat(menuBounds.width).isEqualTo(textFieldBounds.width)
-        }
+        rule.runOnIdle { assertThat(menuBounds.width).isEqualTo(textFieldBounds.width) }
     }
 
     @Test
     fun EDMBehaviour_rightOptionIsChosen() {
         rule.setMaterialContent {
             var expanded by remember { mutableStateOf(true) }
-            ExposedDropdownMenuForTest(
-                expanded = expanded,
-                onExpandChange = { expanded = it }
-            )
+            ExposedDropdownMenuForTest(expanded = expanded, onExpandChange = { expanded = it })
         }
 
         rule.onNodeWithTag(TFTag).assertIsDisplayed()
@@ -356,34 +344,39 @@ class ExposedDropdownMenuTest {
         rule.setContent {
             AndroidView(
                 factory = { context ->
-                    FrameLayout(context).apply {
-                        addView(ComposeView(context).apply {
-                            setContent {
-                                ExposedDropdownMenuBox(expanded = true, onExpandedChange = {}) {
-                                    TextField(
-                                        value = "Text",
-                                        onValueChange = {},
-                                    )
-                                    ExposedDropdownMenu(
-                                        expanded = true,
-                                        onDismissRequest = {},
-                                    ) {
-                                        DropdownMenuItem(
-                                            content = { Text(OptionName) },
-                                            onClick = {},
-                                        )
+                    FrameLayout(context)
+                        .apply {
+                            addView(
+                                ComposeView(context).apply {
+                                    setContent {
+                                        ExposedDropdownMenuBox(
+                                            expanded = true,
+                                            onExpandedChange = {}
+                                        ) {
+                                            TextField(
+                                                value = "Text",
+                                                onValueChange = {},
+                                            )
+                                            ExposedDropdownMenu(
+                                                expanded = true,
+                                                onDismissRequest = {},
+                                            ) {
+                                                DropdownMenuItem(
+                                                    content = { Text(OptionName) },
+                                                    onClick = {},
+                                                )
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        })
-                    }.also { parent = it }
+                            )
+                        }
+                        .also { parent = it }
                 }
             )
         }
 
-        rule.runOnIdle {
-            parent!!.removeAllViews()
-        }
+        rule.runOnIdle { parent!!.removeAllViews() }
 
         rule.waitForIdle()
 
@@ -397,30 +390,27 @@ class ExposedDropdownMenuTest {
                 ExposedDropdownMenuBox(
                     modifier = Modifier.align(Alignment.Center),
                     expanded = true,
-                    onExpandedChange = { }
+                    onExpandedChange = {}
                 ) {
                     val scrollState = rememberScrollState()
                     TextField(
                         value = "",
-                        onValueChange = { },
+                        onValueChange = {},
                         label = { Text("Label") },
                     )
                     ExposedDropdownMenu(
                         expanded = true,
-                        onDismissRequest = { },
+                        onDismissRequest = {},
                         scrollState = scrollState
                     ) {
                         repeat(100) {
                             Box(
-                                Modifier
-                                    .testTag("MenuContent ${it + 1}")
+                                Modifier.testTag("MenuContent ${it + 1}")
                                     .size(with(LocalDensity.current) { 70.toDp() })
                             )
                         }
                     }
-                    LaunchedEffect(Unit) {
-                        scrollState.scrollTo(scrollState.maxValue)
-                    }
+                    LaunchedEffect(Unit) { scrollState.scrollTo(scrollState.maxValue) }
                 }
             }
         }
@@ -446,28 +436,25 @@ class ExposedDropdownMenuTest {
                 onExpandedChange = onExpandChange,
             ) {
                 TextField(
-                    modifier = Modifier.testTag(TFTag)
-                        .onGloballyPositioned {
+                    modifier =
+                        Modifier.testTag(TFTag).onGloballyPositioned {
                             onTextFieldBoundsChanged?.invoke(it.boundsInRoot())
                         },
                     value = selectedOptionText,
                     onValueChange = { selectedOptionText = it },
                     label = { Text("Label") },
                     trailingIcon = {
-                        Box(
-                            modifier = Modifier.testTag(TrailingIconTag)
-                        ) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(
-                                expanded = expanded
-                            )
+                        Box(modifier = Modifier.testTag(TrailingIconTag)) {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         }
                     },
                     colors = ExposedDropdownMenuDefaults.textFieldColors()
                 )
                 ExposedDropdownMenu(
-                    modifier = Modifier.testTag(EDMTag).onGloballyPositioned {
-                        onMenuBoundsChanged?.invoke(it.boundsInRoot())
-                    },
+                    modifier =
+                        Modifier.testTag(EDMTag).onGloballyPositioned {
+                            onMenuBoundsChanged?.invoke(it.boundsInRoot())
+                        },
                     expanded = expanded,
                     onDismissRequest = { onExpandChange(false) }
                 ) {
@@ -478,9 +465,7 @@ class ExposedDropdownMenuTest {
                         },
                         modifier = Modifier.testTag(MenuItemTag)
                     ) {
-                        Text(
-                            text = OptionName
-                        )
+                        Text(text = OptionName)
                     }
                 }
             }

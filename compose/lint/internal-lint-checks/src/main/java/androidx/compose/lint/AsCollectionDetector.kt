@@ -40,73 +40,77 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 
 /**
- * Using [ScatterMap.asMap], [ScatterSet.asSet], [ObjectList.asList], or their mutable
- * counterparts indicates that the developer may be using the collection incorrectly.
- * Using the interfaces is slower access. It is best to use those only for when it touches
- * public API.
+ * Using [ScatterMap.asMap], [ScatterSet.asSet], [ObjectList.asList], or their mutable counterparts
+ * indicates that the developer may be using the collection incorrectly. Using the interfaces is
+ * slower access. It is best to use those only for when it touches public API.
  */
 class AsCollectionDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf<Class<out UElement>>(
-        UCallExpression::class.java
-    )
+    override fun getApplicableUastTypes() = listOf<Class<out UElement>>(UCallExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitCallExpression(node: UCallExpression) {
-            val methodName = node.methodName ?: return
-            if (methodName in MethodNames) {
-                val receiverType = node.receiverType as? PsiClassReferenceType ?: return
-                val qualifiedName = receiverType.canonicalText
-                val indexOfAngleBracket = qualifiedName.indexOf('<')
-                if (indexOfAngleBracket > 0 &&
-                    qualifiedName.substring(0, indexOfAngleBracket) in CollectionClasses
-                ) {
-                    context.report(
-                        ISSUE,
-                        node,
-                        context.getLocation(node),
-                        "Use method $methodName() only for public API usage"
-                    )
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitCallExpression(node: UCallExpression) {
+                val methodName = node.methodName ?: return
+                if (methodName in MethodNames) {
+                    val receiverType = node.receiverType as? PsiClassReferenceType ?: return
+                    val qualifiedName = receiverType.canonicalText
+                    val indexOfAngleBracket = qualifiedName.indexOf('<')
+                    if (
+                        indexOfAngleBracket > 0 &&
+                            qualifiedName.substring(0, indexOfAngleBracket) in CollectionClasses
+                    ) {
+                        context.report(
+                            ISSUE,
+                            node,
+                            context.getLocation(node),
+                            "Use method $methodName() only for public API usage"
+                        )
+                    }
                 }
             }
         }
-    }
 
     companion object {
-        private val MethodNames = scatterSetOf(
-            "asMap",
-            "asMutableMap",
-            "asSet",
-            "asMutableSet",
-            "asList",
-            "asMutableList"
-        )
-        private val CollectionClasses = scatterSetOf(
-            ScatterMap::class.qualifiedName,
-            MutableScatterMap::class.qualifiedName,
-            ScatterSet::class.qualifiedName,
-            MutableScatterSet::class.qualifiedName,
-            ObjectList::class.qualifiedName,
-            MutableObjectList::class.qualifiedName,
-        )
+        private val MethodNames =
+            scatterSetOf(
+                "asMap",
+                "asMutableMap",
+                "asSet",
+                "asMutableSet",
+                "asList",
+                "asMutableList"
+            )
+        private val CollectionClasses =
+            scatterSetOf(
+                ScatterMap::class.qualifiedName,
+                MutableScatterMap::class.qualifiedName,
+                ScatterSet::class.qualifiedName,
+                MutableScatterSet::class.qualifiedName,
+                ObjectList::class.qualifiedName,
+                MutableObjectList::class.qualifiedName,
+            )
 
         private val AsCollectionDetectorId = "AsCollectionCall"
 
-        val ISSUE = Issue.create(
-            id = AsCollectionDetectorId,
-            briefDescription = "High performance collections don't implement standard collection " +
-                "interfaces so that they can remain high performance. Converting to standard " +
-                "collections wraps the classes with another object. Use these interface " +
-                "wrappers only for exposing to public API.",
-            explanation = "ScatterMap, ScatterSet, and AnyList are written for high " +
-                "performance access. Using the standard collection interfaces for these classes " +
-                "forces slower performance access to these collections. The methods returning " +
-                "these interfaces should be limited to public API, where standard collection " +
-                "interfaces are expected.",
-            category = Category.PERFORMANCE, priority = 3, severity = Severity.ERROR,
-            implementation = Implementation(
-                AsCollectionDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+        val ISSUE =
+            Issue.create(
+                id = AsCollectionDetectorId,
+                briefDescription =
+                    "High performance collections don't implement standard collection " +
+                        "interfaces so that they can remain high performance. Converting to standard " +
+                        "collections wraps the classes with another object. Use these interface " +
+                        "wrappers only for exposing to public API.",
+                explanation =
+                    "ScatterMap, ScatterSet, and AnyList are written for high " +
+                        "performance access. Using the standard collection interfaces for these classes " +
+                        "forces slower performance access to these collections. The methods returning " +
+                        "these interfaces should be limited to public API, where standard collection " +
+                        "interfaces are expected.",
+                category = Category.PERFORMANCE,
+                priority = 3,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(AsCollectionDetector::class.java, EnumSet.of(Scope.JAVA_FILE))
             )
-        )
     }
 }

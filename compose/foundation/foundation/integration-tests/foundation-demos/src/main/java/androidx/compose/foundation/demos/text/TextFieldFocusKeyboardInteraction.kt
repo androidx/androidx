@@ -62,24 +62,14 @@ fun TextFieldFocusKeyboardInteraction() {
         verticalArrangement = spacedBy(4.dp),
         modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-        Button(onClick = { focusManager.clearFocus() }) {
-            Text("Clear focus")
-        }
+        Button(onClick = { focusManager.clearFocus() }) { Text("Clear focus") }
 
-        Column(
-            Modifier
-                .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                .padding(4.dp)
-        ) {
+        Column(Modifier.border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp)).padding(4.dp)) {
             Text("Outer Compose Fields")
             FocusableFieldRow()
         }
 
-        Column(
-            Modifier
-                .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                .padding(4.dp)
-        ) {
+        Column(Modifier.border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp)).padding(4.dp)) {
             Text("Android EditTexts")
             AndroidView(::AndroidFieldRow)
         }
@@ -111,19 +101,14 @@ private fun FocusableFieldRow() {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f)
         )
-        TextField(
-            text3,
-            onValueChange = { text3 = it },
-            modifier = Modifier.weight(1f)
-        )
+        TextField(text3, onValueChange = { text3 = it }, modifier = Modifier.weight(1f))
 
         val interactionSource = remember { MutableInteractionSource() }
         val isButtonFocused by interactionSource.collectIsFocusedAsState()
         val buttonFocusRequester = remember { FocusRequester() }
         Button(
             onClick = { buttonFocusRequester.requestFocus() },
-            Modifier
-                .weight(1f)
+            Modifier.weight(1f)
                 .focusRequester(buttonFocusRequester)
                 .focusable(interactionSource = interactionSource)
         ) {
@@ -159,9 +144,7 @@ private class AndroidFieldRow(context: Context) : LinearLayout(context) {
         val innerCompose = ComposeView(context)
         innerCompose.setContent {
             Column(
-                Modifier
-                    .border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp))
-                    .padding(4.dp)
+                Modifier.border(1.dp, Color.Black, shape = RoundedCornerShape(8.dp)).padding(4.dp)
             ) {
                 Text("Inner Compose Fields")
                 FocusableFieldRow()

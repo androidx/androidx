@@ -54,48 +54,48 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CoreTextFieldHandwritingTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
     private val keyboardHelper = KeyboardHelper(rule)
 
     private val Tag = "CoreTextField"
 
-    private val fakeImm = object : InputMethodManager {
-        private var stylusHandwritingStartCount = 0
+    private val fakeImm =
+        object : InputMethodManager {
+            private var stylusHandwritingStartCount = 0
 
-        fun expectStylusHandwriting(started: Boolean) {
-            if (started) {
-                assertThat(stylusHandwritingStartCount).isEqualTo(1)
-                stylusHandwritingStartCount = 0
-            } else {
-                assertThat(stylusHandwritingStartCount).isZero()
+            fun expectStylusHandwriting(started: Boolean) {
+                if (started) {
+                    assertThat(stylusHandwritingStartCount).isEqualTo(1)
+                    stylusHandwritingStartCount = 0
+                } else {
+                    assertThat(stylusHandwritingStartCount).isZero()
+                }
+            }
+
+            override fun isActive(): Boolean = true
+
+            override fun restartInput() {}
+
+            override fun showSoftInput() {}
+
+            override fun hideSoftInput() {}
+
+            override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+
+            override fun updateSelection(
+                selectionStart: Int,
+                selectionEnd: Int,
+                compositionStart: Int,
+                compositionEnd: Int
+            ) {}
+
+            override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
+
+            override fun startStylusHandwriting() {
+                ++stylusHandwritingStartCount
             }
         }
-
-        override fun isActive(): Boolean = true
-
-        override fun restartInput() {}
-
-        override fun showSoftInput() {}
-
-        override fun hideSoftInput() {}
-
-        override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
-
-        override fun updateSelection(
-            selectionStart: Int,
-            selectionEnd: Int,
-            compositionStart: Int,
-            compositionEnd: Int
-        ) {}
-
-        override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
-
-        override fun startStylusHandwriting() {
-            ++stylusHandwritingStartCount
-        }
-    }
 
     @Before
     fun setup() {
@@ -105,16 +105,12 @@ class CoreTextFieldHandwritingTest {
 
     @Test
     fun coreTextField_startHandwriting_unfocused() {
-        testStylusHandwriting(stylusHandwritingStarted = true) {
-            performStylusHandwriting()
-        }
+        testStylusHandwriting(stylusHandwritingStarted = true) { performStylusHandwriting() }
     }
 
     @Test
     fun coreTextField_startStylusHandwriting_unfocused() {
-        testStylusHandwriting(stylusHandwritingStarted = true) {
-            performStylusHandwriting()
-        }
+        testStylusHandwriting(stylusHandwritingStarted = true) { performStylusHandwriting() }
     }
 
     @Test
@@ -127,23 +123,17 @@ class CoreTextFieldHandwritingTest {
 
     @Test
     fun coreTextField_click_notStartStylusHandwriting() {
-        testStylusHandwriting(stylusHandwritingStarted = false) {
-            performStylusClick()
-        }
+        testStylusHandwriting(stylusHandwritingStarted = false) { performStylusClick() }
     }
 
     @Test
     fun coreTextField_longClick_notStartStylusHandwriting() {
-        testStylusHandwriting(stylusHandwritingStarted = false) {
-            performStylusLongClick()
-        }
+        testStylusHandwriting(stylusHandwritingStarted = false) { performStylusLongClick() }
     }
 
     @Test
     fun coreTextField_longPressAndDrag_notStartStylusHandwriting() {
-        testStylusHandwriting(stylusHandwritingStarted = false) {
-            performStylusLongPressAndDrag()
-        }
+        testStylusHandwriting(stylusHandwritingStarted = false) { performStylusLongPressAndDrag() }
     }
 
     @Test
@@ -156,10 +146,8 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                onValueChange = {},
+                modifier = Modifier.fillMaxSize().testTag(Tag),
                 enabled = enabled
             )
         }
@@ -186,10 +174,8 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                onValueChange = {},
+                modifier = Modifier.fillMaxSize().testTag(Tag),
                 readOnly = readOnly
             )
         }
@@ -212,22 +198,19 @@ class CoreTextFieldHandwritingTest {
         inputMethodManagerFactory = { fakeImm }
 
         val focusWindow = mutableStateOf(true)
-        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
-            override val isWindowFocused: Boolean
-                get() = focused
-        }
+        fun createWindowInfo(focused: Boolean) =
+            object : WindowInfo {
+                override val isWindowFocused: Boolean
+                    get() = focused
+            }
 
         setContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides createWindowInfo(focusWindow.value)
-            ) {
+            CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
                 val value = remember { TextFieldValue() }
                 CoreTextField(
                     value = value,
-                    onValueChange = { },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag(Tag),
+                    onValueChange = {},
+                    modifier = Modifier.fillMaxSize().testTag(Tag),
                 )
             }
         }
@@ -251,11 +234,9 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
+                onValueChange = {},
                 imeOptions = ImeOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -270,11 +251,9 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
+                onValueChange = {},
                 imeOptions = ImeOptions(keyboardType = KeyboardType.NumberPassword),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -288,11 +267,9 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
+                onValueChange = {},
                 imeOptions = ImeOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -308,11 +285,9 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
+                onValueChange = {},
                 imeOptions = ImeOptions(keyboardType = KeyboardType.NumberPassword),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag),
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -331,10 +306,8 @@ class CoreTextFieldHandwritingTest {
             val value = remember { TextFieldValue() }
             CoreTextField(
                 value = value,
-                onValueChange = { },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(Tag)
+                onValueChange = {},
+                modifier = Modifier.fillMaxSize().testTag(Tag)
             )
         }
 
@@ -348,9 +321,7 @@ class CoreTextFieldHandwritingTest {
         content: @Composable () -> Unit
     ) {
         rule.setFocusableContent(extraItemForInitialFocus) {
-            inputMethodInterceptor.Content {
-                content()
-            }
+            inputMethodInterceptor.Content { content() }
         }
     }
 

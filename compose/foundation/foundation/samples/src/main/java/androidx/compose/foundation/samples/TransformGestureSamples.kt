@@ -71,8 +71,7 @@ fun DetectTransformGestures() {
     var angle by remember { mutableStateOf(0f) }
 
     Box(
-        Modifier
-            .pointerInput(Unit) {
+        Modifier.pointerInput(Unit) {
                 detectTransformGestures(
                     onGesture = { centroid, pan, gestureZoom, gestureRotate ->
                         val oldScale = zoom
@@ -84,8 +83,9 @@ fun DetectTransformGestures() {
                         // space), and then compute where it will be after this delta.
                         // We then compute what the new offset should be to keep the centroid
                         // visually stationary for rotating and zooming, and also apply the pan.
-                        offset = (offset + centroid / oldScale).rotateBy(gestureRotate) -
-                            (centroid / newScale + pan / oldScale)
+                        offset =
+                            (offset + centroid / oldScale).rotateBy(gestureRotate) -
+                                (centroid / newScale + pan / oldScale)
                         zoom = newScale
                         angle += gestureRotate
                     }
@@ -109,8 +109,7 @@ fun DetectTransformGestures() {
 fun CalculateRotation() {
     var angle by remember { mutableStateOf(0f) }
     Box(
-        Modifier
-            .graphicsLayer(rotationZ = angle)
+        Modifier.graphicsLayer(rotationZ = angle)
             .background(Color.Blue)
             .pointerInput(Unit) {
                 awaitEachGesture {
@@ -131,8 +130,7 @@ fun CalculateRotation() {
 fun CalculateZoom() {
     var zoom by remember { mutableStateOf(1f) }
     Box(
-        Modifier
-            .graphicsLayer(scaleX = zoom, scaleY = zoom)
+        Modifier.graphicsLayer(scaleX = zoom, scaleY = zoom)
             .background(Color.Blue)
             .pointerInput(Unit) {
                 awaitEachGesture {
@@ -153,8 +151,7 @@ fun CalculatePan() {
     val offsetX = remember { mutableStateOf(0f) }
     val offsetY = remember { mutableStateOf(0f) }
     Box(
-        Modifier
-            .offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
+        Modifier.offset { IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt()) }
             .graphicsLayer()
             .background(Color.Blue)
             .pointerInput(Unit) {
@@ -178,16 +175,13 @@ fun CalculateCentroidSize() {
     var centroidSize by remember { mutableStateOf(0f) }
     var position by remember { mutableStateOf(Offset.Zero) }
     Box(
-        Modifier
-            .drawBehind {
+        Modifier.drawBehind {
                 // Draw a circle where the gesture is
                 drawCircle(Color.Blue, centroidSize, center = position)
             }
             .pointerInput(Unit) {
                 awaitEachGesture {
-                    awaitFirstDown().also {
-                        position = it.position
-                    }
+                    awaitFirstDown().also { position = it.position }
                     do {
                         val event = awaitPointerEvent()
                         val size = event.calculateCentroidSize()

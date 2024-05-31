@@ -51,16 +51,24 @@ fun DialogDemo() {
     var expandedHeight by remember { mutableStateOf(expandedHeightInit) }
     var usePlatformDefaultWidth by remember { mutableStateOf(usePlatformDefaultWidthInit) }
 
-    TextButton(onClick = { openDialog = !openDialog }) {
-        Text("Tap anywhere to reopen dialog")
-    }
+    TextButton(onClick = { openDialog = !openDialog }) { Text("Tap anywhere to reopen dialog") }
     if (openDialog) {
         Dialog(
             onDismissRequest = { openDialog = false },
             properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
         ) {
-            val width = if (expandedWidth) { 1500.dp } else { 300.dp }
-            val height = if (expandedHeight) { 600.dp } else { 400.dp }
+            val width =
+                if (expandedWidth) {
+                    1500.dp
+                } else {
+                    300.dp
+                }
+            val height =
+                if (expandedHeight) {
+                    600.dp
+                } else {
+                    400.dp
+                }
             Card(
                 modifier = Modifier.size(width, height).padding(10.dp),
                 elevation = elevation,
@@ -73,11 +81,12 @@ fun DialogDemo() {
                     Text("Dialog")
                     TextButton(
                         onClick = {
-                            shape = if (shape == roundedRectangleShape) {
-                                RectangleShape
-                            } else {
-                                roundedRectangleShape
-                            }
+                            shape =
+                                if (shape == roundedRectangleShape) {
+                                    RectangleShape
+                                } else {
+                                    roundedRectangleShape
+                                }
                         }
                     ) {
                         Text("Toggle corners")
@@ -107,13 +116,9 @@ fun DialogDemo() {
                         Text("Toggle widthlock")
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { elevation -= 1.dp }) {
-                            Text("-1")
-                        }
+                        TextButton(onClick = { elevation -= 1.dp }) { Text("-1") }
                         Text("Elevation: $elevation")
-                        TextButton(onClick = { elevation += 1.dp }) {
-                            Text("+1")
-                        }
+                        TextButton(onClick = { elevation += 1.dp }) { Text("+1") }
                     }
                     Text("Current size: [$width, $height]")
                     Text("usePlatformDefaultWidth = $usePlatformDefaultWidth")

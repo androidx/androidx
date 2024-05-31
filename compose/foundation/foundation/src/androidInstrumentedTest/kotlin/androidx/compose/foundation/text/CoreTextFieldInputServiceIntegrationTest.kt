@@ -71,8 +71,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CoreTextFieldInputServiceIntegrationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
@@ -81,20 +80,20 @@ class CoreTextFieldInputServiceIntegrationTest {
     fun textField_ImeOptions_isPassedTo_platformTextInputService() {
         val testTag = "KeyboardOption"
         val value = TextFieldValue("abc")
-        val imeOptions = ImeOptions(
-            singleLine = true,
-            capitalization = KeyboardCapitalization.Words,
-            autoCorrect = false,
-            keyboardType = KeyboardType.Phone,
-            imeAction = ImeAction.Search
-        )
+        val imeOptions =
+            ImeOptions(
+                singleLine = true,
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrect = false,
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Search
+            )
 
         setContent {
             CoreTextField(
                 value = value,
                 imeOptions = imeOptions,
-                modifier = Modifier
-                    .testTag(testTag),
+                modifier = Modifier.testTag(testTag),
                 onValueChange = {}
             )
         }
@@ -131,14 +130,10 @@ class CoreTextFieldInputServiceIntegrationTest {
                 )
             }
         }
-        rule.runOnIdle {
-            focusRequester1.requestFocus()
-        }
+        rule.runOnIdle { focusRequester1.requestFocus() }
 
         // Focus the other field. The IME connection should restart only once.
-        rule.runOnIdle {
-            focusRequester2.requestFocus()
-        }
+        rule.runOnIdle { focusRequester2.requestFocus() }
 
         inputMethodInterceptor.assertSessionActive()
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(2)
@@ -206,15 +201,16 @@ class CoreTextFieldInputServiceIntegrationTest {
     @Test
     fun keyboardShownAfterDismissingKeyboardAndClickingAgain() {
         var keyboardShown = false
-        val fakeKeyboardController = object : SoftwareKeyboardController {
-            override fun show() {
-                keyboardShown = true
-            }
+        val fakeKeyboardController =
+            object : SoftwareKeyboardController {
+                override fun show() {
+                    keyboardShown = true
+                }
 
-            override fun hide() {
-                keyboardShown = false
+                override fun hide() {
+                    keyboardShown = false
+                }
             }
-        }
 
         // Arrange.
         setContent {
@@ -372,14 +368,12 @@ class CoreTextFieldInputServiceIntegrationTest {
             CoreTextField(
                 value = value,
                 modifier = Modifier.focusRequester(focusRequester),
-                onValueChange = { },
+                onValueChange = {},
                 onTextLayout = { textLayoutResult = it }
             )
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         assertFocusedRect(textLayoutResult.getBoundingBox(6).roundToIntRect())
     }
@@ -396,15 +390,13 @@ class CoreTextFieldInputServiceIntegrationTest {
                 CoreTextField(
                     value = value,
                     modifier = Modifier.focusRequester(focusRequester),
-                    onValueChange = { },
+                    onValueChange = {},
                     onTextLayout = { textLayoutResult = it }
                 )
             }
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         assertFocusedRect(
             textLayoutResult.getBoundingBox(6).translate(offset.toOffset()).roundToIntRect()
@@ -438,53 +430,49 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
 
         value = TextFieldValue("a", TextRange(1))
-        rule.runOnIdle {
-            assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect())
-        }
+        rule.runOnIdle { assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect()) }
 
         value = TextFieldValue("a\nbc", TextRange(4))
-        rule.runOnIdle {
-            assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect())
-        }
+        rule.runOnIdle { assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect()) }
 
         value = TextFieldValue("a\nbc", TextRange(3))
-        rule.runOnIdle {
-            assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect())
-        }
+        rule.runOnIdle { assertFocusedRect(textLayoutResult.getBoundingBox(3).roundToIntRect()) }
 
         value = TextFieldValue("a\nbc", TextRange(2))
-        rule.runOnIdle {
-            assertFocusedRect(textLayoutResult.getBoundingBox(2).roundToIntRect())
-        }
+        rule.runOnIdle { assertFocusedRect(textLayoutResult.getBoundingBox(2).roundToIntRect()) }
 
         value = TextFieldValue("a\nbc", TextRange(0))
-        rule.runOnIdle {
-            assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect())
-        }
+        rule.runOnIdle { assertFocusedRect(textLayoutResult.getBoundingBox(0).roundToIntRect()) }
     }
 
     @Test
     fun cursorAnchorInfoIsUpdated_whenMonitoringAndGlobalOffsetChanges() {
         val cursorAnchorInfos = mutableListOf<CursorAnchorInfo>()
-        val fakeInputMethodManager = object : InputMethodManager {
-            override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
-                cursorAnchorInfos += cursorAnchorInfo
-            }
+        val fakeInputMethodManager =
+            object : InputMethodManager {
+                override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {
+                    cursorAnchorInfos += cursorAnchorInfo
+                }
 
-            override fun startStylusHandwriting() {}
-            override fun isActive(): Boolean = true
-            override fun restartInput() {}
-            override fun showSoftInput() {}
-            override fun hideSoftInput() {}
-            override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
-            override fun updateSelection(
-                selectionStart: Int,
-                selectionEnd: Int,
-                compositionStart: Int,
-                compositionEnd: Int
-            ) {
+                override fun startStylusHandwriting() {}
+
+                override fun isActive(): Boolean = true
+
+                override fun restartInput() {}
+
+                override fun showSoftInput() {}
+
+                override fun hideSoftInput() {}
+
+                override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+
+                override fun updateSelection(
+                    selectionStart: Int,
+                    selectionEnd: Int,
+                    compositionStart: Int,
+                    compositionEnd: Int
+                ) {}
             }
-        }
         inputMethodManagerFactory = { fakeInputMethodManager }
         var offset by mutableStateOf(IntOffset(0, 10))
         val value = TextFieldValue("abc\nefg", TextRange(6))
@@ -495,28 +483,22 @@ class CoreTextFieldInputServiceIntegrationTest {
                 CoreTextField(
                     value = value,
                     modifier = Modifier.focusRequester(focusRequester),
-                    onValueChange = { },
+                    onValueChange = {},
                 )
             }
         }
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
         // Need to turn on monitoring to get notified.
         inputMethodInterceptor.withInputConnection {
             requestCursorUpdates(InputConnection.CURSOR_UPDATE_MONITOR)
         }
 
-        rule.runOnIdle {
-            assertThat(cursorAnchorInfos).isEmpty()
-        }
+        rule.runOnIdle { assertThat(cursorAnchorInfos).isEmpty() }
 
         offset = IntOffset(10, 20)
 
-        rule.runOnIdle {
-            assertThat(cursorAnchorInfos).hasSize(1)
-        }
+        rule.runOnIdle { assertThat(cursorAnchorInfos).hasSize(1) }
     }
 
     @Test
@@ -525,15 +507,14 @@ class CoreTextFieldInputServiceIntegrationTest {
         val focusRequester = FocusRequester()
 
         val focusWindow = mutableStateOf(true)
-        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
-            override val isWindowFocused: Boolean
-                get() = focused
-        }
+        fun createWindowInfo(focused: Boolean) =
+            object : WindowInfo {
+                override val isWindowFocused: Boolean
+                    get() = focused
+            }
 
         setContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides createWindowInfo(focusWindow.value)
-            ) {
+            CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
                 CoreTextField(
                     value = value,
                     onValueChange = {},
@@ -542,23 +523,15 @@ class CoreTextFieldInputServiceIntegrationTest {
             }
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
-        rule.runOnIdle {
-            inputMethodInterceptor.assertSessionActive()
-        }
+        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
 
         focusWindow.value = false
-        rule.runOnIdle {
-            inputMethodInterceptor.assertNoSessionActive()
-        }
+        rule.runOnIdle { inputMethodInterceptor.assertNoSessionActive() }
 
         focusWindow.value = true
-        rule.runOnIdle {
-            inputMethodInterceptor.assertSessionActive()
-        }
+        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
     }
 
     private fun setContent(

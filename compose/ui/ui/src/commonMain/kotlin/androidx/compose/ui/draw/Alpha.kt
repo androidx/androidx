@@ -23,19 +23,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 /**
  * Draw content with modified alpha that may be less than 1.
  *
- * Usage of this API renders this composable into a separate graphics layer.
- * Note when an alpha less than 1.0f is provided, contents are implicitly clipped
- * to their bounds. This is because an intermediate compositing layer is created to
- * render contents into first before being drawn into the destination with the desired alpha.
- * This layer is sized to the bounds of the composable this modifier is configured on, and contents
- * outside of these bounds are omitted.
+ * Usage of this API renders this composable into a separate graphics layer. Note when an alpha less
+ * than 1.0f is provided, contents are implicitly clipped to their bounds. This is because an
+ * intermediate compositing layer is created to render contents into first before being drawn into
+ * the destination with the desired alpha. This layer is sized to the bounds of the composable this
+ * modifier is configured on, and contents outside of these bounds are omitted.
  *
+ * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
  * @see graphicsLayer
  *
  * Example usage:
- * @sample androidx.compose.ui.samples.AlphaSample
  *
- * @param alpha the fraction of children's alpha value and must be between `0` and `1`, inclusive.
+ * @sample androidx.compose.ui.samples.AlphaSample
  */
 @Stable
 fun Modifier.alpha(

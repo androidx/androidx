@@ -41,8 +41,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class DeactivatedFocusNodeTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var lazyListState: LazyListState
     private lateinit var coroutineScope: CoroutineScope
@@ -53,14 +52,10 @@ class DeactivatedFocusNodeTest {
     fun deactivatedActiveFocusNodeSendsFocusEvent() {
         // Arrange.
         rule.setTestContent {
-            LazyRow(
-                state = lazyListState,
-                modifier = Modifier.size(10.dp)
-            ) {
+            LazyRow(state = lazyListState, modifier = Modifier.size(10.dp)) {
                 items(2) { index ->
                     Box(
-                        Modifier
-                            .size(10.dp)
+                        Modifier.size(10.dp)
                             .testTag("$index")
                             .then(
                                 if (index == 0) {
@@ -81,34 +76,25 @@ class DeactivatedFocusNodeTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            coroutineScope.launch { lazyListState.scrollToItem(1) }
-        }
+        rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(1) } }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusStates[0]).isEqualTo(Inactive)
-        }
+        rule.runOnIdle { assertThat(focusStates[0]).isEqualTo(Inactive) }
     }
 
     @Test
     fun deactivatedActiveParentFocusNodeSendsFocusEvent() {
         // Arrange.
         rule.setTestContent {
-            LazyRow(
-                state = lazyListState,
-                modifier = Modifier.size(10.dp)
-            ) {
+            LazyRow(state = lazyListState, modifier = Modifier.size(10.dp)) {
                 items(2) { index ->
                     Box(
-                        Modifier
-                            .size(10.dp)
+                        Modifier.size(10.dp)
                             .onFocusChanged { focusStates[index] = it }
                             .focusTarget()
                     ) {
                         Box(
-                            Modifier
-                                .size(5.dp)
+                            Modifier.size(5.dp)
                                 .then(
                                     if (index == 0) {
                                         Modifier.focusRequester(initialFocusedItem)
@@ -117,7 +103,6 @@ class DeactivatedFocusNodeTest {
                                     }
                                 )
                                 .focusTarget()
-
                         )
                     }
                 }
@@ -129,28 +114,20 @@ class DeactivatedFocusNodeTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            coroutineScope.launch { lazyListState.scrollToItem(1) }
-        }
+        rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(1) } }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusStates[0]).isEqualTo(Inactive)
-        }
+        rule.runOnIdle { assertThat(focusStates[0]).isEqualTo(Inactive) }
     }
 
     @Test
     fun deactivatedCapturedFocusNodeSendsFocusEvent() {
         // Arrange.
         rule.setTestContent {
-            LazyRow(
-                state = lazyListState,
-                modifier = Modifier.size(10.dp)
-            ) {
+            LazyRow(state = lazyListState, modifier = Modifier.size(10.dp)) {
                 items(2) { index ->
                     Box(
-                        Modifier
-                            .size(10.dp)
+                        Modifier.size(10.dp)
                             .testTag("$index")
                             .then(
                                 if (index == 0) {
@@ -172,28 +149,20 @@ class DeactivatedFocusNodeTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            coroutineScope.launch { lazyListState.scrollToItem(1) }
-        }
+        rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(1) } }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusStates[0]).isEqualTo(Inactive)
-        }
+        rule.runOnIdle { assertThat(focusStates[0]).isEqualTo(Inactive) }
     }
 
     @Test
     fun deactivatedInactiveFocusNodeDoesNotSendFocusEvent() {
         // Arrange.
         rule.setTestContent {
-            LazyRow(
-                state = lazyListState,
-                modifier = Modifier.size(10.dp)
-            ) {
+            LazyRow(state = lazyListState, modifier = Modifier.size(10.dp)) {
                 items(2) { index ->
                     Box(
-                        Modifier
-                            .size(10.dp)
+                        Modifier.size(10.dp)
                             .testTag("$index")
                             .then(
                                 if (index == 0) {
@@ -208,19 +177,13 @@ class DeactivatedFocusNodeTest {
                 }
             }
         }
-        rule.runOnIdle {
-            focusStates.clear()
-        }
+        rule.runOnIdle { focusStates.clear() }
 
         // Act.
-        rule.runOnIdle {
-            coroutineScope.launch { lazyListState.scrollToItem(1) }
-        }
+        rule.runOnIdle { coroutineScope.launch { lazyListState.scrollToItem(1) } }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(focusStates[0]).isNull()
-        }
+        rule.runOnIdle { assertThat(focusStates[0]).isNull() }
     }
 
     private fun ComposeContentTestRule.setTestContent(content: @Composable () -> Unit) {

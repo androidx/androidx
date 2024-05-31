@@ -35,56 +35,45 @@ import org.junit.runner.RunWith
 @LargeTest
 class InfiniteTransitionTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun transitionTest() {
         // Manually advance the clock to prevent the infinite transition from being cancelled
         rule.mainClock.autoAdvance = false
 
-        val colorAnim = TargetBasedAnimation(
-            tween(1000),
-            Color.VectorConverter(Color.Red.colorSpace),
-            Color.Red,
-            Color.Green
-        )
+        val colorAnim =
+            TargetBasedAnimation(
+                tween(1000),
+                Color.VectorConverter(Color.Red.colorSpace),
+                Color.Red,
+                Color.Green
+            )
 
         // Animate from 0f to 0f for 1000ms
-        val keyframes = keyframes<Float> {
-            durationMillis = 1000
-            0f at 0
-            200f at 400
-            1000f at 1000
-        }
+        val keyframes =
+            keyframes<Float> {
+                durationMillis = 1000
+                0f at 0
+                200f at 400
+                1000f at 1000
+            }
 
-        val keyframesAnim = TargetBasedAnimation(
-            keyframes,
-            Float.VectorConverter,
-            0f,
-            0f
-        )
+        val keyframesAnim = TargetBasedAnimation(keyframes, Float.VectorConverter, 0f, 0f)
 
         val runAnimation = mutableStateOf(true)
         rule.setContent {
             val transition = rememberInfiniteTransition()
             if (runAnimation.value) {
-                val animFloat = transition.animateFloat(
-                    0f,
-                    0f,
-                    infiniteRepeatable(
-                        keyframes,
-                        repeatMode = RepeatMode.Reverse
+                val animFloat =
+                    transition.animateFloat(
+                        0f,
+                        0f,
+                        infiniteRepeatable(keyframes, repeatMode = RepeatMode.Reverse)
                     )
-                )
 
-                val animColor = transition.animateColor(
-                    Color.Red,
-                    Color.Green,
-                    infiniteRepeatable(
-                        tween(1000)
-                    )
-                )
+                val animColor =
+                    transition.animateColor(Color.Red, Color.Green, infiniteRepeatable(tween(1000)))
 
                 LaunchedEffect(Unit) {
                     val startTime = withFrameNanos { it }
@@ -96,9 +85,8 @@ class InfiniteTransitionTest {
                             iterationTime = 2000L * MillisToNanos - iterationTime
                         }
                         val expectedFloat = keyframesAnim.getValueFromNanos(iterationTime)
-                        val expectedColor = colorAnim.getValueFromNanos(
-                            playTime % (1000 * MillisToNanos)
-                        )
+                        val expectedColor =
+                            colorAnim.getValueFromNanos(playTime % (1000 * MillisToNanos))
                         assertEquals(expectedFloat, animFloat.value, 0.01f)
                         assertEquals(expectedColor, animColor.value)
                     }

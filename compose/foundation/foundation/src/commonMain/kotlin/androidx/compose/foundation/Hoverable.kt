@@ -35,18 +35,15 @@ import kotlinx.coroutines.launch
  * @sample androidx.compose.foundation.samples.HoverableSample
  *
  * @param interactionSource [MutableInteractionSource] that will be used to emit
- * [HoverInteraction.Enter] when this element is being hovered.
+ *   [HoverInteraction.Enter] when this element is being hovered.
  * @param enabled Controls the enabled state. When `false`, hover events will be ignored.
  */
 @Stable
-fun Modifier.hoverable(
-    interactionSource: MutableInteractionSource,
-    enabled: Boolean = true
-) = this then if (enabled) HoverableElement(interactionSource) else Modifier
+fun Modifier.hoverable(interactionSource: MutableInteractionSource, enabled: Boolean = true) =
+    this then if (enabled) HoverableElement(interactionSource) else Modifier
 
-private class HoverableElement(
-    private val interactionSource: MutableInteractionSource
-) : ModifierNodeElement<HoverableNode>() {
+private class HoverableElement(private val interactionSource: MutableInteractionSource) :
+    ModifierNodeElement<HoverableNode>() {
     override fun create() = HoverableNode(interactionSource)
 
     override fun update(node: HoverableNode) {
@@ -71,9 +68,8 @@ private class HoverableElement(
     }
 }
 
-private class HoverableNode(
-    private var interactionSource: MutableInteractionSource
-) : PointerInputModifierNode, Modifier.Node() {
+private class HoverableNode(private var interactionSource: MutableInteractionSource) :
+    PointerInputModifierNode, Modifier.Node() {
     private var hoverInteraction: HoverInteraction.Enter? = null
 
     fun updateInteractionSource(interactionSource: MutableInteractionSource) {

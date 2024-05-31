@@ -37,65 +37,67 @@ class RandomTextGenerator(
     private val random: Random = Random(0)
 ) {
     // a set of predefined TextStyle's to add to styled text
-    private val nonMetricAffectingTextStyles = arrayOf(
-        SpanStyle(color = Color.Blue),
-        SpanStyle(background = Color.Cyan),
-        SpanStyle(textDecoration = TextDecoration.Underline),
-        SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f))
-    )
+    private val nonMetricAffectingTextStyles =
+        arrayOf(
+            SpanStyle(color = Color.Blue),
+            SpanStyle(background = Color.Cyan),
+            SpanStyle(textDecoration = TextDecoration.Underline),
+            SpanStyle(shadow = Shadow(Color.Black, Offset(3f, 3f), 2.0f))
+        )
 
-    private val metricAffectingTextStyles = arrayOf(
-        SpanStyle(fontSize = 18.sp),
-        SpanStyle(fontSize = 2.em),
-        SpanStyle(fontWeight = FontWeight.Bold),
-        SpanStyle(fontStyle = FontStyle.Italic),
-        SpanStyle(letterSpacing = 0.2.em),
-        SpanStyle(baselineShift = BaselineShift.Subscript),
-        SpanStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
-        SpanStyle(localeList = LocaleList("it"))
-    )
+    private val metricAffectingTextStyles =
+        arrayOf(
+            SpanStyle(fontSize = 18.sp),
+            SpanStyle(fontSize = 2.em),
+            SpanStyle(fontWeight = FontWeight.Bold),
+            SpanStyle(fontStyle = FontStyle.Italic),
+            SpanStyle(letterSpacing = 0.2.em),
+            SpanStyle(baselineShift = BaselineShift.Subscript),
+            SpanStyle(textGeometricTransform = TextGeometricTransform(0.5f, 0.5f)),
+            SpanStyle(localeList = LocaleList("it"))
+        )
 
     private fun getSpanStyleList(hasMetricAffectingStyle: Boolean) =
-        nonMetricAffectingTextStyles + if (hasMetricAffectingStyle) {
-            metricAffectingTextStyles
-        } else {
-            arrayOf()
-        }
+        nonMetricAffectingTextStyles +
+            if (hasMetricAffectingStyle) {
+                metricAffectingTextStyles
+            } else {
+                arrayOf()
+            }
+
+    /** Creates a sequence of characters group of length [length]. */
+    private fun nextWord(length: Int): String =
+        List(length) { alphabet.charRanges.random(random).random(random).toChar() }
+            .joinToString(separator = "")
 
     /**
-     * Creates a sequence of characters group of length [length].
+     * Create a sequence of character groups separated by the [Alphabet.space]. Each character group
+     * consists of [wordLength] characters. The total length of the returned string is [length].
      */
-    private fun nextWord(length: Int): String = List(length) {
-        alphabet.charRanges.random(random).random(random).toChar()
-    }.joinToString(separator = "")
-
-    /**
-     * Create a sequence of character groups separated by the [Alphabet.space]. Each character group consists of
-     * [wordLength] characters. The total length of the returned string is [length].
-     */
-    fun nextParagraph(
-        length: Int,
-        wordLength: Int = 9
-    ): String {
+    fun nextParagraph(length: Int, wordLength: Int = 9): String {
         return if (length == 0) {
             ""
         } else {
-            StringBuilder().apply {
-                while (this.length < length) {
-                    append(nextWord(wordLength))
-                    append(alphabet.space)
+            StringBuilder()
+                .apply {
+                    while (this.length < length) {
+                        append(nextWord(wordLength))
+                        append(alphabet.space)
+                    }
                 }
-            }.substring(0, length)
+                .substring(0, length)
         }
     }
 
     /**
-     * Given a [text] mark each character group with a predefined TextStyle. The order of TextStyles is predefined,
-     * and not randomized on purpose in order to get a consistent result in our benchmarks.
+     * Given a [text] mark each character group with a predefined TextStyle. The order of TextStyles
+     * is predefined, and not randomized on purpose in order to get a consistent result in our
+     * benchmarks.
+     *
      * @param text The text on which the markup is applied.
      * @param styleCount The number of the text styles applied on the [text].
      * @param hasMetricAffectingStyle Whether to apply metric affecting [TextStyle]s text, which
-     *  increases the difficulty to measure text.
+     *   increases the difficulty to measure text.
      */
     fun createStyles(
         text: String,
@@ -130,6 +132,7 @@ class RandomTextGenerator(
 
     /**
      * Create an [AnnotatedString] with randomly generated text but predefined TextStyles.
+     *
      * @see nextParagraph
      * @see createStyles
      */
@@ -165,59 +168,47 @@ class RandomTextGenerator(
     }
 }
 
-/**
- * Defines the character ranges to be picked randomly for a script.
- */
-class Alphabet(
-    val charRanges: List<IntRange>,
-    val space: Char,
-    val name: String
-) {
+/** Defines the character ranges to be picked randomly for a script. */
+class Alphabet(val charRanges: List<IntRange>, val space: Char, val name: String) {
 
     override fun toString(): String {
         return name
     }
 
     companion object {
-        val Latin = Alphabet(
-            charRanges = listOf(
-                IntRange('a'.code, 'z'.code),
-                IntRange('A'.code, 'Z'.code)
-            ),
-            space = ' ',
-            name = "Latin"
-        )
+        val Latin =
+            Alphabet(
+                charRanges = listOf(IntRange('a'.code, 'z'.code), IntRange('A'.code, 'Z'.code)),
+                space = ' ',
+                name = "Latin"
+            )
 
-        val Cjk = Alphabet(
-            charRanges = listOf(
-                IntRange(0x4E00, 0x62FF),
-                IntRange(0x6300, 0x77FF),
-                IntRange(0x7800, 0x8CFF)
-            ),
-            space = 0x3000.toChar(),
-            name = "CJK"
-        )
+        val Cjk =
+            Alphabet(
+                charRanges =
+                    listOf(
+                        IntRange(0x4E00, 0x62FF),
+                        IntRange(0x6300, 0x77FF),
+                        IntRange(0x7800, 0x8CFF)
+                    ),
+                space = 0x3000.toChar(),
+                name = "CJK"
+            )
     }
 }
 
-/**
- * Used by [RandomTextGenerator] in order to create plain text or multi-styled text.
- */
+/** Used by [RandomTextGenerator] in order to create plain text or multi-styled text. */
 enum class TextType {
     PlainText,
     StyledText
 }
 
-/**
- * Given a list of Arrays and make cartesian product each of them with the [array].
- */
+/** Given a list of Arrays and make cartesian product each of them with the [array]. */
 fun List<Array<Any>>.cartesian(vararg array: Any): List<Array<Any>> {
     return flatMap { row -> array.map { row + it } }
 }
 
-/**
- * Creates a cartesian product of the given arrays.
- */
+/** Creates a cartesian product of the given arrays. */
 fun cartesian(vararg arrays: Array<Any?>): List<Array<Any?>> {
     return arrays.fold(listOf(arrayOf())) { acc, list ->
         // add items from the current list

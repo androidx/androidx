@@ -20,16 +20,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skia.ImageFilter
 
-/**
- * Convert the [ImageFilter] instance into a Compose-compatible [RenderEffect]
- */
-fun ImageFilter.asComposeRenderEffect(): RenderEffect =
-    SkiaBackedRenderEffect(this)
+/** Convert the [ImageFilter] instance into a Compose-compatible [RenderEffect] */
+fun ImageFilter.asComposeRenderEffect(): RenderEffect = SkiaBackedRenderEffect(this)
 
 /**
- * Intermediate rendering step used to render drawing commands with a corresponding
- * visual effect. A [RenderEffect] can be configured on a [GraphicsLayerScope]
- * and will be applied when drawn.
+ * Intermediate rendering step used to render drawing commands with a corresponding visual effect. A
+ * [RenderEffect] can be configured on a [GraphicsLayerScope] and will be applied when drawn.
  */
 @Immutable
 actual sealed class RenderEffect actual constructor() {
@@ -42,21 +38,20 @@ actual sealed class RenderEffect actual constructor() {
     protected abstract fun createImageFilter(): ImageFilter
 
     /**
-     * Capability query to determine if the particular platform supports the [RenderEffect]. Not
-     * all platforms support all render effects
+     * Capability query to determine if the particular platform supports the [RenderEffect]. Not all
+     * platforms support all render effects
      */
     actual open fun isSupported(): Boolean = true
 }
 
 @Immutable
-internal class SkiaBackedRenderEffect(
-    val imageFilter: ImageFilter
-) : RenderEffect() {
+internal class SkiaBackedRenderEffect(val imageFilter: ImageFilter) : RenderEffect() {
     override fun createImageFilter(): ImageFilter = imageFilter
 }
 
 @Immutable
-actual class BlurEffect actual constructor(
+actual class BlurEffect
+actual constructor(
     private val renderEffect: RenderEffect?,
     private val radiusX: Float,
     private val radiusY: Float,
@@ -123,10 +118,9 @@ actual class BlurEffect actual constructor(
 }
 
 @Immutable
-actual class OffsetEffect actual constructor(
-    private val renderEffect: RenderEffect?,
-    private val offset: Offset
-) : RenderEffect() {
+actual class OffsetEffect
+actual constructor(private val renderEffect: RenderEffect?, private val offset: Offset) :
+    RenderEffect() {
 
     override fun createImageFilter(): ImageFilter =
         ImageFilter.makeOffset(offset.x, offset.y, renderEffect?.asSkiaImageFilter(), null)

@@ -44,9 +44,7 @@ class TextFieldStateSaverTest {
     fun savesAndRestoresUndo() {
         val state = TextFieldState("hello, world", initialSelection = TextRange(0, 5))
 
-        state.editAsUser(null) {
-            commitText("hi", 1)
-        }
+        state.editAsUser(null) { commitText("hi", 1) }
 
         val saved = with(TextFieldState.Saver) { TestSaverScope.save(state) }
         assertNotNull(saved)

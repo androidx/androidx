@@ -45,10 +45,7 @@ internal interface ComposeInputMethodManager {
 
     fun hideSoftInput()
 
-    fun updateExtractedText(
-        token: Int,
-        extractedText: ExtractedText
-    )
+    fun updateExtractedText(token: Int, extractedText: ExtractedText)
 
     fun updateSelection(
         selectionStart: Int,
@@ -65,9 +62,7 @@ internal interface ComposeInputMethodManager {
      */
     fun sendKeyEvent(event: KeyEvent)
 
-    /**
-     * Signal the IME to start stylus handwriting.
-     */
+    /** Signal the IME to start stylus handwriting. */
     fun startStylusHandwriting()
 
     fun prepareStylusHandwritingDelegation()
@@ -115,8 +110,7 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
 
     private var imm: InputMethodManager? = null
 
-    private val softwareKeyboardControllerCompat =
-        SoftwareKeyboardControllerCompat(view)
+    private val softwareKeyboardControllerCompat = SoftwareKeyboardControllerCompat(view)
 
     override fun restartInput() {
         requireImm().restartInput(view)
@@ -130,10 +124,7 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
         softwareKeyboardControllerCompat.hide()
     }
 
-    override fun updateExtractedText(
-        token: Int,
-        extractedText: ExtractedText
-    ) {
+    override fun updateExtractedText(token: Int, extractedText: ExtractedText) {
         requireImm().updateExtractedText(view, token, extractedText)
     }
 
@@ -143,13 +134,8 @@ private abstract class ComposeInputMethodManagerImpl(protected val view: View) :
         compositionStart: Int,
         compositionEnd: Int
     ) {
-        requireImm().updateSelection(
-            view,
-            selectionStart,
-            selectionEnd,
-            compositionStart,
-            compositionEnd
-        )
+        requireImm()
+            .updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
     }
 
     override fun updateCursorAnchorInfo(info: CursorAnchorInfo) {
@@ -178,14 +164,15 @@ private open class ComposeInputMethodManagerImplApi21(view: View) :
     ComposeInputMethodManagerImpl(view) {
 
     /**
-     * Prior to API24, the safest way to delegate IME originated KeyEvents to the window was
-     * through BaseInputConnection.
+     * Prior to API24, the safest way to delegate IME originated KeyEvents to the window was through
+     * BaseInputConnection.
      */
     private var baseInputConnection: BaseInputConnection? = null
 
     override fun sendKeyEvent(event: KeyEvent) {
-        val baseInputConnection = baseInputConnection
-            ?: BaseInputConnection(view, false).also { baseInputConnection = it }
+        val baseInputConnection =
+            baseInputConnection
+                ?: BaseInputConnection(view, false).also { baseInputConnection = it }
         baseInputConnection.sendKeyEvent(event)
     }
 }

@@ -16,9 +16,7 @@ package androidx.compose.ui.text.font
  * limitations under the License.
  */
 
-/**
- * Do not do font synthesis on desktop
- */
+/** Do not do font synthesis on desktop */
 internal actual fun FontSynthesis.synthesizeTypeface(
     typeface: Any,
     font: Font,

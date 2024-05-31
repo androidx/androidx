@@ -36,34 +36,37 @@ class TextSelectionBackgroundColorTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "color={0}")
-        fun colors(): Array<Any> = arrayOf(
-            // Baseline palette primary
-            Color(0xFF6200EE),
-            // 500 colors from the Material 2014 palette
-            Color(0xFFF44336),
-            Color(0xFFE91E63),
-            Color(0xFF9C27B0),
-            Color(0xFF673AB7),
-            Color(0xFF3F51B5),
-            Color(0xFF2196F3),
-            Color(0xFF03A9F4),
-            Color(0xFF00BCD4),
-            Color(0xFF009688),
-            Color(0xFF4CAF50),
-            Color(0xFF8BC34A),
-            Color(0xFFCDDC39),
-            Color(0xFFFFEB3B),
-            Color(0xFFFFC107),
-            Color(0xFFFF9800),
-            Color(0xFFFF5722),
-            Color(0xFF795548),
-            Color(0xFF9E9E9E),
-            Color(0xFF607D8B)
-        ).map {
-            // Need to pass `null` as Color is an inline class and the `null` is needed when
-            // reflectively instantiating the class
-            arrayOf(it, null)
-        }.toTypedArray()
+        fun colors(): Array<Any> =
+            arrayOf(
+                    // Baseline palette primary
+                    Color(0xFF6200EE),
+                    // 500 colors from the Material 2014 palette
+                    Color(0xFFF44336),
+                    Color(0xFFE91E63),
+                    Color(0xFF9C27B0),
+                    Color(0xFF673AB7),
+                    Color(0xFF3F51B5),
+                    Color(0xFF2196F3),
+                    Color(0xFF03A9F4),
+                    Color(0xFF00BCD4),
+                    Color(0xFF009688),
+                    Color(0xFF4CAF50),
+                    Color(0xFF8BC34A),
+                    Color(0xFFCDDC39),
+                    Color(0xFFFFEB3B),
+                    Color(0xFFFFC107),
+                    Color(0xFFFF9800),
+                    Color(0xFFFF5722),
+                    Color(0xFF795548),
+                    Color(0xFF9E9E9E),
+                    Color(0xFF607D8B)
+                )
+                .map {
+                    // Need to pass `null` as Color is an inline class and the `null` is needed when
+                    // reflectively instantiating the class
+                    arrayOf(it, null)
+                }
+                .toTypedArray()
     }
 
     /**
@@ -122,21 +125,23 @@ private fun assertContrastRatio(
     backgroundColor: Color
 ) {
     val textColorWithAlpha = textColor.copy(alpha = textAlpha)
-    val selectionBackgroundColor = calculateSelectionBackgroundColor(
-        selectionColor = selectionColor,
-        textColor = textColorWithAlpha,
-        backgroundColor = backgroundColor
-    )
+    val selectionBackgroundColor =
+        calculateSelectionBackgroundColor(
+            selectionColor = selectionColor,
+            textColor = textColorWithAlpha,
+            backgroundColor = backgroundColor
+        )
 
     // If the minimum alpha we allow still does not provide enough contrast, then we fall back to
     // using the default alpha for consistency with the spec.
-    val minimumCompositeBackground = selectionBackgroundColor.copy(alpha = MinimumSelectionAlpha)
-        .compositeOver(backgroundColor)
+    val minimumCompositeBackground =
+        selectionBackgroundColor.copy(alpha = MinimumSelectionAlpha).compositeOver(backgroundColor)
     val minimumCompositeTextColor = textColorWithAlpha.compositeOver(minimumCompositeBackground)
-    val minimumContrastRatio = calculateContrastRatio(
-        foreground = minimumCompositeTextColor,
-        background = minimumCompositeBackground
-    )
+    val minimumContrastRatio =
+        calculateContrastRatio(
+            foreground = minimumCompositeTextColor,
+            background = minimumCompositeBackground
+        )
 
     if (minimumContrastRatio < RequiredContrastRatio) {
         assertThat(selectionBackgroundColor.alpha).isEqualTo(MinimumSelectionAlpha)
@@ -146,10 +151,8 @@ private fun assertContrastRatio(
     // Otherwise, ensure that the value we choose is accessible
     val compositeBackground = selectionBackgroundColor.compositeOver(backgroundColor)
     val compositeTextColor = textColorWithAlpha.compositeOver(compositeBackground)
-    val contrastRatio = calculateContrastRatio(
-        foreground = compositeTextColor,
-        background = compositeBackground
-    )
+    val contrastRatio =
+        calculateContrastRatio(foreground = compositeTextColor, background = compositeBackground)
 
     // The contrast ratio must always be >= 4.5
     assertThat(contrastRatio).isAtLeast(RequiredContrastRatio)

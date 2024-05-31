@@ -92,7 +92,7 @@ private fun TestPlacementInLimitedSpace() {
         Box(modifier = Modifier.padding(12.dp).size(56.dp).background(Color.Yellow)) {
             IconButton( // adds minimumTouchTargetSize
                 modifier = Modifier.padding(horizontal = 12.dp),
-                onClick = { }
+                onClick = {}
             ) {
                 Icon(Icons.Filled.Info, null)
             }
@@ -162,30 +162,23 @@ private fun TestText() {
 @Composable
 private fun TestSiblings() {
     Column {
-        Box(
-            boxSize.background(color = Color.Red).alignBy { p -> p.measuredWidth }
-        ) {}
-        Box(
-            boxSize.background(color = Color.Green).alignBy { p -> p.measuredWidth / 2 }
-        ) {}
-        Box(
-            boxSize.background(color = Color.Blue).alignBy { p -> p.measuredWidth / 4 }
-        ) {}
+        Box(boxSize.background(color = Color.Red).alignBy { p -> p.measuredWidth }) {}
+        Box(boxSize.background(color = Color.Green).alignBy { p -> p.measuredWidth / 2 }) {}
+        Box(boxSize.background(color = Color.Blue).alignBy { p -> p.measuredWidth / 4 }) {}
     }
 }
 
 @Composable
 private fun CustomLayout(rtlSupport: Boolean) {
     Layout(
-        content = @Composable {
-            Box(boxSize.background(color = Color.Red)) {}
-            Box(boxSize.background(color = Color.Green)) {}
-            Box(boxSize.background(color = Color.Blue)) {}
-        }
+        content =
+            @Composable {
+                Box(boxSize.background(color = Color.Red)) {}
+                Box(boxSize.background(color = Color.Green)) {}
+                Box(boxSize.background(color = Color.Blue)) {}
+            }
     ) { measurables, constraints ->
-        val p = measurables.map { e ->
-            e.measure(constraints.copy(minWidth = 0, minHeight = 0))
-        }
+        val p = measurables.map { e -> e.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
         val w = p.fold(0) { sum, e -> sum + e.width }
         val h = p.maxByOrNull { it.height }!!.height
         layout(w, h) {
@@ -206,11 +199,12 @@ private fun CustomLayout(rtlSupport: Boolean) {
 private fun LayoutWithConstraints(text: String) {
     BoxWithConstraints {
         val w = maxWidth / 3
-        val color = if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-            Color.Red
-        } else {
-            Color.Magenta
-        }
+        val color =
+            if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+                Color.Red
+            } else {
+                Color.Magenta
+            }
         Box(Modifier.size(w, 20.dp).background(color)) {
             Text(text, Modifier.align(Alignment.Center))
         }

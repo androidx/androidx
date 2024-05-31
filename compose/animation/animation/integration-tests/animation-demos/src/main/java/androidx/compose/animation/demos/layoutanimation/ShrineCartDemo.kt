@@ -62,19 +62,19 @@ fun ShrineCartDemo() {
         var cartState by remember { mutableStateOf(CartState.Collapsed) }
         // Creates a transition here to animate the corner shape and content.
         val cartOpenTransition = updateTransition(cartState, "CartOpenTransition")
-        val cornerSize by cartOpenTransition.animateDp(
-            label = "cartCornerSize",
-            transitionSpec = {
-                when {
-                    CartState.Expanded isTransitioningTo CartState.Collapsed ->
-                        tween(durationMillis = 433, delayMillis = 67)
-                    else ->
-                        tween(durationMillis = 150)
+        val cornerSize by
+            cartOpenTransition.animateDp(
+                label = "cartCornerSize",
+                transitionSpec = {
+                    when {
+                        CartState.Expanded isTransitioningTo CartState.Collapsed ->
+                            tween(durationMillis = 433, delayMillis = 67)
+                        else -> tween(durationMillis = 150)
+                    }
                 }
+            ) {
+                if (it == CartState.Expanded) 0.dp else 24.dp
             }
-        ) {
-            if (it == CartState.Expanded) 0.dp else 24.dp
-        }
 
         Surface(
             Modifier.shadow(8.dp, CutCornerShape(topStart = cornerSize))
@@ -106,11 +106,13 @@ fun ShrineCartDemo() {
                                     }
                                 }
                             }
-                        ).apply {
-                            targetContentZIndex = when (targetState) {
-                                CartState.Collapsed -> 2f
-                                CartState.Expanded -> 1f
-                            }
+                        )
+                        .apply {
+                            targetContentZIndex =
+                                when (targetState) {
+                                    CartState.Collapsed -> 2f
+                                    CartState.Expanded -> 1f
+                                }
                         }
                 }
             ) {
@@ -123,9 +125,11 @@ fun ShrineCartDemo() {
         }
         Box(
             Modifier.clickable {
-                cartState =
-                    if (cartState == CartState.Expanded) CartState.Collapsed else CartState.Expanded
-            }.fillMaxSize()
+                    cartState =
+                        if (cartState == CartState.Expanded) CartState.Collapsed
+                        else CartState.Expanded
+                }
+                .fillMaxSize()
         )
     }
 }
@@ -137,10 +141,7 @@ fun CollapsedCart() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(
-            Modifier.size(40.dp),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.Default.ShoppingCart,
                 contentDescription = "Shopping cart icon",
@@ -148,9 +149,8 @@ fun CollapsedCart() {
         }
         for (i in 0 until 3) {
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp)).background(ShrinePink10)
+                modifier =
+                    Modifier.size(40.dp).clip(RoundedCornerShape(10.dp)).background(ShrinePink10)
             )
         }
     }

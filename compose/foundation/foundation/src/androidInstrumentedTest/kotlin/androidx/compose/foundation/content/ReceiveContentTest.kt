@@ -53,30 +53,39 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 class ReceiveContentTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     @Test
     fun receiveContentConfiguration_isMergedBottomToTop() {
         var calculatedReceiveContent: ReceiveContentConfiguration?
         val listenerCalls = mutableListOf<Int>()
         rule.setContent {
-            Box(modifier = Modifier
-                .contentReceiver { listenerCalls += 3; it }
-                .contentReceiver { listenerCalls += 2; it }
-                .contentReceiver { listenerCalls += 1; it }
-                .then(TestElement {
-                    calculatedReceiveContent = it.getReceiveContentConfiguration()
-                    calculatedReceiveContent
-                        ?.receiveContentListener
-                        ?.onReceive(TransferableContent(createClipData()))
-                })
+            Box(
+                modifier =
+                    Modifier.contentReceiver {
+                            listenerCalls += 3
+                            it
+                        }
+                        .contentReceiver {
+                            listenerCalls += 2
+                            it
+                        }
+                        .contentReceiver {
+                            listenerCalls += 1
+                            it
+                        }
+                        .then(
+                            TestElement {
+                                calculatedReceiveContent = it.getReceiveContentConfiguration()
+                                calculatedReceiveContent
+                                    ?.receiveContentListener
+                                    ?.onReceive(TransferableContent(createClipData()))
+                            }
+                        )
             )
         }
 
-        rule.runOnIdle {
-            assertThat(listenerCalls).isEqualTo(listOf(1, 2, 3))
-        }
+        rule.runOnIdle { assertThat(listenerCalls).isEqualTo(listOf(1, 2, 3)) }
     }
 
     @Test
@@ -85,110 +94,121 @@ class ReceiveContentTest {
         var audioReceived: TransferableContent? = null
         var textReceived: TransferableContent? = null
         rule.setContent {
-            Box(modifier = Modifier
-                .contentReceiver { transferable ->
-                    videoReceived = transferable
-                    transferable.consume {
-                        it.uri
-                            ?.toString()
-                            ?.contains("video") ?: false
-                    }
-                }
-                .contentReceiver { transferable ->
-                    audioReceived = transferable
-                    transferable.consume {
-                        it.uri
-                            ?.toString()
-                            ?.contains("audio") ?: false
-                    }
-                }
-                .contentReceiver { transferable ->
-                    textReceived = transferable
-                    transferable.consume { it.text != null }
-                }
-                .then(TestElement {
-                    it.getReceiveContentConfiguration()
-                        ?.receiveContentListener
-                        ?.onReceive(TransferableContent(createClipData {
-                            addText()
-                            addUri(Uri.parse("content://video"), "video/mp4")
-                            addUri(Uri.parse("content://audio"), "audio/ogg")
-                        }))
-                })
+            Box(
+                modifier =
+                    Modifier.contentReceiver { transferable ->
+                            videoReceived = transferable
+                            transferable.consume { it.uri?.toString()?.contains("video") ?: false }
+                        }
+                        .contentReceiver { transferable ->
+                            audioReceived = transferable
+                            transferable.consume { it.uri?.toString()?.contains("audio") ?: false }
+                        }
+                        .contentReceiver { transferable ->
+                            textReceived = transferable
+                            transferable.consume { it.text != null }
+                        }
+                        .then(
+                            TestElement {
+                                it.getReceiveContentConfiguration()
+                                    ?.receiveContentListener
+                                    ?.onReceive(
+                                        TransferableContent(
+                                            createClipData {
+                                                addText()
+                                                addUri(Uri.parse("content://video"), "video/mp4")
+                                                addUri(Uri.parse("content://audio"), "audio/ogg")
+                                            }
+                                        )
+                                    )
+                            }
+                        )
             )
         }
 
         rule.runOnIdle {
-            assertClipData(videoReceived!!.clipEntry.clipData).isEqualToClipData(createClipData {
-                addUri(Uri.parse("content://video"), "video/mp4")
-            }, ignoreClipDescription = true)
-            assertClipData(audioReceived!!.clipEntry.clipData).isEqualToClipData(createClipData {
-                addUri(Uri.parse("content://video"), "video/mp4")
-                addUri(Uri.parse("content://audio"), "audio/ogg")
-            }, ignoreClipDescription = true)
-            assertClipData(textReceived!!.clipEntry.clipData).isEqualToClipData(createClipData {
-                addText()
-                addUri(Uri.parse("content://video"), "video/mp4")
-                addUri(Uri.parse("content://audio"), "audio/ogg")
-            }, ignoreClipDescription = true)
+            assertClipData(videoReceived!!.clipEntry.clipData)
+                .isEqualToClipData(
+                    createClipData { addUri(Uri.parse("content://video"), "video/mp4") },
+                    ignoreClipDescription = true
+                )
+            assertClipData(audioReceived!!.clipEntry.clipData)
+                .isEqualToClipData(
+                    createClipData {
+                        addUri(Uri.parse("content://video"), "video/mp4")
+                        addUri(Uri.parse("content://audio"), "audio/ogg")
+                    },
+                    ignoreClipDescription = true
+                )
+            assertClipData(textReceived!!.clipEntry.clipData)
+                .isEqualToClipData(
+                    createClipData {
+                        addText()
+                        addUri(Uri.parse("content://video"), "video/mp4")
+                        addUri(Uri.parse("content://audio"), "audio/ogg")
+                    },
+                    ignoreClipDescription = true
+                )
         }
     }
 
     @Test
     fun receiveContentConfiguration_returnsNullIfNotDefined() {
-        var calculatedReceiveContent: ReceiveContentConfiguration? = ReceiveContentConfiguration(
-            ReceiveContentListener { null }
-        )
+        var calculatedReceiveContent: ReceiveContentConfiguration? =
+            ReceiveContentConfiguration(ReceiveContentListener { null })
         rule.setContent {
             Box(
-                modifier = Modifier.then(TestElement {
-                    calculatedReceiveContent = it.getReceiveContentConfiguration()
-                })
+                modifier =
+                    Modifier.then(
+                        TestElement {
+                            calculatedReceiveContent = it.getReceiveContentConfiguration()
+                        }
+                    )
             )
         }
 
-        rule.runOnIdle {
-            assertThat(calculatedReceiveContent).isNull()
-        }
+        rule.runOnIdle { assertThat(calculatedReceiveContent).isNull() }
     }
 
     @Test
     fun receiveContentConfiguration_returnsNullIfDefined_atSiblingNode() {
-        var calculatedReceiveContent: ReceiveContentConfiguration? = ReceiveContentConfiguration(
-            ReceiveContentListener { null }
-        )
+        var calculatedReceiveContent: ReceiveContentConfiguration? =
+            ReceiveContentConfiguration(ReceiveContentListener { null })
         rule.setContent {
             Box {
-                Box(modifier = Modifier.then(TestElement {
-                    calculatedReceiveContent = it.getReceiveContentConfiguration()
-                }))
+                Box(
+                    modifier =
+                        Modifier.then(
+                            TestElement {
+                                calculatedReceiveContent = it.getReceiveContentConfiguration()
+                            }
+                        )
+                )
                 Box(modifier = Modifier.contentReceiver { it })
             }
         }
 
-        rule.runOnIdle {
-            assertThat(calculatedReceiveContent).isNull()
-        }
+        rule.runOnIdle { assertThat(calculatedReceiveContent).isNull() }
     }
 
     @Test
     fun receiveContentConfiguration_returnsNullIfDefined_atChildNode() {
-        var calculatedReceiveContent: ReceiveContentConfiguration? = ReceiveContentConfiguration(
-            ReceiveContentListener { null }
-        )
+        var calculatedReceiveContent: ReceiveContentConfiguration? =
+            ReceiveContentConfiguration(ReceiveContentListener { null })
         rule.setContent {
             Box(
-                modifier = Modifier.then(TestElement {
-                    calculatedReceiveContent = it.getReceiveContentConfiguration()
-                })
+                modifier =
+                    Modifier.then(
+                        TestElement {
+                            calculatedReceiveContent = it.getReceiveContentConfiguration()
+                        }
+                    )
             ) {
                 Box(modifier = Modifier.contentReceiver { it })
             }
         }
 
-        rule.runOnIdle {
-            assertThat(calculatedReceiveContent).isNull()
-        }
+        rule.runOnIdle { assertThat(calculatedReceiveContent).isNull() }
     }
 
     @Test
@@ -197,28 +217,42 @@ class ReceiveContentTest {
         var attached by mutableStateOf(true)
         val called = mutableListOf<Int>()
         rule.setContent {
-            Box(modifier = Modifier
-                .contentReceiver { called += 1; it }
-                .then(if (attached) {
-                    Modifier.contentReceiver { called += 2; it }
-                } else {
-                    Modifier
-                })
-                .contentReceiver { called += 3; it }
-                .then(TestElement {
-                    getReceiveContentConfiguration = {
-                        it.getReceiveContentConfiguration()
-                    }
-                })
+            Box(
+                modifier =
+                    Modifier.contentReceiver {
+                            called += 1
+                            it
+                        }
+                        .then(
+                            if (attached) {
+                                Modifier.contentReceiver {
+                                    called += 2
+                                    it
+                                }
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .contentReceiver {
+                            called += 3
+                            it
+                        }
+                        .then(
+                            TestElement {
+                                getReceiveContentConfiguration = {
+                                    it.getReceiveContentConfiguration()
+                                }
+                            }
+                        )
             )
         }
 
         rule.runOnIdle {
             val receiveContentConfiguration = getReceiveContentConfiguration?.invoke()
             assertThat(receiveContentConfiguration).isNotNull()
-            receiveContentConfiguration!!.receiveContentListener.onReceive(
-                TransferableContent(createClipData())
-            )
+            receiveContentConfiguration!!
+                .receiveContentListener
+                .onReceive(TransferableContent(createClipData()))
             assertThat(called).isEqualTo(listOf(3, 2, 1))
         }
 
@@ -228,9 +262,9 @@ class ReceiveContentTest {
         rule.runOnIdle {
             val receiveContentConfiguration = getReceiveContentConfiguration?.invoke()
             assertThat(receiveContentConfiguration).isNotNull()
-            receiveContentConfiguration!!.receiveContentListener.onReceive(
-                TransferableContent(createClipData())
-            )
+            receiveContentConfiguration!!
+                .receiveContentListener
+                .onReceive(TransferableContent(createClipData()))
             assertThat(called).isEqualTo(listOf(3, 1))
         }
     }
@@ -242,28 +276,42 @@ class ReceiveContentTest {
         val called = mutableListOf<Int>()
 
         rule.setContent {
-            Box(modifier = Modifier
-                .contentReceiver { called += 1; it }
-                .then(if (attached) {
-                    Modifier.contentReceiver { called += 2; it }
-                } else {
-                    Modifier
-                })
-                .contentReceiver { called += 3; it }
-                .then(TestElement {
-                    getReceiveContentConfiguration = {
-                        it.getReceiveContentConfiguration()
-                    }
-                })
+            Box(
+                modifier =
+                    Modifier.contentReceiver {
+                            called += 1
+                            it
+                        }
+                        .then(
+                            if (attached) {
+                                Modifier.contentReceiver {
+                                    called += 2
+                                    it
+                                }
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .contentReceiver {
+                            called += 3
+                            it
+                        }
+                        .then(
+                            TestElement {
+                                getReceiveContentConfiguration = {
+                                    it.getReceiveContentConfiguration()
+                                }
+                            }
+                        )
             )
         }
 
         rule.runOnIdle {
             val receiveContentConfiguration = getReceiveContentConfiguration?.invoke()
             assertThat(receiveContentConfiguration).isNotNull()
-            receiveContentConfiguration!!.receiveContentListener.onReceive(
-                TransferableContent(createClipData())
-            )
+            receiveContentConfiguration!!
+                .receiveContentListener
+                .onReceive(TransferableContent(createClipData()))
             assertThat(called).isEqualTo(listOf(3, 1))
         }
 
@@ -273,9 +321,9 @@ class ReceiveContentTest {
         rule.runOnIdle {
             val receiveContentConfiguration = getReceiveContentConfiguration?.invoke()
             assertThat(receiveContentConfiguration).isNotNull()
-            receiveContentConfiguration!!.receiveContentListener.onReceive(
-                TransferableContent(createClipData())
-            )
+            receiveContentConfiguration!!
+                .receiveContentListener
+                .onReceive(TransferableContent(createClipData()))
             assertThat(called).isEqualTo(listOf(3, 2, 1))
         }
     }
@@ -286,22 +334,20 @@ class ReceiveContentTest {
         lateinit var view: View
         rule.setContent {
             view = LocalView.current
-            Box(modifier = Modifier
-                .size(200.dp)
-                .contentReceiver { it }
-                .size(100.dp)
-                .contentReceiver { it }
-                .size(50.dp)
-                .contentReceiver { it }
+            Box(
+                modifier =
+                    Modifier.size(200.dp)
+                        .contentReceiver { it }
+                        .size(100.dp)
+                        .contentReceiver { it }
+                        .size(50.dp)
+                        .contentReceiver { it }
             )
         }
 
         val draggingUri = Uri.parse("content://com.example/content.jpg")
         testDragAndDrop(view, rule.density) {
-            drag(
-                Offset(25.dp.toPx(), 25.dp.toPx()),
-                draggingUri
-            )
+            drag(Offset(25.dp.toPx(), 25.dp.toPx()), draggingUri)
             drop()
         }
 
@@ -318,27 +364,24 @@ class ReceiveContentTest {
         var transferableContent: TransferableContent? = null
         rule.setContent {
             view = LocalView.current
-            Box(modifier = Modifier
-                .size(100.dp)
-                .contentReceiver {
-                    transferableContent = it
-                    null // consume all
-                })
+            Box(
+                modifier =
+                    Modifier.size(100.dp).contentReceiver {
+                        transferableContent = it
+                        null // consume all
+                    }
+            )
         }
 
         val draggingUri = Uri.parse("content://com.example/content.jpg")
         testDragAndDrop(view, rule.density) {
-            drag(
-                Offset(50.dp.toPx(), 50.dp.toPx()),
-                draggingUri
-            )
+            drag(Offset(50.dp.toPx(), 50.dp.toPx()), draggingUri)
             drop()
         }
 
         rule.runOnIdle {
             assertThat(transferableContent).isNotNull()
-            assertThat(transferableContent?.clipEntry?.firstUriOrNull())
-                .isEqualTo(draggingUri)
+            assertThat(transferableContent?.clipEntry?.firstUriOrNull()).isEqualTo(draggingUri)
             assertThat(transferableContent?.source)
                 .isEqualTo(TransferableContent.Source.DragAndDrop)
         }
@@ -350,27 +393,24 @@ class ReceiveContentTest {
         var transferableContent: TransferableContent? = null
         rule.setContent {
             view = LocalView.current
-            Box(modifier = Modifier
-                .size(100.dp)
-                .contentReceiver {
-                    transferableContent = it
-                    null // consume all
-                })
+            Box(
+                modifier =
+                    Modifier.size(100.dp).contentReceiver {
+                        transferableContent = it
+                        null // consume all
+                    }
+            )
         }
 
         val draggingUri = Uri.parse("content://com.example/content.jpg")
         testDragAndDrop(view, rule.density) {
-            drag(
-                Offset(50.dp.toPx(), 50.dp.toPx()),
-                draggingUri
-            )
+            drag(Offset(50.dp.toPx(), 50.dp.toPx()), draggingUri)
             drop()
         }
 
         rule.runOnIdle {
             assertThat(transferableContent).isNotNull()
-            assertThat(transferableContent?.clipEntry?.firstUriOrNull())
-                .isEqualTo(draggingUri)
+            assertThat(transferableContent?.clipEntry?.firstUriOrNull()).isEqualTo(draggingUri)
             assertThat(transferableContent?.source)
                 .isEqualTo(TransferableContent.Source.DragAndDrop)
         }
@@ -383,28 +423,26 @@ class ReceiveContentTest {
         var parentTransferableContent: TransferableContent? = null
         rule.setContent {
             view = LocalView.current
-            Box(modifier = Modifier
-                .size(200.dp)
-                .contentReceiver {
-                    parentTransferableContent = it
-                    null
-                }) {
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(100.dp)
-                    .contentReceiver {
-                        childTransferableContent = it
-                        it // don't consume anything
-                    })
+            Box(
+                modifier =
+                    Modifier.size(200.dp).contentReceiver {
+                        parentTransferableContent = it
+                        null
+                    }
+            ) {
+                Box(
+                    modifier =
+                        Modifier.align(Alignment.Center).size(100.dp).contentReceiver {
+                            childTransferableContent = it
+                            it // don't consume anything
+                        }
+                )
             }
         }
 
         val draggingUri = Uri.parse("content://com.example/content.jpg")
         testDragAndDrop(view, rule.density) {
-            drag(
-                Offset(100.dp.toPx(), 100.dp.toPx()),
-                draggingUri
-            )
+            drag(Offset(100.dp.toPx(), 100.dp.toPx()), draggingUri)
             drop()
         }
 
@@ -416,8 +454,7 @@ class ReceiveContentTest {
                 .isEqualTo(TransferableContent.Source.DragAndDrop)
 
             assertThat(childTransferableContent).isNotNull()
-            assertThat(childTransferableContent?.clipEntry?.firstUriOrNull())
-                .isEqualTo(draggingUri)
+            assertThat(childTransferableContent?.clipEntry?.firstUriOrNull()).isEqualTo(draggingUri)
             assertThat(childTransferableContent?.source)
                 .isEqualTo(TransferableContent.Source.DragAndDrop)
         }
@@ -431,36 +468,34 @@ class ReceiveContentTest {
         var grandParentTransferableContent: TransferableContent? = null
         rule.setContent {
             view = LocalView.current
-            Box(modifier = Modifier
-                .size(200.dp)
-                .contentReceiver {
-                    grandParentTransferableContent = it
-                    null
-                }) {
-                Box(modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(100.dp)
-                    .contentReceiver {
-                        parentTransferableContent = it
-                        it // don't consume anything
-                    }) {
-                    Box(modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(50.dp)
-                        .contentReceiver {
-                            childTransferableContent = it
+            Box(
+                modifier =
+                    Modifier.size(200.dp).contentReceiver {
+                        grandParentTransferableContent = it
+                        null
+                    }
+            ) {
+                Box(
+                    modifier =
+                        Modifier.align(Alignment.Center).size(100.dp).contentReceiver {
+                            parentTransferableContent = it
                             it // don't consume anything
-                        })
+                        }
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.align(Alignment.Center).size(50.dp).contentReceiver {
+                                childTransferableContent = it
+                                it // don't consume anything
+                            }
+                    )
                 }
             }
         }
 
         val draggingUri = Uri.parse("content://com.example/content.jpg")
         testDragAndDrop(view, rule.density) {
-            drag(
-                Offset(60.dp.toPx(), 60.dp.toPx()),
-                draggingUri
-            )
+            drag(Offset(60.dp.toPx(), 60.dp.toPx()), draggingUri)
             drop()
         }
 
@@ -478,24 +513,26 @@ class ReceiveContentTest {
         rule.setContent {
             view = LocalView.current
             Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .contentReceiver(object : ReceiveContentListener {
-                        override fun onDragEnter() {
-                            calls += "enter"
-                        }
+                modifier =
+                    Modifier.size(100.dp)
+                        .contentReceiver(
+                            object : ReceiveContentListener {
+                                override fun onDragEnter() {
+                                    calls += "enter"
+                                }
 
-                        override fun onDragExit() {
-                            calls += "exit"
-                        }
+                                override fun onDragExit() {
+                                    calls += "exit"
+                                }
 
-                        override fun onReceive(
-                            transferableContent: TransferableContent
-                        ): TransferableContent? {
-                            calls += "receive"
-                            return null
-                        }
-                    })
+                                override fun onReceive(
+                                    transferableContent: TransferableContent
+                                ): TransferableContent? {
+                                    calls += "receive"
+                                    return null
+                                }
+                            }
+                        )
             )
         }
 
@@ -513,9 +550,7 @@ class ReceiveContentTest {
             drop()
         }
 
-        rule.runOnIdle {
-            assertThat(calls).isEqualTo(listOf("enter", "exit", "enter", "receive"))
-        }
+        rule.runOnIdle { assertThat(calls).isEqualTo(listOf("enter", "exit", "enter", "receive")) }
     }
 
     @Test
@@ -525,57 +560,63 @@ class ReceiveContentTest {
         rule.setContent {
             view = LocalView.current
             Box(
-                modifier = Modifier
-                    .size(200.dp)
-                    .contentReceiver(object : ReceiveContentListener {
-                        override fun onDragEnter() {
-                            calls += "enter-1"
-                        }
-
-                        override fun onDragExit() {
-                            calls += "exit-1"
-                        }
-
-                        override fun onReceive(
-                            transferableContent: TransferableContent
-                        ): TransferableContent = transferableContent
-                    })
-            ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(100.dp)
-                        .contentReceiver(object : ReceiveContentListener {
-                            override fun onDragEnter() {
-                                calls += "enter-2"
-                            }
-
-                            override fun onDragExit() {
-                                calls += "exit-2"
-                            }
-
-                            override fun onReceive(
-                                transferableContent: TransferableContent
-                            ): TransferableContent = transferableContent
-                        })
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(50.dp)
-                            .contentReceiver(object : ReceiveContentListener {
+                modifier =
+                    Modifier.size(200.dp)
+                        .contentReceiver(
+                            object : ReceiveContentListener {
                                 override fun onDragEnter() {
-                                    calls += "enter-3"
+                                    calls += "enter-1"
                                 }
 
                                 override fun onDragExit() {
-                                    calls += "exit-3"
+                                    calls += "exit-1"
                                 }
 
                                 override fun onReceive(
                                     transferableContent: TransferableContent
                                 ): TransferableContent = transferableContent
-                            })
+                            }
+                        )
+            ) {
+                Box(
+                    modifier =
+                        Modifier.align(Alignment.Center)
+                            .size(100.dp)
+                            .contentReceiver(
+                                object : ReceiveContentListener {
+                                    override fun onDragEnter() {
+                                        calls += "enter-2"
+                                    }
+
+                                    override fun onDragExit() {
+                                        calls += "exit-2"
+                                    }
+
+                                    override fun onReceive(
+                                        transferableContent: TransferableContent
+                                    ): TransferableContent = transferableContent
+                                }
+                            )
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.align(Alignment.Center)
+                                .size(50.dp)
+                                .contentReceiver(
+                                    object : ReceiveContentListener {
+                                        override fun onDragEnter() {
+                                            calls += "enter-3"
+                                        }
+
+                                        override fun onDragExit() {
+                                            calls += "exit-3"
+                                        }
+
+                                        override fun onReceive(
+                                            transferableContent: TransferableContent
+                                        ): TransferableContent = transferableContent
+                                    }
+                                )
                     )
                 }
             }
@@ -595,18 +636,19 @@ class ReceiveContentTest {
         }
 
         rule.runOnIdle {
-            assertThat(calls).isEqualTo(
-                listOf(
-                    "enter-1",
-                    "enter-2",
-                    "exit-2",
-                    "enter-2",
-                    "enter-3",
-                    "exit-1",
-                    "exit-2",
-                    "exit-3"
+            assertThat(calls)
+                .isEqualTo(
+                    listOf(
+                        "enter-1",
+                        "enter-2",
+                        "exit-2",
+                        "enter-2",
+                        "enter-3",
+                        "exit-1",
+                        "exit-2",
+                        "exit-3"
+                    )
                 )
-            )
         }
     }
 
@@ -617,21 +659,23 @@ class ReceiveContentTest {
         rule.setContent {
             view = LocalView.current
             Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .contentReceiver(object : ReceiveContentListener {
-                        override fun onDragStart() {
-                            calls += "start"
-                        }
+                modifier =
+                    Modifier.size(100.dp)
+                        .contentReceiver(
+                            object : ReceiveContentListener {
+                                override fun onDragStart() {
+                                    calls += "start"
+                                }
 
-                        override fun onDragEnd() {
-                            calls += "end"
-                        }
+                                override fun onDragEnd() {
+                                    calls += "end"
+                                }
 
-                        override fun onReceive(
-                            transferableContent: TransferableContent
-                        ): TransferableContent? = null
-                    })
+                                override fun onReceive(
+                                    transferableContent: TransferableContent
+                                ): TransferableContent? = null
+                            }
+                        )
             )
         }
 
@@ -641,9 +685,7 @@ class ReceiveContentTest {
             cancelDrag()
         }
 
-        rule.runOnIdle {
-            assertThat(calls).isEqualTo(listOf("start", "end"))
-        }
+        rule.runOnIdle { assertThat(calls).isEqualTo(listOf("start", "end")) }
 
         calls.clear()
 
@@ -652,9 +694,7 @@ class ReceiveContentTest {
             cancelDrag()
         }
 
-        rule.runOnIdle {
-            assertThat(calls).isEqualTo(listOf("start", "end"))
-        }
+        rule.runOnIdle { assertThat(calls).isEqualTo(listOf("start", "end")) }
     }
 
     @Test
@@ -664,57 +704,63 @@ class ReceiveContentTest {
         rule.setContent {
             view = LocalView.current
             Box(
-                modifier = Modifier
-                    .size(200.dp)
-                    .contentReceiver(object : ReceiveContentListener {
-                        override fun onDragStart() {
-                            calls += "start-1"
-                        }
-
-                        override fun onDragEnd() {
-                            calls += "end-1"
-                        }
-
-                        override fun onReceive(
-                            transferableContent: TransferableContent
-                        ): TransferableContent = transferableContent
-                    })
-            ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(100.dp)
-                        .contentReceiver(object : ReceiveContentListener {
-                            override fun onDragStart() {
-                                calls += "start-2"
-                            }
-
-                            override fun onDragEnd() {
-                                calls += "end-2"
-                            }
-
-                            override fun onReceive(
-                                transferableContent: TransferableContent
-                            ): TransferableContent = transferableContent
-                        })
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(50.dp)
-                            .contentReceiver(object : ReceiveContentListener {
+                modifier =
+                    Modifier.size(200.dp)
+                        .contentReceiver(
+                            object : ReceiveContentListener {
                                 override fun onDragStart() {
-                                    calls += "start-3"
+                                    calls += "start-1"
                                 }
 
                                 override fun onDragEnd() {
-                                    calls += "end-3"
+                                    calls += "end-1"
                                 }
 
                                 override fun onReceive(
                                     transferableContent: TransferableContent
                                 ): TransferableContent = transferableContent
-                            })
+                            }
+                        )
+            ) {
+                Box(
+                    modifier =
+                        Modifier.align(Alignment.Center)
+                            .size(100.dp)
+                            .contentReceiver(
+                                object : ReceiveContentListener {
+                                    override fun onDragStart() {
+                                        calls += "start-2"
+                                    }
+
+                                    override fun onDragEnd() {
+                                        calls += "end-2"
+                                    }
+
+                                    override fun onReceive(
+                                        transferableContent: TransferableContent
+                                    ): TransferableContent = transferableContent
+                                }
+                            )
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.align(Alignment.Center)
+                                .size(50.dp)
+                                .contentReceiver(
+                                    object : ReceiveContentListener {
+                                        override fun onDragStart() {
+                                            calls += "start-3"
+                                        }
+
+                                        override fun onDragEnd() {
+                                            calls += "end-3"
+                                        }
+
+                                        override fun onReceive(
+                                            transferableContent: TransferableContent
+                                        ): TransferableContent = transferableContent
+                                    }
+                                )
                     )
                 }
             }
@@ -727,27 +773,23 @@ class ReceiveContentTest {
         }
 
         rule.runOnIdle {
-            assertThat(calls.take(3)).containsExactlyElementsIn(
-                listOf("start-1", "start-2", "start-3")
-            )
-            assertThat(calls.drop(3)).containsExactlyElementsIn(
-                listOf("end-1", "end-2", "end-3")
-            )
+            assertThat(calls.take(3))
+                .containsExactlyElementsIn(listOf("start-1", "start-2", "start-3"))
+            assertThat(calls.drop(3)).containsExactlyElementsIn(listOf("end-1", "end-2", "end-3"))
         }
     }
 
-    private data class TestElement(
-        val onNode: (TestNode) -> Unit
-    ) : ModifierNodeElement<TestNode>() {
+    private data class TestElement(val onNode: (TestNode) -> Unit) :
+        ModifierNodeElement<TestNode>() {
         override fun create(): TestNode = TestNode(onNode)
+
         override fun update(node: TestNode) {
             node.onNode = onNode
         }
     }
 
-    private class TestNode(
-        var onNode: (TestNode) -> Unit
-    ) : Modifier.Node(), ModifierLocalModifierNode {
+    private class TestNode(var onNode: (TestNode) -> Unit) :
+        Modifier.Node(), ModifierLocalModifierNode {
 
         override fun onAttach() {
             onNode(this)
@@ -764,12 +806,14 @@ internal fun createClipData(
         builder.block()
         builder.build(label)
     } else {
-        builder.apply {
-            addText()
-            addUri()
-            addHtmlText()
-            addIntent()
-        }.build(label)
+        builder
+            .apply {
+                addText()
+                addUri()
+                addHtmlText()
+                addIntent()
+            }
+            .build(label)
     }
 }
 
@@ -798,10 +842,7 @@ internal class ClipDataBuilder {
         mimeTypes.add(mimeType)
     }
 
-    fun addUri(
-        uri: Uri = defaultUri,
-        mimeType: String = "image/png"
-    ) {
+    fun addUri(uri: Uri = defaultUri, mimeType: String = "image/png") {
         items.add(ClipData.Item(uri))
         mimeTypes.add(mimeType)
     }
@@ -825,10 +866,7 @@ internal class ClipDataBuilder {
 }
 
 private val defaultLabel = "label"
-private val defaultIntent = Intent(
-    Intent.ACTION_VIEW,
-    Uri.parse("https://example.com")
-)
+private val defaultIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com"))
 private val defaultUri = Uri.parse("content://com.example.app/image")
 
 @OptIn(ExperimentalFoundationApi::class)

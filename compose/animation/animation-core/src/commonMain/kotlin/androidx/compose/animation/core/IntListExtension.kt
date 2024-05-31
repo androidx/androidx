@@ -25,23 +25,20 @@ import androidx.collection.IntList
  * [IntArray.binarySearch] For original documentation.
  *
  * Searches the list or the range of the list for the provided [element] using the binary search
- * algorithm.
- * The list is expected to be sorted, otherwise the result is undefined.
+ * algorithm. The list is expected to be sorted, otherwise the result is undefined.
  *
- * If the list contains multiple elements equal to the specified [element], there is no
- * guarantee which one will be found.
+ * If the list contains multiple elements equal to the specified [element], there is no guarantee
+ * which one will be found.
  *
  * @param element the to search for.
  * @param fromIndex the start of the range (inclusive) to search in, 0 by default.
  * @param toIndex the end of the range (exclusive) to search in, size of this list by default.
- *
  * @return the index of the element, if it is contained in the list within the specified range;
- * otherwise, the inverted insertion point `(-insertion point - 1)`.
- * The insertion point is defined as the index at which the element should be inserted,
- * so that the list (or the specified subrange of list) still remains sorted.
- *
- * @throws IndexOutOfBoundsException if [fromIndex] is less than zero or [toIndex] is greater
- * than the size of this list.
+ *   otherwise, the inverted insertion point `(-insertion point - 1)`. The insertion point is
+ *   defined as the index at which the element should be inserted, so that the list (or the
+ *   specified subrange of list) still remains sorted.
+ * @throws IndexOutOfBoundsException if [fromIndex] is less than zero or [toIndex] is greater than
+ *   the size of this list.
  * @throws IllegalArgumentException if [fromIndex] is greater than [toIndex].
  */
 @JvmOverloads
@@ -63,8 +60,7 @@ internal fun IntList.binarySearch(element: Int, fromIndex: Int = 0, toIndex: Int
         if (midVal < element) {
             low = mid + 1
         } else if (midVal > element) {
-            high =
-                mid - 1
+            high = mid - 1
         } else {
             return mid // key found
         }

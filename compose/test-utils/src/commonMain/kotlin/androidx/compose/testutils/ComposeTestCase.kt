@@ -26,32 +26,27 @@ import androidx.compose.ui.UiComposable
 interface ComposeTestCase {
     /**
      * This method is guaranteed to be called only once per class lifetime. In case a benchmark
-     * needs to measure initial composition / measure / layout / draw it re-creates this class
-     * every time it needs to call Content again. This ensures that any setup you do in this
-     * class is not shared between multiple calls of this method. So the init method is a good place
-     * to setup / clean your caches.
+     * needs to measure initial composition / measure / layout / draw it re-creates this class every
+     * time it needs to call Content again. This ensures that any setup you do in this class is not
+     * shared between multiple calls of this method. So the init method is a good place to setup /
+     * clean your caches.
      */
-    @Composable
-    fun Content()
+    @Composable fun Content()
 }
 
-/**
- * To be implemented to provide a test case that is then executed in benchmarks.
- */
+/** To be implemented to provide a test case that is then executed in benchmarks. */
 // TODO(b/185389423): Make this to be an interface once the compiler gets fixed.
 abstract class LayeredComposeTestCase : ComposeTestCase {
     /**
      * This method is guaranteed to be called only once per class lifetime. In case a benchmark
-     * needs to measure initial composition / measure / layout / draw it re-creates this class
-     * every time it needs to call emitContent again. This ensures that any setup you do in this
-     * class is not shared between multiple calls of this method. So the init method is a good place
-     * to setup / clean your caches.
+     * needs to measure initial composition / measure / layout / draw it re-creates this class every
+     * time it needs to call emitContent again. This ensures that any setup you do in this class is
+     * not shared between multiple calls of this method. So the init method is a good place to setup
+     * / clean your caches.
      */
     @Composable
     override fun Content() {
-        ContentWrappers {
-            MeasuredContent()
-        }
+        ContentWrappers { MeasuredContent() }
     }
 
     /**
@@ -60,8 +55,7 @@ abstract class LayeredComposeTestCase : ComposeTestCase {
      *
      * The lifecycle rules for this method are same as for [Content]
      */
-    @Composable
-    abstract fun MeasuredContent()
+    @Composable abstract fun MeasuredContent()
 
     /**
      * Receives the result of [MeasuredContent].

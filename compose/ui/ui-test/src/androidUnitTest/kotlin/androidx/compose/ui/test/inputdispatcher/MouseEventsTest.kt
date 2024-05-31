@@ -50,9 +50,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-/**
- * Tests if [AndroidInputDispatcher.enqueueMousePress] and friends work.
- */
+/** Tests if [AndroidInputDispatcher.enqueueMousePress] and friends work. */
 @RunWith(AndroidJUnit4::class)
 @Config(minSdk = RobolectricMinSdk)
 @OptIn(ExperimentalTestApi::class)
@@ -746,8 +744,9 @@ class MouseEventsTest : InputDispatcherTest() {
     fun enqueueMouseDown_outOfBounds() {
         subject.updateMousePosition(positionMin1)
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot start a mouse gesture outside the Compose root bounds, " +
-                "mouse position is .* and bounds are .*"
+            expectedMessage =
+                "Cannot start a mouse gesture outside the Compose root bounds, " +
+                    "mouse position is .* and bounds are .*"
         ) {
             subject.enqueueMousePress(1)
         }
@@ -785,8 +784,9 @@ class MouseEventsTest : InputDispatcherTest() {
     @Test
     fun enqueueMouseEnter_outOfBounds() {
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send mouse hover enter event, " +
-                "Offset\\(-1\\.0, -1\\.0\\) is out of bounds"
+            expectedMessage =
+                "Cannot send mouse hover enter event, " +
+                    "Offset\\(-1\\.0, -1\\.0\\) is out of bounds"
         ) {
             subject.enqueueMouseEnter(positionMin1)
         }
@@ -812,12 +812,11 @@ class MouseEventsTest : InputDispatcherTest() {
 
     private fun AndroidInputDispatcher.verifyMousePosition(expectedPosition: Offset) {
         assertWithMessage("currentMousePosition")
-            .that(currentMousePosition).isEqualTo(expectedPosition)
+            .that(currentMousePosition)
+            .isEqualTo(expectedPosition)
     }
 
     private fun <E> MutableList<E>.removeFirst(n: Int): List<E> {
-        return mutableListOf<E>().also { result ->
-            repeat(n) { result.add(removeFirst()) }
-        }
+        return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirst()) } }
     }
 }

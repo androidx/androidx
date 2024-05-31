@@ -24,10 +24,9 @@ import androidx.compose.ui.test.performRotaryScrollInput
 @OptIn(ExperimentalTestApi::class)
 @Sampled
 fun rotaryInputScroll() {
-    composeTestRule.onNodeWithTag("myComponent")
-        .performRotaryScrollInput {
-            rotateToScrollVertically(3.0f)
-            rotateToScrollVertically(10.0f)
-            rotateToScrollVertically(2.0f)
-        }
+    composeTestRule.onNodeWithTag("myComponent").performRotaryScrollInput {
+        rotateToScrollVertically(3.0f)
+        rotateToScrollVertically(10.0f)
+        rotateToScrollVertically(2.0f)
+    }
 }

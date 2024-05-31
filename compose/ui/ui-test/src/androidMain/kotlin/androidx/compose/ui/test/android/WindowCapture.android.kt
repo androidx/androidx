@@ -104,18 +104,21 @@ internal fun View.forceRedraw(testContext: TestContext) {
                 drawDone = true
             }
         } else {
-            viewTreeObserver.addOnDrawListener(object : ViewTreeObserver.OnDrawListener {
-                var handled = false
-                override fun onDraw() {
-                    if (!handled) {
-                        handled = true
-                        handler.postAtFrontOfQueue {
-                            drawDone = true
-                            viewTreeObserver.removeOnDrawListener(this)
+            viewTreeObserver.addOnDrawListener(
+                object : ViewTreeObserver.OnDrawListener {
+                    var handled = false
+
+                    override fun onDraw() {
+                        if (!handled) {
+                            handled = true
+                            handler.postAtFrontOfQueue {
+                                drawDone = true
+                                viewTreeObserver.removeOnDrawListener(this)
+                            }
                         }
                     }
                 }
-            })
+            )
         }
         invalidate()
     }
@@ -140,10 +143,11 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
 private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap: Bitmap) {
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
-        copyResult = result
-        latch.countDown()
-    }
+    val onCopyFinished =
+        PixelCopy.OnPixelCopyFinishedListener { result ->
+            copyResult = result
+            latch.countDown()
+        }
     PixelCopyHelper.request(
         this,
         boundsInWindow,
@@ -160,12 +164,8 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
     }
 }
 
-internal class PixelCopyException(
-    val copyResultStatus: Int,
-    message: String? = null
-) : RuntimeException(
-    message ?: "PixelCopy failed with result $copyResultStatus!"
-)
+internal class PixelCopyException(val copyResultStatus: Int, message: String? = null) :
+    RuntimeException(message ?: "PixelCopy failed with result $copyResultStatus!")
 
 // Unfortunately this is a copy paste from AndroidComposeTestRule. At this moment it is a bit
 // tricky to share this method. We can expose it on TestOwner in theory.
@@ -178,9 +178,7 @@ private fun MainTestClock.waitUntil(timeoutMillis: Long, condition: () -> Boolea
         // Let Android run measure, draw and in general any other async operations.
         Thread.sleep(10)
         if (System.nanoTime() - startTime > timeoutMillis * 1_000_000) {
-            throw ComposeTimeoutException(
-                "Condition still not satisfied after $timeoutMillis ms"
-            )
+            throw ComposeTimeoutException("Condition still not satisfied after $timeoutMillis ms")
         }
     }
 }

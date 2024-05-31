@@ -41,9 +41,9 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.platform.konan.isNative
 
 /**
- *  AddHiddenFromObjCLowering looks for functions and properties with @Composable types and
- *  adds the `kotlin.native.HiddenFromObjC` annotation to them.
- *  [docs](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native/-hidden-from-obj-c/)
+ * AddHiddenFromObjCLowering looks for functions and properties with @Composable types and adds the
+ * `kotlin.native.HiddenFromObjC` annotation to them.
+ * [docs](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native/-hidden-from-obj-c/)
  */
 class AddHiddenFromObjCLowering(
     private val pluginContext: IrPluginContext,
@@ -52,13 +52,14 @@ class AddHiddenFromObjCLowering(
     private val hideFromObjCDeclarationsSet: HideFromObjCDeclarationsSet?,
     stabilityInferencer: StabilityInferencer,
     featureFlags: FeatureFlags,
-) : AbstractComposeLowering(
-    pluginContext,
-    symbolRemapper,
-    metrics,
-    stabilityInferencer,
-    featureFlags
-) {
+) :
+    AbstractComposeLowering(
+        pluginContext,
+        symbolRemapper,
+        metrics,
+        stabilityInferencer,
+        featureFlags
+    ) {
 
     private val hiddenFromObjCAnnotation: IrClassSymbol by lazy {
         getTopLevelClass(ClassId.fromString("kotlin/native/HiddenFromObjC"))
@@ -74,7 +75,8 @@ class AddHiddenFromObjCLowering(
         module.transformChildrenVoid(this)
     }
 
-    /** `visitClass` is only needed until [issue](https://youtrack.jetbrains.com/issue/KT-65288/) fix
+    /**
+     * `visitClass` is only needed until [issue](https://youtrack.jetbrains.com/issue/KT-65288/) fix
      * after the issue is resolved, `visitClass` could be removed entirely
      */
     override fun visitClass(declaration: IrClass): IrStatement {
@@ -84,7 +86,8 @@ class AddHiddenFromObjCLowering(
         val cls = super.visitClass(declaration) as IrClass
 
         // We see an issue only with data classes containing something Composable.
-        // Adding an annotation to all classes makes the FirNativeHiddenFromObjCInheritanceChecker (kotlin) complain.
+        // Adding an annotation to all classes makes the FirNativeHiddenFromObjCInheritanceChecker
+        // (kotlin) complain.
         // data classes can't be open, so it should work.
         if (currentShouldAnnotateClass && cls.isData) {
             cls.addHiddenFromObjCAnnotation()
@@ -97,9 +100,11 @@ class AddHiddenFromObjCLowering(
 
     override fun visitFunction(declaration: IrFunction): IrStatement {
         val f = super.visitFunction(declaration) as IrFunction
-        if (f.isLocal ||
-            !(f.visibility == DescriptorVisibilities.PUBLIC ||
-                f.visibility == DescriptorVisibilities.PROTECTED))
+        if (
+            f.isLocal ||
+                !(f.visibility == DescriptorVisibilities.PUBLIC ||
+                    f.visibility == DescriptorVisibilities.PROTECTED)
+        )
             return f
 
         if (f.hasComposableAnnotation() || f.needsComposableRemapping()) {
@@ -115,9 +120,10 @@ class AddHiddenFromObjCLowering(
         val p = super.visitProperty(declaration) as IrProperty
         if (p.isLocal || p.visibility != DescriptorVisibilities.PUBLIC) return p
 
-        val shouldAdd = p.getter?.hasComposableAnnotation() ?: false ||
-            p.getter?.needsComposableRemapping() ?: false ||
-            p.backingField?.type.containsComposableAnnotation()
+        val shouldAdd =
+            p.getter?.hasComposableAnnotation() ?: false ||
+                p.getter?.needsComposableRemapping() ?: false ||
+                p.backingField?.type.containsComposableAnnotation()
 
         if (shouldAdd) {
             p.addHiddenFromObjCAnnotation()
@@ -129,10 +135,11 @@ class AddHiddenFromObjCLowering(
     }
 
     private fun IrDeclaration.addHiddenFromObjCAnnotation() {
-        val annotation = IrConstructorCallImpl.fromSymbolOwner(
-            type = hiddenFromObjCAnnotation.defaultType,
-            constructorSymbol = hiddenFromObjCAnnotation.constructors.first()
-        )
+        val annotation =
+            IrConstructorCallImpl.fromSymbolOwner(
+                type = hiddenFromObjCAnnotation.defaultType,
+                constructorSymbol = hiddenFromObjCAnnotation.constructors.first()
+            )
         pluginContext.annotationsRegistrar.addMetadataVisibleAnnotationsToElement(this, annotation)
     }
 }

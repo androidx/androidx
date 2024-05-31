@@ -27,9 +27,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Test the internal ThreadMap
- */
+/** Test the internal ThreadMap */
 class SnapshotThreadMapTests {
     @Test
     fun canCreateAMap() {
@@ -137,9 +135,7 @@ class SnapshotThreadMapTests {
     }
 }
 
-/**
- * Test the thread lcoal variable
- */
+/** Test the thread lcoal variable */
 class SnapshotThreadLocalTests {
     @Test
     fun canCreate() {

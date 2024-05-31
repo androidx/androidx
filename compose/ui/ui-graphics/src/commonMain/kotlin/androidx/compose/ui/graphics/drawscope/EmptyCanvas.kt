@@ -31,13 +31,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 /**
- * Stub implementation of [Canvas] to be used to ensure
- * the internal canvas object within [DrawScope] is never
- * null. All methods here are no-ops to ensure no
- * null pointer exceptions are thrown at runtime. During
- * normal use, the canvas used within [DrawScope] is
- * consuming a valid Canvas that draws content
- * into a valid destination
+ * Stub implementation of [Canvas] to be used to ensure the internal canvas object within
+ * [DrawScope] is never null. All methods here are no-ops to ensure no null pointer exceptions are
+ * thrown at runtime. During normal use, the canvas used within [DrawScope] is consuming a valid
+ * Canvas that draws content into a valid destination
  */
 internal class EmptyCanvas : Canvas {
 

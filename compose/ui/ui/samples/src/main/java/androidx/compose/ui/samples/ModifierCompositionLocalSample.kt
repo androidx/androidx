@@ -36,42 +36,48 @@ import androidx.compose.ui.platform.InspectorInfo
 @Composable
 fun CompositionLocalConsumingModifierSample() {
     val localBackgroundColor = compositionLocalOf { Color.White }
-    class BackgroundColor : Modifier.Node(), DrawModifierNode,
-        CompositionLocalConsumerModifierNode {
+    class BackgroundColor :
+        Modifier.Node(), DrawModifierNode, CompositionLocalConsumerModifierNode {
         override fun ContentDrawScope.draw() {
             val backgroundColor = currentValueOf(localBackgroundColor)
             drawRect(backgroundColor)
             drawContent()
         }
     }
-    val backgroundColorElement = object : ModifierNodeElement<BackgroundColor>() {
-        override fun create() = BackgroundColor()
-        override fun update(node: BackgroundColor) {}
-        override fun hashCode() = System.identityHashCode(this)
-        override fun equals(other: Any?) = (other === this)
-        override fun InspectorInfo.inspectableProperties() {
-            name = "backgroundColor"
+    val backgroundColorElement =
+        object : ModifierNodeElement<BackgroundColor>() {
+            override fun create() = BackgroundColor()
+
+            override fun update(node: BackgroundColor) {}
+
+            override fun hashCode() = System.identityHashCode(this)
+
+            override fun equals(other: Any?) = (other === this)
+
+            override fun InspectorInfo.inspectableProperties() {
+                name = "backgroundColor"
+            }
         }
-    }
     fun Modifier.backgroundColor() = this then backgroundColorElement
-    Box(Modifier.backgroundColor()) {
-        Text("Hello, world!")
-    }
+    Box(Modifier.backgroundColor()) { Text("Hello, world!") }
 }
 
 @Sampled
 @Composable
 fun CompositionLocalConsumingModifierObserverNodeSample() {
     val LocalValue = compositionLocalOf { "abc123" }
-    class ValueObserverModifierNode : Modifier.Node(),
-        CompositionLocalConsumerModifierNode, ObserverModifierNode {
+    class ValueObserverModifierNode :
+        Modifier.Node(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
         private var observedValue: String? = null
+
         override fun onAttach() {
             onObservedReadsChanged()
         }
+
         override fun onDetach() {
             observedValue = null
         }
+
         override fun onObservedReadsChanged() {
             observeReads {
                 observedValue = currentValueOf(LocalValue)

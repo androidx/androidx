@@ -84,18 +84,18 @@ private fun Configuration() {
                 Column(padding.width(width)) {
                     Text(
                         text,
-                        style = style.copy(
-                            color = Color.Red,
-                            platformStyle = PlatformTextStyle(includeFontPadding = false)
-                        )
+                        style =
+                            style.copy(
+                                color = Color.Red,
+                                platformStyle = PlatformTextStyle(includeFontPadding = false)
+                            )
                     )
                 }
                 Column(padding.width(width)) {
                     Text(
                         text,
-                        style = style.copy(
-                            platformStyle = PlatformTextStyle(includeFontPadding = true)
-                        )
+                        style =
+                            style.copy(platformStyle = PlatformTextStyle(includeFontPadding = true))
                     )
                 }
             }
@@ -206,10 +206,7 @@ private fun CenteredInContainerColumn(text: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = text,
-            style = TextStyle(fontSize = fontSize, color = Color.White)
-        )
+        Text(text = text, style = TextStyle(fontSize = fontSize, color = Color.White))
     }
 }
 
@@ -234,10 +231,7 @@ private fun CenteredInCircle(text: String) {
         modifier = Modifier.clip(CircleShape).background(Color.Red).size(size),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = text,
-            style = TextStyle(fontSize = fontSize, color = Color.White)
-        )
+        Text(text = text, style = TextStyle(fontSize = fontSize, color = Color.White))
     }
 }
 
@@ -249,9 +243,7 @@ private fun MultiStyleText() {
             append("a")
             // half the size of original size
             // as a tall script should not be extending the height since now it is shorter
-            withStyle(SpanStyle(fontSize = fontSize / 2)) {
-                append("ဩ")
-            }
+            withStyle(SpanStyle(fontSize = fontSize / 2)) { append("ဩ") }
         }
         Text(text = shorterTallChar.toString(), style = TextStyle(fontSize = fontSize))
         Spacer(Modifier.padding(16.dp))
@@ -261,9 +253,7 @@ private fun MultiStyleText() {
 
         val tallerTallChar = buildAnnotatedString {
             append("a")
-            withStyle(SpanStyle(fontSize = fontSize * 3)) {
-                append("ဩ")
-            }
+            withStyle(SpanStyle(fontSize = fontSize * 3)) { append("ဩ") }
         }
         Text(text = tallerTallChar, style = TextStyle(fontSize = fontSize))
     }
@@ -308,24 +298,19 @@ private fun TextWithInlineContent(
     val smallerShape = buildAnnotatedString {
         append("a")
         appendInlineContent(myId, " ")
-        withStyle(SpanStyle(fontSize = tallCharSize)) {
-            append("ဩ")
-        }
+        withStyle(SpanStyle(fontSize = tallCharSize)) { append("ဩ") }
     }
 
-    val inlineContent = InlineTextContent(
-        Placeholder(
-            width = inlineContentSize,
-            height = inlineContentSize,
-            placeholderVerticalAlign = placeholderVerticalAlign
-        )
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-                .clip(CircleShape)
-                .background(color = Color.Red)
-        )
-    }
+    val inlineContent =
+        InlineTextContent(
+            Placeholder(
+                width = inlineContentSize,
+                height = inlineContentSize,
+                placeholderVerticalAlign = placeholderVerticalAlign
+            )
+        ) {
+            Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(color = Color.Red))
+        }
 
     val inlineContentMap = mapOf(Pair(myId, inlineContent))
 

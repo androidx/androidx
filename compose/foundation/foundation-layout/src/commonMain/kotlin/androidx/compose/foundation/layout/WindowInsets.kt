@@ -31,44 +31,34 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 /**
- * A representation of window insets that tracks access to enable recomposition,
- * relayout, and redrawing when values change. These values should not be read during composition
- * to avoid doing composition for every frame of an animation. Use methods like
- * [Modifier.windowInsetsPadding], [Modifier.systemBarsPadding], and
- * [Modifier.windowInsetsTopHeight] for Modifiers that will not cause recomposition when values
- * change.
+ * A representation of window insets that tracks access to enable recomposition, relayout, and
+ * redrawing when values change. These values should not be read during composition to avoid doing
+ * composition for every frame of an animation. Use methods like [Modifier.windowInsetsPadding],
+ * [Modifier.systemBarsPadding], and [Modifier.windowInsetsTopHeight] for Modifiers that will not
+ * cause recomposition when values change.
  *
- * Use the [WindowInsets.Companion] extensions to retrieve [WindowInsets] for the current
- * window.
+ * Use the [WindowInsets.Companion] extensions to retrieve [WindowInsets] for the current window.
  */
 @Stable
 interface WindowInsets {
-    /**
-     * The space, in pixels, at the left of the window that the inset represents.
-     */
+    /** The space, in pixels, at the left of the window that the inset represents. */
     fun getLeft(density: Density, layoutDirection: LayoutDirection): Int
 
-    /**
-     * The space, in pixels, at the top of the window that the inset represents.
-     */
+    /** The space, in pixels, at the top of the window that the inset represents. */
     fun getTop(density: Density): Int
 
-    /**
-     * The space, in pixels, at the right of the window that the inset represents.
-     */
+    /** The space, in pixels, at the right of the window that the inset represents. */
     fun getRight(density: Density, layoutDirection: LayoutDirection): Int
 
-    /**
-     * The space, in pixels, at the bottom of the window that the inset represents.
-     */
+    /** The space, in pixels, at the bottom of the window that the inset represents. */
     fun getBottom(density: Density): Int
 
     companion object
 }
 
 /**
- * A [WindowInsets] whose values can change without changing the instance. This is useful
- * to avoid recomposition when [WindowInsets] can change.
+ * A [WindowInsets] whose values can change without changing the instance. This is useful to avoid
+ * recomposition when [WindowInsets] can change.
  *
  * @sample androidx.compose.foundation.layout.samples.withConsumedInsetsSample
  *
@@ -77,8 +67,8 @@ interface WindowInsets {
 @ExperimentalLayoutApi
 class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)) : WindowInsets {
     /**
-     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight],
-     * and [bottom][getBottom] values.
+     * The [WindowInsets] that are used for [left][getLeft], [top][getTop], [right][getRight], and
+     * [bottom][getBottom] values.
      */
     var insets by mutableStateOf(initialInsets)
 
@@ -94,20 +84,16 @@ class MutableWindowInsets(initialInsets: WindowInsets = WindowInsets(0, 0, 0, 0)
 }
 
 /**
- * [WindowInsetsSides] is used in [WindowInsets.only] to define which sides of the
- * [WindowInsets] should apply.
+ * [WindowInsetsSides] is used in [WindowInsets.only] to define which sides of the [WindowInsets]
+ * should apply.
  */
 @kotlin.jvm.JvmInline
 value class WindowInsetsSides private constructor(private val value: Int) {
-    /**
-     * Returns a [WindowInsetsSides] containing sides defied in [sides] and the
-     * sides in `this`.
-     */
+    /** Returns a [WindowInsetsSides] containing sides defied in [sides] and the sides in `this`. */
     operator fun plus(sides: WindowInsetsSides): WindowInsetsSides =
         WindowInsetsSides(value or sides.value)
 
-    internal fun hasAny(sides: WindowInsetsSides): Boolean =
-        (value and sides.value) != 0
+    internal fun hasAny(sides: WindowInsetsSides): Boolean = (value and sides.value) != 0
 
     override fun toString(): String = "WindowInsetsSides(${valueToString()})"
 
@@ -148,68 +134,59 @@ value class WindowInsetsSides private constructor(private val value: Int) {
         internal val AllowRightInRtl = WindowInsetsSides(1 shl 0)
 
         /**
-         * Indicates a [WindowInsets] start side, which is left or right
-         * depending on [LayoutDirection]. If [LayoutDirection.Ltr], [Start]
-         * is the left side. If [LayoutDirection.Rtl], [Start] is the right side.
+         * Indicates a [WindowInsets] start side, which is left or right depending on
+         * [LayoutDirection]. If [LayoutDirection.Ltr], [Start] is the left side. If
+         * [LayoutDirection.Rtl], [Start] is the right side.
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
         val Start = AllowLeftInLtr + AllowRightInRtl
 
         /**
-         * Indicates a [WindowInsets] end side, which is left or right
-         * depending on [LayoutDirection]. If [LayoutDirection.Ltr], [End]
-         * is the right side. If [LayoutDirection.Rtl], [End] is the left side.
+         * Indicates a [WindowInsets] end side, which is left or right depending on
+         * [LayoutDirection]. If [LayoutDirection.Ltr], [End] is the right side. If
+         * [LayoutDirection.Rtl], [End] is the left side.
          *
          * Use [Left] or [Right] if the physical direction is required.
          */
         val End = AllowRightInLtr + AllowLeftInRtl
 
-        /**
-         * Indicates a [WindowInsets] top side.
-         */
+        /** Indicates a [WindowInsets] top side. */
         val Top = WindowInsetsSides(1 shl 4)
 
-        /**
-         * Indicates a [WindowInsets] bottom side.
-         */
+        /** Indicates a [WindowInsets] bottom side. */
         val Bottom = WindowInsetsSides(1 shl 5)
 
         /**
-         * Indicates a [WindowInsets] left side. Most layouts will prefer using
-         * [Start] or [End] to account for [LayoutDirection].
+         * Indicates a [WindowInsets] left side. Most layouts will prefer using [Start] or [End] to
+         * account for [LayoutDirection].
          */
         val Left = AllowLeftInLtr + AllowLeftInRtl
 
         /**
-         * Indicates a [WindowInsets] right side. Most layouts will prefer using
-         * [Start] or [End] to account for [LayoutDirection].
+         * Indicates a [WindowInsets] right side. Most layouts will prefer using [Start] or [End] to
+         * account for [LayoutDirection].
          */
         val Right = AllowRightInLtr + AllowRightInRtl
 
         /**
-         * Indicates a [WindowInsets] horizontal sides. This is a combination of
-         * [Left] and [Right] sides, or [Start] and [End] sides.
+         * Indicates a [WindowInsets] horizontal sides. This is a combination of [Left] and [Right]
+         * sides, or [Start] and [End] sides.
          */
         val Horizontal = Left + Right
 
-        /**
-         * Indicates a [WindowInsets] [Top] and [Bottom] sides.
-         */
+        /** Indicates a [WindowInsets] [Top] and [Bottom] sides. */
         val Vertical = Top + Bottom
     }
 }
 
-/**
- * Returns a [WindowInsets] that has the maximum values of this [WindowInsets] and [insets].
- */
+/** Returns a [WindowInsets] that has the maximum values of this [WindowInsets] and [insets]. */
 fun WindowInsets.union(insets: WindowInsets): WindowInsets = UnionInsets(this, insets)
 
 /**
  * Returns the values in this [WindowInsets] that are not also in [insets]. For example, if this
- * [WindowInsets] has a [WindowInsets.getTop] value of `10` and [insets] has a
- * [WindowInsets.getTop] value of `8`, the returned [WindowInsets] will have a
- * [WindowInsets.getTop] value of `2`.
+ * [WindowInsets] has a [WindowInsets.getTop] value of `10` and [insets] has a [WindowInsets.getTop]
+ * value of `8`, the returned [WindowInsets] will have a [WindowInsets.getTop] value of `2`.
  *
  * Negative values are never returned. For example if [insets] has a [WindowInsets.getTop] of `10`
  * and this has a [WindowInsets.getTop] of `0`, the returned [WindowInsets] will have a
@@ -218,23 +195,22 @@ fun WindowInsets.union(insets: WindowInsets): WindowInsets = UnionInsets(this, i
 fun WindowInsets.exclude(insets: WindowInsets): WindowInsets = ExcludeInsets(this, insets)
 
 /**
- * Returns a [WindowInsets] that has values of this, added to the values of [insets].
- * For example, if this has a top of 10 and insets has a top of 5, the returned [WindowInsets]
- * will have a top of 15.
+ * Returns a [WindowInsets] that has values of this, added to the values of [insets]. For example,
+ * if this has a top of 10 and insets has a top of 5, the returned [WindowInsets] will have a top
+ * of 15.
  */
 fun WindowInsets.add(insets: WindowInsets): WindowInsets = AddedInsets(this, insets)
 
 /**
- * Returns a [WindowInsets] that eliminates all dimensions except the ones that are enabled.
- * For example, to have a [WindowInsets] at the bottom of the screen, pass
- * [WindowInsetsSides.Bottom].
+ * Returns a [WindowInsets] that eliminates all dimensions except the ones that are enabled. For
+ * example, to have a [WindowInsets] at the bottom of the screen, pass [WindowInsetsSides.Bottom].
  */
 fun WindowInsets.only(sides: WindowInsetsSides): WindowInsets = LimitInsets(this, sides)
 
 /**
- * Convert a [WindowInsets] to a [PaddingValues] and uses [LocalDensity] for DP to pixel
- * conversion. [PaddingValues] can be passed to some containers to pad internal content so that
- * it doesn't overlap the insets when fully scrolled. Ensure that the insets are
+ * Convert a [WindowInsets] to a [PaddingValues] and uses [LocalDensity] for DP to pixel conversion.
+ * [PaddingValues] can be passed to some containers to pad internal content so that it doesn't
+ * overlap the insets when fully scrolled. Ensure that the insets are
  * [consumed][consumeWindowInsets] after the padding is applied if insets are to be used further
  * down the hierarchy.
  *
@@ -256,9 +232,7 @@ fun WindowInsets.asPaddingValues(): PaddingValues = InsetsPaddingValues(this, Lo
 fun WindowInsets.asPaddingValues(density: Density): PaddingValues =
     InsetsPaddingValues(this, density)
 
-/**
- * Convert a [PaddingValues] to a [WindowInsets].
- */
+/** Convert a [PaddingValues] to a [WindowInsets]. */
 internal fun PaddingValues.asInsets(): WindowInsets = PaddingValuesInsets(this)
 
 /**
@@ -289,8 +263,11 @@ private class FixedIntInsets(
     private val bottomVal: Int
 ) : WindowInsets {
     override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int = leftVal
+
     override fun getTop(density: Density): Int = topVal
+
     override fun getRight(density: Density, layoutDirection: LayoutDirection): Int = rightVal
+
     override fun getBottom(density: Density): Int = bottomVal
 
     override fun toString(): String {
@@ -305,8 +282,10 @@ private class FixedIntInsets(
             return false
         }
 
-        return leftVal == other.leftVal && topVal == other.topVal &&
-            rightVal == other.rightVal && bottomVal == other.bottomVal
+        return leftVal == other.leftVal &&
+            topVal == other.topVal &&
+            rightVal == other.rightVal &&
+            bottomVal == other.bottomVal
     }
 
     override fun hashCode(): Int {
@@ -329,8 +308,10 @@ private class FixedDpInsets(
         with(density) { leftDp.roundToPx() }
 
     override fun getTop(density: Density) = with(density) { topDp.roundToPx() }
+
     override fun getRight(density: Density, layoutDirection: LayoutDirection) =
         with(density) { rightDp.roundToPx() }
+
     override fun getBottom(density: Density) = with(density) { bottomDp.roundToPx() }
 
     override fun toString(): String {
@@ -345,8 +326,10 @@ private class FixedDpInsets(
             return false
         }
 
-        return leftDp == other.leftDp && topDp == other.topDp &&
-            rightDp == other.rightDp && bottomDp == other.bottomDp
+        return leftDp == other.leftDp &&
+            topDp == other.topDp &&
+            rightDp == other.rightDp &&
+            bottomDp == other.bottomDp
     }
 
     override fun hashCode(): Int {
@@ -359,16 +342,19 @@ private class FixedDpInsets(
 }
 
 /**
- * An [WindowInsets] that comes straight from [androidx.core.graphics.Insets], whose value can
- * be updated.
+ * An [WindowInsets] that comes straight from [androidx.core.graphics.Insets], whose value can be
+ * updated.
  */
 @Stable
 internal class ValueInsets(insets: InsetsValues, val name: String) : WindowInsets {
     internal var value by mutableStateOf(insets)
 
     override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int = value.left
+
     override fun getTop(density: Density) = value.top
+
     override fun getRight(density: Density, layoutDirection: LayoutDirection) = value.right
+
     override fun getBottom(density: Density) = value.bottom
 
     override fun equals(other: Any?): Boolean {
@@ -424,15 +410,12 @@ internal class InsetsValues(val left: Int, val top: Int, val right: Int, val bot
  * [WindowInsets.union].
  */
 @Stable
-private class UnionInsets(
-    private val first: WindowInsets,
-    private val second: WindowInsets
-) : WindowInsets {
+private class UnionInsets(private val first: WindowInsets, private val second: WindowInsets) :
+    WindowInsets {
     override fun getLeft(density: Density, layoutDirection: LayoutDirection) =
         maxOf(first.getLeft(density, layoutDirection), second.getLeft(density, layoutDirection))
 
-    override fun getTop(density: Density) =
-        maxOf(first.getTop(density), second.getTop(density))
+    override fun getTop(density: Density) = maxOf(first.getTop(density), second.getTop(density))
 
     override fun getRight(density: Density, layoutDirection: LayoutDirection) =
         maxOf(first.getRight(density, layoutDirection), second.getRight(density, layoutDirection))
@@ -455,25 +438,19 @@ private class UnionInsets(
     override fun toString(): String = "($first ∪ $second)"
 }
 
-/**
- * An [WindowInsets] that includes the added value of [first] to [second].
- */
+/** An [WindowInsets] that includes the added value of [first] to [second]. */
 @Stable
-private class AddedInsets(
-    private val first: WindowInsets,
-    private val second: WindowInsets
-) : WindowInsets {
+private class AddedInsets(private val first: WindowInsets, private val second: WindowInsets) :
+    WindowInsets {
     override fun getLeft(density: Density, layoutDirection: LayoutDirection) =
         first.getLeft(density, layoutDirection) + second.getLeft(density, layoutDirection)
 
-    override fun getTop(density: Density) =
-        first.getTop(density) + second.getTop(density)
+    override fun getTop(density: Density) = first.getTop(density) + second.getTop(density)
 
     override fun getRight(density: Density, layoutDirection: LayoutDirection) =
         first.getRight(density, layoutDirection) + second.getRight(density, layoutDirection)
 
-    override fun getBottom(density: Density) =
-        first.getBottom(density) + second.getBottom(density)
+    override fun getBottom(density: Density) = first.getBottom(density) + second.getBottom(density)
 
     override fun hashCode(): Int = first.hashCode() + second.hashCode() * 31
 
@@ -529,26 +506,20 @@ private class ExcludeInsets(
     override fun hashCode(): Int = 31 * included.hashCode() + excluded.hashCode()
 }
 
-/**
- * An [WindowInsets] calculated from [paddingValues].
- */
+/** An [WindowInsets] calculated from [paddingValues]. */
 @Stable
 private class PaddingValuesInsets(private val paddingValues: PaddingValues) : WindowInsets {
-    override fun getLeft(density: Density, layoutDirection: LayoutDirection) = with(density) {
-        paddingValues.calculateLeftPadding(layoutDirection).roundToPx()
-    }
+    override fun getLeft(density: Density, layoutDirection: LayoutDirection) =
+        with(density) { paddingValues.calculateLeftPadding(layoutDirection).roundToPx() }
 
-    override fun getTop(density: Density) = with(density) {
-        paddingValues.calculateTopPadding().roundToPx()
-    }
+    override fun getTop(density: Density) =
+        with(density) { paddingValues.calculateTopPadding().roundToPx() }
 
-    override fun getRight(density: Density, layoutDirection: LayoutDirection) = with(density) {
-        paddingValues.calculateRightPadding(layoutDirection).roundToPx()
-    }
+    override fun getRight(density: Density, layoutDirection: LayoutDirection) =
+        with(density) { paddingValues.calculateRightPadding(layoutDirection).roundToPx() }
 
-    override fun getBottom(density: Density) = with(density) {
-        paddingValues.calculateBottomPadding().roundToPx()
-    }
+    override fun getBottom(density: Density) =
+        with(density) { paddingValues.calculateBottomPadding().roundToPx() }
 
     override fun toString(): String {
         val layoutDirection = LayoutDirection.Ltr
@@ -574,16 +545,14 @@ private class PaddingValuesInsets(private val paddingValues: PaddingValues) : Wi
 }
 
 @Stable
-private class LimitInsets(
-    val insets: WindowInsets,
-    val sides: WindowInsetsSides
-) : WindowInsets {
+private class LimitInsets(val insets: WindowInsets, val sides: WindowInsetsSides) : WindowInsets {
     override fun getLeft(density: Density, layoutDirection: LayoutDirection): Int {
-        val layoutDirectionSide = if (layoutDirection == LayoutDirection.Ltr) {
-            WindowInsetsSides.AllowLeftInLtr
-        } else {
-            WindowInsetsSides.AllowLeftInRtl
-        }
+        val layoutDirectionSide =
+            if (layoutDirection == LayoutDirection.Ltr) {
+                WindowInsetsSides.AllowLeftInLtr
+            } else {
+                WindowInsetsSides.AllowLeftInRtl
+            }
         val allowLeft = sides.hasAny(layoutDirectionSide)
         return if (allowLeft) {
             insets.getLeft(density, layoutDirection)
@@ -596,11 +565,12 @@ private class LimitInsets(
         if (sides.hasAny(WindowInsetsSides.Top)) insets.getTop(density) else 0
 
     override fun getRight(density: Density, layoutDirection: LayoutDirection): Int {
-        val layoutDirectionSide = if (layoutDirection == LayoutDirection.Ltr) {
-            WindowInsetsSides.AllowRightInLtr
-        } else {
-            WindowInsetsSides.AllowRightInRtl
-        }
+        val layoutDirectionSide =
+            if (layoutDirection == LayoutDirection.Ltr) {
+                WindowInsetsSides.AllowRightInLtr
+            } else {
+                WindowInsetsSides.AllowRightInRtl
+            }
         val allowRight = sides.hasAny(layoutDirectionSide)
         return if (allowRight) {
             insets.getRight(density, layoutDirection)
@@ -619,8 +589,7 @@ private class LimitInsets(
         if (other !is LimitInsets) {
             return false
         }
-        return insets == other.insets &&
-            sides == other.sides
+        return insets == other.insets && sides == other.sides
     }
 
     override fun hashCode(): Int {
@@ -633,25 +602,17 @@ private class LimitInsets(
 }
 
 @Stable
-private class InsetsPaddingValues(
-    val insets: WindowInsets,
-    private val density: Density
-) : PaddingValues {
-    override fun calculateLeftPadding(layoutDirection: LayoutDirection) = with(density) {
-        insets.getLeft(this, layoutDirection).toDp()
-    }
+private class InsetsPaddingValues(val insets: WindowInsets, private val density: Density) :
+    PaddingValues {
+    override fun calculateLeftPadding(layoutDirection: LayoutDirection) =
+        with(density) { insets.getLeft(this, layoutDirection).toDp() }
 
-    override fun calculateTopPadding() = with(density) {
-        insets.getTop(this).toDp()
-    }
+    override fun calculateTopPadding() = with(density) { insets.getTop(this).toDp() }
 
-    override fun calculateRightPadding(layoutDirection: LayoutDirection) = with(density) {
-        insets.getRight(this, layoutDirection).toDp()
-    }
+    override fun calculateRightPadding(layoutDirection: LayoutDirection) =
+        with(density) { insets.getRight(this, layoutDirection).toDp() }
 
-    override fun calculateBottomPadding() = with(density) {
-        insets.getBottom(this).toDp()
-    }
+    override fun calculateBottomPadding() = with(density) { insets.getBottom(this).toDp() }
 
     override fun toString(): String {
         return "InsetsPaddingValues(insets=$insets, density=$density)"
@@ -674,19 +635,13 @@ private class InsetsPaddingValues(
     }
 }
 
-/**
- * An insets type representing the window of a caption bar.
- */
+/** An insets type representing the window of a caption bar. */
 expect val WindowInsets.Companion.captionBar: WindowInsets
 
-/**
- * This [WindowInsets] represents the area with the display cutout (e.g. for camera).
- */
+/** This [WindowInsets] represents the area with the display cutout (e.g. for camera). */
 expect val WindowInsets.Companion.displayCutout: WindowInsets
 
-/**
- * An insets type representing the window of the software keyboard.
- */
+/** An insets type representing the window of the software keyboard. */
 expect val WindowInsets.Companion.ime: WindowInsets
 
 /**
@@ -695,53 +650,47 @@ expect val WindowInsets.Companion.ime: WindowInsets
 expect val WindowInsets.Companion.mandatorySystemGestures: WindowInsets
 
 /**
- * These insets represent where system UI places navigation bars.
- * Interactive UI should avoid the navigation bars area.
+ * These insets represent where system UI places navigation bars. Interactive UI should avoid the
+ * navigation bars area.
  */
 expect val WindowInsets.Companion.navigationBars: WindowInsets
 
-/**
- * These insets represent status bar.
- */
+/** These insets represent status bar. */
 expect val WindowInsets.Companion.statusBars: WindowInsets
 
 /**
- * These insets represent all system bars.
- * Includes [statusBars], [captionBar] as well as [navigationBars], but not [ime].
+ * These insets represent all system bars. Includes [statusBars], [captionBar] as well as
+ * [navigationBars], but not [ime].
  */
 expect val WindowInsets.Companion.systemBars: WindowInsets
 
 /**
- * The [systemGestures] insets represent the area of a window where system gestures have
- * priority and may consume some or all touch input, e.g. due to the system bar
- * occupying it, or it being reserved for touch-only gestures.
+ * The [systemGestures] insets represent the area of a window where system gestures have priority
+ * and may consume some or all touch input, e.g. due to the system bar occupying it, or it being
+ * reserved for touch-only gestures.
  */
 expect val WindowInsets.Companion.systemGestures: WindowInsets
 
-/**
- * Returns the tappable element insets.
- */
+/** Returns the tappable element insets. */
 expect val WindowInsets.Companion.tappableElement: WindowInsets
 
-/**
- * The insets for the curved areas in a waterfall display.
- */
+/** The insets for the curved areas in a waterfall display. */
 expect val WindowInsets.Companion.waterfall: WindowInsets
 
 /**
- * The insets that include areas where content may be covered by other drawn content.
- * This includes all [systemBars], [displayCutout], and [ime].
+ * The insets that include areas where content may be covered by other drawn content. This includes
+ * all [systemBars], [displayCutout], and [ime].
  */
 expect val WindowInsets.Companion.safeDrawing: WindowInsets
 
 /**
- * The insets that include areas where gestures may be confused with other input,
- * including [systemGestures], [mandatorySystemGestures], [waterfall], and [tappableElement].
+ * The insets that include areas where gestures may be confused with other input, including
+ * [systemGestures], [mandatorySystemGestures], [waterfall], and [tappableElement].
  */
 expect val WindowInsets.Companion.safeGestures: WindowInsets
 
 /**
- * The insets that include all areas that may be drawn over or have gesture confusion,
- * including everything in [safeDrawing] and [safeGestures].
+ * The insets that include all areas that may be drawn over or have gesture confusion, including
+ * everything in [safeDrawing] and [safeGestures].
  */
 expect val WindowInsets.Companion.safeContent: WindowInsets

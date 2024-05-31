@@ -41,14 +41,11 @@ internal class ResourceIdCache {
     private val resIdPathMap = MutableIntObjectMap<TypedValue>()
 
     /**
-     * Resolve the path of the provided resource identifier within the given resources object.
-     * This first checks its internal cache before attempting to resolve the resource with the
-     * Android resource system
+     * Resolve the path of the provided resource identifier within the given resources object. This
+     * first checks its internal cache before attempting to resolve the resource with the Android
+     * resource system
      */
-    fun resolveResourcePath(
-        res: Resources,
-        @DrawableRes id: Int
-    ): TypedValue {
+    fun resolveResourcePath(res: Resources, @DrawableRes id: Int): TypedValue {
         synchronized(this) {
             var value = resIdPathMap[id]
             if (value == null) {
@@ -61,8 +58,6 @@ internal class ResourceIdCache {
     }
 
     fun clear() {
-        synchronized(this) {
-            resIdPathMap.clear()
-        }
+        synchronized(this) { resIdPathMap.clear() }
     }
 }

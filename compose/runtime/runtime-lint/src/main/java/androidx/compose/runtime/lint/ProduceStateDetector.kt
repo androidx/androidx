@@ -53,64 +53,67 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(Names.Runtime.PackageName)) {
             // The ProduceStateScope lambda
-            val producer = node.valueArguments.find {
-                node.getParameterForArgument(it)?.name == "producer"
-            } ?: return
+            val producer =
+                node.valueArguments.find { node.getParameterForArgument(it)?.name == "producer" }
+                    ?: return
 
             var referencesReceiver = false
             var callsSetValue = false
 
-            producer.accept(object : AbstractUastVisitor() {
-                val mutableStatePsiClass =
-                    context.evaluator.findClass(Names.Runtime.MutableState.javaFqn)
+            producer.accept(
+                object : AbstractUastVisitor() {
+                    val mutableStatePsiClass =
+                        context.evaluator.findClass(Names.Runtime.MutableState.javaFqn)
 
-                /**
-                 * Visit function calls to see if the functions have a parameter of MutableState
-                 * / ProduceStateScope. If they do, we cannot know for sure whether those
-                 * functions internally call setValue, so we avoid reporting an error to avoid
-                 * false positives.
-                 */
-                override fun visitCallExpression(
-                    node: UCallExpression
-                ): Boolean {
-                    val resolvedMethod = node.resolve() ?: return false
-                    return resolvedMethod.parameterList.parameters.any { parameter ->
-                        val type = parameter.type
+                    /**
+                     * Visit function calls to see if the functions have a parameter of MutableState
+                     * / ProduceStateScope. If they do, we cannot know for sure whether those
+                     * functions internally call setValue, so we avoid reporting an error to avoid
+                     * false positives.
+                     */
+                    override fun visitCallExpression(node: UCallExpression): Boolean {
+                        val resolvedMethod = node.resolve() ?: return false
+                        return resolvedMethod.parameterList.parameters.any { parameter ->
+                            val type = parameter.type
 
-                        // Is the parameter type ProduceStateScope or a subclass
-                        if (type.inheritsFrom(ProduceStateScopeName)) {
-                            referencesReceiver = true
+                            // Is the parameter type ProduceStateScope or a subclass
+                            if (type.inheritsFrom(ProduceStateScopeName)) {
+                                referencesReceiver = true
+                            }
+
+                            // Is the parameter type MutableState
+                            if (
+                                mutableStatePsiClass != null &&
+                                    context.evaluator.getTypeClass(type) == mutableStatePsiClass
+                            ) {
+                                referencesReceiver = true
+                            }
+
+                            referencesReceiver
                         }
+                    }
 
-                        // Is the parameter type MutableState
-                        if (mutableStatePsiClass != null &&
-                            context.evaluator.getTypeClass(type) == mutableStatePsiClass) {
-                            referencesReceiver = true
+                    /**
+                     * Visit any simple name reference expressions to see if there is a reference to
+                     * `value` that resolves to a call to MutableState#setValue.
+                     */
+                    override fun visitSimpleNameReferenceExpression(
+                        node: USimpleNameReferenceExpression
+                    ): Boolean {
+                        if (node.identifier != "value") return false
+                        val resolvedMethod = node.tryResolve() as? PsiMethod ?: return false
+                        if (
+                            resolvedMethod.name == "setValue" &&
+                                resolvedMethod.containingClass?.inheritsFrom(
+                                    Names.Runtime.MutableState
+                                ) == true
+                        ) {
+                            callsSetValue = true
                         }
-
-                        referencesReceiver
+                        return callsSetValue
                     }
                 }
-
-                /**
-                 * Visit any simple name reference expressions to see if there is a reference to
-                 * `value` that resolves to a call to MutableState#setValue.
-                 */
-                override fun visitSimpleNameReferenceExpression(
-                    node: USimpleNameReferenceExpression
-                ): Boolean {
-                    if (node.identifier != "value") return false
-                    val resolvedMethod = node.tryResolve() as? PsiMethod ?: return false
-                    if (resolvedMethod.name == "setValue" &&
-                        resolvedMethod.containingClass?.inheritsFrom(
-                            Names.Runtime.MutableState
-                        ) == true
-                    ) {
-                        callsSetValue = true
-                    }
-                    return callsSetValue
-                }
-            })
+            )
 
             if (!callsSetValue && !referencesReceiver) {
                 context.report(
@@ -124,20 +127,23 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val ProduceStateDoesNotAssignValue = Issue.create(
-            "ProduceStateDoesNotAssignValue",
-            "produceState calls should assign `value` inside the producer lambda",
-            "produceState returns an observable State using values assigned inside the producer " +
-                "lambda. If the lambda never assigns (i.e `value = foo`), then the State will " +
-                "never change. Make sure to assign a value when the source you are producing " +
-                "values from changes / emits a new value. For sample usage see the produceState " +
-                "documentation.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ProduceStateDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ProduceStateDoesNotAssignValue =
+            Issue.create(
+                "ProduceStateDoesNotAssignValue",
+                "produceState calls should assign `value` inside the producer lambda",
+                "produceState returns an observable State using values assigned inside the producer " +
+                    "lambda. If the lambda never assigns (i.e `value = foo`), then the State will " +
+                    "never change. Make sure to assign a value when the source you are producing " +
+                    "values from changes / emits a new value. For sample usage see the produceState " +
+                    "documentation.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ProduceStateDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

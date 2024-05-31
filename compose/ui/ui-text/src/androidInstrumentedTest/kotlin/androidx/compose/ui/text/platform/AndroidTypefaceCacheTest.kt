@@ -33,19 +33,17 @@ class AndroidTypefaceCacheTest {
 
     @Test
     fun cached_instance_for_the_same_input() {
-        assertThat(
-            AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR)
-        ).isSameInstanceAs(
-            AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR)
-        )
+        assertThat(AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR))
+            .isSameInstanceAs(
+                AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR)
+            )
     }
 
     @Test
     fun not_cached_instance_if_different_input() {
-        assertThat(
-            AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR)
-        ).isNotSameInstanceAs(
-            AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_200_REGULAR)
-        )
+        assertThat(AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_100_REGULAR))
+            .isNotSameInstanceAs(
+                AndroidTypefaceCache.getOrCreate(context, FontTestData.FONT_200_REGULAR)
+            )
     }
 }

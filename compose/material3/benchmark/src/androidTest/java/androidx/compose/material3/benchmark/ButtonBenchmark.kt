@@ -43,13 +43,10 @@ import org.junit.runners.Parameterized
 class ButtonBenchmark(private val type: ButtonType) {
 
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = ButtonType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = ButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val buttonTestCaseFactory = { ButtonTestCase(type) }
 
@@ -83,27 +80,18 @@ class ButtonBenchmark(private val type: ButtonType) {
     }
 }
 
-internal class ButtonTestCase(
-    private val type: ButtonType
-) : LayeredComposeTestCase() {
+internal class ButtonTestCase(private val type: ButtonType) : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
         when (type) {
-            ButtonType.FilledButton ->
-                Button(onClick = { /* Do something! */ }) { Text("Button") }
-
+            ButtonType.FilledButton -> Button(onClick = { /* Do something! */ }) { Text("Button") }
             ButtonType.ElevatedButton ->
                 ElevatedButton(onClick = { /* Do something! */ }) { Text("Elevated Button") }
-
             ButtonType.FilledTonalButton ->
-                FilledTonalButton(onClick = { /* Do something! */ }) {
-                    Text("Filled Tonal Button")
-                }
-
+                FilledTonalButton(onClick = { /* Do something! */ }) { Text("Filled Tonal Button") }
             ButtonType.OutlinedButton ->
                 OutlinedButton(onClick = { /* Do something! */ }) { Text("Outlined Button") }
-
             ButtonType.TextButton ->
                 TextButton(onClick = { /* Do something! */ }) { Text("Text Button") }
         }
@@ -111,12 +99,14 @@ internal class ButtonTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class ButtonType {
-    FilledButton, ElevatedButton, FilledTonalButton, OutlinedButton, TextButton
+    FilledButton,
+    ElevatedButton,
+    FilledTonalButton,
+    OutlinedButton,
+    TextButton
 }

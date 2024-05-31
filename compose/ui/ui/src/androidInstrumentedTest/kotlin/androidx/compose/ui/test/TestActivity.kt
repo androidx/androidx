@@ -65,10 +65,9 @@ open class TestActivity : ComponentActivity() {
 }
 
 /**
- * We have a ViewLayer that doesn't use reflection that won't be activated on
- * any Google devices, so we must trigger it directly. Here, we use it on all P
- * devices. The normal ViewLayer is used on L devices. RenderNodeLayer is used
- * on all other devices.
+ * We have a ViewLayer that doesn't use reflection that won't be activated on any Google devices, so
+ * we must trigger it directly. Here, we use it on all P devices. The normal ViewLayer is used on L
+ * devices. RenderNodeLayer is used on all other devices.
  */
 internal fun setViewLayerTypeForApi28() {
     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {

@@ -50,22 +50,20 @@ fun AnimatedVisibilityLazyColumnDemo() {
     Column {
         val model = remember { MyModel() }
         Row(Modifier.fillMaxWidth()) {
-            Button(
-                { model.addNewItem() },
-                modifier = Modifier.padding(15.dp).weight(1f)
-            ) {
+            Button({ model.addNewItem() }, modifier = Modifier.padding(15.dp).weight(1f)) {
                 Text("Add")
             }
         }
 
         LaunchedEffect(model) {
             snapshotFlow {
-                model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
-            }.collect {
-                if (it != null) {
-                    model.pruneItems()
+                    model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
                 }
-            }
+                .collect {
+                    if (it != null) {
+                        model.pruneItems()
+                    }
+                }
         }
         LazyColumn {
             items(model.items, key = { it.itemId }) { item ->
@@ -86,10 +84,7 @@ fun AnimatedVisibilityLazyColumnDemo() {
             }
         }
 
-        Button(
-            { model.removeAll() },
-            modifier = Modifier.align(End).padding(15.dp)
-        ) {
+        Button({ model.removeAll() }, modifier = Modifier.align(End).padding(15.dp)) {
             Text("Clear All")
         }
     }
@@ -102,18 +97,13 @@ private class MyModel {
 
     class ColoredItem(val visible: MutableTransitionState<Boolean>, val itemId: Int) {
         val color: Color
-            get() = turquoiseColors.let {
-                it[itemId % it.size]
-            }
+            get() = turquoiseColors.let { it[itemId % it.size] }
     }
 
     fun addNewItem() {
         lastItemId++
         _items.add(
-            ColoredItem(
-                MutableTransitionState(false).apply { targetState = true },
-                lastItemId
-            )
+            ColoredItem(MutableTransitionState(false).apply { targetState = true }, lastItemId)
         )
     }
 
@@ -127,17 +117,16 @@ private class MyModel {
     }
 
     fun removeAll() {
-        _items.forEach {
-            it.visible.targetState = false
-        }
+        _items.forEach { it.visible.targetState = false }
     }
 }
 
-internal val turquoiseColors = listOf(
-    Color(0xff07688C),
-    Color(0xff1986AF),
-    Color(0xff50B6CD),
-    Color(0xffBCF8FF),
-    Color(0xff8AEAE9),
-    Color(0xff46CECA)
-)
+internal val turquoiseColors =
+    listOf(
+        Color(0xff07688C),
+        Color(0xff1986AF),
+        Color(0xff50B6CD),
+        Color(0xffBCF8FF),
+        Color(0xff8AEAE9),
+        Color(0xff46CECA)
+    )

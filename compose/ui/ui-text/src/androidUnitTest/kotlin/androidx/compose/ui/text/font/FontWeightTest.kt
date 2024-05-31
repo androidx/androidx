@@ -44,13 +44,7 @@ class FontWeightTest {
 
     @Test
     fun `lerp at start returns start value`() {
-        assertThat(
-            lerp(
-                FontWeight.W200,
-                FontWeight.W400,
-                0.0f
-            )
-        ).isEqualTo(FontWeight.W200)
+        assertThat(lerp(FontWeight.W200, FontWeight.W400, 0.0f)).isEqualTo(FontWeight.W200)
     }
 
     @Test
@@ -61,68 +55,53 @@ class FontWeightTest {
 
     @Test
     fun `lerp at end returns end value`() {
-        assertThat(
-            lerp(
-                FontWeight.W200,
-                FontWeight.W400,
-                1.0f
-            )
-        ).isEqualTo(FontWeight.W400)
+        assertThat(lerp(FontWeight.W200, FontWeight.W400, 1.0f)).isEqualTo(FontWeight.W400)
     }
 
     @Test
     fun `lerp in the mid-time`() {
-        assertThat(
-            lerp(
-                FontWeight.W200,
-                FontWeight.W800,
-                0.5f
-            )
-        ).isEqualTo(FontWeight.W500)
+        assertThat(lerp(FontWeight.W200, FontWeight.W800, 0.5f)).isEqualTo(FontWeight.W500)
     }
 
     @Test
     fun `lerp in the mid-time with odd distance should be rounded to up`() {
         val start = FontWeight.W200
         val stop = FontWeight.W900
-        assertThat(
-            lerp(
-                start,
-                stop,
-                0.5f
-            )
-        ).isEqualTo(FontWeight(((stop.weight + start.weight) * 0.5).toInt()))
+        assertThat(lerp(start, stop, 0.5f))
+            .isEqualTo(FontWeight(((stop.weight + start.weight) * 0.5).toInt()))
     }
 
     @Test
     fun `values return all weights`() {
-        val expectedValues = listOf(
-            FontWeight.W100,
-            FontWeight.W200,
-            FontWeight.W300,
-            FontWeight.W400,
-            FontWeight.W500,
-            FontWeight.W600,
-            FontWeight.W700,
-            FontWeight.W800,
-            FontWeight.W900
-        )
+        val expectedValues =
+            listOf(
+                FontWeight.W100,
+                FontWeight.W200,
+                FontWeight.W300,
+                FontWeight.W400,
+                FontWeight.W500,
+                FontWeight.W600,
+                FontWeight.W700,
+                FontWeight.W800,
+                FontWeight.W900
+            )
         assertThat(FontWeight.values).isEqualTo(expectedValues)
     }
 
     @Test
     fun `weight returns collect values`() {
-        val fontWeights = mapOf(
-            FontWeight.W100 to 100,
-            FontWeight.W200 to 200,
-            FontWeight.W300 to 300,
-            FontWeight.W400 to 400,
-            FontWeight.W500 to 500,
-            FontWeight.W600 to 600,
-            FontWeight.W700 to 700,
-            FontWeight.W800 to 800,
-            FontWeight.W900 to 900
-        )
+        val fontWeights =
+            mapOf(
+                FontWeight.W100 to 100,
+                FontWeight.W200 to 200,
+                FontWeight.W300 to 300,
+                FontWeight.W400 to 400,
+                FontWeight.W500 to 500,
+                FontWeight.W600 to 600,
+                FontWeight.W700 to 700,
+                FontWeight.W800 to 800,
+                FontWeight.W900 to 900
+            )
 
         // TODO(b/130795950): IR compiler bug was here
         for (weightPair in fontWeights) {

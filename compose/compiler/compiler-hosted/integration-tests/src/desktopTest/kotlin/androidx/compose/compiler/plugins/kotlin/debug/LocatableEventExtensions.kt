@@ -21,9 +21,10 @@ import com.sun.jdi.event.LocatableEvent
 import junit.framework.TestCase
 
 fun List<LocatableEvent>.assertTrace(expected: String) {
-    val actual = compressRunsWithoutLinenumber(this)
-        .filter { (!it.location().method().isSynthetic) }
-        .map { it.location().formatAsExpectation() }
+    val actual =
+        compressRunsWithoutLinenumber(this)
+            .filter { (!it.location().method().isSynthetic) }
+            .map { it.location().formatAsExpectation() }
 
     expected.lines().forEachIndexed { index, expectedLine ->
         TestCase.assertEquals(expectedLine, actual[index])
@@ -31,11 +32,11 @@ fun List<LocatableEvent>.assertTrace(expected: String) {
 }
 
 /*
-   Compresses runs of the same, linenumber-less location in the log:
-   specifically removes locations without linenumber, that would otherwise
-   print as byte offsets. This avoids overspecifying code generation
-   strategy in debug tests.
- */
+  Compresses runs of the same, linenumber-less location in the log:
+  specifically removes locations without linenumber, that would otherwise
+  print as byte offsets. This avoids overspecifying code generation
+  strategy in debug tests.
+*/
 fun compressRunsWithoutLinenumber(
     loggedItems: List<LocatableEvent>,
 ): List<LocatableEvent> {

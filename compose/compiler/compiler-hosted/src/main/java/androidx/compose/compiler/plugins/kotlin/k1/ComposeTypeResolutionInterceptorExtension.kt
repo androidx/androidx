@@ -26,9 +26,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 
-/**
- * If a lambda is marked as `@Composable`, then the inferred type should become `@Composable`
- */
+/** If a lambda is marked as `@Composable`, then the inferred type should become `@Composable` */
 @Suppress("INVISIBLE_REFERENCE", "EXPERIMENTAL_IS_NOT_ENABLED")
 @OptIn(org.jetbrains.kotlin.extensions.internal.InternalNonStableExtensionPoints::class)
 open class ComposeTypeResolutionInterceptorExtension : TypeResolutionInterceptorExtension {
@@ -40,8 +38,8 @@ open class ComposeTypeResolutionInterceptorExtension : TypeResolutionInterceptor
     ): AnonymousFunctionDescriptor =
         if (
             !descriptor.isSuspend &&
-            !descriptor.hasComposableAnnotation() &&
-            context.hasComposableExpectedType(expression)
+                !descriptor.hasComposableAnnotation() &&
+                context.hasComposableExpectedType(expression)
         ) {
             // If the expected type has an @Composable annotation then the literal function
             // expression should infer a an @Composable annotation
@@ -67,7 +65,7 @@ open class ComposeTypeResolutionInterceptorExtension : TypeResolutionInterceptor
 
         if (
             element.getAnnotationEntries().hasComposableAnnotation(context.trace.bindingContext) ||
-            context.hasComposableExpectedType(element)
+                context.hasComposableExpectedType(element)
         ) {
             context.trace.record(FrontendWritableSlices.INFERRED_COMPOSABLE_LITERAL, element, true)
             return resultType.makeComposable(context.scope.ownerDescriptor.module)

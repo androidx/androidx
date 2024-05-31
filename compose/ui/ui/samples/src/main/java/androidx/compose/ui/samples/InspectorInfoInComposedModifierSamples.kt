@@ -30,20 +30,22 @@ import androidx.compose.ui.unit.Dp
 fun InspectorInfoInComposedModifierSample() {
 
     // let's create your own custom stateful modifier
-    fun Modifier.myColorModifier(color: Color) = composed(
-        // pass inspector information for debug
-        inspectorInfo = debugInspectorInfo {
-            // name should match the name of the modifier
-            name = "myColorModifier"
-            // specify a single argument as the value when the argument name is irrelevant
-            value = color
-        },
-        // pass your modifier implementation that resolved per modified element
-        factory = {
-            // add your modifier implementation here
-            Modifier
-        }
-    )
+    fun Modifier.myColorModifier(color: Color) =
+        composed(
+            // pass inspector information for debug
+            inspectorInfo =
+                debugInspectorInfo {
+                    // name should match the name of the modifier
+                    name = "myColorModifier"
+                    // specify a single argument as the value when the argument name is irrelevant
+                    value = color
+                },
+            // pass your modifier implementation that resolved per modified element
+            factory = {
+                // add your modifier implementation here
+                Modifier
+            }
+        )
 }
 
 @Suppress("UnnecessaryComposedModifier")
@@ -52,20 +54,22 @@ fun InspectorInfoInComposedModifierSample() {
 fun InspectorInfoInComposedModifierWithArgumentsSample() {
 
     // let's create your own custom stateful modifier with multiple arguments
-    fun Modifier.myModifier(width: Dp, height: Dp, color: Color) = composed(
-        // pass inspector information for debug
-        inspectorInfo = debugInspectorInfo {
-            // name should match the name of the modifier
-            name = "myModifier"
-            // add name and value of each argument
-            properties["width"] = width
-            properties["height"] = height
-            properties["color"] = color
-        },
-        // pass your modifier implementation that resolved per modified element
-        factory = {
-            // add your modifier implementation here
-            Modifier
-        }
-    )
+    fun Modifier.myModifier(width: Dp, height: Dp, color: Color) =
+        composed(
+            // pass inspector information for debug
+            inspectorInfo =
+                debugInspectorInfo {
+                    // name should match the name of the modifier
+                    name = "myModifier"
+                    // add name and value of each argument
+                    properties["width"] = width
+                    properties["height"] = height
+                    properties["color"] = color
+                },
+            // pass your modifier implementation that resolved per modified element
+            factory = {
+                // add your modifier implementation here
+                Modifier
+            }
+        )
 }

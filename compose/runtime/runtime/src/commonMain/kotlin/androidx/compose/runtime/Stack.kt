@@ -20,15 +20,23 @@ package androidx.compose.runtime
 internal class Stack<T> {
     private val backing = ArrayList<T>()
 
-    val size: Int get() = backing.size
+    val size: Int
+        get() = backing.size
 
     fun push(value: T) = backing.add(value)
+
     fun pop(): T = backing.removeAt(size - 1)
+
     fun peek(): T = backing.get(size - 1)
+
     fun peek(index: Int): T = backing.get(index)
+
     fun isEmpty() = backing.isEmpty()
+
     fun isNotEmpty() = !isEmpty()
+
     fun clear() = backing.clear()
+
     @Suppress("UNCHECKED_CAST")
     fun toArray(): Array<T> = Array<Any?>(backing.size) { backing[it] } as Array<T>
 }
@@ -37,7 +45,8 @@ internal class IntStack {
     private var slots = IntArray(10)
     private var tos = 0
 
-    val size: Int get() = tos
+    val size: Int
+        get() = tos
 
     fun push(value: Int) {
         if (tos >= slots.size) {
@@ -47,16 +56,25 @@ internal class IntStack {
     }
 
     fun pop(): Int = slots[--tos]
+
     fun peekOr(default: Int): Int = if (tos > 0) peek() else default
+
     fun peek() = slots[tos - 1]
+
     fun peek2() = slots[tos - 2]
+
     fun peek(index: Int) = slots[index]
+
     fun isEmpty() = tos == 0
+
     fun isNotEmpty() = tos != 0
-    fun clear() { tos = 0 }
+
+    fun clear() {
+        tos = 0
+    }
+
     fun indexOf(value: Int): Int {
-        for (i in 0 until tos)
-            if (slots[i] == value) return i
+        for (i in 0 until tos) if (slots[i] == value) return i
         return -1
     }
 }

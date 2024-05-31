@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     enum class ReadContext {
         Composition,
-        Measure;
+        Measure
     }
 
     companion object {
@@ -51,16 +51,13 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
         fun parameters() = arrayOf(ReadContext.Composition, ReadContext.Measure)
     }
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun readState() {
         val state = mutableIntStateOf(0)
 
-        benchmarkRead {
-            state.value
-        }
+        benchmarkRead { state.value }
     }
 
     @Test
@@ -71,9 +68,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
 
         derivedState.value // precompute result
 
-        benchmarkRead {
-            derivedState.value
-        }
+        benchmarkRead { derivedState.value }
     }
 
     @Test
@@ -84,9 +79,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
 
         derivedState.value // precompute result
 
-        benchmarkRead(before = { derivedState.value }) {
-            derivedState.value
-        }
+        benchmarkRead(before = { derivedState.value }) { derivedState.value }
     }
 
     @Test
@@ -97,18 +90,14 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
 
         derivedState.value // precompute result
 
-        benchmarkRead(before = { stateA.value += 1 }) {
-            derivedState.value
-        }
+        benchmarkRead(before = { stateA.value += 1 }) { derivedState.value }
     }
 
     @Test
     fun readState_afterWrite() {
         val stateA = mutableIntStateOf(0)
 
-        benchmarkRead(before = { stateA.value += 1 }) {
-            stateA.value
-        }
+        benchmarkRead(before = { stateA.value += 1 }) { stateA.value }
     }
 
     @Test
@@ -116,9 +105,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
         val stateA = mutableIntStateOf(0)
         val stateB = mutableIntStateOf(0)
 
-        benchmarkRead(before = { stateA.value }) {
-            stateB.value
-        }
+        benchmarkRead(before = { stateA.value }) { stateB.value }
     }
 
     @Test
@@ -129,9 +116,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
         val derivedStateA = derivedStateOf { stateA.value + stateB.value }
         val derivedStateB = derivedStateOf { stateB.value + stateA.value }
 
-        benchmarkRead(before = { derivedStateA.value }) {
-            derivedStateB.value
-        }
+        benchmarkRead(before = { derivedStateA.value }) { derivedStateB.value }
     }
 
     private fun benchmarkRead(
@@ -161,17 +146,16 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
             ReadContext.Measure -> {
                 val snapshot = Snapshot.takeMutableSnapshot()
                 snapshot.enter {
-                    SnapshotStateObserver { it() }.apply {
-                        val nodes = List(MEASURE_OBSERVATION_DEPTH) { Any() }
-                        start()
-                        recursiveObserve(nodes, nodes.size, scopeBlock)
-                        stop()
-                    }
+                    SnapshotStateObserver { it() }
+                        .apply {
+                            val nodes = List(MEASURE_OBSERVATION_DEPTH) { Any() }
+                            start()
+                            recursiveObserve(nodes, nodes.size, scopeBlock)
+                            stop()
+                        }
                 }
                 val applyResult = snapshot.apply()
-                check(applyResult !is SnapshotApplyResult.Failure) {
-                    "Failed to apply snapshot"
-                }
+                check(applyResult !is SnapshotApplyResult.Failure) { "Failed to apply snapshot" }
                 snapshot.dispose()
             }
         }
@@ -201,12 +185,19 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
 
     private class UnitApplier : Applier<Unit> {
         override val current: Unit = Unit
+
         override fun clear() {}
+
         override fun move(from: Int, to: Int, count: Int) {}
+
         override fun remove(index: Int, count: Int) {}
+
         override fun up() {}
+
         override fun insertTopDown(index: Int, instance: Unit) {}
+
         override fun insertBottomUp(index: Int, instance: Unit) {}
+
         override fun down(node: Unit) {}
     }
 }

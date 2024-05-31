@@ -16,28 +16,21 @@
 
 package androidx.compose.ui.layout
 
-/**
- * A [Measured] corresponds to a layout that has been measured by its parent layout.
- */
+/** A [Measured] corresponds to a layout that has been measured by its parent layout. */
 interface Measured {
-    /**
-     * The measured width of the layout. This might not respect the measurement constraints.
-     */
+    /** The measured width of the layout. This might not respect the measurement constraints. */
     val measuredWidth: Int
 
-    /**
-     * The measured height of the layout. This might not respect the measurement constraints.
-     */
+    /** The measured height of the layout. This might not respect the measurement constraints. */
     val measuredHeight: Int
 
-    /**
-     * Data provided by the [ParentDataModifier] applied to the layout.
-     */
-    val parentData: Any? get() = null
+    /** Data provided by the [ParentDataModifier] applied to the layout. */
+    val parentData: Any?
+        get() = null
 
     /**
-     * Returns the position of an [alignment line][AlignmentLine],
-     * or [AlignmentLine.Unspecified] if the line is not provided.
+     * Returns the position of an [alignment line][AlignmentLine], or [AlignmentLine.Unspecified] if
+     * the line is not provided.
      */
     operator fun get(alignmentLine: AlignmentLine): Int
 }

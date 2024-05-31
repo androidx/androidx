@@ -44,40 +44,48 @@ fun InfiniteProgressIndicator() {
     @Composable
     fun Dot(scale: State<Float>) {
         Box(
-            Modifier.padding(5.dp).size(20.dp).graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-            }.background(Color.Gray, shape = CircleShape)
+            Modifier.padding(5.dp)
+                .size(20.dp)
+                .graphicsLayer {
+                    scaleX = scale.value
+                    scaleY = scale.value
+                }
+                .background(Color.Gray, shape = CircleShape)
         )
     }
 
     val infiniteTransition = rememberInfiniteTransition()
-    val scale1 = infiniteTransition.animateFloat(
-        0.2f,
-        1f,
-        // No offset for the 1st animation
-        infiniteRepeatable(tween(600), RepeatMode.Reverse)
-    )
-    val scale2 = infiniteTransition.animateFloat(
-        0.2f,
-        1f,
-        infiniteRepeatable(
-            tween(600), RepeatMode.Reverse,
-            // Offsets the 2nd animation by starting from 150ms of the animation
-            // This offset will not be repeated.
-            initialStartOffset = StartOffset(offsetMillis = 150, StartOffsetType.FastForward)
+    val scale1 =
+        infiniteTransition.animateFloat(
+            0.2f,
+            1f,
+            // No offset for the 1st animation
+            infiniteRepeatable(tween(600), RepeatMode.Reverse)
         )
-    )
-    val scale3 = infiniteTransition.animateFloat(
-        0.2f,
-        1f,
-        infiniteRepeatable(
-            tween(600), RepeatMode.Reverse,
-            // Offsets the 3rd animation by starting from 300ms of the animation. This
-            // offset will be not repeated.
-            initialStartOffset = StartOffset(offsetMillis = 300, StartOffsetType.FastForward)
+    val scale2 =
+        infiniteTransition.animateFloat(
+            0.2f,
+            1f,
+            infiniteRepeatable(
+                tween(600),
+                RepeatMode.Reverse,
+                // Offsets the 2nd animation by starting from 150ms of the animation
+                // This offset will not be repeated.
+                initialStartOffset = StartOffset(offsetMillis = 150, StartOffsetType.FastForward)
+            )
         )
-    )
+    val scale3 =
+        infiniteTransition.animateFloat(
+            0.2f,
+            1f,
+            infiniteRepeatable(
+                tween(600),
+                RepeatMode.Reverse,
+                // Offsets the 3rd animation by starting from 300ms of the animation. This
+                // offset will be not repeated.
+                initialStartOffset = StartOffset(offsetMillis = 300, StartOffsetType.FastForward)
+            )
+        )
     Row {
         Dot(scale1)
         Dot(scale2)

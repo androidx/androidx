@@ -30,9 +30,7 @@ internal fun throwIllegalArgumentException(message: String) {
 @Suppress("BanInlineOptIn") // same opt-in as using Kotlin's require()
 @OptIn(ExperimentalContracts::class)
 internal inline fun requirePrecondition(value: Boolean, lazyMessage: () -> String) {
-    contract {
-        returns() implies value
-    }
+    contract { returns() implies value }
     if (!value) {
         throwIllegalArgumentException(lazyMessage())
     }

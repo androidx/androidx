@@ -36,8 +36,7 @@ import org.jetbrains.kotlin.platform.jvm.isJvm
 
 @Suppress("PRE_RELEASE_CLASS")
 class ComposableFunInterfaceLowering(private val context: IrPluginContext) :
-    IrElementTransformerVoidWithContext(),
-    ModuleLoweringPass {
+    IrElementTransformerVoidWithContext(), ModuleLoweringPass {
 
     override fun lower(module: IrModuleFragment) {
         if (context.platform.isJvm()) {
@@ -52,14 +51,15 @@ class ComposableFunInterfaceLowering(private val context: IrPluginContext) :
             val superType = expression.typeOperand
             val superClass = superType.classOrNull ?: error("Expected non-null class")
             return FunctionReferenceBuilder(
-                argument,
-                superClass,
-                superType,
-                currentDeclarationParent!!,
-                context,
-                currentScope!!.scope.scopeOwnerSymbol,
-                IrTypeSystemContextImpl(context.irBuiltIns)
-            ).build()
+                    argument,
+                    superClass,
+                    superType,
+                    currentDeclarationParent!!,
+                    context,
+                    currentScope!!.scope.scopeOwnerSymbol,
+                    IrTypeSystemContextImpl(context.irBuiltIns)
+                )
+                .build()
         }
         return super.visitTypeOperator(expression)
     }
@@ -78,9 +78,8 @@ internal fun IrTypeOperatorCall.findSamFunctionExpr(): IrFunctionExpression? {
     val type = typeOperand
     val functionClass = type.classOrNull
 
-    val isFunInterfaceConversion = operator == SAM_CONVERSION &&
-        functionClass != null &&
-        functionClass.owner.isFun
+    val isFunInterfaceConversion =
+        operator == SAM_CONVERSION && functionClass != null && functionClass.owner.isFun
 
     return if (isFunInterfaceConversion) {
         // if you modify this logic, make sure to update wrapping of type operators

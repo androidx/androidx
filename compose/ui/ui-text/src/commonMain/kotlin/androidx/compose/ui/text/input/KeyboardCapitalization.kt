@@ -19,8 +19,8 @@ package androidx.compose.ui.text.input
 import androidx.compose.runtime.Stable
 
 /**
- * Options to request software keyboard to capitalize the text. Applies to languages which
- * has upper-case and lower-case letters.
+ * Options to request software keyboard to capitalize the text. Applies to languages which has
+ * upper-case and lower-case letters.
  */
 @kotlin.jvm.JvmInline
 value class KeyboardCapitalization private constructor(private val value: Int) {
@@ -37,34 +37,19 @@ value class KeyboardCapitalization private constructor(private val value: Int) {
     }
 
     companion object {
-        /**
-         * Capitalization behavior is not specified.
-         */
-        @Stable
-        val Unspecified = KeyboardCapitalization(-1)
+        /** Capitalization behavior is not specified. */
+        @Stable val Unspecified = KeyboardCapitalization(-1)
 
-        /**
-         * Do not auto-capitalize text.
-         */
-        @Stable
-        val None = KeyboardCapitalization(0)
+        /** Do not auto-capitalize text. */
+        @Stable val None = KeyboardCapitalization(0)
 
-        /**
-         * Capitalize all characters.
-         */
-        @Stable
-        val Characters = KeyboardCapitalization(1)
+        /** Capitalize all characters. */
+        @Stable val Characters = KeyboardCapitalization(1)
 
-        /**
-         * Capitalize the first character of every word.
-         */
-        @Stable
-        val Words = KeyboardCapitalization(2)
+        /** Capitalize the first character of every word. */
+        @Stable val Words = KeyboardCapitalization(2)
 
-        /**
-         * Capitalize the first character of each sentence.
-         */
-        @Stable
-        val Sentences = KeyboardCapitalization(3)
+        /** Capitalize the first character of each sentence. */
+        @Stable val Sentences = KeyboardCapitalization(3)
     }
 }

@@ -23,12 +23,6 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpecificationScaffold(
-    topBarTitle: String,
-    content: @Composable (PaddingValues) -> Unit
-) {
-    Scaffold(
-        topBar = { SpecificationTopAppBar(title = topBarTitle) },
-        content = content
-    )
+fun SpecificationScaffold(topBarTitle: String, content: @Composable (PaddingValues) -> Unit) {
+    Scaffold(topBar = { SpecificationTopAppBar(title = topBarTitle) }, content = content)
 }

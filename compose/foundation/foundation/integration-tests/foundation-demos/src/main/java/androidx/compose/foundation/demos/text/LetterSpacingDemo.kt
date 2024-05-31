@@ -37,12 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 private const val text = "The quick brown fox jumps over the lazy dog"
+
 @Preview
 @Composable
 fun LetterSpacingDemo() {
-    Column(
-        Modifier.padding(horizontal = 16.dp)
-    ) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
         var letterSpacing: Float by remember { mutableFloatStateOf(0.0f) }
         var fontSize: Float by remember { mutableFloatStateOf(12f) }
 
@@ -53,11 +52,7 @@ fun LetterSpacingDemo() {
             valueRange = -100f..100f,
         )
         Text("fontSize: ${fontSize.toString().take(4)}.sp")
-        Slider(
-            value = fontSize,
-            onValueChange = { fontSize = it },
-            valueRange = 5f..100f
-        )
+        Slider(value = fontSize, onValueChange = { fontSize = it }, valueRange = 5f..100f)
         AnnotatedText(letterSpacing, fontSize)
     }
 }
@@ -66,13 +61,16 @@ fun LetterSpacingDemo() {
 fun AnnotatedText(letterSpacing: Float, fontSize: Float) {
     var textLayoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-        Text(text,
-            modifier = Modifier
-                .fillMaxWidth(0.5f) /* only half the screen, to allow negative em */
-                .drawTextMetrics(textLayoutResult, null),
-            style = LocalTextStyle.current.copy(
-                letterSpacing = letterSpacing.sp,
-                fontSize = fontSize.sp),
+        Text(
+            text,
+            modifier =
+                Modifier.fillMaxWidth(0.5f) /* only half the screen, to allow negative em */
+                    .drawTextMetrics(textLayoutResult, null),
+            style =
+                LocalTextStyle.current.copy(
+                    letterSpacing = letterSpacing.sp,
+                    fontSize = fontSize.sp
+                ),
             onTextLayout = { textLayoutResult = it }
         )
     }

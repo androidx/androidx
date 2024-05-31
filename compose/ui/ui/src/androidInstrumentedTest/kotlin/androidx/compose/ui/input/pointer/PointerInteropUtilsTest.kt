@@ -36,10 +36,7 @@ class PointerInteropUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun toMotionEventScope_noPlatformEvent_throws() {
-        val pointerEvent = PointerEvent(
-            listOf(),
-            internalPointerEvent = null
-        )
+        val pointerEvent = PointerEvent(listOf(), internalPointerEvent = null)
         pointerEvent.toMotionEventScope(Offset.Zero) {}
     }
 
@@ -54,22 +51,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                down(
-                    1,
-                    2,
-                    3f,
-                    4f
-                )
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(down(1, 2, 3f, 4f)), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -85,15 +70,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(down(1, 2, 3f, 4f).up(5)),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(down(1, 2, 3f, 4f).up(5)), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -111,18 +91,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(8)),
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer1,
-                pointer2
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -140,18 +112,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(10f, 11f), PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer2,
-                pointer1
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -169,18 +133,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(8)),
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer1,
-                pointer2
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -198,18 +154,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(10f, 11f), PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer2,
-                pointer1
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -226,15 +174,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(pointer1),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -252,18 +195,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(11)),
                 arrayOf(PointerCoords(8f, 9f), PointerCoords(18f, 19f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer1,
-                pointer2
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -273,22 +208,18 @@ class PointerInteropUtilsTest {
         val pointer1 = down(1, 2, 3f, 4f)
         val expected =
             MotionEvent(
-                2,
-                MotionEvent.ACTION_DOWN,
-                1,
-                0,
-                arrayOf(PointerProperties(1)),
-                arrayOf(PointerCoords(13f, 104f))
-            ).apply { offsetLocation(-10f, -100f) }
-        val pointerEvent = PointerEvent(
-            listOf(pointer1),
-            expected
-        )
+                    2,
+                    MotionEvent.ACTION_DOWN,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(1)),
+                    arrayOf(PointerCoords(13f, 104f))
+                )
+                .apply { offsetLocation(-10f, -100f) }
+        val pointerEvent = PointerEvent(listOf(pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset(10f, 100f)) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset(10f, 100f)) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -299,35 +230,25 @@ class PointerInteropUtilsTest {
         val pointer2 = down(8, 7, 10f, 11f)
         val expected =
             MotionEvent(
-                7,
-                MotionEvent.ACTION_POINTER_DOWN,
-                2,
-                0,
-                arrayOf(PointerProperties(8), PointerProperties(1)),
-                arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
-            ).apply { offsetLocation(-100f, -1000f) }
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer2,
-                pointer1
-            ),
-            expected
-        )
+                    7,
+                    MotionEvent.ACTION_POINTER_DOWN,
+                    2,
+                    0,
+                    arrayOf(PointerProperties(8), PointerProperties(1)),
+                    arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
+                )
+                .apply { offsetLocation(-100f, -1000f) }
+        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toMotionEventScope(Offset(100f, 1000f)) {
-            actual = it
-        }
+        pointerEvent.toMotionEventScope(Offset(100f, 1000f)) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun toCancelMotionEventScope_noPlatformEvent_throws() {
-        val pointerEvent = PointerEvent(
-            listOf(),
-            internalPointerEvent = null
-        )
+        val pointerEvent = PointerEvent(listOf(), internalPointerEvent = null)
         pointerEvent.toCancelMotionEventScope(Offset.Zero) {}
     }
 
@@ -343,15 +264,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(pointer1),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toCancelMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toCancelMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -369,18 +285,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(11)),
                 arrayOf(PointerCoords(8f, 9f), PointerCoords(18f, 19f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer1,
-                pointer2
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toCancelMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toCancelMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -398,18 +306,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(11), PointerProperties(1)),
                 arrayOf(PointerCoords(18f, 19f), PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer2,
-                pointer1
-            ),
-            expected
-        )
+        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toCancelMotionEventScope(Offset.Zero) {
-            actual = it
-        }
+        pointerEvent.toCancelMotionEventScope(Offset.Zero) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -419,22 +319,18 @@ class PointerInteropUtilsTest {
         val pointer1 = down(1, 2, 3f, 4f)
         val expected =
             MotionEvent(
-                2,
-                MotionEvent.ACTION_CANCEL,
-                1,
-                0,
-                arrayOf(PointerProperties(1)),
-                arrayOf(PointerCoords(13f, 104f))
-            ).apply { offsetLocation(-10f, -100f) }
-        val pointerEvent = PointerEvent(
-            listOf(pointer1),
-            expected
-        )
+                    2,
+                    MotionEvent.ACTION_CANCEL,
+                    1,
+                    0,
+                    arrayOf(PointerProperties(1)),
+                    arrayOf(PointerCoords(13f, 104f))
+                )
+                .apply { offsetLocation(-10f, -100f) }
+        val pointerEvent = PointerEvent(listOf(pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toCancelMotionEventScope(Offset(10f, 100f)) {
-            actual = it
-        }
+        pointerEvent.toCancelMotionEventScope(Offset(10f, 100f)) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -445,25 +341,18 @@ class PointerInteropUtilsTest {
         val pointer2 = down(8, 7, 10f, 11f)
         val expected =
             MotionEvent(
-                7,
-                MotionEvent.ACTION_CANCEL,
-                2,
-                0,
-                arrayOf(PointerProperties(8), PointerProperties(1)),
-                arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
-            ).apply { offsetLocation(-100f, -1000f) }
-        val pointerEvent = PointerEvent(
-            listOf(
-                pointer2,
-                pointer1
-            ),
-            expected
-        )
+                    7,
+                    MotionEvent.ACTION_CANCEL,
+                    2,
+                    0,
+                    arrayOf(PointerProperties(8), PointerProperties(1)),
+                    arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
+                )
+                .apply { offsetLocation(-100f, -1000f) }
+        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
 
         lateinit var actual: MotionEvent
-        pointerEvent.toCancelMotionEventScope(Offset(100f, 1000f)) {
-            actual = it
-        }
+        pointerEvent.toCancelMotionEventScope(Offset(100f, 1000f)) { actual = it }
 
         assertThat(actual).isSameInstanceAs(expected)
     }
@@ -482,9 +371,7 @@ class PointerInteropUtilsTest {
             )
         lateinit var actual: MotionEvent
 
-        emptyCancelMotionEventScope(76) {
-            actual = it
-        }
+        emptyCancelMotionEventScope(76) { actual = it }
 
         assertEquals(actual, expected)
     }
@@ -498,22 +385,23 @@ private fun MotionEvent(
     pointerProperties: Array<MotionEvent.PointerProperties>,
     pointerCoords: Array<MotionEvent.PointerCoords>,
     downtime: Long = 0L
-) = MotionEvent.obtain(
-    downtime,
-    eventTime,
-    action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
-    numPointers,
-    pointerProperties,
-    pointerCoords,
-    0,
-    0,
-    0f,
-    0f,
-    0,
-    0,
-    0,
-    0
-)
+) =
+    MotionEvent.obtain(
+        downtime,
+        eventTime,
+        action + (actionIndex shl MotionEvent.ACTION_POINTER_INDEX_SHIFT),
+        numPointers,
+        pointerProperties,
+        pointerCoords,
+        0,
+        0,
+        0f,
+        0f,
+        0,
+        0,
+        0,
+        0
+    )
 
 private fun assertEquals(actual: MotionEvent, expected: MotionEvent) {
     assertThat(actual.downTime).isEqualTo(expected.downTime)
@@ -531,10 +419,7 @@ private fun assertEquals(actual: MotionEvent, expected: MotionEvent) {
     assertEqualPointerCoords(actual, expected)
 
     // Equal pointer coords relative to screen.
-    assertEqualPointerCoords(
-        actual.asOffsetToScreen(),
-        expected.asOffsetToScreen()
-    )
+    assertEqualPointerCoords(actual.asOffsetToScreen(), expected.asOffsetToScreen())
 }
 
 private fun assertEqualToolTypes(actual: MotionEvent, expected: MotionEvent) {
@@ -553,9 +438,7 @@ private fun assertEqualPointerProperties(actual: MotionEvent, expected: MotionEv
     }
 }
 
-/**
- * Asserts that 2 [MotionEvent]s' [PointerCoords] are the same.
- */
+/** Asserts that 2 [MotionEvent]s' [PointerCoords] are the same. */
 private fun assertEqualPointerCoords(actual: MotionEvent, expected: MotionEvent) {
     val actualPointerCoords = MotionEvent.PointerCoords()
     val expectedPointerCoords = MotionEvent.PointerCoords()
@@ -568,13 +451,11 @@ private fun assertEqualPointerCoords(actual: MotionEvent, expected: MotionEvent)
 }
 
 /**
- * Creates a new [MotionEvent] that is offset to the screen instead of the [View] it was
- * dispatched to.
+ * Creates a new [MotionEvent] that is offset to the screen instead of the [View] it was dispatched
+ * to.
  */
 private fun MotionEvent.asOffsetToScreen() =
-    MotionEvent.obtain(this).also { motionEvent ->
-        motionEvent.offsetLocation(rawX - x, rawY - y)
-    }
+    MotionEvent.obtain(this).also { motionEvent -> motionEvent.offsetLocation(rawX - x, rawY - y) }
 
 private fun PointerEvent(
     changes: List<PointerInputChange>,

@@ -55,9 +55,8 @@ class TextFieldToggleTextTestCase(
 
     private val textInputService = TextInputService(TestPlatformTextInputService())
 
-    private val texts = List(textNumber) {
-        mutableStateOf(textGenerator.nextParagraph(length = textLength))
-    }
+    private val texts =
+        List(textNumber) { mutableStateOf(textGenerator.nextParagraph(length = textLength)) }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -74,19 +73,13 @@ class TextFieldToggleTextTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        Column(
-            modifier = Modifier.width(width).verticalScroll(rememberScrollState())
-        ) {
-            CompositionLocalProvider(LocalTextInputService provides textInputService) {
-                content()
-            }
+        Column(modifier = Modifier.width(width).verticalScroll(rememberScrollState())) {
+            CompositionLocalProvider(LocalTextInputService provides textInputService) { content() }
         }
     }
 
     override fun toggleState() {
-        texts.forEach {
-            it.value = textGenerator.nextParagraph(length = textLength)
-        }
+        texts.forEach { it.value = textGenerator.nextParagraph(length = textLength) }
     }
 
     private class TestPlatformTextInputService : PlatformTextInputService {
@@ -95,10 +88,22 @@ class TextFieldToggleTextTestCase(
             imeOptions: ImeOptions,
             onEditCommand: (List<EditCommand>) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
-        ) { /*do nothing*/ }
-        override fun stopInput() { /*do nothing*/ }
-        override fun showSoftwareKeyboard() { /*do nothing*/ }
-        override fun hideSoftwareKeyboard() { /*do nothing*/ }
+        ) {
+            /*do nothing*/
+        }
+
+        override fun stopInput() {
+            /*do nothing*/
+        }
+
+        override fun showSoftwareKeyboard() {
+            /*do nothing*/
+        }
+
+        override fun hideSoftwareKeyboard() {
+            /*do nothing*/
+        }
+
         override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
             /*do nothing*/
         }

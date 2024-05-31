@@ -44,9 +44,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.core.content.res.ResourcesCompat
 
-/**
- * An implementation of [AndroidTypeface] for [FontListFontFamily]
- */
+/** An implementation of [AndroidTypeface] for [FontListFontFamily] */
 // internal constructor for injecting FontMatcher for testing purpose
 @Suppress("DEPRECATION")
 @Deprecated("This is not supported after downloadable fonts.")
@@ -60,15 +58,19 @@ internal class AndroidFontListTypeface(
     private companion object {
         val fontMatcher = FontMatcher()
     }
+
     private val loadedTypefaces: Map<Font, Typeface>
 
     init {
-        val blockingFonts = fontFamily.fonts.fastFilter {
-            it.loadingStrategy == FontLoadingStrategy.Blocking
-        }
-        val matchedFonts: List<Font>? = necessaryStyles?.fastMap { (weight, style) ->
-            fontMatcher.matchFont(blockingFonts, weight, style).firstOrNull()
-        }?.fastFilterNotNull()?.fastDistinctBy { it }
+        val blockingFonts =
+            fontFamily.fonts.fastFilter { it.loadingStrategy == FontLoadingStrategy.Blocking }
+        val matchedFonts: List<Font>? =
+            necessaryStyles
+                ?.fastMap { (weight, style) ->
+                    fontMatcher.matchFont(blockingFonts, weight, style).firstOrNull()
+                }
+                ?.fastFilterNotNull()
+                ?.fastDistinctBy { it }
         val targetFonts = matchedFonts ?: blockingFonts
         check(targetFonts.isNotEmpty()) { "Could not match font" }
 
@@ -91,9 +93,10 @@ internal class AndroidFontListTypeface(
         fontStyle: FontStyle,
         synthesis: FontSynthesis
     ): Typeface {
-        val font = fontMatcher
-            .matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
-            .firstOrNull()
+        val font =
+            fontMatcher
+                .matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
+                .firstOrNull()
         checkNotNull(font) { "Could not load font" }
 
         val typeface = loadedTypefaces[font]
@@ -103,9 +106,7 @@ internal class AndroidFontListTypeface(
     }
 }
 
-/**
- * Global Android NativeTypeface cache.
- */
+/** Global Android NativeTypeface cache. */
 @Deprecated("Duplicate cache")
 internal object AndroidTypefaceCache {
 
@@ -121,29 +122,30 @@ internal object AndroidTypefaceCache {
         val key = getKey(context, font)
 
         key?.let {
-            cache.get(key)?.let { return it }
+            cache.get(key)?.let {
+                return it
+            }
         }
 
-        val typeface = when (font) {
-            is ResourceFont ->
-                if (Build.VERSION.SDK_INT >= 26) {
-                    @Suppress("DEPRECATION")
-                    AndroidResourceFontLoaderHelper.create(context, font.resId)
-                } else {
-                    ResourcesCompat.getFont(context, font.resId)!!
-                }
-            is AndroidFont -> font.typefaceLoader.loadBlocking(context, font)
-            else -> throw IllegalArgumentException("Unknown font type: $font")
-        } ?: throw IllegalArgumentException("Unable to load font $font")
+        val typeface =
+            when (font) {
+                is ResourceFont ->
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        @Suppress("DEPRECATION")
+                        AndroidResourceFontLoaderHelper.create(context, font.resId)
+                    } else {
+                        ResourcesCompat.getFont(context, font.resId)!!
+                    }
+                is AndroidFont -> font.typefaceLoader.loadBlocking(context, font)
+                else -> throw IllegalArgumentException("Unknown font type: $font")
+            } ?: throw IllegalArgumentException("Unable to load font $font")
 
         key?.let { cache.put(key, typeface) }
 
         return typeface
     }
 
-    /**
-     * Utility method to generate a key for caching purposes.
-     */
+    /** Utility method to generate a key for caching purposes. */
     fun getKey(context: Context, font: Font): String? {
         return when (font) {
             is ResourceFont -> {
@@ -158,9 +160,9 @@ internal object AndroidTypefaceCache {
 }
 
 /**
- * This class is here to ensure that the classes that use this API will get verified and can be
- * AOT compiled. It is expected that this class will soft-fail verification, but the classes
- * which use this method will pass.
+ * This class is here to ensure that the classes that use this API will get verified and can be AOT
+ * compiled. It is expected that this class will soft-fail verification, but the classes which use
+ * this method will pass.
  */
 @RequiresApi(26)
 @Deprecated("Only used by deprecated APIs in this file, remove with them.")

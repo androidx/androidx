@@ -51,37 +51,37 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         // Mappings for elevation -> expected alpha for the overlay color in dark theme
-        fun initElevation(): Array<Any> = arrayOf(
-            arrayOf(0.dp, 0f, null),
-            arrayOf(1.dp, 0.05f, null),
-            arrayOf(2.dp, 0.07f, null),
-            arrayOf(3.dp, 0.08f, null),
-            arrayOf(4.dp, 0.09f, null),
-            arrayOf(6.dp, 0.11f, null),
-            arrayOf(8.dp, 0.12f, null),
-            arrayOf(12.dp, 0.14f, null),
-            arrayOf(16.dp, 0.15f, null),
-            arrayOf(24.dp, 0.16f, null)
-        )
+        fun initElevation(): Array<Any> =
+            arrayOf(
+                arrayOf(0.dp, 0f, null),
+                arrayOf(1.dp, 0.05f, null),
+                arrayOf(2.dp, 0.07f, null),
+                arrayOf(3.dp, 0.08f, null),
+                arrayOf(4.dp, 0.09f, null),
+                arrayOf(6.dp, 0.11f, null),
+                arrayOf(8.dp, 0.12f, null),
+                arrayOf(12.dp, 0.14f, null),
+                arrayOf(16.dp, 0.15f, null),
+                arrayOf(24.dp, 0.16f, null)
+            )
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun correctElevationOverlayInDarkTheme() {
         val colors = darkColors()
 
-        rule.setContent {
-            TestSurface(elevation!!, colors)
-        }
+        rule.setContent { TestSurface(elevation!!, colors) }
 
-        val expectedSurfaceColor = calculateTestSurfaceColor(
-            surfaceColor = colors.surface,
-            foregroundColor = colors.onSurface
-        )
+        val expectedSurfaceColor =
+            calculateTestSurfaceColor(
+                surfaceColor = colors.surface,
+                foregroundColor = colors.onSurface
+            )
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -102,11 +102,11 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             }
         }
 
-        val expectedSurfaceColor = colors.onSurface
-            .copy(alpha = 0.09f)
-            .compositeOver(colors.surface)
+        val expectedSurfaceColor =
+            colors.onSurface.copy(alpha = 0.09f).compositeOver(colors.surface)
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -120,21 +120,19 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
     fun correctElevationOverlayWithCustomContentColor() {
         val customContentColor = Color.Blue
 
-        val customColors = darkColors(
-            onBackground = customContentColor,
-            onSurface = customContentColor
-        )
+        val customColors =
+            darkColors(onBackground = customContentColor, onSurface = customContentColor)
 
-        rule.setContent {
-            TestSurface(elevation!!, customColors)
-        }
+        rule.setContent { TestSurface(elevation!!, customColors) }
 
-        val expectedSurfaceColor = calculateTestSurfaceColor(
-            surfaceColor = customColors.surface,
-            foregroundColor = customContentColor
-        )
+        val expectedSurfaceColor =
+            calculateTestSurfaceColor(
+                surfaceColor = customColors.surface,
+                foregroundColor = customContentColor
+            )
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -148,14 +146,13 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
     fun noChangesInLightTheme() {
         val colors = lightColors()
 
-        rule.setContent {
-            TestSurface(elevation!!, lightColors())
-        }
+        rule.setContent { TestSurface(elevation!!, lightColors()) }
 
         // No overlay should be applied in light theme
         val expectedSurfaceColor = colors.surface
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -179,7 +176,8 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
         // No overlay should be applied
         val expectedSurfaceColor = colors.surface
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -193,10 +191,11 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
     fun customElevationOverlay() {
         val customOverlayColor = Color.Red
 
-        val customOverlay = object : ElevationOverlay {
-            @Composable
-            override fun apply(color: Color, elevation: Dp): Color = customOverlayColor
-        }
+        val customOverlay =
+            object : ElevationOverlay {
+                @Composable
+                override fun apply(color: Color, elevation: Dp): Color = customOverlayColor
+            }
 
         rule.setContent {
             CompositionLocalProvider(LocalElevationOverlay provides customOverlay) {
@@ -204,7 +203,8 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             }
         }
 
-        rule.onNodeWithTag(Tag)
+        rule
+            .onNodeWithTag(Tag)
             .captureToImage()
             .toPixelMap()
             .assertPixelColor(
@@ -216,7 +216,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
 
     /**
      * @return the resulting color from compositing [foregroundColor] with [expectedOverlayAlpha]
-     * over [surfaceColor].
+     *   over [surfaceColor].
      */
     private fun calculateTestSurfaceColor(surfaceColor: Color, foregroundColor: Color): Color {
         return foregroundColor.copy(expectedOverlayAlpha).compositeOver(surfaceColor)
@@ -231,10 +231,8 @@ private fun TestSurface(elevation: Dp, colors: Colors) {
                 with(LocalDensity.current) {
                     // Make the surface size small so we compare less pixels
                     Box(
-                        Modifier.size(
-                            SurfaceSize.width.toDp(),
-                            SurfaceSize.height.toDp()
-                        ).testTag(Tag)
+                        Modifier.size(SurfaceSize.width.toDp(), SurfaceSize.height.toDp())
+                            .testTag(Tag)
                     )
                 }
             }

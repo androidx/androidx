@@ -39,8 +39,7 @@ fun PopupSample() {
         Popup(alignment = Alignment.Center) {
             // Draw a rectangle shape with rounded corners inside the popup
             Box(
-                Modifier
-                    .size(popupWidth, popupHeight)
+                Modifier.size(popupWidth, popupHeight)
                     .background(Color.White, RoundedCornerShape(cornerSize))
             )
         }

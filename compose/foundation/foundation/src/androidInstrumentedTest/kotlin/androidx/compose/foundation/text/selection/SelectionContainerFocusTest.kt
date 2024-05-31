@@ -68,8 +68,7 @@ import org.mockito.kotlin.verify
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SelectionContainerFocusTest {
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var view: View
 
@@ -89,27 +88,21 @@ class SelectionContainerFocusTest {
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
-        val positionInText = with(Density(view.context)) {
-            fontSize.toPx() / 2
+        val positionInText = with(Density(view.context)) { fontSize.toPx() / 2 }
+        rule.onNode(hasTestTag("selectionContainer1")).performTouchInput {
+            longClick(Offset(x = positionInText, y = positionInText))
         }
-        rule.onNode(hasTestTag("selectionContainer1"))
-            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
-        rule.runOnIdle {
-            assertThat(selection1.value).isNotNull()
-        }
+        rule.runOnIdle { assertThat(selection1.value).isNotNull() }
 
         // Act.
-        rule.onNode(hasTestTag("box"))
-            .performTouchInput { click(center) }
+        rule.onNode(hasTestTag("box")).performTouchInput { click(center) }
 
         // Assert.
         rule.runOnIdle {
             assertThat(selection1.value).isNull()
             assertThat(selection2.value).isNull()
-            verify(
-                hapticFeedback,
-                times(2)
-            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            verify(hapticFeedback, times(2))
+                .performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
 
@@ -119,18 +112,16 @@ class SelectionContainerFocusTest {
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
-        val positionInText = with(Density(view.context)) {
-            fontSize.toPx() / 2
+        val positionInText = with(Density(view.context)) { fontSize.toPx() / 2 }
+        rule.onNode(hasTestTag("selectionContainer1")).performTouchInput {
+            longClick(Offset(x = positionInText, y = positionInText))
         }
-        rule.onNode(hasTestTag("selectionContainer1"))
-            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
-        rule.runOnIdle {
-            assertThat(selection1.value).isNotNull()
-        }
+        rule.runOnIdle { assertThat(selection1.value).isNotNull() }
 
         // Act.
-        rule.onNode(hasTestTag("selectionContainer2"))
-            .performTouchInput { longClick(Offset(x = positionInText, y = positionInText)) }
+        rule.onNode(hasTestTag("selectionContainer2")).performTouchInput {
+            longClick(Offset(x = positionInText, y = positionInText))
+        }
 
         // Assert.
         rule.runOnIdle {
@@ -138,10 +129,8 @@ class SelectionContainerFocusTest {
             assertThat(selection2.value).isNotNull()
             // There will be 2 times from the first SelectionContainer and 1 time from the second
             // SelectionContainer.
-            verify(
-                hapticFeedback,
-                times(3)
-            ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            verify(hapticFeedback, times(3))
+                .performHapticFeedback(HapticFeedbackType.TextHandleMove)
         }
     }
 
@@ -149,19 +138,18 @@ class SelectionContainerFocusTest {
     fun leavingComposition_hidesTextToolbar() {
         // null -> nothing got called, true -> show, false -> hide
         var lastShowCalled: Boolean? = null
-        val fakeTextToolbar = FakeTextToolbar(
-            onShowMenu = { _, _, _, _, _ -> lastShowCalled = true },
-            onHideMenu = { lastShowCalled = false }
-        )
+        val fakeTextToolbar =
+            FakeTextToolbar(
+                onShowMenu = { _, _, _, _, _ -> lastShowCalled = true },
+                onHideMenu = { lastShowCalled = false }
+            )
 
         val tag = "SelectionContainer"
 
         var inComposition by mutableStateOf(true)
 
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextToolbar provides fakeTextToolbar
-            ) {
+            CompositionLocalProvider(LocalTextToolbar provides fakeTextToolbar) {
                 if (inComposition) {
                     SelectionContainer(modifier = Modifier.testTag("SelectionContainer")) {
                         BasicText(
@@ -180,15 +168,11 @@ class SelectionContainerFocusTest {
         }
 
         rule.onNodeWithTag(tag).performTouchInput { longClick() }
-        rule.runOnIdle {
-            assertThat(lastShowCalled).isTrue()
-        }
+        rule.runOnIdle { assertThat(lastShowCalled).isTrue() }
 
         inComposition = false
 
-        rule.runOnIdle {
-            assertThat(lastShowCalled).isFalse()
-        }
+        rule.runOnIdle { assertThat(lastShowCalled).isFalse() }
     }
 
     private fun createSelectionContainer(isRtl: Boolean = false) {
@@ -203,15 +187,11 @@ class SelectionContainerFocusTest {
             ) {
                 Column {
                     SelectionContainer(
-                        modifier = Modifier
-                            .onGloballyPositioned {
-                                measureLatch.countDown()
-                            }
-                            .testTag("selectionContainer1"),
+                        modifier =
+                            Modifier.onGloballyPositioned { measureLatch.countDown() }
+                                .testTag("selectionContainer1"),
                         selection = selection1.value,
-                        onSelectionChange = {
-                            selection1.value = it
-                        }
+                        onSelectionChange = { selection1.value = it }
                     ) {
                         Column {
                             BasicText(
@@ -224,23 +204,16 @@ class SelectionContainerFocusTest {
                                 inlineContent = mapOf(),
                                 onTextLayout = {}
                             )
-                            Box(
-                                Modifier
-                                    .size(boxSize, boxSize)
-                                    .testTag("box"))
+                            Box(Modifier.size(boxSize, boxSize).testTag("box"))
                         }
                     }
 
                     SelectionContainer(
-                        modifier = Modifier
-                            .onGloballyPositioned {
-                                measureLatch.countDown()
-                            }
-                            .testTag("selectionContainer2"),
+                        modifier =
+                            Modifier.onGloballyPositioned { measureLatch.countDown() }
+                                .testTag("selectionContainer2"),
                         selection = selection2.value,
-                        onSelectionChange = {
-                            selection2.value = it
-                        }
+                        onSelectionChange = { selection2.value = it }
                     ) {
                         BasicText(
                             AnnotatedString(textContent),
@@ -263,13 +236,14 @@ class SelectionContainerFocusTest {
 }
 
 internal fun FakeTextToolbar(
-    onShowMenu: (
-        rect: Rect,
-        onCopyRequested: (() -> Unit)?,
-        onPasteRequested: (() -> Unit)?,
-        onCutRequested: (() -> Unit)?,
-        onSelectAllRequested: (() -> Unit)?
-    ) -> Unit,
+    onShowMenu:
+        (
+            rect: Rect,
+            onCopyRequested: (() -> Unit)?,
+            onPasteRequested: (() -> Unit)?,
+            onCutRequested: (() -> Unit)?,
+            onSelectAllRequested: (() -> Unit)?
+        ) -> Unit,
     onHideMenu: () -> Unit
 ): TextToolbar {
     return object : TextToolbar {

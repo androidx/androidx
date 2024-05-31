@@ -33,24 +33,17 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeVisitAncestorsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noAncestors() {
         // Arrange.
         val node = object : Modifier.Node() {}
         val visitedAncestors = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes()).isEmpty()
@@ -62,20 +55,11 @@ class ModifierNodeVisitAncestorsTest {
         val (node, localParent1, localParent2) = List(3) { object : Modifier.Node() {} }
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(localParent2)
-                    .elementOf(localParent1)
-                    .elementOf(node)
-            )
+            Box(Modifier.elementOf(localParent2).elementOf(localParent1).elementOf(node))
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes())
@@ -90,8 +74,7 @@ class ModifierNodeVisitAncestorsTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(
-                Modifier
-                    .elementOf(localParent2)
+                Modifier.elementOf(localParent2)
                     .otherModifier()
                     .elementOf(localParent1)
                     .otherModifier()
@@ -100,11 +83,7 @@ class ModifierNodeVisitAncestorsTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes())
@@ -120,28 +99,14 @@ class ModifierNodeVisitAncestorsTest {
         val visitedAncestors = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(Modifier.elementOf(ancestor3)) {
-                Box(
-                    Modifier
-                        .elementOf(ancestor2)
-                        .elementOf(ancestor1)
-                ) {
-                    Box {
-                        Box(
-                            Modifier
-                                .elementOf(localParent)
-                                .elementOf(node)
-                        )
-                    }
+                Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
+                    Box { Box(Modifier.elementOf(localParent).elementOf(node)) }
                 }
             }
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes())
@@ -160,15 +125,10 @@ class ModifierNodeVisitAncestorsTest {
         rule.setContent {
             Box(Modifier.elementOf(ancestor4)) {
                 Box(Modifier.elementOf(ancestor3)) {
-                    Box(
-                        Modifier
-                            .elementOf(ancestor2)
-                            .elementOf(ancestor1)
-                    ) {
+                    Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
                         Box {
                             Box(
-                                Modifier
-                                    .elementOf(localParent3)
+                                Modifier.elementOf(localParent3)
                                     .elementOf(localParent2)
                                     .elementOf(localParent1)
                                     .elementOf(node)
@@ -186,11 +146,7 @@ class ModifierNodeVisitAncestorsTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitAncestors(Nodes.Any) {
-                visitedAncestors.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitAncestors(Nodes.Any) { visitedAncestors.add(it) } }
 
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes())
@@ -209,10 +165,10 @@ class ModifierNodeVisitAncestorsTest {
         var removeNode by mutableStateOf(false)
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .elementOf(localParent2)
-                    .elementOf(localParent1)
-                    .then(if (removeNode) Modifier else Modifier.elementOf(detachableNode))
+                modifier =
+                    Modifier.elementOf(localParent2)
+                        .elementOf(localParent1)
+                        .then(if (removeNode) Modifier else Modifier.elementOf(detachableNode))
             )
         }
 
@@ -238,17 +194,10 @@ class ModifierNodeVisitAncestorsTest {
         var removeNode by mutableStateOf(false)
         rule.setContent {
             Box(Modifier.elementOf(ancestor4)) {
-                Box(
-                    Modifier
-                        .elementOf(ancestor3)
-                        .elementOf(ancestor2)
-                ) {
+                Box(Modifier.elementOf(ancestor3).elementOf(ancestor2)) {
                     Box(
-                        Modifier
-                            .elementOf(ancestor1)
-                            .then(
-                                if (removeNode) Modifier else Modifier.elementOf(detachableNode)
-                            )
+                        Modifier.elementOf(ancestor1)
+                            .then(if (removeNode) Modifier else Modifier.elementOf(detachableNode))
                     )
                 }
             }

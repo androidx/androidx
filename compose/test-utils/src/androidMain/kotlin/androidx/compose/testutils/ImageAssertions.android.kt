@@ -41,9 +41,8 @@ import org.junit.Assert
  * A helper function to run asserts on [Bitmap].
  *
  * @param expectedSize The expected size of the bitmap. Leave null to skip the check.
- * @param expectedColorProvider Returns the expected color for the provided pixel position.
- * The returned color is then asserted as the expected one on the given bitmap.
- *
+ * @param expectedColorProvider Returns the expected color for the provided pixel position. The
+ *   returned color is then asserted as the expected one on the given bitmap.
  * @throws AssertionError if size or colors don't match.
  */
 fun ImageBitmap.assertPixels(
@@ -53,8 +52,7 @@ fun ImageBitmap.assertPixels(
     if (expectedSize != null) {
         if (width != expectedSize.width || height != expectedSize.height) {
             throw AssertionError(
-                "Bitmap size is wrong! Expected '$expectedSize' but got " +
-                    "'$width x $height'"
+                "Bitmap size is wrong! Expected '$expectedSize' but got " + "'$width x $height'"
             )
         }
     }
@@ -71,9 +69,7 @@ fun ImageBitmap.assertPixels(
     }
 }
 
-/**
- * Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected].
- */
+/** Asserts that the color at a specific pixel in the bitmap at ([x], [y]) is [expected]. */
 fun PixelMap.assertPixelColor(
     expected: Color,
     x: Int,
@@ -93,18 +89,14 @@ fun PixelMap.assertPixelColor(
  *
  * @throws AssertionError if the expected color is not present.
  */
-fun ImageBitmap.assertContainsColor(
-    expectedColor: Color
-): ImageBitmap {
+fun ImageBitmap.assertContainsColor(expectedColor: Color): ImageBitmap {
     if (!containsColor(expectedColor)) {
         throw AssertionError("The given color $expectedColor was not found in the bitmap.")
     }
     return this
 }
 
-fun ImageBitmap.assertDoesNotContainColor(
-    unexpectedColor: Color
-): ImageBitmap {
+fun ImageBitmap.assertDoesNotContainColor(unexpectedColor: Color): ImageBitmap {
     if (containsColor(unexpectedColor)) {
         throw AssertionError("The given color $unexpectedColor was found in the bitmap.")
     }
@@ -125,9 +117,8 @@ private fun ImageBitmap.containsColor(expectedColor: Color): Boolean {
 }
 
 /**
- * Tests to see if the given point is within the path. (That is, whether the
- * point would be in the visible portion of the path if the path was used
- * with [Canvas.clipPath].)
+ * Tests to see if the given point is within the path. (That is, whether the point would be in the
+ * visible portion of the path if the path was used with [Canvas.clipPath].)
  *
  * The `point` argument is interpreted as an offset from the origin.
  *
@@ -150,8 +141,8 @@ fun Path.contains(offset: Offset): Boolean {
 
 /**
  * Asserts that the given [shape] is drawn within the bitmap with the size the dimensions
- * [shapeSizeX] x [shapeSizeY], centered at ([centerX], [centerY]) with the color [shapeColor].
- * The bitmap area examined is [sizeX] x [sizeY], centered at ([centerX], [centerY]) and everything
+ * [shapeSizeX] x [shapeSizeY], centered at ([centerX], [centerY]) with the color [shapeColor]. The
+ * bitmap area examined is [sizeX] x [sizeY], centered at ([centerX], [centerY]) and everything
  * outside the shape is expected to be color [backgroundColor].
  *
  * @param density current [Density] or the screen
@@ -166,7 +157,7 @@ fun Path.contains(offset: Offset): Boolean {
  * @param centerX the X position of the center of the [shape] inside the [sizeX]
  * @param centerY the Y position of the center of the [shape] inside the [sizeY]
  * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
- * untested as it is likely anti-aliased. The default is 1 pixel
+ *   untested as it is likely anti-aliased. The default is 1 pixel
  */
 // TODO (mount, malkov) : to investigate why it flakes when shape is not rect
 fun ImageBitmap.assertShape(
@@ -193,10 +184,7 @@ fun ImageBitmap.assertShape(
     val outline = shape.createOutline(Size(shapeSizeX, shapeSizeY), LayoutDirection.Ltr, density)
     val path = Path()
     path.addOutline(outline)
-    val shapeOffset = Offset(
-        (centerX - shapeSizeX / 2f),
-        (centerY - shapeSizeY / 2f)
-    )
+    val shapeOffset = Offset((centerX - shapeSizeX / 2f), (centerY - shapeSizeY / 2f))
     val backgroundPath = Path()
     backgroundPath.addOutline(
         backgroundShape.createOutline(Size(sizeX, sizeY), LayoutDirection.Ltr, density)
@@ -204,34 +192,22 @@ fun ImageBitmap.assertShape(
     for (y in centerY - sizeY / 2 until centerY + sizeY / 2) {
         for (x in centerX - sizeX / 2 until centerX + sizeX / 2) {
             val point = Offset(x.toFloat(), y.toFloat())
-            if (!backgroundPath.contains(
-                    pixelFartherFromCenter(
-                        point,
-                        sizeX,
-                        sizeY,
-                        shapeOverlapPixelCount
-                    )
+            if (
+                !backgroundPath.contains(
+                    pixelFartherFromCenter(point, sizeX, sizeY, shapeOverlapPixelCount)
                 )
             ) {
                 continue
             }
             val offset = point - shapeOffset
-            val isInside = path.contains(
-                pixelFartherFromCenter(
-                    offset,
-                    shapeSizeX,
-                    shapeSizeY,
-                    shapeOverlapPixelCount
+            val isInside =
+                path.contains(
+                    pixelFartherFromCenter(offset, shapeSizeX, shapeSizeY, shapeOverlapPixelCount)
                 )
-            )
-            val isOutside = !path.contains(
-                pixelCloserToCenter(
-                    offset,
-                    shapeSizeX,
-                    shapeSizeY,
-                    shapeOverlapPixelCount
+            val isOutside =
+                !path.contains(
+                    pixelCloserToCenter(offset, shapeSizeX, shapeSizeY, shapeOverlapPixelCount)
                 )
-            )
             if (isInside) {
                 pixels.assertPixelColor(shapeColor, x, y)
             } else if (isOutside) {
@@ -243,8 +219,8 @@ fun ImageBitmap.assertShape(
 
 /**
  * Asserts that the bitmap is fully occupied by the given [shape] with the color [shapeColor]
- * without [horizontalPadding] and [verticalPadding] from the sides. The padded area is expected
- * to have [backgroundColor].
+ * without [horizontalPadding] and [verticalPadding] from the sides. The padded area is expected to
+ * have [backgroundColor].
  *
  * @param density current [Density] or the screen
  * @param horizontalPadding the symmetrical padding to be applied from both left and right sides
@@ -253,7 +229,7 @@ fun ImageBitmap.assertShape(
  * @param shapeColor the color of the shape
  * @param shape defines the [Shape]
  * @param shapeOverlapPixelCount The size of the border area from the shape outline to leave it
- * untested as it is likely anti-aliased. The default is 1 pixel
+ *   untested as it is likely anti-aliased. The default is 1 pixel
  */
 fun ImageBitmap.assertShape(
     density: Density,
@@ -294,16 +270,18 @@ private fun pixelCloserToCenter(
     val centerX = shapeSizeX / 2f
     val centerY = shapeSizeY / 2f
     val d = delta
-    val x = when {
-        offset.x > centerX -> offset.x - d
-        offset.x < centerX -> offset.x + d
-        else -> offset.x
-    }
-    val y = when {
-        offset.y > centerY -> offset.y - d
-        offset.y < centerY -> offset.y + d
-        else -> offset.y
-    }
+    val x =
+        when {
+            offset.x > centerX -> offset.x - d
+            offset.x < centerX -> offset.x + d
+            else -> offset.x
+        }
+    val y =
+        when {
+            offset.y > centerY -> offset.y - d
+            offset.y < centerY -> offset.y + d
+            else -> offset.y
+        }
     return Offset(x, y)
 }
 
@@ -316,15 +294,17 @@ private fun pixelFartherFromCenter(
     val centerX = shapeSizeX / 2f
     val centerY = shapeSizeY / 2f
     val d = delta
-    val x = when {
-        offset.x > centerX -> offset.x + d
-        offset.x < centerX -> offset.x - d
-        else -> offset.x
-    }
-    val y = when {
-        offset.y > centerY -> offset.y + d
-        offset.y < centerY -> offset.y - d
-        else -> offset.y
-    }
+    val x =
+        when {
+            offset.x > centerX -> offset.x + d
+            offset.x < centerX -> offset.x - d
+            else -> offset.x
+        }
+    val y =
+        when {
+            offset.y > centerY -> offset.y + d
+            offset.y < centerY -> offset.y - d
+            else -> offset.y
+        }
     return Offset(x, y)
 }

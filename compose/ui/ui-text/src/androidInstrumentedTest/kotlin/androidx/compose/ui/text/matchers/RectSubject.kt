@@ -23,14 +23,15 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertThat
 
-internal class RectSubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: Rect?
-) : Subject(failureMetadata, subject) {
+internal class RectSubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: Rect?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<RectSubject?, Rect?> =
-            Factory { failureMetadata, subject -> RectSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                RectSubject(failureMetadata, subject)
+            }
     }
 
     fun isEqualToWithTolerance(expected: Rect) {
@@ -44,14 +45,15 @@ internal class RectSubject private constructor(
     }
 }
 
-internal class RectArraySubject private constructor(
-    failureMetadata: FailureMetadata?,
-    private val subject: Array<Rect>?
-) : Subject(failureMetadata, subject) {
+internal class RectArraySubject
+private constructor(failureMetadata: FailureMetadata?, private val subject: Array<Rect>?) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         internal val SUBJECT_FACTORY: Factory<RectArraySubject?, Array<Rect>?> =
-            Factory { failureMetadata, subject -> RectArraySubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                RectArraySubject(failureMetadata, subject)
+            }
     }
 
     fun isEqualToWithTolerance(expected: Array<Rect>) {
@@ -59,7 +61,8 @@ internal class RectArraySubject private constructor(
         check("instanceOf()").that(subject).isInstanceOf(Array<Rect>::class.java)
         check("size").that(subject).hasLength(expected.size)
         for (index in subject!!.indices) {
-            androidx.compose.ui.text.matchers.assertThat(subject[index])
+            androidx.compose.ui.text.matchers
+                .assertThat(subject[index])
                 .isEqualToWithTolerance(expected[index])
         }
     }

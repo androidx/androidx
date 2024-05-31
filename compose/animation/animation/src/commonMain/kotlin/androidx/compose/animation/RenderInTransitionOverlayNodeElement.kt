@@ -48,7 +48,10 @@ internal data class RenderInTransitionOverlayNodeElement(
 ) : ModifierNodeElement<RenderInTransitionOverlayNode>() {
     override fun create(): RenderInTransitionOverlayNode {
         return RenderInTransitionOverlayNode(
-            sharedTransitionScope, renderInOverlay, zIndexInOverlay, clipInOverlay
+            sharedTransitionScope,
+            renderInOverlay,
+            zIndexInOverlay,
+            clipInOverlay
         )
     }
 
@@ -103,20 +106,16 @@ internal class RenderInTransitionOverlayNode(
         override fun drawInOverlay(drawScope: DrawScope) {
             if (renderInOverlay()) {
                 with(drawScope) {
-                    val (x, y) = sharedScope.root.localPositionOf(
-                        this@RenderInTransitionOverlayNode.requireLayoutCoordinates(), Offset.Zero
-                    )
+                    val (x, y) =
+                        sharedScope.root.localPositionOf(
+                            this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
+                            Offset.Zero
+                        )
                     val clipPath = clipInOverlay(layoutDirection, requireDensity())
                     if (clipPath != null) {
-                        clipPath(clipPath) {
-                            translate(x, y) {
-                                drawLayer(layer)
-                            }
-                        }
+                        clipPath(clipPath) { translate(x, y) { drawLayer(layer) } }
                     } else {
-                        translate(x, y) {
-                            drawLayer(layer)
-                        }
+                        translate(x, y) { drawLayer(layer) }
                     }
                 }
             }
@@ -126,12 +125,8 @@ internal class RenderInTransitionOverlayNode(
     // Render in-place logic. Depending on the result of `renderInOverlay()`, the content will
     // either render in-place or in the overlay, but never in both places.
     override fun ContentDrawScope.draw() {
-        val layer = requireNotNull(layer) {
-            "Error: layer never initialized"
-        }
-        layer.record {
-            this@draw.drawContent()
-        }
+        val layer = requireNotNull(layer) { "Error: layer never initialized" }
+        layer.record { this@draw.drawContent() }
         if (!renderInOverlay()) {
             drawLayer(layer)
         }
@@ -139,7 +134,9 @@ internal class RenderInTransitionOverlayNode(
 
     val layer: GraphicsLayer?
         get() = layerWithRenderer?.layer
+
     private var layerWithRenderer: LayerWithRenderer? = null
+
     override fun onAttach() {
         LayerWithRenderer(requireGraphicsContext().createGraphicsLayer()).let {
             sharedScope.onLayerRendererCreated(it)

@@ -29,16 +29,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SurfaceContentColorTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun surfaceSetsCorrectContentColors_primary() {
         rule.setContent {
             MaterialTheme {
                 Surface(color = MaterialTheme.colors.primary) {
-                    assertThat(LocalContentColor.current)
-                        .isEqualTo(MaterialTheme.colors.onPrimary)
+                    assertThat(LocalContentColor.current).isEqualTo(MaterialTheme.colors.onPrimary)
                 }
             }
         }
@@ -73,8 +71,7 @@ class SurfaceContentColorTest {
         rule.setContent {
             MaterialTheme {
                 Surface(color = MaterialTheme.colors.surface) {
-                    assertThat(LocalContentColor.current)
-                        .isEqualTo(MaterialTheme.colors.onSurface)
+                    assertThat(LocalContentColor.current).isEqualTo(MaterialTheme.colors.onSurface)
                 }
             }
         }

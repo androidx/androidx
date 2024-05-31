@@ -24,46 +24,35 @@ import androidx.compose.runtime.remember
  *
  * @param title Title of the notification
  * @param message The main text of the notification
- * @param type Type of the notification that defines how the notification will be represented to
- * the user (with which icon and which sound)
+ * @param type Type of the notification that defines how the notification will be represented to the
+ *   user (with which icon and which sound)
  */
 @Composable
 fun rememberNotification(
     title: String,
     message: String,
     type: Notification.Type = Notification.Type.None
-): Notification = remember {
-    Notification(
-        title, message, type
-    )
-}
+): Notification = remember { Notification(title, message, type) }
 
 /**
  * Notification, that can be sent to the platform and be shown to the user (in tray, notification
  * center, etc; depends on the platform).
  *
- * If notification creates inside Composable function it is better to use
- * [rememberNotification] to avoid creating a new object every recomposition.
+ * If notification creates inside Composable function it is better to use [rememberNotification] to
+ * avoid creating a new object every recomposition.
  *
  * @param title Title of the notification
  * @param message The main text of the notification
- * @param type Type of the notification that defines how the notification will be represented to
- * the user (with which icon and which sound)
+ * @param type Type of the notification that defines how the notification will be represented to the
+ *   user (with which icon and which sound)
  */
-class Notification(
-    val title: String,
-    val message: String,
-    val type: Type = Type.None
-) {
+class Notification(val title: String, val message: String, val type: Type = Type.None) {
     /**
-     * Returns a copy of this [Notification] instance optionally overriding the
-     * [title], [message], [type] parameter.
+     * Returns a copy of this [Notification] instance optionally overriding the [title], [message],
+     * [type] parameter.
      */
-    fun copy(
-        title: String = this.title,
-        message: String = this.message,
-        type: Type = this.type
-    ) = Notification(title, message, type)
+    fun copy(title: String = this.title, message: String = this.message, type: Type = this.type) =
+        Notification(title, message, type)
 
     override fun toString(): String {
         return "Notification(title=$title, message=$message, type=$type)"
@@ -90,29 +79,20 @@ class Notification(
     }
 
     /**
-     * Describes the type of the notification.
-     * Usually the platform shows a different icon and plays a different sound when notification
-     * will be shown to the user.
+     * Describes the type of the notification. Usually the platform shows a different icon and plays
+     * a different sound when notification will be shown to the user.
      */
     enum class Type {
-        /**
-         * Simple notification
-         */
+        /** Simple notification */
         None,
 
-        /**
-         * Info notification
-         */
+        /** Info notification */
         Info,
 
-        /**
-         * Warning notification
-         */
+        /** Warning notification */
         Warning,
 
-        /**
-         * Error notification
-         */
+        /** Error notification */
         Error,
     }
 }

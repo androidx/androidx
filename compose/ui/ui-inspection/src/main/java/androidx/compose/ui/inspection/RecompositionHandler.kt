@@ -24,33 +24,25 @@ import androidx.inspection.ArtTooling
 private const val START_RESTART_GROUP = "startRestartGroup(I)Landroidx/compose/runtime/Composer;"
 private const val SKIP_TO_GROUP_END = "skipToGroupEnd()V"
 
-/**
- * Detection of recompose counts and skips from installing runtime hooks.
- */
+/** Detection of recompose counts and skips from installing runtime hooks. */
 class RecompositionHandler(private val artTooling: ArtTooling) {
 
-    /**
-     * For each composable store the recomposition [count] and [skips].
-     */
+    /** For each composable store the recomposition [count] and [skips]. */
     class Data(var count: Int, var skips: Int)
 
     /**
      * Key of a Composable method.
      *
-     * The [key] identified the runtime method and the [anchorId] identified a
-     * specific compose node.
+     * The [key] identified the runtime method and the [anchorId] identified a specific compose
+     * node.
      */
     private data class MethodKey(val key: Int, val anchorId: Int)
 
     private val lock = Any()
-    @GuardedBy("lock")
-    private var currentlyCollecting = false
-    @GuardedBy("lock")
-    private var hooksInstalled = false
-    @GuardedBy("lock")
-    private val counts = mutableMapOf<MethodKey, Data>()
-    @GuardedBy("lock")
-    private var lastMethodKey: Int = 0
+    @GuardedBy("lock") private var currentlyCollecting = false
+    @GuardedBy("lock") private var hooksInstalled = false
+    @GuardedBy("lock") private val counts = mutableMapOf<MethodKey, Data>()
+    @GuardedBy("lock") private var lastMethodKey: Int = 0
 
     fun changeCollectionMode(startCollecting: Boolean, keepCounts: Boolean) {
         synchronized(lock) {
@@ -79,17 +71,16 @@ class RecompositionHandler(private val artTooling: ArtTooling) {
      * - entry hook for ComposerImpl.skipToGroupEnd converts a recompose count to a skip count.
      */
     private fun installHooks() {
-        val composerImpl = try {
-            Class.forName("${Composer::class.java.name}Impl")
-        } catch (ex: Throwable) {
-            Log.w("Compose", "Could not install recomposition hooks", ex)
-            return
-        }
+        val composerImpl =
+            try {
+                Class.forName("${Composer::class.java.name}Impl")
+            } catch (ex: Throwable) {
+                Log.w("Compose", "Could not install recomposition hooks", ex)
+                return
+            }
 
         artTooling.registerEntryHook(composerImpl, START_RESTART_GROUP) { _, args ->
-            synchronized(lock) {
-                lastMethodKey = args[0] as Int
-            }
+            synchronized(lock) { lastMethodKey = args[0] as Int }
         }
 
         artTooling.registerExitHook(composerImpl, START_RESTART_GROUP) { composer: Composer ->

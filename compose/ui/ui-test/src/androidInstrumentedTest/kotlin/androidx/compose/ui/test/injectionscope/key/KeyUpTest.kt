@@ -31,21 +31,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Tests if [KeyInjectionScope.keyUp] works
- */
+/** Tests if [KeyInjectionScope.keyUp] works */
 @MediumTest
 class KeyUpTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setUp() {
         // Set content to a simple text field.
-        rule.setContent {
-            TestTextField()
-        }
+        rule.setContent { TestTextField() }
     }
 
     @Test

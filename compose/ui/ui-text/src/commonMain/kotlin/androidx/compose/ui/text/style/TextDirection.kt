@@ -37,44 +37,42 @@ value class TextDirection internal constructor(internal val value: Int) {
     }
 
     companion object {
-        /**
-         * Always sets the text direction to be Left to Right.
-         */
+        /** Always sets the text direction to be Left to Right. */
         val Ltr = TextDirection(1)
 
-        /**
-         * Always sets the text direction to be Right to Left.
-         */
+        /** Always sets the text direction to be Right to Left. */
         val Rtl = TextDirection(2)
 
         /**
          * This value indicates that the text direction depends on the first strong directional
-         * character in the text according to the Unicode Bidirectional Algorithm.
-         * If no strong directional character is present, then
-         * [androidx.compose.ui.unit.LayoutDirection] is used to resolve the final TextDirection.
-         * * if used while creating a Paragraph object, [androidx.compose.ui.text.intl.LocaleList] will
-         * be used to resolve the direction as a fallback instead of
-         * [androidx.compose.ui.unit.LayoutDirection].
+         * character in the text according to the Unicode Bidirectional Algorithm. If no strong
+         * directional character is present, then [androidx.compose.ui.unit.LayoutDirection] is used
+         * to resolve the final TextDirection.
+         * * if used while creating a Paragraph object, [androidx.compose.ui.text.intl.LocaleList]
+         *   will be used to resolve the direction as a fallback instead of
+         *   [androidx.compose.ui.unit.LayoutDirection].
          */
         val Content = TextDirection(3)
 
         /**
          * This value indicates that the text direction depends on the first strong directional
          * character in the text according to the Unicode Bidirectional Algorithm. If no strong
-         * directional character is present, then Left to Right will be used as the default direction.
+         * directional character is present, then Left to Right will be used as the default
+         * direction.
          */
         val ContentOrLtr = TextDirection(4)
 
         /**
          * This value indicates that the text direction depends on the first strong directional
          * character in the text according to the Unicode Bidirectional Algorithm. If no strong
-         * directional character is present, then Right to Left will be used as the default direction.
+         * directional character is present, then Right to Left will be used as the default
+         * direction.
          */
         val ContentOrRtl = TextDirection(5)
 
         /**
-         * This represents an unset value, a usual replacement for "null" when a primitive value
-         * is desired.
+         * This represents an unset value, a usual replacement for "null" when a primitive value is
+         * desired.
          */
         val Unspecified = TextDirection(Int.MIN_VALUE)
     }

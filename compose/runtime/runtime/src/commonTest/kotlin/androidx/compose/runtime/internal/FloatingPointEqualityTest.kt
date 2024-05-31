@@ -128,41 +128,37 @@ class FloatingPointEqualityTest {
         assertEqualsWithNanFix(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY)
     }
 
-    private fun assertNotEqualsWithNanFix(
-        first: Float,
-        second: Float
-    ) = assertFalse(
-        message = "$first (${first.bitString}) == $second (${second.bitString}) " +
-            "returned true, expected false",
-        actual = first.equalsWithNanFix(second)
-    )
+    private fun assertNotEqualsWithNanFix(first: Float, second: Float) =
+        assertFalse(
+            message =
+                "$first (${first.bitString}) == $second (${second.bitString}) " +
+                    "returned true, expected false",
+            actual = first.equalsWithNanFix(second)
+        )
 
-    private fun assertEqualsWithNanFix(
-        first: Float,
-        second: Float
-    ) = assertTrue(
-        message = "$first (${first.bitString}) == $second (${second.bitString}) " +
-            "returned false, expected true",
-        actual = first.equalsWithNanFix(second)
-    )
+    private fun assertEqualsWithNanFix(first: Float, second: Float) =
+        assertTrue(
+            message =
+                "$first (${first.bitString}) == $second (${second.bitString}) " +
+                    "returned false, expected true",
+            actual = first.equalsWithNanFix(second)
+        )
 
-    private fun assertNotEqualsWithNanFix(
-        first: Double,
-        second: Double
-    ) = assertFalse(
-        message = "$first (${first.bitString}) == $second (${second.bitString}) " +
-            "returned true, expected false",
-        actual = first.equalsWithNanFix(second)
-    )
+    private fun assertNotEqualsWithNanFix(first: Double, second: Double) =
+        assertFalse(
+            message =
+                "$first (${first.bitString}) == $second (${second.bitString}) " +
+                    "returned true, expected false",
+            actual = first.equalsWithNanFix(second)
+        )
 
-    private fun assertEqualsWithNanFix(
-        first: Double,
-        second: Double
-    ) = assertTrue(
-        message = "$first (${first.bitString}) == $second (${second.bitString}) " +
-            "returned false, expected true",
-        actual = first.equalsWithNanFix(second)
-    )
+    private fun assertEqualsWithNanFix(first: Double, second: Double) =
+        assertTrue(
+            message =
+                "$first (${first.bitString}) == $second (${second.bitString}) " +
+                    "returned false, expected true",
+            actual = first.equalsWithNanFix(second)
+        )
 
     private val Float.bitString
         get() = "0x" + toBits().toUInt().toString(16).padStart(length = 8, '0')

@@ -34,9 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalFoundationApi::class)
-open class BaseLazyStaggeredGridWithOrientation(
-    private val orientation: Orientation
-) : BaseLazyLayoutTestWithOrientation(orientation) {
+open class BaseLazyStaggeredGridWithOrientation(private val orientation: Orientation) :
+    BaseLazyLayoutTestWithOrientation(orientation) {
 
     internal fun LazyStaggeredGridState.scrollBy(offset: Dp) {
         runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
@@ -45,9 +44,7 @@ open class BaseLazyStaggeredGridWithOrientation(
     }
 
     internal fun LazyStaggeredGridState.scrollTo(index: Int) {
-        runBlocking(Dispatchers.Main + AutoTestFrameClock()) {
-            scrollToItem(index)
-        }
+        runBlocking(Dispatchers.Main + AutoTestFrameClock()) { scrollToItem(index) }
     }
 
     @Composable

@@ -44,8 +44,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 @RunWith(AndroidJUnit4::class)
 @Suppress("Deprecation")
 class ClickableTextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun onclick_callback() {
@@ -60,9 +59,7 @@ class ClickableTextTest {
 
         rule.onNodeWithTag("clickableText").performClick()
 
-        rule.runOnIdle {
-            verify(onClick, times(1)).invoke(any())
-        }
+        rule.runOnIdle { verify(onClick, times(1)).invoke(any()) }
     }
 
     @Test
@@ -102,15 +99,14 @@ class ClickableTextTest {
             )
         }
 
-        rule.onNodeWithTag("clickableText")
-            .performMouseInput {
-                moveTo(Offset(-1f, -1f), 0) // outside bounds
-                moveTo(Offset(1f, 1f), 0) // inside bounds
-                moveTo(Offset(-1f, -1f), 0) // outside bounds again
-                moveTo(Offset(1f, 1f), 0) // inside bounds again
-                moveTo(Offset(1f, 2f), 0) // move but stay on the same character
-                moveTo(Offset(50f, 1f), 0) // move to different character
-            }
+        rule.onNodeWithTag("clickableText").performMouseInput {
+            moveTo(Offset(-1f, -1f), 0) // outside bounds
+            moveTo(Offset(1f, 1f), 0) // inside bounds
+            moveTo(Offset(-1f, -1f), 0) // outside bounds again
+            moveTo(Offset(1f, 1f), 0) // inside bounds again
+            moveTo(Offset(1f, 2f), 0) // move but stay on the same character
+            moveTo(Offset(50f, 1f), 0) // move to different character
+        }
 
         rule.runOnIdle {
             onHover.inOrder {

@@ -30,21 +30,16 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeNearestAncestorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noAncestors() {
         // Arrange.
         val node = object : Modifier.Node() {}
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.GlobalPositionAware)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.GlobalPositionAware) }
 
         // Assert.
         assertThat(result).isNull()
@@ -55,17 +50,11 @@ class ModifierNodeNearestAncestorTest {
         // Arrange.
         val (ancestor, node) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
-            Box(Modifier.elementOf(ancestor)) {
-                Box {
-                    Box(Modifier.elementOf(node))
-                }
-            }
+            Box(Modifier.elementOf(ancestor)) { Box { Box(Modifier.elementOf(node)) } }
         }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor)
@@ -75,18 +64,10 @@ class ModifierNodeNearestAncestorTest {
     fun nearestAncestorWithinCurrentLayoutNode_immediateParent() {
         // Arrange.
         val (ancestor, node) = List(2) { object : Modifier.Node() {} }
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(ancestor)
-                    .elementOf(node)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(ancestor).elementOf(node)) }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor)
@@ -96,18 +77,10 @@ class ModifierNodeNearestAncestorTest {
     fun nearestAncestorWithinCurrentLayoutNode_nonContiguousAncestor() {
         // Arrange.
         val (ancestor, node) = List(2) { object : Modifier.Node() {} }
-        rule.setContent {
-            Box(
-                Modifier.elementOf(ancestor)
-                    .otherModifier()
-                    .elementOf(node)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(ancestor).otherModifier().elementOf(node)) }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor)
@@ -117,16 +90,10 @@ class ModifierNodeNearestAncestorTest {
     fun nearestAncestorInDifferentLayoutNode_immediateParentLayoutNode() {
         // Arrange.
         val (ancestor, node) = List(2) { object : Modifier.Node() {} }
-        rule.setContent {
-            Box(Modifier.elementOf(ancestor)) {
-                Box(Modifier.elementOf(node))
-            }
-        }
+        rule.setContent { Box(Modifier.elementOf(ancestor)) { Box(Modifier.elementOf(node)) } }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor)
@@ -137,22 +104,11 @@ class ModifierNodeNearestAncestorTest {
     fun unattachedLocalAncestorIsSkipped() {
         // Arrange.
         val (ancestor1, ancestor2, node) = List(3) { object : Modifier.Node() {} }
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(ancestor2)
-                    .elementOf(ancestor1)
-                    .elementOf(node)
-            )
-        }
-        rule.runOnIdle {
-            ancestor1.markAsDetached()
-        }
+        rule.setContent { Box(Modifier.elementOf(ancestor2).elementOf(ancestor1).elementOf(node)) }
+        rule.runOnIdle { ancestor1.markAsDetached() }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor2)
@@ -165,23 +121,13 @@ class ModifierNodeNearestAncestorTest {
         val (ancestor, localAncestor, node) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
             Box(Modifier.elementOf(ancestor)) {
-                Box {
-                    Box(
-                        Modifier
-                            .elementOf(localAncestor)
-                            .elementOf(node)
-                    )
-                }
+                Box { Box(Modifier.elementOf(localAncestor).elementOf(node)) }
             }
         }
-        rule.runOnIdle {
-            localAncestor.markAsDetached()
-        }
+        rule.runOnIdle { localAncestor.markAsDetached() }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor)
@@ -193,22 +139,14 @@ class ModifierNodeNearestAncestorTest {
         // Arrange.
         val (ancestor1, ancestor2, node) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(ancestor2)
-                    .elementOf(ancestor1)
-            ) {
+            Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
                 Box(Modifier.elementOf(node))
             }
         }
-        rule.runOnIdle {
-            ancestor1.markAsDetached()
-        }
+        rule.runOnIdle { ancestor1.markAsDetached() }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.nearestAncestor(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.nearestAncestor(Nodes.Any) }
 
         // Assert.
         assertThat(result).isEqualTo(ancestor2)

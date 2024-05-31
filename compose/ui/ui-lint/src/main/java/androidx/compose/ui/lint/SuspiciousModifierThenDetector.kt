@@ -62,69 +62,74 @@ class SuspiciousModifierThenDetector : Detector(), SourceCodeScanner {
         val otherModifierArgument = node.valueArguments.firstOrNull() ?: return
         val otherModifierArgumentSource = otherModifierArgument.sourcePsi ?: return
 
-        otherModifierArgument.accept(object : AbstractUastVisitor() {
-            /**
-             * Visit all calls to look for calls to a Modifier factory with implicit receiver
-             */
-            override fun visitCallExpression(node: UCallExpression): Boolean {
-                val hasModifierReceiverType =
-                    node.receiverType?.inheritsFrom(Names.Ui.Modifier) == true
-                val usesImplicitThis = node.receiver == null
+        otherModifierArgument.accept(
+            object : AbstractUastVisitor() {
+                /**
+                 * Visit all calls to look for calls to a Modifier factory with implicit receiver
+                 */
+                override fun visitCallExpression(node: UCallExpression): Boolean {
+                    val hasModifierReceiverType =
+                        node.receiverType?.inheritsFrom(Names.Ui.Modifier) == true
+                    val usesImplicitThis = node.receiver == null
 
-                if (!hasModifierReceiverType || !usesImplicitThis) {
+                    if (!hasModifierReceiverType || !usesImplicitThis) {
+                        return false
+                    }
+
+                    val ktCallExpression = node.sourcePsi as? KtCallExpression ?: return false
+                    // Resolve the implicit `this` to its source, if possible.
+                    val implicitReceiver =
+                        analyze(ktCallExpression) {
+                            getImplicitReceiverValue(ktCallExpression)?.getImplicitReceiverPsi()
+                        }
+
+                    // The receiver used by the modifier function is defined within the then() call,
+                    // such as then(Modifier.composed { otherModifierFactory() }). We don't know
+                    // what
+                    // the value of this receiver will be, so we ignore this case.
+                    if (implicitReceiver.isBelow(otherModifierArgumentSource)) {
+                        return false
+                    }
+
+                    context.report(
+                        SuspiciousModifierThen,
+                        node,
+                        context.getNameLocation(node),
+                        "Using Modifier.then with a Modifier factory function with an implicit receiver"
+                    )
+
+                    // Keep on searching for more errors
                     return false
                 }
-
-                val ktCallExpression = node.sourcePsi as? KtCallExpression ?: return false
-                // Resolve the implicit `this` to its source, if possible.
-                val implicitReceiver = analyze(ktCallExpression) {
-                    getImplicitReceiverValue(ktCallExpression)?.getImplicitReceiverPsi()
-                }
-
-                // The receiver used by the modifier function is defined within the then() call,
-                // such as then(Modifier.composed { otherModifierFactory() }). We don't know what
-                // the value of this receiver will be, so we ignore this case.
-                if (implicitReceiver.isBelow(otherModifierArgumentSource)) {
-                    return false
-                }
-
-                context.report(
-                    SuspiciousModifierThen,
-                    node,
-                    context.getNameLocation(node),
-                    "Using Modifier.then with a Modifier factory function with an implicit receiver"
-                )
-
-                // Keep on searching for more errors
-                return false
             }
-        })
+        )
     }
 
     companion object {
-        val SuspiciousModifierThen = Issue.create(
-            "SuspiciousModifierThen",
-            "Using Modifier.then with a Modifier factory function with an implicit receiver",
-            "Calling a Modifier factory function with an implicit receiver inside " +
-                "Modifier.then will result in the receiver (`this`) being added twice to the " +
-                "chain. For example, fun Modifier.myModifier() = this.then(otherModifier()) - " +
-                "the implementation of factory functions such as Modifier.otherModifier() will " +
-                "internally call this.then(...) to chain the provided modifier with their " +
-                "implementation. When you expand this.then(otherModifier()), it becomes: " +
-                "this.then(this.then(OtherModifierImplementation)) - so you can see that `this` " +
-                "is included twice in the chain, which results in modifiers such as padding " +
-                "being applied twice, for example. Instead, you should either remove the then() " +
-                "and directly chain the factory function on the receiver, this.otherModifier(), " +
-                "or add the empty Modifier as the receiver for the factory, such as " +
-                "this.then(Modifier.otherModifier())",
-            Category.CORRECTNESS,
-            3,
-            Severity.ERROR,
-            Implementation(
-                SuspiciousModifierThenDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val SuspiciousModifierThen =
+            Issue.create(
+                "SuspiciousModifierThen",
+                "Using Modifier.then with a Modifier factory function with an implicit receiver",
+                "Calling a Modifier factory function with an implicit receiver inside " +
+                    "Modifier.then will result in the receiver (`this`) being added twice to the " +
+                    "chain. For example, fun Modifier.myModifier() = this.then(otherModifier()) - " +
+                    "the implementation of factory functions such as Modifier.otherModifier() will " +
+                    "internally call this.then(...) to chain the provided modifier with their " +
+                    "implementation. When you expand this.then(otherModifier()), it becomes: " +
+                    "this.then(this.then(OtherModifierImplementation)) - so you can see that `this` " +
+                    "is included twice in the chain, which results in modifiers such as padding " +
+                    "being applied twice, for example. Instead, you should either remove the then() " +
+                    "and directly chain the factory function on the receiver, this.otherModifier(), " +
+                    "or add the empty Modifier as the receiver for the factory, such as " +
+                    "this.then(Modifier.otherModifier())",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    SuspiciousModifierThenDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

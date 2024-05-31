@@ -32,34 +32,33 @@ import kotlin.math.min
  * A class holding information about the editing state.
  *
  * The input service updates text selection, cursor, text and text composition. This class
- * represents those values and it is possible to observe changes to those values in the text
- * editing composables.
+ * represents those values and it is possible to observe changes to those values in the text editing
+ * composables.
  *
  * This class stores a snapshot of the input state of the edit buffer and provide utility functions
  * for answering IME requests such as getTextBeforeCursor, getSelectedText.
  *
  * Input service composition is an instance of text produced by IME. An example visual for the
- * composition is that the currently composed word is visually separated from others with
- * underline, or text background. For description of composition please check
+ * composition is that the currently composed word is visually separated from others with underline,
+ * or text background. For description of composition please check
  * [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition).
  *
- * IME composition is defined by [composition] parameter and function. When a
- * [TextFieldValue] with null [composition] is passed to a TextField, if there was an
- * active [composition] on the text, the changes will be applied. Applying a composition will
- * accept the changes that were still being composed by IME. Please use [copy]
- * functions if you do not want to intentionally apply the ongoing IME composition.
+ * IME composition is defined by [composition] parameter and function. When a [TextFieldValue] with
+ * null [composition] is passed to a TextField, if there was an active [composition] on the text,
+ * the changes will be applied. Applying a composition will accept the changes that were still being
+ * composed by IME. Please use [copy] functions if you do not want to intentionally apply the
+ * ongoing IME composition.
  *
  * @param annotatedString the text to be rendered.
  * @param selection the selection range. If the selection is collapsed, it represents cursor
- * location. When selection range is out of bounds, it is constrained with the text length.
- * @param composition the composition range, null means empty composition or apply if a
- * composition exists on the text. Owned by IME, and if you have an instance of [TextFieldValue]
- * please use [copy] functions if you do not want to intentionally change the value of this
- * field.
- *
+ *   location. When selection range is out of bounds, it is constrained with the text length.
+ * @param composition the composition range, null means empty composition or apply if a composition
+ *   exists on the text. Owned by IME, and if you have an instance of [TextFieldValue] please use
+ *   [copy] functions if you do not want to intentionally change the value of this field.
  */
 @Immutable
-class TextFieldValue constructor(
+class TextFieldValue
+constructor(
     val annotatedString: AnnotatedString,
     selection: TextRange = TextRange.Zero,
     composition: TextRange? = null
@@ -67,11 +66,11 @@ class TextFieldValue constructor(
     /**
      * @param text the text to be rendered.
      * @param selection the selection range. If the selection is collapsed, it represents cursor
-     * location. When selection range is out of bounds, it is constrained with the text length.
+     *   location. When selection range is out of bounds, it is constrained with the text length.
      * @param composition the composition range, null means empty composition or apply if a
-     * composition exists on the text. Owned by IME, and if you have an instance of [TextFieldValue]
-     * please use [copy] functions if you do not want to intentionally change the value of this
-     * field.
+     *   composition exists on the text. Owned by IME, and if you have an instance of
+     *   [TextFieldValue] please use [copy] functions if you do not want to intentionally change the
+     *   value of this field.
      */
     constructor(
         text: String = "",
@@ -79,16 +78,17 @@ class TextFieldValue constructor(
         composition: TextRange? = null
     ) : this(AnnotatedString(text), selection, composition)
 
-    val text: String get() = annotatedString.text
+    val text: String
+        get() = annotatedString.text
 
     /**
-     * The selection range. If the selection is collapsed, it represents cursor
-     * location. When selection range is out of bounds, it is constrained with the text length.
+     * The selection range. If the selection is collapsed, it represents cursor location. When
+     * selection range is out of bounds, it is constrained with the text length.
      */
     val selection: TextRange = selection.coerceIn(0, text.length)
 
     /**
-     * Composition range created by  IME. If null, there is no composition range.
+     * Composition range created by IME. If null, there is no composition range.
      *
      * Input service composition is an instance of text produced by IME. An example visual for the
      * composition is that the currently composed word is visually separated from others with
@@ -96,14 +96,12 @@ class TextFieldValue constructor(
      * [W3C IME Composition](https://www.w3.org/TR/ime-api/#ime-composition)
      *
      * Composition can be set on the by the system, however it is possible to apply an existing
-     * composition by setting the value to null. Applying a composition will accept the changes
-     * that were still being composed by IME.
+     * composition by setting the value to null. Applying a composition will accept the changes that
+     * were still being composed by IME.
      */
     val composition: TextRange? = composition?.coerceIn(0, text.length)
 
-    /**
-     * Returns a copy of the TextFieldValue.
-     */
+    /** Returns a copy of the TextFieldValue. */
     fun copy(
         annotatedString: AnnotatedString = this.annotatedString,
         selection: TextRange = this.selection,
@@ -112,9 +110,7 @@ class TextFieldValue constructor(
         return TextFieldValue(annotatedString, selection, composition)
     }
 
-    /**
-     * Returns a copy of the TextFieldValue.
-     */
+    /** Returns a copy of the TextFieldValue. */
     fun copy(
         text: String,
         selection: TextRange = this.selection,
@@ -151,25 +147,23 @@ class TextFieldValue constructor(
     }
 
     companion object {
-        /**
-         * The default [Saver] implementation for [TextFieldValue].
-         */
-        val Saver = Saver<TextFieldValue, Any>(
-            save = {
-                arrayListOf(
-                    save(it.annotatedString, AnnotatedStringSaver, this),
-                    save(it.selection, TextRange.Saver, this),
-                )
-            },
-            restore = {
-                @Suppress("UNCHECKED_CAST")
-                val list = it as List<Any>
-                TextFieldValue(
-                    annotatedString = restore(list[0], AnnotatedStringSaver)!!,
-                    selection = restore(list[1], TextRange.Saver)!!,
-                )
-            }
-        )
+        /** The default [Saver] implementation for [TextFieldValue]. */
+        val Saver =
+            Saver<TextFieldValue, Any>(
+                save = {
+                    arrayListOf(
+                        save(it.annotatedString, AnnotatedStringSaver, this),
+                        save(it.selection, TextRange.Saver, this),
+                    )
+                },
+                restore = {
+                    @Suppress("UNCHECKED_CAST") val list = it as List<Any>
+                    TextFieldValue(
+                        annotatedString = restore(list[0], AnnotatedStringSaver)!!,
+                        selection = restore(list[1], TextRange.Saver)!!,
+                    )
+                }
+            )
     }
 }
 
@@ -177,8 +171,7 @@ class TextFieldValue constructor(
  * Returns the text before the selection.
  *
  * @param maxChars maximum number of characters (inclusive) before the minimum value in
- * [TextFieldValue.selection].
- *
+ *   [TextFieldValue.selection].
  * @see TextRange.min
  */
 fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
@@ -188,14 +181,11 @@ fun TextFieldValue.getTextBeforeSelection(maxChars: Int): AnnotatedString =
  * Returns the text after the selection.
  *
  * @param maxChars maximum number of characters (exclusive) after the maximum value in
- * [TextFieldValue.selection].
- *
+ *   [TextFieldValue.selection].
  * @see TextRange.max
  */
 fun TextFieldValue.getTextAfterSelection(maxChars: Int): AnnotatedString =
     annotatedString.subSequence(selection.max, min(selection.max + maxChars, text.length))
 
-/**
- * Returns the currently selected text.
- */
+/** Returns the currently selected text. */
 fun TextFieldValue.getSelectedText(): AnnotatedString = annotatedString.subSequence(selection)

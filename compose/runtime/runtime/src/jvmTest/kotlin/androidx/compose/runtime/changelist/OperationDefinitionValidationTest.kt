@@ -26,16 +26,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-internal class OperationDefinitionValidationTest<T : Operation>(
-    private val operation: T
-) {
+internal class OperationDefinitionValidationTest<T : Operation>(private val operation: T) {
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> = Operation::class.sealedSubclasses
-            .mapNotNull { it.objectInstance }
-            .toTypedArray()
+        fun initParameters(): Array<Any> =
+            Operation::class.sealedSubclasses.mapNotNull { it.objectInstance }.toTypedArray()
     }
 
     @Test
@@ -44,7 +41,8 @@ internal class OperationDefinitionValidationTest<T : Operation>(
         val objParams = mutableListOf<Pair<String, ObjectParameter<*>>>()
         val errors = mutableListOf<String>()
 
-        operation::class.declaredMemberProperties
+        operation::class
+            .declaredMemberProperties
             .map { @Suppress("UNCHECKED_CAST") (it as KProperty1<T, Any?>) }
             .forEach { property ->
                 when (val propertyValue = property.getter.invoke(operation)) {
@@ -65,17 +63,19 @@ internal class OperationDefinitionValidationTest<T : Operation>(
         }
 
         if (intParams.size != operation.ints) {
-            errors += "Operation declared a different number of int parameters than it " +
-                "reports having. Either set ${operation.name}'s `ints` property to " +
-                "${intParams.size} or update its parameter definitions so that there are " +
-                "${operation.ints} IntParameter properties."
+            errors +=
+                "Operation declared a different number of int parameters than it " +
+                    "reports having. Either set ${operation.name}'s `ints` property to " +
+                    "${intParams.size} or update its parameter definitions so that there are " +
+                    "${operation.ints} IntParameter properties."
         }
 
         if (objParams.size != operation.objects) {
-            errors += "Operation declared a different number of object parameters than it " +
-                "reports having. Either set ${operation.name}'s `objects` property to " +
-                "${objParams.size} or update its parameter definitions so that there are " +
-                "${operation.objects} ObjectParameter properties."
+            errors +=
+                "Operation declared a different number of object parameters than it " +
+                    "reports having. Either set ${operation.name}'s `objects` property to " +
+                    "${objParams.size} or update its parameter definitions so that there are " +
+                    "${operation.objects} ObjectParameter properties."
         }
 
         errors += checkNoDuplicateOffsets(intParams, objParams)
@@ -94,32 +94,38 @@ internal class OperationDefinitionValidationTest<T : Operation>(
         objParams: List<Pair<String, ObjectParameter<*>>>
     ): List<String> {
         val errors = mutableListOf<String>()
-        val duplicateIntOffsets = intParams
-            .groupBy(
-                keySelector = { (_, param) -> param.offset },
-                valueTransform = { (name, _) -> name }
-            )
-            .filterValues { it.size != 1 }
+        val duplicateIntOffsets =
+            intParams
+                .groupBy(
+                    keySelector = { (_, param) -> param.offset },
+                    valueTransform = { (name, _) -> name }
+                )
+                .filterValues { it.size != 1 }
 
         if (duplicateIntOffsets.isNotEmpty()) {
-            errors += "All int parameters must have unique offsets. " +
-                "The offending pairs are: " + duplicateIntOffsets.values.joinToString {
-                    it.joinToString(prefix = "[", postfix = "]")
-                }
+            errors +=
+                "All int parameters must have unique offsets. " +
+                    "The offending pairs are: " +
+                    duplicateIntOffsets.values.joinToString {
+                        it.joinToString(prefix = "[", postfix = "]")
+                    }
         }
 
-        val duplicateObjOffsets = objParams
-            .groupBy(
-                keySelector = { (_, param) -> param.offset },
-                valueTransform = { (name, _) -> name }
-            )
-            .filterValues { it.size != 1 }
+        val duplicateObjOffsets =
+            objParams
+                .groupBy(
+                    keySelector = { (_, param) -> param.offset },
+                    valueTransform = { (name, _) -> name }
+                )
+                .filterValues { it.size != 1 }
 
         if (duplicateObjOffsets.isNotEmpty()) {
-            errors += "All object parameters must have unique offsets. " +
-                "The offending pairs are: " + duplicateObjOffsets.values.joinToString {
-                    it.joinToString(prefix = "[", postfix = "]")
-                }
+            errors +=
+                "All object parameters must have unique offsets. " +
+                    "The offending pairs are: " +
+                    duplicateObjOffsets.values.joinToString {
+                        it.joinToString(prefix = "[", postfix = "]")
+                    }
         }
 
         return errors
@@ -131,24 +137,30 @@ internal class OperationDefinitionValidationTest<T : Operation>(
     ): List<String> {
         val errors = mutableListOf<String>()
 
-        val outOfRangeInts = intParams.mapNotNull { (name, param) ->
-            name.takeIf { param.offset < 0 || param.offset >= intParams.size }
-                ?.let { paramName -> "$paramName (offset = ${param.offset})" }
-        }
+        val outOfRangeInts =
+            intParams.mapNotNull { (name, param) ->
+                name
+                    .takeIf { param.offset < 0 || param.offset >= intParams.size }
+                    ?.let { paramName -> "$paramName (offset = ${param.offset})" }
+            }
         if (outOfRangeInts.isNotEmpty()) {
-            errors += "All int parameter offsets must be in the range of " +
-                "0..${intParams.size - 1}. The offending parameters are: " +
-                outOfRangeInts.joinToString()
+            errors +=
+                "All int parameter offsets must be in the range of " +
+                    "0..${intParams.size - 1}. The offending parameters are: " +
+                    outOfRangeInts.joinToString()
         }
 
-        val outOfRangeObjects = objParams.mapNotNull { (name, param) ->
-            name.takeIf { param.offset < 0 || param.offset >= objParams.size }
-                ?.let { paramName -> "$paramName (offset = ${param.offset})" }
-        }
+        val outOfRangeObjects =
+            objParams.mapNotNull { (name, param) ->
+                name
+                    .takeIf { param.offset < 0 || param.offset >= objParams.size }
+                    ?.let { paramName -> "$paramName (offset = ${param.offset})" }
+            }
         if (outOfRangeObjects.isNotEmpty()) {
-            errors += "All object parameter offsets must be in the range of " +
-                "0..${objParams.size - 1}. The offending parameters are: " +
-                outOfRangeObjects.joinToString()
+            errors +=
+                "All object parameter offsets must be in the range of " +
+                    "0..${objParams.size - 1}. The offending parameters are: " +
+                    outOfRangeObjects.joinToString()
         }
 
         return errors

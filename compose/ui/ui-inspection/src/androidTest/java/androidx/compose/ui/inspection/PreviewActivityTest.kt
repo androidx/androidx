@@ -43,18 +43,16 @@ import org.junit.rules.RuleChain
 /**
  * Test composable from a Preview.
  *
- * A [PreviewActivity] loads the composable content via reflection.
- * Make sure that the top composable correspond to a CallGroup with an anchor,
- * such that the Layout Inspector can identify the composable by its id after
- * a recomposition.
+ * A [PreviewActivity] loads the composable content via reflection. Make sure that the top
+ * composable correspond to a CallGroup with an anchor, such that the Layout Inspector can identify
+ * the composable by its id after a recomposition.
  */
 class PreviewActivityTest {
 
     @Suppress("DEPRECATION")
     private val activityTestRule = androidx.test.rule.ActivityTestRule(PreviewActivity::class.java)
 
-    @get:Rule
-    val chain = RuleChain.outerRule(activityTestRule).around(JvmtiRule())!!
+    @get:Rule val chain = RuleChain.outerRule(activityTestRule).around(JvmtiRule())!!
 
     private lateinit var inspectorTester: InspectorTester
 
@@ -78,31 +76,29 @@ class PreviewActivityTest {
 
     @Ignore("b/295186037")
     @Test
-    fun testPreviewTopComposableHasAnAchor(): Unit = runBlocking() {
-        inspectorTester.sendCommand(
-            GetUpdateSettingsCommand()
-        ).updateSettingsResponse
+    fun testPreviewTopComposableHasAnAchor(): Unit =
+        runBlocking() {
+            inspectorTester.sendCommand(GetUpdateSettingsCommand()).updateSettingsResponse
 
-        val mainContent: View =
-            activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
-        val root = mainContent.ancestors().lastOrNull()
-        val rootId = root!!.uniqueDrawingId
-        val composables = inspectorTester.sendCommand(
-            GetComposablesCommand(rootId, skipSystemComposables = false)
-        ).getComposablesResponse
+            val mainContent: View =
+                activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
+            val root = mainContent.ancestors().lastOrNull()
+            val rootId = root!!.uniqueDrawingId
+            val composables =
+                inspectorTester
+                    .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
+                    .getComposablesResponse
 
-        assertThat(composables.rootsList).hasSize(1)
-        val strings = composables.stringsList.toMap()
-        val node = composables.rootsList.single().nodesList.first()
-        assertThat(strings[node.name]).isEqualTo("MainBlock")
-        assertThat(node.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
-    }
+            assertThat(composables.rootsList).hasSize(1)
+            val strings = composables.stringsList.toMap()
+            val node = composables.rootsList.single().nodesList.first()
+            assertThat(strings[node.name]).isEqualTo("MainBlock")
+            assertThat(node.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
+        }
 }
 
 @Suppress("unused")
 @Composable
 fun MainBlock() {
-    Button(onClick = {}) {
-        Text("Hello")
-    }
+    Button(onClick = {}) { Text("Hello") }
 }

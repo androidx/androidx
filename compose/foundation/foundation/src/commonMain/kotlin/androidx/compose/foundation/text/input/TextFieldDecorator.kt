@@ -19,9 +19,8 @@ package androidx.compose.foundation.text.input
 import androidx.compose.runtime.Composable
 
 /**
- * Composable interface that allows to add decorations around text field, such as icon,
- * placeholder, helper messages or similar, and automatically increase the hit target area
- * of the text field.
+ * Composable interface that allows to add decorations around text field, such as icon, placeholder,
+ * helper messages or similar, and automatically increase the hit target area of the text field.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
  */

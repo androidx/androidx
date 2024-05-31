@@ -61,9 +61,7 @@ fun ViewInteropDemo() {
         // and Compose in Android ViewGroups. Note that these APIs are subject to change.
 
         // Compose and inflate a layout with ViewBinding.
-        AndroidViewBinding(TestLayoutBinding::inflate) {
-            text1.text = "Text updated"
-        }
+        AndroidViewBinding(TestLayoutBinding::inflate) { text1.text = "Text updated" }
 
         // Compose Android View.
         AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
@@ -74,9 +72,7 @@ fun ViewInteropDemo() {
             view.layoutParams = ViewGroup.LayoutParams(size, size)
         }
 
-        AndroidView(::TextView) {
-            it.text = "This is a text in a TextView"
-        }
+        AndroidView(::TextView) { it.text = "This is a text in a TextView" }
 
         // Compose custom Android View and do remeasurements and invalidates.
         val squareRef = Ref<ColoredSquareView>()
@@ -84,32 +80,42 @@ fun ViewInteropDemo() {
             it.size = 200
             it.color = Color.Cyan
         }
-        Button(onClick = { squareRef.value!!.size += 50 }) {
-            Text("Increase size of Android view")
-        }
+        Button(onClick = { squareRef.value!!.size += 50 }) { Text("Increase size of Android view") }
         val colorIndex = remember { mutableIntStateOf(0) }
         Button(
             onClick = {
                 colorIndex.intValue = (colorIndex.intValue + 1) % 4
-                squareRef.value!!.color = arrayOf(
-                    Color.Blue, Color.LightGray, Color.Yellow, Color.Cyan
-                )[colorIndex.intValue]
+                squareRef.value!!.color =
+                    arrayOf(Color.Blue, Color.LightGray, Color.Yellow, Color.Cyan)[
+                        colorIndex.intValue]
             }
         ) {
             Text("Change color of Android view")
         }
 
-        Column(modifier =
-            Modifier.fillMaxWidth().height(100.dp).verticalScroll(rememberScrollState())
+        Column(
+            modifier = Modifier.fillMaxWidth().height(100.dp).verticalScroll(rememberScrollState())
         ) {
             AndroidView({ c ->
                 LinearLayout(c).apply {
-                    val text1 = TextView(c).apply { text = "LinearLayout child 1"; id = 11 }
-                    val text2 = TextView(c).apply { text = "LinearLayout child 2"; id = 22 }
-                    val text3 = TextView(c).apply { text = "LinearLayout child 3"; id = 33 }
+                    val text1 =
+                        TextView(c).apply {
+                            text = "LinearLayout child 1"
+                            id = 11
+                        }
+                    val text2 =
+                        TextView(c).apply {
+                            text = "LinearLayout child 2"
+                            id = 22
+                        }
+                    val text3 =
+                        TextView(c).apply {
+                            text = "LinearLayout child 3"
+                            id = 33
+                        }
                     if (Build.VERSION.SDK_INT >= 26) {
-                        Api26Impl.setAccessibilityTraversalAfter(text3, text2.getId());
-                        Api26Impl.setAccessibilityTraversalAfter(text2, text1.getId());
+                        Api26Impl.setAccessibilityTraversalAfter(text3, text2.getId())
+                        Api26Impl.setAccessibilityTraversalAfter(text2, text1.getId())
                     }
                     addView(text3)
                     addView(text2)
@@ -120,9 +126,7 @@ fun ViewInteropDemo() {
 
         Spacer(Modifier.height(20.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth().height(50.dp)
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxWidth().height(50.dp)) {
             item {
                 AndroidView(::TextView) { it.text = "TextView in LazyColumn 1A" }
                 AndroidView(::TextView) { it.text = "TextView in LazyColumn 1B" }
@@ -194,10 +198,7 @@ private class ColoredSquareView(context: Context) : View(context) {
 private object Api26Impl {
     @DoNotInline
     @JvmStatic
-    fun setAccessibilityTraversalAfter(
-        view: View,
-        id: Int
-    ) {
-        view.setAccessibilityTraversalAfter(id);
+    fun setAccessibilityTraversalAfter(view: View, id: Int) {
+        view.setAccessibilityTraversalAfter(id)
     }
 }

@@ -21,9 +21,7 @@ import kotlinx.coroutines.delay
 private object DefaultDelayMonotonicFrameClock : MonotonicFrameClock {
     private const val DefaultFrameDelay = 16L // milliseconds
 
-    override suspend fun <R> withFrameNanos(
-        onFrame: (Long) -> R
-    ): R {
+    override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
         delay(DefaultFrameDelay)
         return onFrame(System.nanoTime())
     }
@@ -33,4 +31,5 @@ private object DefaultDelayMonotonicFrameClock : MonotonicFrameClock {
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-actual val DefaultMonotonicFrameClock: MonotonicFrameClock get() = DefaultDelayMonotonicFrameClock
+actual val DefaultMonotonicFrameClock: MonotonicFrameClock
+    get() = DefaultDelayMonotonicFrameClock

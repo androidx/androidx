@@ -58,10 +58,11 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
         return object : UElementHandler() {
             override fun visitImportStatement(node: UImportStatement) {
                 val reference = node.importReference?.asRenderString() ?: return
-                val isPlatformImport = PLATFORM_PACKAGES.any { platformPackage ->
-                    (platformPackage == reference && node.isOnDemand) ||
-                        reference.startsWith("$platformPackage.")
-                }
+                val isPlatformImport =
+                    PLATFORM_PACKAGES.any { platformPackage ->
+                        (platformPackage == reference && node.isOnDemand) ||
+                            reference.startsWith("$platformPackage.")
+                    }
                 if (!isPlatformImport) return
 
                 val target = node.importReference!!
@@ -118,63 +119,69 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val IMPORT_ISSUE = Issue.create(
-            id = "PlatformImportInCommonModule",
-            briefDescription = "Platform-dependent import in a common module",
-            explanation = "Common Kotlin module cannot contain references to JVM or Android " +
-                "classes, as it reduces future portability to other Kotlin targets. Consider " +
-                "alternative methods allowed in common Kotlin code, or use expect/actual " +
-                "to reference the platform code instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                CommonModuleIncompatibilityDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val IMPORT_ISSUE =
+            Issue.create(
+                id = "PlatformImportInCommonModule",
+                briefDescription = "Platform-dependent import in a common module",
+                explanation =
+                    "Common Kotlin module cannot contain references to JVM or Android " +
+                        "classes, as it reduces future portability to other Kotlin targets. Consider " +
+                        "alternative methods allowed in common Kotlin code, or use expect/actual " +
+                        "to reference the platform code instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        CommonModuleIncompatibilityDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    )
             )
-        )
 
-        val REFERENCE_ISSUE = Issue.create(
-            id = "PlatformReferenceInCommonModule",
-            briefDescription = "Platform-dependent reference in a common module",
-            explanation = "Common Kotlin module cannot contain references to JVM or Android " +
-                "classes, as it reduces future portability to other Kotlin targets. Consider " +
-                "alternative methods allowed in common Kotlin code, or use expect/actual " +
-                "to reference the platform code instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                CommonModuleIncompatibilityDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val REFERENCE_ISSUE =
+            Issue.create(
+                id = "PlatformReferenceInCommonModule",
+                briefDescription = "Platform-dependent reference in a common module",
+                explanation =
+                    "Common Kotlin module cannot contain references to JVM or Android " +
+                        "classes, as it reduces future portability to other Kotlin targets. Consider " +
+                        "alternative methods allowed in common Kotlin code, or use expect/actual " +
+                        "to reference the platform code instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        CommonModuleIncompatibilityDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    )
             )
-        )
 
-        val EXTENDS_LAMBDA_ISSUE = Issue.create(
-            id = "ExtendedFunctionNInterface",
-            briefDescription = "Extending Kotlin FunctionN interfaces in common code",
-            explanation = "Common Kotlin module are ported to other Kotlin targets, including JS." +
-                " Kotlin JS backend does not support extending lambda interfaces. Consider" +
-                "extending fun interface in common Kotlin code, or use expect/actual instead.",
-            category = Category.CORRECTNESS,
-            priority = 5,
-            severity = Severity.ERROR,
-            implementation = Implementation(
-                CommonModuleIncompatibilityDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val EXTENDS_LAMBDA_ISSUE =
+            Issue.create(
+                id = "ExtendedFunctionNInterface",
+                briefDescription = "Extending Kotlin FunctionN interfaces in common code",
+                explanation =
+                    "Common Kotlin module are ported to other Kotlin targets, including JS." +
+                        " Kotlin JS backend does not support extending lambda interfaces. Consider" +
+                        "extending fun interface in common Kotlin code, or use expect/actual instead.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        CommonModuleIncompatibilityDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    )
             )
-        )
 
         private const val COMMON_MAIN_PATH_PREFIX = "src/commonMain"
-        private val PLATFORM_PACKAGES = listOf(
-            "java",
-            "javax",
-            "android"
-        )
-        private val RESTRICTED_PROPERTIES = mapOf(
-            "javaClass" to Name(Package("kotlin.jvm"), "getJavaClass"),
-            "java" to Name(Package("kotlin.jvm"), "getJavaClass"),
-        )
+        private val PLATFORM_PACKAGES = listOf("java", "javax", "android")
+        private val RESTRICTED_PROPERTIES =
+            mapOf(
+                "javaClass" to Name(Package("kotlin.jvm"), "getJavaClass"),
+                "java" to Name(Package("kotlin.jvm"), "getJavaClass"),
+            )
     }
 }
 

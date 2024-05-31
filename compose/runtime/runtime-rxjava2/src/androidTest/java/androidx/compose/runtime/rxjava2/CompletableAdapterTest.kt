@@ -30,16 +30,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CompletableAdapterTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun whenNotCompletedSetWeGotFalse() {
         val stream = CompletableStream()
         var realValue: Boolean? = null
-        rule.setContent {
-            realValue = stream.completable.subscribeAsState().value
-        }
+        rule.setContent { realValue = stream.completable.subscribeAsState().value }
 
         Truth.assertThat(realValue).isFalse()
     }
@@ -49,9 +46,7 @@ class CompletableAdapterTest {
         val stream = CompletableStream()
         stream.onComplete()
         var realValue: Boolean? = null
-        rule.setContent {
-            realValue = stream.completable.subscribeAsState().value
-        }
+        rule.setContent { realValue = stream.completable.subscribeAsState().value }
 
         Truth.assertThat(realValue).isTrue()
     }
@@ -61,17 +56,11 @@ class CompletableAdapterTest {
         val stream = CompletableStream()
 
         var realValue: Boolean? = null
-        rule.setContent {
-            realValue = stream.completable.subscribeAsState().value
-        }
+        rule.setContent { realValue = stream.completable.subscribeAsState().value }
 
-        rule.runOnIdle {
-            stream.onComplete()
-        }
+        rule.runOnIdle { stream.onComplete() }
 
-        rule.runOnIdle {
-            Truth.assertThat(realValue).isTrue()
-        }
+        rule.runOnIdle { Truth.assertThat(realValue).isTrue() }
     }
 }
 
@@ -79,13 +68,14 @@ private class CompletableStream {
 
     private val emitters = mutableListOf<CompletableEmitter>()
 
-    val completable = Completable.create {
-        if (completed) {
-            it.onComplete()
-        } else {
-            emitters.add(it)
+    val completable =
+        Completable.create {
+            if (completed) {
+                it.onComplete()
+            } else {
+                emitters.add(it)
+            }
         }
-    }
 
     private var completed = false
 

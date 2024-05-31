@@ -49,8 +49,7 @@ class ModelReadsTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
     private lateinit var activity: TestActivity
     private lateinit var latch: CountDownLatch
 
@@ -70,11 +69,12 @@ class ModelReadsTest {
             activity.setContent {
                 Layout(
                     {},
-                    modifier = Modifier.drawBehind {
-                        // read from the model
-                        offset.value
-                        drawLatch.countDown()
-                    }
+                    modifier =
+                        Modifier.drawBehind {
+                            // read from the model
+                            offset.value
+                            drawLatch.countDown()
+                        }
                 ) { _, _ ->
                     layout(10, 10) {
                         // read from the model
@@ -89,18 +89,14 @@ class ModelReadsTest {
 
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            offset.value = 7
-        }
+        rule.runOnUiThread { offset.value = 7 }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
 
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            offset.value = 10
-        }
+        rule.runOnUiThread { offset.value = 10 }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
@@ -117,11 +113,12 @@ class ModelReadsTest {
             activity.setContent {
                 Layout(
                     {},
-                    modifier = Modifier.drawBehind {
-                        // read from the model
-                        drawModel.value
-                        drawLatch.countDown()
-                    }
+                    modifier =
+                        Modifier.drawBehind {
+                            // read from the model
+                            drawModel.value
+                            drawLatch.countDown()
+                        }
                 ) { _, _ ->
                     layout(10, 10) {
                         // read from the model
@@ -136,18 +133,14 @@ class ModelReadsTest {
 
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            drawModel.value = 7
-        }
+        rule.runOnUiThread { drawModel.value = 7 }
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         assertFalse(positionLatch.await(200, TimeUnit.MILLISECONDS))
 
         drawLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            positionModel.value = 10
-        }
+        rule.runOnUiThread { positionModel.value = 10 }
 
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
         assertFalse(drawLatch.await(200, TimeUnit.MILLISECONDS))
@@ -162,11 +155,12 @@ class ModelReadsTest {
             activity.setContent {
                 Layout(
                     {},
-                    modifier = Modifier.drawBehind {
-                        // read from the model
-                        offset.value
-                        drawLatch.countDown()
-                    }
+                    modifier =
+                        Modifier.drawBehind {
+                            // read from the model
+                            offset.value
+                            drawLatch.countDown()
+                        }
                 ) { _, _ ->
                     measureLatch.countDown()
                     // read from the model
@@ -179,18 +173,14 @@ class ModelReadsTest {
 
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            offset.value = 10
-        }
+        rule.runOnUiThread { offset.value = 10 }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
 
         measureLatch = CountDownLatch(1)
         drawLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            offset.value = 15
-        }
+        rule.runOnUiThread { offset.value = 15 }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -220,9 +210,7 @@ class ModelReadsTest {
 
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            measureModel.value = 10
-        }
+        rule.runOnUiThread { measureModel.value = 10 }
 
         assertTrue(measureLatch.await(1, TimeUnit.SECONDS))
         // remeasuring automatically triggers relayout
@@ -230,9 +218,7 @@ class ModelReadsTest {
 
         measureLatch = CountDownLatch(1)
         positionLatch = CountDownLatch(1)
-        rule.runOnUiThread {
-            positionModel.value = 15
-        }
+        rule.runOnUiThread { positionModel.value = 15 }
 
         assertFalse(measureLatch.await(200, TimeUnit.MILLISECONDS))
         assertTrue(positionLatch.await(1, TimeUnit.SECONDS))
@@ -246,15 +232,15 @@ class ModelReadsTest {
             activity.setContent {
                 AtLeastSize(
                     10,
-                    modifier = Modifier.drawBehind {
-                        if (enabled.value) {
-                            // read the model
-                            model.value
+                    modifier =
+                        Modifier.drawBehind {
+                            if (enabled.value) {
+                                // read the model
+                                model.value
+                            }
+                            latch.countDown()
                         }
-                        latch.countDown()
-                    }
-                ) {
-                }
+                ) {}
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
@@ -310,13 +296,14 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         rule.runOnUiThread {
             activity.setContent {
-                val modifier = if (enabled.value) {
-                    Modifier.drawBehind {
-                        // read the model
-                        model.value
-                        latch.countDown()
-                    }
-                } else Modifier
+                val modifier =
+                    if (enabled.value) {
+                        Modifier.drawBehind {
+                            // read the model
+                            model.value
+                            latch.countDown()
+                        }
+                    } else Modifier
                 AtLeastSize(10, modifier = modifier) {}
             }
         }
@@ -392,9 +379,7 @@ class ModelReadsTest {
 
         latch = CountDownLatch(1)
 
-        rule.runOnUiThread {
-            model.value = 1
-        }
+        rule.runOnUiThread { model.value = 1 }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -435,9 +420,7 @@ class ModelReadsTest {
         remeasureLatch = CountDownLatch(1)
         relayoutLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
-            relayoutModel.value = 1
-        }
+        rule.runOnUiThread { relayoutModel.value = 1 }
 
         assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
         assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
@@ -473,9 +456,7 @@ class ModelReadsTest {
         remeasureLatch = CountDownLatch(1)
         relayoutLatch = CountDownLatch(1)
 
-        rule.runOnUiThread {
-            remeasureModel.value = 1
-        }
+        rule.runOnUiThread { remeasureModel.value = 1 }
 
         assertTrue(remeasureLatch.await(1, TimeUnit.SECONDS))
         assertTrue(relayoutLatch.await(1, TimeUnit.SECONDS))
@@ -504,9 +485,7 @@ class ModelReadsTest {
 
         latch = CountDownLatch(1)
 
-        rule.runOnUiThread {
-            model.value = 1
-        }
+        rule.runOnUiThread { model.value = 1 }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -650,9 +629,7 @@ class ModelReadsTest {
 
         assertTrue(latch.await(1, TimeUnit.HOURS))
 
-        rule.runOnUiThread {
-            assertEquals(1, parentLayoutsCount)
-        }
+        rule.runOnUiThread { assertEquals(1, parentLayoutsCount) }
     }
 
     @Test
@@ -660,31 +637,26 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         var modifier by mutableStateOf(Modifier.layout(onMeasure = { latch.countDown() }))
         rule.runOnUiThread {
-            activity.setContent {
-                Layout({}, modifier) { _, _ ->
-                    layout(10, 10) {}
-                }
-            }
+            activity.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
         rule.runOnUiThread {
-            modifier = Modifier.layout(
-                onMeasure = {
-                    // read the model
-                    model.value
-                    latch.countDown()
-                }
-            )
+            modifier =
+                Modifier.layout(
+                    onMeasure = {
+                        // read the model
+                        model.value
+                        latch.countDown()
+                    }
+                )
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            model.value++
-        }
+        rule.runOnUiThread { model.value++ }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -694,31 +666,26 @@ class ModelReadsTest {
         val model = mutableStateOf(0)
         var modifier by mutableStateOf(Modifier.layout(onLayout = { latch.countDown() }))
         rule.runOnUiThread {
-            activity.setContent {
-                Layout({}, modifier) { _, _ ->
-                    layout(10, 10) {}
-                }
-            }
+            activity.setContent { Layout({}, modifier) { _, _ -> layout(10, 10) {} } }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
         rule.runOnUiThread {
-            modifier = Modifier.layout(
-                onLayout = {
-                    // read the model
-                    model.value
-                    latch.countDown()
-                }
-            )
+            modifier =
+                Modifier.layout(
+                    onLayout = {
+                        // read the model
+                        model.value
+                        latch.countDown()
+                    }
+                )
         }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            model.value++
-        }
+        rule.runOnUiThread { model.value++ }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -740,9 +707,7 @@ class ModelReadsTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            state.value++
-        }
+        rule.runOnUiThread { state.value++ }
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
@@ -763,15 +728,11 @@ class ModelReadsTest {
         triggeredByEnableSwitch: Boolean = true
     ) {
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            valueModel.value++
-        }
+        rule.runOnUiThread { valueModel.value++ }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            enableModel.value = false
-        }
+        rule.runOnUiThread { enableModel.value = false }
         if (triggeredByEnableSwitch) {
             assertTrue(latch.await(1, TimeUnit.SECONDS))
         } else {
@@ -779,9 +740,7 @@ class ModelReadsTest {
         }
 
         latch = CountDownLatch(1)
-        rule.runOnUiThread {
-            valueModel.value++
-        }
+        rule.runOnUiThread { valueModel.value++ }
         assertFalse(latch.await(200, TimeUnit.MILLISECONDS))
     }
 }

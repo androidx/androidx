@@ -72,8 +72,7 @@ import org.junit.runner.RunWith
 @OptIn(InternalAnimationApi::class)
 class AnimatedVisibilityTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val frameDuration = 16
 
@@ -88,39 +87,33 @@ class AnimatedVisibilityTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 AnimatedVisibility(
-                    visible, testModifier,
-                    enter = expandIn(
-                        tween(160, easing = LinearOutSlowInEasing),
-                        Alignment.BottomEnd
-                    ) { fullSize ->
-                        IntSize(fullSize.width / 4, fullSize.height / 2)
-                    },
-
-                    exit = shrinkOut(
-                        tween(160, easing = FastOutSlowInEasing),
-                        Alignment.CenterStart
-                    ) { fullSize -> IntSize(fullSize.width / 10, fullSize.height / 5) },
+                    visible,
+                    testModifier,
+                    enter =
+                        expandIn(tween(160, easing = LinearOutSlowInEasing), Alignment.BottomEnd) {
+                            fullSize ->
+                            IntSize(fullSize.width / 4, fullSize.height / 2)
+                        },
+                    exit =
+                        shrinkOut(
+                            tween(160, easing = FastOutSlowInEasing),
+                            Alignment.CenterStart
+                        ) { fullSize ->
+                            IntSize(fullSize.width / 10, fullSize.height / 5)
+                        },
                 ) {
                     Box(
-                        Modifier
-                            .requiredSize(100.dp, 100.dp)
-                            .onGloballyPositioned {
-                                offset = it.localToRoot(Offset.Zero)
-                            }
-                    ) {
-                        DisposableEffect(Unit) {
-                            onDispose {
-                                disposed = true
-                            }
+                        Modifier.requiredSize(100.dp, 100.dp).onGloballyPositioned {
+                            offset = it.localToRoot(Offset.Zero)
                         }
+                    ) {
+                        DisposableEffect(Unit) { onDispose { disposed = true } }
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -143,9 +136,7 @@ class AnimatedVisibilityTest {
             rule.waitForIdle()
         }
 
-        rule.runOnIdle {
-            visible = false
-        }
+        rule.runOnIdle { visible = false }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -171,9 +162,7 @@ class AnimatedVisibilityTest {
         rule.mainClock.autoAdvance = false
 
         // Make it visible again, and test that it behaves the same as before
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -203,34 +192,29 @@ class AnimatedVisibilityTest {
         rule.mainClock.autoAdvance = false
         rule.setContent {
             AnimatedVisibility(
-                visible, testModifier,
-                enter = slideIn(
-                    tween(160, easing = LinearOutSlowInEasing)
-                ) { fullSize -> IntOffset(fullSize.width / 4, -fullSize.height / 2) },
-                exit = slideOut(
-                    tween(160, easing = FastOutSlowInEasing)
-                ) { fullSize -> IntOffset(-fullSize.width / 10, fullSize.height / 5) },
+                visible,
+                testModifier,
+                enter =
+                    slideIn(tween(160, easing = LinearOutSlowInEasing)) { fullSize ->
+                        IntOffset(fullSize.width / 4, -fullSize.height / 2)
+                    },
+                exit =
+                    slideOut(tween(160, easing = FastOutSlowInEasing)) { fullSize ->
+                        IntOffset(-fullSize.width / 10, fullSize.height / 5)
+                    },
             ) {
                 Box(
-                    Modifier
-                        .requiredSize(100.dp, 100.dp)
-                        .onGloballyPositioned {
-                            offset = it.localToRoot(Offset.Zero)
-                        }
-                ) {
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            disposed = true
-                        }
+                    Modifier.requiredSize(100.dp, 100.dp).onGloballyPositioned {
+                        offset = it.localToRoot(Offset.Zero)
                     }
+                ) {
+                    DisposableEffect(Unit) { onDispose { disposed = true } }
                 }
             }
             density = LocalDensity.current.density
         }
 
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -253,9 +237,7 @@ class AnimatedVisibilityTest {
             rule.waitForIdle()
         }
 
-        rule.runOnIdle {
-            visible = false
-        }
+        rule.runOnIdle { visible = false }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -281,9 +263,7 @@ class AnimatedVisibilityTest {
         rule.mainClock.autoAdvance = false
 
         // Make it visible again, and test that it behaves the same as before
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
 
@@ -324,12 +304,8 @@ class AnimatedVisibilityTest {
             assertEquals(60, testModifier.height)
             assertEquals(60, testModifier.width)
         }
-        rule.runOnIdle {
-            visible = false
-        }
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = false }
+        rule.runOnIdle { visible = true }
         rule.runOnIdle {
             assertEquals(60, testModifier.height)
             assertEquals(60, testModifier.width)
@@ -355,22 +331,18 @@ class AnimatedVisibilityTest {
                 enter = fadeIn(animationSpec = tween(500, easing = easing)),
                 exit = fadeOut(animationSpec = tween(300, easing = easingOut)),
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(size = 20.dp)
-                        .background(Color.White)
-                )
+                Box(modifier = Modifier.size(size = 20.dp).background(Color.White))
                 LaunchedEffect(visible) {
                     var exit = false
                     val enterExit = transition
                     while (true) {
                         withFrameNanos {
                             if (enterExit.targetState == Visible) {
-                                alpha = enterExit.animations.firstOrNull {
-                                    it.label.contains("alpha", true)
-                                }?.value as Float
-                                val fraction =
-                                    (enterExit.playTimeNanos / 1_000_000) / 500f
+                                alpha =
+                                    enterExit.animations
+                                        .firstOrNull { it.label.contains("alpha", true) }
+                                        ?.value as Float
+                                val fraction = (enterExit.playTimeNanos / 1_000_000) / 500f
                                 if (enterExit.currentState != Visible) {
                                     assertEquals(easing.transform(fraction), alpha, 0.01f)
                                 } else {
@@ -380,17 +352,13 @@ class AnimatedVisibilityTest {
                                     exit = true
                                 }
                             } else if (enterExit.targetState == PostExit) {
-                                alpha = enterExit.animations.firstOrNull {
-                                    it.label.contains("alpha", true)
-                                }?.value as Float
-                                val fraction =
-                                    (enterExit.playTimeNanos / 1_000_000) / 300f
+                                alpha =
+                                    enterExit.animations
+                                        .firstOrNull { it.label.contains("alpha", true) }
+                                        ?.value as Float
+                                val fraction = (enterExit.playTimeNanos / 1_000_000) / 300f
                                 if (enterExit.currentState != PostExit) {
-                                    assertEquals(
-                                        1f - easingOut.transform(fraction),
-                                        alpha,
-                                        0.01f
-                                    )
+                                    assertEquals(1f - easingOut.transform(fraction), alpha, 0.01f)
                                 } else {
                                     // When currentState = targetState, the playTime will be reset
                                     // to 0. So compare alpha against expected invisible value.
@@ -406,9 +374,7 @@ class AnimatedVisibilityTest {
                 }
             }
         }
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.runOnIdle {
             // At this point fade in has finished, expect alpha = 1
             assertEquals(1f, alpha)
@@ -434,22 +400,18 @@ class AnimatedVisibilityTest {
                 enter = scaleIn(animationSpec = tween(500, easing = easing)),
                 exit = scaleOut(animationSpec = tween(300, easing = easingOut)),
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(size = 20.dp)
-                        .background(Color.White)
-                )
+                Box(modifier = Modifier.size(size = 20.dp).background(Color.White))
                 LaunchedEffect(visible) {
                     var exit = false
                     val enterExit = transition
                     while (true) {
                         withFrameNanos {
                             if (enterExit.targetState == Visible) {
-                                scale = enterExit.animations.firstOrNull {
-                                    it.label.contains("scale", true)
-                                }?.value as Float
-                                val fraction =
-                                    (enterExit.playTimeNanos / 1_000_000) / 500f
+                                scale =
+                                    enterExit.animations
+                                        .firstOrNull { it.label.contains("scale", true) }
+                                        ?.value as Float
+                                val fraction = (enterExit.playTimeNanos / 1_000_000) / 500f
                                 if (enterExit.currentState != Visible) {
                                     assertEquals(easing.transform(fraction), scale, 0.01f)
                                 } else {
@@ -459,17 +421,13 @@ class AnimatedVisibilityTest {
                                     exit = true
                                 }
                             } else if (enterExit.targetState == PostExit) {
-                                scale = enterExit.animations.firstOrNull {
-                                    it.label.contains("scale", true)
-                                }?.value as Float
-                                val fraction =
-                                    (enterExit.playTimeNanos / 1_000_000) / 300f
+                                scale =
+                                    enterExit.animations
+                                        .firstOrNull { it.label.contains("scale", true) }
+                                        ?.value as Float
+                                val fraction = (enterExit.playTimeNanos / 1_000_000) / 300f
                                 if (enterExit.currentState != PostExit) {
-                                    assertEquals(
-                                        1f - easingOut.transform(fraction),
-                                        scale,
-                                        0.01f
-                                    )
+                                    assertEquals(1f - easingOut.transform(fraction), scale, 0.01f)
                                 } else {
                                     // When currentState = targetState, the playTime will be reset
                                     // to 0. So compare scale against expected invisible value.
@@ -485,9 +443,7 @@ class AnimatedVisibilityTest {
                 }
             }
         }
-        rule.runOnIdle {
-            visible = true
-        }
+        rule.runOnIdle { visible = true }
         rule.runOnIdle {
             // At this point fade in has finished, expect alpha = 1
             assertEquals(1f, scale)
@@ -508,16 +464,13 @@ class AnimatedVisibilityTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 AnimatedVisibility(
-                    visible, testModifier,
+                    visible,
+                    testModifier,
                     enter = EnterTransition.None,
                     exit = ExitTransition.None
                 ) {
                     Box(Modifier.requiredSize(100.dp, 100.dp)) {
-                        DisposableEffect(Unit) {
-                            onDispose {
-                                disposed = true
-                            }
-                        }
+                        DisposableEffect(Unit) { onDispose { disposed = true } }
                     }
                 }
             }
@@ -538,12 +491,14 @@ class AnimatedVisibilityTest {
         }
         rule.mainClock.advanceTimeByFrame()
         rule.mainClock.advanceTimeByFrame()
-        rule.runOnIdle {
-            assertTrue(disposed)
-        }
+        rule.runOnIdle { assertTrue(disposed) }
     }
 
-    private enum class TestState { State1, State2, State3 }
+    private enum class TestState {
+        State1,
+        State2,
+        State3
+    }
 
     @OptIn(ExperimentalAnimationApi::class)
     @Test
@@ -567,11 +522,7 @@ class AnimatedVisibilityTest {
                     exit = shrinkOut(animationSpec = tween(100, easing = LinearEasing))
                 ) {
                     Box(Modifier.requiredSize(100.dp, 100.dp)) {
-                        DisposableEffect(Unit) {
-                            onDispose {
-                                disposed = true
-                            }
-                        }
+                        DisposableEffect(Unit) { onDispose { disposed = true } }
                     }
                 }
             }
@@ -599,9 +550,7 @@ class AnimatedVisibilityTest {
         // When the hide animation finishes, it will never get measured with size 0 because the
         // animation will remove it from the composition instead.
         rule.onNodeWithTag("content").assertDoesNotExist()
-        rule.runOnIdle {
-            assertThat(disposed).isTrue()
-        }
+        rule.runOnIdle { assertThat(disposed).isTrue() }
     }
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -611,17 +560,19 @@ class AnimatedVisibilityTest {
         var rootTransition: Transition<Boolean>? = null
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                updateTransition(false, label = "test").apply {
-                    rootTransition = this
-                }.AnimatedVisibility(
-                    { it },
-                    enter = fadeIn(animationSpec = spec()) +
-                        slideInVertically(animationSpec = spec()) { 200 },
-                    exit = scaleOut(animationSpec = spec()) +
-                        shrinkHorizontally(animationSpec = spec())
-                ) {
-                    Box(Modifier.size(200.dp))
-                }
+                updateTransition(false, label = "test")
+                    .apply { rootTransition = this }
+                    .AnimatedVisibility(
+                        { it },
+                        enter =
+                            fadeIn(animationSpec = spec()) +
+                                slideInVertically(animationSpec = spec()) { 200 },
+                        exit =
+                            scaleOut(animationSpec = spec()) +
+                                shrinkHorizontally(animationSpec = spec())
+                    ) {
+                        Box(Modifier.size(200.dp))
+                    }
             }
         }
         rule.waitForIdle()
@@ -631,17 +582,23 @@ class AnimatedVisibilityTest {
         while (true) {
             // Seeking the enter transition, and check alpha & slide
             transition.setPlaytimeAfterInitialAndTargetStateEstablished(
-                false, true, playTimeMs * 1_000_000L
+                false,
+                true,
+                playTimeMs * 1_000_000L
             )
             rule.waitForIdle()
             assertEquals(200_000_000L, transition.totalDurationNanos)
 
-            val alpha = transition.transitions[0].animations.firstOrNull {
-                it.label.contains("alpha")
-            }?.value
-            val slide = transition.transitions[0].animations.firstOrNull {
-                it.label.contains("slide")
-            }?.value
+            val alpha =
+                transition.transitions[0]
+                    .animations
+                    .firstOrNull { it.label.contains("alpha") }
+                    ?.value
+            val slide =
+                transition.transitions[0]
+                    .animations
+                    .firstOrNull { it.label.contains("slide") }
+                    ?.value
             if (playTimeMs * 1_000_000L > transition.totalDurationNanos) {
                 // Finished. Check some end condition
                 assertEquals(1f, alpha)
@@ -659,17 +616,23 @@ class AnimatedVisibilityTest {
         while (true) {
             // Seeking the exit transition, and check scale & shrink
             transition.setPlaytimeAfterInitialAndTargetStateEstablished(
-                true, false, playTimeMs * 1_000_000L
+                true,
+                false,
+                playTimeMs * 1_000_000L
             )
             rule.waitForIdle()
             assertEquals(200_000_000L, transition.totalDurationNanos)
 
-            val scale = transition.transitions[0].animations.firstOrNull {
-                it.label.contains("scale")
-            }?.value
-            val shrink = transition.transitions[0].animations.firstOrNull {
-                it.label.contains("shrink")
-            }?.value
+            val scale =
+                transition.transitions[0]
+                    .animations
+                    .firstOrNull { it.label.contains("scale") }
+                    ?.value
+            val shrink =
+                transition.transitions[0]
+                    .animations
+                    .firstOrNull { it.label.contains("shrink") }
+                    ?.value
             if (playTimeMs * 1_000_000L > transition.totalDurationNanos) {
                 // Finished. Check some end condition
                 assertEquals(0f, scale)
@@ -691,17 +654,17 @@ class AnimatedVisibilityTest {
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
                 LookaheadScope {
-                    Box(Modifier.layout { measurable, constraints ->
-                        measurable.measure(constraints).run {
-                            if (isLookingAhead) {
-                                lookaheadSizes.add(IntSize(width, height))
+                    Box(
+                        Modifier.layout { measurable, constraints ->
+                            measurable.measure(constraints).run {
+                                if (isLookingAhead) {
+                                    lookaheadSizes.add(IntSize(width, height))
+                                }
+                                layout(width, height) { place(0, 0) }
                             }
-                            layout(width, height) { place(0, 0) }
                         }
-                    }) {
-                        AnimatedVisibility(visible = visible) {
-                            Box(Modifier.size(200.dp, 100.dp))
-                        }
+                    ) {
+                        AnimatedVisibility(visible = visible) { Box(Modifier.size(200.dp, 100.dp)) }
                     }
                 }
             }
@@ -709,91 +672,84 @@ class AnimatedVisibilityTest {
         rule.runOnIdle {
             assertTrue(visible)
             assertTrue(lookaheadSizes.isNotEmpty())
-            lookaheadSizes.forEach {
-                assertEquals(IntSize(200, 100), it)
-            }
+            lookaheadSizes.forEach { assertEquals(IntSize(200, 100), it) }
             lookaheadSizes.clear()
             visible = !visible
         }
         rule.runOnIdle {
             assertFalse(visible)
             assertTrue(lookaheadSizes.isNotEmpty())
-            lookaheadSizes.forEach {
-                assertEquals(IntSize.Zero, it)
-            }
+            lookaheadSizes.forEach { assertEquals(IntSize.Zero, it) }
             lookaheadSizes.clear()
         }
     }
 
     @Test
-    fun interruptedExitAnimationUsesCorrectTransition() = with(rule.density) {
-        var visible by mutableStateOf(false)
+    fun interruptedExitAnimationUsesCorrectTransition() =
+        with(rule.density) {
+            var visible by mutableStateOf(false)
 
-        val duration = 16 * 20 // 20 frames
-        val animation = { tween<IntOffset>(duration, easing = LinearEasing) }
+            val duration = 16 * 20 // 20 frames
+            val animation = { tween<IntOffset>(duration, easing = LinearEasing) }
 
-        val boxSizePx = 100
-        val enterDistance = 180
-        val undesiredExitDistance = -200
-        val expectedExitDistance = 200
+            val boxSizePx = 100
+            val enterDistance = 180
+            val undesiredExitDistance = -200
+            val expectedExitDistance = 200
 
-        var boxPosition = IntOffset.Zero
+            var boxPosition = IntOffset.Zero
 
-        rule.setContent {
-            AnimatedVisibility(
-                visible = visible,
-                enter = slideInHorizontally(animation()) { enterDistance },
-                exit = if (visible) {
-                    slideOutHorizontally(animation()) { undesiredExitDistance }
-                } else {
-                    // Only this transition should apply
-                    slideOutHorizontally(animation()) { expectedExitDistance }
-                }
-            ) {
-                Box(
-                    Modifier
-                        .requiredSize(boxSizePx.toDp())
-                        .background(Color.Red)
-                        .onGloballyPositioned {
-                            boxPosition = it
-                                .positionInRoot()
-                                .round()
+            rule.setContent {
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = slideInHorizontally(animation()) { enterDistance },
+                    exit =
+                        if (visible) {
+                            slideOutHorizontally(animation()) { undesiredExitDistance }
+                        } else {
+                            // Only this transition should apply
+                            slideOutHorizontally(animation()) { expectedExitDistance }
                         }
-                )
+                ) {
+                    Box(
+                        Modifier.requiredSize(boxSizePx.toDp())
+                            .background(Color.Red)
+                            .onGloballyPositioned { boxPosition = it.positionInRoot().round() }
+                    )
+                }
             }
-        }
-        rule.waitForIdle()
-
-        rule.mainClock.autoAdvance = false
-        rule.runOnIdle {
-            visible = true
-        }
-        rule.mainClock.advanceTimeByFrame()
-        rule.mainClock.advanceTimeByFrame()
-
-        // Animate towards half of the transition and interrupt it by toggling the state
-        rule.mainClock.advanceTimeBy(duration / 2L)
-        rule.runOnIdle {
-            // Verify the position corresponds to half of the animation
-            assertEquals(IntOffset(enterDistance / 2, 0), boxPosition)
-            visible = false
-        }
-        val positionAtInterruption = boxPosition
-
-        // Run the animation for a few steps/frames to guarantee each frame is rendered, since a
-        // spring is used after interruption it's unknown how many more frames we need till the end
-        // of the animation, but we don't need to run the entire animation.
-        // We also need to run more than one step, since springs keep their initial momentum (in
-        // this case, momentum towards the left), so the next frame might still move the box towards
-        // the left.
-        repeat(3) {
-            rule.mainClock.advanceTimeByFrame()
             rule.waitForIdle()
-        }
 
-        // After a few frames, we can check the position of the box. If it used the expected
-        // transition, its current position should be offset to the right.
-        assertEquals(0, boxPosition.y)
-        assertThat(boxPosition.x).isGreaterThan(positionAtInterruption.x)
-    }
+            rule.mainClock.autoAdvance = false
+            rule.runOnIdle { visible = true }
+            rule.mainClock.advanceTimeByFrame()
+            rule.mainClock.advanceTimeByFrame()
+
+            // Animate towards half of the transition and interrupt it by toggling the state
+            rule.mainClock.advanceTimeBy(duration / 2L)
+            rule.runOnIdle {
+                // Verify the position corresponds to half of the animation
+                assertEquals(IntOffset(enterDistance / 2, 0), boxPosition)
+                visible = false
+            }
+            val positionAtInterruption = boxPosition
+
+            // Run the animation for a few steps/frames to guarantee each frame is rendered, since a
+            // spring is used after interruption it's unknown how many more frames we need till the
+            // end
+            // of the animation, but we don't need to run the entire animation.
+            // We also need to run more than one step, since springs keep their initial momentum (in
+            // this case, momentum towards the left), so the next frame might still move the box
+            // towards
+            // the left.
+            repeat(3) {
+                rule.mainClock.advanceTimeByFrame()
+                rule.waitForIdle()
+            }
+
+            // After a few frames, we can check the position of the box. If it used the expected
+            // transition, its current position should be offset to the right.
+            assertEquals(0, boxPosition.y)
+            assertThat(boxPosition.x).isGreaterThan(positionAtInterruption.x)
+        }
 }

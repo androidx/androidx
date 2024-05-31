@@ -38,103 +38,105 @@ import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.toUElement
 
 /**
- * Lint [Detector] to prevent allocating Iterators when iterating on a [List]. Instead of using
- * `for (e in list)` or `list.forEach {}`, more efficient iteration methods should be used, such as
- * `for (i in list.indices) { list[i]... }` or `list.fastForEach`.
+ * Lint [Detector] to prevent allocating Iterators when iterating on a [List]. Instead of using `for
+ * (e in list)` or `list.forEach {}`, more efficient iteration methods should be used, such as `for
+ * (i in list.indices) { list[i]... }` or `list.fastForEach`.
  */
 class ListIteratorDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableUastTypes() = listOf(
-        UForEachExpression::class.java,
-        UCallExpression::class.java
-    )
+    override fun getApplicableUastTypes() =
+        listOf(UForEachExpression::class.java, UCallExpression::class.java)
 
-    override fun createUastHandler(context: JavaContext) = object : UElementHandler() {
-        override fun visitForEachExpression(node: UForEachExpression) {
-            // Type of the variable we are iterating on, i.e the type of `b` in `for (a in b)`
-            val iteratedValueType = node.iteratedValue.getExpressionType()
-            // We are iterating on a List
-            if (iteratedValueType?.inheritsFrom(JavaList) == true) {
-                // Find the `in` keyword to use as location
-                val inKeyword = (node.sourcePsi as? KtForExpression)?.inKeyword
-                val location = if (inKeyword == null) {
-                    context.getNameLocation(node)
-                } else {
-                    context.getNameLocation(inKeyword)
+    override fun createUastHandler(context: JavaContext) =
+        object : UElementHandler() {
+            override fun visitForEachExpression(node: UForEachExpression) {
+                // Type of the variable we are iterating on, i.e the type of `b` in `for (a in b)`
+                val iteratedValueType = node.iteratedValue.getExpressionType()
+                // We are iterating on a List
+                if (iteratedValueType?.inheritsFrom(JavaList) == true) {
+                    // Find the `in` keyword to use as location
+                    val inKeyword = (node.sourcePsi as? KtForExpression)?.inKeyword
+                    val location =
+                        if (inKeyword == null) {
+                            context.getNameLocation(node)
+                        } else {
+                            context.getNameLocation(inKeyword)
+                        }
+                    context.report(
+                        ISSUE,
+                        node,
+                        location,
+                        "Creating an unnecessary Iterator to iterate through a List"
+                    )
                 }
+            }
+
+            override fun visitCallExpression(node: UCallExpression) {
+                val receiverType = node.receiverType
+
+                // We are calling a method on a `List` type
+                if (receiverType?.inheritsFrom(JavaList) == true) {
+                    when (val method = node.resolve()?.unwrapped) {
+                        // Parsing a class file
+                        is ClsMethodImpl -> {
+                            method.checkForIterableReceiver(node)
+                        }
+                        // Parsing Kotlin source
+                        is KtNamedFunction -> {
+                            method.checkForIterableReceiver(node)
+                        }
+                    }
+                }
+            }
+
+            private fun ClsMethodImpl.checkForIterableReceiver(node: UCallExpression) {
+                val kmFunction = this.toKmFunction()
+
+                kmFunction?.let {
+                    if (it.receiverParameterType?.classifier == KotlinIterableClassifier) {
+                        context.report(
+                            ISSUE,
+                            node,
+                            context.getNameLocation(node),
+                            "Creating an unnecessary Iterator to iterate through a List"
+                        )
+                    }
+                }
+            }
+
+            private fun KtNamedFunction.checkForIterableReceiver(node: UCallExpression) {
+                val receiver = receiverTypeReference
+                // If there is no receiver, or the receiver isn't an Iterable, ignore
+                if (
+                    (receiver.toUElement() as? UTypeReferenceExpression)?.getQualifiedName() !=
+                        JavaIterable.javaFqn
+                )
+                    return
+
                 context.report(
                     ISSUE,
                     node,
-                    location,
+                    context.getNameLocation(node),
                     "Creating an unnecessary Iterator to iterate through a List"
                 )
             }
         }
 
-        override fun visitCallExpression(node: UCallExpression) {
-            val receiverType = node.receiverType
-
-            // We are calling a method on a `List` type
-            if (receiverType?.inheritsFrom(JavaList) == true) {
-                when (val method = node.resolve()?.unwrapped) {
-                    // Parsing a class file
-                    is ClsMethodImpl -> {
-                        method.checkForIterableReceiver(node)
-                    }
-                    // Parsing Kotlin source
-                    is KtNamedFunction -> {
-                        method.checkForIterableReceiver(node)
-                    }
-                }
-            }
-        }
-
-        private fun ClsMethodImpl.checkForIterableReceiver(node: UCallExpression) {
-            val kmFunction = this.toKmFunction()
-
-            kmFunction?.let {
-                if (it.receiverParameterType?.classifier == KotlinIterableClassifier) {
-                    context.report(
-                        ISSUE,
-                        node,
-                        context.getNameLocation(node),
-                        "Creating an unnecessary Iterator to iterate through a List"
-                    )
-                }
-            }
-        }
-
-        private fun KtNamedFunction.checkForIterableReceiver(node: UCallExpression) {
-            val receiver = receiverTypeReference
-            // If there is no receiver, or the receiver isn't an Iterable, ignore
-            if ((receiver.toUElement() as? UTypeReferenceExpression)
-                ?.getQualifiedName() != JavaIterable.javaFqn
-            ) return
-
-            context.report(
-                ISSUE,
-                node,
-                context.getNameLocation(node),
-                "Creating an unnecessary Iterator to iterate through a List"
-            )
-        }
-    }
-
     companion object {
-        val ISSUE = Issue.create(
-            "ListIterator",
-            "Creating an unnecessary Iterator to iterate through a List",
-            "Iterable<T> extension methods and using `for (a in list)` will create an " +
-                "Iterator object - in hot code paths this can cause a lot of extra allocations " +
-                "which is something we want to avoid. Instead, use a method that doesn't " +
-                "allocate, such as `fastForEach`, or use `for (a in list.indices)` as iterating " +
-                "through an `IntRange` does not allocate an Iterator, and becomes just a simple " +
-                "for loop.",
-            Category.PERFORMANCE, 5, Severity.ERROR,
-            Implementation(
-                ListIteratorDetector::class.java,
-                Scope.JAVA_FILE_SCOPE
+        val ISSUE =
+            Issue.create(
+                "ListIterator",
+                "Creating an unnecessary Iterator to iterate through a List",
+                "Iterable<T> extension methods and using `for (a in list)` will create an " +
+                    "Iterator object - in hot code paths this can cause a lot of extra allocations " +
+                    "which is something we want to avoid. Instead, use a method that doesn't " +
+                    "allocate, such as `fastForEach`, or use `for (a in list.indices)` as iterating " +
+                    "through an `IntRange` does not allocate an Iterator, and becomes just a simple " +
+                    "for loop.",
+                Category.PERFORMANCE,
+                5,
+                Severity.ERROR,
+                Implementation(ListIteratorDetector::class.java, Scope.JAVA_FILE_SCOPE)
             )
-        )
     }
 }
 

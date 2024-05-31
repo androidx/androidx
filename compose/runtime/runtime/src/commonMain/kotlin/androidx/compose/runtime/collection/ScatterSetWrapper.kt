@@ -22,24 +22,17 @@ import androidx.collection.ScatterSet
  * A wrapper for [ScatterSet] that implements [Set] APIs. This wrapper allows to use [ScatterSet]
  * through external APIs and unwrap it back into [Set] for faster iteration / other operations.
  */
-internal class ScatterSetWrapper<T>(
-    internal val set: ScatterSet<T>
-) : Set<T> {
+internal class ScatterSetWrapper<T>(internal val set: ScatterSet<T>) : Set<T> {
     override val size: Int
         get() = set.size
 
     override fun isEmpty(): Boolean = set.isEmpty()
-    override fun iterator(): Iterator<T> = iterator {
-        set.forEach {
-            yield(it)
-        }
-    }
 
-    override fun containsAll(elements: Collection<T>): Boolean =
-        elements.all { set.contains(it) }
+    override fun iterator(): Iterator<T> = iterator { set.forEach { yield(it) } }
 
-    override fun contains(element: T): Boolean =
-        set.contains(element)
+    override fun containsAll(elements: Collection<T>): Boolean = elements.all { set.contains(it) }
+
+    override fun contains(element: T): Boolean = set.contains(element)
 }
 
 internal fun <T> ScatterSet<T>.wrapIntoSet(): Set<T> = ScatterSetWrapper(this)

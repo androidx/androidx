@@ -27,5 +27,6 @@ private fun Char.isPrintable(): Boolean {
 }
 
 actual val KeyEvent.isTypedEvent: Boolean
-    get() = nativeKeyEvent.id == java.awt.event.KeyEvent.KEY_TYPED &&
-        nativeKeyEvent.keyChar.isPrintable()
+    get() =
+        nativeKeyEvent.id == java.awt.event.KeyEvent.KEY_TYPED &&
+            nativeKeyEvent.keyChar.isPrintable()

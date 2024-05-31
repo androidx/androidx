@@ -36,8 +36,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
     @Test
-    fun testNormalFunctions() = assertComposability(
-        """
+    fun testNormalFunctions() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             fun Foo() {
@@ -48,20 +49,22 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 val baz: Int get() { <normal>return 123 }
             }
         """
-    )
+        )
 
     @Test
-    fun testPropGetter() = assertComposability(
-        """
+    fun testPropGetter() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             val baz: Int get() { <normal>return 123 }
         """
-    )
+        )
 
     @Test
-    fun testBasicComposable() = assertComposability(
-        """
+    fun testBasicComposable() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -69,11 +72,12 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 <composable>
             }
         """
-    )
+        )
 
     @Test
-    fun testBasicComposable2() = assertComposability(
-        """
+    fun testBasicComposable2() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             val foo = @Composable { <composable> }
@@ -87,13 +91,14 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 @Composable fun z() { <composable> }
             }
         """
-    )
+        )
 
     // We only analyze scopes that contain composable calls, so this test fails without the
     // nested call to `Bar`. This is why this test was originally muted (b/147250515).
     @Test
-    fun testBasicComposable3() = assertComposability(
-        """
+    fun testBasicComposable3() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -104,11 +109,12 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBasicComposable4() = assertComposability(
-        """
+    fun testBasicComposable4() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Wrap(block: @Composable () -> Unit) { block() }
@@ -124,11 +130,12 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBasicComposable5() = assertComposability(
-        """
+    fun testBasicComposable5() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             @Composable fun Callback(block: () -> Unit) { block() }
@@ -141,11 +148,12 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testBasicComposable6() = assertComposability(
-        """
+    fun testBasicComposable6() =
+        assertComposability(
+            """
             import androidx.compose.runtime.*
 
             fun kickOff(block: @Composable () -> Unit) {  }
@@ -157,7 +165,7 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
                 }
             }
         """
-    )
+        )
 
     private fun assertComposability(srcText: String) {
         val (text, carets) = extractCarets(srcText)
@@ -171,31 +179,28 @@ class ScopeComposabilityTests : AbstractCodegenTest(useFir = false) {
 
             when (marking) {
                 "<composable>" -> assertTrue("index: $index", composable)
-                "<normal>" -> assertTrue(
-                    "index: $index",
-                    !composable
-                )
+                "<normal>" -> assertTrue("index: $index", !composable)
                 else -> error("Composability of $marking not recognized.")
             }
         }
     }
 
     private val callPattern = Regex("(<composable>)|(<normal>)")
+
     private fun extractCarets(text: String): Pair<String, List<Pair<Int, String>>> {
         val indices = mutableListOf<Pair<Int, String>>()
         var offset = 0
-        val src = callPattern.replace(text) {
-            indices.add(it.range.first - offset to it.value)
-            offset += it.range.last - it.range.first + 1
-            ""
-        }
+        val src =
+            callPattern.replace(text) {
+                indices.add(it.range.first - offset to it.value)
+                offset += it.range.last - it.range.first + 1
+                ""
+            }
         return src to indices
     }
 }
 
-fun PsiElement?.getNearestComposability(
-    bindingContext: BindingContext
-): Boolean {
+fun PsiElement?.getNearestComposability(bindingContext: BindingContext): Boolean {
     var node: PsiElement? = this
     while (node != null) {
         when (node) {
@@ -204,8 +209,8 @@ fun PsiElement?.getNearestComposability(
                 // KtLambdaExpression
             }
             is KtLambdaExpression -> {
-                val descriptor = bindingContext[BindingContext.FUNCTION, node.functionLiteral]
-                    ?: return false
+                val descriptor =
+                    bindingContext[BindingContext.FUNCTION, node.functionLiteral] ?: return false
                 return descriptor.allowsComposableCalls(bindingContext)
             }
             is KtFunction,

@@ -25,8 +25,7 @@ import org.junit.Test
 
 class AnimatedVisibilityComposeAnimationTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun createComposeAnimation() {

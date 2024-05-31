@@ -19,10 +19,11 @@ package androidx.compose.ui.demos.recyclerview
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.integration.demos.common.FragmentDemo
 
-val RecyclerViewDemos = DemoCategory(
-    "RecyclerView",
-    listOf(
-        FragmentDemo("Basic interop (enabled)", RecyclerViewInteropDemoFragment::class),
-        FragmentDemo("Basic interop (disabled)", RecyclerViewInteropOffDemoFragment::class),
+val RecyclerViewDemos =
+    DemoCategory(
+        "RecyclerView",
+        listOf(
+            FragmentDemo("Basic interop (enabled)", RecyclerViewInteropDemoFragment::class),
+            FragmentDemo("Basic interop (disabled)", RecyclerViewInteropOffDemoFragment::class),
+        )
     )
-)

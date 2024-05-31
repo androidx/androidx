@@ -62,11 +62,8 @@ fun ComposeInCooperatingViewNestedScrollInteropSample() {
     LazyColumn(modifier = Modifier.nestedScroll(nestedSrollInterop)) {
         items(20) { item ->
             Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .height(56.dp)
-                    .fillMaxWidth()
-                    .background(Color.Gray),
+                modifier =
+                    Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
                 Text(item.toString())
@@ -79,25 +76,23 @@ fun ComposeInCooperatingViewNestedScrollInteropSample() {
 @Composable
 fun ViewInComposeNestedScrollInteropSample() {
     Box(
-        Modifier
-            .fillMaxSize()
-            .scrollable(rememberScrollableState {
-                // view world deltas should be reflected in compose world
-                // components that participate in nested scrolling
-                it
-            }, Orientation.Vertical)
+        Modifier.fillMaxSize()
+            .scrollable(
+                rememberScrollableState {
+                    // view world deltas should be reflected in compose world
+                    // components that participate in nested scrolling
+                    it
+                },
+                Orientation.Vertical
+            )
     ) {
-        AndroidView(
-            { context ->
-                LayoutInflater.from(context)
-                    .inflate(android.R.layout.activity_list_item, null)
-                    .apply {
-                        // Nested Scroll Interop will be Enabled when
-                        // nested scroll is enabled for the root view
-                        ViewCompat.setNestedScrollingEnabled(this, true)
-                    }
+        AndroidView({ context ->
+            LayoutInflater.from(context).inflate(android.R.layout.activity_list_item, null).apply {
+                // Nested Scroll Interop will be Enabled when
+                // nested scroll is enabled for the root view
+                ViewCompat.setNestedScrollingEnabled(this, true)
             }
-        )
+        })
     }
 }
 
@@ -120,15 +115,12 @@ fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
     }
 
     // Compose Scrollable
-    Box(
-        Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
-    ) {
+    Box(Modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
         TopAppBar(
-            modifier = Modifier
-                .height(ToolbarHeight)
-                .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
+            modifier =
+                Modifier.height(ToolbarHeight).offset {
+                    IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
+                },
             title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") }
         )
         // Android View
@@ -141,34 +133,27 @@ fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
 
 private fun AndroidViewWithCompose(context: Context): View {
     return LayoutInflater.from(context)
-        .inflate(R.layout.three_fold_nested_scroll_interop, null).apply {
+        .inflate(R.layout.three_fold_nested_scroll_interop, null)
+        .apply {
             with(findViewById<ComposeView>(R.id.compose_view)) {
                 // Compose
                 setContent { LazyColumnWithNestedScrollInteropEnabled() }
             }
-        }.also {
-            ViewCompat.setNestedScrollingEnabled(it, true)
         }
+        .also { ViewCompat.setNestedScrollingEnabled(it, true) }
 }
 
 @Composable
 private fun LazyColumnWithNestedScrollInteropEnabled() {
     LazyColumn(
-        modifier = Modifier.nestedScroll(
-            rememberNestedScrollInteropConnection()
-        ),
+        modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
         contentPadding = PaddingValues(top = ToolbarHeight)
     ) {
-        item {
-            Text("This is a Lazy Column")
-        }
+        item { Text("This is a Lazy Column") }
         items(40) { item ->
             Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .height(56.dp)
-                    .fillMaxWidth()
-                    .background(Color.Gray),
+                modifier =
+                    Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
                 contentAlignment = Alignment.Center
             ) {
                 Text(item.toString())

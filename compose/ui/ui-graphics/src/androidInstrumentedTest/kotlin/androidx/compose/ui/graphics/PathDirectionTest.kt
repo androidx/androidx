@@ -70,18 +70,12 @@ class PathDirectionTest {
     @Test
     fun directionForClosedLines() {
         val path = Path()
-        path.addRect(
-            Rect(10.0f, 10.0f, 40.0f, 40.0f),
-            Path.Direction.Clockwise
-        )
+        path.addRect(Rect(10.0f, 10.0f, 40.0f, 40.0f), Path.Direction.Clockwise)
         assertEquals(Path.Direction.Clockwise, path.computeDirection())
 
         path.rewind()
 
-        path.addRect(
-            Rect(100.0f, 10.0f, 140.0f, 40.0f),
-            Path.Direction.CounterClockwise
-        )
+        path.addRect(Rect(100.0f, 10.0f, 140.0f, 40.0f), Path.Direction.CounterClockwise)
 
         assertEquals(Path.Direction.CounterClockwise, path.computeDirection())
     }
@@ -89,15 +83,9 @@ class PathDirectionTest {
     @Test
     fun directionForMultipleContours() {
         val path = Path()
-        path.addRect(
-            Rect(10.0f, 10.0f, 40.0f, 40.0f),
-            Path.Direction.Clockwise
-        )
+        path.addRect(Rect(10.0f, 10.0f, 40.0f, 40.0f), Path.Direction.Clockwise)
 
-        path.addRect(
-            Rect(100.0f, 10.0f, 140.0f, 40.0f),
-            Path.Direction.CounterClockwise
-        )
+        path.addRect(Rect(100.0f, 10.0f, 140.0f, 40.0f), Path.Direction.CounterClockwise)
 
         assertEquals(Path.Direction.Clockwise, path.computeDirection())
     }

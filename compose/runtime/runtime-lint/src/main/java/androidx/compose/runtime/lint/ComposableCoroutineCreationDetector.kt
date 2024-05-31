@@ -35,20 +35,23 @@ import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 
 /**
- * [Detector] that checks `async` and `launch` calls to make sure they don't happen inside the
- * body of a composable function / lambda.
+ * [Detector] that checks `async` and `launch` calls to make sure they don't happen inside the body
+ * of a composable function / lambda.
  */
 class ComposableCoroutineCreationDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames() = listOf(
-        Async.shortName,
-        Launch.shortName,
-        LaunchIn.shortName,
-    )
+    override fun getApplicableMethodNames() =
+        listOf(
+            Async.shortName,
+            Launch.shortName,
+            LaunchIn.shortName,
+        )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!(method.isInPackageName(CoroutinePackageName) ||
+        if (
+            !(method.isInPackageName(CoroutinePackageName) ||
                 method.isInPackageName(FlowPackageName))
-        ) return
+        )
+            return
 
         if (node.isInvokedWithinComposable()) {
             context.report(
@@ -62,23 +65,26 @@ class ComposableCoroutineCreationDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val CoroutineCreationDuringComposition = Issue.create(
-            "CoroutineCreationDuringComposition",
-            "Calls to `async` or `launch` should happen inside a LaunchedEffect and not " +
-                "composition",
-            "Creating a coroutine with `async` or `launch` during composition is often incorrect " +
-                "- this means that a coroutine will be created even if the composition fails / is" +
-                " rolled back, and it also means that multiple coroutines could end up mutating " +
-                "the same state, causing inconsistent results. Instead, use `LaunchedEffect` and " +
-                "create coroutines inside the suspending block. The block will only run after a " +
-                "successful composition, and will cancel existing coroutines when `key` changes, " +
-                "allowing correct cleanup.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ComposableCoroutineCreationDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val CoroutineCreationDuringComposition =
+            Issue.create(
+                "CoroutineCreationDuringComposition",
+                "Calls to `async` or `launch` should happen inside a LaunchedEffect and not " +
+                    "composition",
+                "Creating a coroutine with `async` or `launch` during composition is often incorrect " +
+                    "- this means that a coroutine will be created even if the composition fails / is" +
+                    " rolled back, and it also means that multiple coroutines could end up mutating " +
+                    "the same state, causing inconsistent results. Instead, use `LaunchedEffect` and " +
+                    "create coroutines inside the suspending block. The block will only run after a " +
+                    "successful composition, and will cancel existing coroutines when `key` changes, " +
+                    "allowing correct cleanup.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ComposableCoroutineCreationDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

@@ -35,83 +35,88 @@ import kotlin.math.ln
 /**
  * A color scheme holds all the named color parameters for a [MaterialTheme].
  *
- * Color schemes are designed to be harmonious, ensure accessible text, and distinguish UI
- * elements and surfaces from one another. There are two built-in baseline schemes,
- * [lightColorScheme] and a [darkColorScheme], that can be used as-is or customized.
+ * Color schemes are designed to be harmonious, ensure accessible text, and distinguish UI elements
+ * and surfaces from one another. There are two built-in baseline schemes, [lightColorScheme] and a
+ * [darkColorScheme], that can be used as-is or customized.
  *
  * The Material color system and custom schemes provide default values for color as a starting point
  * for customization.
  *
  * Example of extending color scheme, including implementing Fixed Accent colors:
+ *
  * @sample androidx.compose.material3.samples.ColorSchemeFixedAccentColorSample
  *
- * To learn more about colors, see [Material Design colors](https://m3.material.io/styles/color/overview).
+ * To learn more about colors, see
+ * [Material Design colors](https://m3.material.io/styles/color/overview).
  *
  * @property primary The primary color is the color displayed most frequently across your app’s
- * screens and components.
+ *   screens and components.
  * @property onPrimary Color used for text and icons displayed on top of the primary color.
  * @property primaryContainer The preferred tonal color of containers.
  * @property onPrimaryContainer The color (and state variants) that should be used for content on
- * top of [primaryContainer].
+ *   top of [primaryContainer].
  * @property inversePrimary Color to be used as a "primary" color in places where the inverse color
- * scheme is needed, such as the button on a SnackBar.
+ *   scheme is needed, such as the button on a SnackBar.
  * @property secondary The secondary color provides more ways to accent and distinguish your
- * product. Secondary colors are best for:
+ *   product. Secondary colors are best for:
  * - Floating action buttons
  * - Selection controls, like checkboxes and radio buttons
  * - Highlighting selected text
  * - Links and headlines
+ *
  * @property onSecondary Color used for text and icons displayed on top of the secondary color.
  * @property secondaryContainer A tonal color to be used in containers.
  * @property onSecondaryContainer The color (and state variants) that should be used for content on
- * top of [secondaryContainer].
- * @property tertiary The tertiary color that can be used to balance primary and secondary
- * colors, or bring heightened attention to an element such as an input field.
+ *   top of [secondaryContainer].
+ * @property tertiary The tertiary color that can be used to balance primary and secondary colors,
+ *   or bring heightened attention to an element such as an input field.
  * @property onTertiary Color used for text and icons displayed on top of the tertiary color.
  * @property tertiaryContainer A tonal color to be used in containers.
  * @property onTertiaryContainer The color (and state variants) that should be used for content on
- * top of [tertiaryContainer].
+ *   top of [tertiaryContainer].
  * @property background The background color that appears behind scrollable content.
  * @property onBackground Color used for text and icons displayed on top of the background color.
  * @property surface The surface color that affect surfaces of components, such as cards, sheets,
- * and menus.
+ *   and menus.
  * @property onSurface Color used for text and icons displayed on top of the surface color.
  * @property surfaceVariant Another option for a color with similar uses of [surface].
  * @property onSurfaceVariant The color (and state variants) that can be used for content on top of
- * [surface].
+ *   [surface].
  * @property surfaceTint This color will be used by components that apply tonal elevation and is
- * applied on top of [surface]. The higher the elevation the more this color is used.
+ *   applied on top of [surface]. The higher the elevation the more this color is used.
  * @property inverseSurface A color that contrasts sharply with [surface]. Useful for surfaces that
- * sit on top of other surfaces with [surface] color.
+ *   sit on top of other surfaces with [surface] color.
  * @property inverseOnSurface A color that contrasts well with [inverseSurface]. Useful for content
- * that sits on top of containers that are [inverseSurface].
+ *   that sits on top of containers that are [inverseSurface].
  * @property error The error color is used to indicate errors in components, such as invalid text in
- * a text field.
+ *   a text field.
  * @property onError Color used for text and icons displayed on top of the error color.
  * @property errorContainer The preferred tonal color of error containers.
- * @property onErrorContainer The color (and state variants) that should be used for content on
- * top of [errorContainer].
+ * @property onErrorContainer The color (and state variants) that should be used for content on top
+ *   of [errorContainer].
  * @property outline Subtle color used for boundaries. Outline color role adds contrast for
- * accessibility purposes.
+ *   accessibility purposes.
  * @property outlineVariant Utility color used for boundaries for decorative elements when strong
- * contrast is not required.
+ *   contrast is not required.
  * @property scrim Color of a scrim that obscures content.
  * @property surfaceBright A [surface] variant that is always brighter than [surface], whether in
- * light or dark mode.
- * @property surfaceDim A [surface] variant that is always dimmer than [surface], whether in light or
- * dark mode.
+ *   light or dark mode.
+ * @property surfaceDim A [surface] variant that is always dimmer than [surface], whether in light
+ *   or dark mode.
  * @property surfaceContainer A [surface] variant that affects containers of components, such as
- * cards, sheets, and menus.
+ *   cards, sheets, and menus.
  * @property surfaceContainerHigh A [surface] variant for containers with higher emphasis than
- * [surfaceContainer]. Use this role for content which requires more emphasis than [surfaceContainer].
+ *   [surfaceContainer]. Use this role for content which requires more emphasis than
+ *   [surfaceContainer].
  * @property surfaceContainerHighest A [surface] variant for containers with higher emphasis than
- * [surfaceContainerHigh]. Use this role for content which requires more emphasis than
- * [surfaceContainerHigh].
+ *   [surfaceContainerHigh]. Use this role for content which requires more emphasis than
+ *   [surfaceContainerHigh].
  * @property surfaceContainerLow A [surface] variant for containers with lower emphasis than
- * [surfaceContainer]. Use this role for content which requires less emphasis than [surfaceContainer].
+ *   [surfaceContainer]. Use this role for content which requires less emphasis than
+ *   [surfaceContainer].
  * @property surfaceContainerLowest A [surface] variant for containers with lower emphasis than
- * [surfaceContainerLow]. Use this role for content which requires less emphasis than
- * [surfaceContainerLow].
+ *   [surfaceContainerLow]. Use this role for content which requires less emphasis than
+ *   [surfaceContainerLow].
  */
 @Immutable
 class ColorScheme(
@@ -155,42 +160,45 @@ class ColorScheme(
     @Deprecated(
         level = DeprecationLevel.WARNING,
         message = "Use constructor with additional 'surfaceContainer' roles.",
-        replaceWith = ReplaceWith("ColorScheme(primary,\n" +
-            "onPrimary,\n" +
-            "primaryContainer,\n" +
-            "onPrimaryContainer,\n" +
-            "inversePrimary,\n" +
-            "secondary,\n" +
-            "onSecondary,\n" +
-            "secondaryContainer,\n" +
-            "onSecondaryContainer,\n" +
-            "tertiary,\n" +
-            "onTertiary,\n" +
-            "tertiaryContainer,\n" +
-            "onTertiaryContainer,\n" +
-            "background,\n" +
-            "onBackground,\n" +
-            "surface,\n" +
-            "onSurface,\n" +
-            "surfaceVariant,\n" +
-            "onSurfaceVariant,\n" +
-            "surfaceTint,\n" +
-            "inverseSurface,\n" +
-            "inverseOnSurface,\n" +
-            "error,\n" +
-            "onError,\n" +
-            "errorContainer,\n" +
-            "onErrorContainer,\n" +
-            "outline,\n" +
-            "outlineVariant,\n" +
-            "scrim,\n" +
-            "surfaceBright,\n" +
-            "surfaceDim,\n" +
-            "surfaceContainer,\n" +
-            "surfaceContainerHigh,\n" +
-            "surfaceContainerHighest,\n" +
-            "surfaceContainerLow,\n" +
-            "surfaceContainerLowest,)")
+        replaceWith =
+            ReplaceWith(
+                "ColorScheme(primary,\n" +
+                    "onPrimary,\n" +
+                    "primaryContainer,\n" +
+                    "onPrimaryContainer,\n" +
+                    "inversePrimary,\n" +
+                    "secondary,\n" +
+                    "onSecondary,\n" +
+                    "secondaryContainer,\n" +
+                    "onSecondaryContainer,\n" +
+                    "tertiary,\n" +
+                    "onTertiary,\n" +
+                    "tertiaryContainer,\n" +
+                    "onTertiaryContainer,\n" +
+                    "background,\n" +
+                    "onBackground,\n" +
+                    "surface,\n" +
+                    "onSurface,\n" +
+                    "surfaceVariant,\n" +
+                    "onSurfaceVariant,\n" +
+                    "surfaceTint,\n" +
+                    "inverseSurface,\n" +
+                    "inverseOnSurface,\n" +
+                    "error,\n" +
+                    "onError,\n" +
+                    "errorContainer,\n" +
+                    "onErrorContainer,\n" +
+                    "outline,\n" +
+                    "outlineVariant,\n" +
+                    "scrim,\n" +
+                    "surfaceBright,\n" +
+                    "surfaceDim,\n" +
+                    "surfaceContainer,\n" +
+                    "surfaceContainerHigh,\n" +
+                    "surfaceContainerHighest,\n" +
+                    "surfaceContainerLow,\n" +
+                    "surfaceContainerLowest,)"
+            )
     )
     constructor(
         primary: Color,
@@ -517,9 +525,7 @@ class ColorScheme(
     internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
 }
 
-/**
- * Returns a light Material color scheme.
- */
+/** Returns a light Material color scheme. */
 fun lightColorScheme(
     primary: Color = ColorLightTokens.Primary,
     onPrimary: Color = ColorLightTokens.OnPrimary,
@@ -665,9 +671,7 @@ fun lightColorScheme(
         scrim = scrim,
     )
 
-/**
- * Returns a dark Material color scheme.
- */
+/** Returns a dark Material color scheme. */
 fun darkColorScheme(
     primary: Color = ColorDarkTokens.Primary,
     onPrimary: Color = ColorDarkTokens.OnPrimary,
@@ -826,8 +830,7 @@ fun darkColorScheme(
  * [Color.Unspecified].
  *
  * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
- * the theme's [ColorScheme], then returns [Color.Unspecified].
- *
+ *   the theme's [ColorScheme], then returns [Color.Unspecified].
  * @see contentColorFor
  */
 @Stable
@@ -867,8 +870,7 @@ fun ColorScheme.contentColorFor(backgroundColor: Color): Color =
  * value of [LocalContentColor] as a best-effort color.
  *
  * @return the matching content color for [backgroundColor]. If [backgroundColor] is not present in
- * the theme's [ColorScheme], then returns the current value of [LocalContentColor].
- *
+ *   the theme's [ColorScheme], then returns the current value of [LocalContentColor].
  * @see ColorScheme.contentColorFor
  */
 @Composable
@@ -885,10 +887,9 @@ fun contentColorFor(backgroundColor: Color) =
  *
  * @param backgroundColor The background color to compare to [ColorScheme.surface]
  * @param elevation The elevation provided to [ColorScheme.surfaceColorAtElevation] if
- * [backgroundColor] matches surface.
- *
+ *   [backgroundColor] matches surface.
  * @return [ColorScheme.surfaceColorAtElevation] at [elevation] if [backgroundColor] ==
- * [ColorScheme.surface] and [LocalTonalElevationEnabled] is set to true. Else [backgroundColor]
+ *   [ColorScheme.surface] and [LocalTonalElevationEnabled] is set to true. Else [backgroundColor]
  */
 @Composable
 @ReadOnlyComposable
@@ -905,9 +906,8 @@ internal fun ColorScheme.applyTonalElevation(backgroundColor: Color, elevation: 
  * Computes the surface tonal color at different elevation levels e.g. surface1 through surface5.
  *
  * @param elevation Elevation value used to compute alpha of the color overlay layer.
- *
  * @return the [ColorScheme.surface] color with an alpha of the [ColorScheme.surfaceTint] color
- * overlaid on top of it.
+ *   overlaid on top of it.
  */
 @Stable
 fun ColorScheme.surfaceColorAtElevation(
@@ -925,17 +925,17 @@ fun ColorScheme.surfaceColorAtElevation(
  */
 // TODO: Mark as experimental if scope is changed to public
 // TODO: Add samples for MaterialExpressiveTheme toggling expressiveLightColorScheme and darkTheme.
-internal fun expressiveLightColorScheme() = lightColorScheme(
-    // TODO: Replace palette references with color token references when available.
-    onPrimaryContainer = PaletteTokens.Primary30,
-    onSecondaryContainer = PaletteTokens.Secondary30,
-    onTertiaryContainer = PaletteTokens.Secondary30,
-)
+internal fun expressiveLightColorScheme() =
+    lightColorScheme(
+        // TODO: Replace palette references with color token references when available.
+        onPrimaryContainer = PaletteTokens.Primary30,
+        onSecondaryContainer = PaletteTokens.Secondary30,
+        onTertiaryContainer = PaletteTokens.Secondary30,
+    )
 
 /**
  * Helper function for component color tokens. Here is an example on how to use component color
- * tokens:
- * ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
+ * tokens: ``MaterialTheme.colorScheme.fromToken(ExtendedFabBranded.BrandedContainerColor)``
  */
 @Stable
 internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
@@ -983,9 +983,8 @@ internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
 /**
  * CompositionLocal used to pass [ColorScheme] down the tree.
  *
- * Setting the value here is typically done as part of [MaterialTheme].
- * To retrieve the current value of this CompositionLocal, use
- * [MaterialTheme.colorScheme].
+ * Setting the value here is typically done as part of [MaterialTheme]. To retrieve the current
+ * value of this CompositionLocal, use [MaterialTheme.colorScheme].
  */
 internal val LocalColorScheme = staticCompositionLocalOf { lightColorScheme() }
 
@@ -1004,10 +1003,8 @@ val LocalTonalElevationEnabled = staticCompositionLocalOf { true }
 internal const val DisabledAlpha = 0.38f
 
 /**
- * Converts a color token key to the local color scheme provided by the theme
- * The color is subscribed to [LocalColorScheme] changes.
+ * Converts a color token key to the local color scheme provided by the theme The color is
+ * subscribed to [LocalColorScheme] changes.
  */
 internal val ColorSchemeKeyTokens.value: Color
-    @ReadOnlyComposable
-    @Composable
-    get() = MaterialTheme.colorScheme.fromToken(this)
+    @ReadOnlyComposable @Composable get() = MaterialTheme.colorScheme.fromToken(this)

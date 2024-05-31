@@ -43,7 +43,8 @@ fun FocusRestorationDemo() {
                 Use the DPad to move focus among these three rows
                 and notice how focus is restored to the previously
                 focused item.
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         // Adding a focusRestorer and a focus group.
         Row(Modifier.focusRestorer().focusGroup()) {
@@ -62,12 +63,13 @@ fun FocusRestorationDemo() {
         // Using a focusRequester to manually restore focus.
         val focusRequester = remember { FocusRequester() }
         LazyRow(
-            Modifier
-                .focusRequester(focusRequester)
-                .focusProperties {
-                    exit = { focusRequester.saveFocusedChild(); Default }
-                    enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            Modifier.focusRequester(focusRequester).focusProperties {
+                exit = {
+                    focusRequester.saveFocusedChild()
+                    Default
                 }
+                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            }
         ) {
             item { Button("1") }
             item { Button("2") }
@@ -76,6 +78,7 @@ fun FocusRestorationDemo() {
         }
     }
 }
+
 @Composable
 private fun Button(text: String) {
     Button(onClick = {}) { Text(text) }

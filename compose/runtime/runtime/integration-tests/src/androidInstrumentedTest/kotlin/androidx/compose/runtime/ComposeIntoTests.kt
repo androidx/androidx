@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ComposeIntoTests : BaseComposeTest() {
-    @get:Rule
-    override val activityRule = makeTestActivityRule()
+    @get:Rule override val activityRule = makeTestActivityRule()
 
     @Test
     @MediumTest
@@ -44,12 +43,13 @@ class ComposeIntoTests : BaseComposeTest() {
         val activity = activityRule.activity
 
         var initializationCount = 0
-        val composable = @Composable {
-            DisposableEffect(Unit) {
-                initializationCount++
-                onDispose { }
+        val composable =
+            @Composable {
+                DisposableEffect(Unit) {
+                    initializationCount++
+                    onDispose {}
+                }
             }
-        }
 
         activity.show(composable)
         activity.waitForAFrame()
@@ -88,9 +88,7 @@ class ComposeIntoTests : BaseComposeTest() {
             compositionLatch.wait()
             assertEquals(1, composed)
         } finally {
-            activity.runOnUiThread {
-                activity.setContentView(View(activity))
-            }
+            activity.runOnUiThread { activity.setContentView(View(activity)) }
             thread.quitSafely()
         }
     }

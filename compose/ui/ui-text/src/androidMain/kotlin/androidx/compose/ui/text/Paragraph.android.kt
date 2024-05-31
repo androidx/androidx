@@ -40,37 +40,61 @@ actual sealed interface Paragraph {
     actual val didExceedMaxLines: Boolean
     actual val lineCount: Int
     actual val placeholderRects: List<Rect?>
+
     actual fun getPathForRange(start: Int, end: Int): Path
+
     actual fun getCursorRect(offset: Int): Rect
+
     actual fun getLineLeft(lineIndex: Int): Float
+
     actual fun getLineRight(lineIndex: Int): Float
+
     actual fun getLineTop(lineIndex: Int): Float
+
     actual fun getLineBaseline(lineIndex: Int): Float
+
     actual fun getLineBottom(lineIndex: Int): Float
+
     actual fun getLineHeight(lineIndex: Int): Float
+
     actual fun getLineWidth(lineIndex: Int): Float
+
     actual fun getLineStart(lineIndex: Int): Int
+
     actual fun getLineEnd(lineIndex: Int, visibleEnd: Boolean): Int
+
     actual fun isLineEllipsized(lineIndex: Int): Boolean
+
     actual fun getLineForOffset(offset: Int): Int
+
     actual fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float
+
     actual fun getParagraphDirection(offset: Int): ResolvedTextDirection
+
     actual fun getBidiRunDirection(offset: Int): ResolvedTextDirection
+
     actual fun getLineForVerticalPosition(vertical: Float): Int
+
     actual fun getOffsetForPosition(position: Offset): Int
+
     actual fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
     ): TextRange
+
     actual fun getBoundingBox(offset: Int): Rect
+
     actual fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
         @IntRange(from = 0) arrayStart: Int
     )
+
     actual fun getWordBoundary(offset: Int): TextRange
+
     actual fun paint(canvas: Canvas, color: Color, shadow: Shadow?, textDecoration: TextDecoration?)
+
     actual fun paint(
         canvas: Canvas,
         color: Color,
@@ -79,6 +103,7 @@ actual sealed interface Paragraph {
         drawStyle: DrawStyle?,
         blendMode: BlendMode
     )
+
     actual fun paint(
         canvas: Canvas,
         brush: Brush,

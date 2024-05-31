@@ -27,14 +27,14 @@ private const val UNSPECIFIED_OFFSET_ERROR_MESSAGE =
     "ContextMenuState.Status should never be open with an unspecified offset. " +
         "Use ContextMenuState.Status.Closed instead."
 
-/**
- * Holds state related to the context menu.
- */
+/** Holds state related to the context menu. */
 internal class ContextMenuState internal constructor(initialStatus: Status = Status.Closed) {
     var status by mutableStateOf(initialStatus)
 
     override fun toString(): String = "ContextMenuState(status=$status)"
+
     override fun hashCode(): Int = status.hashCode()
+
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is ContextMenuState) return false
@@ -53,7 +53,9 @@ internal class ContextMenuState internal constructor(initialStatus: Status = Sta
             }
 
             override fun toString(): String = "Open(offset=$offset)"
+
             override fun hashCode(): Int = offset.hashCode()
+
             override fun equals(other: Any?): Boolean {
                 if (other === this) return true
                 if (other !is Open) return false
@@ -68,9 +70,7 @@ internal class ContextMenuState internal constructor(initialStatus: Status = Sta
     }
 }
 
-/**
- * Convenience method to set the state's status to [Status.Closed].
- */
+/** Convenience method to set the state's status to [Status.Closed]. */
 internal fun ContextMenuState.close() {
     status = Status.Closed
 }

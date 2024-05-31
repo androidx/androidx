@@ -35,10 +35,11 @@ import androidx.compose.ui.unit.Density
 @Suppress("DEPRECATION")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
-    replaceWith = ReplaceWith(
-        "ActualParagraph(text, style, spanStyles, placeholders, " +
-            "maxLines, ellipsis, width, density, fontFamilyResolver)"
-    ),
+    replaceWith =
+        ReplaceWith(
+            "ActualParagraph(text, style, spanStyles, placeholders, " +
+                "maxLines, ellipsis, width, density, fontFamilyResolver)"
+        ),
 )
 internal actual fun ActualParagraph(
     text: String,
@@ -50,19 +51,20 @@ internal actual fun ActualParagraph(
     width: Float,
     density: Density,
     @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
-): Paragraph = AndroidParagraph(
-    AndroidParagraphIntrinsics(
-        text = text,
-        style = style,
-        placeholders = placeholders,
-        spanStyles = spanStyles,
-        fontFamilyResolver = createFontFamilyResolver(resourceLoader),
-        density = density
-    ),
-    maxLines,
-    ellipsis,
-    Constraints(maxWidth = width.ceilToInt())
-)
+): Paragraph =
+    AndroidParagraph(
+        AndroidParagraphIntrinsics(
+            text = text,
+            style = style,
+            placeholders = placeholders,
+            spanStyles = spanStyles,
+            fontFamilyResolver = createFontFamilyResolver(resourceLoader),
+            density = density
+        ),
+        maxLines,
+        ellipsis,
+        Constraints(maxWidth = width.ceilToInt())
+    )
 
 internal actual fun ActualParagraph(
     text: String,
@@ -74,28 +76,30 @@ internal actual fun ActualParagraph(
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
-): Paragraph = AndroidParagraph(
-    AndroidParagraphIntrinsics(
-        text = text,
-        style = style,
-        placeholders = placeholders,
-        spanStyles = spanStyles,
-        fontFamilyResolver = fontFamilyResolver,
-        density = density
-    ),
-    maxLines,
-    ellipsis,
-    constraints
-)
+): Paragraph =
+    AndroidParagraph(
+        AndroidParagraphIntrinsics(
+            text = text,
+            style = style,
+            placeholders = placeholders,
+            spanStyles = spanStyles,
+            fontFamilyResolver = fontFamilyResolver,
+            density = density
+        ),
+        maxLines,
+        ellipsis,
+        constraints
+    )
 
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     ellipsis: Boolean,
     constraints: Constraints
-): Paragraph = AndroidParagraph(
-    paragraphIntrinsics as AndroidParagraphIntrinsics,
-    maxLines,
-    ellipsis,
-    constraints
-)
+): Paragraph =
+    AndroidParagraph(
+        paragraphIntrinsics as AndroidParagraphIntrinsics,
+        maxLines,
+        ellipsis,
+        constraints
+    )

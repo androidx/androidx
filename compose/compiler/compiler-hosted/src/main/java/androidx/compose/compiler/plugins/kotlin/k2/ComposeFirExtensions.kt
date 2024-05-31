@@ -40,9 +40,8 @@ class ComposeFirExtensionRegistrar : FirExtensionRegistrar() {
     }
 }
 
-class ComposableFunctionTypeKindExtension(
-    session: FirSession
-) : FirFunctionTypeKindExtension(session) {
+class ComposableFunctionTypeKindExtension(session: FirSession) :
+    FirFunctionTypeKindExtension(session) {
     override fun FunctionTypeKindRegistrar.registerKinds() {
         registerKind(ComposableFunction, KComposableFunction)
     }
@@ -65,12 +64,13 @@ private val useLegacyCustomFunctionTypeSerializationUntil: String
         return LanguageVersion.values().last().versionString
     }
 
-object ComposableFunction : FunctionTypeKind(
-    FqName.topLevel(Name.identifier("androidx.compose.runtime.internal")),
-    "ComposableFunction",
-    ComposeClassIds.Composable,
-    isReflectType = false
-) {
+object ComposableFunction :
+    FunctionTypeKind(
+        FqName.topLevel(Name.identifier("androidx.compose.runtime.internal")),
+        "ComposableFunction",
+        ComposeClassIds.Composable,
+        isReflectType = false
+    ) {
     override val prefixForTypeRender: String
         get() = "@Composable"
 
@@ -80,12 +80,13 @@ object ComposableFunction : FunctionTypeKind(
     override fun reflectKind(): FunctionTypeKind = KComposableFunction
 }
 
-object KComposableFunction : FunctionTypeKind(
-    FqName.topLevel(Name.identifier("androidx.compose.runtime.internal")),
-    "KComposableFunction",
-    ComposeClassIds.Composable,
-    isReflectType = true
-) {
+object KComposableFunction :
+    FunctionTypeKind(
+        FqName.topLevel(Name.identifier("androidx.compose.runtime.internal")),
+        "KComposableFunction",
+        ComposeClassIds.Composable,
+        isReflectType = true
+    ) {
     override val serializeAsFunctionWithAnnotationUntil: String
         get() = useLegacyCustomFunctionTypeSerializationUntil
 
@@ -93,22 +94,24 @@ object KComposableFunction : FunctionTypeKind(
 }
 
 class ComposeFirCheckersExtension(session: FirSession) : FirAdditionalCheckersExtension(session) {
-    override val declarationCheckers: DeclarationCheckers = object : DeclarationCheckers() {
-        override val functionCheckers: Set<FirFunctionChecker> =
-            setOf(ComposableFunctionChecker)
+    override val declarationCheckers: DeclarationCheckers =
+        object : DeclarationCheckers() {
+            override val functionCheckers: Set<FirFunctionChecker> =
+                setOf(ComposableFunctionChecker)
 
-        override val propertyCheckers: Set<FirPropertyChecker> =
-            setOf(ComposablePropertyChecker)
-    }
+            override val propertyCheckers: Set<FirPropertyChecker> =
+                setOf(ComposablePropertyChecker)
+        }
 
-    override val expressionCheckers: ExpressionCheckers = object : ExpressionCheckers() {
-        override val functionCallCheckers: Set<FirFunctionCallChecker> =
-            setOf(ComposableFunctionCallChecker)
+    override val expressionCheckers: ExpressionCheckers =
+        object : ExpressionCheckers() {
+            override val functionCallCheckers: Set<FirFunctionCallChecker> =
+                setOf(ComposableFunctionCallChecker)
 
-        override val propertyAccessExpressionCheckers: Set<FirPropertyAccessExpressionChecker> =
-            setOf(ComposablePropertyAccessExpressionChecker)
+            override val propertyAccessExpressionCheckers: Set<FirPropertyAccessExpressionChecker> =
+                setOf(ComposablePropertyAccessExpressionChecker)
 
-        override val callableReferenceAccessCheckers: Set<FirCallableReferenceAccessChecker> =
-            setOf(ComposableCallableReferenceChecker)
-    }
+            override val callableReferenceAccessCheckers: Set<FirCallableReferenceAccessChecker> =
+                setOf(ComposableCallableReferenceChecker)
+        }
 }

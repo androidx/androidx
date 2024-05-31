@@ -28,8 +28,7 @@ import org.junit.Test
 
 @LargeTest
 class UnknownResponseTest {
-    @get:Rule
-    val rule = ComposeInspectionRule(TestActivity::class)
+    @get:Rule val rule = ComposeInspectionRule(TestActivity::class)
 
     @Test
     fun invalidBytesReturnedAsUnknownResponse(): Unit = runBlocking {

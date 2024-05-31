@@ -27,8 +27,8 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Tests for `List<MotionEvent>.`[splitsDurationEquallyInto]. See documentation of that method
- * for expected results.
+ * Tests for `List<MotionEvent>.`[splitsDurationEquallyInto]. See documentation of that method for
+ * expected results.
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(minSdk = RobolectricMinSdk)
@@ -87,9 +87,7 @@ class SplitsDurationEquallyIntoTest(private val config: TestConfig) {
 
     @Before
     fun setUp() {
-        motionEvents = config.timestamps.map { time ->
-            MotionEvent.obtain(0L, time, 0, 0f, 0f, 0)
-        }
+        motionEvents = config.timestamps.map { time -> MotionEvent.obtain(0L, time, 0, 0f, 0f, 0) }
     }
 
     @After

@@ -43,26 +43,28 @@ import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.CancellationException
 
 /**
- * Without shift it starts the new selection from scratch.
- * With shift it expands/shrinks existing selection.
- * A click sets the start and end of the selection,
- * but shift click only sets the end of the selection.
+ * Without shift it starts the new selection from scratch. With shift it expands/shrinks existing
+ * selection. A click sets the start and end of the selection, but shift click only sets the end of
+ * the selection.
  */
 internal interface MouseSelectionObserver {
     /**
      * Invoked on click (with shift).
+     *
      * @return if event will be consumed
      */
     fun onExtend(downPosition: Offset): Boolean
 
     /**
      * Invoked on drag after shift click.
+     *
      * @return if event will be consumed
      */
     fun onExtendDrag(dragPosition: Offset): Boolean
 
     /**
      * Invoked on first click (without shift).
+     *
      * @return if event will be consumed
      */
     // if returns true event will be consumed
@@ -70,13 +72,12 @@ internal interface MouseSelectionObserver {
 
     /**
      * Invoked when dragging (without shift).
+     *
      * @return if event will be consumed
      */
     fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean
 
-    /**
-     * Invoked when finishing a selection mouse gesture.
-     */
+    /** Invoked when finishing a selection mouse gesture. */
     fun onDragDone()
 }
 
@@ -85,35 +86,36 @@ internal interface MouseSelectionObserver {
 //  This only updates when the pointer is within the bounds of what it is modifying,
 //  thus it is a placeholder until the other functionality is implemented.
 private const val STATIC_KEY = 867_5309 // unique key to not clash with other global pointer inputs
-internal fun Modifier.updateSelectionTouchMode(
-    updateTouchMode: (Boolean) -> Unit
-): Modifier = this.pointerInput(STATIC_KEY) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent(PointerEventPass.Initial)
-            updateTouchMode(!event.isPrecisePointer)
+
+internal fun Modifier.updateSelectionTouchMode(updateTouchMode: (Boolean) -> Unit): Modifier =
+    this.pointerInput(STATIC_KEY) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                updateTouchMode(!event.isPrecisePointer)
+            }
         }
     }
-}
 
 internal fun Modifier.selectionGestureInput(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: TextDragObserver,
-) = this.pointerInput(mouseSelectionObserver, textDragObserver) {
-    val clicksCounter = ClicksCounter(viewConfiguration)
-    awaitEachGesture {
-        val down = awaitDown()
-        if (
-            down.isPrecisePointer &&
-            down.buttons.isPrimaryPressed &&
-            down.changes.fastAll { !it.isConsumed }
-        ) {
-            mouseSelection(mouseSelectionObserver, clicksCounter, down)
-        } else if (!down.isPrecisePointer) {
-            touchSelection(textDragObserver, down)
+) =
+    this.pointerInput(mouseSelectionObserver, textDragObserver) {
+        val clicksCounter = ClicksCounter(viewConfiguration)
+        awaitEachGesture {
+            val down = awaitDown()
+            if (
+                down.isPrecisePointer &&
+                    down.buttons.isPrimaryPressed &&
+                    down.changes.fastAll { !it.isConsumed }
+            ) {
+                mouseSelection(mouseSelectionObserver, clicksCounter, down)
+            } else if (!down.isPrecisePointer) {
+                touchSelection(textDragObserver, down)
+            }
         }
     }
-}
 
 private suspend fun AwaitPointerEventScope.touchSelection(
     observer: TextDragObserver,
@@ -131,9 +133,7 @@ private suspend fun AwaitPointerEventScope.touchSelection(
                 }
             ) {
                 // consume up if we quit drag gracefully with the up
-                currentEvent.changes.fastForEach {
-                    if (it.changedToUp()) it.consume()
-                }
+                currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
                 observer.onStop()
             } else {
                 observer.onCancel()
@@ -155,39 +155,38 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
     if (down.isShiftPressed) {
         val started = observer.onExtend(downChange.position)
         if (started) {
-            val shouldConsumeUp = drag(downChange.id) {
-                if (observer.onExtendDrag(it.position)) {
-                    it.consume()
+            val shouldConsumeUp =
+                drag(downChange.id) {
+                    if (observer.onExtendDrag(it.position)) {
+                        it.consume()
+                    }
                 }
-            }
 
             if (shouldConsumeUp) {
-                currentEvent.changes.fastForEach {
-                    if (it.changedToUp()) it.consume()
-                }
+                currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
             }
 
             observer.onDragDone()
         }
     } else {
-        val selectionAdjustment = when (clicksCounter.clicks) {
-            1 -> SelectionAdjustment.None
-            2 -> SelectionAdjustment.Word
-            else -> SelectionAdjustment.Paragraph
-        }
+        val selectionAdjustment =
+            when (clicksCounter.clicks) {
+                1 -> SelectionAdjustment.None
+                2 -> SelectionAdjustment.Word
+                else -> SelectionAdjustment.Paragraph
+            }
 
         val started = observer.onStart(downChange.position, selectionAdjustment)
         if (started) {
-            val shouldConsumeUp = drag(downChange.id) {
-                if (observer.onDrag(it.position, selectionAdjustment)) {
-                    it.consume()
+            val shouldConsumeUp =
+                drag(downChange.id) {
+                    if (observer.onDrag(it.position, selectionAdjustment)) {
+                        it.consume()
+                    }
                 }
-            }
 
             if (shouldConsumeUp) {
-                currentEvent.changes.fastForEach {
-                    if (it.changedToUp()) it.consume()
-                }
+                currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
             }
 
             observer.onDragDone()
@@ -196,9 +195,8 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
 }
 
 /**
- * Gesture handler for mouse and touch. Determines whether this is mouse or touch based on the
- * first down, then uses the gesture handler for that input type, delegating to the appropriate
- * observer.
+ * Gesture handler for mouse and touch. Determines whether this is mouse or touch based on the first
+ * down, then uses the gesture handler for that input type, delegating to the appropriate observer.
  */
 internal suspend fun PointerInputScope.selectionGesturePointerInputBtf2(
     mouseSelectionObserver: MouseSelectionObserver,
@@ -211,8 +209,8 @@ internal suspend fun PointerInputScope.selectionGesturePointerInputBtf2(
         val isPrecise = downEvent.isPrecisePointer
         if (
             isPrecise &&
-            downEvent.buttons.isPrimaryPressed &&
-            downEvent.changes.fastAll { !it.isConsumed }
+                downEvent.buttons.isPrimaryPressed &&
+                downEvent.changes.fastAll { !it.isConsumed }
         ) {
             mouseSelectionBtf2(mouseSelectionObserver, clicksCounter, downEvent)
         } else if (!isPrecise) {
@@ -225,9 +223,9 @@ internal suspend fun PointerInputScope.selectionGesturePointerInputBtf2(
 }
 
 /**
- * Gesture handler for touch selection on only the first press.
- * The first press will wait for a long press instead of immediately looking for drags.
- * If no long press is found, this does not trigger any observer.
+ * Gesture handler for touch selection on only the first press. The first press will wait for a long
+ * press instead of immediately looking for drags. If no long press is found, this does not trigger
+ * any observer.
  */
 private suspend fun AwaitPointerEventScope.touchSelectionFirstPress(
     observer: TextDragObserver,
@@ -238,15 +236,14 @@ private suspend fun AwaitPointerEventScope.touchSelectionFirstPress(
         val longPress = awaitLongPressOrCancellation(firstDown.id)
         if (longPress != null && distanceIsTolerable(viewConfiguration, firstDown, longPress)) {
             observer.onStart(longPress.position)
-            val dragCompletedWithUp = drag(longPress.id) {
-                observer.onDrag(it.positionChange())
-                it.consume()
-            }
+            val dragCompletedWithUp =
+                drag(longPress.id) {
+                    observer.onDrag(it.positionChange())
+                    it.consume()
+                }
             if (dragCompletedWithUp) {
                 // consume up if we quit drag gracefully with the up
-                currentEvent.changes.fastForEach {
-                    if (it.changedToUp()) it.consume()
-                }
+                currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
                 observer.onStop()
             } else {
                 observer.onCancel()
@@ -258,11 +255,16 @@ private suspend fun AwaitPointerEventScope.touchSelectionFirstPress(
     }
 }
 
-private enum class DownResolution { Up, Drag, Timeout, Cancel }
+private enum class DownResolution {
+    Up,
+    Drag,
+    Timeout,
+    Cancel
+}
 
 /**
- * Gesture handler for touch selection on all presses except for the first.
- * Subsequent presses immediately starts looking for drags when the press is received.
+ * Gesture handler for touch selection on all presses except for the first. Subsequent presses
+ * immediately starts looking for drags when the press is received.
  */
 private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
     observer: TextDragObserver,
@@ -273,26 +275,28 @@ private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
         val pointerId = firstDown.id
 
         var overSlop: Offset = Offset.Unspecified
-        val downResolution = withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
-            val firstDragPastSlop = awaitTouchSlopOrCancellation(pointerId) { change, slop ->
-                change.consume()
-                overSlop = slop
-            }
+        val downResolution =
+            withTimeoutOrNull(viewConfiguration.longPressTimeoutMillis) {
+                val firstDragPastSlop =
+                    awaitTouchSlopOrCancellation(pointerId) { change, slop ->
+                        change.consume()
+                        overSlop = slop
+                    }
 
-            // If slop is passed, we have started a drag.
-            if (firstDragPastSlop != null && overSlop.isSpecified) {
-                return@withTimeoutOrNull DownResolution.Drag
-            }
+                // If slop is passed, we have started a drag.
+                if (firstDragPastSlop != null && overSlop.isSpecified) {
+                    return@withTimeoutOrNull DownResolution.Drag
+                }
 
-            // Otherwise, this either was cancelled or the pointer is now up.
-            val currentChange = currentEvent.changes.first()
-            return@withTimeoutOrNull if (currentChange.changedToUpIgnoreConsumed()) {
-                currentChange.consume()
-                DownResolution.Up
-            } else {
-                DownResolution.Cancel
-            }
-        } ?: DownResolution.Timeout
+                // Otherwise, this either was cancelled or the pointer is now up.
+                val currentChange = currentEvent.changes.first()
+                return@withTimeoutOrNull if (currentChange.changedToUpIgnoreConsumed()) {
+                    currentChange.consume()
+                    DownResolution.Up
+                } else {
+                    DownResolution.Cancel
+                }
+            } ?: DownResolution.Timeout
 
         if (downResolution == DownResolution.Cancel) {
             // On a cancel, we simply take no action.
@@ -312,10 +316,11 @@ private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
         }
         // Finally, if waitResult was a Timeout, then this was a long press. Simply wait for drags.
 
-        val dragCompletedWithUp = drag(pointerId) {
-            observer.onDrag(it.positionChange())
-            it.consume()
-        }
+        val dragCompletedWithUp =
+            drag(pointerId) {
+                observer.onDrag(it.positionChange())
+                it.consume()
+            }
 
         if (dragCompletedWithUp) {
             // consume up if we quit drag gracefully with the up
@@ -334,9 +339,7 @@ private suspend fun AwaitPointerEventScope.touchSelectionSubsequentPress(
     }
 }
 
-/**
- * Gesture handler for mouse selection.
- */
+/** Gesture handler for mouse selection. */
 private suspend fun AwaitPointerEventScope.mouseSelectionBtf2(
     observer: MouseSelectionObserver,
     clicksCounter: ClicksCounter,
@@ -348,42 +351,41 @@ private suspend fun AwaitPointerEventScope.mouseSelectionBtf2(
         if (started) {
             try {
                 downChange.consume()
-                val shouldConsumeUp = drag(downChange.id) {
-                    if (observer.onExtendDrag(it.position)) {
-                        it.consume()
+                val shouldConsumeUp =
+                    drag(downChange.id) {
+                        if (observer.onExtendDrag(it.position)) {
+                            it.consume()
+                        }
                     }
-                }
 
                 if (shouldConsumeUp) {
-                    currentEvent.changes.fastForEach {
-                        if (it.changedToUp()) it.consume()
-                    }
+                    currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
                 }
             } finally {
                 observer.onDragDone()
             }
         }
     } else {
-        val selectionAdjustment = when (clicksCounter.clicks) {
-            1 -> SelectionAdjustment.None
-            2 -> SelectionAdjustment.Word
-            else -> SelectionAdjustment.Paragraph
-        }
+        val selectionAdjustment =
+            when (clicksCounter.clicks) {
+                1 -> SelectionAdjustment.None
+                2 -> SelectionAdjustment.Word
+                else -> SelectionAdjustment.Paragraph
+            }
 
         val started = observer.onStart(downChange.position, selectionAdjustment)
         if (started) {
             try {
                 downChange.consume()
-                val shouldConsumeUp = drag(downChange.id) {
-                    if (observer.onDrag(it.position, selectionAdjustment)) {
-                        it.consume()
+                val shouldConsumeUp =
+                    drag(downChange.id) {
+                        if (observer.onDrag(it.position, selectionAdjustment)) {
+                            it.consume()
+                        }
                     }
-                }
 
                 if (shouldConsumeUp) {
-                    currentEvent.changes.fastForEach {
-                        if (it.changedToUp()) it.consume()
-                    }
+                    currentEvent.changes.fastForEach { if (it.changedToUp()) it.consume() }
                 }
             } finally {
                 observer.onDragDone()
@@ -392,18 +394,17 @@ private suspend fun AwaitPointerEventScope.mouseSelectionBtf2(
     }
 }
 
-private class ClicksCounter(
-    private val viewConfiguration: ViewConfiguration
-) {
+private class ClicksCounter(private val viewConfiguration: ViewConfiguration) {
     var clicks = 0
     var prevClick: PointerInputChange? = null
 
     fun update(event: PointerEvent) {
         val currentPrevClick = prevClick
         val newClick = event.changes[0]
-        if (currentPrevClick != null &&
-            timeIsTolerable(currentPrevClick, newClick) &&
-            positionIsTolerable(currentPrevClick, newClick)
+        if (
+            currentPrevClick != null &&
+                timeIsTolerable(currentPrevClick, newClick) &&
+                positionIsTolerable(currentPrevClick, newClick)
         ) {
             clicks += 1
         } else {

@@ -42,8 +42,7 @@ private const val invalid = "Not applicable to a 2D focus search."
 @MediumTest
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     // We need to wrap the inline class parameter in another class because Java can't instantiate
     // the inline class.
@@ -78,9 +77,7 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
         }
 
         // Act.
-        val movedFocusSuccessfully = rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -120,34 +117,24 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
         }
 
         // Act.
-        val movedFocusSuccessfully = rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
             assertThat(movedFocusSuccessfully).isTrue()
             when (focusDirection) {
-                Up -> assertThat(isFocused.values).isExactly(
-                    false, false, false,
-                    false, false, false,
-                    false, false, true
-                )
-                Down -> assertThat(isFocused.values).isExactly(
-                    false, true, false,
-                    false, false, false,
-                    false, false, false
-                )
-                Left -> assertThat(isFocused.values).isExactly(
-                    false, false, false,
-                    false, false, false,
-                    false, false, true
-                )
-                Right -> assertThat(isFocused.values).isExactly(
-                    false, false, false,
-                    true, false, false,
-                    false, false, false
-                )
+                Up ->
+                    assertThat(isFocused.values)
+                        .isExactly(false, false, false, false, false, false, false, false, true)
+                Down ->
+                    assertThat(isFocused.values)
+                        .isExactly(false, true, false, false, false, false, false, false, false)
+                Left ->
+                    assertThat(isFocused.values)
+                        .isExactly(false, false, false, false, false, false, false, false, true)
+                Right ->
+                    assertThat(isFocused.values)
+                        .isExactly(false, false, false, true, false, false, false, false, false)
                 else -> error(invalid)
             }
         }
@@ -157,14 +144,10 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
     fun initialFocus_whenThereIsOnlyOneFocusable() {
         // Arrange.
         val isFocused = mutableStateOf(false)
-        rule.setContentForTest {
-            FocusableBox(isFocused)
-        }
+        rule.setContentForTest { FocusableBox(isFocused) }
 
         // Act.
-        val movedFocusSuccessfully = rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
         rule.runOnIdle {
@@ -176,37 +159,25 @@ class TwoDimensionalFocusTraversalInitialFocusTest(param: Param) {
     @Test
     fun doesNotCrash_whenThereIsNoFocusable() {
         // Arrange.
-        rule.setContentForTest {
-            BasicText("Hello")
-        }
+        rule.setContentForTest { BasicText("Hello") }
 
         // Act.
-        val movedFocusSuccessfully = rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(movedFocusSuccessfully).isFalse()
-        }
+        rule.runOnIdle { assertThat(movedFocusSuccessfully).isFalse() }
     }
 
     @Test
     fun doesNotCrash_whenThereIsOneDeactivatedItem() {
         // Arrange.
-        rule.setContentForTest {
-            FocusableBox(deactivated = true)
-        }
+        rule.setContentForTest { FocusableBox(deactivated = true) }
 
         // Act.
-        val movedFocusSuccessfully = rule.runOnIdle {
-            focusManager.moveFocus(focusDirection)
-        }
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(movedFocusSuccessfully).isFalse()
-        }
+        rule.runOnIdle { assertThat(movedFocusSuccessfully).isFalse() }
     }
 
     private fun ComposeContentTestRule.setContentForTest(composable: @Composable () -> Unit) {
@@ -227,4 +198,5 @@ private fun FocusableBox(
     FocusableBox(isFocused, 0, 0, 10, 10, focusRequester, deactivated, Modifier, content)
 }
 
-private val MutableList<MutableState<Boolean>>.values get() = this.map { it.value }
+private val MutableList<MutableState<Boolean>>.values
+    get() = this.map { it.value }

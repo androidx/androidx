@@ -42,24 +42,28 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-private val colors = listOf(
-    Color(0xFFffd7d7.toInt()),
-    Color(0xFFffe9d6.toInt()),
-    Color(0xFFfffbd0.toInt()),
-    Color(0xFFe3ffd9.toInt()),
-    Color(0xFFd0fff8.toInt())
-)
+private val colors =
+    listOf(
+        Color(0xFFffd7d7.toInt()),
+        Color(0xFFffe9d6.toInt()),
+        Color(0xFFfffbd0.toInt()),
+        Color(0xFFe3ffd9.toInt()),
+        Color(0xFFd0fff8.toInt())
+    )
 
 @Sampled
 @Composable
 fun HorizontalScrollSample() {
     val scrollState = rememberScrollState()
-    val gradient = Brush.horizontalGradient(
-        listOf(Color.Red, Color.Blue, Color.Green), 0.0f, 10000.0f, TileMode.Repeated
-    )
+    val gradient =
+        Brush.horizontalGradient(
+            listOf(Color.Red, Color.Blue, Color.Green),
+            0.0f,
+            10000.0f,
+            TileMode.Repeated
+        )
     Box(
-        Modifier
-            .horizontalScroll(scrollState)
+        Modifier.horizontalScroll(scrollState)
             .size(width = 10000.dp, height = 200.dp)
             .background(brush = gradient)
     )
@@ -69,12 +73,15 @@ fun HorizontalScrollSample() {
 @Composable
 fun VerticalScrollExample() {
     val scrollState = rememberScrollState()
-    val gradient = Brush.verticalGradient(
-        listOf(Color.Red, Color.Blue, Color.Green), 0.0f, 10000.0f, TileMode.Repeated
-    )
+    val gradient =
+        Brush.verticalGradient(
+            listOf(Color.Red, Color.Blue, Color.Green),
+            0.0f,
+            10000.0f,
+            TileMode.Repeated
+        )
     Box(
-        Modifier
-            .verticalScroll(scrollState)
+        Modifier.verticalScroll(scrollState)
             .fillMaxWidth()
             .requiredHeight(10000.dp)
             .background(brush = gradient)
@@ -88,43 +95,23 @@ fun ControlledScrollableRowSample() {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     Column {
-        Row(Modifier.horizontalScroll(scrollState)) {
-            repeat(1000) { index ->
-                Square(index)
-            }
-        }
+        Row(Modifier.horizontalScroll(scrollState)) { repeat(1000) { index -> Square(index) } }
         // Controls for scrolling
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Scroll")
-            Button(
-                onClick = {
-                    scope.launch { scrollState.scrollTo(scrollState.value - 1000) }
-                }
-            ) {
+            Button(onClick = { scope.launch { scrollState.scrollTo(scrollState.value - 1000) } }) {
                 Text("< -")
             }
-            Button(
-                onClick = {
-                    scope.launch { scrollState.scrollBy(10000f) }
-                }
-            ) {
-                Text("--- >")
-            }
+            Button(onClick = { scope.launch { scrollState.scrollBy(10000f) } }) { Text("--- >") }
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Smooth Scroll")
             Button(
-                onClick = {
-                    scope.launch { scrollState.animateScrollTo(scrollState.value - 1000) }
-                }
+                onClick = { scope.launch { scrollState.animateScrollTo(scrollState.value - 1000) } }
             ) {
                 Text("< -")
             }
-            Button(
-                onClick = {
-                    scope.launch { scrollState.animateScrollBy(10000f) }
-                }
-            ) {
+            Button(onClick = { scope.launch { scrollState.animateScrollBy(10000f) } }) {
                 Text("--- >")
             }
         }
@@ -149,5 +136,7 @@ private fun Button(onClick: () -> Unit, content: @Composable () -> Unit) {
             .clickable(onClick = onClick)
             .background(color = Color.LightGray),
         contentAlignment = Alignment.Center
-    ) { content() }
+    ) {
+        content()
+    }
 }

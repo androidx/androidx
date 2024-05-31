@@ -27,84 +27,68 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 
-internal class SelectionRegistrarImpl private constructor(
-    initialIncrementId: Long
-) : SelectionRegistrar {
+internal class SelectionRegistrarImpl private constructor(initialIncrementId: Long) :
+    SelectionRegistrar {
     companion object {
-        val Saver = Saver<SelectionRegistrarImpl, Long>(
-            save = { it.incrementId.get() },
-            restore = { SelectionRegistrarImpl(it) }
-        )
+        val Saver =
+            Saver<SelectionRegistrarImpl, Long>(
+                save = { it.incrementId.get() },
+                restore = { SelectionRegistrarImpl(it) }
+            )
     }
 
     constructor() : this(initialIncrementId = 1L)
 
-    /**
-     * A flag to check if the [Selectable]s have already been sorted.
-     */
+    /** A flag to check if the [Selectable]s have already been sorted. */
     internal var sorted: Boolean = false
 
     /**
-     * This is essentially the list of registered components that want
-     * to handle text selection that are below the SelectionContainer.
+     * This is essentially the list of registered components that want to handle text selection that
+     * are below the SelectionContainer.
      */
     private val _selectables = mutableListOf<Selectable>()
 
-    /**
-     * Getter for handlers that returns a List.
-     */
+    /** Getter for handlers that returns a List. */
     internal val selectables: List<Selectable>
         get() = _selectables
 
     private val _selectableMap = mutableLongObjectMapOf<Selectable>()
 
-    /**
-     * A map from selectable keys to subscribed selectables.
-     */
+    /** A map from selectable keys to subscribed selectables. */
     internal val selectableMap: LongObjectMap<Selectable>
         get() = _selectableMap
 
     /**
      * The incremental id to be assigned to each selectable. It starts from 1 and 0 is used to
      * denote an invalid id.
+     *
      * @see SelectionRegistrar.InvalidSelectableId
      */
     private var incrementId = AtomicLong(initialIncrementId)
 
-    /**
-     * The callback to be invoked when the position change was triggered.
-     */
+    /** The callback to be invoked when the position change was triggered. */
     internal var onPositionChangeCallback: ((Long) -> Unit)? = null
 
-    /**
-     * The callback to be invoked when the selection is initiated.
-     */
+    /** The callback to be invoked when the selection is initiated. */
     internal var onSelectionUpdateStartCallback:
-        ((Boolean, LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? = null
+        ((Boolean, LayoutCoordinates, Offset, SelectionAdjustment) -> Unit)? =
+        null
+
+    /** The callback to be invoked when the selection is initiated with selectAll [Selection]. */
+    internal var onSelectionUpdateSelectAll: ((Boolean, Long) -> Unit)? = null
 
     /**
-     * The callback to be invoked when the selection is initiated with selectAll [Selection].
-     */
-    internal var onSelectionUpdateSelectAll: (
-        (Boolean, Long) -> Unit
-    )? = null
-
-    /**
-     * The callback to be invoked when the selection is updated.
-     * If the first offset is null it means that the start of selection is unknown for the caller.
+     * The callback to be invoked when the selection is updated. If the first offset is null it
+     * means that the start of selection is unknown for the caller.
      */
     internal var onSelectionUpdateCallback:
         ((Boolean, LayoutCoordinates, Offset, Offset, Boolean, SelectionAdjustment) -> Boolean)? =
         null
 
-    /**
-     * The callback to be invoked when selection update finished.
-     */
+    /** The callback to be invoked when selection update finished. */
     internal var onSelectionUpdateEndCallback: (() -> Unit)? = null
 
-    /**
-     * The callback to be invoked when one of the selectable has changed.
-     */
+    /** The callback to be invoked when one of the selectable has changed. */
     internal var onSelectableChangeCallback: ((Long) -> Unit)? = null
 
     /**
@@ -154,16 +138,18 @@ internal class SelectionRegistrarImpl private constructor(
                 val layoutCoordinatesA = a.getLayoutCoordinates()
                 val layoutCoordinatesB = b.getLayoutCoordinates()
 
-                val positionA = if (layoutCoordinatesA != null) {
-                    containerLayoutCoordinates.localPositionOf(layoutCoordinatesA, Offset.Zero)
-                } else {
-                    Offset.Zero
-                }
-                val positionB = if (layoutCoordinatesB != null) {
-                    containerLayoutCoordinates.localPositionOf(layoutCoordinatesB, Offset.Zero)
-                } else {
-                    Offset.Zero
-                }
+                val positionA =
+                    if (layoutCoordinatesA != null) {
+                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesA, Offset.Zero)
+                    } else {
+                        Offset.Zero
+                    }
+                val positionB =
+                    if (layoutCoordinatesB != null) {
+                        containerLayoutCoordinates.localPositionOf(layoutCoordinatesB, Offset.Zero)
+                    } else {
+                        Offset.Zero
+                    }
 
                 if (positionA.y == positionB.y) {
                     compareValues(positionA.x, positionB.x)

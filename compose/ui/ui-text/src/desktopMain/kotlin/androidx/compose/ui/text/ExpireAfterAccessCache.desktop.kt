@@ -96,11 +96,7 @@ internal class ExpireAfterAccessCache<K, V>(
             } else {
                 checkEvicted(now)
                 val newVal = loader(key)
-                val entry = Entry(
-                    key = key,
-                    value = newVal,
-                    accessTime = now
-                )
+                val entry = Entry(key = key, value = newVal, accessTime = now)
                 map[key] = entry
                 accessQueue.putToHead(entry)
                 return newVal

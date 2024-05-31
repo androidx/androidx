@@ -26,13 +26,8 @@ internal actual fun CharSequence.toCharArray(
 ) {
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     when (this) {
-        is TextFieldCharSequence -> toCharArray(
-            destination,
-            destinationOffset,
-            startIndex,
-            endIndex
-        )
-
+        is TextFieldCharSequence ->
+            toCharArray(destination, destinationOffset, startIndex, endIndex)
         is java.lang.String -> getChars(startIndex, endIndex, destination, destinationOffset)
         is StringBuilder -> getChars(startIndex, endIndex, destination, destinationOffset)
         else -> {

@@ -54,13 +54,10 @@ private const val TargetTag = "TargetLayout"
 @RunWith(Parameterized::class)
 class TransformGestureDetectorTest(val panZoomLock: Boolean) {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters
-        fun parameters() = arrayOf(false, true)
+        @JvmStatic @Parameterized.Parameters fun parameters() = arrayOf(false, true)
     }
 
     private var centroid = Offset.Zero
@@ -72,9 +69,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
     private var zoomAmount = 1f
 
     private val util = layoutWithGestureDetector {
-        detectTransformGestures(
-            panZoomLock = panZoomLock
-        ) { c, pan, gestureZoom, gestureAngle ->
+        detectTransformGestures(panZoomLock = panZoomLock) { c, pan, gestureZoom, gestureAngle ->
             centroid = c
             if (gestureAngle != 0f) {
                 rotated = true
@@ -111,14 +106,12 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
     ): @Composable () -> Unit = {
         CompositionLocalProvider(
             LocalDensity provides Density(1f),
-            LocalViewConfiguration provides TestViewConfiguration(
-                minimumTouchTargetSize = DpSize.Zero
-            )
+            LocalViewConfiguration provides
+                TestViewConfiguration(minimumTouchTargetSize = DpSize.Zero)
         ) {
             with(LocalDensity.current) {
                 Box(
-                    Modifier
-                        .fillMaxSize()
+                    Modifier.fillMaxSize()
                         // Some tests execute a lambda before the initial and final passes
                         // so they are called here, higher up the chain, so that the
                         // calls happen prior to the gestureDetector below. The lambdas
@@ -128,13 +121,9 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
                             awaitPointerEventScope {
                                 while (true) {
                                     val event = awaitPointerEvent(PointerEventPass.Initial)
-                                    event.changes.forEach {
-                                        initialPass(it)
-                                    }
+                                    event.changes.forEach { initialPass(it) }
                                     awaitPointerEvent(PointerEventPass.Final)
-                                    event.changes.forEach {
-                                        finalPass(it)
-                                    }
+                                    event.changes.forEach { finalPass(it) }
                                 }
                             }
                         }
@@ -160,28 +149,20 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         this.finalPass = nothingHandler
     }
 
-    /**
-     * Single finger pan.
-     */
+    /** Single finger pan. */
     @Test
     fun singleFingerPan() {
         rule.setContent(util)
 
-        performTouch(finalPass = { assertFalse(isConsumed) }) {
-            down(0, Offset(5f, 5f))
-        }
+        performTouch(finalPass = { assertFalse(isConsumed) }) { down(0, Offset(5f, 5f)) }
 
         assertFalse(panned)
 
-        performTouch(finalPass = { assertFalse(isConsumed) }) {
-            moveBy(0, Offset(12.7f, 12.7f))
-        }
+        performTouch(finalPass = { assertFalse(isConsumed) }) { moveBy(0, Offset(12.7f, 12.7f)) }
 
         assertFalse(panned)
 
-        performTouch(finalPass = { assertTrue(isConsumed) }) {
-            moveBy(0, Offset(0.1f, 0.1f))
-        }
+        performTouch(finalPass = { assertTrue(isConsumed) }) { moveBy(0, Offset(0.1f, 0.1f)) }
 
         assertEquals(17.7f, centroid.x, 0.1f)
         assertEquals(17.7f, centroid.y, 0.1f)
@@ -193,23 +174,17 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
 
         panAmount = Offset.Zero
 
-        performTouch(finalPass = { assertTrue(isConsumed) }) {
-            moveBy(0, Offset(1f, 0f))
-        }
+        performTouch(finalPass = { assertTrue(isConsumed) }) { moveBy(0, Offset(1f, 0f)) }
 
         assertEquals(Offset(1f, 0f), panAmount)
 
-        performTouch(finalPass = { assertFalse(isConsumed) }) {
-            up(0)
-        }
+        performTouch(finalPass = { assertFalse(isConsumed) }) { up(0) }
 
         assertFalse(rotated)
         assertFalse(zoomed)
     }
 
-    /**
-     * Multi-finger pan
-     */
+    /** Multi-finger pan */
     @Test
     fun multiFingerPanZoom() {
         rule.setContent(util)
@@ -240,9 +215,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
 
         assertFalse(panned)
 
-        performTouch(finalPass = { assertFalse(isConsumed) }) {
-            moveBy(0, Offset(13f, 13f))
-        }
+        performTouch(finalPass = { assertFalse(isConsumed) }) { moveBy(0, Offset(13f, 13f)) }
 
         // With the move below, we've now averaged enough movement (touchSlop is around 18.0)
         performTouch(
@@ -270,9 +243,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         }
     }
 
-    /**
-     * 2-pointer zoom
-     */
+    /** 2-pointer zoom */
     @Test
     fun zoom2Pointer() {
         rule.setContent(util)
@@ -363,16 +334,12 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         }
     }
 
-    /**
-     * 4-pointer zoom
-     */
+    /** 4-pointer zoom */
     @Test
     fun zoom4Pointer() {
         rule.setContent(util)
 
-        performTouch {
-            down(0, Offset(0f, 50f))
-        }
+        performTouch { down(0, Offset(0f, 50f)) }
 
         // just get past the touch slop
         performTouch {
@@ -418,9 +385,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         }
     }
 
-    /**
-     * 2 pointer rotation.
-     */
+    /** 2 pointer rotation. */
     @Test
     fun rotation2Pointer() {
         rule.setContent(util)
@@ -459,16 +424,12 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         assertEquals(1f, zoomAmount, 0.1f)
     }
 
-    /**
-     * 2 pointer rotation, with early panning.
-     */
+    /** 2 pointer rotation, with early panning. */
     @Test
     fun rotation2PointerLock() {
         rule.setContent(util)
 
-        performTouch {
-            down(0, Offset(0f, 50f))
-        }
+        performTouch { down(0, Offset(0f, 50f)) }
 
         // just get past the touch slop with panning
         performTouch {
@@ -476,9 +437,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
             moveBy(0, Offset(1000f, 0f))
         }
 
-        performTouch {
-            down(1, Offset(100f, 50f))
-        }
+        performTouch { down(1, Offset(100f, 50f)) }
 
         // now do the rotation:
         performTouch {
@@ -502,9 +461,7 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         assertEquals(1f, zoomAmount, 0.1f)
     }
 
-    /**
-     * Adding or removing a pointer won't change the current values
-     */
+    /** Adding or removing a pointer won't change the current values */
     @Test
     fun noChangeOnPointerDownUp() {
         rule.setContent(util)
@@ -522,17 +479,13 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         panned = false
         zoomed = false
 
-        performTouch {
-            down(2, Offset(0f, 50f))
-        }
+        performTouch { down(2, Offset(0f, 50f)) }
 
         assertFalse(rotated)
         assertFalse(panned)
         assertFalse(zoomed)
 
-        performTouch {
-            down(3, Offset(100f, 50f))
-        }
+        performTouch { down(3, Offset(100f, 50f)) }
 
         assertFalse(rotated)
         assertFalse(panned)
@@ -550,52 +503,34 @@ class TransformGestureDetectorTest(val panZoomLock: Boolean) {
         assertFalse(zoomed)
     }
 
-    /**
-     * Consuming position during touch slop will cancel the current gesture.
-     */
+    /** Consuming position during touch slop will cancel the current gesture. */
     @Test
     fun touchSlopCancel() {
         rule.setContent(util)
 
-        performTouch {
-            down(0, Offset(5f, 5f))
-        }
+        performTouch { down(0, Offset(5f, 5f)) }
 
-        performTouch(initialPass = { consume() }) {
-            moveBy(0, Offset(50f, 0f))
-        }
+        performTouch(initialPass = { consume() }) { moveBy(0, Offset(50f, 0f)) }
 
-        performTouch {
-            up(0)
-        }
+        performTouch { up(0) }
 
         assertFalse(panned)
         assertFalse(zoomed)
         assertFalse(rotated)
     }
 
-    /**
-     * Consuming position after touch slop will cancel the current gesture.
-     */
+    /** Consuming position after touch slop will cancel the current gesture. */
     @Test
     fun afterTouchSlopCancel() {
         rule.setContent(util)
 
-        performTouch {
-            down(0, Offset(5f, 5f))
-        }
+        performTouch { down(0, Offset(5f, 5f)) }
 
-        performTouch {
-            moveBy(0, Offset(50f, 0f))
-        }
+        performTouch { moveBy(0, Offset(50f, 0f)) }
 
-        performTouch(initialPass = { consume() }) {
-            moveBy(0, Offset(50f, 0f))
-        }
+        performTouch(initialPass = { consume() }) { moveBy(0, Offset(50f, 0f)) }
 
-        performTouch {
-            up(0)
-        }
+        performTouch { up(0) }
 
         assertTrue(panned)
         assertFalse(zoomed)

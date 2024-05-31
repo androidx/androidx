@@ -21,10 +21,9 @@ import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import org.jetbrains.annotations.TestOnly
 
-/**
- * [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_CONTENT].
- */
-internal class AnimatedContentComposeAnimation<T> private constructor(
+/** [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_CONTENT]. */
+internal class AnimatedContentComposeAnimation<T>
+private constructor(
     override val animationObject: Transition<T>,
     override val states: Set<Any>,
     override val label: String?
@@ -35,16 +34,16 @@ internal class AnimatedContentComposeAnimation<T> private constructor(
         /**
          * [ComposeAnimationType] from ANIMATABLE to UNSUPPORTED are not available in previous
          * versions of the library. To avoid creating non-existing enum,
-         * [AnimatedContentComposeAnimation] should only be instantiated if [ComposeAnimationType] API
-         * for ANIMATED_CONTENT enum is available.
+         * [AnimatedContentComposeAnimation] should only be instantiated if [ComposeAnimationType]
+         * API for ANIMATED_CONTENT enum is available.
          */
         var apiAvailable = enumValues<ComposeAnimationType>().any { it.name == "ANIMATED_CONTENT" }
             private set
 
         /**
-         * Parses the [Transition] into a [AnimatedContentComposeAnimation].
-         * [Transition] can have nullable state.
-         * Compose Tooling is not handling the case if [Transition.currentState] is null.
+         * Parses the [Transition] into a [AnimatedContentComposeAnimation]. [Transition] can have
+         * nullable state. Compose Tooling is not handling the case if [Transition.currentState] is
+         * null.
          */
         fun Transition<*>.parseAnimatedContent(): AnimatedContentComposeAnimation<*>? {
             if (!apiAvailable) return null

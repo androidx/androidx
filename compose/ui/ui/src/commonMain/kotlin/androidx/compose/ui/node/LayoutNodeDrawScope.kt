@@ -29,13 +29,12 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.toSize
 
 /**
- * [ContentDrawScope] implementation that extracts density and layout direction information
- * from the given NodeCoordinator
+ * [ContentDrawScope] implementation that extracts density and layout direction information from the
+ * given NodeCoordinator
  */
 @OptIn(ExperimentalComposeUiApi::class)
-internal class LayoutNodeDrawScope(
-    val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
-) : DrawScope by canvasDrawScope, ContentDrawScope {
+internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()) :
+    DrawScope by canvasDrawScope, ContentDrawScope {
 
     // NOTE, currently a single ComponentDrawScope is shared across composables
     // which done to allocate a single set of Paint objects and re-use them across
@@ -61,10 +60,8 @@ internal class LayoutNodeDrawScope(
                 //  but we should think about the right ways to handle this as this is very error
                 //  prone i think
                 val coordinator = drawNode.requireCoordinator(Nodes.Draw)
-                val nextCoordinator = if (coordinator.tail === drawNode.node)
-                    coordinator.wrapped!!
-                else
-                    coordinator
+                val nextCoordinator =
+                    if (coordinator.tail === drawNode.node) coordinator.wrapped!! else coordinator
                 nextCoordinator.performDraw(canvas, drawContext.graphicsLayer)
             }
         }
@@ -85,9 +82,7 @@ internal class LayoutNodeDrawScope(
         drawNode: Modifier.Node,
         layer: GraphicsLayer?
     ) {
-        drawNode.dispatchForKind(Nodes.Draw) {
-            drawDirect(canvas, size, coordinator, it, layer)
-        }
+        drawNode.dispatchForKind(Nodes.Draw) { drawDirect(canvas, size, coordinator, it, layer) }
     }
 
     internal fun drawDirect(
@@ -99,16 +94,8 @@ internal class LayoutNodeDrawScope(
     ) {
         val previousDrawNode = this.drawNode
         this.drawNode = drawNode
-        canvasDrawScope.draw(
-            coordinator,
-            coordinator.layoutDirection,
-            canvas,
-            size,
-            layer
-        ) {
-            with(drawNode) {
-                this@LayoutNodeDrawScope.draw()
-            }
+        canvasDrawScope.draw(coordinator, coordinator.layoutDirection, canvas, size, layer) {
+            with(drawNode) { this@LayoutNodeDrawScope.draw() }
         }
         this.drawNode = previousDrawNode
     }

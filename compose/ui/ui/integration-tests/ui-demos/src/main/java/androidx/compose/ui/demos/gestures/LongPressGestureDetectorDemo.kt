@@ -35,16 +35,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
-/**
- * Simple [detectTapGestures] demo for long press.
- */
+/** Simple [detectTapGestures] demo for long press. */
 @Composable
 fun LongPressGestureDetectorDemo() {
     val color = remember { mutableStateOf(Colors.random()) }
 
-    val onLongPress = { _: Offset ->
-        color.value = color.value.anotherRandomColor()
-    }
+    val onLongPress = { _: Offset -> color.value = color.value.anotherRandomColor() }
 
     Column {
         Text("The box changes color when you long press on it.")

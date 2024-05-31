@@ -25,8 +25,8 @@ import org.jetbrains.skia.Image
  * Load and decode [ImageBitmap] from the given [inputStream]. [inputStream] should contain encoded
  * raster image in a format supported by Skia (BMP, GIF, HEIF, ICO, JPEG, PNG, WBMP, WebP)
  *
- * @param inputStream input stream to load an rater image. All bytes will be read from this
- * stream, but stream will not be closed after this method.
+ * @param inputStream input stream to load an rater image. All bytes will be read from this stream,
+ *   but stream will not be closed after this method.
  * @return the decoded SVG image associated with the resource
  */
 fun loadImageBitmap(inputStream: InputStream): ImageBitmap =

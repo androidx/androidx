@@ -16,6 +16,5 @@
 
 package androidx.compose.runtime
 
-internal actual fun createSnapshotMutableFloatState(
-    value: Float
-): MutableFloatState = SnapshotMutableFloatStateImpl(value)
+internal actual fun createSnapshotMutableFloatState(value: Float): MutableFloatState =
+    SnapshotMutableFloatStateImpl(value)

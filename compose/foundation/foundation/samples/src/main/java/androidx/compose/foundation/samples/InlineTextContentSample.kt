@@ -41,27 +41,29 @@ fun InlineTextContentSample() {
         appendInlineContent(myId, "[myBox]")
     }
 
-    val inlineContent = mapOf(
-        Pair(
-            // This tells the [BasicText] to replace the placeholder string "[myBox]" by
-            // the composable given in the [InlineTextContent] object.
-            myId,
-            InlineTextContent(
-                // Placeholder tells text layout the expected size and vertical alignment of
-                // children composable.
-                Placeholder(
-                    width = 0.5.em,
-                    height = 0.5.em,
-                    placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
-                )
-            ) {
-                // This [Box] will fill maximum size, which is specified by the [Placeholder]
-                // above. Notice the width and height in [Placeholder] are specified in TextUnit,
-                // and are converted into pixel by text layout.
-                Box(modifier = Modifier.fillMaxSize().background(color = Color.Red))
-            }
+    val inlineContent =
+        mapOf(
+            Pair(
+                // This tells the [BasicText] to replace the placeholder string "[myBox]" by
+                // the composable given in the [InlineTextContent] object.
+                myId,
+                InlineTextContent(
+                    // Placeholder tells text layout the expected size and vertical alignment of
+                    // children composable.
+                    Placeholder(
+                        width = 0.5.em,
+                        height = 0.5.em,
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                    )
+                ) {
+                    // This [Box] will fill maximum size, which is specified by the [Placeholder]
+                    // above. Notice the width and height in [Placeholder] are specified in
+                    // TextUnit,
+                    // and are converted into pixel by text layout.
+                    Box(modifier = Modifier.fillMaxSize().background(color = Color.Red))
+                }
+            )
         )
-    )
 
     BasicText(text = text, inlineContent = inlineContent)
 }

@@ -30,9 +30,7 @@ import org.junit.runners.JUnit4
 /* ktlint-disable max-line-length */
 @RunWith(JUnit4::class)
 
-/**
- * Test for [UnrememberedStateDetector].
- */
+/** Test for [UnrememberedStateDetector]. */
 class UnrememberedStateDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = UnrememberedStateDetector()
 
@@ -41,9 +39,10 @@ class UnrememberedStateDetectorTest : LintDetectorTest() {
 
     @Test
     fun notRemembered() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -115,12 +114,12 @@ class UnrememberedStateDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                Stubs.Remember
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
@@ -228,9 +227,10 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
 
     @Test
     fun rememberedInsideComposableBody() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -313,21 +313,22 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                Stubs.Remember
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun noErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -412,20 +413,21 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.Remember
+            )
             .run()
             .expectClean()
     }
 
     @Test
     fun arbitraryStateFactoryAnnotated() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.*
@@ -485,15 +487,16 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            Stubs.SnapshotState,
-            Stubs.StateFactoryMarker,
-            Stubs.Remember
-        )
+                ),
+                Stubs.Composable,
+                Stubs.SnapshotState,
+                Stubs.StateFactoryMarker,
+                Stubs.Remember
+            )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
-            .expect("""
+            .expect(
+                """
 src/androidx/compose/runtime/foo/{.kt:12: Error: Creating a state object during composition without using remember [UnrememberedMutableState]
                     val foo = makeMyState()
                               ~~~~~~~~~~~

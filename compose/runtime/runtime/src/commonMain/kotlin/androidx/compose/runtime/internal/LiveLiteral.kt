@@ -32,23 +32,18 @@ import androidx.compose.runtime.mutableStateOf
 @ComposeCompilerApi
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class LiveLiteralInfo(
-    val key: String,
-    val offset: Int
-)
+annotation class LiveLiteralInfo(val key: String, val offset: Int)
 
 /**
- * This annotation is applied to LiveLiteral classes by the Compose Compiler. It is intended to
- * be used to provide information useful to tooling.
+ * This annotation is applied to LiveLiteral classes by the Compose Compiler. It is intended to be
+ * used to provide information useful to tooling.
  *
  * @param file The file path of the file the associate LiveLiterals class was produced for
  */
 @ComposeCompilerApi
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class LiveLiteralFileInfo(
-    val file: String
-)
+annotation class LiveLiteralFileInfo(val file: String)
 
 private val liveLiteralCache = HashMap<String, MutableState<Any?>>()
 
@@ -69,8 +64,8 @@ fun enableLiveLiterals() {
 
 /**
  * Constructs a [State] object identified by the provided global [key] and initialized to the
- * provided [value]. This value may then be updated from tooling with the
- * [updateLiveLiteralValue] API. Only a single [State] object will be created for any given [key].
+ * provided [value]. This value may then be updated from tooling with the [updateLiveLiteralValue]
+ * API. Only a single [State] object will be created for any given [key].
  *
  * Caution: This API is intended to be used by tooling only. Use at your own risk.
  */
@@ -78,21 +73,18 @@ fun enableLiveLiterals() {
 @ComposeCompilerApi
 fun <T> liveLiteral(key: String, value: T): State<T> {
     @Suppress("UNCHECKED_CAST")
-    return liveLiteralCache.getOrPut(key) {
-        mutableStateOf<Any?>(value)
-    } as State<T>
+    return liveLiteralCache.getOrPut(key) { mutableStateOf<Any?>(value) } as State<T>
 }
 
-/**
- * Updates the value of a [State] object that was created by [liveLiteral] with the same key.
- */
+/** Updates the value of a [State] object that was created by [liveLiteral] with the same key. */
 @InternalComposeApi
 fun updateLiveLiteralValue(key: String, value: Any?) {
     var needToUpdate = true
-    val stateObj = liveLiteralCache.getOrPut(key) {
-        needToUpdate = false
-        mutableStateOf<Any?>(value)
-    }
+    val stateObj =
+        liveLiteralCache.getOrPut(key) {
+            needToUpdate = false
+            mutableStateOf<Any?>(value)
+        }
     if (needToUpdate) {
         stateObj.value = value
     }

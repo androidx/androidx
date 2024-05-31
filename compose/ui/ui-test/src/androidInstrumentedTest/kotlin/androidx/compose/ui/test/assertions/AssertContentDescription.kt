@@ -36,67 +36,45 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AssertContentDescription {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun equals() {
-        rule.setContent {
-            TestContent()
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionEquals("Hello", "World")
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionEquals("World", "Hello")
+        rule.setContent { TestContent() }
+        rule.onNodeWithTag("test").assertContentDescriptionEquals("Hello", "World")
+        rule.onNodeWithTag("test").assertContentDescriptionEquals("World", "Hello")
     }
 
     @Test
     fun equals_empty() {
-        rule.setContent {
-            Box(Modifier.semantics { testTag = "test" })
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionEquals()
+        rule.setContent { Box(Modifier.semantics { testTag = "test" }) }
+        rule.onNodeWithTag("test").assertContentDescriptionEquals()
     }
 
     @Test
     fun contains() {
-        rule.setContent {
-            TestContent()
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionContains("Hello")
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionContains("World")
+        rule.setContent { TestContent() }
+        rule.onNodeWithTag("test").assertContentDescriptionContains("Hello")
+        rule.onNodeWithTag("test").assertContentDescriptionContains("World")
     }
 
     @Test
     fun contains_substring() {
-        rule.setContent {
-            TestContent()
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionContains("He", substring = true)
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionContains("Wo", substring = true)
+        rule.setContent { TestContent() }
+        rule.onNodeWithTag("test").assertContentDescriptionContains("He", substring = true)
+        rule.onNodeWithTag("test").assertContentDescriptionContains("Wo", substring = true)
     }
 
     @Test(expected = AssertionError::class)
     fun equals_fails_notEnoughElements() {
-        rule.setContent {
-            TestContent()
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionEquals("Hello")
+        rule.setContent { TestContent() }
+        rule.onNodeWithTag("test").assertContentDescriptionEquals("Hello")
     }
 
     @Test(expected = AssertionError::class)
     fun equals_fails_tooManyElements() {
-        rule.setContent {
-            TestContent()
-        }
-        rule.onNodeWithTag("test")
-            .assertContentDescriptionEquals("Hello", "World", "More")
+        rule.setContent { TestContent() }
+        rule.onNodeWithTag("test").assertContentDescriptionEquals("Hello", "World", "More")
     }
 
     @Composable

@@ -44,8 +44,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class LazySwitchingStatesBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
     fun lazyColumn_switchingItems_composition() {
@@ -67,10 +66,7 @@ class LazySwitchingStatesBenchmark {
         benchmarkRule.runBenchmark(composition = false, switchingStateCount = 1)
     }
 
-    private fun ComposeBenchmarkRule.runBenchmark(
-        composition: Boolean,
-        switchingStateCount: Int
-    ) {
+    private fun ComposeBenchmarkRule.runBenchmark(composition: Boolean, switchingStateCount: Int) {
         runBenchmarkFor(
             { LazyColumnSwitchingItemsCase(readInComposition = composition) },
         ) {
@@ -82,16 +78,12 @@ class LazySwitchingStatesBenchmark {
             measureRepeatedOnUiThread {
                 runWithTimingDisabled {
                     assertNoPendingChanges()
-                    repeat(switchingStateCount) {
-                        getTestCase().toggle(it)
-                    }
+                    repeat(switchingStateCount) { getTestCase().toggle(it) }
                     doFramesUntilIdle()
                     assertNoPendingChanges()
                 }
 
-                repeat(switchingStateCount) {
-                    getTestCase().toggle(it)
-                }
+                repeat(switchingStateCount) { getTestCase().toggle(it) }
                 doFramesUntilIdle()
             }
         }
@@ -100,47 +92,40 @@ class LazySwitchingStatesBenchmark {
 
 // The number is based on height of items below (20 visible + 5 extra).
 private const val NUMBER_OF_LAZY_ITEMS = 25
-class LazyColumnSwitchingItemsCase(
-    private val readInComposition: Boolean = false
-) : ComposeTestCase {
-    val items = List(NUMBER_OF_LAZY_ITEMS) {
-        mutableStateOf(false)
-    }
+
+class LazyColumnSwitchingItemsCase(private val readInComposition: Boolean = false) :
+    ComposeTestCase {
+    val items = List(NUMBER_OF_LAZY_ITEMS) { mutableStateOf(false) }
 
     @Composable
     override fun Content() {
         LazyColumn(
-            Modifier
-                .requiredHeight(400.dp)
-                .fillMaxWidth(),
+            Modifier.requiredHeight(400.dp).fillMaxWidth(),
             flingBehavior = NoFlingBehavior
         ) {
             items(items) { state ->
-                val color = if (readInComposition) {
-                   if (state.value) Color.Blue else Color.Red
-                } else {
-                    Color.Red
-                }
+                val color =
+                    if (readInComposition) {
+                        if (state.value) Color.Blue else Color.Red
+                    } else {
+                        Color.Red
+                    }
                 Box(
-                    Modifier
-                        .width(20.dp)
-                        .height(20.dp)
-                        .drawBehind {
-                            val rectColor = if (readInComposition) {
+                    Modifier.width(20.dp).height(20.dp).drawBehind {
+                        val rectColor =
+                            if (readInComposition) {
                                 color
                             } else {
                                 if (state.value) Color.Blue else Color.Red
                             }
-                            drawRoundRect(rectColor, cornerRadius = CornerRadius(20f))
-                        }
+                        drawRoundRect(rectColor, cornerRadius = CornerRadius(20f))
+                    }
                 )
             }
         }
     }
 
     fun toggle(index: Int) {
-        Snapshot.withoutReadObservation {
-            items[index].value = !items[index].value
-        }
+        Snapshot.withoutReadObservation { items[index].value = !items[index].value }
     }
 }

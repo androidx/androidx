@@ -27,11 +27,12 @@ internal actual class PlatformFontFamilyTypefaceAdapter actual constructor() :
     ): TypefaceResult? {
         if (typefaceRequest.fontFamily is FontListFontFamily) return null
         val skiaFontLoader = (platformFontLoader as SkiaFontLoader)
-        val result = skiaFontLoader.loadPlatformTypes(
-            typefaceRequest.fontFamily ?: FontFamily.Default,
-            typefaceRequest.fontWeight,
-            typefaceRequest.fontStyle
-        )
+        val result =
+            skiaFontLoader.loadPlatformTypes(
+                typefaceRequest.fontFamily ?: FontFamily.Default,
+                typefaceRequest.fontWeight,
+                typefaceRequest.fontStyle
+            )
         return TypefaceResult.Immutable(result)
     }
 }

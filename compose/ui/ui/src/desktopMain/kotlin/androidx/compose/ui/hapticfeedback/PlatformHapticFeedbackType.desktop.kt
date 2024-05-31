@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.hapticfeedback
 
-/**
- * Desktop implementation for [HapticFeedbackType]
- */
+/** Desktop implementation for [HapticFeedbackType] */
 internal actual object PlatformHapticFeedbackType {
     actual val LongPress: HapticFeedbackType = HapticFeedbackType(0)
     actual val TextHandleMove: HapticFeedbackType = HapticFeedbackType(9)

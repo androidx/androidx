@@ -49,30 +49,29 @@ import kotlin.reflect.jvm.internal.ReflectionFactoryImpl
 /**
  * Scope that allows to use jarjar-ed kotlin-reflect artifact that is shipped with inspector itself.
  *
- * Issue with kotlin-reflect.
- * Many of reflective calls such as "foo::class" rely on static
- * functions defined in kotlin-stdlib's Reflection.java that delegate to ReflectionFactory.
- * In order to initialize that factory kotlin-stdlib statically detects presence or absence of
- * kotlin-reflect in classloader and chooses a factory accordingly. If there is no kotlin-reflect,
- * very limited version of ReflectionFactory is used.
+ * Issue with kotlin-reflect. Many of reflective calls such as "foo::class" rely on static functions
+ * defined in kotlin-stdlib's Reflection.java that delegate to ReflectionFactory. In order to
+ * initialize that factory kotlin-stdlib statically detects presence or absence of kotlin-reflect in
+ * classloader and chooses a factory accordingly. If there is no kotlin-reflect, very limited
+ * version of ReflectionFactory is used.
  *
- * It is an issue for inspectors because they could be loaded after that factory is initialised,
- * and even if they are loaded before, they live in a separate child classloader, thus
- * kotlin-reflect in inspector wouldn't exist for kotlin-stdlib in app.
+ * It is an issue for inspectors because they could be loaded after that factory is initialised, and
+ * even if they are loaded before, they live in a separate child classloader, thus kotlin-reflect in
+ * inspector wouldn't exist for kotlin-stdlib in app.
  *
- * First step to avoid the issue is using ReflectionFactoryImpl that is bundled with inspector.
- * Code for that would be fairly simple, for example instead of directly calling
+ * First step to avoid the issue is using ReflectionFactoryImpl that is bundled with inspector. Code
+ * for that would be fairly simple, for example instead of directly calling
  * `kClass.declaredMemberProperties`, correct instance of kClass should be obtained from factory:
  * `factory.getOrCreateKotlinClass(kClass.java).declaredMemberProperties`.
  *
  * That would work if code that works with correct KClass full implementation would never try to
- * access a default factory installed in Reflection.java. Unfortunately it is not true,
- * it eventually calls `CallableReference.getOwner()` in stdlib that uses default factory.
+ * access a default factory installed in Reflection.java. Unfortunately it is not true, it
+ * eventually calls `CallableReference.getOwner()` in stdlib that uses default factory.
  *
  * As a result we have to replace the factory in Reflection.java. To avoid issues with user's code
  * factory that we setup is smart, by default it simply delegates to a factory that was previously
- * installed. Only within `reflectionScope.withReflectiveAccess{ }` factory from kotlin-reflect
- * is used.
+ * installed. Only within `reflectionScope.withReflectiveAccess{ }` factory from kotlin-reflect is
+ * used.
  */
 @SuppressLint("BanUncheckedReflection")
 class ReflectionScope {
@@ -85,9 +84,7 @@ class ReflectionScope {
 
     private val scopedReflectionFactory = installScopedReflectionFactory()
 
-    /**
-     * Runs `block` with access to kotlin-reflect.
-     */
+    /** Runs `block` with access to kotlin-reflect. */
     fun <T> withReflectiveAccess(block: () -> T): T {
         return scopedReflectionFactory.withMainFactory(block)
     }

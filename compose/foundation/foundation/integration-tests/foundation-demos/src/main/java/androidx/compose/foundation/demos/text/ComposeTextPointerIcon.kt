@@ -44,22 +44,25 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-private enum class ParentOverride { None, Override, NoOverride }
+private enum class ParentOverride {
+    None,
+    Override,
+    NoOverride
+}
 
 @Preview
 @Composable
 fun TextPointerIconDemo() {
     Column(
-        modifier = Modifier
-            .padding(horizontal = 32.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.padding(horizontal = 32.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             """The texts below demonstrate how different pointer hover icons work on
                 | different texts and text fields with different permutations of
                 | overrideDescendants."""
-                .trimMargin().replace("\n", "")
+                .trimMargin()
+                .replace("\n", "")
         )
         IconDemoRectangle(parentOverride = ParentOverride.None, textOverride = false)
         IconDemoRectangle(parentOverride = ParentOverride.None, textOverride = true)
@@ -72,19 +75,21 @@ fun TextPointerIconDemo() {
 
 @Composable
 private fun IconDemoRectangle(parentOverride: ParentOverride, textOverride: Boolean) {
-    val rectanglePointerIconModifier = when (parentOverride) {
-        ParentOverride.None -> Modifier
-        else -> Modifier.pointerHoverIcon(
-            icon = PointerIcon.Hand,
-            overrideDescendants = parentOverride == ParentOverride.Override
-        )
-    }
+    val rectanglePointerIconModifier =
+        when (parentOverride) {
+            ParentOverride.None -> Modifier
+            else ->
+                Modifier.pointerHoverIcon(
+                    icon = PointerIcon.Hand,
+                    overrideDescendants = parentOverride == ParentOverride.Override
+                )
+        }
 
     Column(
-        modifier = Modifier
-            .then(rectanglePointerIconModifier)
-            .border(1.dp, Color.LightGray)
-            .padding(16.dp),
+        modifier =
+            Modifier.then(rectanglePointerIconModifier)
+                .border(1.dp, Color.LightGray)
+                .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         val annotatedString = buildAnnotatedString {
@@ -94,7 +99,6 @@ private fun IconDemoRectangle(parentOverride: ParentOverride, textOverride: Bool
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("not") }
                     append(" set a pointer hover icon.")
                 }
-
                 else -> {
                     append("This box sets the hand pointer icon with ")
                     appendCode("overrideDescendants = ${parentOverride == ParentOverride.Override}")
@@ -120,13 +124,9 @@ private fun IconDemoColumn(overrideDescendants: Boolean) {
 
         Text("Regular Text, icon crosshair", iconMod)
 
-        SelectionContainer {
-            Text("Selectable Text, icon not set", borderMod)
-        }
+        SelectionContainer { Text("Selectable Text, icon not set", borderMod) }
 
-        SelectionContainer {
-            Text("Selectable Text, icon crosshair", iconMod)
-        }
+        SelectionContainer { Text("Selectable Text, icon crosshair", iconMod) }
 
         var nonMod by remember { mutableStateOf("TextField, icon not set") }
         TextField(nonMod, { nonMod = it }, borderMod)

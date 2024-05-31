@@ -46,10 +46,7 @@ import androidx.compose.runtime.snapshots.fastForEachIndexed
 import androidx.compose.runtime.withAfterAnchorInfo
 import kotlin.jvm.JvmInline
 
-internal sealed class Operation(
-    val ints: Int = 0,
-    val objects: Int = 0
-) {
+internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
 
     val name: String
         get() = this::class.simpleName.orEmpty()
@@ -60,28 +57,27 @@ internal sealed class Operation(
         rememberManager: RememberManager
     )
 
-    open fun intParamName(parameter: IntParameter): String =
-        "IntParameter(${parameter.offset})"
+    open fun intParamName(parameter: IntParameter): String = "IntParameter(${parameter.offset})"
 
     open fun objectParamName(parameter: ObjectParameter<*>): String =
         "ObjectParameter(${parameter.offset})"
 
     override fun toString() = name
 
-    @JvmInline
-    value class IntParameter(val offset: Int)
+    @JvmInline value class IntParameter(val offset: Int)
 
-    @JvmInline
-    value class ObjectParameter<T>(val offset: Int)
+    @JvmInline value class ObjectParameter<T>(val offset: Int)
 
     // region traversal operations
     object Ups : Operation(ints = 1) {
-        inline val Count get() = IntParameter(0)
+        inline val Count
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            Count -> "count"
-            else -> super.intParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                Count -> "count"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -93,20 +89,21 @@ internal sealed class Operation(
     }
 
     object Downs : Operation(objects = 1) {
-        inline val Nodes get() = ObjectParameter<Array<Any?>>(0)
+        inline val Nodes
+            get() = ObjectParameter<Array<Any?>>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Nodes -> "nodes"
-            else -> super.objectParamName(parameter)
-        }
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Nodes -> "nodes"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            @Suppress("UNCHECKED_CAST")
-            val nodeApplier = applier as Applier<Any?>
+            @Suppress("UNCHECKED_CAST") val nodeApplier = applier as Applier<Any?>
             val nodes = getObject(Nodes)
             for (index in nodes.indices) {
                 nodeApplier.down(nodes[index])
@@ -115,12 +112,14 @@ internal sealed class Operation(
     }
 
     object AdvanceSlotsBy : Operation(ints = 1) {
-        inline val Distance get() = IntParameter(0)
+        inline val Distance
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            Distance -> "distance"
-            else -> super.intParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                Distance -> "distance"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -130,16 +129,19 @@ internal sealed class Operation(
             slots.advanceBy(getInt(Distance))
         }
     }
+
     // endregion traversal operations
 
     // region operations for Remember and SideEffects
     object SideEffect : Operation(objects = 1) {
-        inline val Effect get() = ObjectParameter<() -> Unit>(0)
+        inline val Effect
+            get() = ObjectParameter<() -> Unit>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Effect -> "effect"
-            else -> super.objectParamName(parameter)
-        }
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Effect -> "effect"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -151,12 +153,14 @@ internal sealed class Operation(
     }
 
     object Remember : Operation(objects = 1) {
-        inline val Value get() = ObjectParameter<RememberObserver>(0)
+        inline val Value
+            get() = ObjectParameter<RememberObserver>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Value -> "value"
-            else -> super.objectParamName(parameter)
-        }
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Value -> "value"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -168,14 +172,18 @@ internal sealed class Operation(
     }
 
     object AppendValue : Operation(objects = 2) {
-        inline val Anchor get() = ObjectParameter<Anchor>(0)
-        inline val Value get() = ObjectParameter<Any?>(1)
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>): String = when (parameter) {
-            Anchor -> "anchor"
-            Value -> "value"
-            else -> super.objectParamName(parameter)
-        }
+        inline val Value
+            get() = ObjectParameter<Any?>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>): String =
+            when (parameter) {
+                Anchor -> "anchor"
+                Value -> "value"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -192,12 +200,14 @@ internal sealed class Operation(
     }
 
     object TrimParentValues : Operation(ints = 1) {
-        inline val Count get() = IntParameter(0)
+        inline val Count
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter): String = when (parameter) {
-            Count -> "count"
-            else -> super.intParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter): String =
+            when (parameter) {
+                Count -> "count"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -222,18 +232,23 @@ internal sealed class Operation(
     }
 
     object UpdateValue : Operation(ints = 1, objects = 1) {
-        inline val Value get() = ObjectParameter<Any?>(0)
-        inline val GroupSlotIndex get() = IntParameter(0)
+        inline val Value
+            get() = ObjectParameter<Any?>(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            GroupSlotIndex -> "groupSlotIndex"
-            else -> super.intParamName(parameter)
-        }
+        inline val GroupSlotIndex
+            get() = IntParameter(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Value -> "value"
-            else -> super.objectParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                GroupSlotIndex -> "groupSlotIndex"
+                else -> super.intParamName(parameter)
+            }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Value -> "value"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -247,10 +262,9 @@ internal sealed class Operation(
             }
             when (val previous = slots.set(groupSlotIndex, value)) {
                 is RememberObserverHolder -> {
-                    val endRelativeOrder = slots.slotsSize - slots.slotIndexOfGroupSlotIndex(
-                        slots.currentGroup,
-                        groupSlotIndex
-                    )
+                    val endRelativeOrder =
+                        slots.slotsSize -
+                            slots.slotIndexOfGroupSlotIndex(slots.currentGroup, groupSlotIndex)
                     // Values are always updated in the composition order (not slot table order)
                     // so there is no need to reorder these.
                     rememberManager.forgetting(previous.wrapped, endRelativeOrder, -1, -1)
@@ -261,20 +275,27 @@ internal sealed class Operation(
     }
 
     object UpdateAnchoredValue : Operation(objects = 2, ints = 1) {
-        inline val Value get() = ObjectParameter<Any?>(0)
-        inline val Anchor get() = ObjectParameter<Anchor>(1)
-        inline val GroupSlotIndex get() = IntParameter(0)
+        inline val Value
+            get() = ObjectParameter<Any?>(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            UpdateAnchoredValue.GroupSlotIndex -> "groupSlotIndex"
-            else -> super.intParamName(parameter)
-        }
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(1)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            UpdateAnchoredValue.Value -> "value"
-            UpdateAnchoredValue.Anchor -> "anchor"
-            else -> super.objectParamName(parameter)
-        }
+        inline val GroupSlotIndex
+            get() = IntParameter(0)
+
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                UpdateAnchoredValue.GroupSlotIndex -> "groupSlotIndex"
+                else -> super.intParamName(parameter)
+            }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                UpdateAnchoredValue.Value -> "value"
+                UpdateAnchoredValue.Anchor -> "anchor"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -290,8 +311,9 @@ internal sealed class Operation(
             val groupIndex = slots.anchorIndex(anchor)
             when (val previous = slots.set(groupIndex, groupSlotIndex, value)) {
                 is RememberObserverHolder -> {
-                    val endRelativeSlotOrder = slots.slotsSize -
-                        slots.slotIndexOfGroupSlotIndex(groupIndex, groupSlotIndex)
+                    val endRelativeSlotOrder =
+                        slots.slotsSize -
+                            slots.slotIndexOfGroupSlotIndex(groupIndex, groupSlotIndex)
                     slots.withAfterAnchorInfo(previous.after) { priority, endRelativeAfter ->
                         rememberManager.forgetting(
                             previous.wrapped,
@@ -305,16 +327,19 @@ internal sealed class Operation(
             }
         }
     }
+
     // endregion operations for Remember and SideEffects
 
     // region operations for Nodes and Groups
     object UpdateAuxData : Operation(objects = 1) {
-        inline val Data get() = ObjectParameter<Any?>(0)
+        inline val Data
+            get() = ObjectParameter<Any?>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Data -> "data"
-            else -> super.objectParamName(parameter)
-        }
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Data -> "data"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -336,12 +361,14 @@ internal sealed class Operation(
     }
 
     object EnsureGroupStarted : Operation(objects = 1) {
-        inline val Anchor get() = ObjectParameter<Anchor>(0)
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Anchor -> "anchor"
-            else -> super.objectParamName(parameter)
-        }
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Anchor -> "anchor"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -363,12 +390,14 @@ internal sealed class Operation(
     }
 
     object MoveCurrentGroup : Operation(ints = 1) {
-        inline val Offset get() = IntParameter(0)
+        inline val Offset
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            Offset -> "offset"
-            else -> super.intParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                Offset -> "offset"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -400,14 +429,18 @@ internal sealed class Operation(
     }
 
     object EndCompositionScope : Operation(objects = 2) {
-        inline val Action get() = ObjectParameter<(Composition) -> Unit>(0)
-        inline val Composition get() = ObjectParameter<Composition>(1)
+        inline val Action
+            get() = ObjectParameter<(Composition) -> Unit>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Action -> "anchor"
-            Composition -> "composition"
-            else -> super.objectParamName(parameter)
-        }
+        inline val Composition
+            get() = ObjectParameter<Composition>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Action -> "anchor"
+                Composition -> "composition"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -432,14 +465,18 @@ internal sealed class Operation(
     }
 
     object UpdateNode : Operation(objects = 2) {
-        inline val Value get() = ObjectParameter<Any?>(0)
-        inline val Block get() = ObjectParameter<Any?.(Any?) -> Unit /* Node?.(Value) -> Unit */>(1)
+        inline val Value
+            get() = ObjectParameter<Any?>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Value -> "value"
-            Block -> "block"
-            else -> super.objectParamName(parameter)
-        }
+        inline val Block
+            get() = ObjectParameter<Any?.(Any?) -> Unit /* Node?.(Value) -> Unit */>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Value -> "value"
+                Block -> "block"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -453,61 +490,68 @@ internal sealed class Operation(
     }
 
     object RemoveNode : Operation(ints = 2) {
-        inline val RemoveIndex get() = IntParameter(0)
-        inline val Count get() = IntParameter(1)
+        inline val RemoveIndex
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            RemoveIndex -> "removeIndex"
-            Count -> "count"
-            else -> super.intParamName(parameter)
-        }
+        inline val Count
+            get() = IntParameter(1)
+
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                RemoveIndex -> "removeIndex"
+                Count -> "count"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            applier.remove(
-                index = getInt(RemoveIndex),
-                count = getInt(Count)
-            )
+            applier.remove(index = getInt(RemoveIndex), count = getInt(Count))
         }
     }
 
     object MoveNode : Operation(ints = 3) {
-        inline val From get() = IntParameter(0)
-        inline val To get() = IntParameter(1)
-        inline val Count get() = IntParameter(2)
+        inline val From
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            From -> "from"
-            To -> "to"
-            Count -> "count"
-            else -> super.intParamName(parameter)
-        }
+        inline val To
+            get() = IntParameter(1)
+
+        inline val Count
+            get() = IntParameter(2)
+
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                From -> "from"
+                To -> "to"
+                Count -> "count"
+                else -> super.intParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            applier.move(
-                from = getInt(From),
-                to = getInt(To),
-                count = getInt(Count)
-            )
+            applier.move(from = getInt(From), to = getInt(To), count = getInt(Count))
         }
     }
 
     object InsertSlots : Operation(objects = 2) {
-        inline val Anchor get() = ObjectParameter<Anchor>(0)
-        inline val FromSlotTable get() = ObjectParameter<SlotTable>(1)
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Anchor -> "anchor"
-            FromSlotTable -> "from"
-            else -> super.objectParamName(parameter)
-        }
+        inline val FromSlotTable
+            get() = ObjectParameter<SlotTable>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Anchor -> "anchor"
+                FromSlotTable -> "from"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -528,16 +572,22 @@ internal sealed class Operation(
     }
 
     object InsertSlotsWithFixups : Operation(objects = 3) {
-        inline val Anchor get() = ObjectParameter<Anchor>(0)
-        inline val FromSlotTable get() = ObjectParameter<SlotTable>(1)
-        inline val Fixups get() = ObjectParameter<FixupList>(2)
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Anchor -> "anchor"
-            FromSlotTable -> "from"
-            Fixups -> "fixups"
-            else -> super.objectParamName(parameter)
-        }
+        inline val FromSlotTable
+            get() = ObjectParameter<SlotTable>(1)
+
+        inline val Fixups
+            get() = ObjectParameter<FixupList>(2)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Anchor -> "anchor"
+                FromSlotTable -> "from"
+                Fixups -> "fixups"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -562,20 +612,27 @@ internal sealed class Operation(
     }
 
     object InsertNodeFixup : Operation(ints = 1, objects = 2) {
-        inline val Factory get() = ObjectParameter<() -> Any?>(0)
-        inline val InsertIndex get() = IntParameter(0)
-        inline val GroupAnchor get() = ObjectParameter<Anchor>(1)
+        inline val Factory
+            get() = ObjectParameter<() -> Any?>(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            InsertIndex -> "insertIndex"
-            else -> super.intParamName(parameter)
-        }
+        inline val InsertIndex
+            get() = IntParameter(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Factory -> "factory"
-            GroupAnchor -> "groupAnchor"
-            else -> super.objectParamName(parameter)
-        }
+        inline val GroupAnchor
+            get() = ObjectParameter<Anchor>(1)
+
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                InsertIndex -> "insertIndex"
+                else -> super.intParamName(parameter)
+            }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Factory -> "factory"
+                GroupAnchor -> "groupAnchor"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -594,18 +651,23 @@ internal sealed class Operation(
     }
 
     object PostInsertNodeFixup : Operation(ints = 1, objects = 1) {
-        inline val InsertIndex get() = IntParameter(0)
-        inline val GroupAnchor get() = ObjectParameter<Anchor>(0)
+        inline val InsertIndex
+            get() = IntParameter(0)
 
-        override fun intParamName(parameter: IntParameter) = when (parameter) {
-            InsertIndex -> "insertIndex"
-            else -> super.intParamName(parameter)
-        }
+        inline val GroupAnchor
+            get() = ObjectParameter<Anchor>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            GroupAnchor -> "groupAnchor"
-            else -> super.objectParamName(parameter)
-        }
+        override fun intParamName(parameter: IntParameter) =
+            when (parameter) {
+                InsertIndex -> "insertIndex"
+                else -> super.intParamName(parameter)
+            }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                GroupAnchor -> "groupAnchor"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -631,6 +693,7 @@ internal sealed class Operation(
             slots.deactivateCurrentGroup(rememberManager)
         }
     }
+
     // endregion operations for Nodes and Groups
 
     // region operations for MovableContent
@@ -645,42 +708,50 @@ internal sealed class Operation(
     }
 
     object DetermineMovableContentNodeIndex : Operation(objects = 2) {
-        inline val EffectiveNodeIndexOut get() = ObjectParameter<IntRef>(0)
-        inline val Anchor get() = ObjectParameter<Anchor>(1)
+        inline val EffectiveNodeIndexOut
+            get() = ObjectParameter<IntRef>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            EffectiveNodeIndexOut -> "effectiveNodeIndexOut"
-            Anchor -> "anchor"
-            else -> super.objectParamName(parameter)
-        }
+        inline val Anchor
+            get() = ObjectParameter<Anchor>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                EffectiveNodeIndexOut -> "effectiveNodeIndexOut"
+                Anchor -> "anchor"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            val effectiveNodeIndexOut =
-                getObject(EffectiveNodeIndexOut)
+            val effectiveNodeIndexOut = getObject(EffectiveNodeIndexOut)
 
-            effectiveNodeIndexOut.element = positionToInsert(
-                slots = slots,
-                anchor = getObject(Anchor),
-                applier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
-            )
+            effectiveNodeIndexOut.element =
+                positionToInsert(
+                    slots = slots,
+                    anchor = getObject(Anchor),
+                    applier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
+                )
         }
     }
 
     object CopyNodesToNewAnchorLocation : Operation(objects = 2) {
         // IntRef because the index calculated after the operation is queued as part of
         // `DetermineMovableContentNodeIndex`
-        inline val EffectiveNodeIndex get() = ObjectParameter<IntRef>(0)
-        inline val Nodes get() = ObjectParameter<List<Any?>>(1)
+        inline val EffectiveNodeIndex
+            get() = ObjectParameter<IntRef>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            EffectiveNodeIndex -> "effectiveNodeIndex"
-            Nodes -> "nodes"
-            else -> super.objectParamName(parameter)
-        }
+        inline val Nodes
+            get() = ObjectParameter<List<Any?>>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                EffectiveNodeIndex -> "effectiveNodeIndex"
+                Nodes -> "nodes"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -700,18 +771,26 @@ internal sealed class Operation(
 
     @OptIn(InternalComposeApi::class)
     object CopySlotTableToAnchorLocation : Operation(objects = 4) {
-        inline val ResolvedState get() = ObjectParameter<MovableContentState?>(0)
-        inline val ParentCompositionContext get() = ObjectParameter<CompositionContext>(1)
-        inline val From get() = ObjectParameter<MovableContentStateReference>(2)
-        inline val To get() = ObjectParameter<MovableContentStateReference>(3)
+        inline val ResolvedState
+            get() = ObjectParameter<MovableContentState?>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            ResolvedState -> "resolvedState"
-            ParentCompositionContext -> "resolvedCompositionContext"
-            From -> "from"
-            To -> "to"
-            else -> super.objectParamName(parameter)
-        }
+        inline val ParentCompositionContext
+            get() = ObjectParameter<CompositionContext>(1)
+
+        inline val From
+            get() = ObjectParameter<MovableContentStateReference>(2)
+
+        inline val To
+            get() = ObjectParameter<MovableContentStateReference>(3)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                ResolvedState -> "resolvedState"
+                ParentCompositionContext -> "resolvedCompositionContext"
+                From -> "from"
+                To -> "to"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -720,12 +799,12 @@ internal sealed class Operation(
         ) {
             val from = getObject(From)
             val to = getObject(To)
-            val parentCompositionContext =
-                getObject(ParentCompositionContext)
+            val parentCompositionContext = getObject(ParentCompositionContext)
 
-            val resolvedState = getObject(ResolvedState)
-                ?: parentCompositionContext.movableContentStateResolve(from)
-                ?: composeRuntimeError("Could not resolve state for movable content")
+            val resolvedState =
+                getObject(ResolvedState)
+                    ?: parentCompositionContext.movableContentStateResolve(from)
+                    ?: composeRuntimeError("Could not resolve state for movable content")
 
             // The slot table contains the movable content group plus the group
             // containing the movable content's table which then contains the actual
@@ -761,16 +840,22 @@ internal sealed class Operation(
 
     @OptIn(InternalComposeApi::class)
     object ReleaseMovableGroupAtCurrent : Operation(objects = 3) {
-        inline val Composition get() = ObjectParameter<ControlledComposition>(0)
-        inline val ParentCompositionContext get() = ObjectParameter<CompositionContext>(1)
-        inline val Reference get() = ObjectParameter<MovableContentStateReference>(2)
+        inline val Composition
+            get() = ObjectParameter<ControlledComposition>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Composition -> "composition"
-            ParentCompositionContext -> "parentCompositionContext"
-            Reference -> "reference"
-            else -> super.objectParamName(parameter)
-        }
+        inline val ParentCompositionContext
+            get() = ObjectParameter<CompositionContext>(1)
+
+        inline val Reference
+            get() = ObjectParameter<MovableContentStateReference>(2)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Composition -> "composition"
+                ParentCompositionContext -> "parentCompositionContext"
+                Reference -> "reference"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -787,14 +872,18 @@ internal sealed class Operation(
     }
 
     object ApplyChangeList : Operation(objects = 2) {
-        inline val Changes get() = ObjectParameter<ChangeList>(0)
-        inline val EffectiveNodeIndex get() = ObjectParameter<IntRef?>(1)
+        inline val Changes
+            get() = ObjectParameter<ChangeList>(0)
 
-        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
-            Changes -> "changes"
-            EffectiveNodeIndex -> "effectiveNodeIndex"
-            else -> super.objectParamName(parameter)
-        }
+        inline val EffectiveNodeIndex
+            get() = ObjectParameter<IntRef?>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>) =
+            when (parameter) {
+                Changes -> "changes"
+                EffectiveNodeIndex -> "effectiveNodeIndex"
+                else -> super.objectParamName(parameter)
+            }
 
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
@@ -803,17 +892,20 @@ internal sealed class Operation(
         ) {
             val effectiveNodeIndex = getObject(EffectiveNodeIndex)?.element ?: 0
 
-            getObject(Changes).executeAndFlushAllPendingChanges(
-                applier = if (effectiveNodeIndex > 0) {
-                    OffsetApplier(applier, effectiveNodeIndex)
-                } else {
-                    applier
-                },
-                slots = slots,
-                rememberManager = rememberManager
-            )
+            getObject(Changes)
+                .executeAndFlushAllPendingChanges(
+                    applier =
+                        if (effectiveNodeIndex > 0) {
+                            OffsetApplier(applier, effectiveNodeIndex)
+                        } else {
+                            applier
+                        },
+                    slots = slots,
+                    rememberManager = rememberManager
+                )
         }
     }
+
     // endregion operations for MovableContent
 
     /**
@@ -821,7 +913,9 @@ internal sealed class Operation(
      * params, which lets us test [Operations] without relying on the implementation details of any
      * particular operation we use in production.
      */
-    class TestOperation @TestOnly constructor(
+    class TestOperation
+    @TestOnly
+    constructor(
         ints: Int = 0,
         objects: Int = 0,
         val block: (Applier<*>, SlotWriter, RememberManager) -> Unit = { _, _, _ -> }
@@ -871,11 +965,7 @@ private fun currentNodeIndex(slots: SlotWriter): Int {
     return index
 }
 
-private fun positionToInsert(
-    slots: SlotWriter,
-    anchor: Anchor,
-    applier: Applier<Any?>
-): Int {
+private fun positionToInsert(slots: SlotWriter, anchor: Anchor, applier: Applier<Any?>): Int {
     val destination = slots.anchorIndex(anchor)
     runtimeCheck(slots.currentGroup < destination)
     positionToParentOf(slots, applier, destination)
@@ -921,64 +1011,67 @@ private fun releaseMovableGroupAtCurrent(
     // composition before the new composition can be composed to receive it. When
     // the new composition receives the state it must recompose over the state by
     // calling invokeMovableContentLambda.
-    val anchors = slotTable.write { writer ->
-        writer.beginInsert()
+    val anchors =
+        slotTable.write { writer ->
+            writer.beginInsert()
 
-        // This is the prefix created by invokeMovableContentLambda
-        writer.startGroup(movableContentKey, reference.content)
-        writer.markGroup()
-        writer.update(reference.parameter)
+            // This is the prefix created by invokeMovableContentLambda
+            writer.startGroup(movableContentKey, reference.content)
+            writer.markGroup()
+            writer.update(reference.parameter)
 
-        // Move the content into current location
-        val anchors = slots.moveTo(reference.anchor, 1, writer)
+            // Move the content into current location
+            val anchors = slots.moveTo(reference.anchor, 1, writer)
 
-        // skip the group that was just inserted.
-        writer.skipGroup()
+            // skip the group that was just inserted.
+            writer.skipGroup()
 
-        // End the group that represents the call to invokeMovableContentLambda
-        writer.endGroup()
+            // End the group that represents the call to invokeMovableContentLambda
+            writer.endGroup()
 
-        writer.endInsert()
+            writer.endInsert()
 
-        anchors
-    }
+            anchors
+        }
 
     val state = MovableContentState(slotTable)
     if (RecomposeScopeImpl.hasAnchoredRecomposeScopes(slotTable, anchors)) {
         // If any recompose scopes are invalidated while the movable content is outside
         // a composition, ensure the reference is updated to contain the invalidation.
-        val movableContentRecomposeScopeOwner = object : RecomposeScopeOwner {
-            override fun invalidate(
-                scope: RecomposeScopeImpl,
-                instance: Any?
-            ): InvalidationResult {
-                // Try sending this to the original owner first.
-                val result = (composition as? RecomposeScopeOwner)?.invalidate(scope, instance)
-                    ?: InvalidationResult.IGNORED
+        val movableContentRecomposeScopeOwner =
+            object : RecomposeScopeOwner {
+                override fun invalidate(
+                    scope: RecomposeScopeImpl,
+                    instance: Any?
+                ): InvalidationResult {
+                    // Try sending this to the original owner first.
+                    val result =
+                        (composition as? RecomposeScopeOwner)?.invalidate(scope, instance)
+                            ?: InvalidationResult.IGNORED
 
-                // If the original owner ignores this then we need to record it in the
-                // reference
-                if (result == InvalidationResult.IGNORED) {
-                    reference.invalidations += scope to instance
-                    return InvalidationResult.SCHEDULED
+                    // If the original owner ignores this then we need to record it in the
+                    // reference
+                    if (result == InvalidationResult.IGNORED) {
+                        reference.invalidations += scope to instance
+                        return InvalidationResult.SCHEDULED
+                    }
+                    return result
                 }
-                return result
-            }
 
-            // The only reason [recomposeScopeReleased] is called is when the recompose scope is
-            // removed from the table. First, this never happens for content that is moving, and
-            // 2) even if it did the only reason we tell the composer is to clear tracking
-            // tables that contain this information which is not relevant here.
-            override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
-                // Nothing to do
-            }
+                // The only reason [recomposeScopeReleased] is called is when the recompose scope is
+                // removed from the table. First, this never happens for content that is moving, and
+                // 2) even if it did the only reason we tell the composer is to clear tracking
+                // tables that contain this information which is not relevant here.
+                override fun recomposeScopeReleased(scope: RecomposeScopeImpl) {
+                    // Nothing to do
+                }
 
-            // [recordReadOf] this is also something that would happen only during active
-            // recomposition which doesn't happened to a slot table that is moving.
-            override fun recordReadOf(value: Any) {
-                // Nothing to do
+                // [recordReadOf] this is also something that would happen only during active
+                // recomposition which doesn't happened to a slot table that is moving.
+                override fun recordReadOf(value: Any) {
+                    // Nothing to do
+                }
             }
-        }
         slotTable.write { writer ->
             RecomposeScopeImpl.adoptAnchoredScopes(
                 slots = writer,

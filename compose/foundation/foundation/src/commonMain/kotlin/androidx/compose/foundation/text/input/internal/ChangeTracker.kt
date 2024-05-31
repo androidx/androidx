@@ -45,9 +45,9 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
 
     /**
      * This function deals with three "coordinate spaces":
-     *  - `original`: The text before any changes were made.
-     *  - `pre`: The text before this change is applied, but with all previous changes applied.
-     *  - `post`: The text after this change is applied, including all the previous changes.
+     * - `original`: The text before any changes were made.
+     * - `pre`: The text before this change is applied, but with all previous changes applied.
+     * - `post`: The text after this change is applied, including all the previous changes.
      *
      * When this function is called, the existing changes map ranges in `original` to ranges in
      * `pre`. The new change is a mapping from `pre` to `post`. This function must determine the
@@ -56,13 +56,13 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
      * ensure the [ChangeList] invariant that all changes are non-overlapping.
      *
      * The algorithm works as follows:
-     *  1. Find all the changes that are adjacent to or overlap with this one. This search is
-     *     performed in the `pre` space since that's the space the new change shares with the
-     *     existing changes.
-     *  2. Merge all the changes from (1) into a single range in the `original` and `pre` spaces.
-     *  3. Merge the new change with the change from (2), updating the end of the range to account
-     *     for the new text.
-     *  3. Offset all remaining changes are to account for the new text.
+     * 1. Find all the changes that are adjacent to or overlap with this one. This search is
+     *    performed in the `pre` space since that's the space the new change shares with the
+     *    existing changes.
+     * 2. Merge all the changes from (1) into a single range in the `original` and `pre` spaces.
+     * 3. Merge the new change with the change from (2), updating the end of the range to account
+     *    for the new text.
+     * 3. Offset all remaining changes are to account for the new text.
      */
     fun trackChange(preStart: Int, preEnd: Int, postLength: Int) {
         if (preStart == preEnd && postLength == 0) {
@@ -83,9 +83,9 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
             // Merge adjacent and overlapping changes as we go.
             if (
                 change.preStart in preMin..preMax ||
-                change.preEnd in preMin..preMax ||
-                preMin in change.preStart..change.preEnd ||
-                preMax in change.preStart..change.preEnd
+                    change.preEnd in preMin..preMax ||
+                    preMin in change.preStart..change.preEnd ||
+                    preMax in change.preStart..change.preEnd
             ) {
                 if (mergedOverlappingChange == null) {
                     mergedOverlappingChange = change
@@ -154,20 +154,23 @@ internal class ChangeTracker(initialChanges: ChangeTracker? = null) : ChangeList
         preMax: Int,
         postDelta: Int
     ) {
-        var originalDelta = if (_changesTemp.isEmpty()) 0 else {
-            _changesTemp.last().let { it.preEnd - it.originalEnd }
-        }
+        var originalDelta =
+            if (_changesTemp.isEmpty()) 0
+            else {
+                _changesTemp.last().let { it.preEnd - it.originalEnd }
+            }
         val newChange: Change
         if (mergedOverlappingChange == null) {
             // There were no overlapping changes, so allocate a new one.
             val originalStart = preMin - originalDelta
             val originalEnd = originalStart + (preMax - preMin)
-            newChange = Change(
-                preStart = preMin,
-                preEnd = preMax + postDelta,
-                originalStart = originalStart,
-                originalEnd = originalEnd
-            )
+            newChange =
+                Change(
+                    preStart = preMin,
+                    preEnd = preMax + postDelta,
+                    originalStart = originalStart,
+                    originalEnd = originalEnd
+                )
         } else {
             newChange = mergedOverlappingChange
             // Convert the merged overlapping changes to the `post` space.

@@ -39,13 +39,10 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class SearchBarBenchmark(private val type: SearchBarType) {
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = SearchBarType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = SearchBarType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { SearchBarTestCase(type) }
 
@@ -64,9 +61,8 @@ class SearchBarBenchmark(private val type: SearchBarType) {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-internal class SearchBarTestCase(
-    private val type: SearchBarType
-) : LayeredComposeTestCase(), ToggleableTestCase {
+internal class SearchBarTestCase(private val type: SearchBarType) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: MutableState<Boolean>
 
     @Composable
@@ -102,9 +98,7 @@ internal class SearchBarTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {
@@ -113,5 +107,6 @@ internal class SearchBarTestCase(
 }
 
 enum class SearchBarType {
-    FullScreen, Docked
+    FullScreen,
+    Docked
 }

@@ -52,18 +52,13 @@ class MoveWithHistoryTest {
         private const val tag = "widget"
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recorder = SinglePointerInputRecorder()
 
     @Composable
     fun Ui(alignment: Alignment) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .wrapContentSize(alignment)
-        ) {
+        Box(Modifier.fillMaxSize().wrapContentSize(alignment)) {
             ClickableTestBox(modifier = recorder, tag = tag)
         }
     }
@@ -99,14 +94,11 @@ class MoveWithHistoryTest {
                 with(LocalDensity.current) {
                     // Scrollable with a viewport the size of 10 boxes
                     Column(
-                        Modifier
-                            .testTag("scrollable")
+                        Modifier.testTag("scrollable")
                             .requiredSize(100.toDp(), 1000.toDp())
                             .verticalScroll(scrollState)
                     ) {
-                        repeat(100) {
-                            ClickableTestBox()
-                        }
+                        repeat(100) { ClickableTestBox() }
                     }
                 }
             }

@@ -25,15 +25,15 @@ internal expect fun createInputDispatcher(
 ): InputDispatcher
 
 /**
- * Dispatcher to inject any kind of input. An [InputDispatcher] is created at the
- * beginning of [performMultiModalInput] or the single modality alternatives, and disposed at the
- * end of that method. The state of all input modalities is persisted and restored on the next
- * invocation of [performMultiModalInput] (or an alternative).
+ * Dispatcher to inject any kind of input. An [InputDispatcher] is created at the beginning of
+ * [performMultiModalInput] or the single modality alternatives, and disposed at the end of that
+ * method. The state of all input modalities is persisted and restored on the next invocation of
+ * [performMultiModalInput] (or an alternative).
  *
- * Dispatching input happens in two stages. In the first stage, all events are generated
- * (enqueued), using the `enqueue*` methods, and in the second stage all events are injected.
- * Clients of [InputDispatcher] should only call methods for the first stage listed below, the
- * second stage is handled by [performMultiModalInput] and friends.
+ * Dispatching input happens in two stages. In the first stage, all events are generated (enqueued),
+ * using the `enqueue*` methods, and in the second stage all events are injected. Clients of
+ * [InputDispatcher] should only call methods for the first stage listed below, the second stage is
+ * handled by [performMultiModalInput] and friends.
  *
  * Touch input:
  * * [getCurrentTouchPosition]
@@ -88,14 +88,10 @@ internal abstract class InputDispatcher(
         const val SubsequentRepeatDelay = 50L
     }
 
-    /**
-     * The eventTime of the next event.
-     */
+    /** The eventTime of the next event. */
     protected var currentTime = testContext.currentTime
 
-    /**
-     * The state of the current touch gesture. If `null`, no touch gesture is in progress.
-     */
+    /** The state of the current touch gesture. If `null`, no touch gesture is in progress. */
     protected var partialGesture: PartialGesture? = null
 
     /**
@@ -105,37 +101,32 @@ internal abstract class InputDispatcher(
     protected var mouseInputState: MouseInputState = MouseInputState()
 
     /**
-     * The state of the keyboard keys. The key input state is always available.
-     * It starts with no keys pressed down and the [KeyInputState.downTime] set to zero.
+     * The state of the keyboard keys. The key input state is always available. It starts with no
+     * keys pressed down and the [KeyInputState.downTime] set to zero.
      */
     protected var keyInputState: KeyInputState = KeyInputState()
 
-    /**
-     * The state of the rotary button.
-     */
+    /** The state of the rotary button. */
     protected var rotaryInputState: RotaryInputState = RotaryInputState()
 
     /**
-     * Indicates if a gesture is in progress or not. A gesture is in progress if at least one
-     * finger is (still) touching the screen.
+     * Indicates if a gesture is in progress or not. A gesture is in progress if at least one finger
+     * is (still) touching the screen.
      */
     val isTouchInProgress: Boolean
         get() = partialGesture != null
 
-    /**
-     * Indicates whether caps lock is on or not.
-     */
-    val isCapsLockOn: Boolean get() = keyInputState.capsLockOn
+    /** Indicates whether caps lock is on or not. */
+    val isCapsLockOn: Boolean
+        get() = keyInputState.capsLockOn
 
-    /**
-     * Indicates whether num lock is on or not.
-     */
-    val isNumLockOn: Boolean get() = keyInputState.numLockOn
+    /** Indicates whether num lock is on or not. */
+    val isNumLockOn: Boolean
+        get() = keyInputState.numLockOn
 
-    /**
-     * Indicates whether scroll lock is on or not.
-     */
-    val isScrollLockOn: Boolean get() = keyInputState.scrollLockOn
+    /** Indicates whether scroll lock is on or not. */
+    val isScrollLockOn: Boolean
+        get() = keyInputState.scrollLockOn
 
     init {
         val rootHash = identityHashCode(root)
@@ -151,11 +142,7 @@ internal abstract class InputDispatcher(
         if (root != null) {
             val rootHash = identityHashCode(root)
             testContext.states[rootHash] =
-                InputDispatcherState(
-                    partialGesture,
-                    mouseInputState,
-                    keyInputState
-                )
+                InputDispatcherState(partialGesture, mouseInputState, keyInputState)
         }
     }
 
@@ -163,7 +150,8 @@ internal abstract class InputDispatcher(
     private val TestContext.currentTime
         get() = testOwner.mainClock.currentTime
 
-    private val RootForTest.bounds get() = semanticsOwner.rootSemanticsNode.boundsInRoot
+    private val RootForTest.bounds
+        get() = semanticsOwner.rootSemanticsNode.boundsInRoot
 
     protected fun isWithinRootBounds(position: Offset): Boolean = root.bounds.contains(position)
 
@@ -193,7 +181,7 @@ internal abstract class InputDispatcher(
      *
      * @param pointerId The id of the pointer for which to return the current position
      * @return The current position of the pointer with the given [pointerId], or `null` if the
-     * pointer is not currently in use
+     *   pointer is not currently in use
      */
     fun getCurrentTouchPosition(pointerId: Int): Offset? {
         return partialGesture?.lastPositions?.get(pointerId)
@@ -203,7 +191,8 @@ internal abstract class InputDispatcher(
      * The current position of the mouse. If no mouse event has been sent yet, will be
      * [Offset.Zero].
      */
-    val currentMousePosition: Offset get() = mouseInputState.lastPosition
+    val currentMousePosition: Offset
+        get() = mouseInputState.lastPosition
 
     /**
      * Indicates if the given [key] is pressed down or not.
@@ -214,14 +203,12 @@ internal abstract class InputDispatcher(
     fun isKeyDown(key: Key): Boolean = keyInputState.isKeyDown(key)
 
     /**
-     * Generates a down touch event at [position] for the pointer with the given [pointerId].
-     * Starts a new touch gesture if no other [pointerId]s are down. Only possible if the
-     * [pointerId] is not currently being used, although pointer ids may be reused during a touch
-     * gesture.
+     * Generates a down touch event at [position] for the pointer with the given [pointerId]. Starts
+     * a new touch gesture if no other [pointerId]s are down. Only possible if the [pointerId] is
+     * not currently being used, although pointer ids may be reused during a touch gesture.
      *
      * @param pointerId The id of the pointer, can be any number not yet in use by another pointer
      * @param position The coordinate of the down event
-     *
      * @see enqueueTouchMove
      * @see updateTouchPointer
      * @see enqueueTouchUp
@@ -270,9 +257,8 @@ internal abstract class InputDispatcher(
      * @see enqueueTouchMoves
      */
     fun enqueueTouchMove() {
-        val gesture = checkNotNull(partialGesture) {
-            "Cannot send MOVE event, no gesture is in progress"
-        }
+        val gesture =
+            checkNotNull(partialGesture) { "Cannot send MOVE event, no gesture is in progress" }
         gesture.enqueueMove()
         gesture.hasPointerUpdates = false
     }
@@ -289,24 +275,22 @@ internal abstract class InputDispatcher(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<List<Offset>>
     ) {
-        val gesture = checkNotNull(partialGesture) {
-            "Cannot send MOVE event, no gesture is in progress"
-        }
+        val gesture =
+            checkNotNull(partialGesture) { "Cannot send MOVE event, no gesture is in progress" }
         gesture.enqueueMoves(relativeHistoricalTimes, historicalCoordinates)
         gesture.hasPointerUpdates = false
     }
 
     /**
-     * Updates the position of the touch pointer with the given [pointerId] to the given
-     * [position], but does not generate a move touch event. Use this to move multiple pointers
-     * simultaneously. To generate the next move touch event, which will contain the current
-     * position of _all_ pointers (not just the moved ones), call [enqueueTouchMove]. If you move
-     * one or more pointers and then call [enqueueTouchDown], without calling [enqueueTouchMove]
-     * first, a move event will be generated right before that down event.
+     * Updates the position of the touch pointer with the given [pointerId] to the given [position],
+     * but does not generate a move touch event. Use this to move multiple pointers simultaneously.
+     * To generate the next move touch event, which will contain the current position of _all_
+     * pointers (not just the moved ones), call [enqueueTouchMove]. If you move one or more pointers
+     * and then call [enqueueTouchDown], without calling [enqueueTouchMove] first, a move event will
+     * be generated right before that down event.
      *
      * @param pointerId The id of the pointer to move, as supplied in [enqueueTouchDown]
      * @param position The position to move the pointer to
-     *
      * @see enqueueTouchDown
      * @see enqueueTouchMove
      * @see enqueueTouchUp
@@ -316,9 +300,7 @@ internal abstract class InputDispatcher(
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
-        check(gesture != null) {
-            "Cannot move pointers, no gesture is in progress"
-        }
+        check(gesture != null) { "Cannot move pointers, no gesture is in progress" }
         require(gesture.lastPositions.containsKey(pointerId)) {
             "Cannot move pointer $pointerId, it is not active in the current gesture"
         }
@@ -332,7 +314,6 @@ internal abstract class InputDispatcher(
      * pointer.
      *
      * @param pointerId The id of the pointer to lift up, as supplied in [enqueueTouchDown]
-     *
      * @see enqueueTouchDown
      * @see updateTouchPointer
      * @see enqueueTouchMove
@@ -342,9 +323,7 @@ internal abstract class InputDispatcher(
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
-        check(gesture != null) {
-            "Cannot send UP event, no gesture is in progress"
-        }
+        check(gesture != null) { "Cannot send UP event, no gesture is in progress" }
         require(gesture.lastPositions.containsKey(pointerId)) {
             "Cannot send UP event for pointer $pointerId, it is not active in the current gesture"
         }
@@ -360,8 +339,8 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a cancel touch event for the current touch gesture. Sent automatically when
-     * mouse events are sent while a touch gesture is in progress.
+     * Generates a cancel touch event for the current touch gesture. Sent automatically when mouse
+     * events are sent while a touch gesture is in progress.
      *
      * @see enqueueTouchDown
      * @see updateTouchPointer
@@ -369,9 +348,8 @@ internal abstract class InputDispatcher(
      * @see enqueueTouchUp
      */
     fun enqueueTouchCancel() {
-        val gesture = checkNotNull(partialGesture) {
-            "Cannot send CANCEL event, no gesture is in progress"
-        }
+        val gesture =
+            checkNotNull(partialGesture) { "Cannot send CANCEL event, no gesture is in progress" }
         gesture.enqueueCancel()
         partialGesture = null
     }
@@ -392,7 +370,7 @@ internal abstract class InputDispatcher(
      * pressed and an optional hover exit event.
      *
      * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     * defined by [MouseButton.buttonId].
+     *   defined by [MouseButton.buttonId].
      */
     fun enqueueMousePress(buttonId: Int) {
         val mouse = mouseInputState
@@ -423,8 +401,8 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse move or hover event to the given [position]. If buttons are pressed, a
-     * move event is generated, otherwise generates a hover event.
+     * Generates a mouse move or hover event to the given [position]. If buttons are pressed, a move
+     * event is generated, otherwise generates a hover event.
      *
      * @param position The new mouse position
      */
@@ -450,8 +428,8 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Updates the mouse position without sending an event. Useful if down, up or scroll events
-     * need to be injected on a different location than the preceding move event.
+     * Updates the mouse position without sending an event. Useful if down, up or scroll events need
+     * to be injected on a different location than the preceding move event.
      *
      * @param position The new mouse position
      */
@@ -467,7 +445,7 @@ internal abstract class InputDispatcher(
      * button being released.
      *
      * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     * defined by [MouseButton.buttonId].
+     *   defined by [MouseButton.buttonId].
      */
     fun enqueueMouseRelease(buttonId: Int) {
         val mouse = mouseInputState
@@ -497,9 +475,7 @@ internal abstract class InputDispatcher(
     fun enqueueMouseEnter(position: Offset) {
         val mouse = mouseInputState
 
-        check(!mouse.isEntered) {
-            "Cannot send mouse hover enter event, mouse is already hovering"
-        }
+        check(!mouse.isEntered) { "Cannot send mouse hover enter event, mouse is already hovering" }
         check(mouse.hasNoButtonsPressed) {
             "Cannot send mouse hover enter event, mouse buttons are down"
         }
@@ -519,17 +495,15 @@ internal abstract class InputDispatcher(
     fun enqueueMouseExit(position: Offset) {
         val mouse = mouseInputState
 
-        check(mouse.isEntered) {
-            "Cannot send mouse hover exit event, mouse is not hovering"
-        }
+        check(mouse.isEntered) { "Cannot send mouse hover exit event, mouse is not hovering" }
 
         updateMousePosition(position)
         mouse.exitHover()
     }
 
     /**
-     * Generates a mouse cancel event. Can only be done if no mouse buttons are currently
-     * pressed. Sent automatically if a touch event is sent while mouse buttons are down.
+     * Generates a mouse cancel event. Can only be done if no mouse buttons are currently pressed.
+     * Sent automatically if a touch event is sent while mouse buttons are down.
      */
     fun enqueueMouseCancel() {
         val mouse = mouseInputState
@@ -543,9 +517,9 @@ internal abstract class InputDispatcher(
     /**
      * Generates a scroll event on [scrollWheel] by [delta].
      *
-     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom
-     * of a column, or at the end of a row), negative values correspond to scrolling backward
-     * (new content appears at the top of a column, or at the start of a row).
+     * Positive [delta] values correspond to scrolling forward (new content appears at the bottom of
+     * a column, or at the end of a row), negative values correspond to scrolling backward (new
+     * content appears at the top of a column, or at the start of a row).
      */
     @OptIn(ExperimentalTestApi::class)
     fun enqueueMouseScroll(delta: Float, scrollWheel: ScrollWheel) {
@@ -637,9 +611,7 @@ internal abstract class InputDispatcher(
         // Initial repeat
         if (lastRepeatTime <= downTime) {
             // Not yet had a repeat on this key, but it needs at least the initial one.
-            check(repeatCount == 0) {
-                "repeatCount should be reset to 0 when downTime updates"
-            }
+            check(repeatCount == 0) { "repeatCount should be reset to 0 when downTime updates" }
             repeatCount = 1
 
             lastRepeatTime = downTime + InitialRepeatDelay
@@ -660,19 +632,20 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Enqueues a key down event on the repeat key, if there is one. If the repeat key is null,
-     * an [IllegalStateException] is thrown.
+     * Enqueues a key down event on the repeat key, if there is one. If the repeat key is null, an
+     * [IllegalStateException] is thrown.
      */
     private fun KeyInputState.enqueueRepeat() {
-        val repKey = checkNotNull(repeatKey) {
-            "A repeat key event cannot be sent if the repeat key is null."
-        }
+        val repKey =
+            checkNotNull(repeatKey) {
+                "A repeat key event cannot be sent if the repeat key is null."
+            }
         keyInputState.enqueueDown(repKey)
     }
 
     /**
-     * Sends all enqueued events and blocks while they are dispatched. If an exception is
-     * thrown during the process, all events that haven't yet been dispatched will be dropped.
+     * Sends all enqueued events and blocks while they are dispatched. If an exception is thrown
+     * during the process, all events that haven't yet been dispatched will be dropped.
      */
     abstract fun flush()
 
@@ -750,15 +723,15 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Override this method to take platform specific action when this dispatcher is disposed.
-     * E.g. to recycle event objects that the dispatcher still holds on to.
+     * Override this method to take platform specific action when this dispatcher is disposed. E.g.
+     * to recycle event objects that the dispatcher still holds on to.
      */
     protected open fun onDispose() {}
 }
 
 /**
- * The state of the current gesture. Contains the current position of all pointers and the
- * down time (start time) of the gesture. For the current time, see [InputDispatcher.currentTime].
+ * The state of the current gesture. Contains the current position of all pointers and the down time
+ * (start time) of the gesture. For the current time, see [InputDispatcher.currentTime].
  *
  * @param downTime The time of the first down event of this gesture
  * @param startPosition The position of the first down event of this gesture
@@ -770,9 +743,9 @@ internal class PartialGesture(val downTime: Long, startPosition: Offset, pointer
 }
 
 /**
- * The current mouse state. Contains the current mouse position, which buttons are pressed, if it
- * is hovering over the current node and the down time of the mouse (which is the time of the
- * last mouse down event).
+ * The current mouse state. Contains the current mouse position, which buttons are pressed, if it is
+ * hovering over the current node and the down time of the mouse (which is the time of the last
+ * mouse down event).
  */
 internal class MouseInputState {
     var downTime: Long = 0
@@ -780,9 +753,14 @@ internal class MouseInputState {
     var lastPosition: Offset = Offset.Zero
     var isEntered: Boolean = false
 
-    val hasAnyButtonPressed get() = pressedButtons.isNotEmpty()
-    val hasOneButtonPressed get() = pressedButtons.size == 1
-    val hasNoButtonsPressed get() = pressedButtons.isEmpty()
+    val hasAnyButtonPressed
+        get() = pressedButtons.isNotEmpty()
+
+    val hasOneButtonPressed
+        get() = pressedButtons.size == 1
+
+    val hasNoButtonsPressed
+        get() = pressedButtons.isEmpty()
 
     fun isButtonPressed(buttonId: Int): Boolean {
         return pressedButtons.contains(buttonId)
@@ -806,17 +784,16 @@ internal class MouseInputState {
  *
  * Note that lock keys may not be toggled in the same way across all platforms.
  *
- * Take caps lock as an example; consistently, all platforms turn caps lock on upon the first
- * key down event, and it stays on after the subsequent key up. However, on some platforms caps
- * lock will turn off immediately upon the next key down event (MacOS for example), whereas
- * other platforms (e.g. Linux, Android) wait for the next key up event before turning caps
- * lock off.
+ * Take caps lock as an example; consistently, all platforms turn caps lock on upon the first key
+ * down event, and it stays on after the subsequent key up. However, on some platforms caps lock
+ * will turn off immediately upon the next key down event (MacOS for example), whereas other
+ * platforms (e.g. Linux, Android) wait for the next key up event before turning caps lock off.
  *
  * This enum breaks the lock key state down into four possible options - depending upon the
  * interpretation of these four states, Android-like or MacOS-like behaviour can both be achieved.
  *
- * To get Android-like behaviour, use [isLockKeyOnIncludingOffPress],
- * whereas for MacOS-style behaviour, use [isLockKeyOnExcludingOffPress].
+ * To get Android-like behaviour, use [isLockKeyOnIncludingOffPress], whereas for MacOS-style
+ * behaviour, use [isLockKeyOnExcludingOffPress].
  */
 internal enum class LockKeyState(val state: Int) {
     UP_AND_OFF(0),
@@ -825,22 +802,22 @@ internal enum class LockKeyState(val state: Int) {
     DOWN_AND_OPTIONAL(3);
 
     /**
-     * Whether or not the lock key is on. The lock key is considered on from the start of the
-     * "on press" until the end of the "off press", i.e. from the first key down event to the
-     * second key up event of the corresponding lock key.
+     * Whether or not the lock key is on. The lock key is considered on from the start of the "on
+     * press" until the end of the "off press", i.e. from the first key down event to the second key
+     * up event of the corresponding lock key.
      */
-    val isLockKeyOnIncludingOffPress get() = state > 0
+    val isLockKeyOnIncludingOffPress
+        get() = state > 0
 
     /**
-     * Whether or not the lock key is on. The lock key is considered on from the start of the
-     * "on press" until the start of the "off press", i.e. from the first key down event to the
-     * second key down event of the corresponding lock key.
+     * Whether or not the lock key is on. The lock key is considered on from the start of the "on
+     * press" until the start of the "off press", i.e. from the first key down event to the second
+     * key down event of the corresponding lock key.
      */
-    val isLockKeyOnExcludingOffPress get() = this == DOWN_AND_ON || this == UP_AND_ON
+    val isLockKeyOnExcludingOffPress
+        get() = this == DOWN_AND_ON || this == UP_AND_ON
 
-    /**
-     * Returns the next state in the cycle of lock key states.
-     */
+    /** Returns the next state in the cycle of lock key states. */
     fun next(): LockKeyState {
         return when (this) {
             UP_AND_OFF -> DOWN_AND_ON
@@ -852,9 +829,8 @@ internal enum class LockKeyState(val state: Int) {
 }
 
 /**
- * The current key input state. Contains the keys that are pressed, the down time of the
- * keyboard (which is the time of the last key down event), the state of the lock keys and
- * the device ID.
+ * The current key input state. Contains the keys that are pressed, the down time of the keyboard
+ * (which is the time of the last key down event), the state of the lock keys and the device ID.
  */
 internal class KeyInputState {
     private val downKeys: HashSet<Key> = hashSetOf()
@@ -885,9 +861,7 @@ internal class KeyInputState {
         updateLockKeys(key)
     }
 
-    /**
-     * Updates lock key state values.
-     */
+    /** Updates lock key state values. */
     private fun updateLockKeys(key: Key) {
         when (key) {
             Key.CapsLock -> capsLockState = capsLockState.next()
@@ -904,11 +878,11 @@ internal class KeyInputState {
 internal class RotaryInputState
 
 /**
- * The state of an [InputDispatcher], saved when the [GestureScope] is disposed and restored
- * when the [GestureScope] is recreated.
+ * The state of an [InputDispatcher], saved when the [GestureScope] is disposed and restored when
+ * the [GestureScope] is recreated.
  *
- * @param partialGesture The state of an incomplete gesture. If no gesture was in progress
- * when the state of the [InputDispatcher] was saved, this will be `null`.
+ * @param partialGesture The state of an incomplete gesture. If no gesture was in progress when the
+ *   state of the [InputDispatcher] was saved, this will be `null`.
  * @param mouseInputState The state of the mouse.
  * @param keyInputState The state of the keyboard.
  */

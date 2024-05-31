@@ -20,10 +20,6 @@ package androidx.compose.ui.text
     level = RequiresOptIn.Level.ERROR,
     message = "This is internal API that may change frequently and without warning."
 )
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY
-)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
 annotation class InternalTextApi

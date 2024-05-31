@@ -33,18 +33,18 @@ import org.junit.Test
 
 @LargeTest
 class ComposeViewTest {
-    @get:Rule
-    val rule = ComposeInspectionRule(ComposeViewTestActivity::class)
+    @get:Rule val rule = ComposeInspectionRule(ComposeViewTestActivity::class)
 
     @Test
     fun composeView(): Unit = runBlocking {
-        rule.inspectorTester.sendCommand(
-            GetUpdateSettingsCommand(reduceChildNesting = true)
-        ).updateSettingsResponse
+        rule.inspectorTester
+            .sendCommand(GetUpdateSettingsCommand(reduceChildNesting = true))
+            .updateSettingsResponse
 
-        val response = rule.inspectorTester.sendCommand(
-            GetComposablesCommand(rule.rootId, skipSystemComposables = false)
-        ).getComposablesResponse
+        val response =
+            rule.inspectorTester
+                .sendCommand(GetComposablesCommand(rule.rootId, skipSystemComposables = false))
+                .getComposablesResponse
         val strings = response.stringsList.toMap()
         val roots = response.rootsList
         assertThat(roots).hasSize(3)
@@ -74,13 +74,16 @@ class ComposeViewTest {
 
     private val ComposableNode.textParameter: String?
         get() = runBlocking {
-            val params = rule.inspectorTester.sendCommand(
-                GetParametersByIdCommand(
-                    rule.rootId,
-                    skipSystemComposables = false,
-                    composableId = id
-                )
-            ).getParametersResponse
+            val params =
+                rule.inspectorTester
+                    .sendCommand(
+                        GetParametersByIdCommand(
+                            rule.rootId,
+                            skipSystemComposables = false,
+                            composableId = id
+                        )
+                    )
+                    .getParametersResponse
             val strings = params.stringsList.toMap()
             val param = params.parameterGroup.parameterList.single { strings[it.name] == "text" }
             strings[param.int32Value]

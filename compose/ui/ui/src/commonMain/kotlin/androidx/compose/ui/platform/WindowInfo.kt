@@ -26,23 +26,19 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 
-/**
- * Provides information about the Window that is hosting this compose hierarchy.
- */
+/** Provides information about the Window that is hosting this compose hierarchy. */
 @Stable
 interface WindowInfo {
     /**
      * Indicates whether the window hosting this compose hierarchy is in focus.
      *
-     * When there are multiple windows visible, either in a multi-window environment or if a
-     * popup or dialog is visible, this property can be used to determine if the current window
-     * is in focus.
+     * When there are multiple windows visible, either in a multi-window environment or if a popup
+     * or dialog is visible, this property can be used to determine if the current window is in
+     * focus.
      */
     val isWindowFocused: Boolean
 
-    /**
-     * Indicates the state of keyboard modifiers (pressed or not).
-     */
+    /** Indicates the state of keyboard modifiers (pressed or not). */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalComposeUiApi
     val keyboardModifiers: PointerKeyboardModifiers
@@ -62,14 +58,18 @@ internal class WindowInfoImpl : WindowInfo {
     private val _isWindowFocused = mutableStateOf(false)
 
     override var isWindowFocused: Boolean
-        set(value) { _isWindowFocused.value = value }
+        set(value) {
+            _isWindowFocused.value = value
+        }
         get() = _isWindowFocused.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalComposeUiApi
     override var keyboardModifiers: PointerKeyboardModifiers
         get() = GlobalKeyboardModifiers.value
-        set(value) { GlobalKeyboardModifiers.value = value }
+        set(value) {
+            GlobalKeyboardModifiers.value = value
+        }
 
     companion object {
         // One instance across all windows makes sense, since the state of KeyboardModifiers is

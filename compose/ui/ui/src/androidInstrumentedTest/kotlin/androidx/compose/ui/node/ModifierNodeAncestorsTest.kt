@@ -31,21 +31,16 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeAncestorsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noAncestors() {
         // Arrange.
         val node = object : Modifier.Node() {}
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        val ancestors = rule.runOnIdle {
-            node.ancestors(Nodes.Any)
-        }
+        val ancestors = rule.runOnIdle { node.ancestors(Nodes.Any) }
 
         // Assert.
         assertThat(ancestors?.trimRootModifierNodes()).isEmpty()
@@ -55,14 +50,10 @@ class ModifierNodeAncestorsTest {
     fun noMatchingAncestors() {
         // Arrange.
         val node = object : Modifier.Node() {}
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        val ancestors = rule.runOnIdle {
-            node.ancestors(Nodes.GlobalPositionAware)
-        }
+        val ancestors = rule.runOnIdle { node.ancestors(Nodes.GlobalPositionAware) }
 
         // Assert.
         assertThat(ancestors).isNull()
@@ -74,17 +65,13 @@ class ModifierNodeAncestorsTest {
         val (node, localAncestor1, localAncestor2) = List(3) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .elementOf(localAncestor2)
-                    .elementOf(localAncestor1)
-                    .elementOf(node)
+                modifier =
+                    Modifier.elementOf(localAncestor2).elementOf(localAncestor1).elementOf(node)
             )
         }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.ancestors(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.ancestors(Nodes.Any) }
 
         // Assert.
         assertThat(result?.trimRootModifierNodes())
@@ -99,17 +86,13 @@ class ModifierNodeAncestorsTest {
         val (localAncestor1, localAncestor2) = List(2) { object : Modifier.Node() {} }
 
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .elementOf(ancestor2)
-                    .elementOf(ancestor1)
-            ) {
+            Box(modifier = Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
                 Box {
                     Box(
-                        modifier = Modifier
-                            .elementOf(localAncestor2)
-                            .elementOf(localAncestor1)
-                            .elementOf(node)
+                        modifier =
+                            Modifier.elementOf(localAncestor2)
+                                .elementOf(localAncestor1)
+                                .elementOf(node)
                     )
                 }
             }
@@ -117,9 +100,7 @@ class ModifierNodeAncestorsTest {
         }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.ancestors(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.ancestors(Nodes.Any) }
 
         // Assert.
         assertThat(result?.trimRootModifierNodes())
@@ -136,18 +117,15 @@ class ModifierNodeAncestorsTest {
         val (localAncestor2, localAncestor3) = List(2) { object : Modifier.Node() {} }
         rule.setContent {
             Box(
-                modifier = Modifier
-                    .elementOf(ancestor4)
-                    .elementOf(ancestor3)
-                    .elementOf(ancestor2)
+                modifier = Modifier.elementOf(ancestor4).elementOf(ancestor3).elementOf(ancestor2)
             ) {
                 Box(Modifier.elementOf(ancestor1)) {
                     Box(
-                        modifier = Modifier
-                            .elementOf(localAncestor3)
-                            .elementOf(localAncestor2)
-                            .elementOf(localAncestor1)
-                            .elementOf(node)
+                        modifier =
+                            Modifier.elementOf(localAncestor3)
+                                .elementOf(localAncestor2)
+                                .elementOf(localAncestor1)
+                                .elementOf(node)
                     )
                 }
             }
@@ -160,9 +138,7 @@ class ModifierNodeAncestorsTest {
         }
 
         // Act.
-        val result = rule.runOnIdle {
-            node.ancestors(Nodes.Any)
-        }
+        val result = rule.runOnIdle { node.ancestors(Nodes.Any) }
 
         // Assert.
         assertThat(result?.trimRootModifierNodes())
@@ -176,23 +152,11 @@ class ModifierNodeAncestorsTest {
         val (ancestor1, ancestor2, ancestor3, ancestor4) = List(4) { FocusTargetNode() }
         val (node, other1, other2, other3) = List(4) { FocusTargetNode() }
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(ancestor4)
-                    .elementOf(ancestor3)
-            ) {
+            Box(Modifier.elementOf(ancestor4).elementOf(ancestor3)) {
                 Box {
                     Box(Modifier.elementOf(other1))
-                    Box(
-                        Modifier
-                            .elementOf(ancestor2)
-                            .elementOf(ancestor1)
-                    ) {
-                        Box(
-                            Modifier
-                                .elementOf(node)
-                                .elementOf(other3)
-                        )
+                    Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
+                        Box(Modifier.elementOf(node).elementOf(other3))
                     }
                     Box(Modifier.elementOf(other2))
                 }
@@ -200,9 +164,7 @@ class ModifierNodeAncestorsTest {
         }
 
         // Act.
-        val ancestors = rule.runOnIdle {
-            node.ancestors(Nodes.FocusTarget)
-        }
+        val ancestors = rule.runOnIdle { node.ancestors(Nodes.FocusTarget) }
 
         // Assert.
         // This test returns all ancestors, even the root focus node. so we drop that one.

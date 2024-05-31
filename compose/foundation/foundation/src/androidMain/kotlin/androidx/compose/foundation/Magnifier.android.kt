@@ -57,8 +57,7 @@ import kotlinx.coroutines.launch
  * A function on elements that are magnified with a [magnifier] modifier that returns the position
  * of the center of the magnified content in the coordinate space of the root composable.
  */
-internal val MagnifierPositionInRoot =
-    SemanticsPropertyKey<() -> Offset>("MagnifierPositionInRoot")
+internal val MagnifierPositionInRoot = SemanticsPropertyKey<() -> Offset>("MagnifierPositionInRoot")
 
 /**
  * Shows a [Magnifier] widget that shows an enlarged version of the content at [sourceCenter]
@@ -75,16 +74,16 @@ internal val MagnifierPositionInRoot =
  * @sample androidx.compose.foundation.samples.MagnifierSample
  *
  * @param sourceCenter The offset of the center of the magnified content. Measured in pixels from
- * the top-left of the layout node this modifier is applied to. This offset is passed to
- * [Magnifier.show].
+ *   the top-left of the layout node this modifier is applied to. This offset is passed to
+ *   [Magnifier.show].
  * @param magnifierCenter The offset of the magnifier widget itself, where the magnified content is
- * rendered over the original content. Measured in density-independent pixels from the top-left of
- * the layout node this modifier is applied to. If left null or returns an
- * [unspecified][DpOffset.Unspecified] value, the magnifier widget will be placed at a default
- * offset relative to [sourceCenter]. The value of that offset is specified by the system.
+ *   rendered over the original content. Measured in density-independent pixels from the top-left of
+ *   the layout node this modifier is applied to. If left null or returns an
+ *   [unspecified][DpOffset.Unspecified] value, the magnifier widget will be placed at a default
+ *   offset relative to [sourceCenter]. The value of that offset is specified by the system.
  * @param onSizeChanged An optional callback that will be invoked when the magnifier widget is
- * initialized to report on its actual size. This can be useful when [size] parameter is left
- * unspecified.
+ *   initialized to report on its actual size. This can be useful when [size] parameter is left
+ *   unspecified.
  * @param zoom See [Magnifier.setZoom]. Only supported on API 29+.
  * @param size See [Magnifier.Builder.setSize]. Only supported on API 29+.
  * @param cornerRadius See [Magnifier.Builder.setCornerRadius]. Only supported on API 29+.
@@ -143,8 +142,10 @@ internal fun Modifier.magnifier(
                 cornerRadius = cornerRadius,
                 elevation = elevation,
                 clippingEnabled = clippingEnabled,
-                platformMagnifierFactory = platformMagnifierFactory
-                    ?: PlatformMagnifierFactory.getForCurrentPlatform() // this doesn't do an alloc
+                platformMagnifierFactory =
+                    platformMagnifierFactory
+                        ?: PlatformMagnifierFactory
+                            .getForCurrentPlatform() // this doesn't do an alloc
             )
         )
     } else {
@@ -254,15 +255,14 @@ internal class MagnifierNode(
     var clippingEnabled: Boolean = true,
     var platformMagnifierFactory: PlatformMagnifierFactory =
         PlatformMagnifierFactory.getForCurrentPlatform()
-) : Modifier.Node(),
+) :
+    Modifier.Node(),
     GlobalPositionAwareModifierNode,
     DrawModifierNode,
     SemanticsModifierNode,
     ObserverModifierNode {
 
-    /**
-     * Android [View] that this modifier node is attached to in Compose hierarchy.
-     */
+    /** Android [View] that this modifier node is attached to in Compose hierarchy. */
     private var view: View? = null
 
     /**
@@ -271,9 +271,7 @@ internal class MagnifierNode(
      */
     private var density: Density? = null
 
-    /**
-     * Current magnifier instance.
-     */
+    /** Current magnifier instance. */
     private var magnifier: PlatformMagnifier? = null
 
     /**
@@ -350,20 +348,23 @@ internal class MagnifierNode(
         val view = requireView()
         val density = requireDensity()
 
-        val shouldRecreate = magnifier != null && // only recreate if it was already created
-            // On platforms >=Q, the zoom level can be updated dynamically on an existing magnifier,
-            // so if the zoom changes between recompositions we don't need to recreate the
-            // magnifier. On older platforms, the zoom can only be set initially, so we use the
-            // zoom itself as a key so the magnifier gets recreated if it changes.
-            ((!zoom.equalsIncludingNaN(previousZoom) && !platformMagnifierFactory.canUpdateZoom) ||
-                size != previousSize ||
-                cornerRadius != previousCornerRadius ||
-                elevation != previousElevation ||
-                useTextDefault != previousUseTextDefault ||
-                clippingEnabled != previousClippingEnabled ||
-                platformMagnifierFactory != previousPlatformMagnifierFactory ||
-                view != previousView ||
-                density != previousDensity)
+        val shouldRecreate =
+            magnifier != null && // only recreate if it was already created
+                // On platforms >=Q, the zoom level can be updated dynamically on an existing
+                // magnifier,
+                // so if the zoom changes between recompositions we don't need to recreate the
+                // magnifier. On older platforms, the zoom can only be set initially, so we use the
+                // zoom itself as a key so the magnifier gets recreated if it changes.
+                ((!zoom.equalsIncludingNaN(previousZoom) &&
+                    !platformMagnifierFactory.canUpdateZoom) ||
+                    size != previousSize ||
+                    cornerRadius != previousCornerRadius ||
+                    elevation != previousElevation ||
+                    useTextDefault != previousUseTextDefault ||
+                    clippingEnabled != previousClippingEnabled ||
+                    platformMagnifierFactory != previousPlatformMagnifierFactory ||
+                    view != previousView ||
+                    density != previousDensity)
 
         if (shouldRecreate) {
             recreateMagnifier()
@@ -381,7 +382,7 @@ internal class MagnifierNode(
                 // don't update the magnifier immediately, actual frame draw happens right after
                 // all draw commands are recorded. Magnifier update should happen in the next frame.
                 if (magnifier != null) {
-                    withFrameMillis { }
+                    withFrameMillis {}
                     magnifier?.updateContent()
                 }
             }
@@ -394,25 +395,24 @@ internal class MagnifierNode(
     }
 
     override fun onObservedReadsChanged() {
-        observeReads {
-            updateMagnifier()
-        }
+        observeReads { updateMagnifier() }
     }
 
     private fun recreateMagnifier() {
         magnifier?.dismiss()
         val view = (view ?: requireView()).also { view = it }
         val density = (density ?: requireDensity()).also { density = it }
-        magnifier = platformMagnifierFactory.create(
-            view = view,
-            useTextDefault = useTextDefault,
-            size = size,
-            cornerRadius = cornerRadius,
-            elevation = elevation,
-            clippingEnabled = clippingEnabled,
-            density = density,
-            initialZoom = zoom
-        )
+        magnifier =
+            platformMagnifierFactory.create(
+                view = view,
+                useTextDefault = useTextDefault,
+                size = size,
+                cornerRadius = cornerRadius,
+                elevation = elevation,
+                clippingEnabled = clippingEnabled,
+                density = density,
+                initialZoom = zoom
+            )
         updateSizeIfNecessary()
     }
 
@@ -427,10 +427,11 @@ internal class MagnifierNode(
             sourceCenterInRoot = anchorPositionInRoot + sourceCenterOffset
             // Calculate magnifier center if it's provided. Only accept if the returned
             // value is specified. Then add [anchorPositionInRoot] for relative positioning.
-            val magnifierCenter = magnifierCenter?.invoke(density)
-                ?.takeIf { it.isSpecified }
-                ?.let { anchorPositionInRoot + it }
-                ?: Offset.Unspecified
+            val magnifierCenter =
+                magnifierCenter
+                    ?.invoke(density)
+                    ?.takeIf { it.isSpecified }
+                    ?.let { anchorPositionInRoot + it } ?: Offset.Unspecified
 
             if (magnifier == null) {
                 recreateMagnifier()
@@ -483,9 +484,9 @@ internal fun isPlatformMagnifierSupported(sdkVersion: Int = Build.VERSION.SDK_IN
     sdkVersion >= 28
 
 /**
- * Normally `Float.NaN == Float.NaN` returns false but we use [Float.NaN] to mean Unspecified.
- * The comparison between two unspecified values should return _equal_ if we are only interested
- * in state changes.
+ * Normally `Float.NaN == Float.NaN` returns false but we use [Float.NaN] to mean Unspecified. The
+ * comparison between two unspecified values should return _equal_ if we are only interested in
+ * state changes.
  */
 internal fun Float.equalsIncludingNaN(other: Float): Boolean {
     if (this.isNaN() && other.isNaN()) return true

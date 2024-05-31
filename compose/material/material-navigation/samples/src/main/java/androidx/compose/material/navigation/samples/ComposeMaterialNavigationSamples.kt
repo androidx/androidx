@@ -72,12 +72,8 @@ fun BottomSheetNavDemo() {
 private fun HomeScreen(showSheet: () -> Unit, showFeed: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Body")
-        Button(onClick = showSheet) {
-            Text("Show sheet!")
-        }
-        Button(onClick = showFeed) {
-            Text("Navigate to Feed")
-        }
+        Button(onClick = showSheet) { Text("Show sheet!") }
+        Button(onClick = showFeed) { Text("Navigate to Feed") }
     }
 }
 
@@ -85,11 +81,7 @@ private fun HomeScreen(showSheet: () -> Unit, showFeed: () -> Unit) {
 private fun BottomSheet(showFeed: () -> Unit, showAnotherSheet: () -> Unit, arg: String) {
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Sheet with arg: $arg")
-        Button(onClick = showFeed) {
-            Text("Click me to navigate!")
-        }
-        Button(onClick = showAnotherSheet) {
-            Text("Click me to show another sheet!")
-        }
+        Button(onClick = showFeed) { Text("Click me to navigate!") }
+        Button(onClick = showAnotherSheet) { Text("Click me to show another sheet!") }
     }
 }

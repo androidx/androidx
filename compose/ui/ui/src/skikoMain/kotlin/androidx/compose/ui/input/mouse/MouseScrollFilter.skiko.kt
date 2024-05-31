@@ -30,12 +30,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import java.awt.event.MouseWheelEvent
 
-/**
- * Indicates distance by which we should scroll some container.
- */
+/** Indicates distance by which we should scroll some container. */
 @Deprecated(
-    "Use Modifier.pointerInput + PointerEventType.Scroll." +
-        "See the comment to mouseScrollFilter"
+    "Use Modifier.pointerInput + PointerEventType.Scroll." + "See the comment to mouseScrollFilter"
 )
 sealed class MouseScrollUnit {
     /**
@@ -44,8 +41,8 @@ sealed class MouseScrollUnit {
      * On different platforms one tick of wheel rotation may cause different [value].
      *
      * Scrolling by one line usually means that we should scroll by some fixed offset, or by offset
-     * dependent on the container's bounds (in which scroll event occurs),
-     * or by one real text line in some document.
+     * dependent on the container's bounds (in which scroll event occurs), or by one real text line
+     * in some document.
      */
     @Deprecated(
         "Use Modifier.pointerInput + PointerEventType.Scroll." +
@@ -58,8 +55,8 @@ sealed class MouseScrollUnit {
      *
      * Some platforms don't emit scrolling events by Page units.
      *
-     * Scrolling by one page usually means that we should scroll by one container's height
-     * (in which scroll event occurs), or by one real page in some document.
+     * Scrolling by one page usually means that we should scroll by one container's height (in which
+     * scroll event occurs), or by one real page in some document.
      */
     @Deprecated(
         "Use Modifier.pointerInput + PointerEventType.Scroll." +
@@ -68,12 +65,9 @@ sealed class MouseScrollUnit {
     data class Page(val value: Float) : MouseScrollUnit()
 }
 
-/**
- * Mouse wheel or touchpad event.
- */
+/** Mouse wheel or touchpad event. */
 @Deprecated(
-    "Use Modifier.pointerInput + PointerEventType.Scroll." +
-    "See the comment to mouseScrollFilter"
+    "Use Modifier.pointerInput + PointerEventType.Scroll." + "See the comment to mouseScrollFilter"
 )
 class MouseScrollEvent(
     /**
@@ -86,8 +80,8 @@ class MouseScrollEvent(
     /**
      * Orientation in which scrolling event occurs.
      *
-     * Up/down wheel scrolling causes events in vertical orientation.
-     * Left/right wheel scrolling causes events in horizontal orientation.
+     * Up/down wheel scrolling causes events in vertical orientation. Left/right wheel scrolling
+     * causes events in horizontal orientation.
      */
     val orientation: MouseScrollOrientation
 )
@@ -97,65 +91,63 @@ class MouseScrollEvent(
 //  or Modifier.pointerInput(Unit) { scroll { delta: Offset ->  } }
 //  ?
 /**
- * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will
- * allow it to intercept scroll events from mouse wheel and touchpad.
+ * Adding this [modifier][Modifier] to the [modifier][Modifier] parameter of a component will allow
+ * it to intercept scroll events from mouse wheel and touchpad.
  *
  * @param onMouseScroll This callback is invoked when the user interacts with the mouse wheel or
- * touchpad.
- * While implementing this callback, return true to stop propagation of this event. If you return
- * false, the scroll event will be sent to this [mouseScrollFilter]'s parent.
+ *   touchpad. While implementing this callback, return true to stop propagation of this event. If
+ *   you return false, the scroll event will be sent to this [mouseScrollFilter]'s parent.
  */
 @Deprecated(
     "Use Modifier.pointerInput + PointerEventType.Scroll",
-    replaceWith = ReplaceWith(
-        "pointerInput(Unit) { \n" +
-        "     awaitPointerEventScope {\n" +
-        "         while (true) {\n" +
-        "             val event = awaitPointerEvent()\n" +
-        "             if (event.type == PointerEventType.Scroll) {\n" +
-        "                 val scrollDelta = event.changes.first().scrollDelta\n" +
-        "                 val bounds = this.size\n" +
-        "                 if (onMouseScroll(scrollDelta, bounds)) {\n" +
-        "                      event.changes.first().consume()\n" +
-        "                 }\n" +
-        "             }\n" +
-        "         }\n" +
-        "     }\n" +
-        "}",
-        "androidx.compose.ui.input.pointer.pointerInput"
-    )
+    replaceWith =
+        ReplaceWith(
+            "pointerInput(Unit) { \n" +
+                "     awaitPointerEventScope {\n" +
+                "         while (true) {\n" +
+                "             val event = awaitPointerEvent()\n" +
+                "             if (event.type == PointerEventType.Scroll) {\n" +
+                "                 val scrollDelta = event.changes.first().scrollDelta\n" +
+                "                 val bounds = this.size\n" +
+                "                 if (onMouseScroll(scrollDelta, bounds)) {\n" +
+                "                      event.changes.first().consume()\n" +
+                "                 }\n" +
+                "             }\n" +
+                "         }\n" +
+                "     }\n" +
+                "}",
+            "androidx.compose.ui.input.pointer.pointerInput"
+        )
 )
 fun Modifier.mouseScrollFilter(
-    onMouseScroll: (
-        /**
-         * Mouse wheel or touchpad event.
-         */
-        event: MouseScrollEvent,
+    onMouseScroll:
+        (
+            /** Mouse wheel or touchpad event. */
+            event: MouseScrollEvent,
 
-        /**
-         * Bounds of the container in which scroll event occurs.
-         */
-        bounds: IntSize
-    ) -> Boolean
-): Modifier = pointerInput(onMouseScroll) {
-    // we don't wrap entire loop into awaitPointerEventScope, because we want to skip
-    // scroll events, which were send after the first scroll event in the current frame
-    // (so there will be no more than one scroll event per frame)
+            /** Bounds of the container in which scroll event occurs. */
+            bounds: IntSize
+        ) -> Boolean
+): Modifier =
+    pointerInput(onMouseScroll) {
+        // we don't wrap entire loop into awaitPointerEventScope, because we want to skip
+        // scroll events, which were send after the first scroll event in the current frame
+        // (so there will be no more than one scroll event per frame)
 
-    // TODO(https://github.com/JetBrains/compose-jb/issues/1345):
-    //  the more proper behaviour would be to batch multiple scroll events into the single one
-    while (true) {
-        val event = awaitScrollEvent()
-        val mouseEvent = event.mouseEvent as? MouseWheelEvent
-        val mouseChange = event.changes.find { it.type == PointerType.Mouse }
-        if (mouseChange != null && !mouseChange.isConsumed) {
-            val legacyEvent = mouseEvent.toLegacyEvent(mouseChange.scrollDelta)
-            if (onMouseScroll(legacyEvent, size)) {
-                mouseChange.consume()
+        // TODO(https://github.com/JetBrains/compose-jb/issues/1345):
+        //  the more proper behaviour would be to batch multiple scroll events into the single one
+        while (true) {
+            val event = awaitScrollEvent()
+            val mouseEvent = event.mouseEvent as? MouseWheelEvent
+            val mouseChange = event.changes.find { it.type == PointerType.Mouse }
+            if (mouseChange != null && !mouseChange.isConsumed) {
+                val legacyEvent = mouseEvent.toLegacyEvent(mouseChange.scrollDelta)
+                if (onMouseScroll(legacyEvent, size)) {
+                    mouseChange.consume()
+                }
             }
         }
     }
-}
 
 private suspend fun PointerInputScope.awaitScrollEvent() = awaitPointerEventScope {
     var event: PointerEvent
@@ -170,23 +162,25 @@ private fun MouseWheelEvent?.toLegacyEvent(scrollDelta: Offset): MouseScrollEven
     val scrollType = this?.scrollType ?: MouseWheelEvent.WHEEL_UNIT_SCROLL
     val scrollAmount = this?.scrollAmount ?: 1
     return MouseScrollEvent(
-        delta = if (scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
-            MouseScrollUnit.Page(value * scrollAmount)
-        } else {
-            MouseScrollUnit.Line(value * scrollAmount)
-        },
-        orientation = if (scrollDelta.x != 0f) {
-            MouseScrollOrientation.Horizontal
-        } else {
-            MouseScrollOrientation.Vertical
-        }
+        delta =
+            if (scrollType == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
+                MouseScrollUnit.Page(value * scrollAmount)
+            } else {
+                MouseScrollUnit.Line(value * scrollAmount)
+            },
+        orientation =
+            if (scrollDelta.x != 0f) {
+                MouseScrollOrientation.Horizontal
+            } else {
+                MouseScrollOrientation.Vertical
+            }
     )
 }
 
 @Deprecated(
-    "Use Modifier.pointerInput + PointerEventType.Scroll." +
-        "See the comment to mouseScrollFilter"
+    "Use Modifier.pointerInput + PointerEventType.Scroll." + "See the comment to mouseScrollFilter"
 )
 enum class MouseScrollOrientation {
-    Vertical, Horizontal
+    Vertical,
+    Horizontal
 }

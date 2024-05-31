@@ -63,14 +63,14 @@ fun TextOverflowVisibleFixedSizeSample() {
     Box(modifier = Modifier.size(100.dp, 100.dp)) {
         Text(
             text = "Hello ".repeat(2),
-            modifier = Modifier.size(100.dp, 70.dp)
-                .background(background.value)
-                .clickable {
-                    background.value = if (background.value == Color.Cyan) {
-                        Color.Gray
-                    } else {
-                        Color.Cyan
-                    }
+            modifier =
+                Modifier.size(100.dp, 70.dp).background(background.value).clickable {
+                    background.value =
+                        if (background.value == Color.Cyan) {
+                            Color.Gray
+                        } else {
+                            Color.Cyan
+                        }
                 },
             fontSize = 35.sp,
             overflow = TextOverflow.Visible
@@ -86,13 +86,15 @@ fun TextOverflowVisibleMinHeightSample() {
     Box(modifier = Modifier.size(100.dp, 100.dp)) {
         Text(
             text = "Hello".repeat(count.value),
-            modifier = Modifier.width(100.dp).heightIn(min = 70.dp)
-                .background(background.value)
-                .clickable {
-                    background.value =
-                        if (background.value == Color.Cyan) Color.Gray else Color.Cyan
-                    count.value = if (count.value == 1) 2 else 1
-                },
+            modifier =
+                Modifier.width(100.dp)
+                    .heightIn(min = 70.dp)
+                    .background(background.value)
+                    .clickable {
+                        background.value =
+                            if (background.value == Color.Cyan) Color.Gray else Color.Cyan
+                        count.value = if (count.value == 1) 2 else 1
+                    },
             fontSize = 35.sp,
             overflow = TextOverflow.Visible
         )

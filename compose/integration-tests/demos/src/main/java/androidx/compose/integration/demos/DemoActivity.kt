@@ -61,8 +61,8 @@ import androidx.fragment.app.FragmentActivity
 /**
  * Main [Activity] containing all Compose related demos.
  *
- * You can pass a specific demo's name as string extra "demoname" to launch this demo only.
- * Read this module's readme to learn more!
+ * You can pass a specific demo's name as string extra "demoname" to launch this demo only. Read
+ * this module's readme to learn more!
  */
 @Suppress("DEPRECATION")
 class DemoActivity : FragmentActivity() {
@@ -72,75 +72,76 @@ class DemoActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val rootDemo = when (val demoName = intent.getStringExtra(DEMO_NAME)) {
-            null -> AllDemosCategory
-            else -> requireDemo(demoName, Navigator.findDemo(AllDemosCategory, demoName))
-        }
-
-        ComposeView(this).also {
-            setContentView(it)
-        }.setContent {
-            hostView = LocalView.current
-            focusManager = LocalFocusManager.current
-            val activityStarter = fun(demo: ActivityDemo<*>) {
-                startActivity(Intent(this, demo.activityClass.java))
-            }
-            val navigator = rememberSaveable(
-                saver = Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
-            ) {
-                Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
+        val rootDemo =
+            when (val demoName = intent.getStringExtra(DEMO_NAME)) {
+                null -> AllDemosCategory
+                else -> requireDemo(demoName, Navigator.findDemo(AllDemosCategory, demoName))
             }
 
-            SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
-            DecorFitsSystemWindowsEffect(
-                DecorFitsSystemWindowsSetting.asState().value,
-                hostView,
-                window
-            )
-
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirectionSetting.asState().value,
-            ) {
-                DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
-                    val filteringMode = rememberSaveable(
-                        saver = FilterMode.Saver(onBackPressedDispatcher)
-                    ) {
-                        FilterMode(onBackPressedDispatcher)
+        ComposeView(this)
+            .also { setContentView(it) }
+            .setContent {
+                hostView = LocalView.current
+                focusManager = LocalFocusManager.current
+                val activityStarter =
+                    fun(demo: ActivityDemo<*>) {
+                        startActivity(Intent(this, demo.activityClass.java))
                     }
-                    val onStartFiltering = { filteringMode.isFiltering = true }
-                    val onEndFiltering = { filteringMode.isFiltering = false }
-                    DemoApp(
-                        currentDemo = navigator.currentDemo,
-                        backStackTitle = navigator.backStackTitle,
-                        isFiltering = filteringMode.isFiltering,
-                        onStartFiltering = onStartFiltering,
-                        onEndFiltering = onEndFiltering,
-                        onNavigateToDemo = { demo ->
-                            if (filteringMode.isFiltering) {
-                                onEndFiltering()
-                                navigator.popAll()
+                val navigator =
+                    rememberSaveable(
+                        saver = Navigator.Saver(rootDemo, onBackPressedDispatcher, activityStarter)
+                    ) {
+                        Navigator(rootDemo, onBackPressedDispatcher, activityStarter)
+                    }
+
+                SoftInputModeEffect(SoftInputModeSetting.asState().value, window)
+                DecorFitsSystemWindowsEffect(
+                    DecorFitsSystemWindowsSetting.asState().value,
+                    hostView,
+                    window
+                )
+
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides LayoutDirectionSetting.asState().value,
+                ) {
+                    DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
+                        val filteringMode =
+                            rememberSaveable(saver = FilterMode.Saver(onBackPressedDispatcher)) {
+                                FilterMode(onBackPressedDispatcher)
                             }
-                            navigator.navigateTo(demo)
-                        },
-                        canNavigateUp = !navigator.isRoot,
-                        onNavigateUp = {
-                            onBackPressed()
-                        },
-                        launchSettings = {
-                            startActivity(Intent(this, DemoSettingsActivity::class.java))
-                        }
-                    )
+                        val onStartFiltering = { filteringMode.isFiltering = true }
+                        val onEndFiltering = { filteringMode.isFiltering = false }
+                        DemoApp(
+                            currentDemo = navigator.currentDemo,
+                            backStackTitle = navigator.backStackTitle,
+                            isFiltering = filteringMode.isFiltering,
+                            onStartFiltering = onStartFiltering,
+                            onEndFiltering = onEndFiltering,
+                            onNavigateToDemo = { demo ->
+                                if (filteringMode.isFiltering) {
+                                    onEndFiltering()
+                                    navigator.popAll()
+                                }
+                                navigator.navigateTo(demo)
+                            },
+                            canNavigateUp = !navigator.isRoot,
+                            onNavigateUp = { onBackPressed() },
+                            launchSettings = {
+                                startActivity(Intent(this, DemoSettingsActivity::class.java))
+                            }
+                        )
+                    }
                 }
             }
-        }
     }
 
     companion object {
         const val DEMO_NAME = "demoname"
 
-        internal fun requireDemo(demoName: String, demo: Demo?) = requireNotNull(demo) {
-            "No demo called \"$demoName\" could be found. Note substring matches are allowed."
-        }
+        internal fun requireDemo(demoName: String, demo: Demo?) =
+            requireNotNull(demo) {
+                "No demo called \"$demoName\" could be found. Note substring matches are allowed."
+            }
     }
 }
 
@@ -171,7 +172,8 @@ private fun DemoTheme(
     MaterialTheme(colorScheme = colorScheme, content = content)
 }
 
-private class Navigator private constructor(
+private class Navigator
+private constructor(
     private val backDispatcher: OnBackPressedDispatcher,
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     private val rootDemo: Demo,
@@ -184,14 +186,16 @@ private class Navigator private constructor(
         launchActivityDemo: (ActivityDemo<*>) -> Unit
     ) : this(backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>())
 
-    private val onBackPressed = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            popBackStack()
-        }
-    }.apply {
-        isEnabled = !isRoot
-        backDispatcher.addCallback(this)
-    }
+    private val onBackPressed =
+        object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    popBackStack()
+                }
+            }
+            .apply {
+                isEnabled = !isRoot
+                backDispatcher.addCallback(this)
+            }
 
     private var _currentDemo by mutableStateOf(initialDemo)
     var currentDemo: Demo
@@ -201,11 +205,11 @@ private class Navigator private constructor(
             onBackPressed.isEnabled = !isRoot
         }
 
-    val isRoot: Boolean get() = backStack.isEmpty()
+    val isRoot: Boolean
+        get() = backStack.isEmpty()
 
     val backStackTitle: String
-        get() =
-            (backStack.drop(1) + currentDemo).joinToString(separator = " > ") { it.title }
+        get() = (backStack.drop(1) + currentDemo).joinToString(separator = " > ") { it.title }
 
     fun navigateTo(demo: Demo) {
         if (demo is ActivityDemo<*>) {
@@ -232,19 +236,21 @@ private class Navigator private constructor(
             rootDemo: Demo,
             backDispatcher: OnBackPressedDispatcher,
             launchActivityDemo: (ActivityDemo<*>) -> Unit
-        ): Saver<Navigator, *> = listSaver<Navigator, String>(
-            save = { navigator ->
-                (navigator.backStack + navigator.currentDemo).map { it.title }
-            },
-            restore = { restored ->
-                require(restored.isNotEmpty()) { "no restored items" }
-                val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it, exact = true)) { "no root demo" }
+        ): Saver<Navigator, *> =
+            listSaver<Navigator, String>(
+                save = { navigator ->
+                    (navigator.backStack + navigator.currentDemo).map { it.title }
+                },
+                restore = { restored ->
+                    require(restored.isNotEmpty()) { "no restored items" }
+                    val backStack =
+                        restored.mapTo(mutableListOf()) {
+                            requireNotNull(findDemo(rootDemo, it, exact = true)) { "no root demo" }
+                        }
+                    val initial = backStack.removeAt(backStack.lastIndex)
+                    Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
                 }
-                val initial = backStack.removeAt(backStack.lastIndex)
-                Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
-            }
-        )
+            )
 
         fun findDemo(demo: Demo, title: String, exact: Boolean = false): Demo? {
             if (exact) {
@@ -258,8 +264,9 @@ private class Navigator private constructor(
             }
             if (demo is DemoCategory) {
                 demo.demos.forEach { child ->
-                    findDemo(child, title, exact)
-                        ?.let { return it }
+                    findDemo(child, title, exact)?.let {
+                        return it
+                    }
                 }
             }
             return null
@@ -271,14 +278,16 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
 
     private var _isFiltering by mutableStateOf(initialValue)
 
-    private val onBackPressed = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() {
-            isFiltering = false
-        }
-    }.apply {
-        isEnabled = initialValue
-        backDispatcher.addCallback(this)
-    }
+    private val onBackPressed =
+        object : OnBackPressedCallback(false) {
+                override fun handleOnBackPressed() {
+                    isFiltering = false
+                }
+            }
+            .apply {
+                isEnabled = initialValue
+                backDispatcher.addCallback(this)
+            }
 
     var isFiltering
         get() = _isFiltering
@@ -288,9 +297,10 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
         }
 
     companion object {
-        fun Saver(backDispatcher: OnBackPressedDispatcher) = Saver<FilterMode, Boolean>(
-            save = { it.isFiltering },
-            restore = { FilterMode(backDispatcher, it) }
-        )
+        fun Saver(backDispatcher: OnBackPressedDispatcher) =
+            Saver<FilterMode, Boolean>(
+                save = { it.isFiltering },
+                restore = { FilterMode(backDispatcher, it) }
+            )
     }
 }

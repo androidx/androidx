@@ -40,18 +40,13 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class DesktopParagraphTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val fontFamilyResolver = createFontFamilyResolver()
     private val defaultDensity = Density(density = 1f)
     private val fontFamilyMeasureFont =
         FontFamily(
-            Font(
-                "font/sample_font.ttf",
-                weight = FontWeight.Normal,
-                style = FontStyle.Normal
-            )
+            Font("font/sample_font.ttf", weight = FontWeight.Normal, style = FontStyle.Normal)
         )
 
     @Test
@@ -61,10 +56,7 @@ class DesktopParagraphTest {
             val text = "abc"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx()
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = fontSize)
-            )
+            val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = fontSize))
 
             for (i in 0..text.length - 1) {
                 val box = paragraph.getBoundingBox(i)
@@ -84,13 +76,9 @@ class DesktopParagraphTest {
             val text = "h\uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0"
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx()
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = 50.sp)
-            )
+            val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = 50.sp))
 
-            Truth.assertThat(paragraph.getBoundingBox(0))
-                .isEqualTo(Rect(0f, 0f, fontSizeInPx, 60f))
+            Truth.assertThat(paragraph.getBoundingBox(0)).isEqualTo(Rect(0f, 0f, fontSizeInPx, 60f))
 
             Truth.assertThat(paragraph.getBoundingBox(1))
                 .isEqualTo(Rect(fontSizeInPx, 0f, fontSizeInPx * 2.5f, 60f))
@@ -103,54 +91,34 @@ class DesktopParagraphTest {
     @Test
     fun getLineForOffset() {
         val text = "ab\na"
-        val paragraph = simpleParagraph(
-            text = text,
-            style = TextStyle(fontSize = 50.sp)
-        )
+        val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = 50.sp))
 
-        Truth.assertThat(paragraph.getLineForOffset(2))
-            .isEqualTo(0)
-        Truth.assertThat(paragraph.getLineForOffset(3))
-            .isEqualTo(1)
+        Truth.assertThat(paragraph.getLineForOffset(2)).isEqualTo(0)
+        Truth.assertThat(paragraph.getLineForOffset(3)).isEqualTo(1)
     }
 
     @Test
     fun getLineEnd() {
         with(defaultDensity) {
             val text = ""
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = 50.sp)
-            )
+            val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = 50.sp))
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
-                .isEqualTo(0)
+            Truth.assertThat(paragraph.getLineEnd(0, true)).isEqualTo(0)
         }
         with(defaultDensity) {
             val text = "ab\n\nc"
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = 50.sp)
-            )
+            val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = 50.sp))
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
-                .isEqualTo(2)
-            Truth.assertThat(paragraph.getLineEnd(1, true))
-                .isEqualTo(3)
-            Truth.assertThat(paragraph.getLineEnd(2, true))
-                .isEqualTo(5)
+            Truth.assertThat(paragraph.getLineEnd(0, true)).isEqualTo(2)
+            Truth.assertThat(paragraph.getLineEnd(1, true)).isEqualTo(3)
+            Truth.assertThat(paragraph.getLineEnd(2, true)).isEqualTo(5)
         }
         with(defaultDensity) {
             val text = "ab\n"
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = 50.sp)
-            )
+            val paragraph = simpleParagraph(text = text, style = TextStyle(fontSize = 50.sp))
 
-            Truth.assertThat(paragraph.getLineEnd(0, true))
-                .isEqualTo(2)
-            Truth.assertThat(paragraph.getLineEnd(1, true))
-                .isEqualTo(3)
+            Truth.assertThat(paragraph.getLineEnd(0, true)).isEqualTo(2)
+            Truth.assertThat(paragraph.getLineEnd(1, true)).isEqualTo(3)
         }
     }
 
@@ -172,11 +140,8 @@ class DesktopParagraphTest {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(fontSize = fontSize),
-                width = width
-            )
+            val paragraph =
+                simpleParagraph(text = text, style = TextStyle(fontSize = fontSize), width = width)
 
             for (i in 0..ltrText.length) {
                 Truth.assertThat(paragraph.getHorizontalPosition(i, true))
@@ -199,14 +164,12 @@ class DesktopParagraphTest {
             val fontSize = 50.sp
             val fontSizeInPx = fontSize.toPx()
             val width = text.length * fontSizeInPx
-            val paragraph = simpleParagraph(
-                text = text,
-                style = TextStyle(
-                    fontSize = fontSize,
-                    textDirection = TextDirection.Ltr
-                ),
-                width = width
-            )
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    style = TextStyle(fontSize = fontSize, textDirection = TextDirection.Ltr),
+                    width = width
+                )
 
             for (i in ltrText.indices) {
                 Truth.assertThat(paragraph.getHorizontalPosition(i, false))
@@ -226,13 +189,11 @@ class DesktopParagraphTest {
     @Test
     fun getWordBoundary_spaces() {
         val text = "ab cd  e"
-        val paragraph = simpleParagraph(
-            text = text,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont,
-                fontSize = 20.sp
+        val paragraph =
+            simpleParagraph(
+                text = text,
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
             )
-        )
 
         val singleSpaceStartResult = paragraph.getWordBoundary(text.indexOf('b') + 1)
         Truth.assertThat(singleSpaceStartResult.start).isEqualTo(text.indexOf('a'))
@@ -279,10 +240,11 @@ class DesktopParagraphTest {
 
     @Test
     fun `line heights`() {
-        val paragraph = simpleParagraph(
-            text = "aaa\n\naaa\n\n\naaa\n   \naaa",
-            style = TextStyle(fontSize = 50.sp)
-        )
+        val paragraph =
+            simpleParagraph(
+                text = "aaa\n\naaa\n\n\naaa\n   \naaa",
+                style = TextStyle(fontSize = 50.sp)
+            )
         val firstLineHeight = paragraph.getLineHeight(0)
 
         for (i in 1 until paragraph.lineCount) {
@@ -302,9 +264,7 @@ class DesktopParagraphTest {
         return Paragraph(
             text = text,
             spanStyles = spanStyles,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont
-            ).merge(style),
+            style = TextStyle(fontFamily = fontFamilyMeasureFont).merge(style),
             maxLines = maxLines,
             ellipsis = ellipsis,
             constraints = Constraints(maxWidth = width.ceilToInt()),
@@ -322,9 +282,7 @@ class DesktopParagraphTest {
         return ParagraphIntrinsics(
             text = text,
             spanStyles = spanStyles,
-            style = TextStyle(
-                fontFamily = fontFamilyMeasureFont
-            ).merge(style),
+            style = TextStyle(fontFamily = fontFamilyMeasureFont).merge(style),
             density = density ?: defaultDensity,
             fontFamilyResolver = fontFamilyResolver
         )

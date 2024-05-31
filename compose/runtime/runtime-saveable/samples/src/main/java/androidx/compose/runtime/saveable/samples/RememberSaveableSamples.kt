@@ -52,7 +52,4 @@ fun RememberSaveableWithMutableStateAndCustomSaver() {
 
 private data class Holder(var value: Int)
 
-private val HolderSaver = Saver<Holder, Int>(
-    save = { it.value },
-    restore = { Holder(it) }
-)
+private val HolderSaver = Saver<Holder, Int>(save = { it.value }, restore = { Holder(it) })

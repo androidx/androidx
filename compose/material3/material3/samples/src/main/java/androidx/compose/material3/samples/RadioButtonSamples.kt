@@ -74,8 +74,7 @@ fun RadioGroupSample() {
     Column(Modifier.selectableGroup()) {
         radioOptions.forEach { text ->
             Row(
-                Modifier
-                    .fillMaxWidth()
+                Modifier.fillMaxWidth()
                     .height(56.dp)
                     .selectable(
                         selected = (text == selectedOption),

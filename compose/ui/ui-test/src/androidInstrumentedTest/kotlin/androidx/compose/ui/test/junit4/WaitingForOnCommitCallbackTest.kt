@@ -46,15 +46,13 @@ class WaitingForOnCommitCallbackTest {
         setContent {
             DisposableEffect(switch) {
                 atomicBoolean.set(switch)
-                onDispose { }
+                onDispose {}
             }
         }
 
         assertThat(atomicBoolean.get()).isTrue()
 
-        runOnIdle {
-            switch = false
-        }
+        runOnIdle { switch = false }
         waitForIdle()
 
         assertThat(atomicBoolean.get()).isFalse()
@@ -80,22 +78,22 @@ class WaitingForOnCommitCallbackTest {
             DisposableEffect(switch1) {
                 values.add(2)
                 switch2 = switch1
-                onDispose { }
+                onDispose {}
             }
             DisposableEffect(switch2) {
                 values.add(3)
                 switch3 = switch2
-                onDispose { }
+                onDispose {}
             }
             DisposableEffect(switch3) {
                 values.add(4)
                 switch4 = switch3
-                onDispose { }
+                onDispose {}
             }
             DisposableEffect(switch4) {
                 values.add(5)
                 latch.countDown()
-                onDispose { }
+                onDispose {}
             }
         }
 
@@ -140,22 +138,22 @@ class WaitingForOnCommitCallbackTest {
                 DisposableEffect(switch1) {
                     values.add(2)
                     switch2 = switch1
-                    onDispose { }
+                    onDispose {}
                 }
                 DisposableEffect(switch2) {
                     values.add(3)
                     switch3 = switch2
-                    onDispose { }
+                    onDispose {}
                 }
                 DisposableEffect(switch3) {
                     values.add(4)
                     switch4 = switch3
-                    onDispose { }
+                    onDispose {}
                 }
                 DisposableEffect(switch4) {
                     values.add(5)
                     mutex.unlock()
-                    onDispose { }
+                    onDispose {}
                 }
             }
 

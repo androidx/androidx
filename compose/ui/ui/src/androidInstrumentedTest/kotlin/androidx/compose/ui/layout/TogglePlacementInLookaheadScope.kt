@@ -52,11 +52,9 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TogglePlacementInLookaheadScope {
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-    @get:Rule
-    val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
+    @get:Rule val excessiveAssertions = AndroidOwnerExtraAssertionsRule()
 
     @Test
     fun togglePlacement() {
@@ -65,12 +63,8 @@ class TogglePlacementInLookaheadScope {
         val placed = mutableListOf(false, false)
         rule.setContent {
             LookaheadScope {
-                Layout(content = {
-                    TestItem(
-                        newChildAdded,
-                        placed = placed
-                    )
-                }) { list, constraints ->
+                Layout(content = { TestItem(newChildAdded, placed = placed) }) { list, constraints
+                    ->
                     val placeables = list.map { it.measure(constraints) }
                     layout(placeables[0].width, placeables[0].height) {
                         if (place) {
@@ -88,9 +82,7 @@ class TogglePlacementInLookaheadScope {
         rule.waitForIdle()
         assertFalse(placed[0])
         assertFalse(placed[1])
-        rule.runOnIdle {
-            place = true
-        }
+        rule.runOnIdle { place = true }
         rule.waitForIdle()
         assertTrue(placed[0])
         assertTrue(placed[1])
@@ -121,9 +113,7 @@ class TogglePlacementInLookaheadScope {
             place = false
         }
         rule.waitForIdle()
-        rule.runOnIdle {
-            place = true
-        }
+        rule.runOnIdle { place = true }
         rule.waitForIdle()
     }
 
@@ -134,83 +124,91 @@ class TogglePlacementInLookaheadScope {
         val placed = mutableListOf(false, false)
         rule.setContent {
             LookaheadScope {
-                Layout(measurePolicy =
-                { list, constraints ->
-                    val placeables = list.map { it.measure(constraints) }
-                    layout(placeables[0].width, placeables[0].height) {
-                        if (place) {
-                            placeables.forEach { it.place(0, 0) }
+                Layout(
+                    measurePolicy = { list, constraints ->
+                        val placeables = list.map { it.measure(constraints) }
+                        layout(placeables[0].width, placeables[0].height) {
+                            if (place) {
+                                placeables.forEach { it.place(0, 0) }
+                            }
                         }
-                    }
-                }, content = {
-                    Card {
-                        Column {
-                            Image(
-                                painter = ColorPainter(Color.Blue),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(16f / 9f)
-                            )
+                    },
+                    content = {
+                        Card {
+                            Column {
+                                Image(
+                                    painter = ColorPainter(Color.Blue),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                                )
 
-                            ReusableContent(reusableContentKey) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(
-                                            start = 12.dp,
-                                            top = 8.dp,
-                                            end = 12.dp,
-                                            bottom = 12.dp
-                                        )
-                                        .fillMaxWidth()
-                                        .layout { measurable, constraints ->
-                                            measurable
-                                                .measure(constraints)
-                                                .run {
-                                                    layout(width, height) {
-                                                        if (isLookingAhead) {
-                                                            placed[0] = true
-                                                        } else {
-                                                            placed[1] = true
+                                ReusableContent(reusableContentKey) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier =
+                                            Modifier.padding(
+                                                    start = 12.dp,
+                                                    top = 8.dp,
+                                                    end = 12.dp,
+                                                    bottom = 12.dp
+                                                )
+                                                .fillMaxWidth()
+                                                .layout { measurable, constraints ->
+                                                    measurable.measure(constraints).run {
+                                                        layout(width, height) {
+                                                            if (isLookingAhead) {
+                                                                placed[0] = true
+                                                            } else {
+                                                                placed[1] = true
+                                                            }
+                                                            @Suppress("UNUSED_EXPRESSION")
+                                                            reusableContentKey // force a read
+                                                            place(0, 0)
                                                         }
-                                                        @Suppress("UNUSED_EXPRESSION")
-                                                        reusableContentKey // force a read
-                                                        place(0, 0)
                                                     }
                                                 }
-                                        }
-                                ) {
-
-                                    Text(
-                                        text = "Static text",
-                                        color = Color.White,
-                                        modifier = Modifier
-                                            .background(Color.Gray, RoundedCornerShape(2.dp))
-                                            .padding(
-                                                start = 3.dp, end = 3.dp,
-                                                top = 0.5.dp, bottom = 1.dp
-                                            )
-                                    )
-
-                                    val badgeModifier = Modifier
-                                        .border(0.5f.dp, Color.Black, RoundedCornerShape(2.dp))
-                                        .padding(
-                                            start = 3.dp, end = 3.dp,
-                                            top = 0.5.dp, bottom = 1.dp
+                                    ) {
+                                        Text(
+                                            text = "Static text",
+                                            color = Color.White,
+                                            modifier =
+                                                Modifier.background(
+                                                        Color.Gray,
+                                                        RoundedCornerShape(2.dp)
+                                                    )
+                                                    .padding(
+                                                        start = 3.dp,
+                                                        end = 3.dp,
+                                                        top = 0.5.dp,
+                                                        bottom = 1.dp
+                                                    )
                                         )
 
-                                    Text(
-                                        text = "Updated",
-                                        modifier = badgeModifier,
-                                    )
+                                        val badgeModifier =
+                                            Modifier.border(
+                                                    0.5f.dp,
+                                                    Color.Black,
+                                                    RoundedCornerShape(2.dp)
+                                                )
+                                                .padding(
+                                                    start = 3.dp,
+                                                    end = 3.dp,
+                                                    top = 0.5.dp,
+                                                    bottom = 1.dp
+                                                )
+
+                                        Text(
+                                            text = "Updated",
+                                            modifier = badgeModifier,
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                })
+                )
             }
         }
         assertTrue(placed[0])
@@ -218,18 +216,12 @@ class TogglePlacementInLookaheadScope {
         placed[0] = false
         placed[1] = false
 
-        rule.runOnIdle {
-            place = false
-        }
-        rule.runOnIdle {
-            reusableContentKey++
-        }
+        rule.runOnIdle { place = false }
+        rule.runOnIdle { reusableContentKey++ }
         assertFalse(placed[0])
         assertFalse(placed[1])
 
-        rule.runOnIdle {
-            place = true
-        }
+        rule.runOnIdle { place = true }
         rule.waitForIdle()
         assertTrue(placed[0])
         assertTrue(placed[1])
@@ -248,52 +240,44 @@ class TogglePlacementInLookaheadScope {
                     painter = ColorPainter(Color.Blue),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(16f / 9f)
+                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
                 )
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp)
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp)
+                            .fillMaxWidth()
                 ) {
-
                     Text(
                         text = "Static text",
                         color = Color.White,
-                        modifier = Modifier
-                            .background(Color.Gray, RoundedCornerShape(2.dp))
-                            .padding(
-                                start = 3.dp, end = 3.dp,
-                                top = 0.5.dp, bottom = 1.dp
-                            )
+                        modifier =
+                            Modifier.background(Color.Gray, RoundedCornerShape(2.dp))
+                                .padding(start = 3.dp, end = 3.dp, top = 0.5.dp, bottom = 1.dp)
                     )
 
-                    val badgeModifier = Modifier
-                        .border(0.5f.dp, Color.Black, RoundedCornerShape(2.dp))
-                        .padding(
-                            start = 3.dp, end = 3.dp,
-                            top = 0.5.dp, bottom = 1.dp
-                        )
+                    val badgeModifier =
+                        Modifier.border(0.5f.dp, Color.Black, RoundedCornerShape(2.dp))
+                            .padding(start = 3.dp, end = 3.dp, top = 0.5.dp, bottom = 1.dp)
 
                     if (showNewText) {
                         Text(
                             text = "New",
-                            modifier = badgeModifier.layout { measurable, constraints ->
-                                measurable.measure(constraints).run {
-                                    layout(width, height) {
-                                        if (isLookingAhead) {
-                                            placed[0] = true
-                                        } else {
-                                            placed[1] = true
+                            modifier =
+                                badgeModifier.layout { measurable, constraints ->
+                                    measurable.measure(constraints).run {
+                                        layout(width, height) {
+                                            if (isLookingAhead) {
+                                                placed[0] = true
+                                            } else {
+                                                placed[1] = true
+                                            }
+                                            place(0, 0)
                                         }
-                                        place(0, 0)
                                     }
-                                }
-                            },
+                                },
                         )
                     }
 

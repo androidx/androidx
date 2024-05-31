@@ -22,17 +22,13 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
     private var _size = 0
     private var values = Array<Any?>(initialCapacity) { null }
 
-    /**
-     * True if this map contains key
-     */
+    /** True if this map contains key */
     actual operator fun contains(key: Int): Boolean {
         val index = keys.binarySearch(_size, key)
         return index >= 0 && values[index] !== DELETED
     }
 
-    /**
-     * Get [key] or null
-     */
+    /** Get [key] or null */
     actual operator fun get(key: Int): E? {
         val index = keys.binarySearch(_size, key)
         return if (index >= 0 && values[index] !== DELETED) {
@@ -43,9 +39,7 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
         }
     }
 
-    /**
-     * Get [key] or [valueIfAbsent]
-     */
+    /** Get [key] or [valueIfAbsent] */
     actual fun get(key: Int, valueIfAbsent: E): E {
         val index = keys.binarySearch(_size, key)
         return if (index >= 0 && values[index] !== DELETED) {
@@ -56,9 +50,7 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
         }
     }
 
-    /**
-     * Set [key] to [value]
-     */
+    /** Set [key] to [value] */
     actual operator fun set(key: Int, value: E) {
         var index = keys.binarySearch(_size, key)
         if (index >= 0) {
@@ -85,9 +77,7 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
         }
     }
 
-    /**
-     * Clear this map
-     */
+    /** Clear this map */
     actual fun clear() {
         _size = 0
         for (i in keys.indices) {
@@ -98,9 +88,7 @@ internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
         }
     }
 
-    /**
-     * Current count of (key, value) pairs
-     */
+    /** Current count of (key, value) pairs */
     actual val size: Int
         get() = _size
 }

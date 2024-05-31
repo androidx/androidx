@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class OneDimensionalFocusSearchPreviousTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private lateinit var focusManager: FocusManager
     private val initialFocus: FocusRequester = FocusRequester()
@@ -57,9 +56,7 @@ class OneDimensionalFocusSearchPreviousTest {
     fun moveFocus_oneDisabledFocusableItem() {
         // Arrange.
         val isItemFocused = mutableStateOf(false)
-        rule.setContentForTest {
-            FocusableBox(isItemFocused, 0, 0, 10, 10, deactivated = true)
-        }
+        rule.setContentForTest { FocusableBox(isItemFocused, 0, 0, 10, 10, deactivated = true) }
 
         // Act.
         val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(Previous) }
@@ -72,9 +69,7 @@ class OneDimensionalFocusSearchPreviousTest {
     fun initialFocus_oneItem() {
         // Arrange.
         val isItemFocused = mutableStateOf(false)
-        rule.setContentForTest {
-            FocusableBox(isItemFocused, 0, 0, 10, 10)
-        }
+        rule.setContentForTest { FocusableBox(isItemFocused, 0, 0, 10, 10) }
 
         // Act.
         val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(Previous) }
@@ -132,12 +127,8 @@ class OneDimensionalFocusSearchPreviousTest {
         // Arrange.
         val (parent1, parent2, child1, child2) = List(4) { mutableStateOf(false) }
         rule.setContentForTest {
-            FocusableBox(parent1, 10, 10, 10, 10) {
-                FocusableBox(child1, 10, 10, 10, 10)
-            }
-            FocusableBox(parent2, 0, 0, 10, 10) {
-                FocusableBox(child2, 10, 10, 10, 10)
-            }
+            FocusableBox(parent1, 10, 10, 10, 10) { FocusableBox(child1, 10, 10, 10, 10) }
+            FocusableBox(parent2, 0, 0, 10, 10) { FocusableBox(child2, 10, 10, 10, 10) }
         }
 
         // Act.
@@ -156,9 +147,7 @@ class OneDimensionalFocusSearchPreviousTest {
         val (parent1, child1, item1) = List(3) { mutableStateOf(false) }
         rule.setContentForTest {
             FocusableBox(item1, 0, 0, 10, 10)
-            FocusableBox(parent1, 10, 10, 10, 10) {
-                FocusableBox(child1, 10, 10, 10, 10)
-            }
+            FocusableBox(parent1, 10, 10, 10, 10) { FocusableBox(child1, 10, 10, 10, 10) }
         }
 
         // Act.
@@ -562,9 +551,7 @@ class OneDimensionalFocusSearchPreviousTest {
             }
             FocusableBox(parent2, 0, 10, 10, 10) {
                 FocusableBox(child4, 0, 10, 10, 10)
-                FocusableBox(parent3, 10, 10, 10, 10) {
-                    FocusableBox(child6, 0, 0, 10, 10)
-                }
+                FocusableBox(parent3, 10, 10, 10, 10) { FocusableBox(child6, 0, 0, 10, 10) }
                 FocusableBox(child5, 20, 0, 10, 10)
             }
             FocusableBox(parent4, 0, 10, 10, 10, deactivated = true) {

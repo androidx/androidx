@@ -48,9 +48,9 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.Name
 
 /**
- * Copies each IR declaration that won't match descriptors after Compose transforms (see [shouldBeRemapped]).
- * Original function are kept to match descriptors with a stubbed body, all other transforms are
- * applied to the copied version only.
+ * Copies each IR declaration that won't match descriptors after Compose transforms (see
+ * [shouldBeRemapped]). Original function are kept to match descriptors with a stubbed body, all
+ * other transforms are applied to the copied version only.
  *
  * Example:
  * ```
@@ -59,7 +59,6 @@ import org.jetbrains.kotlin.name.Name
  * ```
  *
  * is transformed into:
- *
  * ```
  * @Decoy(targetName="A$composable")
  * fun A(x: Any) {
@@ -78,20 +77,20 @@ class CreateDecoysTransformer(
     stabilityInferencer: StabilityInferencer,
     metrics: ModuleMetrics,
     featureFlags: FeatureFlags,
-) : AbstractDecoysLowering(
-    pluginContext = pluginContext,
-    symbolRemapper = symbolRemapper,
-    metrics = metrics,
-    stabilityInferencer = stabilityInferencer,
-    signatureBuilder = signatureBuilder,
-    featureFlags = featureFlags
-), ModuleLoweringPass {
+) :
+    AbstractDecoysLowering(
+        pluginContext = pluginContext,
+        symbolRemapper = symbolRemapper,
+        metrics = metrics,
+        stabilityInferencer = stabilityInferencer,
+        signatureBuilder = signatureBuilder,
+        featureFlags = featureFlags
+    ),
+    ModuleLoweringPass {
 
     private val originalFunctions: MutableMap<IrFunction, IrDeclarationParent> = mutableMapOf()
 
-    private val decoyAnnotation by lazy {
-        getTopLevelClass(DecoyClassIds.Decoy).owner
-    }
+    private val decoyAnnotation by lazy { getTopLevelClass(DecoyClassIds.Decoy).owner }
 
     private val decoyImplementationAnnotation by lazy {
         getTopLevelClass(DecoyClassIds.DecoyImplementation).owner
@@ -153,9 +152,8 @@ class CreateDecoysTransformer(
         }
 
         val newName = declaration.decoyImplementationName()
-        val copied = declaration.copyWithName(
-            newName, context.irFactory::buildConstructor
-        ) as IrConstructor
+        val copied =
+            declaration.copyWithName(newName, context.irFactory::buildConstructor) as IrConstructor
         copied.parent = declaration.parent
         originalFunctions += copied to declaration.parent
 
@@ -171,9 +169,7 @@ class CreateDecoysTransformer(
     }
 
     private fun IrFunction.decoyImplementationName(): Name {
-        return dexSafeName(
-            Name.identifier(name.asString() + IMPLEMENTATION_FUNCTION_SUFFIX)
-        )
+        return dexSafeName(Name.identifier(name.asString() + IMPLEMENTATION_FUNCTION_SUFFIX))
     }
 
     private fun IrFunction.copyWithName(
@@ -200,55 +196,62 @@ class CreateDecoysTransformer(
         newFunction.addDecoyImplementationAnnotation(newName.asString(), original.getSignatureId())
         newFunction.copyParametersFrom(original)
 
-        newFunction.body = original.moveBodyTo(newFunction)
-            ?.copyWithNewTypeParams(original, newFunction)
+        newFunction.body =
+            original.moveBodyTo(newFunction)?.copyWithNewTypeParams(original, newFunction)
 
         return newFunction
     }
 
     private fun IrFunction.stubBody() {
-        body = DeclarationIrBuilder(context, symbol).irBlockBody {
-            + irReturn(
-                irCall(decoyStub).also { call ->
-                    call.putValueArgument(0, irConst(name.asString()))
-                }
-            )
-        }
+        body =
+            DeclarationIrBuilder(context, symbol).irBlockBody {
+                +irReturn(
+                    irCall(decoyStub).also { call ->
+                        call.putValueArgument(0, irConst(name.asString()))
+                    }
+                )
+            }
     }
 
     private fun IrFunction.setDecoyAnnotation(implementationName: String) {
-        annotations = listOf(
-            IrConstructorCallImpl.fromSymbolOwner(
-                type = decoyAnnotation.defaultType,
-                constructorSymbol = decoyAnnotation.constructors.first().symbol
-            ).also {
-                it.putValueArgument(0, irConst(implementationName))
-                it.putValueArgument(1, irVarargString(emptyList()))
-            }
-        )
+        annotations =
+            listOf(
+                IrConstructorCallImpl.fromSymbolOwner(
+                        type = decoyAnnotation.defaultType,
+                        constructorSymbol = decoyAnnotation.constructors.first().symbol
+                    )
+                    .also {
+                        it.putValueArgument(0, irConst(implementationName))
+                        it.putValueArgument(1, irVarargString(emptyList()))
+                    }
+            )
     }
 
     private fun IrFunction.addDecoyImplementationAnnotation(name: String, signatureId: Long) {
-        annotations = annotations +
-            IrConstructorCallImpl.fromSymbolOwner(
-                type = decoyImplementationAnnotation.defaultType,
-                constructorSymbol = decoyImplementationAnnotation.constructors.first().symbol
-            ).also {
-                it.putValueArgument(0, irConst(name))
-                it.putValueArgument(1, irConst(signatureId))
-            }
+        annotations =
+            annotations +
+                IrConstructorCallImpl.fromSymbolOwner(
+                        type = decoyImplementationAnnotation.defaultType,
+                        constructorSymbol =
+                            decoyImplementationAnnotation.constructors.first().symbol
+                    )
+                    .also {
+                        it.putValueArgument(0, irConst(name))
+                        it.putValueArgument(1, irConst(signatureId))
+                    }
 
-        annotations = annotations +
-            IrConstructorCallImpl.fromSymbolOwner(
-                type = decoyImplementationDefaultsBitmaskAnnotation.defaultType,
-                constructorSymbol =
-                    decoyImplementationDefaultsBitmaskAnnotation.constructors.first().symbol
-            ).also {
-                val paramsWithDefaultsBitMask = bitMask(
-                    *valueParameters.map { it.hasDefaultValue() }.toBooleanArray()
-                )
-                it.putValueArgument(0, irConst(paramsWithDefaultsBitMask))
-            }
+        annotations =
+            annotations +
+                IrConstructorCallImpl.fromSymbolOwner(
+                        type = decoyImplementationDefaultsBitmaskAnnotation.defaultType,
+                        constructorSymbol =
+                            decoyImplementationDefaultsBitmaskAnnotation.constructors.first().symbol
+                    )
+                    .also {
+                        val paramsWithDefaultsBitMask =
+                            bitMask(*valueParameters.map { it.hasDefaultValue() }.toBooleanArray())
+                        it.putValueArgument(0, irConst(paramsWithDefaultsBitMask))
+                    }
     }
 
     companion object {

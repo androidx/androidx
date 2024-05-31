@@ -21,21 +21,16 @@ import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 
-/**
- * Parses the [Transition] into an [AnimatedVisibilityComposeAnimation].
- */
+/** Parses the [Transition] into an [AnimatedVisibilityComposeAnimation]. */
 internal fun Transition<Boolean>.parseAnimatedVisibility(): AnimatedVisibilityComposeAnimation {
     return AnimatedVisibilityComposeAnimation(this, this.label ?: "AnimatedVisibility")
 }
 
-/**
- * [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_VISIBILITY].
- */
+/** [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_VISIBILITY]. */
 internal class AnimatedVisibilityComposeAnimation(
     override val animationObject: Transition<Boolean>,
     override val label: String?
-) :
-    ComposeAnimation {
+) : ComposeAnimation {
     override val type = ComposeAnimationType.ANIMATED_VISIBILITY
     override val states = setOf(AnimatedVisibilityState.Enter, AnimatedVisibilityState.Exit)
 

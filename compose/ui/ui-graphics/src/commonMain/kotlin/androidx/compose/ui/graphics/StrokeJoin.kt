@@ -21,35 +21,31 @@ import androidx.compose.runtime.Immutable
 /**
  * Styles to use for line joins.
  *
- * This only affects line joins for polygons drawn by [Canvas.drawPath] and
- * rectangles, not points drawn as lines with [Canvas.drawPoints].
- * See [Paint.strokeJoin].
+ * This only affects line joins for polygons drawn by [Canvas.drawPath] and rectangles, not points
+ * drawn as lines with [Canvas.drawPoints]. See [Paint.strokeJoin].
  */
 @Immutable
 @kotlin.jvm.JvmInline
 value class StrokeJoin internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
-        /**
-         * Joins between line segments form sharp corners.
-         */
+        /** Joins between line segments form sharp corners. */
         val Miter = StrokeJoin(0)
 
-        /**
-         * Joins between line segments are semi-circular.
-         */
+        /** Joins between line segments are semi-circular. */
         val Round = StrokeJoin(1)
 
         /**
-         * Joins between line segments connect the corners of the butt ends of the
-         * line segments to give a beveled appearance.
+         * Joins between line segments connect the corners of the butt ends of the line segments to
+         * give a beveled appearance.
          */
         val Bevel = StrokeJoin(2)
     }
 
-    override fun toString() = when (this) {
-        Miter -> "Miter"
-        Round -> "Round"
-        Bevel -> "Bevel"
-        else -> "Unknown"
-    }
+    override fun toString() =
+        when (this) {
+            Miter -> "Miter"
+            Round -> "Round"
+            Bevel -> "Bevel"
+            else -> "Unknown"
+        }
 }

@@ -62,15 +62,9 @@ fun SearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .semantics { isTraversalGroup = true }
-    ) {
+    Box(Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
         SearchBar(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .semantics { traversalIndex = 0f },
+            modifier = Modifier.align(Alignment.TopCenter).semantics { traversalIndex = 0f },
             inputField = {
                 SearchBarDefaults.InputField(
                     query = text,
@@ -94,13 +88,13 @@ fun SearchBarSample() {
                         supportingContent = { Text("Additional info") },
                         leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        modifier = Modifier
-                            .clickable {
-                                text = resultText
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                        modifier =
+                            Modifier.clickable {
+                                    text = resultText
+                                    expanded = false
+                                }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -115,9 +109,7 @@ fun SearchBarSample() {
             items(count = list.size) {
                 Text(
                     text = list[it],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 )
             }
         }
@@ -132,16 +124,12 @@ fun DockedSearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .semantics { isTraversalGroup = true }
-    ) {
+    Box(Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
         DockedSearchBar(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp)
-                .semantics { traversalIndex = 0f },
+            modifier =
+                Modifier.align(Alignment.TopCenter).padding(top = 8.dp).semantics {
+                    traversalIndex = 0f
+                },
             inputField = {
                 SearchBarDefaults.InputField(
                     query = text,
@@ -165,13 +153,13 @@ fun DockedSearchBarSample() {
                         supportingContent = { Text("Additional info") },
                         leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        modifier = Modifier
-                            .clickable {
-                                text = resultText
-                                expanded = false
-                            }
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                        modifier =
+                            Modifier.clickable {
+                                    text = resultText
+                                    expanded = false
+                                }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }
             }
@@ -186,9 +174,7 @@ fun DockedSearchBarSample() {
             items(count = list.size) {
                 Text(
                     text = list[it],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 )
             }
         }

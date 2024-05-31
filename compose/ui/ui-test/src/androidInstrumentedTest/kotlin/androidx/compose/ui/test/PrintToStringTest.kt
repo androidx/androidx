@@ -42,14 +42,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PrintToStringTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun printToString_nothingFound() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
         expectErrorMessageStartsWith(
             "Failed: assertExists.\n" +
@@ -61,36 +58,32 @@ class PrintToStringTest {
 
     @Test
     fun printToString_one() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
-        val result = rule.onNodeWithText("Hello")
-            .printToString(maxDepth = 0)
+        val result = rule.onNodeWithText("Hello").printToString(maxDepth = 0)
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 Has 1 sibling
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printToString_many() {
-        rule.setContent {
-            ComposeSimpleCase()
-        }
+        rule.setContent { ComposeSimpleCase() }
 
-        val result = rule.onRoot()
-            .onChildren()
-            .printToString()
+        val result = rule.onRoot().onChildren().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 1) Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
@@ -100,28 +93,37 @@ class PrintToStringTest {
                 Text = '[World]'
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 Has 1 sibling
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printHierarchy() {
         rule.setContentWithoutMinimumTouchTarget {
-            Column(Modifier.semantics { this.disabled(); this.testTag = "column" }) {
-                Box(Modifier.semantics { this.disabled(); this.testTag = "box" }) {
-                    Button(onClick = {}) {
-                        Text("Button")
+            Column(
+                Modifier.semantics {
+                    this.disabled()
+                    this.testTag = "column"
+                }
+            ) {
+                Box(
+                    Modifier.semantics {
+                        this.disabled()
+                        this.testTag = "box"
                     }
+                ) {
+                    Button(onClick = {}) { Text("Button") }
                 }
                 Text("Hello")
             }
         }
 
-        val result = rule.onRoot()
-            .printToString()
+        val result = rule.onRoot().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                  |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'column'
@@ -137,31 +139,23 @@ class PrintToStringTest {
                     |-Node #X at (l=X, t=X, r=X, b=X)px
                       Text = '[Hello]'
                       Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printMultiple_withDepth() {
         rule.setContent {
-            BoundaryNode("tag1") {
-                BoundaryNode("tag11") {
-                    BoundaryNode("tag111")
-                }
-            }
-            BoundaryNode("tag2") {
-                BoundaryNode("tag22") {
-                    BoundaryNode("tag222")
-                }
-            }
+            BoundaryNode("tag1") { BoundaryNode("tag11") { BoundaryNode("tag111") } }
+            BoundaryNode("tag2") { BoundaryNode("tag22") { BoundaryNode("tag222") } }
         }
 
-        val result = rule.onRoot()
-            .onChildren()
-            .printToString(maxDepth = 1)
+        val result = rule.onRoot().onChildren().printToString(maxDepth = 1)
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 1) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag1'
                  |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag11'
@@ -169,48 +163,48 @@ class PrintToStringTest {
                 2) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag2'
                  |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag22'
                    Has 1 child
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printMergedContentDescriptions() {
         rule.setContent {
-            Box(Modifier.semantics(mergeDescendants = true) { }) {
+            Box(Modifier.semantics(mergeDescendants = true) {}) {
                 Box(Modifier.semantics { contentDescription = "first" })
                 Box(Modifier.semantics { contentDescription = "second" })
             }
         }
 
-        val result = rule.onRoot()
-            .onChild()
-            .printToString()
+        val result = rule.onRoot().onChild().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 ContentDescription = '[first, second]'
                 MergeDescendants = 'true'
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printUnmergedContentDescriptions() {
         rule.setContent {
-            Box(Modifier.semantics(mergeDescendants = true) { }) {
+            Box(Modifier.semantics(mergeDescendants = true) {}) {
                 Box(Modifier.semantics { contentDescription = "first" })
                 Box(Modifier.semantics { contentDescription = "second" })
             }
         }
 
-        val result = rule.onRoot(useUnmergedTree = true)
-            .onChild()
-            .printToString()
+        val result = rule.onRoot(useUnmergedTree = true).onChild().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'true'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 MergeDescendants = 'true'
@@ -218,49 +212,49 @@ class PrintToStringTest {
                  | ContentDescription = '[first]'
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                    ContentDescription = '[second]'
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printMergedText() {
         rule.setContent {
-            Box(Modifier.semantics(mergeDescendants = true) { }) {
+            Box(Modifier.semantics(mergeDescendants = true) {}) {
                 Text("first")
                 Text("second")
             }
         }
 
-        val result = rule.onRoot()
-            .onChild()
-            .printToString()
+        val result = rule.onRoot().onChild().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[first, second]'
                 Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
                 MergeDescendants = 'true'
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Test
     fun printUnmergedText() {
         rule.setContent {
-            Box(Modifier.semantics(mergeDescendants = true) { }) {
+            Box(Modifier.semantics(mergeDescendants = true) {}) {
                 Text("first")
                 Text("second")
             }
         }
 
-        val result = rule.onRoot(useUnmergedTree = true)
-            .onChild()
-            .printToString()
+        val result = rule.onRoot(useUnmergedTree = true).onChild().printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo(
-            """
+        assertThat(obfuscateNodesInfo(result))
+            .isEqualTo(
+                """
                 Printing with useUnmergedTree = 'true'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 MergeDescendants = 'true'
@@ -270,8 +264,9 @@ class PrintToStringTest {
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                    Text = '[second]'
                    Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 
     @Composable

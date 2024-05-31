@@ -31,13 +31,15 @@ class ActivityWithActionBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val root = FrameLayout(this)
-        composeHolder = ComposeView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
-                gravity = Gravity.BOTTOM or Gravity.END
+        composeHolder =
+            ComposeView(this).apply {
+                layoutParams =
+                    FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        gravity = Gravity.BOTTOM or Gravity.END
+                    }
+                // Set background color for recognizability on screen / in screenshots
+                setBackgroundColor(android.graphics.Color.LTGRAY)
             }
-            // Set background color for recognizability on screen / in screenshots
-            setBackgroundColor(android.graphics.Color.LTGRAY)
-        }
         root.addView(composeHolder)
         setContentView(root)
     }

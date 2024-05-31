@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TooltipBenchmark {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun animationTest() {
@@ -54,12 +53,7 @@ class TooltipBenchmark {
         ) {
             val anchorIconButton = device.findObject(By.desc("tooltipAnchor"))
             anchorIconButton.longClick()
-            device.wait(
-                Until.findObject(
-                    By.desc("tooltipAnchor").longClickable(true)
-                ),
-                1500
-            )
+            device.wait(Until.findObject(By.desc("tooltipAnchor").longClickable(true)), 1500)
         }
     }
 

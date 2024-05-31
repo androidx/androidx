@@ -32,9 +32,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 fun Modifier.excludeFromSystemGesture() = systemGestureExclusion()
 
 /**
- * Excludes a rectangle within the local layout coordinates from the system gesture.
- * After layout, [exclusion] is called to determine the [Rect] to exclude from the system
- * gesture area.
+ * Excludes a rectangle within the local layout coordinates from the system gesture. After layout,
+ * [exclusion] is called to determine the [Rect] to exclude from the system gesture area.
  *
  * The [LayoutCoordinates] of the [Modifier]'s location in the layout is passed as passed as
  * [exclusion]'s parameter.

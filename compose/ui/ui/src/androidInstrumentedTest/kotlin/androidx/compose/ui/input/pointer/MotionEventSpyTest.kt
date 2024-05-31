@@ -42,14 +42,11 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class MotionEventSpyTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     val Tag = "Test Tag"
 
-    /**
-     * When the events are inside the pointer input area, they should be received.
-     */
+    /** When the events are inside the pointer input area, they should be received. */
     @Test
     fun eventInside() {
         val events = mutableListOf<Int>()
@@ -61,48 +58,39 @@ class MotionEventSpyTest {
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
-            .performTouchInput {
-                down(Offset.Zero)
-                moveBy(Offset(1f, 1f))
-                up()
-            }
+        rule.onNodeWithTag(Tag).performTouchInput {
+            down(Offset.Zero)
+            moveBy(Offset(1f, 1f))
+            up()
+        }
 
         rule.waitForIdle()
 
-        assertThat(events).containsExactly(
-            ACTION_DOWN, ACTION_MOVE, ACTION_UP
-        )
+        assertThat(events).containsExactly(ACTION_DOWN, ACTION_MOVE, ACTION_UP)
     }
 
-    /**
-     * When the events are inside the child's pointer input area, they should be received.
-     */
+    /** When the events are inside the child's pointer input area, they should be received. */
     @Test
     fun eventInsideChild() {
         val events = mutableListOf<Int>()
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
                 Box(Modifier.size(50.dp).motionEventSpy { events += it.actionMasked }) {
-                    Box(Modifier.size(50.dp).testTag(Tag).offset(55.dp, 0.dp).pointerInput(Unit) {
-                    })
+                    Box(Modifier.size(50.dp).testTag(Tag).offset(55.dp, 0.dp).pointerInput(Unit) {})
                 }
             }
         }
 
         rule.waitForIdle()
 
-        rule.onNodeWithTag(Tag)
-            .performTouchInput {
-                down(Offset.Zero)
-                moveBy(Offset(1f, 1f))
-                up()
-            }
+        rule.onNodeWithTag(Tag).performTouchInput {
+            down(Offset.Zero)
+            moveBy(Offset(1f, 1f))
+            up()
+        }
 
         rule.waitForIdle()
 
-        assertThat(events).containsExactly(
-            ACTION_DOWN, ACTION_MOVE, ACTION_UP
-        )
+        assertThat(events).containsExactly(ACTION_DOWN, ACTION_MOVE, ACTION_UP)
     }
 }

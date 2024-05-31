@@ -105,66 +105,53 @@ class TextFieldValueTest {
 
     @Test
     fun equals_returns_true_for_same_instance() {
-        val textFieldValue = TextFieldValue(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2)
-        )
+        val textFieldValue =
+            TextFieldValue(text = "a", selection = TextRange(1), composition = TextRange(2))
 
         assertThat(textFieldValue).isEqualTo(textFieldValue)
     }
 
     @Test
     fun equals_returns_true_for_same_object() {
-        val textFieldValue = TextFieldValue(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2)
-        )
+        val textFieldValue =
+            TextFieldValue(text = "a", selection = TextRange(1), composition = TextRange(2))
 
         assertThat(textFieldValue).isEqualTo(textFieldValue.copy())
     }
 
     @Test
     fun copy_sets_text_correctly() {
-        val textFieldValue = TextFieldValue(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2)
-        )
+        val textFieldValue =
+            TextFieldValue(text = "a", selection = TextRange(1), composition = TextRange(2))
 
-        val expected = TextFieldValue(
-            text = "b",
-            selection = textFieldValue.selection,
-            composition = textFieldValue.composition
-        )
+        val expected =
+            TextFieldValue(
+                text = "b",
+                selection = textFieldValue.selection,
+                composition = textFieldValue.composition
+            )
 
         assertThat(textFieldValue.copy(text = "b")).isEqualTo(expected)
     }
 
     @Test
     fun copy_sets_selection_correctly() {
-        val textFieldValue = TextFieldValue(
-            text = "a",
-            selection = TextRange(1),
-            composition = TextRange(2)
-        )
+        val textFieldValue =
+            TextFieldValue(text = "a", selection = TextRange(1), composition = TextRange(2))
 
-        val expected = TextFieldValue(
-            text = textFieldValue.text,
-            selection = TextRange.Zero,
-            composition = textFieldValue.composition
-        )
+        val expected =
+            TextFieldValue(
+                text = textFieldValue.text,
+                selection = TextRange.Zero,
+                composition = textFieldValue.composition
+            )
 
         assertThat(textFieldValue.copy(selection = TextRange.Zero)).isEqualTo(expected)
     }
 
     @Test
     fun text_and_selection_parameter_constructor_has_null_composition() {
-        val textFieldValue = TextFieldValue(
-            text = "a",
-            selection = TextRange(1)
-        )
+        val textFieldValue = TextFieldValue(text = "a", selection = TextRange(1))
 
         assertThat(textFieldValue.composition).isNull()
     }
@@ -196,15 +183,11 @@ class TextFieldValueTest {
                     letterSpacing = 2.em,
                     baselineShift = BaselineShift.Superscript,
                     textGeometricTransform = TextGeometricTransform(2f, 3f),
-                    localeList = LocaleList(
-                        Locale("sr-Latn-SR"),
-                        Locale("sr-Cyrl-SR"),
-                        Locale.current
-                    ),
+                    localeList =
+                        LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
                     background = Color.Blue,
                     textDecoration = TextDecoration.LineThrough,
                     shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
-
                 )
             ) {
                 append("7")
@@ -221,18 +204,17 @@ class TextFieldValueTest {
             }
         }
 
-        val original = TextFieldValue(
-            annotatedString = annotatedString,
-            selection = TextRange(1, 2),
-            composition = TextRange(3, 4)
-        )
+        val original =
+            TextFieldValue(
+                annotatedString = annotatedString,
+                selection = TextRange(1, 2),
+                composition = TextRange(3, 4)
+            )
 
         val saved = with(TextFieldValue.Saver) { defaultSaverScope.save(original) }
         val restored = TextFieldValue.Saver.restore(saved!!)
 
-        assertThat(restored).isEqualTo(
-            TextFieldValue(original.annotatedString, original.selection)
-        )
+        assertThat(restored).isEqualTo(TextFieldValue(original.annotatedString, original.selection))
     }
 
     @Test

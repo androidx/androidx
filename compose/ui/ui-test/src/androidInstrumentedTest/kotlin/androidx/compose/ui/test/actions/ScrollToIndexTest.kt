@@ -44,8 +44,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ScrollToIndexTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private fun tag(index: Int): String = "tag_$index"
 
@@ -107,8 +106,8 @@ class ScrollToIndexTest {
         // Verify that it doesn't support performScrollToIndex
         rule.onNode(hasScrollToIndexAction()).assertDoesNotExist()
         expectError<AssertionError>(
-            expectedMessage = "Failed to scroll to index 1, " +
-                "the node is missing \\[ScrollToIndex\\].*"
+            expectedMessage =
+                "Failed to scroll to index 1, " + "the node is missing \\[ScrollToIndex\\].*"
         ) {
             rule.onNodeWithTag("tag").performScrollToIndex(1)
         }

@@ -31,8 +31,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BasicTextMinMaxLinesTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val longText = "Lorem ipsum\n".repeat(10)
     private val shortText = "Lorem ipsum"
@@ -51,24 +50,18 @@ class BasicTextMinMaxLinesTest {
                 shortText,
                 minLines = minLines1,
                 maxLines = maxLines1,
-                onTextLayout = {
-                    size1 = it.size.height
-                }
+                onTextLayout = { size1 = it.size.height }
             )
 
             BasicText(
                 shortText,
                 minLines = minLines2,
                 maxLines = maxLines2,
-                onTextLayout = {
-                    size2 = it.size.height
-                }
+                onTextLayout = { size2 = it.size.height }
             )
         }
 
-        rule.runOnIdle {
-            assertThat(size2).isGreaterThan(size1)
-        }
+        rule.runOnIdle { assertThat(size2).isGreaterThan(size1) }
     }
 
     @Test
@@ -85,24 +78,18 @@ class BasicTextMinMaxLinesTest {
                 longText,
                 minLines = minLines1,
                 maxLines = maxLines1,
-                onTextLayout = {
-                    size1 = it.size.height
-                }
+                onTextLayout = { size1 = it.size.height }
             )
 
             BasicText(
                 longText,
                 minLines = minLines2,
                 maxLines = maxLines2,
-                onTextLayout = {
-                    size2 = it.size.height
-                }
+                onTextLayout = { size2 = it.size.height }
             )
         }
 
-        rule.runOnIdle {
-            assertThat(size2).isLessThan(size1)
-        }
+        rule.runOnIdle { assertThat(size2).isLessThan(size1) }
     }
 
     @Test
@@ -111,13 +98,7 @@ class BasicTextMinMaxLinesTest {
         var minLines by mutableStateOf(2)
 
         rule.setContent {
-            BasicText(
-                shortText,
-                minLines = minLines,
-                onTextLayout = {
-                    size += it.size.height
-                }
-            )
+            BasicText(shortText, minLines = minLines, onTextLayout = { size += it.size.height })
         }
 
         minLines += 1
@@ -134,13 +115,7 @@ class BasicTextMinMaxLinesTest {
         var maxLines by mutableStateOf(5)
 
         rule.setContent {
-            BasicText(
-                longText,
-                maxLines = maxLines,
-                onTextLayout = {
-                    size += it.size.height
-                }
-            )
+            BasicText(longText, maxLines = maxLines, onTextLayout = { size += it.size.height })
         }
 
         maxLines -= 1
@@ -157,13 +132,7 @@ class BasicTextMinMaxLinesTest {
         var minLines by mutableStateOf(1)
 
         rule.setContent {
-            BasicText(
-                shortText,
-                minLines = minLines,
-                onTextLayout = {
-                    size += it.size.height
-                }
-            )
+            BasicText(shortText, minLines = minLines, onTextLayout = { size += it.size.height })
         }
 
         minLines += 1
@@ -180,13 +149,7 @@ class BasicTextMinMaxLinesTest {
         var maxLines by mutableStateOf(Int.MAX_VALUE)
 
         rule.setContent {
-            BasicText(
-                longText,
-                maxLines = maxLines,
-                onTextLayout = {
-                    size += it.size.height
-                }
-            )
+            BasicText(longText, maxLines = maxLines, onTextLayout = { size += it.size.height })
         }
 
         maxLines = 2
@@ -199,34 +162,16 @@ class BasicTextMinMaxLinesTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun validateMaxLinesGreaterThanMinLines() {
-        rule.setContent {
-            BasicText(
-                shortText,
-                minLines = 2,
-                maxLines = 1
-            )
-        }
+        rule.setContent { BasicText(shortText, minLines = 2, maxLines = 1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun validateMinLinesPositive() {
-        rule.setContent {
-            BasicText(
-                shortText,
-                minLines = 0,
-                maxLines = 1
-            )
-        }
+        rule.setContent { BasicText(shortText, minLines = 0, maxLines = 1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun validateMaxLinesPositive() {
-        rule.setContent {
-            BasicText(
-                shortText,
-                minLines = 1,
-                maxLines = 0
-            )
-        }
+        rule.setContent { BasicText(shortText, minLines = 1, maxLines = 0) }
     }
 }

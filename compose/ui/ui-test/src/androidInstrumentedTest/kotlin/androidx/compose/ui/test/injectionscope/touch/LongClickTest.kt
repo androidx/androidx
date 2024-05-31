@@ -53,9 +53,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests [TouchInjectionScope.longClick] with arguments. Verifies that the click is in the middle
- * of the component, that the gesture has a duration of 600 milliseconds and that all input
- * events were on the same location.
+ * Tests [TouchInjectionScope.longClick] with arguments. Verifies that the click is in the middle of
+ * the component, that the gesture has a duration of 600 milliseconds and that all input events were
+ * on the same location.
  */
 @MediumTest
 @RunWith(Parameterized::class)
@@ -64,9 +64,8 @@ class LongClickTest(private val config: TestConfig) {
 
     companion object {
         private const val LongPressTimeoutMillis = 300L
-        private val testViewConfiguration = TestViewConfiguration(
-            longPressTimeoutMillis = LongPressTimeoutMillis
-        )
+        private val testViewConfiguration =
+            TestViewConfiguration(longPressTimeoutMillis = LongPressTimeoutMillis)
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -80,12 +79,10 @@ class LongClickTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val recordedLongClicks = mutableListOf<Offset>()
-    private val expectedClickPosition =
-        config.position ?: Offset(defaultSize / 2, defaultSize / 2)
+    private val expectedClickPosition = config.position ?: Offset(defaultSize / 2, defaultSize / 2)
     private val expectedDuration = config.durationMillis ?: LongPressTimeoutMillis + 100L
 
     private fun recordLongPress(position: Offset) {
@@ -100,8 +97,7 @@ class LongClickTest(private val config: TestConfig) {
             WithViewConfiguration(testViewConfiguration) {
                 Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                     ClickableTestBox(
-                        Modifier
-                            .pointerInput(Unit) {
+                        Modifier.pointerInput(Unit) {
                                 detectTapGestures(onLongPress = ::recordLongPress)
                             }
                             .then(recorder)

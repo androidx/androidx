@@ -18,26 +18,26 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
-/**
- * Interface for managing accessibility.
- */
+/** Interface for managing accessibility. */
 @JvmDefaultWithCompatibility
 interface AccessibilityManager {
 
     /**
      * Calculate the recommended timeout for changes to the UI needed by this user. Controls should
      * remain on the screen for at least this long to give users time to react. Some users may need
-     * extra time to review the controls, or to reach them, or to activate assistive technology
-     * to activate the controls automatically.
+     * extra time to review the controls, or to reach them, or to activate assistive technology to
+     * activate the controls automatically.
+     *
      * <p>
-     * Use the boolean parameters to indicate contents of UI. For example, set [containsIcons]
-     * and [containsText] to true for message notification which contains icons and text, or set
+     * Use the boolean parameters to indicate contents of UI. For example, set [containsIcons] and
+     * [containsText] to true for message notification which contains icons and text, or set
      * [containsText] and [containsControls] to true for button dialog which contains text and
      * button controls.
+     *
      * <p/>
      *
-     * @param originalTimeoutMillis The timeout appropriate for users with no accessibility needs
-     * in milliseconds.
+     * @param originalTimeoutMillis The timeout appropriate for users with no accessibility needs in
+     *   milliseconds.
      * @param containsIcons The contents of UI contain icons.
      * @param containsText The contents of UI contain text.
      * @param containsControls The contents of UI contain controls.

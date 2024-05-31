@@ -17,18 +17,15 @@
 package androidx.compose.ui.text
 
 /**
- * An annotation that contains the metadata intended for text-to-speech engine. If the text is
- * being processed by a text-to-speech engine, the engine may use the data in this annotation in
- * addition to or instead of its associated text.
+ * An annotation that contains the metadata intended for text-to-speech engine. If the text is being
+ * processed by a text-to-speech engine, the engine may use the data in this annotation in addition
+ * to or instead of its associated text.
  *
- * Note: this is now deprecated. In order to display a link in the text, add a [LinkAnnotation]
- * to the AnnotatedString and pass it to the Text composable function
+ * Note: this is now deprecated. In order to display a link in the text, add a [LinkAnnotation] to
+ * the AnnotatedString and pass it to the Text composable function
  */
 @ExperimentalTextApi
-@Deprecated(
-    "Use LinkAnnotatation.Url(url) instead",
-    ReplaceWith("LinkAnnotation.Url(url)")
-)
+@Deprecated("Use LinkAnnotatation.Url(url) instead", ReplaceWith("LinkAnnotation.Url(url)"))
 @Suppress("Deprecation")
 class UrlAnnotation(val url: String) {
     override fun equals(other: Any?): Boolean {

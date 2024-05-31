@@ -32,8 +32,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class ComplexNestedListsScrollBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     private lateinit var device: UiDevice
 

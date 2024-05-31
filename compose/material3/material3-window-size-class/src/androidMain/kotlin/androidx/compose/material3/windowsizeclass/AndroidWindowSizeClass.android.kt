@@ -27,8 +27,8 @@ import androidx.window.layout.WindowMetricsCalculator
  * Calculates the window's [WindowSizeClass] for the provided [activity].
  *
  * A new [WindowSizeClass] will be returned whenever a configuration change causes the width or
- * height of the window to cross a breakpoint, such as when the device is rotated or the window
- * is resized.
+ * height of the window to cross a breakpoint, such as when the device is rotated or the window is
+ * resized.
  *
  * @sample androidx.compose.material3.windowsizeclass.samples.AndroidWindowSizeClassSample
  */

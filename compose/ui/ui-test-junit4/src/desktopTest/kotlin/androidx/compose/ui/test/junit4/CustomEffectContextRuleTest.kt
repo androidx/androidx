@@ -31,8 +31,8 @@ import org.junit.runners.JUnit4
 import org.junit.runners.model.Statement
 
 /**
- * Tests for passing a custom CoroutineContext to one of [ComposeTestRule]s.
- * Similar tests are available for [runComposeUiTest] in compose:ui:ui-test
+ * Tests for passing a custom CoroutineContext to one of [ComposeTestRule]s. Similar tests are
+ * available for [runComposeUiTest] in compose:ui:ui-test
  */
 @RunWith(JUnit4::class)
 @OptIn(ExperimentalTestApi::class)
@@ -45,35 +45,34 @@ class CustomEffectContextRuleTest {
      * [ComposeTestRule].
      */
     @get:Rule
-    val testWatcher = object : TestWatcher() {
-        override fun starting(description: Description) {
-            testDescription = description
+    val testWatcher =
+        object : TestWatcher() {
+            override fun starting(description: Description) {
+                testDescription = description
+            }
         }
-    }
 
     @Test
     fun effectContextPropagatedToComposition_createComposeRule() {
         val testElement = TestCoroutineContextElement()
         lateinit var compositionScope: CoroutineScope
         val rule = createComposeRule(testElement)
-        val baseStatement = object : Statement() {
-            override fun evaluate() {
-                rule.setContent {
-                    compositionScope = rememberCoroutineScope()
+        val baseStatement =
+            object : Statement() {
+                override fun evaluate() {
+                    rule.setContent { compositionScope = rememberCoroutineScope() }
+                    rule.waitForIdle()
                 }
-                rule.waitForIdle()
             }
-        }
-        rule.apply(baseStatement, testDescription)
-            .evaluate()
+        rule.apply(baseStatement, testDescription).evaluate()
 
-        val elementFromComposition =
-            compositionScope.coroutineContext[TestCoroutineContextElement]
+        val elementFromComposition = compositionScope.coroutineContext[TestCoroutineContextElement]
         assertThat(elementFromComposition).isSameInstanceAs(testElement)
     }
 
     private class TestCoroutineContextElement : CoroutineContext.Element {
-        override val key: CoroutineContext.Key<*> get() = Key
+        override val key: CoroutineContext.Key<*>
+            get() = Key
 
         companion object Key : CoroutineContext.Key<TestCoroutineContextElement>
     }

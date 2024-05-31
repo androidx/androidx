@@ -22,22 +22,19 @@ import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Image
 
 /**
- * Create an [ImageBitmap] from the given [Bitmap]. Note this does
- * not create a copy of the original [Bitmap] and changes to it
- * will modify the returned [ImageBitmap]
+ * Create an [ImageBitmap] from the given [Bitmap]. Note this does not create a copy of the original
+ * [Bitmap] and changes to it will modify the returned [ImageBitmap]
  */
 @Deprecated("Use asComposeImageBitmap", replaceWith = ReplaceWith("asComposeImageBitmap()"))
 fun Bitmap.asImageBitmap(): ImageBitmap = asComposeImageBitmap()
 
-/**
- * Create an [ImageBitmap] from the given [Image].
- */
+/** Create an [ImageBitmap] from the given [Image]. */
 @Deprecated("Use toComposeImageBitmap", replaceWith = ReplaceWith("toComposeImageBitmap()"))
 fun Image.asImageBitmap(): ImageBitmap = toComposeImageBitmap()
 
 /**
  * @Throws UnsupportedOperationException if this [ImageBitmap] is not backed by an
- * org.jetbrains.skia.Image
+ *   org.jetbrains.skia.Image
  */
 @Deprecated("Use asSkiaBitmap()", replaceWith = ReplaceWith("asSkiaBitmap()"))
 fun ImageBitmap.asDesktopBitmap(): Bitmap = asSkiaBitmap()

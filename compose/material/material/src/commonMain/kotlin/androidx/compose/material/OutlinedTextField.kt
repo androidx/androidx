@@ -69,69 +69,71 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://material.io/components/text-fields#outlined-text-field" class="external" target="_blank">Material Design outlined text field</a>.
+ * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * target="_blank">Material Design outlined text field</a>.
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
  * places like forms, where many text fields are placed together, their reduced emphasis helps
  * simplify the layout.
  *
- * ![Outlined text field image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
+ * ![Outlined text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
  *
  * See example usage:
+ *
  * @sample androidx.compose.material.samples.SimpleOutlinedTextFieldSample
  *
- * If apart from input text change you also want to observe the cursor location, selection range,
- * or IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter
- * instead.
+ * If apart from input text change you also want to observe the cursor location, selection range, or
+ * IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter instead.
  *
  * @param value the input text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
- * updated text comes as a parameter of the callback
+ *   updated text comes as a parameter of the callback
  * @param modifier a [Modifier] for this text field
- * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text field will
- * be neither editable nor focusable, the input of the text field will not be selectable,
- * visually text field will appear in the disabled UI state
+ * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text
+ *   field will be neither editable nor focusable, the input of the text field will not be
+ *   selectable, visually text field will appear in the disabled UI state
  * @param readOnly controls the editable state of the [OutlinedTextField]. When `true`, the text
- * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit
+ *   field can not be modified, however, a user can focus it and copy text from it. Read-only text
+ *   fields are usually used to display pre-filled forms that user can not edit
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [LocalTextStyle] defined by the theme
- * @param label the optional label to be displayed inside the text field container. The default
- * text style for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when the text field is not in focus
+ *   [LocalTextStyle] defined by the theme
+ * @param label the optional label to be displayed inside the text field container. The default text
+ *   style for internal [Text] is [Typography.caption] when the text field is in focus and
+ *   [Typography.subtitle1] when the text field is not in focus
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ *   the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
- * container
+ *   container
  * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
- * container
+ *   container
  * @param isError indicates if the text field's current value is in error. If set to true, the
- * label, bottom indicator and trailing icon by default will be displayed in error color
- * @param visualTransformation transforms the visual representation of the input [value]
- * For example, you can use
- * [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
- * create a password text field. By default no visual transformation is applied
+ *   label, bottom indicator and trailing icon by default will be displayed in error color
+ * @param visualTransformation transforms the visual representation of the input [value] For
+ *   example, you can use
+ *   [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
+ *   create a password text field. By default no visual transformation is applied
  * @param keyboardOptions software keyboard options that contains configuration such as
- * [KeyboardType] and [ImeAction]
- * @param keyboardActions when the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction]
- * @param singleLine when set to true, this text field becomes a single horizontally scrolling
- * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1
+ *   [KeyboardType] and [ImeAction]
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback is
+ *   called. Note that this IME action may be different from what you specified in
+ *   [KeyboardOptions.imeAction]
+ * @param singleLine when set to true, this text field becomes a single horizontally scrolling text
+ *   field instead of wrapping onto multiple lines. The keyboard will be informed to not show the
+ *   return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the maxLines
+ *   attribute will be automatically set to 1
  * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param minLines the minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this text field. You can use this to change the text field's
- * appearance or preview the text field in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param shape the shape of the text field's border
  * @param colors [TextFieldColors] that will be used to resolve color of the text and content
- * (including label, placeholder, leading and trailing icons, border) for this text field in
- * different states. See [TextFieldDefaults.outlinedTextFieldColors]
+ *   (including label, placeholder, leading and trailing icons, border) for this text field in
+ *   different states. See [TextFieldDefaults.outlinedTextFieldColors]
  */
 @Composable
 fun OutlinedTextField(
@@ -159,9 +161,7 @@ fun OutlinedTextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // If color is not provided via the text style, use content color as a default
-    val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled).value
-    }
+    val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
     val density = LocalDensity.current
@@ -169,23 +169,24 @@ fun OutlinedTextField(
     @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
-        modifier = modifier
-            .then(
-                if (label != null) {
-                    Modifier
-                        // Merge semantics at the beginning of the modifier chain to ensure
-                        // padding is considered part of the text field.
-                        .semantics(mergeDescendants = true) {}
-                        .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
-                } else {
-                    Modifier
-                }
-            )
-            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
-            .defaultMinSize(
-                minWidth = TextFieldDefaults.MinWidth,
-                minHeight = TextFieldDefaults.MinHeight
-            ),
+        modifier =
+            modifier
+                .then(
+                    if (label != null) {
+                        Modifier
+                            // Merge semantics at the beginning of the modifier chain to ensure
+                            // padding is considered part of the text field.
+                            .semantics(mergeDescendants = true) {}
+                            .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
+                    } else {
+                        Modifier
+                    }
+                )
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                ),
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
@@ -198,32 +199,33 @@ fun OutlinedTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        decorationBox = @Composable { innerTextField ->
-            TextFieldDefaults.OutlinedTextFieldDecorationBox(
-                value = value,
-                visualTransformation = visualTransformation,
-                innerTextField = innerTextField,
-                placeholder = placeholder,
-                label = label,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                singleLine = singleLine,
-                enabled = enabled,
-                isError = isError,
-                interactionSource = interactionSource,
-                shape = shape,
-                colors = colors,
-                border = {
-                    TextFieldDefaults.BorderBox(
-                        enabled,
-                        isError,
-                        interactionSource,
-                        colors,
-                        shape
-                    )
-                }
-            )
-        }
+        decorationBox =
+            @Composable { innerTextField ->
+                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                    value = value,
+                    visualTransformation = visualTransformation,
+                    innerTextField = innerTextField,
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    shape = shape,
+                    colors = colors,
+                    border = {
+                        TextFieldDefaults.BorderBox(
+                            enabled,
+                            isError,
+                            interactionSource,
+                            colors,
+                            shape
+                        )
+                    }
+                )
+            }
     )
 }
 
@@ -278,69 +280,72 @@ fun OutlinedTextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#outlined-text-field" class="external" target="_blank">Material Design outlined text field</a>.
+ * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * target="_blank">Material Design outlined text field</a>.
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
  * places like forms, where many text fields are placed together, their reduced emphasis helps
  * simplify the layout.
  *
- * ![Outlined text field image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
+ * ![Outlined text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
  *
  * See example usage:
+ *
  * @sample androidx.compose.material.samples.OutlinedTextFieldSample
  *
- * This overload provides access to the input text, cursor position and selection range and
- * IME composition. If you only want to observe an input text change, use the OutlinedTextField
- * overload with the [String] parameter instead.
+ * This overload provides access to the input text, cursor position and selection range and IME
+ * composition. If you only want to observe an input text change, use the OutlinedTextField overload
+ * with the [String] parameter instead.
  *
  * @param value the input [TextFieldValue] to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates values in
- * [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
+ *   [TextFieldValue]. An updated [TextFieldValue] comes as a parameter of the callback
  * @param modifier a [Modifier] for this text field
- * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text field will
- * be neither editable nor focusable, the input of the text field will not be selectable,
- * visually text field will appear in the disabled UI state
+ * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text
+ *   field will be neither editable nor focusable, the input of the text field will not be
+ *   selectable, visually text field will appear in the disabled UI state
  * @param readOnly controls the editable state of the [OutlinedTextField]. When `true`, the text
- * field can not be modified, however, a user can focus it and copy text from it. Read-only text
- * fields are usually used to display pre-filled forms that user can not edit
+ *   field can not be modified, however, a user can focus it and copy text from it. Read-only text
+ *   fields are usually used to display pre-filled forms that user can not edit
  * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
- * [LocalTextStyle] defined by the theme
- * @param label the optional label to be displayed inside the text field container. The default
- * text style for internal [Text] is [Typography.caption] when the text field is in focus and
- * [Typography.subtitle1] when the text field is not in focus
+ *   [LocalTextStyle] defined by the theme
+ * @param label the optional label to be displayed inside the text field container. The default text
+ *   style for internal [Text] is [Typography.caption] when the text field is in focus and
+ *   [Typography.subtitle1] when the text field is not in focus
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
- * the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ *   the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
- * container
+ *   container
  * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
- * container
- * @param isError indicates if the text field's current value is in error state. If set to
- * true, the label, bottom indicator and trailing icon by default will be displayed in error color
- * @param visualTransformation transforms the visual representation of the input [value]
- * For example, you can use
- * [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
- * create a password text field. By default no visual transformation is applied
+ *   container
+ * @param isError indicates if the text field's current value is in error state. If set to true, the
+ *   label, bottom indicator and trailing icon by default will be displayed in error color
+ * @param visualTransformation transforms the visual representation of the input [value] For
+ *   example, you can use
+ *   [PasswordVisualTransformation][androidx.compose.ui.text.input.PasswordVisualTransformation] to
+ *   create a password text field. By default no visual transformation is applied
  * @param keyboardOptions software keyboard options that contains configuration such as
- * [KeyboardType] and [ImeAction]
- * @param keyboardActions when the input service emits an IME action, the corresponding callback
- * is called. Note that this IME action may be different from what you specified in
- * [KeyboardOptions.imeAction]
- * @param singleLine when set to true, this text field becomes a single horizontally scrolling
- * text field instead of wrapping onto multiple lines. The keyboard will be informed to not show
- * the return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the
- * maxLines attribute will be automatically set to 1
+ *   [KeyboardType] and [ImeAction]
+ * @param keyboardActions when the input service emits an IME action, the corresponding callback is
+ *   called. Note that this IME action may be different from what you specified in
+ *   [KeyboardOptions.imeAction]
+ * @param singleLine when set to true, this text field becomes a single horizontally scrolling text
+ *   field instead of wrapping onto multiple lines. The keyboard will be informed to not show the
+ *   return key as the [ImeAction]. Note that [maxLines] parameter will be ignored as the maxLines
+ *   attribute will be automatically set to 1
  * @param maxLines the maximum height in terms of maximum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param minLines the minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
+ *   that 1 <= [minLines] <= [maxLines]. This parameter is ignored when [singleLine] is true.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this text field. You can use this to change the text field's
- * appearance or preview the text field in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param shape the shape of the text field's border
  * @param colors [TextFieldColors] that will be used to resolve color of the text and content
- * (including label, placeholder, leading and trailing icons, border) for this text field in
- * different states. See [TextFieldDefaults.outlinedTextFieldColors]
+ *   (including label, placeholder, leading and trailing icons, border) for this text field in
+ *   different states. See [TextFieldDefaults.outlinedTextFieldColors]
  */
 @Composable
 fun OutlinedTextField(
@@ -368,9 +373,7 @@ fun OutlinedTextField(
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     // If color is not provided via the text style, use content color as a default
-    val textColor = textStyle.color.takeOrElse {
-        colors.textColor(enabled).value
-    }
+    val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
     val density = LocalDensity.current
@@ -378,23 +381,24 @@ fun OutlinedTextField(
     @OptIn(ExperimentalMaterialApi::class)
     BasicTextField(
         value = value,
-        modifier = modifier
-            .then(
-                if (label != null) {
-                    Modifier
-                        // Merge semantics at the beginning of the modifier chain to ensure
-                        // padding is considered part of the text field.
-                        .semantics(mergeDescendants = true) {}
-                        .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
-                } else {
-                    Modifier
-                }
-            )
-            .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
-            .defaultMinSize(
-                minWidth = TextFieldDefaults.MinWidth,
-                minHeight = TextFieldDefaults.MinHeight
-            ),
+        modifier =
+            modifier
+                .then(
+                    if (label != null) {
+                        Modifier
+                            // Merge semantics at the beginning of the modifier chain to ensure
+                            // padding is considered part of the text field.
+                            .semantics(mergeDescendants = true) {}
+                            .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
+                    } else {
+                        Modifier
+                    }
+                )
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                ),
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
@@ -407,32 +411,33 @@ fun OutlinedTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         minLines = minLines,
-        decorationBox = @Composable { innerTextField ->
-            TextFieldDefaults.OutlinedTextFieldDecorationBox(
-                value = value.text,
-                visualTransformation = visualTransformation,
-                innerTextField = innerTextField,
-                placeholder = placeholder,
-                label = label,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                singleLine = singleLine,
-                enabled = enabled,
-                isError = isError,
-                interactionSource = interactionSource,
-                shape = shape,
-                colors = colors,
-                border = {
-                    TextFieldDefaults.BorderBox(
-                        enabled,
-                        isError,
-                        interactionSource,
-                        colors,
-                        shape
-                    )
-                }
-            )
-        }
+        decorationBox =
+            @Composable { innerTextField ->
+                TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                    value = value.text,
+                    visualTransformation = visualTransformation,
+                    innerTextField = innerTextField,
+                    placeholder = placeholder,
+                    label = label,
+                    leadingIcon = leadingIcon,
+                    trailingIcon = trailingIcon,
+                    singleLine = singleLine,
+                    enabled = enabled,
+                    isError = isError,
+                    interactionSource = interactionSource,
+                    shape = shape,
+                    colors = colors,
+                    border = {
+                        TextFieldDefaults.BorderBox(
+                            enabled,
+                            isError,
+                            interactionSource,
+                            colors,
+                            shape
+                        )
+                    }
+                )
+            }
     )
 }
 
@@ -488,10 +493,9 @@ fun OutlinedTextField(
 
 /**
  * Layout of the leading and trailing icons and the text field, label and placeholder in
- * [OutlinedTextField].
- * It doesn't use Row to position the icons and middle part because label should not be
- * positioned in the middle part.
-\ */
+ * [OutlinedTextField]. It doesn't use Row to position the icons and middle part because label
+ * should not be positioned in the middle part. \
+ */
 @Composable
 internal fun OutlinedTextFieldLayout(
     modifier: Modifier,
@@ -506,14 +510,15 @@ internal fun OutlinedTextFieldLayout(
     border: @Composable () -> Unit,
     paddingValues: PaddingValues
 ) {
-    val measurePolicy = remember(onLabelMeasured, singleLine, animationProgress, paddingValues) {
-        OutlinedTextFieldMeasurePolicy(
-            onLabelMeasured,
-            singleLine,
-            animationProgress,
-            paddingValues
-        )
-    }
+    val measurePolicy =
+        remember(onLabelMeasured, singleLine, animationProgress, paddingValues) {
+            OutlinedTextFieldMeasurePolicy(
+                onLabelMeasured,
+                singleLine,
+                animationProgress,
+                paddingValues
+            )
+        }
     val layoutDirection = LocalLayoutDirection.current
     Layout(
         modifier = modifier,
@@ -544,20 +549,21 @@ internal fun OutlinedTextFieldLayout(
 
             val startTextFieldPadding = paddingValues.calculateStartPadding(layoutDirection)
             val endTextFieldPadding = paddingValues.calculateEndPadding(layoutDirection)
-            val padding = Modifier.padding(
-                start = if (leading != null) {
-                    (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(
-                        0.dp
-                    )
-                } else {
-                    startTextFieldPadding
-                },
-                end = if (trailing != null) {
-                    (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
-                } else {
-                    endTextFieldPadding
-                }
-            )
+            val padding =
+                Modifier.padding(
+                    start =
+                        if (leading != null) {
+                            (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                        } else {
+                            startTextFieldPadding
+                        },
+                    end =
+                        if (trailing != null) {
+                            (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                        } else {
+                            endTextFieldPadding
+                        }
+                )
             if (placeholder != null) {
                 placeholder(Modifier.layoutId(PlaceholderId).then(padding))
             }
@@ -593,57 +599,58 @@ private class OutlinedTextFieldMeasurePolicy(
 
         // measure leading icon
         val relaxedConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val leadingPlaceable = measurables.fastFirstOrNull {
-            it.layoutId == LeadingId
-        }?.measure(relaxedConstraints)
-        occupiedSpaceHorizontally += widthOrZero(
-            leadingPlaceable
-        )
+        val leadingPlaceable =
+            measurables.fastFirstOrNull { it.layoutId == LeadingId }?.measure(relaxedConstraints)
+        occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)
 
         // measure trailing icon
-        val trailingPlaceable = measurables.fastFirstOrNull { it.layoutId == TrailingId }
-            ?.measure(relaxedConstraints.offset(horizontal = -occupiedSpaceHorizontally))
-        occupiedSpaceHorizontally += widthOrZero(
-            trailingPlaceable
-        )
+        val trailingPlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.measure(relaxedConstraints.offset(horizontal = -occupiedSpaceHorizontally))
+        occupiedSpaceHorizontally += widthOrZero(trailingPlaceable)
 
         // measure label
         val labelHorizontalPaddingOffset =
             paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
                 paddingValues.calculateRightPadding(layoutDirection).roundToPx()
-        val labelConstraints = relaxedConstraints.offset(
-            horizontal = lerp(
-                -occupiedSpaceHorizontally - labelHorizontalPaddingOffset,
-                -labelHorizontalPaddingOffset,
-                animationProgress,
-            ),
-            vertical = -bottomPadding
-        )
+        val labelConstraints =
+            relaxedConstraints.offset(
+                horizontal =
+                    lerp(
+                        -occupiedSpaceHorizontally - labelHorizontalPaddingOffset,
+                        -labelHorizontalPaddingOffset,
+                        animationProgress,
+                    ),
+                vertical = -bottomPadding
+            )
         val labelPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LabelId }?.measure(labelConstraints)
-        val labelSize = labelPlaceable?.let {
-            Size(it.width.toFloat(), it.height.toFloat())
-        } ?: Size.Zero
+        val labelSize =
+            labelPlaceable?.let { Size(it.width.toFloat(), it.height.toFloat()) } ?: Size.Zero
         onLabelMeasured(labelSize)
 
         // measure text field
         // on top we offset either by default padding or by label's half height if its too big
         // minHeight must not be set to 0 due to how foundation TextField treats zero minHeight
-        val topPadding = max(
-            heightOrZero(labelPlaceable) / 2,
-            paddingValues.calculateTopPadding().roundToPx()
-        )
-        val textConstraints = constraints.offset(
-            horizontal = -occupiedSpaceHorizontally,
-            vertical = -bottomPadding - topPadding
-        ).copy(minHeight = 0)
+        val topPadding =
+            max(heightOrZero(labelPlaceable) / 2, paddingValues.calculateTopPadding().roundToPx())
+        val textConstraints =
+            constraints
+                .offset(
+                    horizontal = -occupiedSpaceHorizontally,
+                    vertical = -bottomPadding - topPadding
+                )
+                .copy(minHeight = 0)
         val textFieldPlaceable =
             measurables.fastFirst { it.layoutId == TextFieldId }.measure(textConstraints)
 
         // measure placeholder
         val placeholderConstraints = textConstraints.copy(minWidth = 0)
-        val placeholderPlaceable = measurables.fastFirstOrNull { it.layoutId == PlaceholderId }
-            ?.measure(placeholderConstraints)
+        val placeholderPlaceable =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.measure(placeholderConstraints)
 
         val width =
             calculateWidth(
@@ -670,14 +677,17 @@ private class OutlinedTextFieldMeasurePolicy(
                 paddingValues = paddingValues,
             )
 
-        val borderPlaceable = measurables.fastFirst { it.layoutId == BorderId }.measure(
-            Constraints(
-                minWidth = if (width != Constraints.Infinity) width else 0,
-                maxWidth = width,
-                minHeight = if (height != Constraints.Infinity) height else 0,
-                maxHeight = height
-            )
-        )
+        val borderPlaceable =
+            measurables
+                .fastFirst { it.layoutId == BorderId }
+                .measure(
+                    Constraints(
+                        minWidth = if (width != Constraints.Infinity) width else 0,
+                        maxWidth = width,
+                        minHeight = if (height != Constraints.Infinity) height else 0,
+                        maxHeight = height
+                    )
+                )
         return layout(width, height) {
             place(
                 height,
@@ -740,18 +750,22 @@ private class OutlinedTextFieldMeasurePolicy(
     ): Int {
         val textFieldWidth =
             intrinsicMeasurer(measurables.fastFirst { it.layoutId == TextFieldId }, height)
-        val labelWidth = measurables.fastFirstOrNull { it.layoutId == LabelId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val trailingWidth = measurables.fastFirstOrNull { it.layoutId == TrailingId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val leadingWidth = measurables.fastFirstOrNull { it.layoutId == LeadingId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
-        val placeholderWidth = measurables.fastFirstOrNull { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, height)
-        } ?: 0
+        val labelWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == LabelId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val trailingWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val leadingWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == LeadingId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
+        val placeholderWidth =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.let { intrinsicMeasurer(it, height) } ?: 0
         return calculateWidth(
             leadingPlaceableWidth = leadingWidth,
             trailingPlaceableWidth = trailingWidth,
@@ -771,28 +785,38 @@ private class OutlinedTextFieldMeasurePolicy(
         intrinsicMeasurer: (IntrinsicMeasurable, Int) -> Int
     ): Int {
         var remainingWidth = width
-        val leadingHeight = measurables.fastFirstOrNull { it.layoutId == LeadingId }?.let {
-            remainingWidth = remainingWidth.substractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            intrinsicMeasurer(it, width)
-        } ?: 0
-        val trailingHeight = measurables.fastFirstOrNull { it.layoutId == TrailingId }?.let {
-            remainingWidth = remainingWidth.substractConstraintSafely(
-                it.maxIntrinsicWidth(Constraints.Infinity)
-            )
-            intrinsicMeasurer(it, width)
-        } ?: 0
+        val leadingHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == LeadingId }
+                ?.let {
+                    remainingWidth =
+                        remainingWidth.substractConstraintSafely(
+                            it.maxIntrinsicWidth(Constraints.Infinity)
+                        )
+                    intrinsicMeasurer(it, width)
+                } ?: 0
+        val trailingHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == TrailingId }
+                ?.let {
+                    remainingWidth =
+                        remainingWidth.substractConstraintSafely(
+                            it.maxIntrinsicWidth(Constraints.Infinity)
+                        )
+                    intrinsicMeasurer(it, width)
+                } ?: 0
 
-        val labelHeight = measurables.fastFirstOrNull { it.layoutId == LabelId }?.let {
-            intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress))
-        } ?: 0
+        val labelHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == LabelId }
+                ?.let { intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress)) } ?: 0
 
         val textFieldHeight =
             intrinsicMeasurer(measurables.fastFirst { it.layoutId == TextFieldId }, remainingWidth)
-        val placeholderHeight = measurables.fastFirstOrNull { it.layoutId == PlaceholderId }?.let {
-            intrinsicMeasurer(it, remainingWidth)
-        } ?: 0
+        val placeholderHeight =
+            measurables
+                .fastFirstOrNull { it.layoutId == PlaceholderId }
+                ?.let { intrinsicMeasurer(it, remainingWidth) } ?: 0
 
         return calculateHeight(
             leadingPlaceableHeight = leadingHeight,
@@ -816,8 +840,7 @@ private fun Int.substractConstraintSafely(from: Int): Int {
 }
 
 /**
- * Calculate the width of the [OutlinedTextField] given all elements that should be
- * placed inside
+ * Calculate the width of the [OutlinedTextField] given all elements that should be placed inside
  */
 private fun calculateWidth(
     leadingPlaceableWidth: Int,
@@ -830,17 +853,19 @@ private fun calculateWidth(
     density: Float,
     paddingValues: PaddingValues,
 ): Int {
-    val middleSection = maxOf(
-        textFieldPlaceableWidth,
-        lerp(labelPlaceableWidth, 0, animationProgress),
-        placeholderPlaceableWidth
-    )
-    val wrappedWidth =
-        leadingPlaceableWidth + middleSection + trailingPlaceableWidth
+    val middleSection =
+        maxOf(
+            textFieldPlaceableWidth,
+            lerp(labelPlaceableWidth, 0, animationProgress),
+            placeholderPlaceableWidth
+        )
+    val wrappedWidth = leadingPlaceableWidth + middleSection + trailingPlaceableWidth
 
     // Actual LayoutDirection doesn't matter; we only need the sum
-    val labelHorizontalPadding = (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
-        paddingValues.calculateRightPadding(LayoutDirection.Ltr)).value * density
+    val labelHorizontalPadding =
+        (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
+                paddingValues.calculateRightPadding(LayoutDirection.Ltr))
+            .value * density
     val focusedLabelWidth =
         ((labelPlaceableWidth + labelHorizontalPadding) * animationProgress).roundToInt()
 
@@ -848,8 +873,7 @@ private fun calculateWidth(
 }
 
 /**
- * Calculate the height of the [OutlinedTextField] given all elements that should be
- * placed inside
+ * Calculate the height of the [OutlinedTextField] given all elements that should be placed inside
  */
 private fun calculateHeight(
     leadingPlaceableHeight: Int,
@@ -862,27 +886,25 @@ private fun calculateHeight(
     density: Float,
     paddingValues: PaddingValues
 ): Int {
-    val inputFieldHeight = maxOf(
-        textFieldPlaceableHeight,
-        placeholderPlaceableHeight,
-        lerp(labelPlaceableHeight, 0, animationProgress),
-    )
+    val inputFieldHeight =
+        maxOf(
+            textFieldPlaceableHeight,
+            placeholderPlaceableHeight,
+            lerp(labelPlaceableHeight, 0, animationProgress),
+        )
     val topPadding = paddingValues.calculateTopPadding().value * density
-    val actualTopPadding = lerp(
-        topPadding,
-        max(topPadding, labelPlaceableHeight / 2f),
-        animationProgress,
-    )
+    val actualTopPadding =
+        lerp(
+            topPadding,
+            max(topPadding, labelPlaceableHeight / 2f),
+            animationProgress,
+        )
     val bottomPadding = paddingValues.calculateBottomPadding().value * density
     val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
 
     return max(
         constraints.minHeight,
-        maxOf(
-            leadingPlaceableHeight,
-            trailingPlaceableHeight,
-            middleSectionHeight.roundToInt()
-        )
+        maxOf(leadingPlaceableHeight, trailingPlaceableHeight, middleSectionHeight.roundToInt())
     )
 }
 
@@ -926,44 +948,47 @@ private fun Placeable.PlacementScope.place(
     // label position is animated
     // in single line text field label is centered vertically before animation starts
     labelPlaceable?.let {
-        val startPositionY = if (singleLine) {
-            Alignment.CenterVertically.align(it.height, height)
-        } else {
-            topPadding
-        }
-        val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
-        val positionX = (
-            if (leadingPlaceable == null) {
-                0f
+        val startPositionY =
+            if (singleLine) {
+                Alignment.CenterVertically.align(it.height, height)
             } else {
-                (widthOrZero(leadingPlaceable) - iconPadding) * (1 - animationProgress)
+                topPadding
             }
-            ).roundToInt() + startPadding
+        val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
+        val positionX =
+            (if (leadingPlaceable == null) {
+                    0f
+                } else {
+                    (widthOrZero(leadingPlaceable) - iconPadding) * (1 - animationProgress)
+                })
+                .roundToInt() + startPadding
         it.placeRelative(positionX, positionY)
     }
 
     // placed center vertically and after the leading icon horizontally if single line text field
     // placed to the top with padding for multi line text field
-    val textVerticalPosition = max(
-        if (singleLine) {
-            Alignment.CenterVertically.align(textFieldPlaceable.height, height)
-        } else {
-            topPadding
-        },
-        heightOrZero(labelPlaceable) / 2
-    )
-    textFieldPlaceable.placeRelative(widthOrZero(leadingPlaceable), textVerticalPosition)
-
-    // placed similar to the input text above
-    placeholderPlaceable?.let {
-        val placeholderVerticalPosition = max(
+    val textVerticalPosition =
+        max(
             if (singleLine) {
-                Alignment.CenterVertically.align(it.height, height)
+                Alignment.CenterVertically.align(textFieldPlaceable.height, height)
             } else {
                 topPadding
             },
             heightOrZero(labelPlaceable) / 2
         )
+    textFieldPlaceable.placeRelative(widthOrZero(leadingPlaceable), textVerticalPosition)
+
+    // placed similar to the input text above
+    placeholderPlaceable?.let {
+        val placeholderVerticalPosition =
+            max(
+                if (singleLine) {
+                    Alignment.CenterVertically.align(it.height, height)
+                } else {
+                    topPadding
+                },
+                heightOrZero(labelPlaceable) / 2
+            )
         it.placeRelative(widthOrZero(leadingPlaceable), placeholderVerticalPosition)
     }
 
@@ -978,14 +1003,16 @@ internal fun Modifier.outlineCutout(labelSize: Size, paddingValues: PaddingValue
             val innerPadding = OutlinedTextFieldInnerPadding.toPx()
             val leftLtr = paddingValues.calculateLeftPadding(layoutDirection).toPx() - innerPadding
             val rightLtr = leftLtr + labelWidth + 2 * innerPadding
-            val left = when (layoutDirection) {
-                LayoutDirection.Rtl -> size.width - rightLtr
-                else -> leftLtr.coerceAtLeast(0f)
-            }
-            val right = when (layoutDirection) {
-                LayoutDirection.Rtl -> size.width - leftLtr.coerceAtLeast(0f)
-                else -> rightLtr
-            }
+            val left =
+                when (layoutDirection) {
+                    LayoutDirection.Rtl -> size.width - rightLtr
+                    else -> leftLtr.coerceAtLeast(0f)
+                }
+            val right =
+                when (layoutDirection) {
+                    LayoutDirection.Rtl -> size.width - leftLtr.coerceAtLeast(0f)
+                    else -> rightLtr
+                }
             val labelHeight = labelSize.height
             // using label height as a cutout area to make sure that no hairline artifacts are
             // left when we clip the border
@@ -1001,9 +1028,9 @@ private val OutlinedTextFieldInnerPadding = 4.dp
 
 /**
  * In the focused state, the top half of the label sticks out above the text field. This default
- * padding is a best-effort approximation to keep the label from overlapping with the content
- * above it. It is sufficient when the label is a single line and developers do not override the
- * label's font size/style. Otherwise, developers will need to add additional padding themselves.
+ * padding is a best-effort approximation to keep the label from overlapping with the content above
+ * it. It is sufficient when the label is a single line and developers do not override the label's
+ * font size/style. Otherwise, developers will need to add additional padding themselves.
  */
 internal val OutlinedTextFieldTopPadding = 8.sp
 

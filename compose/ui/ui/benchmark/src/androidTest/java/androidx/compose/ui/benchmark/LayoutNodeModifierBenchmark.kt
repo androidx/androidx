@@ -47,22 +47,17 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.model.Statement
 
-/**
- * Benchmark that sets the LayoutNode.modifier.
- */
+/** Benchmark that sets the LayoutNode.modifier. */
 @LargeTest
 @RunWith(Parameterized::class)
-class LayoutNodeModifierBenchmark(
-    private val numberOfModifiers: Int
-) {
+class LayoutNodeModifierBenchmark(private val numberOfModifiers: Int) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "modifiers={0}")
         fun initParameters(): Array<Any> = arrayOf(1, 5, 10)
     }
 
-    @get:Rule
-    val rule = SimpleAndroidBenchmarkRule()
+    @get:Rule val rule = SimpleAndroidBenchmarkRule()
 
     var modifiers = emptyList<Modifier>()
     var combinedModifier: Modifier = Modifier
@@ -70,30 +65,27 @@ class LayoutNodeModifierBenchmark(
 
     @Before
     fun setup() {
-        modifiers = listOf(
-            Modifier.padding(10.dp),
-            Modifier.drawBehind { },
-            Modifier.graphicsLayer(),
-            Modifier.onKeyEvent { true },
-            Modifier.semantics { },
-            Modifier.pointerInput(Unit) {
-                detectTapGestures(onPress = {})
-            },
-            Modifier.layoutId("Hello"),
-            Modifier.padding(10.dp),
-            Modifier.onGloballyPositioned { _ -> },
-            Modifier.zIndex(1f)
-        ).subList(0, numberOfModifiers)
+        modifiers =
+            listOf(
+                    Modifier.padding(10.dp),
+                    Modifier.drawBehind {},
+                    Modifier.graphicsLayer(),
+                    Modifier.onKeyEvent { true },
+                    Modifier.semantics {},
+                    Modifier.pointerInput(Unit) { detectTapGestures(onPress = {}) },
+                    Modifier.layoutId("Hello"),
+                    Modifier.padding(10.dp),
+                    Modifier.onGloballyPositioned { _ -> },
+                    Modifier.zIndex(1f)
+                )
+                .subList(0, numberOfModifiers)
 
-        combinedModifier = modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier ->
-            acc.then(modifier)
-        }
+        combinedModifier =
+            modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier -> acc.then(modifier) }
 
         rule.activityTestRule.runOnUiThread {
             rule.activityTestRule.activity.setContent {
-                TestModifierUpdaterLayout {
-                    testModifierUpdater = it
-                }
+                TestModifierUpdaterLayout { testModifierUpdater = it }
             }
         }
     }
@@ -123,28 +115,21 @@ class LayoutNodeModifierBenchmark(
 
     @Test
     fun setDrawModifiersToSameValue() {
-        modifiers = mutableListOf<Modifier>().apply {
-            repeat(numberOfModifiers) {
-                this += Modifier.drawBehind { }
+        modifiers =
+            mutableListOf<Modifier>().apply {
+                repeat(numberOfModifiers) { this += Modifier.drawBehind {} }
             }
-        }
-        combinedModifier = modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier ->
-            acc.then(modifier)
-        }
+        combinedModifier =
+            modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier -> acc.then(modifier) }
 
-        val altModifier = mutableListOf<Modifier>().apply {
-            repeat(numberOfModifiers) {
-                this += Modifier.drawBehind { }
-            }
-        }.fold<Modifier, Modifier>(Modifier) { acc, modifier ->
-            acc.then(modifier)
-        }
+        val altModifier =
+            mutableListOf<Modifier>()
+                .apply { repeat(numberOfModifiers) { this += Modifier.drawBehind {} } }
+                .fold<Modifier, Modifier>(Modifier) { acc, modifier -> acc.then(modifier) }
 
         rule.activityTestRule.runOnUiThread {
             rule.activityTestRule.activity.setContent {
-                TestModifierUpdaterLayout {
-                    testModifierUpdater = it
-                }
+                TestModifierUpdaterLayout { testModifierUpdater = it }
             }
         }
 
@@ -158,8 +143,7 @@ class LayoutNodeModifierBenchmark(
 
     class SimpleAndroidBenchmarkRule() : TestRule {
         @Suppress("DEPRECATION")
-        val activityTestRule =
-            androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
+        val activityTestRule = androidx.test.rule.ActivityTestRule(ComponentActivity::class.java)
 
         val benchmarkRule = BenchmarkRule()
 

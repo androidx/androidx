@@ -30,24 +30,17 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ModifierNodeVisitSelfAndChildrenTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun noChildren() {
         // Arrange.
         val node = object : Modifier.Node() {}
         val visitedNodes = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(node))
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
         assertThat(visitedNodes).containsExactly(node)
@@ -58,25 +51,13 @@ class ModifierNodeVisitSelfAndChildrenTest {
         // Arrange.
         val (node, child) = List(2) { object : Modifier.Node() {} }
         val visitedNodes = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .elementOf(child)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(node).elementOf(child)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child).inOrder()
     }
 
     @Test
@@ -84,26 +65,13 @@ class ModifierNodeVisitSelfAndChildrenTest {
         // Arrange.
         val (node, child1, child2) = List(3) { object : Modifier.Node() {} }
         val visitedNodes = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .elementOf(child1)
-                    .elementOf(child2)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(node).elementOf(child1).elementOf(child2)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child1)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child1).inOrder()
     }
 
     @Test
@@ -111,26 +79,13 @@ class ModifierNodeVisitSelfAndChildrenTest {
         // Arrange.
         val (node, child) = List(2) { object : Modifier.Node() {} }
         val visitedNodes = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .otherModifier()
-                    .elementOf(child)
-            )
-        }
+        rule.setContent { Box(Modifier.elementOf(node).otherModifier().elementOf(child)) }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child).inOrder()
     }
 
     @Test
@@ -138,23 +93,13 @@ class ModifierNodeVisitSelfAndChildrenTest {
         // Arrange.
         val (node, child) = List(2) { object : Modifier.Node() {} }
         val visitedNodes = mutableListOf<Modifier.Node>()
-        rule.setContent {
-            Box(Modifier.elementOf(node)) {
-                Box(Modifier.elementOf(child))
-            }
-        }
+        rule.setContent { Box(Modifier.elementOf(node)) { Box(Modifier.elementOf(child)) } }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child).inOrder()
     }
 
     @Test
@@ -170,16 +115,10 @@ class ModifierNodeVisitSelfAndChildrenTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child1, child2)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child1, child2).inOrder()
     }
 
     @Test
@@ -190,23 +129,15 @@ class ModifierNodeVisitSelfAndChildrenTest {
         rule.setContent {
             Box(Modifier.elementOf(node)) {
                 Box(Modifier)
-                Box(Modifier.otherModifier()) {
-                    Box(Modifier.elementOf(child))
-                }
+                Box(Modifier.otherModifier()) { Box(Modifier.elementOf(child)) }
             }
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child).inOrder()
     }
 
     @Test
@@ -216,27 +147,17 @@ class ModifierNodeVisitSelfAndChildrenTest {
         val visitedNodes = mutableListOf<Modifier.Node>()
         rule.setContent {
             Box(Modifier.elementOf(node)) {
-                Box {
-                    Box(Modifier.elementOf(child1))
-                }
-                Box(Modifier.otherModifier()) {
-                    Box(Modifier.elementOf(child2))
-                }
+                Box { Box(Modifier.elementOf(child1)) }
+                Box(Modifier.otherModifier()) { Box(Modifier.elementOf(child2)) }
                 Box(Modifier.elementOf(child3))
             }
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child1, child2, child3)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child1, child2, child3).inOrder()
     }
 
     @Ignore("b/278765590")
@@ -246,27 +167,10 @@ class ModifierNodeVisitSelfAndChildrenTest {
         val (child4, child5, child6, child7) = List(4) { object : Modifier.Node() {} }
         val visitedNodes = mutableListOf<Modifier.Node>()
         rule.setContent {
-            Box(
-                Modifier
-                    .elementOf(node)
-                    .elementOf(child1)
-            ) {
-                Box {
-                    Box(
-                        Modifier
-                            .elementOf(child2)
-                            .elementOf(child3)
-                    )
-                }
-                Box(Modifier.otherModifier()) {
-                    Box(Modifier.elementOf(child4))
-                }
-                Box(
-                    Modifier
-                        .elementOf(child5)
-                        .elementOf(child6)
-                        .elementOf(child7)
-                )
+            Box(Modifier.elementOf(node).elementOf(child1)) {
+                Box { Box(Modifier.elementOf(child2).elementOf(child3)) }
+                Box(Modifier.otherModifier()) { Box(Modifier.elementOf(child4)) }
+                Box(Modifier.elementOf(child5).elementOf(child6).elementOf(child7))
             }
         }
         rule.runOnIdle {
@@ -276,16 +180,10 @@ class ModifierNodeVisitSelfAndChildrenTest {
         }
 
         // Act.
-        rule.runOnIdle {
-            node.visitSelfAndChildren(Nodes.Any) {
-                visitedNodes.add(it)
-            }
-        }
+        rule.runOnIdle { node.visitSelfAndChildren(Nodes.Any) { visitedNodes.add(it) } }
 
         // Assert.
-        assertThat(visitedNodes)
-            .containsExactly(node, child3, child4, child5, child7)
-            .inOrder()
+        assertThat(visitedNodes).containsExactly(node, child3, child4, child5, child7).inOrder()
     }
 
     private fun Modifier.otherModifier(): Modifier = this.then(Modifier)

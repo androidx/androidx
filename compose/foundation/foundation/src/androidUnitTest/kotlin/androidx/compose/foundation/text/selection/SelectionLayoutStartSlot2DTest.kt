@@ -47,11 +47,16 @@ import org.junit.runners.Parameterized.Parameters
  *                │ └────────┘         └────────┘ │
  *  BOTTOM        └───────────────────────────────┘
  * ```
+ *
  * The labels on the x and y axis that will be referenced in the below tests.
  */
 open class SelectionLayout2DTest {
     enum class TestHorizontal {
-        LEFT, MIDDLE_LEFT, MIDDLE, MIDDLE_RIGHT, RIGHT
+        LEFT,
+        MIDDLE_LEFT,
+        MIDDLE,
+        MIDDLE_RIGHT,
+        RIGHT
     }
 
     enum class TestVertical {
@@ -93,16 +98,17 @@ open class SelectionLayout2DTest {
     ): SelectionLayout {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return SelectionLayoutBuilder(
-            currentPosition = currentPosition,
-            previousHandlePosition = previousHandlePosition,
-            containerCoordinates = containerCoordinates,
-            isStartHandle = isStartHandle,
-            previousSelection = previousSelection,
-            selectableIdOrderingComparator = selectableIdOrderingComparator,
-        ).run {
-            block()
-            build()
-        }
+                currentPosition = currentPosition,
+                previousHandlePosition = previousHandlePosition,
+                containerCoordinates = containerCoordinates,
+                isStartHandle = isStartHandle,
+                previousSelection = previousSelection,
+                selectableIdOrderingComparator = selectableIdOrderingComparator,
+            )
+            .run {
+                block()
+                build()
+            }
     }
 
     internal fun SelectionLayoutBuilder.appendInfoForTest(
@@ -119,12 +125,13 @@ open class SelectionLayout2DTest {
         wordBoundaries: List<TextRange> = listOf(),
         lineBreaks: List<Int> = emptyList(),
     ): SelectableInfo {
-        val layoutResult = getTextLayoutResultMock(
-            text = text,
-            rtlCharRanges = rtlRanges,
-            wordBoundaries = wordBoundaries,
-            lineBreaks = lineBreaks,
-        )
+        val layoutResult =
+            getTextLayoutResultMock(
+                text = text,
+                rtlCharRanges = rtlRanges,
+                wordBoundaries = wordBoundaries,
+                lineBreaks = lineBreaks,
+            )
         return appendInfo(
             selectableId = selectableId,
             rawStartHandleOffset = rawStartHandleOffset,
@@ -149,33 +156,34 @@ class SelectionLayoutStartSlot2DTest(
     companion object {
         @JvmStatic
         @Parameters(name = "verticalPosition={0}, horizontalPosition={1} expectedSlot={2}")
-        fun data(): Collection<Array<Any>> = listOf(
-            arrayOf(TestVertical.TOP, TestHorizontal.LEFT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_LEFT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_RIGHT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.RIGHT, 0),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.LEFT, 0),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_LEFT, 1),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE, 2),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_RIGHT, 3),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.LEFT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_LEFT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.LEFT, 4),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_LEFT, 5),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE, 6),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_RIGHT, 7),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.RIGHT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.LEFT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_LEFT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_RIGHT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.RIGHT, 8),
-        )
+        fun data(): Collection<Array<Any>> =
+            listOf(
+                arrayOf(TestVertical.TOP, TestHorizontal.LEFT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_LEFT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_RIGHT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.RIGHT, 0),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.LEFT, 0),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_LEFT, 1),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE, 2),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_RIGHT, 3),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.LEFT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_LEFT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.LEFT, 4),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_LEFT, 5),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE, 6),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_RIGHT, 7),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.RIGHT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.LEFT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_LEFT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_RIGHT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.RIGHT, 8),
+            )
     }
 
     // Test the start slot. end slot handle directions will always point to the 4th selectable.
@@ -228,33 +236,34 @@ class SelectionLayoutEndSlot2DTest(
     companion object {
         @JvmStatic
         @Parameters(name = "verticalPosition={0}, horizontalPosition={1} expectedSlot={2}")
-        fun data(): Collection<Array<Any>> = listOf(
-            arrayOf(TestVertical.TOP, TestHorizontal.LEFT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_LEFT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_RIGHT, 0),
-            arrayOf(TestVertical.TOP, TestHorizontal.RIGHT, 0),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.LEFT, 0),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_LEFT, 1),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE, 2),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_RIGHT, 3),
-            arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.LEFT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_LEFT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE, TestHorizontal.RIGHT, 4),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.LEFT, 4),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_LEFT, 5),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE, 6),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_RIGHT, 7),
-            arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.RIGHT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.LEFT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_LEFT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_RIGHT, 8),
-            arrayOf(TestVertical.BOTTOM, TestHorizontal.RIGHT, 8),
-        )
+        fun data(): Collection<Array<Any>> =
+            listOf(
+                arrayOf(TestVertical.TOP, TestHorizontal.LEFT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_LEFT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.MIDDLE_RIGHT, 0),
+                arrayOf(TestVertical.TOP, TestHorizontal.RIGHT, 0),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.LEFT, 0),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_LEFT, 1),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE, 2),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.MIDDLE_RIGHT, 3),
+                arrayOf(TestVertical.MIDDLE_TOP, TestHorizontal.RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.LEFT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_LEFT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.MIDDLE_RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE, TestHorizontal.RIGHT, 4),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.LEFT, 4),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_LEFT, 5),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE, 6),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.MIDDLE_RIGHT, 7),
+                arrayOf(TestVertical.MIDDLE_BOTTOM, TestHorizontal.RIGHT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.LEFT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_LEFT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.MIDDLE_RIGHT, 8),
+                arrayOf(TestVertical.BOTTOM, TestHorizontal.RIGHT, 8),
+            )
     }
 
     // Test the end slot. start slot handle directions will always point to the 1st selectable.

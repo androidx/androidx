@@ -27,25 +27,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import kotlin.random.Random
 
-/**
- * Version of [NestedScrollerTestCase] using Android views.
- */
+/** Version of [NestedScrollerTestCase] using Android views. */
 class AndroidNestedScrollViewTestCase : AndroidTestCase, ToggleableTestCase {
     lateinit var firstScrollView: HorizontalScrollView
 
     override fun getContent(activity: Activity): ViewGroup {
-        val scrollView = activity.layoutInflater
-            .inflate(androidx.compose.foundation.benchmark.R.layout.simple_store, null) as ViewGroup
+        val scrollView =
+            activity.layoutInflater.inflate(
+                androidx.compose.foundation.benchmark.R.layout.simple_store,
+                null
+            ) as ViewGroup
         visitImages(scrollView) { view ->
-            val color = Color(
-                red = Random.nextInt(256),
-                green = Random.nextInt(256),
-                blue = Random.nextInt(256)
-            ).toArgb()
+            val color =
+                Color(
+                        red = Random.nextInt(256),
+                        green = Random.nextInt(256),
+                        blue = Random.nextInt(256)
+                    )
+                    .toArgb()
             view.setBackgroundColor(color)
         }
-        firstScrollView = scrollView
-            .findViewById(androidx.compose.foundation.benchmark.R.id.first_row)
+        firstScrollView =
+            scrollView.findViewById(androidx.compose.foundation.benchmark.R.id.first_row)
         return scrollView
     }
 
@@ -61,10 +64,10 @@ class AndroidNestedScrollViewTestCase : AndroidTestCase, ToggleableTestCase {
     }
 
     /**
-     * This scrolls the first HorizontalScrollView. Views are well optimized for this operation,
-     * so it is good to have a metric to compare against. Compose UI does more during scrolling,
-     * and it is important that it doesn't explode. This View example helps compare
-     * measure/layout/draw times for scrolling operations.
+     * This scrolls the first HorizontalScrollView. Views are well optimized for this operation, so
+     * it is good to have a metric to compare against. Compose UI does more during scrolling, and it
+     * is important that it doesn't explode. This View example helps compare measure/layout/draw
+     * times for scrolling operations.
      */
     override fun toggleState() {
         firstScrollView.scrollX = if (firstScrollView.scrollX == 0) 5 else 0

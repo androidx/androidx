@@ -52,8 +52,7 @@ import org.junit.Test
 
 class PagerContentTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
@@ -65,16 +64,12 @@ class PagerContentTest {
                 state = rememberPagerState { 10 }.also { state = it },
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 pageSpacing = 4.dp,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("pager"),
+                modifier = Modifier.fillMaxSize().testTag("pager"),
                 pageSize = PageSize.Fill
             ) { page ->
                 Box(
-                    modifier = Modifier
-                        .background(Color.Black)
-                        .size(100.dp)
-                        .testTag(page.toString())
+                    modifier =
+                        Modifier.background(Color.Black).size(100.dp).testTag(page.toString())
                 )
             }
         }
@@ -83,9 +78,7 @@ class PagerContentTest {
             swipe(bottomRight, bottomLeft) // swipe outside bounds of pages
         }
 
-        rule.runOnIdle {
-            assertTrue { state.currentPage != 0 }
-        }
+        rule.runOnIdle { assertTrue { state.currentPage != 0 } }
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -97,83 +90,57 @@ class PagerContentTest {
         rule.setContent {
             HorizontalPager(
                 state = rememberPagerState { colors.size },
-                modifier = Modifier
-                    .width(6.dp)
-                    .testTag(PagerTestTag),
+                modifier = Modifier.width(6.dp).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(2.dp)
             ) { page ->
                 val color = colors[page]
                 Box(
-                    modifier = Modifier
-                        .testTag(page.toString())
-                        .width(2.dp)
-                        .height(6.dp)
-                        .zIndex(if (color == Color.Green) 1f else 0f)
-                        .drawBehind {
-                            drawRect(
-                                color,
-                                topLeft = Offset(-10.dp.toPx(), -10.dp.toPx()),
-                                size = Size(20.dp.toPx(), 20.dp.toPx())
-                            )
-                        }
+                    modifier =
+                        Modifier.testTag(page.toString())
+                            .width(2.dp)
+                            .height(6.dp)
+                            .zIndex(if (color == Color.Green) 1f else 0f)
+                            .drawBehind {
+                                drawRect(
+                                    color,
+                                    topLeft = Offset(-10.dp.toPx(), -10.dp.toPx()),
+                                    size = Size(20.dp.toPx(), 20.dp.toPx())
+                                )
+                            }
                 )
             }
         }
 
-        rule.onNodeWithTag(PagerTestTag)
-            .captureToImage()
-            .assertPixels { Color.Green }
+        rule.onNodeWithTag(PagerTestTag).captureToImage().assertPixels { Color.Green }
     }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollableState_isScrollableWhenChangingPages() {
         val states = mutableMapOf<Int, ScrollState>()
-        val pagerState = PagerState(
-            currentPage = 0,
-            currentPageOffsetFraction = 0.0f,
-            pageCount = { 2 })
+        val pagerState =
+            PagerState(currentPage = 0, currentPageOffsetFraction = 0.0f, pageCount = { 2 })
         rule.setContent {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .testTag("pager")
-                    .fillMaxSize()
+                modifier = Modifier.testTag("pager").fillMaxSize()
             ) { page ->
                 Column(
-                    modifier = Modifier
-                        .testTag("$page")
-                        .verticalScroll(rememberScrollState().also {
-                            states[page] = it
-                        })
+                    modifier =
+                        Modifier.testTag("$page")
+                            .verticalScroll(rememberScrollState().also { states[page] = it })
                 ) {
-                    repeat(100) {
-                        Box(
-                            modifier = Modifier
-                                .height(200.dp)
-                                .fillMaxWidth()
-                        )
-                    }
+                    repeat(100) { Box(modifier = Modifier.height(200.dp).fillMaxWidth()) }
                 }
             }
         }
-        rule.onNodeWithTag("0").performTouchInput {
-            swipe(bottomCenter, topCenter)
-        }
-        rule.runOnIdle {
-            Truth.assertThat(states[0]!!.value).isNotEqualTo(0f)
-        }
+        rule.onNodeWithTag("0").performTouchInput { swipe(bottomCenter, topCenter) }
+        rule.runOnIdle { Truth.assertThat(states[0]!!.value).isNotEqualTo(0f) }
         val previousScrollStateValue = states[0]!!.value
-        rule.onNodeWithTag("pager").performTouchInput {
-            swipe(centerRight, centerLeft)
-        }
+        rule.onNodeWithTag("pager").performTouchInput { swipe(centerRight, centerLeft) }
 
-        rule.onNodeWithTag("pager").performTouchInput {
-            swipe(centerLeft, centerRight)
-        }
-        rule.onNodeWithTag("0").performTouchInput {
-            swipe(bottomCenter, topCenter)
-        }
+        rule.onNodeWithTag("pager").performTouchInput { swipe(centerLeft, centerRight) }
+        rule.onNodeWithTag("0").performTouchInput { swipe(bottomCenter, topCenter) }
         rule.runOnIdle {
             Truth.assertThat(previousScrollStateValue).isNotEqualTo(states[0]!!.value)
         }

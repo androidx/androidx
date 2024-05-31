@@ -37,37 +37,39 @@ import org.junit.runners.Parameterized.Parameters
 @LargeTest
 @RunWith(Parameterized::class)
 /**
- * End-to-end test for compose-runtime-tracing verifying that names of Composables show up in
- * a Perfetto trace.
+ * End-to-end test for compose-runtime-tracing verifying that names of Composables show up in a
+ * Perfetto trace.
  */
 @OptIn(ExperimentalMetricApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
 class TrivialPerfettoSdkBenchmark(private val composableName: String) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     @Test
     fun test_composable_names_present_in_trace() {
-        val metrics = listOf(
-            TraceSectionMetric(
-                "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
-                TraceSectionMetric.Mode.First
+        val metrics =
+            listOf(
+                TraceSectionMetric(
+                    "%$PACKAGE_NAME.$composableName %$FILE_NAME:%",
+                    TraceSectionMetric.Mode.First
+                )
             )
-        )
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = metrics,
             iterations = 1, // we are only verifying the presence of entries (not the timing data)
             setupBlock = {
-                PerfettoCapture().enableAndroidxTracingPerfetto(
-                    PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
-                ).let { (resultCode, _) ->
-                    assertTrue(
-                        "Ensuring Perfetto SDK is enabled",
-                        resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                PerfettoCapture()
+                    .enableAndroidxTracingPerfetto(
+                        PerfettoSdkConfig(PACKAGE_NAME, InitialProcessState.Alive)
                     )
-                }
+                    .let { (resultCode, _) ->
+                        assertTrue(
+                            "Ensuring Perfetto SDK is enabled",
+                            resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                        )
+                    }
             }
         ) {
             startActivityAndWait(Intent(ACTION))
@@ -82,14 +84,13 @@ class TrivialPerfettoSdkBenchmark(private val composableName: String) {
 
         private const val FILE_NAME = "TrivialTracingActivity.kt"
 
-        private val COMPOSABLE_NAMES = listOf(
-            "Foo_BBC27C8E_13A7_4A5F_A735_AFDC433F54C3",
-            "Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9",
-            "Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8"
-        )
+        private val COMPOSABLE_NAMES =
+            listOf(
+                "Foo_BBC27C8E_13A7_4A5F_A735_AFDC433F54C3",
+                "Bar_4888EA32_ABC5_4550_BA78_1247FEC1AAC9",
+                "Baz_609801AB_F5A9_47C3_94蛸5_2E82542F21B8"
+            )
 
-        @JvmStatic
-        @Parameters(name = "{0}")
-        fun parameters() = COMPOSABLE_NAMES
+        @JvmStatic @Parameters(name = "{0}") fun parameters() = COMPOSABLE_NAMES
     }
 }

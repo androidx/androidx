@@ -34,17 +34,14 @@ private const val popupTag = "popup"
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FindInPopupTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun test() {
         rule.setContent {
             Box(Modifier.testTag(contentTag))
 
-            Popup(alignment = Alignment.Center) {
-                Box(Modifier.testTag(popupTag))
-            }
+            Popup(alignment = Alignment.Center) { Box(Modifier.testTag(popupTag)) }
         }
         rule.onNodeWithTag(contentTag).assertExists()
         rule.onNodeWithTag(popupTag).assertExists()

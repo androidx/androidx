@@ -23,13 +23,14 @@ import org.junit.Test
  * Verifies trace data passed to tracing. Relies on [TruncateTracingInfoMode.KEEP_INFO_STRING] to
  * leave most of the trace information in the test output.
  *
- * More complex cases tested in other IrTransform tests that use
- * the [TruncateTracingInfoMode.KEEP_INFO_STRING].
+ * More complex cases tested in other IrTransform tests that use the
+ * [TruncateTracingInfoMode.KEEP_INFO_STRING].
  */
 class TraceInformationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     @Test
-    fun testBasicComposableFunctions() = verifyGoldenComposeIrTransform(
-        """
+    fun testBasicComposableFunctions() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.Composable
 
             class A {
@@ -39,12 +40,13 @@ class TraceInformationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
             @Composable
             fun C() { A().B(1337) }
         """,
-        truncateTracingInfoMode = TruncateTracingInfoMode.TRUNCATE_KEY
-    )
+            truncateTracingInfoMode = TruncateTracingInfoMode.TRUNCATE_KEY
+        )
 
     @Test
-    fun testReadOnlyComposable() = verifyGoldenComposeIrTransform(
-        """
+    fun testReadOnlyComposable() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -57,11 +59,12 @@ class TraceInformationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
                 }
             }
         """
-    )
+        )
 
     @Test
-    fun testInlineFunctionsDonotGenerateTraceMarkers() = verifyGoldenComposeIrTransform(
-        """
+    fun testInlineFunctionsDonotGenerateTraceMarkers() =
+        verifyGoldenComposeIrTransform(
+            """
             import androidx.compose.runtime.*
 
             @Composable
@@ -78,11 +81,11 @@ class TraceInformationTest(useFir: Boolean) : AbstractIrTransformTest(useFir) {
                 A()
             }
         """,
-        """
+            """
             import androidx.compose.runtime.*
 
             @Composable
             fun A() { }
         """
-    )
+        )
 }

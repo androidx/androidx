@@ -33,9 +33,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * The `Color` class contains color information to be used while painting
- * in [Canvas]. `Color` supports [ColorSpace]s with 3 [components][ColorSpace.componentCount],
- * plus one for [alpha].
+ * The `Color` class contains color information to be used while painting in [Canvas]. `Color`
+ * supports [ColorSpace]s with 3 [components][ColorSpace.componentCount], plus one for [alpha].
  *
  * ### Creating
  *
@@ -44,36 +43,32 @@ import kotlin.math.min
  *     // from 4 separate [Float] components. Alpha and ColorSpace are optional
  *     val rgbaWhiteFloat = Color(red = 1f, green = 1f, blue = 1f, alpha = 1f,
  *         ColorSpace.get(ColorSpaces.Srgb))
- *
  *     // from a 32-bit SRGB color integer
  *     val fromIntWhite = Color(android.graphics.Color.WHITE)
  *     val fromLongBlue = Color(0xFF0000FF)
- *
  *     // from SRGB integer component values. Alpha is optional
  *     val rgbaWhiteInt = Color(red = 0xFF, green = 0xFF, blue = 0xFF, alpha = 0xFF)
  *
  * ### Representation
  *
- * A `Color` always defines a color using 4 components packed in a single
- * 64 bit long value. One of these components is always alpha while the other
- * three components depend on the color space's [color model][ColorModel].
- * The most common color model is the [RGB][ColorModel.Rgb] model in
+ * A `Color` always defines a color using 4 components packed in a single 64 bit long value. One of
+ * these components is always alpha while the other three components depend on the color space's
+ * [color model][ColorModel]. The most common color model is the [RGB][ColorModel.Rgb] model in
  * which the components represent red, green, and blue values.
  *
- * **Component ranges:** the ranges defined in the tables
- * below indicate the ranges that can be encoded in a color long. They do not
- * represent the actual ranges as they may differ per color space. For instance,
- * the RGB components of a color in the [Display P3][ColorSpaces.DisplayP3]
- * color space use the `[0..1]` range. Please refer to the documentation of the
- * various [color spaces][ColorSpaces] to find their respective ranges.
+ * **Component ranges:** the ranges defined in the tables below indicate the ranges that can be
+ * encoded in a color long. They do not represent the actual ranges as they may differ per color
+ * space. For instance, the RGB components of a color in the [Display P3][ColorSpaces.DisplayP3]
+ * color space use the `[0..1]` range. Please refer to the documentation of the various
+ * [color spaces][ColorSpaces] to find their respective ranges.
  *
- * **Alpha range:** while alpha is encoded in a color long using
- * a 10 bit integer (thus using a range of `[0..1023]`), it is converted to and
- * from `[0..1]` float values when decoding and encoding color longs.
+ * **Alpha range:** while alpha is encoded in a color long using a 10 bit integer (thus using a
+ * range of `[0..1023]`), it is converted to and from `[0..1]` float values when decoding and
+ * encoding color longs.
  *
- * **sRGB color space:** for compatibility reasons and ease of
- * use, `Color` encoded [sRGB][ColorSpaces.Srgb] colors do not
- * use the same encoding as other color longs.
+ * **sRGB color space:** for compatibility reasons and ease of use, `Color` encoded
+ * [sRGB][ColorSpaces.Srgb] colors do not use the same encoding as other color longs.
+ *
  * ```
  * | Component | Name        | Size    | Range                 |
  * |-----------|-------------|---------|-----------------------|
@@ -102,18 +97,18 @@ import kotlin.math.min
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
  * ```
- * The components in this table are listed in encoding order,
- * which is why color longs in the RGB model are called RGBA colors (even if
- * this doesn't quite hold for the special case of sRGB colors).
  *
- * The color encoding relies on half-precision float values (fp16). If you
- * wish to know more about the limitations of half-precision float values, please
- * refer to the documentation of the [Float16] class.
+ * The components in this table are listed in encoding order, which is why color longs in the RGB
+ * model are called RGBA colors (even if this doesn't quite hold for the special case of sRGB
+ * colors).
  *
- * The values returned by these methods depend on the color space encoded
- * in the color long. The values are however typically in the `[0..1]` range
- * for RGB colors. Please refer to the documentation of the various
- * [color spaces][ColorSpaces] for the exact ranges.
+ * The color encoding relies on half-precision float values (fp16). If you wish to know more about
+ * the limitations of half-precision float values, please refer to the documentation of the
+ * [Float16] class.
+ *
+ * The values returned by these methods depend on the color space encoded in the color long. The
+ * values are however typically in the `[0..1]` range for RGB colors. Please refer to the
+ * documentation of the various [color spaces][ColorSpaces] for the exact ranges.
  */
 @Immutable
 @kotlin.jvm.JvmInline
@@ -128,12 +123,10 @@ value class Color(val value: ULong) {
         get() = ColorSpaces.getColorSpace((value and 0x3fUL).toInt())
 
     /**
-     * Converts this color from its color space to the specified color space.
-     * The conversion is done using the default rendering intent as specified
-     * by [ColorSpace.connect].
+     * Converts this color from its color space to the specified color space. The conversion is done
+     * using the default rendering intent as specified by [ColorSpace.connect].
      *
      * @param colorSpace The destination color space, cannot be null
-     *
      * @return A non-null color instance in the specified color space
      */
     fun convert(colorSpace: ColorSpace): Color {
@@ -144,12 +137,11 @@ value class Color(val value: ULong) {
     }
 
     /**
-     * Returns the value of the red component in the range defined by this
-     * color's color space (see [ColorSpace.getMinValue] and
-     * [ColorSpace.getMaxValue]).
+     * Returns the value of the red component in the range defined by this color's color space (see
+     * [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb],
-     * calling this is the first component of the ColorSpace.
+     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the first component
+     * of the ColorSpace.
      *
      * @see alpha
      * @see blue
@@ -166,12 +158,11 @@ value class Color(val value: ULong) {
         }
 
     /**
-     * Returns the value of the green component in the range defined by this
-     * color's color space (see [ColorSpace.getMinValue] and
-     * [ColorSpace.getMaxValue]).
+     * Returns the value of the green component in the range defined by this color's color space
+     * (see [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb],
-     * calling this is the second component of the ColorSpace.
+     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the second
+     * component of the ColorSpace.
      *
      * @see alpha
      * @see red
@@ -188,12 +179,11 @@ value class Color(val value: ULong) {
         }
 
     /**
-     * Returns the value of the blue component in the range defined by this
-     * color's color space (see [ColorSpace.getMinValue] and
-     * [ColorSpace.getMaxValue]).
+     * Returns the value of the blue component in the range defined by this color's color space (see
+     * [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb],
-     * calling this is the third component of the ColorSpace.
+     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the third component
+     * of the ColorSpace.
      *
      * @see alpha
      * @see red
@@ -226,29 +216,19 @@ value class Color(val value: ULong) {
             }
         }
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component1(): Float = red
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component1(): Float = red
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component2(): Float = green
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component2(): Float = green
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component3(): Float = blue
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component3(): Float = blue
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component4(): Float = alpha
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component4(): Float = alpha
 
-    @Suppress("NOTHING_TO_INLINE")
-    @Stable
-    inline operator fun component5(): ColorSpace = colorSpace
+    @Suppress("NOTHING_TO_INLINE") @Stable inline operator fun component5(): ColorSpace = colorSpace
 
     /**
-     * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
-     * of the returned [Color] is the same as this [colorSpace].
+     * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace] of
+     * the returned [Color] is the same as this [colorSpace].
      */
     @Stable
     fun copy(
@@ -256,22 +236,17 @@ value class Color(val value: ULong) {
         red: Float = this.red,
         green: Float = this.green,
         blue: Float = this.blue
-    ): Color = Color(
-        red = red,
-        green = green,
-        blue = blue,
-        alpha = alpha,
-        colorSpace = this.colorSpace
-    )
+    ): Color =
+        Color(red = red, green = green, blue = blue, alpha = alpha, colorSpace = this.colorSpace)
 
     /**
-     * Returns a string representation of the object. This method returns
-     * a string equal to the value of:
+     * Returns a string representation of the object. This method returns a string equal to the
+     * value of:
      *
      *     "Color($r, $g, $b, $a, ${colorSpace.name})"
      *
-     * For instance, the string representation of opaque black in the sRGB
-     * color space is equal to the following value:
+     * For instance, the string representation of opaque black in the sRGB color space is equal to
+     * the following value:
      *
      *     Color(0.0, 0.0, 0.0, 1.0, sRGB IEC61966-2.1)
      *
@@ -282,59 +257,45 @@ value class Color(val value: ULong) {
     }
 
     companion object {
-        @Stable
-        val Black = Color(0xFF000000)
+        @Stable val Black = Color(0xFF000000)
 
-        @Stable
-        val DarkGray = Color(0xFF444444)
+        @Stable val DarkGray = Color(0xFF444444)
 
-        @Stable
-        val Gray = Color(0xFF888888)
+        @Stable val Gray = Color(0xFF888888)
 
-        @Stable
-        val LightGray = Color(0xFFCCCCCC)
+        @Stable val LightGray = Color(0xFFCCCCCC)
 
-        @Stable
-        val White = Color(0xFFFFFFFF)
+        @Stable val White = Color(0xFFFFFFFF)
 
-        @Stable
-        val Red = Color(0xFFFF0000)
+        @Stable val Red = Color(0xFFFF0000)
 
-        @Stable
-        val Green = Color(0xFF00FF00)
+        @Stable val Green = Color(0xFF00FF00)
 
-        @Stable
-        val Blue = Color(0xFF0000FF)
+        @Stable val Blue = Color(0xFF0000FF)
 
-        @Stable
-        val Yellow = Color(0xFFFFFF00)
+        @Stable val Yellow = Color(0xFFFFFF00)
 
-        @Stable
-        val Cyan = Color(0xFF00FFFF)
+        @Stable val Cyan = Color(0xFF00FFFF)
 
-        @Stable
-        val Magenta = Color(0xFFFF00FF)
+        @Stable val Magenta = Color(0xFFFF00FF)
 
-        @Stable
-        val Transparent = Color(0x00000000)
+        @Stable val Transparent = Color(0x00000000)
 
         /**
-         * Because Color is an inline class, this represents an unset value
-         * without having to box the Color. It will be treated as [Transparent]
-         * when drawn. A Color can compare with [Unspecified] for equality or use
-         * [isUnspecified] to check for the unset value or [isSpecified] for any color that isn't
-         * [Unspecified].
+         * Because Color is an inline class, this represents an unset value without having to box
+         * the Color. It will be treated as [Transparent] when drawn. A Color can compare with
+         * [Unspecified] for equality or use [isUnspecified] to check for the unset value or
+         * [isSpecified] for any color that isn't [Unspecified].
          */
-        @Stable
-        val Unspecified = Color(0f, 0f, 0f, 0f, ColorSpaces.Unspecified)
+        @Stable val Unspecified = Color(0f, 0f, 0f, 0f, ColorSpaces.Unspecified)
 
         /**
          * Return a [Color] from [hue], [saturation], and [value] (HSV representation).
          *
-         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and
-         * 240 is blue
-         * @param saturation The amount of [hue] represented in the color in the range (0..1),
-         * where 0 has no color and 1 is fully saturated.
+         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and 240
+         *   is blue
+         * @param saturation The amount of [hue] represented in the color in the range (0..1), where
+         *   0 has no color and 1 is fully saturated.
          * @param alpha Alpha channel to apply to the computed color
          * @param value The strength of the color, where 0 is black.
          * @param colorSpace The RGB color space used to calculate the Color from the HSV values.
@@ -346,9 +307,7 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            requirePrecondition(
-                hue in 0f..360f && saturation in 0f..1f && value in 0f..1f
-            ) {
+            requirePrecondition(hue in 0f..360f && saturation in 0f..1f && value in 0f..1f) {
                 "HSV ($hue, $saturation, $value) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hsvToRgbComponent(5, hue, saturation, value)
@@ -365,12 +324,12 @@ value class Color(val value: ULong) {
         /**
          * Return a [Color] from [hue], [saturation], and [lightness] (HSL representation).
          *
-         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and
-         * 240 is blue
-         * @param saturation The amount of [hue] represented in the color in the range (0..1),
-         * where 0 has no color and 1 is fully saturated.
+         * @param hue The color value in the range (0..360), where 0 is red, 120 is green, and 240
+         *   is blue
+         * @param saturation The amount of [hue] represented in the color in the range (0..1), where
+         *   0 has no color and 1 is fully saturated.
          * @param lightness A range of (0..1) where 0 is black, 0.5 is fully colored, and 1 is
-         * white.
+         *   white.
          * @param alpha Alpha channel to apply to the computed color
          * @param colorSpace The RGB color space used to calculate the Color from the HSL values.
          */
@@ -381,9 +340,7 @@ value class Color(val value: ULong) {
             alpha: Float = 1f,
             colorSpace: Rgb = ColorSpaces.Srgb
         ): Color {
-            requirePrecondition(
-                hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f
-            ) {
+            requirePrecondition(hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f) {
                 "HSL ($hue, $saturation, $lightness) must be in range (0..360, 0..1, 0..1)"
             }
             val red = hslToRgbComponent(0, hue, saturation, lightness)
@@ -401,23 +358,21 @@ value class Color(val value: ULong) {
 }
 
 // Same as Color.Unspecified.packedValue, but avoids a getstatic
-@PublishedApi
-internal const val UnspecifiedColor = 0x10UL
+@PublishedApi internal const val UnspecifiedColor = 0x10UL
 
 /**
- * Create a [Color] by passing individual [red], [green], [blue], [alpha],
- * and [colorSpace] components. The default [color space][ColorSpace]
- * is [sRGB][ColorSpaces.Srgb] and the default [alpha] is `1.0`
- * (opaque).
+ * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
+ * components. The default [color space][ColorSpace] is [sRGB][ColorSpaces.Srgb] and the default
+ * [alpha] is `1.0` (opaque).
  *
- * If the [red], [green], or [blue] values are outside of the range defined
- * by [colorSpace] (see [ColorSpace.getMinValue] and [ColorSpace.getMaxValue],
- * these values get clamped appropriately to be within range.
+ * If the [red], [green], or [blue] values are outside of the range defined by [colorSpace] (see
+ * [ColorSpace.getMinValue] and [ColorSpace.getMaxValue], these values get clamped appropriately to
+ * be within range.
  *
- * @throws IllegalArgumentException If [colorSpace] does not have
- * [ColorSpace.componentCount] equal to 3.
- * @throws IllegalArgumentException If [colorSpace] has an [ColorSpace.id]
- * set to [ColorSpace.MinId].
+ * @throws IllegalArgumentException If [colorSpace] does not have [ColorSpace.componentCount] equal
+ *   to 3.
+ * @throws IllegalArgumentException If [colorSpace] has an [ColorSpace.id] set to
+ *   [ColorSpace.MinId].
  */
 @Stable
 fun Color(
@@ -428,12 +383,11 @@ fun Color(
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
     if (colorSpace.isSrgb) {
-        val argb = (
-            ((alpha.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 24) or
-            ((red.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 16) or
-            ((green.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 8) or
-            (blue.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt()
-        )
+        val argb =
+            (((alpha.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 24) or
+                ((red.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 16) or
+                ((green.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt() shl 8) or
+                (blue.fastCoerceIn(0.0f, 1.0f) * 255.0f + 0.5f).toInt())
         return Color(argb.toULong() shl 32)
     }
 
@@ -452,21 +406,20 @@ fun Color(
     val a = (alpha.fastCoerceIn(0.0f, 1.0f) * 1023.0f + 0.5f).toInt()
 
     return Color(
-        (
-            ((r.toLong() and 0xffffL) shl 48) or
-            ((g.toLong() and 0xffffL) shl 32) or
-            ((b.toLong() and 0xffffL) shl 16) or
-            ((a.toLong() and 0x03ffL) shl 6) or
-            (id.toLong() and 0x003fL)
-        ).toULong()
+        (((r.toLong() and 0xffffL) shl 48) or
+                ((g.toLong() and 0xffffL) shl 32) or
+                ((b.toLong() and 0xffffL) shl 16) or
+                ((a.toLong() and 0x03ffL) shl 6) or
+                (id.toLong() and 0x003fL))
+            .toULong()
     )
 }
 
 /**
  * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
- * components. This function is equivalent to [Color] but doesn't perform any check/validation
- * of the parameters. It is meant to be used when the color space and values are known to
- * be valid by construction, for instance when lerping colors.
+ * components. This function is equivalent to [Color] but doesn't perform any check/validation of
+ * the parameters. It is meant to be used when the color space and values are known to be valid by
+ * construction, for instance when lerping colors.
  */
 @Stable
 internal fun UncheckedColor(
@@ -477,12 +430,11 @@ internal fun UncheckedColor(
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
     if (colorSpace.isSrgb) {
-        val argb = (
-            ((alpha * 255.0f + 0.5f).toInt() shl 24) or
-            ((red * 255.0f + 0.5f).toInt() shl 16) or
-            ((green * 255.0f + 0.5f).toInt() shl 8) or
-            (blue * 255.0f + 0.5f).toInt()
-        )
+        val argb =
+            (((alpha * 255.0f + 0.5f).toInt() shl 24) or
+                ((red * 255.0f + 0.5f).toInt() shl 16) or
+                ((green * 255.0f + 0.5f).toInt() shl 8) or
+                (blue * 255.0f + 0.5f).toInt())
         return Color(argb.toULong() shl 32)
     }
 
@@ -495,20 +447,18 @@ internal fun UncheckedColor(
     val id = colorSpace.id
 
     return Color(
-        (
-            ((r.toLong() and 0xffffL) shl 48) or
-            ((g.toLong() and 0xffffL) shl 32) or
-            ((b.toLong() and 0xffffL) shl 16) or
-            ((a.toLong() and 0x03ffL) shl 6) or
-            (id.toLong() and 0x003fL)
-        ).toULong()
+        (((r.toLong() and 0xffffL) shl 48) or
+                ((g.toLong() and 0xffffL) shl 32) or
+                ((b.toLong() and 0xffffL) shl 16) or
+                ((a.toLong() and 0x03ffL) shl 6) or
+                (id.toLong() and 0x003fL))
+            .toULong()
     )
 }
 
 /**
- * Creates a new [Color] instance from an ARGB color int.
- * The resulting color is in the [sRGB][ColorSpaces.Srgb]
- * color space.
+ * Creates a new [Color] instance from an ARGB color int. The resulting color is in the
+ * [sRGB][ColorSpaces.Srgb] color space.
  *
  * @param color The ARGB color int to create a <code>Color</code> from.
  * @return A non-null instance of {@link Color}
@@ -519,15 +469,13 @@ fun Color(@ColorInt color: Int): Color {
 }
 
 /**
- * Creates a new [Color] instance from an ARGB color int.
- * The resulting color is in the [sRGB][ColorSpaces.Srgb]
- * color space. This is useful for specifying colors with alpha
- * greater than 0x80 in numeric form without using [Long.toInt]:
+ * Creates a new [Color] instance from an ARGB color int. The resulting color is in the
+ * [sRGB][ColorSpaces.Srgb] color space. This is useful for specifying colors with alpha greater
+ * than 0x80 in numeric form without using [Long.toInt]:
  *
  *     val color = Color(0xFF000080)
  *
- * @param color The 32-bit ARGB color int to create a <code>Color</code>
- * from
+ * @param color The 32-bit ARGB color int to create a <code>Color</code> from
  * @return A non-null instance of {@link Color}
  */
 @Stable
@@ -536,15 +484,13 @@ fun Color(color: Long): Color {
 }
 
 /**
- * Creates a new [Color] instance from an ARGB color components.
- * The resulting color is in the [sRGB][ColorSpaces.Srgb]
- * color space. The default alpha value is `0xFF` (opaque).
+ * Creates a new [Color] instance from an ARGB color components. The resulting color is in the
+ * [sRGB][ColorSpaces.Srgb] color space. The default alpha value is `0xFF` (opaque).
  *
  * @param red The red component of the color, between 0 and 255.
  * @param green The green component of the color, between 0 and 255.
  * @param blue The blue component of the color, between 0 and 255.
  * @param alpha The alpha component of the color, between 0 and 255.
- *
  * @return A non-null instance of {@link Color}
  */
 @Stable
@@ -556,17 +502,17 @@ fun Color(
 ): Color {
     val color =
         ((alpha and 0xFF) shl 24) or
-        ((red and 0xFF) shl 16) or
-        ((green and 0xFF) shl 8) or
-        (blue and 0xFF)
+            ((red and 0xFF) shl 16) or
+            ((green and 0xFF) shl 8) or
+            (blue and 0xFF)
     return Color(color)
 }
 
 /**
  * Linear interpolate between two [Colors][Color], [start] and [stop] with [fraction] fraction
- * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace]
- * of [stop]. [fraction] should be between 0 and 1, inclusive. Interpolation is done
- * in the [ColorSpaces.Oklab] color space.
+ * between the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace] of
+ * [stop]. [fraction] should be between 0 and 1, inclusive. Interpolation is done in the
+ * [ColorSpaces.Oklab] color space.
  */
 @Stable
 fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
@@ -589,26 +535,27 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
     // Lab/alpha values to be outside of the valid color range.
     // Clamping the fraction is cheaper than clamping all 4 components separately.
     val t = fraction.fastCoerceIn(0.0f, 1.0f)
-    val interpolated = UncheckedColor(
-        lerp(startL, endL, t),
-        lerp(startA, endA, t),
-        lerp(startB, endB, t),
-        lerp(startAlpha, endAlpha, t),
-        colorSpace
-    )
+    val interpolated =
+        UncheckedColor(
+            lerp(startL, endL, t),
+            lerp(startA, endA, t),
+            lerp(startB, endB, t),
+            lerp(startAlpha, endAlpha, t),
+            colorSpace
+        )
     return interpolated.convert(stop.colorSpace)
 }
 
 /**
  * Composites [this] color on top of [background] using the Porter-Duff 'source over' mode.
  *
- * Both [this] and [background] must not be pre-multiplied, and the resulting color will also
- * not be pre-multiplied.
+ * Both [this] and [background] must not be pre-multiplied, and the resulting color will also not be
+ * pre-multiplied.
  *
  * The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace] of [background].
  *
- * @return the [Color] representing [this] composited on top of [background], converted to the
- * color space of [background].
+ * @return the [Color] representing [this] composited on top of [background], converted to the color
+ *   space of [background].
  */
 @Stable
 fun Color.compositeOver(background: Color): Color {
@@ -632,17 +579,12 @@ fun Color.compositeOver(background: Color): Color {
  * This uses a pre-calculated composite destination alpha of [a] for efficiency.
  */
 @Suppress("NOTHING_TO_INLINE")
-private inline fun compositeComponent(
-    fgC: Float,
-    bgC: Float,
-    fgA: Float,
-    bgA: Float,
-    a: Float
-) = if (a == 0f) 0f else ((fgC * fgA) + ((bgC * bgA) * (1f - fgA))) / a
+private inline fun compositeComponent(fgC: Float, bgC: Float, fgA: Float, bgA: Float, a: Float) =
+    if (a == 0f) 0f else ((fgC * fgA) + ((bgC * bgA) * (1f - fgA))) / a
 
 /**
- * Returns this color's components as a new array. The last element of the
- * array is always the alpha component.
+ * Returns this color's components as a new array. The last element of the array is always the alpha
+ * component.
  *
  * @return A new, non-null array whose size is 4
  */
@@ -652,13 +594,12 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
 /**
  * Returns the relative luminance of this color.
  *
- * Based on the formula for relative luminance defined in WCAG 2.0,
- * W3C Recommendation 11 December 2008.
+ * Based on the formula for relative luminance defined in WCAG 2.0, W3C Recommendation 11
+ * December 2008.
  *
  * @return A value between 0 (darkest black) and 1 (lightest white)
- *
- * @throws IllegalArgumentException If the this color's color space
- * does not use the [RGB][ColorModel.Rgb] color model
+ * @throws IllegalArgumentException If the this color's color space does not use the
+ *   [RGB][ColorModel.Rgb] color model
  */
 @Stable
 fun Color.luminance(): Float {
@@ -677,9 +618,8 @@ fun Color.luminance(): Float {
 }
 
 /**
- * Converts this color to an ARGB color int. A color int is always in
- * the [sRGB][ColorSpaces.Srgb] color space. This implies
- * a color space conversion is applied if needed.
+ * Converts this color to an ARGB color int. A color int is always in the [sRGB][ColorSpaces.Srgb]
+ * color space. This implies a color space conversion is applied if needed.
  *
  * @return An ARGB color in the sRGB color space
  */
@@ -689,17 +629,15 @@ fun Color.toArgb(): Int {
     return (convert(ColorSpaces.Srgb).value shr 32).toInt()
 }
 
-/**
- * `false` when this is [Color.Unspecified].
- */
+/** `false` when this is [Color.Unspecified]. */
 @Stable
-inline val Color.isSpecified: Boolean get() = value != UnspecifiedColor
+inline val Color.isSpecified: Boolean
+    get() = value != UnspecifiedColor
 
-/**
- * `true` when this is [Color.Unspecified].
- */
+/** `true` when this is [Color.Unspecified]. */
 @Stable
-inline val Color.isUnspecified: Boolean get() = value == UnspecifiedColor
+inline val Color.isUnspecified: Boolean
+    get() = value == UnspecifiedColor
 
 /**
  * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result
@@ -715,8 +653,6 @@ inline fun Color.takeOrElse(block: () -> Color): Color = if (isSpecified) this e
  * fun nonBoxedArgs(color: ColorProducer?)
  */
 fun interface ColorProducer {
-    /**
-     * Return the color
-     */
+    /** Return the color */
     operator fun invoke(): Color
 }
