@@ -19,9 +19,7 @@ package androidx.test.screenshot.matchers
 import android.graphics.Bitmap
 import android.graphics.Color
 
-/**
- * Bitmap matching that does an exact comparison of pixels between bitmaps.
- */
+/** Bitmap matching that does an exact comparison of pixels between bitmaps. */
 class PixelPerfectMatcher : BitmapMatcher {
 
     override fun compareBitmaps(
@@ -47,18 +45,13 @@ class PixelPerfectMatcher : BitmapMatcher {
                 } else {
                     ++different
                 }
-                diffArray[index] =
-                    diffColor(
-                        referenceColor,
-                        testColor
-                    )
+                diffArray[index] = diffColor(referenceColor, testColor)
             }
         }
 
         if (different > 0) {
             val diff = Bitmap.createBitmap(diffArray, width, height, Bitmap.Config.ARGB_8888)
-            val stats = "[PixelPerfect] Same pixels: $same, " +
-                "Different pixels: $different"
+            val stats = "[PixelPerfect] Same pixels: $same, " + "Different pixels: $different"
             return MatchResult(matches = false, diff = diff, comparisonStatistics = stats)
         }
 

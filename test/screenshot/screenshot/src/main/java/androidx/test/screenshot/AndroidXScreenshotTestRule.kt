@@ -20,17 +20,12 @@ package androidx.test.screenshot
  * Rule to be used in AndroidX project tests. Set's up the proper repository name and golden
  * directory.
  *
- * @param moduleDirectory Directory to be used for the module that contains the tests. This is
- * just a helper to avoid mixing goldens between different projects.
- * Example for module directory: "compose/material/material"
- *
+ * @param moduleDirectory Directory to be used for the module that contains the tests. This is just
+ *   a helper to avoid mixing goldens between different projects. Example for module directory:
+ *   "compose/material/material"
  */
 // TODO: Move this to internal module in case this module will be public one day.
-class AndroidXScreenshotTestRule(
-    moduleDirectory: String
-) : ScreenshotTestRule(
-    ScreenshotTestRuleConfig(
-        "platform/frameworks/support-golden",
-        moduleDirectory.trim('/')
+class AndroidXScreenshotTestRule(moduleDirectory: String) :
+    ScreenshotTestRule(
+        ScreenshotTestRuleConfig("platform/frameworks/support-golden", moduleDirectory.trim('/'))
     )
-)

@@ -25,9 +25,8 @@ import kotlin.math.pow
  * Simoncelli. Details can be read in their paper:
  * https://ece.uwaterloo.ca/~z70wang/publications/ssim.pdf
  */
-class MSSIMMatcher(
-    @FloatRange(from = 0.0, to = 1.0) private val threshold: Double = 0.98
-) : BitmapMatcher {
+class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Double = 0.98) :
+    BitmapMatcher {
 
     companion object {
         // These values were taken from the publication
@@ -47,33 +46,19 @@ class MSSIMMatcher(
     ): MatchResult {
         val SSIMTotal = calculateSSIM(expected, given, width, height)
 
-        val stats = "[MSSIM] Required SSIM: $threshold, Actual " +
-            "SSIM: " + "%.3f".format(SSIMTotal)
+        val stats =
+            "[MSSIM] Required SSIM: $threshold, Actual " + "SSIM: " + "%.3f".format(SSIMTotal)
 
         if (SSIMTotal >= threshold) {
-            return MatchResult(
-                matches = true,
-                diff = null,
-                comparisonStatistics = stats
-            )
+            return MatchResult(matches = true, diff = null, comparisonStatistics = stats)
         }
 
         // Create diff
-        val result = PixelPerfectMatcher()
-            .compareBitmaps(expected, given, width, height)
-        return MatchResult(
-            matches = false,
-            diff = result.diff,
-            comparisonStatistics = stats
-        )
+        val result = PixelPerfectMatcher().compareBitmaps(expected, given, width, height)
+        return MatchResult(matches = false, diff = result.diff, comparisonStatistics = stats)
     }
 
-    internal fun calculateSSIM(
-        ideal: IntArray,
-        given: IntArray,
-        width: Int,
-        height: Int
-    ): Double {
+    internal fun calculateSSIM(ideal: IntArray, given: IntArray, width: Int, height: Int): Double {
         return calculateSSIM(ideal, given, 0, width, width, height)
     }
 
@@ -93,23 +78,29 @@ class MSSIMMatcher(
             var currentWindowX = 0
             while (currentWindowX < width) {
                 val windowWidth = computeWindowSize(currentWindowX, width)
-                val start: Int =
-                    indexFromXAndY(currentWindowX, currentWindowY, stride, offset)
-                if (isWindowWhite(ideal, start, stride, windowWidth, windowHeight) &&
-                    isWindowWhite(given, start, stride, windowWidth, windowHeight)
+                val start: Int = indexFromXAndY(currentWindowX, currentWindowY, stride, offset)
+                if (
+                    isWindowWhite(ideal, start, stride, windowWidth, windowHeight) &&
+                        isWindowWhite(given, start, stride, windowWidth, windowHeight)
                 ) {
                     currentWindowX += WINDOW_SIZE
                     continue
                 }
                 windows++
-                val means =
-                    getMeans(ideal, given, start, stride, windowWidth, windowHeight)
+                val means = getMeans(ideal, given, start, stride, windowWidth, windowHeight)
                 val meanX = means[0]
                 val meanY = means[1]
-                val variances = getVariances(
-                    ideal, given, meanX, meanY, start, stride,
-                    windowWidth, windowHeight
-                )
+                val variances =
+                    getVariances(
+                        ideal,
+                        given,
+                        meanX,
+                        meanY,
+                        start,
+                        stride,
+                        windowWidth,
+                        windowHeight
+                    )
                 val varX = variances[0]
                 val varY = variances[1]
                 val stdBoth = variances[2]
@@ -126,8 +117,8 @@ class MSSIMMatcher(
     }
 
     /**
-     * Compute the size of the window. The window defaults to WINDOW_SIZE, but
-     * must be contained within dimension.
+     * Compute the size of the window. The window defaults to WINDOW_SIZE, but must be contained
+     * within dimension.
      */
     private fun computeWindowSize(coordinateStart: Int, dimension: Int): Int {
         return if (coordinateStart + WINDOW_SIZE <= dimension) {
