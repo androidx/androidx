@@ -18,6 +18,8 @@ package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.platform.AccessibilitySyncOptions
+import platform.UIKit.UIStatusBarAnimation
+import platform.UIKit.UIStatusBarStyle
 
 /**
  * Configuration of ComposeUIViewController behavior.
@@ -29,8 +31,8 @@ class ComposeUIViewControllerConfiguration {
     var onFocusBehavior: OnFocusBehavior = OnFocusBehavior.FocusableAboveKeyboard
 
     /**
-     * Reassign this property with an object implementing [ComposeUIViewControllerDelegate] to receive
-     * UIViewController lifetime events.
+     * Reassign this property with an object implementing [ComposeUIViewControllerDelegate] to interact with APIs
+     * that otherwise would require subclassing internal implementation of [UIViewController], which is impossible.
      */
     var delegate: ComposeUIViewControllerDelegate = object : ComposeUIViewControllerDelegate {}
 
@@ -56,10 +58,33 @@ class ComposeUIViewControllerConfiguration {
 }
 
 /**
- * Interface for UIViewController specific lifetime callbacks to allow injecting logic without overriding internal ComposeWindow.
- * All of those callbacks are invoked at the very end of overrided function implementation.
+ * Interface for UIViewController to allow injecting logic which otherwise is impossible due to ComposeUIViewController
+ * implementation being internal.
+ * All of those callbacks are invoked at the very end of overriden function and properties implementation.
+ * Default implementations do nothing and return Unit/null (indicating that UIKit default will be used).
  */
 interface ComposeUIViewControllerDelegate {
+    /**
+     * https://developer.apple.com/documentation/uikit/uiviewcontroller/1621416-preferredstatusbarstyle?language=objc
+     * @return null if UIKit default should be used.
+     */
+    val preferredStatusBarStyle: UIStatusBarStyle?
+        get() = null
+
+    /**
+     * https://developer.apple.com/documentation/uikit/uiviewcontroller/1621434-preferredstatusbarupdateanimatio?language=objc
+     * @return null if UIKit default should be used.
+     */
+    val preferredStatysBarAnimation: UIStatusBarAnimation?
+        get() = null
+
+    /**
+     * https://developer.apple.com/documentation/uikit/uiviewcontroller/1621440-prefersstatusbarhidden?language=objc
+     * @return null if UIKit default should be used.
+     */
+    val prefersStatusBarHidden: Boolean?
+        get() = null
+
     fun viewDidLoad() = Unit
     fun viewWillAppear(animated: Boolean) = Unit
     fun viewDidAppear(animated: Boolean) = Unit

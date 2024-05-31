@@ -11,6 +11,12 @@ import androidx.compose.ui.platform.AccessibilitySyncOptions
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.compose.mpp.demo.bugs.IosBugs
 import androidx.compose.mpp.demo.bugs.StartRecompositionCheck
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.uikit.ComposeUIViewControllerDelegate
+import platform.UIKit.UIStatusBarAnimation
+import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIViewController
 
 @OptIn(ExperimentalComposeApi::class, ExperimentalComposeUiApi::class)
@@ -28,6 +34,17 @@ fun main(vararg args: String) {
                 }
             }
         })
+
+        delegate = object : ComposeUIViewControllerDelegate {
+            override val preferredStatusBarStyle: UIStatusBarStyle?
+                get() = preferredStatusBarStyleValue
+
+            override val prefersStatusBarHidden: Boolean?
+                get() = prefersStatusBarHiddenValue
+
+            override val preferredStatysBarAnimation: UIStatusBarAnimation?
+                get() = preferredStatysBarAnimationValue
+        }
     }) {
         IosDemo(arg)
     })
