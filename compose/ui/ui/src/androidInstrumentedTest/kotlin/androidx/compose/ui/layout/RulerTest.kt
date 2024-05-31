@@ -644,7 +644,7 @@ class RulerTest {
             rule.activity.window.decorView.invalidate()
         }
         assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
-        rule.runOnUiThread {
+        rule.runOnIdle {
             assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX)
         }
     }
