@@ -37,8 +37,10 @@ import org.junit.runner.RunWith
 class WorkManagerImplTestKt {
     val clock = TestOverrideClock()
     val configuration =
-        Configuration.Builder().setClock(clock)
-            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+        Configuration.Builder()
+            .setClock(clock)
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
     val taskExecutor = env.taskExecutor
     val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)

@@ -22,10 +22,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.work.Data
 
-/**
- * A DAO for [WorkProgress].
- *
- */
+/** A DAO for [WorkProgress]. */
 @Dao
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WorkProgressDao {
@@ -34,22 +31,17 @@ interface WorkProgressDao {
      *
      * @param progress The [WorkProgress]
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(progress: WorkProgress)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(progress: WorkProgress)
 
     /**
      * Deletes a [WorkProgress] from the database.
      *
      * @param workSpecId The [WorkSpec] id
      */
-    @Query("DELETE from WorkProgress where work_spec_id=:workSpecId")
-    fun delete(workSpecId: String)
+    @Query("DELETE from WorkProgress where work_spec_id=:workSpecId") fun delete(workSpecId: String)
 
-    /**
-     * Removes all [WorkProgress] entries from the [WorkProgress] table.
-     */
-    @Query("DELETE FROM WorkProgress")
-    fun deleteAll()
+    /** Removes all [WorkProgress] entries from the [WorkProgress] table. */
+    @Query("DELETE FROM WorkProgress") fun deleteAll()
 
     /**
      * @param workSpecId The [String] workSpec id

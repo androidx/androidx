@@ -20,36 +20,26 @@ import androidx.annotation.RestrictTo
 import androidx.work.impl.constraints.NetworkState
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
-/**
- * A singleton class to hold an instance of each [ConstraintTracker].
- */
+/** A singleton class to hold an instance of each [ConstraintTracker]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Trackers
 @JvmOverloads
 constructor(
     val context: Context,
     taskExecutor: TaskExecutor,
-    /**
-     * The tracker used to track the battery charging status.
-     */
+    /** The tracker used to track the battery charging status. */
     val batteryChargingTracker: ConstraintTracker<Boolean> =
         BatteryChargingTracker(context.applicationContext, taskExecutor),
 
-    /**
-     * The tracker used to track if the battery is okay or low.
-     */
+    /** The tracker used to track if the battery is okay or low. */
     val batteryNotLowTracker: BatteryNotLowTracker =
         BatteryNotLowTracker(context.applicationContext, taskExecutor),
 
-    /**
-     * The tracker used to track network state changes.
-     */
+    /** The tracker used to track network state changes. */
     val networkStateTracker: ConstraintTracker<NetworkState> =
         NetworkStateTracker(context.applicationContext, taskExecutor),
 
-    /**
-     * The tracker used to track if device storage is okay or low.
-     */
+    /** The tracker used to track if device storage is okay or low. */
     val storageNotLowTracker: ConstraintTracker<Boolean> =
         StorageNotLowTracker(context.applicationContext, taskExecutor),
 )

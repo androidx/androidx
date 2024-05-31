@@ -16,10 +16,10 @@
 package androidx.work
 
 /**
- * An [InputMerger] that attempts to add all keys from all inputs to the output.  In case of a
- * conflict, this class will overwrite the previously-set key.  Because there is no defined order
- * for inputs, this implementation is best suited for cases where conflicts will not happen, or
- * where overwriting is a valid strategy to deal with them.
+ * An [InputMerger] that attempts to add all keys from all inputs to the output. In case of a
+ * conflict, this class will overwrite the previously-set key. Because there is no defined order for
+ * inputs, this implementation is best suited for cases where conflicts will not happen, or where
+ * overwriting is a valid strategy to deal with them.
  */
 class OverwritingInputMerger : InputMerger() {
     override fun merge(inputs: List<Data>): Data {

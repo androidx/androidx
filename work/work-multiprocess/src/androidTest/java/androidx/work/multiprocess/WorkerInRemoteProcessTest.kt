@@ -46,15 +46,14 @@ import org.junit.runner.RunWith
 class WorkerInRemoteProcessTest {
     val context = ApplicationProvider.getApplicationContext<Context>()
 
-    val configuration = Configuration.Builder()
-        .setMinimumLoggingLevel(Log.VERBOSE)
-        .build()
+    val configuration = Configuration.Builder().setMinimumLoggingLevel(Log.VERBOSE).build()
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
-    val workManager = WorkManagerImpl(
-        context = context,
-        configuration = configuration,
-        workTaskExecutor = taskExecutor,
-    )
+    val workManager =
+        WorkManagerImpl(
+            context = context,
+            configuration = configuration,
+            workTaskExecutor = taskExecutor,
+        )
 
     init {
         WorkManagerImpl.setDelegate(workManager)
@@ -64,31 +63,33 @@ class WorkerInRemoteProcessTest {
     @MediumTest
     @Test
     fun runWorker() = runBlocking {
-        val componentName = ComponentName(
-            "androidx.work.multiprocess.test",
-            RemoteWorkerService2::class.java.canonicalName!!
-        )
-        val workRequest = OneTimeWorkRequestBuilder<ProcessCheckingRemoteSuccessWorker>()
-            .setInputData(
-                workDataOf(
-                    ARGUMENT_PACKAGE_NAME to componentName.packageName,
-                    ARGUMENT_CLASS_NAME to componentName.className,
-                )
+        val componentName =
+            ComponentName(
+                "androidx.work.multiprocess.test",
+                RemoteWorkerService2::class.java.canonicalName!!
             )
-            .build()
+        val workRequest =
+            OneTimeWorkRequestBuilder<ProcessCheckingRemoteSuccessWorker>()
+                .setInputData(
+                    workDataOf(
+                        ARGUMENT_PACKAGE_NAME to componentName.packageName,
+                        ARGUMENT_CLASS_NAME to componentName.className,
+                    )
+                )
+                .build()
         workManager.enqueue(workRequest)
-        val finished = workManager.getWorkInfoByIdFlow(workRequest.id).filter {
-            it?.state?.isFinished ?: false
-        }.first()
+        val finished =
+            workManager
+                .getWorkInfoByIdFlow(workRequest.id)
+                .filter { it?.state?.isFinished ?: false }
+                .first()
         assertThat(finished!!.state).isEqualTo(WorkInfo.State.SUCCEEDED)
     }
 }
 
 @RequiresApi(28)
-public class ProcessCheckingRemoteSuccessWorker(
-    context: Context,
-    parameters: WorkerParameters
-) : RemoteCoroutineWorker(context, parameters) {
+public class ProcessCheckingRemoteSuccessWorker(context: Context, parameters: WorkerParameters) :
+    RemoteCoroutineWorker(context, parameters) {
 
     init {
         val processName = Application.getProcessName()

@@ -21,10 +21,9 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.CompletableDeferred
 
-class CompletableWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class CompletableWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     val result = CompletableDeferred<Result>()
+
     override suspend fun doWork() = result.await()
 }

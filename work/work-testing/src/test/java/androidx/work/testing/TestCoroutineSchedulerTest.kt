@@ -84,7 +84,8 @@ class TestCoroutineSchedulerTest {
                 .setExecutor(testCoroutineDispatcher.asExecutor())
                 .setTaskExecutor(testCoroutineDispatcher.asExecutor())
                 .setRunnableScheduler(testRunnableScheduler)
-                .setMinimumLoggingLevel(Log.DEBUG).build()
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .build()
 
         WorkManagerTestInitHelper.initializeTestWorkManager(
             context,
@@ -104,7 +105,8 @@ class TestCoroutineSchedulerTest {
         val initialDelayMillis = HOURS.toMillis(2)
         val request: WorkRequest =
             OneTimeWorkRequest.Builder(TestWorker::class.java)
-                .setInitialDelay(initialDelayMillis, MILLISECONDS).build()
+                .setInitialDelay(initialDelayMillis, MILLISECONDS)
+                .build()
 
         workManager.enqueue(listOf(request))
         synchronizeThreads()
@@ -130,7 +132,8 @@ class TestCoroutineSchedulerTest {
         val initialDelayMillis = HOURS.toMillis(2)
         val request: WorkRequest =
             OneTimeWorkRequest.Builder(TestWorker::class.java)
-                .setInitialDelay(initialDelayMillis, MILLISECONDS).build()
+                .setInitialDelay(initialDelayMillis, MILLISECONDS)
+                .build()
 
         workManager.enqueue(listOf(request))
         synchronizeThreads()
@@ -145,9 +148,7 @@ class TestCoroutineSchedulerTest {
             testDriver.setInitialDelayMet(request.id)
         }
 
-        assertThrows(IllegalStateException::class.java) {
-            testDriver.setPeriodDelayMet(request.id)
-        }
+        assertThrows(IllegalStateException::class.java) { testDriver.setPeriodDelayMet(request.id) }
     }
 
     @Test
@@ -224,6 +225,7 @@ class TestCoroutineSchedulerTest {
 
 private class MarkedRunnable : Runnable {
     var ran = false
+
     override fun run() {
         ran = true
     }
@@ -238,9 +240,15 @@ private class CoroutineDispatcherRunnableScheduler(private val testDispatcher: T
     val runnables: MutableMap<Runnable, DisposableHandle> = Collections.synchronizedMap(HashMap())
 
     override fun scheduleWithDelay(delayInMillis: Long, runnable: Runnable) {
-        runnables[runnable] = testDispatcher.invokeOnTimeout(
-            delayInMillis, { runnable.run(); runnables.remove(runnable) }, EmptyCoroutineContext
-        )
+        runnables[runnable] =
+            testDispatcher.invokeOnTimeout(
+                delayInMillis,
+                {
+                    runnable.run()
+                    runnables.remove(runnable)
+                },
+                EmptyCoroutineContext
+            )
     }
 
     override fun cancel(runnable: Runnable) {

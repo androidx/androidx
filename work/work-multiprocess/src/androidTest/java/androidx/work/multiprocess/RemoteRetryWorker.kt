@@ -20,10 +20,8 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.delay
 
-public class RemoteRetryWorker(
-    context: Context,
-    parameters: WorkerParameters
-) : RemoteCoroutineWorker(context, parameters) {
+public class RemoteRetryWorker(context: Context, parameters: WorkerParameters) :
+    RemoteCoroutineWorker(context, parameters) {
     override suspend fun doRemoteWork(): Result {
         delay(100)
         return Result.retry()

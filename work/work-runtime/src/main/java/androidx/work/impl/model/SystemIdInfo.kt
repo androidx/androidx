@@ -20,32 +20,25 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 
-/**
- * Stores system ids for a [WorkSpec] id.
- *
- */
+/** Stores system ids for a [WorkSpec] id. */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = WorkSpec::class,
-        parentColumns = ["id"],
-        childColumns = ["work_spec_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-    )],
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = WorkSpec::class,
+                parentColumns = ["id"],
+                childColumns = ["work_spec_id"],
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE
+            )
+        ],
     primaryKeys = ["work_spec_id", "generation"]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class SystemIdInfo(
-    @JvmField
-    @ColumnInfo(name = "work_spec_id")
-    val workSpecId: String,
-
-    @ColumnInfo(defaultValue = "0")
-    val generation: Int,
-
-    @JvmField
-    @ColumnInfo(name = "system_id")
-    val systemId: Int
+    @JvmField @ColumnInfo(name = "work_spec_id") val workSpecId: String,
+    @ColumnInfo(defaultValue = "0") val generation: Int,
+    @JvmField @ColumnInfo(name = "system_id") val systemId: Int
 )
 
 fun systemIdInfo(generationalId: WorkGenerationalId, systemId: Int) =

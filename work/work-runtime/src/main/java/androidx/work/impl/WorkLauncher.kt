@@ -36,9 +36,7 @@ interface WorkLauncher {
      */
     fun startWork(workSpecId: StartStopToken, runtimeExtras: RuntimeExtras?)
 
-    /**
-     * @param workSpecId The [WorkSpec] id to stop
-     */
+    /** @param workSpecId The [WorkSpec] id to stop */
     fun stopWork(workSpecId: StartStopToken) {
         stopWork(workSpecId, WorkInfo.STOP_REASON_UNKNOWN)
     }
@@ -58,8 +56,6 @@ class WorkLauncherImpl(
     }
 
     override fun stopWork(workSpecId: StartStopToken, @StopReason reason: Int) {
-        workTaskExecutor.executeOnTaskThread(
-            StopWorkRunnable(processor, workSpecId, false, reason)
-        )
+        workTaskExecutor.executeOnTaskThread(StopWorkRunnable(processor, workSpecId, false, reason))
     }
 }

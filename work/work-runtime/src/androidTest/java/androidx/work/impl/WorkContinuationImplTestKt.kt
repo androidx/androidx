@@ -45,8 +45,10 @@ import org.junit.runner.RunWith
 class WorkContinuationImplTestKt {
     val workerFactory = TrackingWorkerFactory()
     val configuration =
-        Configuration.Builder().setWorkerFactory(workerFactory)
-            .setTaskExecutor(Executors.newSingleThreadExecutor()).build()
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setTaskExecutor(Executors.newSingleThreadExecutor())
+            .build()
     val env = TestEnv(configuration)
     val taskExecutor = env.taskExecutor
     val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
@@ -57,26 +59,34 @@ class WorkContinuationImplTestKt {
     }
 
     @Test
-    fun testContinuation_joinPassesAllOutput() = runBlocking<Unit> {
-        val intTag = "myint"
-        val stringTag = "mystring"
-        val firstWork = OneTimeWorkRequest.from(CompletableWorker::class.java)
-        val secondWork = OneTimeWorkRequest.from(CompletableWorker::class.java)
-        val firstContinuation = workManager.beginWith(firstWork)
-        val secondContinuation = workManager.beginWith(secondWork)
-        val combined = WorkContinuation.combine(listOf(firstContinuation, secondContinuation))
-        combined.enqueue().await()
-        val thirdId = combined.workInfos.await().map { it.id }
-            .first { it != firstWork.id && it != secondWork.id }
-        (workerFactory.await(firstWork.id) as CompletableWorker).result
-            .complete(Success(workDataOf(intTag to 1, stringTag to "hello")))
-        (workerFactory.await(secondWork.id) as CompletableWorker).result
-            .complete(Success(workDataOf(intTag to 3)))
-        val info = workManager.getWorkInfoByIdFlow(thirdId).filterNotNull()
-            .first { it.state == WorkInfo.State.SUCCEEDED }
-        assertThat(info.outputData.size()).isEqualTo(2)
-        assertThat(info.outputData.getStringArray(stringTag)).isEqualTo(arrayOf("hello"))
-        val intArray = info.outputData.getIntArray(intTag)!!.sortedArray()
-        assertThat(intArray).isEqualTo(intArrayOf(1, 3))
-    }
+    fun testContinuation_joinPassesAllOutput() =
+        runBlocking<Unit> {
+            val intTag = "myint"
+            val stringTag = "mystring"
+            val firstWork = OneTimeWorkRequest.from(CompletableWorker::class.java)
+            val secondWork = OneTimeWorkRequest.from(CompletableWorker::class.java)
+            val firstContinuation = workManager.beginWith(firstWork)
+            val secondContinuation = workManager.beginWith(secondWork)
+            val combined = WorkContinuation.combine(listOf(firstContinuation, secondContinuation))
+            combined.enqueue().await()
+            val thirdId =
+                combined.workInfos
+                    .await()
+                    .map { it.id }
+                    .first { it != firstWork.id && it != secondWork.id }
+            (workerFactory.await(firstWork.id) as CompletableWorker)
+                .result
+                .complete(Success(workDataOf(intTag to 1, stringTag to "hello")))
+            (workerFactory.await(secondWork.id) as CompletableWorker)
+                .result
+                .complete(Success(workDataOf(intTag to 3)))
+            val info =
+                workManager.getWorkInfoByIdFlow(thirdId).filterNotNull().first {
+                    it.state == WorkInfo.State.SUCCEEDED
+                }
+            assertThat(info.outputData.size()).isEqualTo(2)
+            assertThat(info.outputData.getStringArray(stringTag)).isEqualTo(arrayOf("hello"))
+            val intArray = info.outputData.getIntArray(intTag)!!.sortedArray()
+            assertThat(intArray).isEqualTo(intArrayOf(1, 3))
+        }
 }

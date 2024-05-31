@@ -46,14 +46,12 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
          * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].
          *
          * Before workers run, they receive input [Data] from their parent workers, as well as
-         * anything specified directly to them via [WorkRequest.Builder.setInputData].
-         * An InputMerger takes all of these objects and converts them to a single merged
-         * [Data] to be used as the worker input.  The default InputMerger is
-         * [OverwritingInputMerger].  This library also offers
-         * [ArrayCreatingInputMerger]; you can also specify your own.
+         * anything specified directly to them via [WorkRequest.Builder.setInputData]. An
+         * InputMerger takes all of these objects and converts them to a single merged [Data] to be
+         * used as the worker input. The default InputMerger is [OverwritingInputMerger]. This
+         * library also offers [ArrayCreatingInputMerger]; you can also specify your own.
          *
-         * @param inputMerger The class name of the [InputMerger] for this
-         * [OneTimeWorkRequest]
+         * @param inputMerger The class name of the [InputMerger] for this [OneTimeWorkRequest]
          * @return The current [Builder]
          */
         fun setInputMerger(inputMerger: Class<out InputMerger>): Builder {
@@ -63,9 +61,12 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
 
         override fun buildInternal(): OneTimeWorkRequest {
             require(
-                !(backoffCriteriaSet && Build.VERSION.SDK_INT >= 23 &&
+                !(backoffCriteriaSet &&
+                    Build.VERSION.SDK_INT >= 23 &&
                     workSpec.constraints.requiresDeviceIdle())
-            ) { "Cannot set backoff criteria on an idle mode job" }
+            ) {
+                "Cannot set backoff criteria on an idle mode job"
+            }
             return OneTimeWorkRequest(this)
         }
 
@@ -75,8 +76,7 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
 
     companion object {
         /**
-         * Creates a [OneTimeWorkRequest] with defaults from a  [ListenableWorker] class
-         * name.
+         * Creates a [OneTimeWorkRequest] with defaults from a [ListenableWorker] class name.
          *
          * @param workerClass An [ListenableWorker] class name
          * @return A [OneTimeWorkRequest] constructed by using defaults in the [Builder]
@@ -87,8 +87,8 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
         }
 
         /**
-         * Creates a list of [OneTimeWorkRequest]s with defaults from an array of
-         * [ListenableWorker] class names.
+         * Creates a list of [OneTimeWorkRequest]s with defaults from an array of [ListenableWorker]
+         * class names.
          *
          * @param workerClasses A list of [ListenableWorker] class names
          * @return A list of [OneTimeWorkRequest] constructed by using defaults in the [ ]
@@ -100,15 +100,11 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
     }
 }
 
-/**
- * Creates a [OneTimeWorkRequest] with the given [ListenableWorker].
- */
+/** Creates a [OneTimeWorkRequest] with the given [ListenableWorker]. */
 public inline fun <reified W : ListenableWorker> OneTimeWorkRequestBuilder():
     OneTimeWorkRequest.Builder = OneTimeWorkRequest.Builder(W::class.java)
 
-/**
- * Sets an [InputMerger] on the [OneTimeWorkRequest.Builder].
- */
+/** Sets an [InputMerger] on the [OneTimeWorkRequest.Builder]. */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun OneTimeWorkRequest.Builder.setInputMerger(
     @NonNull inputMerger: KClass<out InputMerger>

@@ -20,23 +20,17 @@ import android.app.job.JobParameters
 import android.content.Context
 import java.util.concurrent.CancellationException
 
-/**
- * A class that can perform work asynchronously in UserInitiatedTaskManager.
- */
+/** A class that can perform work asynchronously in UserInitiatedTaskManager. */
 public abstract class UserInitiatedTask(
-    /**
-     * A unique identifier for the task.
-     */
+    /** A unique identifier for the task. */
     val name: String,
-    /**
-     * The application context.
-     */
+    /** The application context. */
     val appContext: Context
 ) {
 
     /**
-     * Override this method to start your actual data transfer work.
-     * This method is called on the main thread by default.
+     * Override this method to start your actual data transfer work. This method is called on the
+     * main thread by default.
      *
      * If the task is cancelled, the app will get a [CancellationException], with one of the
      * following messages:
@@ -51,13 +45,12 @@ public abstract class UserInitiatedTask(
      * Override this method to provide the notification information associated with your work.
      *
      * On Android 14 and above, the notification will be delegated to the dedicated JobService.
-     * While on Android 14- devices, the default policy to this API is FIFO:
-     * whoever calls this API later will get posted as a foreground service notification here.
-     * The notifications from the previous calls to this method would be posted as regular
-     * notifications (unless they have the same notification ID).
+     * While on Android 14- devices, the default policy to this API is FIFO: whoever calls this API
+     * later will get posted as a foreground service notification here. The notifications from the
+     * previous calls to this method would be posted as regular notifications (unless they have the
+     * same notification ID).
      *
-     * To change this behavior on Android 14-, override
-     * [AbstractUitService.handleTaskNotification]
+     * To change this behavior on Android 14-, override [AbstractUitService.handleTaskNotification]
      */
     abstract suspend fun createForegroundInfo(): UitForegroundInfo
 }

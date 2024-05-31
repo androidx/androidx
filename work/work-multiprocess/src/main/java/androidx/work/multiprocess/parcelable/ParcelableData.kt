@@ -21,17 +21,14 @@ import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.work.Data
 
-/**
- * [androidx.work.Data] but [android.os.Parcelable].
- *
- */
+/** [androidx.work.Data] but [android.os.Parcelable]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")
 class ParcelableData(val data: Data) : Parcelable {
 
-    constructor(inParcel: Parcel) : this(
-        inParcel.createByteArray()?.let { Data.fromByteArray(it) } ?: Data.EMPTY
-    )
+    constructor(
+        inParcel: Parcel
+    ) : this(inParcel.createByteArray()?.let { Data.fromByteArray(it) } ?: Data.EMPTY)
 
     override fun describeContents(): Int {
         return 0

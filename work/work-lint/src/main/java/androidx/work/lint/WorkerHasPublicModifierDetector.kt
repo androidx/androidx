@@ -39,28 +39,29 @@ class WorkerHasPublicModifierDetector : Detector(), SourceCodeScanner {
         private const val DESCRIPTION =
             "ListenableWorkers constructed using the default WorkerFactories need to be public"
 
-        val ISSUE = Issue.create(
-            id = "WorkerHasAPublicModifier",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "WorkerHasAPublicModifier",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 When you define a ListenableWorker which is constructed using the 
                 default WorkerFactory, the ListenableWorker sub-type needs to be public.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                WorkerHasPublicModifierDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        WorkerHasPublicModifierDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE)
+                    )
             )
-        )
     }
 
     override fun getApplicableMethodNames(): List<String> = listOf("setWorkerFactory")
 
-    override fun applicableSuperClasses() = listOf(
-        "androidx.work.ListenableWorker"
-    )
+    override fun applicableSuperClasses() = listOf("androidx.work.ListenableWorker")
 
     private var hasCustomWorkerFactory = false
     private val workers = mutableListOf<Pair<UClass, Location>>()

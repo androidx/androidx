@@ -23,8 +23,5 @@ class InspectorApp : Application(), Configuration.Provider {
     val executor = DispatchingExecutor()
 
     override val workManagerConfiguration: Configuration =
-        Configuration.Builder()
-            .setExecutor(executor)
-            .setTaskExecutor(executor)
-            .build()
+        Configuration.Builder().setExecutor(executor).setTaskExecutor(executor).build()
 }

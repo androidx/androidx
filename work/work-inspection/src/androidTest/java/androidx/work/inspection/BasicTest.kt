@@ -29,8 +29,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class BasicTest {
-    @get:Rule
-    val testEnvironment = WorkManagerInspectorTestEnvironment()
+    @get:Rule val testEnvironment = WorkManagerInspectorTestEnvironment()
 
     @Test
     fun createInspector() {
@@ -40,22 +39,17 @@ class BasicTest {
 
     @Test
     fun sendUnsetCommand() = runBlocking {
-        testEnvironment.sendCommand(Command.getDefaultInstance())
-            .let { response ->
-                assertThat(response.hasError()).isEqualTo(true)
-                assertThat(response.error.content)
-                    .contains("Unrecognised command type: ONEOF_NOT_SET")
-            }
+        testEnvironment.sendCommand(Command.getDefaultInstance()).let { response ->
+            assertThat(response.hasError()).isEqualTo(true)
+            assertThat(response.error.content).contains("Unrecognised command type: ONEOF_NOT_SET")
+        }
     }
 
     @Test
     fun sendTrackWorkManagerCommand() = runBlocking {
         val trackCommand = TrackWorkManagerCommand.getDefaultInstance()
-        testEnvironment.sendCommand(
-            Command.newBuilder().setTrackWorkManager(trackCommand).build()
-        )
-            .let { response ->
-                assertThat(response.hasTrackWorkManager()).isEqualTo(true)
-            }
+        testEnvironment
+            .sendCommand(Command.newBuilder().setTrackWorkManager(trackCommand).build())
+            .let { response -> assertThat(response.hasTrackWorkManager()).isEqualTo(true) }
     }
 }

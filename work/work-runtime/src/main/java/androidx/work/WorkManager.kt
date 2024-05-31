@@ -26,33 +26,28 @@ import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
 /**
- * WorkManager is the recommended library for persistent work.
- * Scheduled work is guaranteed to execute sometime after its [Constraints] are met.
- * WorkManager allows observation of work status and the ability to create complex chains of work.
+ * WorkManager is the recommended library for persistent work. Scheduled work is guaranteed to
+ * execute sometime after its [Constraints] are met. WorkManager allows observation of work status
+ * and the ability to create complex chains of work.
  *
  * WorkManager uses an underlying job dispatching service when available based on the following
  * criteria:
+ * * Uses JobScheduler for API 23+
+ * * Uses a custom AlarmManager + BroadcastReceiver implementation for API 14-22
  *
- *  * Uses JobScheduler for API 23+
- *  * Uses a custom AlarmManager + BroadcastReceiver implementation for API 14-22
- *
- * All work must be done in a [ListenableWorker] class.  A simple implementation,
- * [Worker], is recommended as the starting point for most developers.  With the optional
- * dependencies, you can also use `CoroutineWorker` or `RxWorker`.  All background work
- * is given a maximum of ten minutes to finish its execution.  After this time has expired, the
- * worker will be signalled to stop.
+ * All work must be done in a [ListenableWorker] class. A simple implementation, [Worker], is
+ * recommended as the starting point for most developers. With the optional dependencies, you can
+ * also use `CoroutineWorker` or `RxWorker`. All background work is given a maximum of ten minutes
+ * to finish its execution. After this time has expired, the worker will be signalled to stop.
  *
  * There are two types of work supported by WorkManager: [OneTimeWorkRequest] and
- * [PeriodicWorkRequest].  You can enqueue requests using WorkManager as follows:
- *
+ * [PeriodicWorkRequest]. You can enqueue requests using WorkManager as follows:
  * ```
  * WorkManager workManager = WorkManager.getInstance(Context);
  * workManager.enqueue(new OneTimeWorkRequest.Builder(FooWorker.class).build());
  * ```
  *
- * A [WorkRequest] has an associated id that can be used for lookups and observation as
- * follows:
- *
+ * A [WorkRequest] has an associated id that can be used for lookups and observation as follows:
  * ```
  * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * workManager.enqueue(request);
@@ -61,7 +56,6 @@ import kotlinx.coroutines.flow.Flow
  * ```
  *
  * You can also use the id for cancellation:
- *
  * ```
  * WorkRequest request = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * workManager.enqueue(request);
@@ -69,7 +63,6 @@ import kotlinx.coroutines.flow.Flow
  * ```
  *
  * You can chain work as follows:
- *
  * ```
  * WorkRequest request1 = new OneTimeWorkRequest.Builder(FooWorker.class).build();
  * WorkRequest request2 = new OneTimeWorkRequest.Builder(BarWorker.class).build();
@@ -79,9 +72,8 @@ import kotlinx.coroutines.flow.Flow
  *
  * Each call to [beginWith] returns a [WorkContinuation] upon which you can call
  * [WorkContinuation.then] with a single [OneTimeWorkRequest] or a list of [OneTimeWorkRequest] to
- * chain further work.  This allows for creation of complex chains of work.  For example, to create
- * a chain like this:
- *
+ * chain further work. This allows for creation of complex chains of work. For example, to create a
+ * chain like this:
  * ```
  *            A
  *            |
@@ -95,39 +87,37 @@ import kotlinx.coroutines.flow.Flow
  * ```
  *
  * you would enqueue them as follows:
- *
  * ```
  * WorkContinuation continuation = workManager.beginWith(A);
  * continuation.then(B).then(D, E).enqueue();  // A is implicitly enqueued here
  * continuation.then(C).enqueue();
  * ```
  *
- * Work is eligible for execution when all of its prerequisites are complete.  If any of its
+ * Work is eligible for execution when all of its prerequisites are complete. If any of its
  * prerequisites fail or are cancelled, the work will never run.
  *
- * WorkRequests can accept [Constraints], inputs (see [Data]), and backoff criteria.
- * WorkRequests can be tagged with human-readable Strings
- * (see [WorkRequest.Builder.addTag]), and chains of work can be given a
- * uniquely-identifiable name (see [beginUniqueWork]).
+ * WorkRequests can accept [Constraints], inputs (see [Data]), and backoff criteria. WorkRequests
+ * can be tagged with human-readable Strings (see [WorkRequest.Builder.addTag]), and chains of work
+ * can be given a uniquely-identifiable name (see [beginUniqueWork]).
  *
  * ### Initializing WorkManager
  *
  * By default, WorkManager auto-initializes itself using a built-in `ContentProvider`.
  * ContentProviders are created and run before the `Application` object, so this allows the
- * WorkManager singleton to be setup before your code can run in most cases.  This is suitable for
- * most developers.  However, you can provide a custom [Configuration] by using
+ * WorkManager singleton to be setup before your code can run in most cases. This is suitable for
+ * most developers. However, you can provide a custom [Configuration] by using
  * [Configuration.Provider] or [WorkManager.initialize].
  *
  * ### Renaming and Removing ListenableWorker Classes
  *
- * Exercise caution in renaming classes derived from [ListenableWorker]s. WorkManager stores
- * the class name in its internal database when the [WorkRequest] is enqueued so it can later
- * create an instance of that worker when constraints are met. Unless otherwise specified in the
- * WorkManager [Configuration], this is done in the default [WorkerFactory] which tries
- * to reflectively create the ListenableWorker object. Therefore, renaming or removing these
- * classes is dangerous - if there is pending work with the given class, it will fail permanently
- * if the class cannot be found.  If you are using a custom WorkerFactory, make sure you properly
- * handle cases where the class is not found so that your code does not crash.
+ * Exercise caution in renaming classes derived from [ListenableWorker]s. WorkManager stores the
+ * class name in its internal database when the [WorkRequest] is enqueued so it can later create an
+ * instance of that worker when constraints are met. Unless otherwise specified in the WorkManager
+ * [Configuration], this is done in the default [WorkerFactory] which tries to reflectively create
+ * the ListenableWorker object. Therefore, renaming or removing these classes is dangerous - if
+ * there is pending work with the given class, it will fail permanently if the class cannot be
+ * found. If you are using a custom WorkerFactory, make sure you properly handle cases where the
+ * class is not found so that your code does not crash.
  *
  * In case it is desirable to rename a class, implement a custom WorkerFactory that instantiates the
  * right ListenableWorker for the old class name.
@@ -142,10 +132,10 @@ abstract class WorkManager internal constructor() {
          * Retrieves the `default` singleton instance of [WorkManager].
          *
          * @return The singleton instance of [WorkManager]; this may be `null` in unusual
-         * circumstances where you have disabled automatic initialization and have failed to
-         * manually call [initialize].
-         * @throws IllegalStateException If WorkManager is not initialized properly as per
-         * the exception message.
+         *   circumstances where you have disabled automatic initialization and have failed to
+         *   manually call [initialize].
+         * @throws IllegalStateException If WorkManager is not initialized properly as per the
+         *   exception message.
          */
         // `open` modifier was added to avoid errors in WorkManagerImpl:
         // "WorkManagerImpl cannot override <X> in WorkManager", even though methods are static
@@ -156,8 +146,7 @@ abstract class WorkManager internal constructor() {
         )
         @JvmStatic
         open fun getInstance(): WorkManager {
-            @Suppress("DEPRECATION")
-            val workManager: WorkManager? = WorkManagerImpl.getInstance()
+            @Suppress("DEPRECATION") val workManager: WorkManager? = WorkManagerImpl.getInstance()
             checkNotNull(workManager) {
                 "WorkManager is not initialized properly.  The most " +
                     "likely cause is that you disabled WorkManagerInitializer in your manifest " +
@@ -172,8 +161,8 @@ abstract class WorkManager internal constructor() {
          *
          * @param context A [Context] for on-demand initialization.
          * @return The singleton instance of [WorkManager]; this may be `null` in unusual
-         * circumstances where you have disabled automatic initialization and have failed to
-         * manually call [initialize].
+         *   circumstances where you have disabled automatic initialization and have failed to
+         *   manually call [initialize].
          * @throws IllegalStateException If WorkManager is not initialized properly
          */
         // `open` modifier was added to avoid errors in WorkManagerImpl:
@@ -188,20 +177,19 @@ abstract class WorkManager internal constructor() {
          * Used to do a one-time initialization of the [WorkManager] singleton with a custom
          * [Configuration]. By default, this method should not be called because WorkManager is
          * automatically initialized. To initialize WorkManager yourself, please follow these steps:
+         * * Disable `androidx.work.WorkManagerInitializer` in your manifest.
+         * * Invoke this method in `Application#onCreate` or a `ContentProvider`. Note that this
+         *   method **must** be invoked in one of these two places or you risk getting a
+         *   `NullPointerException` in [getInstance].
          *
-         *  * Disable `androidx.work.WorkManagerInitializer` in your manifest.
-         *  * Invoke this method in `Application#onCreate` or a `ContentProvider`. Note
-         * that this method **must** be invoked in one of these two places or you risk getting a
-         * `NullPointerException` in [getInstance].
-         *
-         * This method throws an [IllegalStateException] when attempting to initialize in
-         * direct boot mode.
+         * This method throws an [IllegalStateException] when attempting to initialize in direct
+         * boot mode.
          *
          * This method throws an exception if it is called multiple times.
          *
-         * @param context A [Context] object for configuration purposes. Internally, this class
-         * will call [Context.getApplicationContext], so you may safely pass in
-         * any Context without risking a memory leak.
+         * @param context A [Context] object for configuration purposes. Internally, this class will
+         *   call [Context.getApplicationContext], so you may safely pass in any Context without
+         *   risking a memory leak.
          * @param configuration The [Configuration] for used to set up WorkManager.
          * @see Configuration.Provider for on-demand initialization.
          */
@@ -223,9 +211,7 @@ abstract class WorkManager internal constructor() {
         open fun isInitialized(): Boolean = WorkManagerImpl.isInitialized()
     }
 
-    /**
-     * The [Configuration] instance that [WorkManager] was initialized with.
-     */
+    /** The [Configuration] instance that [WorkManager] was initialized with. */
     abstract val configuration: Configuration
 
     /**
@@ -247,58 +233,57 @@ abstract class WorkManager internal constructor() {
     abstract fun enqueue(requests: List<WorkRequest>): Operation
 
     /**
-     * Begins a chain with one or more [OneTimeWorkRequest]s, which can be enqueued together
-     * in the future using [WorkContinuation.enqueue].
+     * Begins a chain with one or more [OneTimeWorkRequest]s, which can be enqueued together in the
+     * future using [WorkContinuation.enqueue].
      *
      * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
      * and will never run.
      *
      * @param request One or more [OneTimeWorkRequest] to start a chain of work
      * @return A [WorkContinuation] that allows for further chaining of dependent
-     * [OneTimeWorkRequest]
+     *   [OneTimeWorkRequest]
      */
     fun beginWith(request: OneTimeWorkRequest): WorkContinuation {
         return beginWith(listOf(request))
     }
 
     /**
-     * Begins a chain with one or more [OneTimeWorkRequest]s, which can be enqueued together
-     * in the future using [WorkContinuation.enqueue].
+     * Begins a chain with one or more [OneTimeWorkRequest]s, which can be enqueued together in the
+     * future using [WorkContinuation.enqueue].
      *
      * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
      * and will never run.
      *
      * @param requests One or more [OneTimeWorkRequest] to start a chain of work
      * @return A [WorkContinuation] that allows for further chaining of dependent
-     * [OneTimeWorkRequest]
+     *   [OneTimeWorkRequest]
      */
     abstract fun beginWith(requests: List<OneTimeWorkRequest>): WorkContinuation
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
-     * chain with a given name to be active at a time.  For example, you may only want one sync
-     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * chain with a given name to be active at a time. For example, you may only want one sync
+     * operation to be active. If there is one pending, you can choose to let it run or replace it
      * with your new work.
      *
      * The `uniqueWorkName` uniquely identifies this set of work.
      *
      * If this method determines that new work should be enqueued and run, all records of previous
-     * work with `uniqueWorkName` will be pruned.  If this method determines that new work
-     * should NOT be run, then the entire chain will be considered a no-op.
+     * work with `uniqueWorkName` will be pruned. If this method determines that new work should NOT
+     * be run, then the entire chain will be considered a no-op.
      *
      * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
-     * and will never run.  This is particularly important if you are using `APPEND` as your
+     * and will never run. This is particularly important if you are using `APPEND` as your
      * [ExistingWorkPolicy].
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An [ExistingWorkPolicy]
-     * @param request The [OneTimeWorkRequest] to enqueue. `REPLACE` ensures that if there
-     * is pending work labelled with `uniqueWorkName`, it will be cancelled and
-     * the new work will run. `KEEP` will run the new sequence of work only if
-     * there is no pending work labelled with `uniqueWorkName`.  `APPEND`
-     * will create a new sequence of work if there is no existing work with
-     * `uniqueWorkName`; otherwise, `work` will be added as a child of all
-     * leaf nodes labelled with `uniqueWorkName`.
+     * @param request The [OneTimeWorkRequest] to enqueue. `REPLACE` ensures that if there is
+     *   pending work labelled with `uniqueWorkName`, it will be cancelled and the new work will
+     *   run. `KEEP` will run the new sequence of work only if there is no pending work labelled
+     *   with `uniqueWorkName`. `APPEND` will create a new sequence of work if there is no existing
+     *   work with `uniqueWorkName`; otherwise, `work` will be added as a child of all leaf nodes
+     *   labelled with `uniqueWorkName`.
      * @return A [WorkContinuation] that allows further chaining
      */
     fun beginUniqueWork(
@@ -311,29 +296,28 @@ abstract class WorkManager internal constructor() {
 
     /**
      * This method allows you to begin unique chains of work for situations where you only want one
-     * chain with a given name to be active at a time.  For example, you may only want one sync
-     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * chain with a given name to be active at a time. For example, you may only want one sync
+     * operation to be active. If there is one pending, you can choose to let it run or replace it
      * with your new work.
      *
      * The `uniqueWorkName` uniquely identifies this set of work.
      *
      * If this method determines that new work should be enqueued and run, all records of previous
-     * work with `uniqueWorkName` will be pruned.  If this method determines that new work
-     * should NOT be run, then the entire chain will be considered a no-op.
+     * work with `uniqueWorkName` will be pruned. If this method determines that new work should NOT
+     * be run, then the entire chain will be considered a no-op.
      *
      * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
-     * and will never run.  This is particularly important if you are using `APPEND` as your
+     * and will never run. This is particularly important if you are using `APPEND` as your
      * [ExistingWorkPolicy].
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An [ExistingWorkPolicy]; see below for more information
-     * @param requests One or more [OneTimeWorkRequest] to enqueue. `REPLACE` ensures that
-     * if there is pending work labelled with `uniqueWorkName`, it will be
-     * cancelled and the new work will run. `KEEP` will run the new sequence of
-     * work only if there is no pending work labelled with `uniqueWorkName`.
-     * `APPEND` will create a new sequence of work if there is no
-     * existing work with `uniqueWorkName`; otherwise, `work` will be added
-     * as a child of all leaf nodes labelled with `uniqueWorkName`.
+     * @param requests One or more [OneTimeWorkRequest] to enqueue. `REPLACE` ensures that if there
+     *   is pending work labelled with `uniqueWorkName`, it will be cancelled and the new work will
+     *   run. `KEEP` will run the new sequence of work only if there is no pending work labelled
+     *   with `uniqueWorkName`. `APPEND` will create a new sequence of work if there is no existing
+     *   work with `uniqueWorkName`; otherwise, `work` will be added as a child of all leaf nodes
+     *   labelled with `uniqueWorkName`.
      * @return A [WorkContinuation] that allows further chaining
      */
     abstract fun beginUniqueWork(
@@ -343,21 +327,20 @@ abstract class WorkManager internal constructor() {
     ): WorkContinuation
 
     /**
-     * This method allows you to enqueue `work` requests to a uniquely-named
-     * [WorkContinuation], where only one continuation of a particular name can be active at
-     * a time. For example, you may only want one sync operation to be active. If there is one
-     * pending, you can choose to let it run or replace it with your new work.
+     * This method allows you to enqueue `work` requests to a uniquely-named [WorkContinuation],
+     * where only one continuation of a particular name can be active at a time. For example, you
+     * may only want one sync operation to be active. If there is one pending, you can choose to let
+     * it run or replace it with your new work.
      *
      * The `uniqueWorkName` uniquely identifies this [WorkContinuation].
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingWorkPolicy An [ExistingWorkPolicy]; see below for more information
-     * @param request The [OneTimeWorkRequest]s to enqueue. `REPLACE` ensures that if there
-     * is pending work labelled with `uniqueWorkName`, it will be cancelled and
-     * the new work will run. `KEEP` will run the new OneTimeWorkRequests only if
-     * there is no pending work labelled with `uniqueWorkName`.  `APPEND`
-     * will append the OneTimeWorkRequests as leaf nodes labelled with
-     * `uniqueWorkName`.
+     * @param request The [OneTimeWorkRequest]s to enqueue. `REPLACE` ensures that if there is
+     *   pending work labelled with `uniqueWorkName`, it will be cancelled and the new work will
+     *   run. `KEEP` will run the new OneTimeWorkRequests only if there is no pending work labelled
+     *   with `uniqueWorkName`. `APPEND` will append the OneTimeWorkRequests as leaf nodes labelled
+     *   with `uniqueWorkName`.
      * @return An [Operation] that can be used to determine when the enqueue has completed
      */
     open fun enqueueUniqueWork(
@@ -369,21 +352,20 @@ abstract class WorkManager internal constructor() {
     }
 
     /**
-     * This method allows you to enqueue `work` requests to a uniquely-named
-     * [WorkContinuation], where only one continuation of a particular name can be active at
-     * a time. For example, you may only want one sync operation to be active. If there is one
-     * pending, you can choose to let it run or replace it with your new work.
+     * This method allows you to enqueue `work` requests to a uniquely-named [WorkContinuation],
+     * where only one continuation of a particular name can be active at a time. For example, you
+     * may only want one sync operation to be active. If there is one pending, you can choose to let
+     * it run or replace it with your new work.
      *
      * The `uniqueWorkName` uniquely identifies this [WorkContinuation].
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingWorkPolicy An [ExistingWorkPolicy]
-     * @param requests [OneTimeWorkRequest]s to enqueue. `REPLACE` ensures
-     * that if there is pending work labelled with `uniqueWorkName`, it
-     * will be cancelled and the new work will run. `KEEP` will run the
-     * new OneTimeWorkRequests only if there is no pending work labelled with
-     * `uniqueWorkName`. `APPEND` will append the
-     * OneTimeWorkRequests as leaf nodes labelled with `uniqueWorkName`.
+     * @param requests [OneTimeWorkRequest]s to enqueue. `REPLACE` ensures that if there is pending
+     *   work labelled with `uniqueWorkName`, it will be cancelled and the new work will run. `KEEP`
+     *   will run the new OneTimeWorkRequests only if there is no pending work labelled with
+     *   `uniqueWorkName`. `APPEND` will append the OneTimeWorkRequests as leaf nodes labelled with
+     *   `uniqueWorkName`.
      * @return An [Operation] that can be used to determine when the enqueue has completed
      */
     abstract fun enqueueUniqueWork(
@@ -393,20 +375,19 @@ abstract class WorkManager internal constructor() {
     ): Operation
 
     /**
-     * This method allows you to enqueue a uniquely-named [PeriodicWorkRequest], where only
-     * one PeriodicWorkRequest of a particular name can be active at a time.  For example, you may
-     * only want one sync operation to be active.  If there is one pending, you can choose to let it
-     * run or replace it with your new work.
+     * This method allows you to enqueue a uniquely-named [PeriodicWorkRequest], where only one
+     * PeriodicWorkRequest of a particular name can be active at a time. For example, you may only
+     * want one sync operation to be active. If there is one pending, you can choose to let it run
+     * or replace it with your new work.
      *
      * The `uniqueWorkName` uniquely identifies this PeriodicWorkRequest.
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingPeriodicWorkPolicy An [ExistingPeriodicWorkPolicy]
-     * @param request A [PeriodicWorkRequest] to enqueue. `REPLACE` ensures that if
-     * there is pending work labelled with `uniqueWorkName`, it will be
-     * cancelled and the new work will run. `KEEP` will run the new
-     * PeriodicWorkRequest only if there is no pending work labelled with
-     * `uniqueWorkName`.
+     * @param request A [PeriodicWorkRequest] to enqueue. `REPLACE` ensures that if there is pending
+     *   work labelled with `uniqueWorkName`, it will be cancelled and the new work will run. `KEEP`
+     *   will run the new PeriodicWorkRequest only if there is no pending work labelled with
+     *   `uniqueWorkName`.
      * @return An [Operation] that can be used to determine when the enqueue has completed
      */
     abstract fun enqueueUniquePeriodicWork(
@@ -416,99 +397,91 @@ abstract class WorkManager internal constructor() {
     ): Operation
 
     /**
-     * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort
+     * Cancels work with the given id if it isn't finished. Note that cancellation is a best-effort
      * policy and work that is already executing may continue to run. Upon cancellation,
      * [ListenableFuture] returned by [ListenableWorker.startWork] will be cancelled. Also
      * [ListenableWorker.onStopped] will be invoked for any affected workers.
      *
      * @param id The id of the work
-     * @return An [Operation] that can be used to determine when the cancelWorkById has
-     * completed
+     * @return An [Operation] that can be used to determine when the cancelWorkById has completed
      */
     abstract fun cancelWorkById(id: UUID): Operation
 
     /**
-     * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
+     * Cancels all unfinished work with the given tag. Note that cancellation is a best-effort
      * policy and work that is already executing may continue to run. Upon cancellation,
      * [ListenableFuture] returned by [ListenableWorker.startWork] will be cancelled. Also
      * [ListenableWorker.onStopped] will be invoked for any affected workers.
      *
      * @param tag The tag used to identify the work
      * @return An [Operation] that can be used to determine when the cancelAllWorkByTag has
-     * completed
+     *   completed
      */
     abstract fun cancelAllWorkByTag(tag: String): Operation
 
     /**
-     * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
+     * Cancels all unfinished work in the work chain with the given name. Note that cancellation is
      * a best-effort policy and work that is already executing may continue to run. Upon
      * cancellation, [ListenableFuture] returned by [ListenableWorker.startWork] will be cancelled.
      * Also [ListenableWorker.onStopped] will be invoked for any affected workers.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
-     * @return An [Operation] that can be used to determine when the cancelUniqueWork has
-     * completed
+     * @return An [Operation] that can be used to determine when the cancelUniqueWork has completed
      */
     abstract fun cancelUniqueWork(uniqueWorkName: String): Operation
 
     /**
-     * Cancels all unfinished work.  **Use this method with extreme caution!**  By invoking it,
-     * you will potentially affect other modules or libraries in your codebase.  It is strongly
+     * Cancels all unfinished work. **Use this method with extreme caution!** By invoking it, you
+     * will potentially affect other modules or libraries in your codebase. It is strongly
      * recommended that you use one of the other cancellation methods at your disposal.
      *
      * Upon cancellation, [ListenableFuture] returned by [ListenableWorker.startWork] will be
      * cancelled. Also [ListenableWorker.onStopped] will be invoked for any affected workers.
      *
-     * @return An [Operation] that can be used to determine when the cancelAllWork has
-     * completed
+     * @return An [Operation] that can be used to determine when the cancelAllWork has completed
      */
     abstract fun cancelAllWork(): Operation
 
     /**
-     * Creates a [PendingIntent] which can be used to cancel a [WorkRequest] with the
-     * given `id`.
+     * Creates a [PendingIntent] which can be used to cancel a [WorkRequest] with the given `id`.
      *
-     * @param id      The [WorkRequest] id.
+     * @param id The [WorkRequest] id.
      * @return The [PendingIntent] that can be used to cancel the [WorkRequest].
      */
     abstract fun createCancelPendingIntent(id: UUID): PendingIntent
 
     /**
-     * Prunes all eligible finished work from the internal database.  Eligible work must be finished
-     * ([WorkInfo.State.SUCCEEDED], [WorkInfo.State.FAILED], or
-     * [WorkInfo.State.CANCELLED]), with zero unfinished dependents.
+     * Prunes all eligible finished work from the internal database. Eligible work must be finished
+     * ([WorkInfo.State.SUCCEEDED], [WorkInfo.State.FAILED], or [WorkInfo.State.CANCELLED]), with
+     * zero unfinished dependents.
      *
-     * **Use this method with caution**; by invoking it, you (and any modules and libraries in
-     * your codebase) will no longer be able to observe the [WorkInfo] of the pruned work.
-     * You do not normally need to call this method - WorkManager takes care to auto-prune its work
-     * after a sane period of time.  This method also ignores the
+     * **Use this method with caution**; by invoking it, you (and any modules and libraries in your
+     * codebase) will no longer be able to observe the [WorkInfo] of the pruned work. You do not
+     * normally need to call this method - WorkManager takes care to auto-prune its work after a
+     * sane period of time. This method also ignores the
      * [OneTimeWorkRequest.Builder.keepResultsForAtLeast] policy.
      *
-     * @return An [Operation] that can be used to determine when the pruneWork has
-     * completed
+     * @return An [Operation] that can be used to determine when the pruneWork has completed
      */
     abstract fun pruneWork(): Operation
 
     /**
-     * Gets a [LiveData] of the last time all work was cancelled.  This method is intended for
-     * use by library and module developers who have dependent data in their own repository that
-     * must be updated or deleted in case someone cancels their work without their prior knowledge.
+     * Gets a [LiveData] of the last time all work was cancelled. This method is intended for use by
+     * library and module developers who have dependent data in their own repository that must be
+     * updated or deleted in case someone cancels their work without their prior knowledge.
      *
-     * @return A [LiveData] of the timestamp (`System#getCurrentTimeMillis()`) when
-     * [cancelAllWork] was last invoked; this timestamp may be `0L` if this
-     * never occurred
+     * @return A [LiveData] of the timestamp (`System#getCurrentTimeMillis()`) when [cancelAllWork]
+     *   was last invoked; this timestamp may be `0L` if this never occurred
      */
     abstract fun getLastCancelAllTimeMillisLiveData(): LiveData<Long>
 
     /**
-     * Gets a [ListenableFuture] of the last time all work was cancelled.  This method is
-     * intended for use by library and module developers who have dependent data in their own
-     * repository that must be updated or deleted in case someone cancels their work without
-     * their prior knowledge.
+     * Gets a [ListenableFuture] of the last time all work was cancelled. This method is intended
+     * for use by library and module developers who have dependent data in their own repository that
+     * must be updated or deleted in case someone cancels their work without their prior knowledge.
      *
-     * @return A [ListenableFuture] of the timestamp (`System#getCurrentTimeMillis()`)
-     * when [cancelAllWork] was last invoked; this timestamp may be `0L` if
-     * this never occurred
+     * @return A [ListenableFuture] of the timestamp (`System#getCurrentTimeMillis()`) when
+     *   [cancelAllWork] was last invoked; this timestamp may be `0L` if this never occurred
      */
     abstract fun getLastCancelAllTimeMillis(): ListenableFuture<Long>
 
@@ -516,8 +489,8 @@ abstract class WorkManager internal constructor() {
      * Gets a [LiveData] of the [WorkInfo] for a given work id.
      *
      * @param id The id of the work
-     * @return A [LiveData] of the [WorkInfo] associated with `id`; note that
-     * this [WorkInfo] may be `null` if `id` is not known to WorkManager.
+     * @return A [LiveData] of the [WorkInfo] associated with `id`; note that this [WorkInfo] may be
+     *   `null` if `id` is not known to WorkManager.
      */
     abstract fun getWorkInfoByIdLiveData(id: UUID): LiveData<WorkInfo?>
 
@@ -525,8 +498,8 @@ abstract class WorkManager internal constructor() {
      * Gets a [Flow] of the [WorkInfo] for a given work id.
      *
      * @param id The id of the work
-     * @return A [Flow] of the [WorkInfo] associated with `id`; note that
-     * this [WorkInfo] may be `null` if `id` is not known to WorkManager.
+     * @return A [Flow] of the [WorkInfo] associated with `id`; note that this [WorkInfo] may be
+     *   `null` if `id` is not known to WorkManager.
      */
     abstract fun getWorkInfoByIdFlow(id: UUID): Flow<WorkInfo?>
 
@@ -534,8 +507,8 @@ abstract class WorkManager internal constructor() {
      * Gets a [ListenableFuture] of the [WorkInfo] for a given work id.
      *
      * @param id The id of the work
-     * @return A [ListenableFuture] of the [WorkInfo] associated with `id`;
-     * note that this [WorkInfo] may be `null` if `id` is not known to WorkManager
+     * @return A [ListenableFuture] of the [WorkInfo] associated with `id`; note that this
+     *   [WorkInfo] may be `null` if `id` is not known to WorkManager
      */
     abstract fun getWorkInfoById(id: UUID): ListenableFuture<WorkInfo?>
 
@@ -564,8 +537,7 @@ abstract class WorkManager internal constructor() {
     abstract fun getWorkInfosByTag(tag: String): ListenableFuture<List<WorkInfo>>
 
     /**
-     * Gets a [LiveData] of the [WorkInfo] for all work in a work chain with a given
-     * unique name.
+     * Gets a [LiveData] of the [WorkInfo] for all work in a work chain with a given unique name.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
      * @return A [LiveData] of the [WorkInfo] for work in the chain named `uniqueWorkName`
@@ -573,8 +545,7 @@ abstract class WorkManager internal constructor() {
     abstract fun getWorkInfosForUniqueWorkLiveData(uniqueWorkName: String): LiveData<List<WorkInfo>>
 
     /**
-     * Gets a [Flow] of the [WorkInfo] for all work in a work chain with a given
-     * unique name.
+     * Gets a [Flow] of the [WorkInfo] for all work in a work chain with a given unique name.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
      * @return A [Flow] of the [WorkInfo] for work in the chain named `uniqueWorkName`
@@ -582,8 +553,8 @@ abstract class WorkManager internal constructor() {
     abstract fun getWorkInfosForUniqueWorkFlow(uniqueWorkName: String): Flow<List<WorkInfo>>
 
     /**
-     * Gets a [ListenableFuture] of the [WorkInfo] for all work in a work chain
-     * with a given unique name.
+     * Gets a [ListenableFuture] of the [WorkInfo] for all work in a work chain with a given unique
+     * name.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
      * @return A [ListenableFuture] of the [WorkInfo] for work in the chain named `uniqueWorkName`
@@ -591,95 +562,86 @@ abstract class WorkManager internal constructor() {
     abstract fun getWorkInfosForUniqueWork(uniqueWorkName: String): ListenableFuture<List<WorkInfo>>
 
     /**
-     * Gets the [LiveData] of the [List] of [WorkInfo] for all work
-     * referenced by the [WorkQuery] specification.
+     * Gets the [LiveData] of the [List] of [WorkInfo] for all work referenced by the [WorkQuery]
+     * specification.
      *
      * @param workQuery The work query specification
-     * @return A [LiveData] of the [List] of [WorkInfo] for work
-     * referenced by this [WorkQuery].
+     * @return A [LiveData] of the [List] of [WorkInfo] for work referenced by this [WorkQuery].
      */
     abstract fun getWorkInfosLiveData(workQuery: WorkQuery): LiveData<List<WorkInfo>>
 
     /**
-     * Gets the [Flow] of the [List] of [WorkInfo] for all work
-     * referenced by the [WorkQuery] specification.
+     * Gets the [Flow] of the [List] of [WorkInfo] for all work referenced by the [WorkQuery]
+     * specification.
      *
      * @param workQuery The work query specification
-     * @return A [Flow] of the [List] of [WorkInfo] for work
-     * referenced by this [WorkQuery].
+     * @return A [Flow] of the [List] of [WorkInfo] for work referenced by this [WorkQuery].
      */
     abstract fun getWorkInfosFlow(workQuery: WorkQuery): Flow<List<WorkInfo>>
 
     /**
-     * Gets the [ListenableFuture] of the [List] of [WorkInfo] for all work
-     * referenced by the [WorkQuery] specification.
+     * Gets the [ListenableFuture] of the [List] of [WorkInfo] for all work referenced by the
+     * [WorkQuery] specification.
      *
      * @param workQuery The work query specification
-     * @return A [ListenableFuture] of the [List] of [WorkInfo] for work
-     * referenced by this [WorkQuery].
+     * @return A [ListenableFuture] of the [List] of [WorkInfo] for work referenced by this
+     *   [WorkQuery].
      */
     abstract fun getWorkInfos(workQuery: WorkQuery): ListenableFuture<List<WorkInfo>>
 
     /**
-     * Updates the work with the new specification. A [WorkRequest] passed as parameter
-     * must have an id set with [WorkRequest.Builder.setId] that matches an id of the
-     * previously enqueued work.
+     * Updates the work with the new specification. A [WorkRequest] passed as parameter must have an
+     * id set with [WorkRequest.Builder.setId] that matches an id of the previously enqueued work.
      *
      * It preserves enqueue time, e.g. if a work was enqueued 3 hours ago and had 6 hours long
-     * initial delay, after the update it would be still eligible for run in 3 hours, assuming
-     * that initial delay wasn't updated.
+     * initial delay, after the update it would be still eligible for run in 3 hours, assuming that
+     * initial delay wasn't updated.
      *
      * If the work being updated is currently running the returned ListenableFuture will be
-     * completed with [UpdateResult.APPLIED_FOR_NEXT_RUN]. In this case the current run won't
-     * be interrupted and will continue to rely on previous state of the request, e.g. using
-     * old constraints, tags etc. However, on the next run, e.g. retry of one-time Worker or
-     * another iteration of periodic worker, the new worker specification will be used.
+     * completed with [UpdateResult.APPLIED_FOR_NEXT_RUN]. In this case the current run won't be
+     * interrupted and will continue to rely on previous state of the request, e.g. using old
+     * constraints, tags etc. However, on the next run, e.g. retry of one-time Worker or another
+     * iteration of periodic worker, the new worker specification will be used.
      *
-     * If the one time work that is updated is already finished the returned ListenableFuture
-     * will be completed with [UpdateResult.NOT_APPLIED].
+     * If the one time work that is updated is already finished the returned ListenableFuture will
+     * be completed with [UpdateResult.NOT_APPLIED].
      *
-     * If update can be applied immediately, e.g. the updated work isn't currently running,
-     * the returned ListenableFuture will be completed with
-     * [UpdateResult.APPLIED_IMMEDIATELY].
+     * If update can be applied immediately, e.g. the updated work isn't currently running, the
+     * returned ListenableFuture will be completed with [UpdateResult.APPLIED_IMMEDIATELY].
      *
-     * If the work with the given id (`request.getId()`) doesn't exist the returned
-     * ListenableFuture will be completed exceptionally with [IllegalArgumentException].
+     * If the work with the given id (`request.getId()`) doesn't exist the returned ListenableFuture
+     * will be completed exceptionally with [IllegalArgumentException].
      *
-     * Worker type can't be changed, [OneTimeWorkRequest] can't be updated to
-     * [PeriodicWorkRequest] and otherwise, the returned ListenableFuture will be
-     * completed with [IllegalArgumentException].
+     * Worker type can't be changed, [OneTimeWorkRequest] can't be updated to [PeriodicWorkRequest]
+     * and otherwise, the returned ListenableFuture will be completed with
+     * [IllegalArgumentException].
      *
      * @param request the new specification for the work.
      * @return a [ListenableFuture] that will be successfully completed if the update was
-     * successful. The future will be completed with an exception if the work is already running
-     * or finished.
+     *   successful. The future will be completed with an exception if the work is already running
+     *   or finished.
      */
     // consistent with already existent method like getWorkInfos() in WorkManager
     @Suppress("AsyncSuffixFuture")
     abstract fun updateWork(request: WorkRequest): ListenableFuture<UpdateResult>
 
-    /**
-     * An enumeration of results for [WorkManager.updateWork] method.
-     */
+    /** An enumeration of results for [WorkManager.updateWork] method. */
     enum class UpdateResult {
-        /**
-         * An update wasn't applied, because `Worker` has already finished.
-         */
+        /** An update wasn't applied, because `Worker` has already finished. */
         NOT_APPLIED,
 
         /**
-         * An update was successfully applied immediately, meaning
-         * the updated work wasn't currently running in the moment of the request.
-         * See [UpdateResult.APPLIED_FOR_NEXT_RUN] for the case of running worker.
+         * An update was successfully applied immediately, meaning the updated work wasn't currently
+         * running in the moment of the request. See [UpdateResult.APPLIED_FOR_NEXT_RUN] for the
+         * case of running worker.
          */
         APPLIED_IMMEDIATELY,
 
         /**
-         * An update was successfully applied, but the worker being updated was running.
-         * This run isn't interrupted and will continue to rely on previous state of the
-         * request, e.g. using old constraints, tags etc. However, on the next run, e.g. retry of
-         * one-time Worker or another iteration of periodic worker, the new worker specification.
-         * will be used.
+         * An update was successfully applied, but the worker being updated was running. This run
+         * isn't interrupted and will continue to rely on previous state of the request, e.g. using
+         * old constraints, tags etc. However, on the next run, e.g. retry of one-time Worker or
+         * another iteration of periodic worker, the new worker specification. will be used.
          */
         APPLIED_FOR_NEXT_RUN,
     }

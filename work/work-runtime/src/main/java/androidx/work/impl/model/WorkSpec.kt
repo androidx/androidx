@@ -37,165 +37,114 @@ import androidx.work.WorkRequest
 import java.util.UUID
 
 // TODO: make a immutable
-/**
- * Stores information about a logical unit of work.
- *
- */
+/** Stores information about a logical unit of work. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Entity(indices = [Index(value = ["schedule_requested_at"]), Index(value = ["last_enqueue_time"])])
 data class WorkSpec(
-    @JvmField
-    @ColumnInfo(name = "id")
-    @PrimaryKey
-    val id: String,
-
-    @JvmField
-    @ColumnInfo(name = "state")
-    var state: WorkInfo.State = WorkInfo.State.ENQUEUED,
-
-    @JvmField
-    @ColumnInfo(name = "worker_class_name")
-    var workerClassName: String,
-
+    @JvmField @ColumnInfo(name = "id") @PrimaryKey val id: String,
+    @JvmField @ColumnInfo(name = "state") var state: WorkInfo.State = WorkInfo.State.ENQUEUED,
+    @JvmField @ColumnInfo(name = "worker_class_name") var workerClassName: String,
     @JvmField
     @ColumnInfo(name = "input_merger_class_name")
     var inputMergerClassName: String = OverwritingInputMerger::class.java.name,
-
-    @JvmField
-    @ColumnInfo(name = "input")
-    var input: Data = Data.EMPTY,
-
-    @JvmField
-    @ColumnInfo(name = "output")
-    var output: Data = Data.EMPTY,
-
-    @JvmField
-    @ColumnInfo(name = "initial_delay")
-    var initialDelay: Long = 0,
-
-    @JvmField
-    @ColumnInfo(name = "interval_duration")
-    var intervalDuration: Long = 0,
-
-    @JvmField
-    @ColumnInfo(name = "flex_duration")
-    var flexDuration: Long = 0,
-
-    @JvmField
-    @Embedded
-    var constraints: Constraints = Constraints.NONE,
-
+    @JvmField @ColumnInfo(name = "input") var input: Data = Data.EMPTY,
+    @JvmField @ColumnInfo(name = "output") var output: Data = Data.EMPTY,
+    @JvmField @ColumnInfo(name = "initial_delay") var initialDelay: Long = 0,
+    @JvmField @ColumnInfo(name = "interval_duration") var intervalDuration: Long = 0,
+    @JvmField @ColumnInfo(name = "flex_duration") var flexDuration: Long = 0,
+    @JvmField @Embedded var constraints: Constraints = Constraints.NONE,
     @JvmField
     @ColumnInfo(name = "run_attempt_count")
     @IntRange(from = 0)
     var runAttemptCount: Int = 0,
-
     @JvmField
     @ColumnInfo(name = "backoff_policy")
     var backoffPolicy: BackoffPolicy = BackoffPolicy.EXPONENTIAL,
-
     @JvmField
     @ColumnInfo(name = "backoff_delay_duration")
     var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
 
-    /**
-     * Time in millis when work was marked as ENQUEUED in database.
-     */
+    /** Time in millis when work was marked as ENQUEUED in database. */
     @JvmField
     @ColumnInfo(name = "last_enqueue_time", defaultValue = "$NOT_ENQUEUED")
     var lastEnqueueTime: Long = NOT_ENQUEUED,
-
     @JvmField
     @ColumnInfo(name = "minimum_retention_duration")
     var minimumRetentionDuration: Long = 0,
 
     /**
-     * This field tells us if this [WorkSpec] instance, is actually currently scheduled and
-     * being counted against the `SCHEDULER_LIMIT`. This bit is reset for PeriodicWorkRequests
-     * in API < 23, because AlarmManager does not know of PeriodicWorkRequests. So for the next
-     * request to be rescheduled this field has to be reset to `SCHEDULE_NOT_REQUESTED_AT`.
-     * For the JobScheduler implementation, we don't reset this field because JobScheduler natively
-     * supports PeriodicWorkRequests.
+     * This field tells us if this [WorkSpec] instance, is actually currently scheduled and being
+     * counted against the `SCHEDULER_LIMIT`. This bit is reset for PeriodicWorkRequests in API <
+     * 23, because AlarmManager does not know of PeriodicWorkRequests. So for the next request to be
+     * rescheduled this field has to be reset to `SCHEDULE_NOT_REQUESTED_AT`. For the JobScheduler
+     * implementation, we don't reset this field because JobScheduler natively supports
+     * PeriodicWorkRequests.
      */
     @JvmField
     @ColumnInfo(name = "schedule_requested_at")
     var scheduleRequestedAt: Long = SCHEDULE_NOT_REQUESTED_YET,
 
     /**
-     * This is `true` when the WorkSpec needs to be hosted by a foreground service or a
-     * high priority job.
+     * This is `true` when the WorkSpec needs to be hosted by a foreground service or a high
+     * priority job.
      */
-    @JvmField
-    @ColumnInfo(name = "run_in_foreground")
-    var expedited: Boolean = false,
+    @JvmField @ColumnInfo(name = "run_in_foreground") var expedited: Boolean = false,
 
     /**
-     * When set to `true` this [WorkSpec] falls back to a regular job when
-     * an application runs out of expedited job quota.
+     * When set to `true` this [WorkSpec] falls back to a regular job when an application runs out
+     * of expedited job quota.
      */
     @JvmField
     @ColumnInfo(name = "out_of_quota_policy")
     var outOfQuotaPolicy: OutOfQuotaPolicy = OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST,
 
     /**
-     * A number of periods that this worker has already run.
-     * This has no real implication for OneTimeWork.
+     * A number of periods that this worker has already run. This has no real implication for
+     * OneTimeWork.
      */
-    @ColumnInfo(name = "period_count", defaultValue = "0")
-    var periodCount: Int = 0,
-
-    @ColumnInfo(defaultValue = "0")
-    val generation: Int = 0,
+    @ColumnInfo(name = "period_count", defaultValue = "0") var periodCount: Int = 0,
+    @ColumnInfo(defaultValue = "0") val generation: Int = 0,
 
     /**
      * If not Long.MAX_VALUE, this will be the next schedule time, regardless of configured delay.
      * Only valid for periodic workers
      */
-    @ColumnInfo(
-        name = "next_schedule_time_override",
-        defaultValue = Long.MAX_VALUE.toString()
-    )
+    @ColumnInfo(name = "next_schedule_time_override", defaultValue = Long.MAX_VALUE.toString())
     var nextScheduleTimeOverride: Long = Long.MAX_VALUE,
 
     /**
      * Generation counter that tracks only the nextScheduleTimeOverride version, which allows the
-     * overall generation to be incremented without clearing the nextScheduleTimeOverride. Eg.
-     * while an override is set, a WorkSpec's constraints are changed using UPDATE,
-     * but the override time is neither set nor cleared.
+     * overall generation to be incremented without clearing the nextScheduleTimeOverride. Eg. while
+     * an override is set, a WorkSpec's constraints are changed using UPDATE, but the override time
+     * is neither set nor cleared.
      *
      * We could implicitly cancel the nextScheduleTimeOverride since it was not specified in the
-     * update. However, this would require every caller to know that there is an override,
-     * and what the value of that time was, in order to make unrelated changes.
+     * update. However, this would require every caller to know that there is an override, and what
+     * the value of that time was, in order to make unrelated changes.
      *
      * Instead, we keep track of a separate override schedule generation, so only updates that
      * change or cancel the nextScheduleTimeOverride will affect the override generation.
      *
-     * This allows WorkSpec changes to be made mid-worker run, and WorkerWrapper can still
-     * correctly clear a previous nextScheduleTimeOverride upon conclusion by consulting the
+     * This allows WorkSpec changes to be made mid-worker run, and WorkerWrapper can still correctly
+     * clear a previous nextScheduleTimeOverride upon conclusion by consulting the
      * overrideGeneration instead of the overall generation.
      */
-    @ColumnInfo(
-        name = "next_schedule_time_override_generation",
-        defaultValue = "0"
-    )
+    @ColumnInfo(name = "next_schedule_time_override_generation", defaultValue = "0")
     // If reset every min interval, would last 500 years.
     var nextScheduleTimeOverrideGeneration: Int = 0,
-
-    @ColumnInfo(
-        name = "stop_reason",
-        defaultValue = "${WorkInfo.STOP_REASON_NOT_STOPPED}"
-    )
+    @ColumnInfo(name = "stop_reason", defaultValue = "${WorkInfo.STOP_REASON_NOT_STOPPED}")
     val stopReason: Int = WorkInfo.STOP_REASON_NOT_STOPPED,
-
-    @ColumnInfo(name = "trace_tag")
-    var traceTag: String? = null,
+    @ColumnInfo(name = "trace_tag") var traceTag: String? = null,
 ) {
     constructor(
         id: String,
         workerClassName_: String
     ) : this(id = id, workerClassName = workerClassName_)
 
-    constructor(newId: String, other: WorkSpec) : this(
+    constructor(
+        newId: String,
+        other: WorkSpec
+    ) : this(
         id = newId,
         workerClassName = other.workerClassName,
         state = other.state,
@@ -221,9 +170,7 @@ data class WorkSpec(
         traceTag = other.traceTag,
     )
 
-    /**
-     * @param backoffDelayDuration The backoff delay duration in milliseconds
-     */
+    /** @param backoffDelayDuration The backoff delay duration in milliseconds */
     fun setBackoffDelayDuration(backoffDelayDuration: Long) {
         if (backoffDelayDuration > WorkRequest.MAX_BACKOFF_MILLIS) {
             Logger.get().warning(TAG, "Backoff delay duration exceeds maximum value")
@@ -232,12 +179,16 @@ data class WorkSpec(
             Logger.get().warning(TAG, "Backoff delay duration less than minimum value")
         }
 
-        this.backoffDelayDuration = backoffDelayDuration
-            .coerceIn(WorkRequest.MIN_BACKOFF_MILLIS, WorkRequest.MAX_BACKOFF_MILLIS)
+        this.backoffDelayDuration =
+            backoffDelayDuration.coerceIn(
+                WorkRequest.MIN_BACKOFF_MILLIS,
+                WorkRequest.MAX_BACKOFF_MILLIS
+            )
     }
 
     val isPeriodic: Boolean
         get() = intervalDuration != 0L
+
     val isBackedOff: Boolean
         get() = state == WorkInfo.State.ENQUEUED && runAttemptCount > 0
 
@@ -248,11 +199,12 @@ data class WorkSpec(
      */
     fun setPeriodic(intervalDuration: Long) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(
-                TAG,
-                "Interval duration lesser than minimum allowed value; " +
-                    "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
-            )
+            Logger.get()
+                .warning(
+                    TAG,
+                    "Interval duration lesser than minimum allowed value; " +
+                        "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
+                )
         }
         setPeriodic(
             intervalDuration.coerceAtLeast(MIN_PERIODIC_INTERVAL_MILLIS),
@@ -268,53 +220,56 @@ data class WorkSpec(
      */
     fun setPeriodic(intervalDuration: Long, flexDuration: Long) {
         if (intervalDuration < MIN_PERIODIC_INTERVAL_MILLIS) {
-            Logger.get().warning(
-                TAG,
-                "Interval duration lesser than minimum allowed value; " +
-                    "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
-            )
+            Logger.get()
+                .warning(
+                    TAG,
+                    "Interval duration lesser than minimum allowed value; " +
+                        "Changed to $MIN_PERIODIC_INTERVAL_MILLIS"
+                )
         }
 
         this.intervalDuration = intervalDuration.coerceAtLeast(MIN_PERIODIC_INTERVAL_MILLIS)
 
         if (flexDuration < MIN_PERIODIC_FLEX_MILLIS) {
-            Logger.get().warning(
-                TAG,
-                "Flex duration lesser than minimum allowed value; " +
-                    "Changed to $MIN_PERIODIC_FLEX_MILLIS"
-            )
+            Logger.get()
+                .warning(
+                    TAG,
+                    "Flex duration lesser than minimum allowed value; " +
+                        "Changed to $MIN_PERIODIC_FLEX_MILLIS"
+                )
         }
         if (flexDuration > this.intervalDuration) {
-            Logger.get().warning(
-                TAG,
-                "Flex duration greater than interval duration; Changed to $intervalDuration"
-            )
+            Logger.get()
+                .warning(
+                    TAG,
+                    "Flex duration greater than interval duration; Changed to $intervalDuration"
+                )
         }
         this.flexDuration = flexDuration.coerceIn(MIN_PERIODIC_FLEX_MILLIS, this.intervalDuration)
     }
 
     /**
-     * Calculates the UTC time at which this [WorkSpec] should be allowed to run.
-     * This method accounts for work that is backed off or periodic.
+     * Calculates the UTC time at which this [WorkSpec] should be allowed to run. This method
+     * accounts for work that is backed off or periodic.
      *
-     * If Backoff Policy is set to [BackoffPolicy.EXPONENTIAL], then delay
-     * increases at an exponential rate with respect to the run attempt count and is capped at
+     * If Backoff Policy is set to [BackoffPolicy.EXPONENTIAL], then delay increases at an
+     * exponential rate with respect to the run attempt count and is capped at
      * [WorkRequest.MAX_BACKOFF_MILLIS].
      *
-     * If Backoff Policy is set to [BackoffPolicy.LINEAR], then delay
-     * increases at an linear rate with respect to the run attempt count and is capped at
-     * [WorkRequest.MAX_BACKOFF_MILLIS].
+     * If Backoff Policy is set to [BackoffPolicy.LINEAR], then delay increases at an linear rate
+     * with respect to the run attempt count and is capped at [WorkRequest.MAX_BACKOFF_MILLIS].
      *
-     * Based on {@see https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
+     * Based on {@see
+     * https://android.googlesource.com/platform/frameworks/base/+/master/services/core/java/com/android/server/job/JobSchedulerService.java#1125}
      *
      * Note that this runtime is for WorkManager internal use and may not match what the OS
      * considers to be the next runtime.
      *
-     * For jobs with constraints, this represents the earliest time at which constraints
-     * should be monitored for this work.
+     * For jobs with constraints, this represents the earliest time at which constraints should be
+     * monitored for this work.
      *
-     * For jobs without constraints, this represents the earliest time at which this work is
-     * allowed to run.
+     * For jobs without constraints, this represents the earliest time at which this work is allowed
+     * to run.
      *
      * @return UTC time at which this [WorkSpec] should be allowed to run.
      */
@@ -334,9 +289,7 @@ data class WorkSpec(
         )
     }
 
-    /**
-     * @return `true` if the [WorkSpec] has constraints.
-     */
+    /** @return `true` if the [WorkSpec] has constraints. */
     fun hasConstraints(): Boolean {
         return Constraints.NONE != constraints
     }
@@ -345,67 +298,31 @@ data class WorkSpec(
         return "{WorkSpec: $id}"
     }
 
-    /**
-     * A POJO containing the ID and state of a WorkSpec.
-     */
+    /** A POJO containing the ID and state of a WorkSpec. */
     data class IdAndState(
-        @JvmField
-        @ColumnInfo(name = "id")
-        var id: String,
-        @JvmField
-        @ColumnInfo(name = "state")
-        var state: WorkInfo.State,
+        @JvmField @ColumnInfo(name = "id") var id: String,
+        @JvmField @ColumnInfo(name = "state") var state: WorkInfo.State,
     )
 
-    /**
-     * A POJO containing externally queryable info for the WorkSpec.
-     */
+    /** A POJO containing externally queryable info for the WorkSpec. */
     data class WorkInfoPojo(
-        @ColumnInfo(name = "id")
-        val id: String,
-
-        @ColumnInfo(name = "state")
-        val state: WorkInfo.State,
-
-        @ColumnInfo(name = "output")
-        val output: Data,
-
-        @ColumnInfo(name = "initial_delay")
-        val initialDelay: Long = 0,
-
-        @ColumnInfo(name = "interval_duration")
-        val intervalDuration: Long = 0,
-
-        @ColumnInfo(name = "flex_duration")
-        val flexDuration: Long = 0,
-
-        @Embedded
-        val constraints: Constraints,
-
-        @ColumnInfo(name = "run_attempt_count")
-        val runAttemptCount: Int,
-
+        @ColumnInfo(name = "id") val id: String,
+        @ColumnInfo(name = "state") val state: WorkInfo.State,
+        @ColumnInfo(name = "output") val output: Data,
+        @ColumnInfo(name = "initial_delay") val initialDelay: Long = 0,
+        @ColumnInfo(name = "interval_duration") val intervalDuration: Long = 0,
+        @ColumnInfo(name = "flex_duration") val flexDuration: Long = 0,
+        @Embedded val constraints: Constraints,
+        @ColumnInfo(name = "run_attempt_count") val runAttemptCount: Int,
         @ColumnInfo(name = "backoff_policy")
         var backoffPolicy: BackoffPolicy = BackoffPolicy.EXPONENTIAL,
-
         @ColumnInfo(name = "backoff_delay_duration")
         var backoffDelayDuration: Long = WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS,
-
-        @ColumnInfo(name = "last_enqueue_time")
-        var lastEnqueueTime: Long = 0,
-
-        @ColumnInfo(name = "period_count", defaultValue = "0")
-        var periodCount: Int = 0,
-
-        @ColumnInfo(name = "generation")
-        val generation: Int,
-
-        @ColumnInfo(name = "next_schedule_time_override")
-        val nextScheduleTimeOverride: Long,
-
-        @ColumnInfo(name = "stop_reason")
-        val stopReason: Int,
-
+        @ColumnInfo(name = "last_enqueue_time") var lastEnqueueTime: Long = 0,
+        @ColumnInfo(name = "period_count", defaultValue = "0") var periodCount: Int = 0,
+        @ColumnInfo(name = "generation") val generation: Int,
+        @ColumnInfo(name = "next_schedule_time_override") val nextScheduleTimeOverride: Long,
+        @ColumnInfo(name = "stop_reason") val stopReason: Int,
         @Relation(
             parentColumn = "id",
             entityColumn = "work_spec_id",
@@ -426,6 +343,7 @@ data class WorkSpec(
     ) {
         val isPeriodic: Boolean
             get() = intervalDuration != 0L
+
         val isBackedOff: Boolean
             get() = state == WorkInfo.State.ENQUEUED && runAttemptCount > 0
 
@@ -452,11 +370,9 @@ data class WorkSpec(
             )
         }
 
-        private fun getPeriodicityOrNull() = if (intervalDuration != 0L)
-            WorkInfo.PeriodicityInfo(
-                intervalDuration,
-                flexDuration
-            ) else null
+        private fun getPeriodicityOrNull() =
+            if (intervalDuration != 0L) WorkInfo.PeriodicityInfo(intervalDuration, flexDuration)
+            else null
 
         private fun calculateNextRunTimeMillis(): Long {
             return if (state == WorkInfo.State.ENQUEUED)
@@ -501,17 +417,16 @@ data class WorkSpec(
         ): Long {
             // Override takes priority over backoff, but only applies to periodic work.
             return if (nextScheduleTimeOverride != Long.MAX_VALUE && isPeriodic) {
-                return if (periodCount == 0) nextScheduleTimeOverride else
+                return if (periodCount == 0) nextScheduleTimeOverride
+                else
                     nextScheduleTimeOverride.coerceAtLeast(
-                        lastEnqueueTime + MIN_PERIODIC_INTERVAL_MILLIS)
+                        lastEnqueueTime + MIN_PERIODIC_INTERVAL_MILLIS
+                    )
             } else if (isBackedOff) {
                 val isLinearBackoff = backoffPolicy == BackoffPolicy.LINEAR
                 val delay =
-                    if (isLinearBackoff) backoffDelayDuration * runAttemptCount else Math.scalb(
-                        backoffDelayDuration.toFloat(),
-                        runAttemptCount - 1
-                    )
-                        .toLong()
+                    if (isLinearBackoff) backoffDelayDuration * runAttemptCount
+                    else Math.scalb(backoffDelayDuration.toFloat(), runAttemptCount - 1).toLong()
                 lastEnqueueTime + delay.coerceAtMost(WorkRequest.MAX_BACKOFF_MILLIS)
             } else if (isPeriodic) {
                 // The first run of a periodic work request is immediate in JobScheduler, so

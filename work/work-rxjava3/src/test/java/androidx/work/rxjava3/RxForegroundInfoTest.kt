@@ -42,8 +42,8 @@ class RxForegroundInfoTest {
     @Test
     fun testGetForegroundInfo() {
         val context = mock(Context::class.java)
-        val foregroundInfo = WorkerGetForeground(context, createWorkerParams())
-            .foregroundInfoAsync.get()
+        val foregroundInfo =
+            WorkerGetForeground(context, createWorkerParams()).foregroundInfoAsync.get()
         assertThat(foregroundInfo).isEqualTo(testForegroundInfo)
     }
 
@@ -55,9 +55,8 @@ class RxForegroundInfoTest {
             actualForegroundInfo = foregroundInfo
             getFuture { it.set(null) }
         }
-        val worker = WorkerSetForeground(context, createWorkerParams(
-            foregroundUpdater = foregroundUpdater
-        ))
+        val worker =
+            WorkerSetForeground(context, createWorkerParams(foregroundUpdater = foregroundUpdater))
         val result = worker.startWork().get()
         assertThat(result).isEqualTo(Result.success())
         assertThat(actualForegroundInfo).isEqualTo(testForegroundInfo)
@@ -66,10 +65,8 @@ class RxForegroundInfoTest {
 
 private val testForegroundInfo = ForegroundInfo(10, mock(Notification::class.java))
 
-private class WorkerGetForeground(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : RxWorker(appContext, workerParams) {
+private class WorkerGetForeground(appContext: Context, workerParams: WorkerParameters) :
+    RxWorker(appContext, workerParams) {
     override fun createWork(): Single<Result> {
         throw UnsupportedOperationException()
     }
@@ -77,10 +74,8 @@ private class WorkerGetForeground(
     override fun getForegroundInfo(): Single<ForegroundInfo> = Single.just(testForegroundInfo)
 }
 
-private class WorkerSetForeground(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : RxWorker(appContext, workerParams) {
+private class WorkerSetForeground(appContext: Context, workerParams: WorkerParameters) :
+    RxWorker(appContext, workerParams) {
     override fun createWork(): Single<Result> {
         setForeground(testForegroundInfo).blockingAwait()
         return Single.just(Result.success())
@@ -91,17 +86,18 @@ private fun createWorkerParams(
     executor: Executor = SynchronousExecutor(),
     progressUpdater: ProgressUpdater = mock(ProgressUpdater::class.java),
     foregroundUpdater: ForegroundUpdater = mock(ForegroundUpdater::class.java)
-) = WorkerParameters(
-    UUID.randomUUID(),
-    Data.EMPTY,
-    emptyList(),
-    WorkerParameters.RuntimeExtras(),
-    1,
-    0,
-    executor,
-    EmptyCoroutineContext,
-    RxWorkerTest.InstantWorkTaskExecutor(),
-    DefaultWorkerFactory,
-    progressUpdater,
-    foregroundUpdater
-)
+) =
+    WorkerParameters(
+        UUID.randomUUID(),
+        Data.EMPTY,
+        emptyList(),
+        WorkerParameters.RuntimeExtras(),
+        1,
+        0,
+        executor,
+        EmptyCoroutineContext,
+        RxWorkerTest.InstantWorkTaskExecutor(),
+        DefaultWorkerFactory,
+        progressUpdater,
+        foregroundUpdater
+    )

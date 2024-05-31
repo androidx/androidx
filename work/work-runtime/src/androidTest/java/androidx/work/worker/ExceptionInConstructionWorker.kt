@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.work.worker;
+package androidx.work.worker
 
-import android.content.Context;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import android.content.Context
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 
-class ExceptionInConstructionWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+class ExceptionInConstructionWorker(context: Context, workerParams: WorkerParameters) :
+    Worker(context, workerParams) {
     init {
-        throw IllegalStateException("Thrown in constructor Exception");
+        throw IllegalStateException("Thrown in constructor Exception")
     }
 
     override fun doWork(): Result = Result.success()

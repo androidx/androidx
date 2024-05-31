@@ -25,39 +25,32 @@ import androidx.work.ForegroundInfo
  * [UserInitiatedTaskRequest].
  */
 class UitForegroundInfo(
-    /**
-     * The notification id of the notification to be associated with the foreground service.
-     */
+    /** The notification id of the notification to be associated with the foreground service. */
     val notificationId: Int,
-    /**
-     * The notification object to be associated with the foreground service.
-     */
+    /** The notification object to be associated with the foreground service. */
     val notification: Notification,
     /**
      * The foreground service type for the foreground service associated with the task request.
      *
      * This is not required to be specified on API versions below 29.
      *
-     * The default type here will be [ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE]. However, on
-     * API versions 34 and above, a different type must be specified otherwise an
+     * The default type here will be [ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE]. However, on API
+     * versions 34 and above, a different type must be specified otherwise an
      * [InvalidForegroundServiceTypeException] will be thrown.
      */
-    @Suppress("DEPRECATION")
-    val fgsType: Int = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE,
+    @Suppress("DEPRECATION") val fgsType: Int = ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE,
     /**
      * Indicates what should be done with the notification after the foreground service is finished.
      *
-     * **By default, the notification will be removed
-     * (see [TaskEndNotificationPolicy.NOTIFICATION_REMOVE])**
+     * **By default, the notification will be removed (see
+     * [TaskEndNotificationPolicy.NOTIFICATION_REMOVE])**
      */
     val taskEndNotificationPolicy: TaskEndNotificationPolicy =
         TaskEndNotificationPolicy.NOTIFICATION_REMOVE
 ) {
-    /**
-     * Internal container variable pointing to the [ForegroundInfo] object in WorkManager.
-     */
+    /** Internal container variable pointing to the [ForegroundInfo] object in WorkManager. */
     private val foregroundInfo: ForegroundInfo =
-                                ForegroundInfo(notificationId, notification, fgsType)
+        ForegroundInfo(notificationId, notification, fgsType)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -82,8 +75,8 @@ enum class TaskEndNotificationPolicy {
      */
     NOTIFICATION_REMOVE,
     /**
-     * This indicates that the notification will be detached from the foreground service,
-     * but not removed so it can still be modified if needed.
+     * This indicates that the notification will be detached from the foreground service, but not
+     * removed so it can still be modified if needed.
      */
     NOTIFICATION_DETACH
 }

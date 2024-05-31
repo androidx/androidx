@@ -61,19 +61,22 @@ class WorkManagerGcmDispatcherTest {
     fun setUp() {
         mContext = ApplicationProvider.getApplicationContext()
         mExecutor = SynchronousExecutor()
-        ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
-            override fun executeOnDiskIO(runnable: Runnable) {
-                runnable.run()
-            }
+        ArchTaskExecutor.getInstance()
+            .setDelegate(
+                object : TaskExecutor() {
+                    override fun executeOnDiskIO(runnable: Runnable) {
+                        runnable.run()
+                    }
 
-            override fun isMainThread(): Boolean {
-                return true
-            }
+                    override fun isMainThread(): Boolean {
+                        return true
+                    }
 
-            override fun postToMainThread(runnable: Runnable) {
-                runnable.run()
-            }
-        })
+                    override fun postToMainThread(runnable: Runnable) {
+                        runnable.run()
+                    }
+                }
+            )
 
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
@@ -88,10 +91,8 @@ class WorkManagerGcmDispatcherTest {
                 }
             }
 
-        val configuration = Configuration.Builder()
-            .setMinimumLoggingLevel(Log.DEBUG)
-            .setExecutor(mExecutor)
-            .build()
+        val configuration =
+            Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).setExecutor(mExecutor).build()
 
         mWorkManager = TestWorkManagerImpl(mContext, configuration, workTaskExecutor)
         WorkManagerImpl.setDelegate(mWorkManager)
@@ -123,9 +124,8 @@ class WorkManagerGcmDispatcherTest {
         `when`(taskParams.tag).thenReturn(request.workSpec.id)
         val result = mDispatcher.onRunTask(taskParams)
         assert(result == GcmNetworkManager.RESULT_SUCCESS)
-        verify(mWorkTimer, times(1)).startTimer(eq(
-            WorkGenerationalId(request.workSpec.id, 0)
-        ), anyLong(), any())
+        verify(mWorkTimer, times(1))
+            .startTimer(eq(WorkGenerationalId(request.workSpec.id, 0)), anyLong(), any())
         verify(mWorkTimer, atLeastOnce()).stopTimer(eq(WorkGenerationalId(request.workSpec.id, 0)))
     }
 }

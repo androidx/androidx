@@ -39,22 +39,23 @@ import org.junit.runner.RunWith
 class EnqueueRunnableTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private var scheduled = false
-    private val trackingScheduler = object : Scheduler {
-        override fun schedule(vararg workSpecs: WorkSpec?) {
-            scheduled = true
-        }
+    private val trackingScheduler =
+        object : Scheduler {
+            override fun schedule(vararg workSpecs: WorkSpec?) {
+                scheduled = true
+            }
 
-        override fun cancel(workSpecId: String) {
-        }
+            override fun cancel(workSpecId: String) {}
 
-        override fun hasLimitedSchedulingSlots() = false
-    }
+            override fun hasLimitedSchedulingSlots() = false
+        }
     private val env = TestEnv(Configuration.Builder().build())
-    private val wm = WorkManager(
-        env = env,
-        schedulers = listOf(trackingScheduler),
-        Trackers(context, env.taskExecutor)
-    )
+    private val wm =
+        WorkManager(
+            env = env,
+            schedulers = listOf(trackingScheduler),
+            Trackers(context, env.taskExecutor)
+        )
 
     @Test
     fun testCheckScheduling() {

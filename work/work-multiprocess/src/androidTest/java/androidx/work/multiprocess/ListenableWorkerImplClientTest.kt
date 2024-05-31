@@ -58,9 +58,7 @@ public class ListenableWorkerImplClientTest {
         mContext = mock(Context::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
-        mExecutor = Executor {
-            it.run()
-        }
+        mExecutor = Executor { it.run() }
 
         val taskExecutor = mock(TaskExecutor::class.java)
         `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
@@ -76,12 +74,13 @@ public class ListenableWorkerImplClientTest {
             return
         }
         `when`(
-            mContext.bindService(
-                any(Intent::class.java),
-                any(ServiceConnection::class.java),
-                anyInt()
+                mContext.bindService(
+                    any(Intent::class.java),
+                    any(ServiceConnection::class.java),
+                    anyInt()
+                )
             )
-        ).thenReturn(false)
+            .thenReturn(false)
         val componentName = ComponentName("packageName", "className")
         var exception: Throwable? = null
         try {
@@ -132,9 +131,10 @@ public class ListenableWorkerImplClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
-        val session = getFuture<IListenableWorkerImpl> {
-            it.setException(RuntimeException("Something bad happened"))
-        }
+        val session =
+            getFuture<IListenableWorkerImpl> {
+                it.setException(RuntimeException("Something bad happened"))
+            }
         var exception: Throwable? = null
         try {
             mClient.execute(session, remoteDispatcher).get()
@@ -153,9 +153,10 @@ public class ListenableWorkerImplClientTest {
         }
 
         val binder = mock(IBinder::class.java)
-        val remoteDispatcher = RemoteDispatcher<IListenableWorkerImpl> { _, callback ->
-            callback.onSuccess(ByteArray(0))
-        }
+        val remoteDispatcher =
+            RemoteDispatcher<IListenableWorkerImpl> { _, callback ->
+                callback.onSuccess(ByteArray(0))
+            }
         val remoteStub = mock(IListenableWorkerImpl::class.java)
         `when`(remoteStub.asBinder()).thenReturn(binder)
         val session = getFuture { it.set(remoteStub) }

@@ -21,9 +21,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
-/**
- * A Data Access Object for accessing [Preference]s.
- */
+/** A Data Access Object for accessing [Preference]s. */
 @Dao
 interface PreferenceDao {
     /**
@@ -31,8 +29,7 @@ interface PreferenceDao {
      *
      * @param preference The [Preference] entity to be inserted into the database
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertPreference(preference: Preference)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertPreference(preference: Preference)
 
     /**
      * Fetches the value for the given [String] key.
@@ -47,8 +44,7 @@ interface PreferenceDao {
      * Fetches a [LiveData] of [Long] for the given [String] key.
      *
      * @param key The [String] key
-     * @return The [LiveData] of  [Long] if present for the given
-     * [String] key
+     * @return The [LiveData] of [Long] if present for the given [String] key
      */
     @Query("SELECT long_value FROM Preference where `key`=:key")
     fun getObservableLongValue(key: String): LiveData<Long?>

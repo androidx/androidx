@@ -58,6 +58,7 @@ class SerialExecutorTest {
         class TimestampTrackingRunnable(private val latch: CountDownLatch) : Runnable {
             var start: Long = 0
             var end: Long = 0
+
             override fun run() {
                 start = System.nanoTime()
                 val sleepTime = (Math.random() * 100).toLong()

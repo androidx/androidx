@@ -41,8 +41,9 @@ private fun updateWorkImpl(
     tags: Set<String>
 ): UpdateResult {
     val workSpecId = newWorkSpec.id
-    val oldWorkSpec = workDatabase.workSpecDao().getWorkSpec(workSpecId)
-        ?: throw IllegalArgumentException("Worker with $workSpecId doesn't exist")
+    val oldWorkSpec =
+        workDatabase.workSpecDao().getWorkSpec(workSpecId)
+            ?: throw IllegalArgumentException("Worker with $workSpecId doesn't exist")
     if (oldWorkSpec.state.isFinished) return UpdateResult.NOT_APPLIED
     if (oldWorkSpec.isPeriodic xor newWorkSpec.isPeriodic) {
         val type = { spec: WorkSpec -> if (spec.isPeriodic) "Periodic" else "OneTime" }
@@ -59,21 +60,26 @@ private fun updateWorkImpl(
 
         // should keep state BLOCKING, preserving the chain, or possibly RUNNING
         // preserving run attempt count, to calculate back off correctly, and enqueue/override time
-        val updatedSpec = newWorkSpec.copy(
-            state = oldWorkSpec.state,
-            runAttemptCount = oldWorkSpec.runAttemptCount,
-            lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
-            generation = oldWorkSpec.generation + 1,
-            periodCount = oldWorkSpec.periodCount,
-            nextScheduleTimeOverride = oldWorkSpec.nextScheduleTimeOverride,
-            nextScheduleTimeOverrideGeneration = oldWorkSpec.nextScheduleTimeOverrideGeneration
-        ).apply {
-            if (newWorkSpec.nextScheduleTimeOverrideGeneration == 1) {
-                nextScheduleTimeOverride = newWorkSpec.nextScheduleTimeOverride
-                nextScheduleTimeOverrideGeneration += 1
-                // Other fields are left unchanged, so they can be used after override is cleared.
-            }
-        }
+        val updatedSpec =
+            newWorkSpec
+                .copy(
+                    state = oldWorkSpec.state,
+                    runAttemptCount = oldWorkSpec.runAttemptCount,
+                    lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
+                    generation = oldWorkSpec.generation + 1,
+                    periodCount = oldWorkSpec.periodCount,
+                    nextScheduleTimeOverride = oldWorkSpec.nextScheduleTimeOverride,
+                    nextScheduleTimeOverrideGeneration =
+                        oldWorkSpec.nextScheduleTimeOverrideGeneration
+                )
+                .apply {
+                    if (newWorkSpec.nextScheduleTimeOverrideGeneration == 1) {
+                        nextScheduleTimeOverride = newWorkSpec.nextScheduleTimeOverride
+                        nextScheduleTimeOverrideGeneration += 1
+                        // Other fields are left unchanged, so they can be used after override is
+                        // cleared.
+                    }
+                }
 
         workSpecDao.updateWorkSpec(wrapWorkSpecIfNeeded(schedulers, updatedSpec))
         workTagDao.deleteByWorkSpecId(workSpecId)
@@ -92,54 +98,63 @@ internal fun WorkManagerImpl.updateWorkImpl(
 ): ListenableFuture<UpdateResult> {
     return workTaskExecutor.serialTaskExecutor.executeAsync("updateWorkImpl") {
         updateWorkImpl(
-            processor, workDatabase,
-            configuration, schedulers, workRequest.workSpec, workRequest.tags
+            processor,
+            workDatabase,
+            configuration,
+            schedulers,
+            workRequest.workSpec,
+            workRequest.tags
         )
     }
 }
 
-/**
- * Enqueue or update the work.
- */
+/** Enqueue or update the work. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
     name: String,
     workRequest: WorkRequest,
-): Operation = launchOperation(workTaskExecutor.serialTaskExecutor) {
-    val enqueueNew = {
-        val requests = listOf(workRequest)
-        val continuation = WorkContinuationImpl(this, name, ExistingWorkPolicy.KEEP, requests)
-        EnqueueRunnable.enqueue(continuation)
-    }
+): Operation =
+    launchOperation(workTaskExecutor.serialTaskExecutor) {
+        val enqueueNew = {
+            val requests = listOf(workRequest)
+            val continuation = WorkContinuationImpl(this, name, ExistingWorkPolicy.KEEP, requests)
+            EnqueueRunnable.enqueue(continuation)
+        }
 
-    val workSpecDao = workDatabase.workSpecDao()
-    val idAndStates = workSpecDao.getWorkSpecIdAndStatesForName(name)
-    if (idAndStates.size > 1)
-        throw UnsupportedOperationException("Can't apply UPDATE policy to the chains of work.")
+        val workSpecDao = workDatabase.workSpecDao()
+        val idAndStates = workSpecDao.getWorkSpecIdAndStatesForName(name)
+        if (idAndStates.size > 1)
+            throw UnsupportedOperationException("Can't apply UPDATE policy to the chains of work.")
 
-    val current = idAndStates.firstOrNull()
-    if (current == null) {
-        enqueueNew()
-        return@launchOperation
-    }
-    val spec = workSpecDao.getWorkSpec(current.id)
-        ?: throw IllegalStateException(
-            "WorkSpec with ${current.id}, that matches a " +
-                "name \"$name\", wasn't found"
+        val current = idAndStates.firstOrNull()
+        if (current == null) {
+            enqueueNew()
+            return@launchOperation
+        }
+        val spec =
+            workSpecDao.getWorkSpec(current.id)
+                ?: throw IllegalStateException(
+                    "WorkSpec with ${current.id}, that matches a " + "name \"$name\", wasn't found"
+                )
+
+        if (!spec.isPeriodic)
+            throw UnsupportedOperationException(
+                "Can't update OneTimeWorker to Periodic Worker. " +
+                    "Update operation must preserve worker's type."
+            )
+
+        if (current.state == WorkInfo.State.CANCELLED) {
+            workSpecDao.delete(current.id)
+            enqueueNew()
+            return@launchOperation
+        }
+        val newWorkSpec = workRequest.workSpec.copy(id = current.id)
+        updateWorkImpl(
+            processor,
+            workDatabase,
+            configuration,
+            schedulers,
+            newWorkSpec,
+            workRequest.tags
         )
-
-    if (!spec.isPeriodic) throw UnsupportedOperationException(
-        "Can't update OneTimeWorker to Periodic Worker. " +
-            "Update operation must preserve worker's type."
-    )
-
-    if (current.state == WorkInfo.State.CANCELLED) {
-        workSpecDao.delete(current.id)
-        enqueueNew()
-        return@launchOperation
     }
-    val newWorkSpec = workRequest.workSpec.copy(id = current.id)
-    updateWorkImpl(
-        processor, workDatabase, configuration, schedulers, newWorkSpec, workRequest.tags
-    )
-}

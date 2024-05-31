@@ -22,16 +22,13 @@ import androidx.work.WorkInfo
 import androidx.work.impl.Processor
 import androidx.work.impl.StartStopToken
 
-/**
- * A [Runnable] that requests [androidx.work.impl.Processor] to stop the work
- */
+/** A [Runnable] that requests [androidx.work.impl.Processor] to stop the work */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class StopWorkRunnable(
     private val processor: Processor,
     private val token: StartStopToken,
     private val stopInForeground: Boolean,
-    @StopReason
-    private val reason: Int,
+    @StopReason private val reason: Int,
 ) : Runnable {
 
     // java compatibility, can't use default args because @JvmOverloads doesn't work with
@@ -43,16 +40,18 @@ class StopWorkRunnable(
     ) : this(processor, token, stopInForeground, WorkInfo.STOP_REASON_UNKNOWN)
 
     override fun run() {
-        val isStopped = if (stopInForeground) {
-            processor.stopForegroundWork(token, reason)
-        } else {
-            // This call is safe to make for foreground work because Processor ignores requests
-            // to stop for foreground work.
-            processor.stopWork(token, reason)
-        }
-        Logger.get().debug(
-            Logger.tagWithPrefix("StopWorkRunnable"),
-            "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped"
-        )
+        val isStopped =
+            if (stopInForeground) {
+                processor.stopForegroundWork(token, reason)
+            } else {
+                // This call is safe to make for foreground work because Processor ignores requests
+                // to stop for foreground work.
+                processor.stopWork(token, reason)
+            }
+        Logger.get()
+            .debug(
+                Logger.tagWithPrefix("StopWorkRunnable"),
+                "StopWorkRunnable for ${token.id.workSpecId}; Processor.stopWork = $isStopped"
+            )
     }
 }

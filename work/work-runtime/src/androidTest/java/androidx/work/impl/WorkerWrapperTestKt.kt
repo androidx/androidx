@@ -58,9 +58,8 @@ import org.junit.runner.RunWith
 @MediumTest
 class WorkerWrapperTestKt {
     val factory = TrackingWorkerFactory()
-    val configuration = Configuration.Builder()
-        .setMinimumLoggingLevel(Log.DEBUG)
-        .setWorkerFactory(factory).build()
+    val configuration =
+        Configuration.Builder().setMinimumLoggingLevel(Log.DEBUG).setWorkerFactory(factory).build()
     val testEnv = TestEnv(configuration)
 
     @Test
@@ -103,46 +102,53 @@ class WorkerWrapperTestKt {
     }
 
     @Test
-    fun testInterruptionPreStartWork() = runBlocking<Unit> {
-        val workRequest = OneTimeWorkRequest.from(CompletableWorker::class.java)
-        testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
-        val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        // gonna block main thread, so startWork() can't be called.
-        val mainThreadBlocker = CountDownLatch(1)
-        testEnv.taskExecutor.mainThreadExecutor.execute {
-            mainThreadBlocker.await()
-            workerWrapper.interrupt(0)
-        }
-        val future = workerWrapper.launch()
-        factory.await(workRequest.id)
-        // worker is created, but can't start work because main thread is blocked
-        // this call will unblock main thread, but interrupt worker
-        mainThreadBlocker.countDown()
-        assertThat(future.await()).isTrue()
-        // tricky moment, currently due to the race Worker can go through
-        // running state. Exact order would be:
-        // - WorkerWrapper reaches trySetRunning, but doesn't enter it
-        // - WorkerWrapper.interrupt() happens and resolves the future (ENQUEUED state)
-        // - WorkerWrapper enters trySetRunning and sets the state RUNNING
-        // - WorkerWrapper enters tryCheckForInterruptionAndResolve again and
-        //   set the state back to ENQUEUE
+    fun testInterruptionPreStartWork() =
+        runBlocking<Unit> {
+            val workRequest = OneTimeWorkRequest.from(CompletableWorker::class.java)
+            testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
+            val workerWrapper = WorkerWrapper(workRequest.workSpec)
+            // gonna block main thread, so startWork() can't be called.
+            val mainThreadBlocker = CountDownLatch(1)
+            testEnv.taskExecutor.mainThreadExecutor.execute {
+                mainThreadBlocker.await()
+                workerWrapper.interrupt(0)
+            }
+            val future = workerWrapper.launch()
+            factory.await(workRequest.id)
+            // worker is created, but can't start work because main thread is blocked
+            // this call will unblock main thread, but interrupt worker
+            mainThreadBlocker.countDown()
+            assertThat(future.await()).isTrue()
+            // tricky moment, currently due to the race Worker can go through
+            // running state. Exact order would be:
+            // - WorkerWrapper reaches trySetRunning, but doesn't enter it
+            // - WorkerWrapper.interrupt() happens and resolves the future (ENQUEUED state)
+            // - WorkerWrapper enters trySetRunning and sets the state RUNNING
+            // - WorkerWrapper enters tryCheckForInterruptionAndResolve again and
+            //   set the state back to ENQUEUE
 
-        testEnv.db.workSpecDao().getWorkStatusPojoFlowDataForIds(listOf(workRequest.stringId))
-            .map { it.first() }.first { it.state == ENQUEUED }
-    }
+            testEnv.db
+                .workSpecDao()
+                .getWorkStatusPojoFlowDataForIds(listOf(workRequest.stringId))
+                .map { it.first() }
+                .first { it.state == ENQUEUED }
+        }
 
     @Test
-    fun testWorker_getsRunAttemptCount() = runBlocking<Unit> {
-        val workRequest = OneTimeWorkRequest.Builder(CompletableWorker::class.java)
-            .setInitialRunAttemptCount(10).build()
+    fun testWorker_getsRunAttemptCount() =
+        runBlocking<Unit> {
+            val workRequest =
+                OneTimeWorkRequest.Builder(CompletableWorker::class.java)
+                    .setInitialRunAttemptCount(10)
+                    .build()
 
-        testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
-        val workerWrapper = WorkerWrapper(workRequest.workSpec)
-        workerWrapper.launch()
-        val worker = factory.await(workRequest.id) as CompletableWorker
-        assertThat(worker.runAttemptCount).isEqualTo(10)
-        worker.result.complete(Success())
-    }
+            testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
+            val workerWrapper = WorkerWrapper(workRequest.workSpec)
+            workerWrapper.launch()
+            val worker = factory.await(workRequest.id) as CompletableWorker
+            assertThat(worker.runAttemptCount).isEqualTo(10)
+            worker.result.complete(Success())
+        }
 
     @Test
     fun stopReason_available_in_synchronous_listener_of_startWork() = runBlocking {
@@ -168,8 +174,10 @@ class WorkerWrapperTestKt {
     @SdkSuppress(maxSdkVersion = 30)
     @Test
     fun onStopped_called_in_between_getForegroundAsync_and_startWork() = runBlocking {
-        val workRequest = OneTimeWorkRequest.Builder(TestForegroundWithStopWorker::class.java)
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST).build()
+        val workRequest =
+            OneTimeWorkRequest.Builder(TestForegroundWithStopWorker::class.java)
+                .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+                .build()
 
         testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
         val workerWrapper = WorkerWrapper(workRequest.workSpec)
@@ -185,10 +193,17 @@ class WorkerWrapperTestKt {
         assertThat(worker.isStopped).isEqualTo(true)
     }
 
-    fun WorkerWrapper(spec: WorkSpec) = WorkerWrapper.Builder(
-        testEnv.context, configuration, testEnv.taskExecutor,
-        NoOpForegroundProcessor, testEnv.db, spec, emptyList()
-    ).build()
+    fun WorkerWrapper(spec: WorkSpec) =
+        WorkerWrapper.Builder(
+                testEnv.context,
+                configuration,
+                testEnv.taskExecutor,
+                NoOpForegroundProcessor,
+                testEnv.db,
+                spec,
+                emptyList()
+            )
+            .build()
 
     private suspend fun waitTaskExecutorIdle() {
         val deferred = CompletableDeferred<Unit>()
@@ -207,10 +222,8 @@ class WorkerWrapperTestKt {
     }
 }
 
-class DoWorkAwareWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : ListenableWorker(appContext, params) {
+class DoWorkAwareWorker(appContext: Context, params: WorkerParameters) :
+    ListenableWorker(appContext, params) {
     val doWorkEvent = CompletableDeferred<Unit>()
     lateinit var resultCompleter: Completer<Result>
     val onStopEvent = CompletableDeferred<Unit>()
@@ -230,54 +243,52 @@ class DoWorkAwareWorker(
     }
 }
 
-class StopReasonAtCancellationWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
+class StopReasonAtCancellationWorker(appContext: Context, workerParams: WorkerParameters) :
+    ListenableWorker(appContext, workerParams) {
     private lateinit var completer: Completer<Result>
     var stopReasonAtCancellation: Int = WorkInfo.STOP_REASON_NOT_STOPPED
     val startWorkDeferred = CompletableDeferred<Unit>()
 
     @SuppressLint("NewApi")
-    override fun startWork(): ListenableFuture<Result> = getFuture {
-        completer = it
-        "startWork"
-    }.also {
-        it.addListener({ stopReasonAtCancellation = stopReason }, DirectExecutor.INSTANCE)
-        startWorkDeferred.complete(Unit)
-    }
+    override fun startWork(): ListenableFuture<Result> =
+        getFuture {
+                completer = it
+                "startWork"
+            }
+            .also {
+                it.addListener({ stopReasonAtCancellation = stopReason }, DirectExecutor.INSTANCE)
+                startWorkDeferred.complete(Unit)
+            }
 }
 
-class TestForegroundWithStopWorker(
-    appContext: Context,
-    workerParams: WorkerParameters
-) : ListenableWorker(appContext, workerParams) {
+class TestForegroundWithStopWorker(appContext: Context, workerParams: WorkerParameters) :
+    ListenableWorker(appContext, workerParams) {
     var stopBlock: () -> Unit = {}
+
     override fun startWork(): ListenableFuture<Result> = getFuture {
         it.setException(IllegalStateException("Should not be called"))
         "TestForegroundBlockingMainWorker"
     }
 
     override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> = getFuture {
-        val channel = NotificationChannelCompat
-            .Builder("test", NotificationManagerCompat.IMPORTANCE_DEFAULT)
-            .setName("hello")
-            .build()
+        val channel =
+            NotificationChannelCompat.Builder("test", NotificationManagerCompat.IMPORTANCE_DEFAULT)
+                .setName("hello")
+                .build()
         NotificationManagerCompat.from(applicationContext).createNotificationChannel(channel)
-        val notification = NotificationCompat.Builder(applicationContext, "test")
-            .setOngoing(true)
-            .setTicker("ticker")
-            .setContentText("content text")
-            .setSmallIcon(androidx.core.R.drawable.notification_bg)
-            .build()
+        val notification =
+            NotificationCompat.Builder(applicationContext, "test")
+                .setOngoing(true)
+                .setTicker("ticker")
+                .setContentText("content text")
+                .setSmallIcon(androidx.core.R.drawable.notification_bg)
+                .build()
         val info = ForegroundInfo(1, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         val mainExecutor = taskExecutor.mainThreadExecutor
         // synchronously resolve it, also posting to main executor a task to stop worker
         // it will happen before a task that will call startWork().
         it.set(info)
-        mainExecutor.execute {
-            stopBlock()
-        }
+        mainExecutor.execute { stopBlock() }
         "TestForegroundBlockingMainWorker getAsync"
     }
 }

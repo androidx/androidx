@@ -41,16 +41,15 @@ import org.junit.runner.RunWith
 @MediumTest
 class ConfigurationExecutorsTest {
     val workerFactory = TrackingWorkerFactory()
-    val executor = Executors.newSingleThreadExecutor {
-        Thread(it).also { thread -> thread.name = threadTestName }
-    }
+    val executor =
+        Executors.newSingleThreadExecutor {
+            Thread(it).also { thread -> thread.name = threadTestName }
+        }
 
     @Test
     fun testSetExecutor() = runBlocking {
-        val configuration = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setExecutor(executor)
-            .build()
+        val configuration =
+            Configuration.Builder().setWorkerFactory(workerFactory).setExecutor(executor).build()
         val env = TestEnv(configuration)
         val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
         val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
@@ -72,10 +71,11 @@ class ConfigurationExecutorsTest {
     @Test
     fun testSetWorkerCoroutineDispatcher() = runBlocking {
         val dispatcher = executor.asCoroutineDispatcher()
-        val configuration = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setWorkerCoroutineContext(dispatcher)
-            .build()
+        val configuration =
+            Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setWorkerCoroutineContext(dispatcher)
+                .build()
         val env = TestEnv(configuration)
         val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
         val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
@@ -97,11 +97,12 @@ class ConfigurationExecutorsTest {
     @Test
     fun testSetBoth() = runBlocking {
         val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-        val configuration = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setExecutor(executor)
-            .setWorkerCoroutineContext(dispatcher)
-            .build()
+        val configuration =
+            Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setExecutor(executor)
+                .setWorkerCoroutineContext(dispatcher)
+                .build()
         val env = TestEnv(configuration)
         val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
         val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
@@ -122,9 +123,7 @@ class ConfigurationExecutorsTest {
 
     @Test
     fun testSetNeither() = runBlocking {
-        val configuration = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+        val configuration = Configuration.Builder().setWorkerFactory(workerFactory).build()
         val env = TestEnv(configuration)
         val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
         val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
@@ -141,11 +140,12 @@ class ConfigurationExecutorsTest {
     @Test
     fun testSetCoroutineContextOverride() = runBlocking {
         val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-        val configuration = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .setExecutor(executor)
-            .setWorkerCoroutineContext(dispatcher)
-            .build()
+        val configuration =
+            Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .setExecutor(executor)
+                .setWorkerCoroutineContext(dispatcher)
+                .build()
         val env = TestEnv(configuration)
         val trackers = Trackers(context = env.context, taskExecutor = env.taskExecutor)
         val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
@@ -153,8 +153,8 @@ class ConfigurationExecutorsTest {
 
         val coroutineRequest = OneTimeWorkRequest.from(CoroutineContextOverridingWorker::class.java)
         workManager.enqueue(coroutineRequest)
-        val coroutineWorker = workerFactory.await(coroutineRequest.id)
-            as CoroutineContextOverridingWorker
+        val coroutineWorker =
+            workerFactory.await(coroutineRequest.id) as CoroutineContextOverridingWorker
 
         val coroutineDispatcher = coroutineWorker.coroutineDispatcherDeferred.await()
         @Suppress("DEPRECATION")
@@ -164,10 +164,8 @@ class ConfigurationExecutorsTest {
 
 private const val threadTestName = "configuration_test"
 
-class ThreadNameWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+class ThreadNameWorker(context: Context, workerParams: WorkerParameters) :
+    Worker(context, workerParams) {
     val threadNameDeferred = CompletableDeferred<String>()
 
     override fun doWork(): Result {
@@ -176,10 +174,8 @@ class ThreadNameWorker(
     }
 }
 
-class CoroutineDispatcherWorker(
-    appContext: Context,
-    params: WorkerParameters
-) : CoroutineWorker(appContext, params) {
+class CoroutineDispatcherWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     val coroutineDispatcherDeferred = CompletableDeferred<CoroutineDispatcher?>()
 
     @OptIn(ExperimentalStdlibApi::class)

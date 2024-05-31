@@ -24,11 +24,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
- * A [WorkRequest] for repeating work.  This work executes multiple times until it is
- * cancelled, with the first execution happening immediately or as soon as the given
- * [Constraints] are met.  The next execution will happen during the period interval; note
- * that execution may be delayed because [WorkManager] is subject to OS battery optimizations,
- * such as doze mode.
+ * A [WorkRequest] for repeating work. This work executes multiple times until it is cancelled, with
+ * the first execution happening immediately or as soon as the given [Constraints] are met. The next
+ * execution will happen during the period interval; note that execution may be delayed because
+ * [WorkManager] is subject to OS battery optimizations, such as doze mode.
  *
  * You can control when the work executes in the period interval more exactly - see
  * [PeriodicWorkRequest.Builder] for documentation on `flexInterval`s.
@@ -37,37 +36,33 @@ import kotlin.reflect.KClass
  *
  * Periodic work is intended for use cases where you want a fairly consistent delay between
  * consecutive runs, and you are willing to accept inexactness due to battery optimizations and doze
- * mode.  Please note that if your periodic work has constraints, it will not execute until the
+ * mode. Please note that if your periodic work has constraints, it will not execute until the
  * constraints are met, even if the delay between periods has been met.
  *
  * If you need to schedule work that happens exactly at a certain time or only during a certain time
  * window, you should consider using [OneTimeWorkRequest]s.
  *
- * The normal lifecycle of a PeriodicWorkRequest is `ENQUEUED -> RUNNING -> ENQUEUED`.  By
+ * The normal lifecycle of a PeriodicWorkRequest is `ENQUEUED -> RUNNING -> ENQUEUED`. By
  * definition, periodic work cannot terminate in a succeeded or failed state, since it must recur.
- * It can only terminate if explicitly cancelled.  However, in the case of retries, periodic work
+ * It can only terminate if explicitly cancelled. However, in the case of retries, periodic work
  * will still back off according to [PeriodicWorkRequest.Builder.setBackoffCriteria].
  *
  * Periodic work cannot be part of a chain or graph of work.
  */
-class PeriodicWorkRequest internal constructor(
-    builder: Builder
-) : WorkRequest(builder.id, builder.workSpec, builder.tags) {
+class PeriodicWorkRequest internal constructor(builder: Builder) :
+    WorkRequest(builder.id, builder.workSpec, builder.tags) {
 
-    /**
-     * Builder for [PeriodicWorkRequest]s.
-     */
+    /** Builder for [PeriodicWorkRequest]s. */
     class Builder : WorkRequest.Builder<Builder, PeriodicWorkRequest> {
 
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, long, TimeUnit, long, TimeUnit)`).
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see `#Builder(Class, long, TimeUnit, long, TimeUnit)`).
          *
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
@@ -83,13 +78,12 @@ class PeriodicWorkRequest internal constructor(
 
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, long, TimeUnit, long, TimeUnit)`).
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see `#Builder(Class, long, TimeUnit, long, TimeUnit)`).
          *
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
@@ -105,13 +99,12 @@ class PeriodicWorkRequest internal constructor(
 
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, Duration, Duration)`).
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see `#Builder(Class, Duration, Duration)`).
          *
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval
@@ -126,13 +119,12 @@ class PeriodicWorkRequest internal constructor(
 
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, Duration, Duration)`).
+         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval (subject
+         * to OS battery optimizations, such as doze mode). The repeat interval must be greater than
+         * or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It may run immediately,
+         * at the end of the period, or any time in between so long as the other conditions are
+         * satisfied at the time. The run time of the [PeriodicWorkRequest] can be restricted to a
+         * flex period within an interval (see `#Builder(Class, Duration, Duration)`).
          *
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval
@@ -146,12 +138,12 @@ class PeriodicWorkRequest internal constructor(
         }
 
         /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         *
          *  ```
          * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
          * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
@@ -162,8 +154,8 @@ class PeriodicWorkRequest internal constructor(
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
          * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
-         * @param flexInterval The duration in `flexIntervalTimeUnit` units for which this
-         * work repeats from the end of the `repeatInterval`
+         * @param flexInterval The duration in `flexIntervalTimeUnit` units for which this work
+         *   repeats from the end of the `repeatInterval`
          * @param flexIntervalTimeUnit The [TimeUnit] for `flexInterval`
          */
         constructor(
@@ -180,12 +172,12 @@ class PeriodicWorkRequest internal constructor(
         }
 
         /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         *
          *  ```
          * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
          * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
@@ -196,8 +188,8 @@ class PeriodicWorkRequest internal constructor(
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
          * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
-         * @param flexInterval The duration in `flexIntervalTimeUnit` units for which this
-         * work repeats from the end of the `repeatInterval`
+         * @param flexInterval The duration in `flexIntervalTimeUnit` units for which this work
+         *   repeats from the end of the `repeatInterval`
          * @param flexIntervalTimeUnit The [TimeUnit] for `flexInterval`
          */
         constructor(
@@ -214,12 +206,11 @@ class PeriodicWorkRequest internal constructor(
         }
 
         /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
          *
          *  ```
          * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
@@ -231,7 +222,7 @@ class PeriodicWorkRequest internal constructor(
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval
          * @param flexInterval The duration in for which this work repeats from the end of the
-         * `repeatInterval`
+         *   `repeatInterval`
          */
         @RequiresApi(26)
         constructor(
@@ -243,12 +234,11 @@ class PeriodicWorkRequest internal constructor(
         }
 
         /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
+         * Creates a [PeriodicWorkRequest] to run periodically once within the **flex period** of
+         * every interval period. See diagram below. The flex period begins at `repeatInterval -
+         * flexInterval` to the end of the interval. The repeat interval must be greater than or
+         * equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must be
+         * greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
          *
          *  ```
          * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
@@ -260,7 +250,7 @@ class PeriodicWorkRequest internal constructor(
          * @param workerClass The [ListenableWorker] class to run for this work
          * @param repeatInterval The repeat interval
          * @param flexInterval The duration in for which this work repeats from the end of the
-         * `repeatInterval`
+         *   `repeatInterval`
          */
         @RequiresApi(26)
         constructor(
@@ -277,37 +267,37 @@ class PeriodicWorkRequest internal constructor(
          * Calling this method sets a specific time at which the work will be scheduled to run next,
          * overriding the normal interval, flex, initial delay, and backoff.
          *
-         * This allows dynamic calculation of the next Periodic work schedule, which can be used
-         * to implement advanced features like adaptive refresh times, custom retry behavior, or
-         * making a newsfeed worker run before the user wakes up every morning without drift.
+         * This allows dynamic calculation of the next Periodic work schedule, which can be used to
+         * implement advanced features like adaptive refresh times, custom retry behavior, or making
+         * a newsfeed worker run before the user wakes up every morning without drift.
          * [ExistingPeriodicWorkPolicy.UPDATE] should be used with these techniques to avoid
          * cancelling a currently-running worker while scheduling the next one.
          *
-         * This method only sets the single next Work schedule. After that Work finishes,
-         * the override will be cleared and the Work will be scheduled normally according to the
+         * This method only sets the single next Work schedule. After that Work finishes, the
+         * override will be cleared and the Work will be scheduled normally according to the
          * interval or backoff. The override can be cleared by setting
          * [clearNextScheduleTimeOverride] on a work update request. Otherwise, the override time
          * will persist after unrelated invocations of [WorkManager.updateWork].
          *
-         * This method can be used from outside or inside a [Worker.startWork] method.
-         * If the Worker is currently running, then it will override the next time the Work starts,
-         * even if the current Worker returns [ListenableWorker.Result.Retry]. This behavior can be
-         * used to customize the backoff behavior of a Worker by catching Exceptions in startWork
-         * and using this method to schedule a retry.
+         * This method can be used from outside or inside a [Worker.startWork] method. If the Worker
+         * is currently running, then it will override the next time the Work starts, even if the
+         * current Worker returns [ListenableWorker.Result.Retry]. This behavior can be used to
+         * customize the backoff behavior of a Worker by catching Exceptions in startWork and using
+         * this method to schedule a retry.
          *
-         * [MIN_PERIODIC_INTERVAL_MILLIS] is enforced on this method to prevent infinite loops. If
-         * a previous run time occurred less than the minimum period before the override time, then
+         * [MIN_PERIODIC_INTERVAL_MILLIS] is enforced on this method to prevent infinite loops. If a
+         * previous run time occurred less than the minimum period before the override time, then
          * the override schedule will be delayed to preserve the minimum spacing. This restriction
          * does not apply to the very first run of periodic work, which may be instant.
          *
          * Work will almost never run at this exact time in the real world. This method assigns the
-         * scheduled run time accurately, but cannot guarantee an actual run time. Actual Work
-         * run times are dependent on many factors like the underlying system scheduler, doze and
-         * power saving modes of the OS, and meeting any configured constraints. This is expected
-         * and is not considered a bug.
+         * scheduled run time accurately, but cannot guarantee an actual run time. Actual Work run
+         * times are dependent on many factors like the underlying system scheduler, doze and power
+         * saving modes of the OS, and meeting any configured constraints. This is expected and is
+         * not considered a bug.
          *
          * @param nextScheduleTimeOverrideMillis The time, in [System.currentTimeMillis] time, to
-         * schedule this work next. If this is in the past, work may run immediately.
+         *   schedule this work next. If this is in the past, work may run immediately.
          */
         fun setNextScheduleTimeOverride(nextScheduleTimeOverrideMillis: Long): Builder {
             require(nextScheduleTimeOverrideMillis != Long.MAX_VALUE) {
@@ -340,9 +330,12 @@ class PeriodicWorkRequest internal constructor(
 
         override fun buildInternal(): PeriodicWorkRequest {
             require(
-                !(backoffCriteriaSet && Build.VERSION.SDK_INT >= 23 &&
+                !(backoffCriteriaSet &&
+                    Build.VERSION.SDK_INT >= 23 &&
                     workSpec.constraints.requiresDeviceIdle())
-            ) { "Cannot set backoff criteria on an idle mode job" }
+            ) {
+                "Cannot set backoff criteria on an idle mode job"
+            }
             require(!workSpec.expedited) { "PeriodicWorkRequests cannot be expedited" }
             return PeriodicWorkRequest(this)
         }
@@ -352,15 +345,11 @@ class PeriodicWorkRequest internal constructor(
     }
 
     companion object {
-        /**
-         * The minimum interval duration for [PeriodicWorkRequest] (in milliseconds).
-         */
+        /** The minimum interval duration for [PeriodicWorkRequest] (in milliseconds). */
         @SuppressLint("MinMaxConstant")
         const val MIN_PERIODIC_INTERVAL_MILLIS = 15 * 60 * 1000L // 15 minutes.
 
-        /**
-         * The minimum flex duration for [PeriodicWorkRequest] (in milliseconds).
-         */
+        /** The minimum flex duration for [PeriodicWorkRequest] (in milliseconds). */
         @SuppressLint("MinMaxConstant")
         const val MIN_PERIODIC_FLEX_MILLIS = 5 * 60 * 1000L // 5 minutes.
     }
