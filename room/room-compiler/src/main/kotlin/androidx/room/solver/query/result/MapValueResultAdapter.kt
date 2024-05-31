@@ -22,6 +22,9 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.CommonTypeNames.ARRAY_LIST
+import androidx.room.ext.CommonTypeNames.HASH_SET
+import androidx.room.ext.KotlinCollectionMemberNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
@@ -60,7 +63,7 @@ sealed class MapValueResultAdapter(
     /**
      * Right-Hand-Side of a Map value type arg initialization.
      */
-    abstract fun getInstantiationTypeName(language: CodeLanguage): XTypeName
+    abstract fun getInstantiationCodeBlock(language: CodeLanguage): XCodeBlock
 
     abstract fun isMigratedToDriver(): Boolean
 
@@ -115,30 +118,39 @@ sealed class MapValueResultAdapter(
                 )
         }
 
-        override fun getInstantiationTypeName(
+        override fun getInstantiationCodeBlock(
             language: CodeLanguage
-        ) = when (val typeOfMap = this.mapType) {
+        ): XCodeBlock = when (val typeOfMap = this.mapType) {
             MultimapQueryResultAdapter.MapType.DEFAULT ->
                 // LinkedHashMap is used as impl to preserve key ordering for ordered
                 // query results.
-                when (language) {
-                    CodeLanguage.JAVA -> CommonTypeNames.LINKED_HASH_MAP
-                    CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
-                }.parametrizedBy(
-                    keyTypeName,
-                    mapValueResultAdapter.getDeclarationTypeName()
+                XCodeBlock.ofNewInstance(
+                    language,
+                    when (language) {
+                        CodeLanguage.JAVA -> CommonTypeNames.LINKED_HASH_MAP
+                        CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
+                    }.parametrizedBy(
+                        keyTypeName,
+                        mapValueResultAdapter.getDeclarationTypeName()
+                    )
                 )
 
             MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
-                typeOfMap.className.parametrizedBy(
-                    keyTypeName,
-                    mapValueResultAdapter.getDeclarationTypeName()
+                XCodeBlock.ofNewInstance(
+                    language,
+                    typeOfMap.className.parametrizedBy(
+                        keyTypeName,
+                        mapValueResultAdapter.getDeclarationTypeName()
+                    )
                 )
 
             MultimapQueryResultAdapter.MapType.LONG_SPARSE,
             MultimapQueryResultAdapter.MapType.INT_SPARSE ->
-                typeOfMap.className.parametrizedBy(
-                    mapValueResultAdapter.getDeclarationTypeName()
+                XCodeBlock.ofNewInstance(
+                    language,
+                    typeOfMap.className.parametrizedBy(
+                        mapValueResultAdapter.getDeclarationTypeName()
+                    )
                 )
         }
 
@@ -196,10 +208,7 @@ sealed class MapValueResultAdapter(
                             addStatement(
                                 "%L = %L",
                                 tmpValuesVarName,
-                                XCodeBlock.ofNewInstance(
-                                    language,
-                                    mapValueResultAdapter.getInstantiationTypeName(language)
-                                )
+                                mapValueResultAdapter.getInstantiationCodeBlock(language)
                             )
                             addStatement(
                                 "%L.put(%L, %L)",
@@ -302,14 +311,37 @@ sealed class MapValueResultAdapter(
         // The type name of the result map value
         // For Map<Foo, Bar> it is Bar
         // for Map<Foo, List<Bar> it is List<Bar>
-        override fun getInstantiationTypeName(language: CodeLanguage): XTypeName {
+        override fun getInstantiationCodeBlock(language: CodeLanguage): XCodeBlock {
             return when (valueCollectionType) {
                 MultimapQueryResultAdapter.CollectionValueType.LIST ->
-                    CommonTypeNames.ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
+                    when (language) {
+                        CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                            language,
+                            ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
+                        )
+                        CodeLanguage.KOTLIN -> XCodeBlock.of(
+                            language,
+                            "%M()",
+                            KotlinCollectionMemberNames.MUTABLE_LIST_OF
+                        )
+                    }
                 MultimapQueryResultAdapter.CollectionValueType.SET ->
-                    CommonTypeNames.HASH_SET.parametrizedBy(valueTypeArg.asTypeName())
+                    when (language) {
+                        CodeLanguage.JAVA -> XCodeBlock.ofNewInstance(
+                            language,
+                            HASH_SET.parametrizedBy(valueTypeArg.asTypeName())
+                        )
+                        CodeLanguage.KOTLIN -> XCodeBlock.of(
+                            language,
+                            "%M()",
+                            KotlinCollectionMemberNames.MUTABLE_SET_OF
+                        )
+                    }
                 else ->
-                    valueTypeArg.asTypeName()
+                    XCodeBlock.ofNewInstance(
+                        language,
+                        valueTypeArg.asTypeName()
+                    )
             }
         }
 
