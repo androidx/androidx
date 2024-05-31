@@ -40,7 +40,7 @@ public interface CameraStatusMonitor {
         }
 
         public class CameraAvailable(public val cameraId: CameraId) : CameraStatus() {
-            override fun toString(): String = "CameraAvailable(camera=$cameraId"
+            override fun toString(): String = "CameraAvailable(camera=$cameraId)"
         }
     }
 }
