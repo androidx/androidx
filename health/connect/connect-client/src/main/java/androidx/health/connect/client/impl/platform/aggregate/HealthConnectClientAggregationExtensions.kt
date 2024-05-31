@@ -156,11 +156,6 @@ internal fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
 internal fun emptyAggregationResult() =
     AggregationResult(longValues = mapOf(), doubleValues = mapOf(), dataOrigins = setOf())
 
-internal class AggregatedData<T>(
-    var value: T,
-    var dataOrigins: MutableSet<DataOrigin> = mutableSetOf()
-)
-
 internal data class AvgData(var count: Int = 0, var total: Double = 0.0) {
     operator fun plusAssign(value: Double) {
         count++
