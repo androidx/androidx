@@ -25,6 +25,7 @@ import android.view.RenderNode
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Color
@@ -38,7 +39,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPorterDuffMode
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
@@ -172,11 +172,20 @@ internal class GraphicsLayerV23(
             renderNode.setAlpha(value)
         }
 
+    private var shouldManuallySetCenterPivot = false
+
     override var pivotOffset: Offset = Offset.Unspecified
         set(value) {
             field = value
-            renderNode.pivotX = value.x
-            renderNode.pivotY = value.y
+            if (value.isUnspecified) {
+                shouldManuallySetCenterPivot = true
+                renderNode.pivotX = size.width / 2f
+                renderNode.pivotY = size.height / 2f
+            } else {
+                shouldManuallySetCenterPivot = false
+                renderNode.pivotX = value.x
+                renderNode.pivotY = value.y
+            }
         }
 
     override var scaleX: Float = 1f
@@ -249,9 +258,20 @@ internal class GraphicsLayerV23(
             applyClip()
         }
 
+    private var clipToBounds = false
+    private var clipToOutline = false
+
     private fun applyClip() {
-        renderNode.setClipToBounds(clip && !outlineIsProvided)
-        renderNode.setClipToOutline(clip && outlineIsProvided)
+        val newClipToBounds = clip && !outlineIsProvided
+        val newClipToOutline = clip && outlineIsProvided
+        if (newClipToBounds != clipToBounds) {
+            clipToBounds = newClipToBounds
+            renderNode.setClipToBounds(clipToBounds)
+        }
+        if (newClipToOutline != clipToOutline) {
+            clipToOutline = newClipToOutline
+            renderNode.setClipToOutline(newClipToOutline)
+        }
     }
 
     // API level 23 does not support RenderEffect so keep the field around for consistency
@@ -261,14 +281,15 @@ internal class GraphicsLayerV23(
     // crash the compose application
     override var renderEffect: RenderEffect? = null
 
-    override fun setPosition(topLeft: IntOffset, size: IntSize) {
-        renderNode.setLeftTopRightBottom(
-            topLeft.x,
-            topLeft.y,
-            topLeft.x + size.width,
-            topLeft.y + size.height
-        )
-        this.size = size
+    override fun setPosition(x: Int, y: Int, size: IntSize) {
+        renderNode.setLeftTopRightBottom(x, y, x + size.width, y + size.height)
+        if (this.size != size) {
+            if (shouldManuallySetCenterPivot) {
+                renderNode.pivotX = size.width / 2f
+                renderNode.pivotY = size.height / 2f
+            }
+            this.size = size
+        }
     }
 
     override fun setOutline(outline: Outline?) {
