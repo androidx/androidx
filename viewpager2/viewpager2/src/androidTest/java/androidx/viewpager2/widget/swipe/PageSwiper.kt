@@ -18,5 +18,6 @@ package androidx.viewpager2.widget.swipe
 
 interface PageSwiper {
     fun swipeNext()
+
     fun swipePrevious()
 }

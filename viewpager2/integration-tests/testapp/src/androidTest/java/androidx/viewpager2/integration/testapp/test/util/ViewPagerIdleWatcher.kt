@@ -29,9 +29,9 @@ import androidx.viewpager2.widget.ViewPager2
  * during ViewPager2's non-idle state.
  *
  * @constructor Creates a ViewPagerIdleWatcher that keeps track of the given ViewPager2's idle
- * state. It will register its IdlingResource and starts listening to the viewPager's
- * OnPageChangeCallbacks on creation. Call [unregister] to remove its IdlingResource and stop
- * listening to viewPager.
+ *   state. It will register its IdlingResource and starts listening to the viewPager's
+ *   OnPageChangeCallbacks on creation. Call [unregister] to remove its IdlingResource and stop
+ *   listening to viewPager.
  */
 class ViewPagerIdleWatcher(private val viewPager: ViewPager2) : ViewPager2.OnPageChangeCallback() {
     private var state = ViewPager2.SCROLL_STATE_IDLE

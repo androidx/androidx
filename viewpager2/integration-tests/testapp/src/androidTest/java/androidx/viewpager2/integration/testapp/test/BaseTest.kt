@@ -60,13 +60,13 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @JvmField
     var activityTestRule = androidx.test.rule.ActivityTestRule(clazz)
 
-    @get:LayoutRes
-    abstract val layoutId: Int
+    @get:LayoutRes abstract val layoutId: Int
 
     lateinit var idleWatcher: ViewPagerIdleWatcher
     lateinit var viewPager: ViewPager2
-    val isRtl = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
-        View.LAYOUT_DIRECTION_RTL
+    val isRtl =
+        TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) ==
+            View.LAYOUT_DIRECTION_RTL
 
     @Before
     open fun setUp() {
@@ -84,14 +84,16 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     fun selectOrientation(orientation: Int) {
         onView(withId(R.id.orientation_spinner)).perform(click())
         onData(
-            equalTo(
-                when (orientation) {
-                    ORIENTATION_HORIZONTAL -> "horizontal"
-                    ORIENTATION_VERTICAL -> "vertical"
-                    else -> throw IllegalArgumentException("Orientation $orientation doesn't exist")
-                }
+                equalTo(
+                    when (orientation) {
+                        ORIENTATION_HORIZONTAL -> "horizontal"
+                        ORIENTATION_VERTICAL -> "vertical"
+                        else ->
+                            throw IllegalArgumentException("Orientation $orientation doesn't exist")
+                    }
+                )
             )
-        ).perform(click())
+            .perform(click())
     }
 
     fun swipeToNextPage() {

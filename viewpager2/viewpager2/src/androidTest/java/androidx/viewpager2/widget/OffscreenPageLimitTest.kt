@@ -62,7 +62,8 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
 
     private val pageCount = 10
     private val firstPage = 0
-    private val limit get() = config.offscreenPageLimit
+    private val limit
+        get() = config.offscreenPageLimit
 
     private lateinit var test: Context
 
@@ -78,9 +79,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
     @LargeTest
     fun test() {
         test = setUpTest(config.orientation)
-        test.runOnUiThreadSync {
-            test.viewPager.offscreenPageLimit = config.offscreenPageLimit
-        }
+        test.runOnUiThreadSync { test.viewPager.offscreenPageLimit = config.offscreenPageLimit }
         val recorder = test.viewPager.addNewRecordingCallback()
         test.setAdapterSync(config.adapterProvider.provider(stringSequence(pageCount)))
         // Do not perform self check (which checks number of shown + cached fragments) in
@@ -88,16 +87,17 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         test.assertBasicState(firstPage, performSelfCheck = false)
 
         listOf(
-            Pair(9, true),
-            Pair(5, false),
-            Pair(4, true),
-            Pair(1, false),
-            Pair(6, true),
-            Pair(0, false)
-        ).forEach { target ->
-            test.viewPager.setCurrentItemSync(target.first, target.second, 2, SECONDS)
-            assertOffscreenPagesInvariant(recorder)
-        }
+                Pair(9, true),
+                Pair(5, false),
+                Pair(4, true),
+                Pair(1, false),
+                Pair(6, true),
+                Pair(0, false)
+            )
+            .forEach { target ->
+                test.viewPager.setCurrentItemSync(target.first, target.second, 2, SECONDS)
+                assertOffscreenPagesInvariant(recorder)
+            }
     }
 
     /**
@@ -127,13 +127,15 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                     assertThat(
                         "There should be ${upper - lower + 1} pages laid out at event $i. " +
                             "Events: ${recorder.dumpEvents()}",
-                        onscreen.size, equalTo(upper - lower + 1)
+                        onscreen.size,
+                        equalTo(upper - lower + 1)
                     )
                     (lower..upper).forEach { laidOutPage ->
                         assertThat(
                             "Page $laidOutPage should be laid out at event $i. " +
                                 "Events: ${recorder.dumpEvents()}",
-                            onscreen, hasItem(laidOutPage)
+                            onscreen,
+                            hasItem(laidOutPage)
                         )
                     }
                 }
@@ -149,12 +151,14 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         assertThat(
             "The last OnChildViewAdded should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
-            recorder.lastAddedIx, lessThan(recorder.lastScrolledIx)
+            recorder.lastAddedIx,
+            lessThan(recorder.lastScrolledIx)
         )
         assertThat(
             "The last OnChildViewRemoved should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
-            recorder.lastRemovedIx, lessThan(recorder.lastScrolledIx)
+            recorder.lastRemovedIx,
+            lessThan(recorder.lastScrolledIx)
         )
     }
 
@@ -171,33 +175,38 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
             val positionOffset: Float,
             val positionOffsetPixels: Int
         ) : Event()
+
         data class OnPageSelectedEvent(val position: Int) : Event()
+
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
+
         data class OnChildViewAdded(val position: Int) : Event()
+
         data class OnChildViewRemoved(val position: Int) : Event()
     }
 
     private class RecordingCallback :
-        ViewPager2.OnPageChangeCallback(),
-        ViewGroup.OnHierarchyChangeListener {
+        ViewPager2.OnPageChangeCallback(), ViewGroup.OnHierarchyChangeListener {
         private val events = mutableListOf<Event>()
 
-        val lastAddedIx get() = eventsCopy.indexOfLast { it is OnChildViewAdded }
-        val lastRemovedIx get() = eventsCopy.indexOfLast { it is OnChildViewRemoved }
-        val lastScrolledIx get() = eventsCopy.indexOfLast { it is OnPageScrolledEvent }
+        val lastAddedIx
+            get() = eventsCopy.indexOfLast { it is OnChildViewAdded }
+
+        val lastRemovedIx
+            get() = eventsCopy.indexOfLast { it is OnChildViewRemoved }
+
+        val lastScrolledIx
+            get() = eventsCopy.indexOfLast { it is OnPageScrolledEvent }
 
         private fun addEvent(e: Event) {
-            synchronized(events) {
-                events.add(e)
-            }
+            synchronized(events) { events.add(e) }
         }
 
         val eventsCopy: List<Event>
-            get() = synchronized(events) {
-                return mutableListOf<Event>().apply {
-                    addAll(events)
+            get() =
+                synchronized(events) {
+                    return mutableListOf<Event>().apply { addAll(events) }
                 }
-            }
 
         override fun onPageScrolled(
             position: Int,

@@ -27,53 +27,59 @@ import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 
 /**
- * Populates a [Spinner] with a set of [ViewPager2.PageTransformer]s.
- * Propagates user selection to the [ViewPager2].
+ * Populates a [Spinner] with a set of [ViewPager2.PageTransformer]s. Propagates user selection to
+ * the [ViewPager2].
  */
 class PageTransformerController(private val viewPager: ViewPager2, private val spinner: Spinner) {
     fun setUp() {
-        val transformers = listOf(
-            "None" to ViewPager2.PageTransformer { _, _ -> /* no op */ },
-            "Margin 50px" to MarginPageTransformer(50),
-            "Margin 32dp" to MarginPageTransformer(32.dpToPx)
-        )
+        val transformers =
+            listOf(
+                "None" to ViewPager2.PageTransformer { _, _ -> /* no op */ },
+                "Margin 50px" to MarginPageTransformer(50),
+                "Margin 32dp" to MarginPageTransformer(32.dpToPx)
+            )
 
-        val cancelTranslationsTransformer = ViewPager2.PageTransformer { page, _ ->
-            page.translationX = 0f
-            page.translationY = 0f
-        }
-
-        spinner.adapter = ArrayAdapter(
-            spinner.context, android.R.layout.simple_spinner_item,
-            transformers.map { it.first }.toList()
-        ).also {
-            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val selected = transformers.first { it.first == parent.selectedItem }.second
-                viewPager.setPageTransformer(
-                    CompositePageTransformer().also {
-                        it.addTransformer(cancelTranslationsTransformer)
-                        it.addTransformer(selected)
-                    }
-                )
+        val cancelTranslationsTransformer =
+            ViewPager2.PageTransformer { page, _ ->
+                page.translationX = 0f
+                page.translationY = 0f
             }
 
-            override fun onNothingSelected(adapterView: AdapterView<*>) {}
-        }
+        spinner.adapter =
+            ArrayAdapter(
+                    spinner.context,
+                    android.R.layout.simple_spinner_item,
+                    transformers.map { it.first }.toList()
+                )
+                .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+
+        spinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selected = transformers.first { it.first == parent.selectedItem }.second
+                    viewPager.setPageTransformer(
+                        CompositePageTransformer().also {
+                            it.addTransformer(cancelTranslationsTransformer)
+                            it.addTransformer(selected)
+                        }
+                    )
+                }
+
+                override fun onNothingSelected(adapterView: AdapterView<*>) {}
+            }
     }
 
     private val (Int).dpToPx: Int
-        get() = TypedValue.applyDimension(
-            COMPLEX_UNIT_DIP,
-            this.toFloat(),
-            viewPager.resources.displayMetrics
-        ).toInt()
+        get() =
+            TypedValue.applyDimension(
+                    COMPLEX_UNIT_DIP,
+                    this.toFloat(),
+                    viewPager.resources.displayMetrics
+                )
+                .toInt()
 }

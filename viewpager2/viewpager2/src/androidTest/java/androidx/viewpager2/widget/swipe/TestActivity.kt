@@ -32,20 +32,18 @@ class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
         onCreateCallback(this)
 
         // disable enter animation.
-        @Suppress("Deprecation")
-        overridePendingTransition(0, 0)
+        @Suppress("Deprecation") overridePendingTransition(0, 0)
     }
 
     override fun finish() {
         super.finish()
 
         // disable exit animation
-        @Suppress("Deprecation")
-        overridePendingTransition(0, 0)
+        @Suppress("Deprecation") overridePendingTransition(0, 0)
     }
 
     companion object {
-        var onCreateCallback: ((TestActivity) -> Unit) = { }
+        var onCreateCallback: ((TestActivity) -> Unit) = {}
         const val EXTRA_LANGUAGE = "language"
     }
 }

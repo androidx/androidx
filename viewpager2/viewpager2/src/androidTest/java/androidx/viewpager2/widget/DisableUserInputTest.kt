@@ -36,9 +36,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Tests what happens when a smooth scroll is interrupted by a drag
- */
+/** Tests what happens when a smooth scroll is interrupted by a drag */
 @RunWith(Parameterized::class)
 @LargeTest
 class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
@@ -77,11 +75,12 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
     override fun setUp() {
         super.setUp()
         adapterProvider = touchConsumingViewAdapter.provider(stringSequence(pageCount))
-        test = setUpTest(config.orientation).also {
-            it.viewPager.isUserInputEnabled = false
-            it.setAdapterSync(adapterProvider)
-            it.assertBasicState(firstPage)
-        }
+        test =
+            setUpTest(config.orientation).also {
+                it.viewPager.isUserInputEnabled = false
+                it.setAdapterSync(adapterProvider)
+                it.assertBasicState(firstPage)
+            }
     }
 
     @Test
@@ -167,15 +166,21 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
+
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
-        val eventCount get() = events.size
-        val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
-        val selectEvents get() = events.mapNotNull { it as? OnPageSelectedEvent }
+        val eventCount
+            get() = events.size
+
+        val scrollEvents
+            get() = events.mapNotNull { it as? OnPageScrolledEvent }
+
+        val selectEvents
+            get() = events.mapNotNull { it as? OnPageSelectedEvent }
 
         override fun onPageScrolled(
             position: Int,
@@ -188,15 +193,11 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         }
 
         override fun onPageSelected(position: Int) {
-            synchronized(events) {
-                events.add(OnPageSelectedEvent(position))
-            }
+            synchronized(events) { events.add(OnPageSelectedEvent(position)) }
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            synchronized(events) {
-                events.add(OnPageScrollStateChangedEvent(state))
-            }
+            synchronized(events) { events.add(OnPageScrollStateChangedEvent(state)) }
         }
     }
 
@@ -226,12 +227,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
 
 private fun createTestSet(): List<TestConfig> {
     return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
-        listOf(true, false).map { consumeTouches ->
-            TestConfig(
-                orientation,
-                consumeTouches
-            )
-        }
+        listOf(true, false).map { consumeTouches -> TestConfig(orientation, consumeTouches) }
     }
 }
 

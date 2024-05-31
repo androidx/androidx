@@ -35,11 +35,12 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 class ParallelNestedScrollingActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewPager = ViewPager2(this).apply {
-            layoutParams = matchParent()
-            orientation = ORIENTATION_HORIZONTAL
-            adapter = VpAdapter()
-        }
+        val viewPager =
+            ViewPager2(this).apply {
+                layoutParams = matchParent()
+                orientation = ORIENTATION_HORIZONTAL
+                adapter = VpAdapter()
+            }
         setContentView(viewPager)
     }
 
@@ -85,13 +86,14 @@ class ParallelNestedScrollingActivity : Activity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val tv = TextView(parent.context)
-            tv.layoutParams = matchParent().apply {
-                if (orientation == RecyclerView.HORIZONTAL) {
-                    width = WRAP_CONTENT
-                } else {
-                    height = WRAP_CONTENT
+            tv.layoutParams =
+                matchParent().apply {
+                    if (orientation == RecyclerView.HORIZONTAL) {
+                        width = WRAP_CONTENT
+                    } else {
+                        height = WRAP_CONTENT
+                    }
                 }
-            }
             tv.textSize = 20f
             tv.gravity = Gravity.CENTER
             tv.setPadding(20, 55, 20, 55)
@@ -100,8 +102,7 @@ class ParallelNestedScrollingActivity : Activity() {
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             with(holder) {
-                tv.text =
-                    tv.context.getString(R.string.item_position, absoluteAdapterPosition)
+                tv.text = tv.context.getString(R.string.item_position, absoluteAdapterPosition)
                 tv.setBackgroundResource(CELL_COLORS[position % CELL_COLORS.size])
             }
         }
@@ -114,14 +115,7 @@ internal fun matchParent(): LayoutParams {
     return LayoutParams(MATCH_PARENT, MATCH_PARENT)
 }
 
-internal val PAGE_COLORS = listOf(
-    R.color.yellow_300,
-    R.color.green_300,
-    R.color.teal_300,
-    R.color.blue_300
-)
+internal val PAGE_COLORS =
+    listOf(R.color.yellow_300, R.color.green_300, R.color.teal_300, R.color.blue_300)
 
-internal val CELL_COLORS = listOf(
-    R.color.grey_100,
-    R.color.grey_300
-)
+internal val CELL_COLORS = listOf(R.color.grey_100, R.color.grey_300)

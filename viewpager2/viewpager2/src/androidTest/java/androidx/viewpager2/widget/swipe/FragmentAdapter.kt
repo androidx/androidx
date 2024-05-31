@@ -41,23 +41,28 @@ class FragmentAdapter(
     private val attachCount = AtomicInteger(0)
     private val destroyCount = AtomicInteger(0)
 
-    override fun createFragment(position: Int): Fragment = PageFragment().apply {
-        arguments = Bundle(1).apply { putString(ARG_KEY, items[position]) }
-        onAttachListener = { attachCount.incrementAndGet() }
-        onDestroyListener = { destroyCount.incrementAndGet() }
-    }
+    override fun createFragment(position: Int): Fragment =
+        PageFragment().apply {
+            arguments = Bundle(1).apply { putString(ARG_KEY, items[position]) }
+            onAttachListener = { attachCount.incrementAndGet() }
+            onDestroyListener = { destroyCount.incrementAndGet() }
+        }
 
     override fun getItemCount(): Int = items.size
 
     /** easy way of dynamically overriding [getItemCount] and [containsItem] */
     var positionToItemId: (Int) -> Long = { position -> super.getItemId(position) }
     var itemIdToContains: (Long) -> Boolean = { itemId -> super.containsItem(itemId) }
+
     override fun getItemId(position: Int): Long = positionToItemId(position)
+
     override fun containsItem(itemId: Long): Boolean = itemIdToContains(itemId)
 
     override fun selfCheck() =
-        /** Detects [Fragment] 'memory leaks'. Core premise of [FragmentStateAdapter] is to keep
-         * only a handful of [Fragment]s alive and handle the rest via state save/restore. */
+        /**
+         * Detects [Fragment] 'memory leaks'. Core premise of [FragmentStateAdapter] is to keep only
+         * a handful of [Fragment]s alive and handle the rest via state save/restore.
+         */
         assertThat(
             "Number of alive fragments must be between 0 and 4",
             attachCount.get() - destroyCount.get(),
