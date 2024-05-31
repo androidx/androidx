@@ -20,6 +20,7 @@ import androidx.benchmark.CpuInfo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.IsolationActivity
 import androidx.benchmark.MemInfo
+import androidx.benchmark.PackageInfo
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import com.squareup.moshi.JsonClass
@@ -50,6 +51,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
         val sustainedPerformanceModeEnabled: Boolean,
         val artMainlineVersion: Long, // -1 if not found
         val osCodenameAbbreviated: String,
+        val compilationMode: String,
         // Note: Convention is to add new entries at bottom
     ) {
         /** Default constructor populates with current run state */
@@ -71,6 +73,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                             android.os.Build.ID
                         }
                         .substring(0, 1),
+                compilationMode = PackageInfo.compilationMode
             )
 
         /**

@@ -109,7 +109,8 @@ class ResultWriterTest {
                     "memTotalBytes": ${MemInfo.memTotalBytes},
                     "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse,
                     "artMainlineVersion": ${context.artMainlineVersion},
-                    "osCodenameAbbreviated": "${context.osCodenameAbbreviated}"
+                    "osCodenameAbbreviated": "${context.osCodenameAbbreviated}",
+                    "compilationMode": "${PackageInfo.compilationMode}"
                 },
                 "benchmarks": [
                     {
