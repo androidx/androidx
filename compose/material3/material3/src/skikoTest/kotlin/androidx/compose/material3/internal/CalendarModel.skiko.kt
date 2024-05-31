@@ -16,4 +16,6 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
+
 expect fun calendarLocale(language : String, country : String) : CalendarLocale

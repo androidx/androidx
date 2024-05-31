@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
 import com.google.common.truth.Truth
 import org.junit.Test
 

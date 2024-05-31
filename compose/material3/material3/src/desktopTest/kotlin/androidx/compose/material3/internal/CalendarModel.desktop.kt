@@ -16,10 +16,11 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
 import java.util.Locale
 import java.util.TimeZone
 
-actual fun calendarLocale(language : String, country : String) : CalendarLocale{
+actual fun calendarLocale(language : String, country : String) : CalendarLocale {
     return Locale(language, country)
 }
 
