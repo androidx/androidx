@@ -41,21 +41,14 @@ static bool throwIfInvalidColumn(JNIEnv *env, sqlite3_stmt *stmt, int index) {
     return false;
 }
 
-extern "C" JNIEXPORT jint JNICALL
-Java_androidx_sqlite_driver_bundled_BundledSQLiteDriverKt_nativeThreadSafeMode(
-        JNIEnv* env,
-        jclass clazz) {
-    return sqlite3_threadsafe();
-}
-
 extern "C" JNIEXPORT jlong JNICALL
 Java_androidx_sqlite_driver_bundled_BundledSQLiteDriverKt_nativeOpen(
         JNIEnv* env,
         jclass clazz,
-        jstring name,
-        int openFlags) {
+        jstring name) {
     const char *path = env->GetStringUTFChars(name, nullptr);
     sqlite3 *db;
+    int openFlags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
     int rc = sqlite3_open_v2(path, &db, openFlags, nullptr);
     env->ReleaseStringUTFChars(name, path);
     if (rc != SQLITE_OK) {

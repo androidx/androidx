@@ -16,19 +16,14 @@
 
 package androidx.sqlite.driver.test
 
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import kotlin.io.path.createTempFile
-import kotlin.io.path.pathString
 
 class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
 
     override val driverType = TestDriverType.BUNDLED
 
-    override fun getDatabaseFileName(): String {
-        return createTempFile("test.db").also { it.toFile().deleteOnExit() }.pathString
-    }
-
-    override fun getDriver(): BundledSQLiteDriver {
+    override fun getDriver(): SQLiteDriver {
         return BundledSQLiteDriver()
     }
 }
