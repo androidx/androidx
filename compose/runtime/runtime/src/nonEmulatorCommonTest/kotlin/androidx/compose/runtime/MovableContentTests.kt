@@ -1671,6 +1671,39 @@ class MovableContentTests {
         expectChanges()
         revalidate()
     }
+
+    @Test // 343178423
+    fun movableContent_movingContentOutOfDeferredSubcomposition() = compositionTest {
+        var toggle by mutableStateOf(true)
+        val content = movableContentOf {
+            Text("Toggle = $toggle")
+        }
+
+        compose {
+            if (toggle) {
+                DeferredSubcompose {
+                    content()
+                }
+            } else {
+                content()
+            }
+        }
+        advanceTimeBy(5_000)
+
+        validate {
+            if (toggle) {
+                DeferredSubcompose {
+                    Text("Toggle = $toggle")
+                }
+            } else {
+                Text("Toggle = false")
+            }
+        }
+
+        toggle = !toggle
+        expectChanges()
+        revalidate()
+    }
 }
 
 @Composable
