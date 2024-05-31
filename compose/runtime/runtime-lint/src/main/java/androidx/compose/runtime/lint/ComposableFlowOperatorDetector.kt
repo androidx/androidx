@@ -21,6 +21,7 @@ package androidx.compose.runtime.lint
 import androidx.compose.lint.Name
 import androidx.compose.lint.Package
 import androidx.compose.lint.inheritsFrom
+import androidx.compose.lint.isComposable
 import androidx.compose.lint.isInvokedWithinComposable
 import androidx.compose.lint.toKmFunction
 import com.android.tools.lint.client.api.UElementHandler
@@ -61,7 +62,7 @@ class ComposableFlowOperatorDetector : Detector(), SourceCodeScanner {
 
                 // We are calling a method on a `Flow` type, and the method is an operator function
                 if (receiverType?.inheritsFrom(FlowName) == true && method.isFlowOperator()) {
-                    if (node.isInvokedWithinComposable()) {
+                    if (!method.isComposable && node.isInvokedWithinComposable()) {
                         context.report(
                             FlowOperatorInvokedInComposition,
                             node,
