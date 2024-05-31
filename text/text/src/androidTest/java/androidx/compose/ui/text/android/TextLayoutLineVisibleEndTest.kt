@@ -35,6 +35,7 @@ import org.junit.runner.RunWith
 @MediumTest
 class TextLayoutLineVisibleEndTest {
     lateinit var sampleTypeface: Typeface
+
     @Before
     fun setup() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -51,12 +52,13 @@ class TextLayoutLineVisibleEndTest {
         val text = "abc\ndef"
         val textSize = 20.0f
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = textSize * 10,
-            maxLines = 1
-        )
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 10,
+                maxLines = 1
+            )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
     }
@@ -66,13 +68,14 @@ class TextLayoutLineVisibleEndTest {
         val text = "abc\ndef"
         val textSize = 20.0f
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = textSize * 10,
-            maxLines = 1,
-            ellipsize = TextUtils.TruncateAt.END
-        )
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = textSize * 10,
+                maxLines = 1,
+                ellipsize = TextUtils.TruncateAt.END
+            )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
     }
@@ -83,12 +86,13 @@ class TextLayoutLineVisibleEndTest {
         val textSize = 20.0f
         val layoutWidth = textSize * 10
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = layoutWidth,
-            ellipsize = TextUtils.TruncateAt.END
-        )
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = layoutWidth,
+                ellipsize = TextUtils.TruncateAt.END
+            )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(7)
     }
@@ -99,11 +103,7 @@ class TextLayoutLineVisibleEndTest {
         val textSize = 20.0f
         val layoutWidth = textSize * 10
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = layoutWidth
-        )
+        val layout = simpleLayout(text = text, textSize = textSize, layoutWidth = layoutWidth)
 
         // the way overflown text layout is calculated with ellipsis is vastly different before and
         // after API 23. Line visible end logic cannot be unified below API 23.
@@ -120,12 +120,13 @@ class TextLayoutLineVisibleEndTest {
         val textSize = 20.0f
         val layoutWidth = textSize * 10
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = layoutWidth,
-            ellipsize = TextUtils.TruncateAt.END
-        )
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = layoutWidth,
+                ellipsize = TextUtils.TruncateAt.END
+            )
 
         // the way overflown text layout is calculated with ellipsis is vastly different before and
         // after API 23. Line visible end logic cannot be unified below API 23.
@@ -142,12 +143,8 @@ class TextLayoutLineVisibleEndTest {
         val textSize = 20.0f
         val layoutWidth = textSize * 10
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = layoutWidth,
-            maxLines = 2
-        )
+        val layout =
+            simpleLayout(text = text, textSize = textSize, layoutWidth = layoutWidth, maxLines = 2)
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(0)
         assertThat(layout.getLineVisibleEnd(1)).isEqualTo(1)
@@ -159,13 +156,14 @@ class TextLayoutLineVisibleEndTest {
         val textSize = 20.0f
         val layoutWidth = textSize * 10
 
-        val layout = simpleLayout(
-            text = text,
-            textSize = textSize,
-            layoutWidth = layoutWidth,
-            maxLines = 2,
-            ellipsize = TextUtils.TruncateAt.END
-        )
+        val layout =
+            simpleLayout(
+                text = text,
+                textSize = textSize,
+                layoutWidth = layoutWidth,
+                maxLines = 2,
+                ellipsize = TextUtils.TruncateAt.END
+            )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(0)
         assertThat(layout.getLineVisibleEnd(1)).isEqualTo(2) // ellipsis character

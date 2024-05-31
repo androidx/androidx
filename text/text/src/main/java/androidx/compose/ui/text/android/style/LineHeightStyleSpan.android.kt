@@ -21,24 +21,24 @@ import kotlin.math.abs
 import kotlin.math.ceil
 
 /**
- * The span which modifies the height of the covered paragraphs. A paragraph is defined as a
- * segment of string divided by '\n' character. To make sure the span work as expected, the
- * boundary of this span should align with paragraph boundary.
+ * The span which modifies the height of the covered paragraphs. A paragraph is defined as a segment
+ * of string divided by '\n' character. To make sure the span work as expected, the boundary of this
+ * span should align with paragraph boundary.
  *
- * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  * @param startIndex The starting index where the span is added to the Spannable, used to identify
- * if the line height is requested for the first line.
- * @param endIndex The end index where the span is added to the Spannable, used to identify
- * if the line height is requested for the last line.
- * @param trimFirstLineTop When true, the space that would be added to the top of the first line
- * as a result of the line height is not added. Single line text is both the first and last line.
+ *   if the line height is requested for the first line.
+ * @param endIndex The end index where the span is added to the Spannable, used to identify if the
+ *   line height is requested for the last line.
+ * @param trimFirstLineTop When true, the space that would be added to the top of the first line as
+ *   a result of the line height is not added. Single line text is both the first and last line.
  * @param trimLastLineBottom When true, the space that would be added to the bottom of the last line
- * as a result of the line height is not added.  Single line text is both the first and last line.
+ *   as a result of the line height is not added. Single line text is both the first and last line.
  * @param lineHeight The specified line height in pixel units, which is the space between the
- * baseline of adjacent lines.
- * @param topRatio The percentage on how to distribute the line height for a given line.
- * 0 means all space as a result of line height is applied to the bottom. Similarly, 100 means
- * all space as a result of line height is applied to the top.
+ *   baseline of adjacent lines.
+ * @param topRatio The percentage on how to distribute the line height for a given line. 0 means all
+ *   space as a result of line height is applied to the bottom. Similarly, 100 means all space as a
+ *   result of line height is applied to the top.
+ * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  */
 internal class LineHeightStyleSpan(
     val lineHeight: Float,
@@ -63,9 +63,7 @@ internal class LineHeightStyleSpan(
         private set
 
     init {
-        check(topRatio in 0f..1f || topRatio == -1f) {
-            "topRatio should be in [0..1] range or -1"
-        }
+        check(topRatio in 0f..1f || topRatio == -1f) { "topRatio should be in [0..1] range or -1" }
     }
 
     override fun chooseHeight(
@@ -101,19 +99,21 @@ internal class LineHeightStyleSpan(
         // calculate the difference between the current line lineHeight and the requested lineHeight
         val diff = ceiledLineHeight - currentHeight
 
-        val ascentRatio = if (topRatio == -1f) {
-            abs(fontMetricsInt.ascent.toFloat()) / fontMetricsInt.lineHeight()
-        } else {
-            topRatio
-        }
+        val ascentRatio =
+            if (topRatio == -1f) {
+                abs(fontMetricsInt.ascent.toFloat()) / fontMetricsInt.lineHeight()
+            } else {
+                topRatio
+            }
 
-        val descentDiff = if (diff <= 0) {
-            // diff * topRatio is the amount that should go to below the baseline
-            ceil(diff * ascentRatio).toInt()
-        } else {
-            // diff * (1f - topRatio) is the amount that should go to below the baseline
-            ceil(diff * (1f - ascentRatio)).toInt()
-        }
+        val descentDiff =
+            if (diff <= 0) {
+                // diff * topRatio is the amount that should go to below the baseline
+                ceil(diff * ascentRatio).toInt()
+            } else {
+                // diff * (1f - topRatio) is the amount that should go to below the baseline
+                ceil(diff * (1f - ascentRatio)).toInt()
+            }
 
         descent = fontMetricsInt.descent + descentDiff
         ascent = descent - ceiledLineHeight
@@ -128,14 +128,15 @@ internal class LineHeightStyleSpan(
         startIndex: Int,
         endIndex: Int,
         trimFirstLineTop: Boolean = this.trimFirstLineTop
-    ) = LineHeightStyleSpan(
-        lineHeight = lineHeight,
-        startIndex = startIndex,
-        endIndex = endIndex,
-        trimFirstLineTop = trimFirstLineTop,
-        trimLastLineBottom = trimLastLineBottom,
-        topRatio = topRatio
-    )
+    ) =
+        LineHeightStyleSpan(
+            lineHeight = lineHeight,
+            startIndex = startIndex,
+            endIndex = endIndex,
+            trimFirstLineTop = trimFirstLineTop,
+            trimLastLineBottom = trimLastLineBottom,
+            topRatio = topRatio
+        )
 }
 
 internal fun FontMetricsInt.lineHeight(): Int = this.descent - this.ascent

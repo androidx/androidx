@@ -18,9 +18,7 @@ package androidx.compose.ui.text.android.style
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
 
-/**
- * Span used to adjust the letter spacing, in the unit of Em.
- */
+/** Span used to adjust the letter spacing, in the unit of Em. */
 internal class LetterSpacingSpanEm(val letterSpacing: Float) : MetricAffectingSpan() {
     override fun updateDrawState(textPaint: TextPaint) {
         textPaint.letterSpacing = letterSpacing

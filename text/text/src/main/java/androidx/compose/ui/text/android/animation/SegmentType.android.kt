@@ -16,35 +16,25 @@
 
 package androidx.compose.ui.text.android.animation
 
-/**
- * Defines a segmentation rule for text animation
- */
+/** Defines a segmentation rule for text animation */
 internal enum class SegmentType {
-    /**
-     * Don't break text and treat whole text as the segment.
-     */
+    /** Don't break text and treat whole text as the segment. */
     Document,
 
-    /**
-     * Break text with paragraph breaker.
-     */
+    /** Break text with paragraph breaker. */
     Paragraph,
 
-    /**
-     * Break text with automated line break position.
-     */
+    /** Break text with automated line break position. */
     Line,
 
     /**
      * Break text with word boundary.
      *
-     * Note that this uses line breaking instance of the break iterator.
-     * Also this includes Bidi transition offset.
+     * Note that this uses line breaking instance of the break iterator. Also this includes Bidi
+     * transition offset.
      */
     Word,
 
-    /**
-     * Break text with character (grapheme) boundary.
-     */
+    /** Break text with character (grapheme) boundary. */
     Character
 }

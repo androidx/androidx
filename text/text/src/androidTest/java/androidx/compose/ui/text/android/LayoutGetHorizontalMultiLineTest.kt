@@ -31,28 +31,28 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class LayoutGetHorizontalMultiLineTest {
 
-    private val sampleTypeface = ResourcesCompat.getFont(
-        InstrumentationRegistry.getInstrumentation().targetContext,
-        R.font.sample_font
-    )
+    private val sampleTypeface =
+        ResourcesCompat.getFont(
+            InstrumentationRegistry.getInstrumentation().targetContext,
+            R.font.sample_font
+        )
 
     private val fontSize = 10f
     private val width = 3 * fontSize
 
-    private val paint = TextPaint().apply {
-        textSize = fontSize
-        typeface = sampleTypeface
-    }
+    private val paint =
+        TextPaint().apply {
+            textSize = fontSize
+            typeface = sampleTypeface
+        }
 
-    private fun createLayout(
-        text: String,
-        textDirectionHeuristic: Int
-    ): TextLayout = TextLayout(
-        charSequence = text,
-        textPaint = paint,
-        textDirectionHeuristic = textDirectionHeuristic,
-        width = width
-    )
+    private fun createLayout(text: String, textDirectionHeuristic: Int): TextLayout =
+        TextLayout(
+            charSequence = text,
+            textPaint = paint,
+            textDirectionHeuristic = textDirectionHeuristic,
+            width = width
+        )
 
     @Test
     fun ltrTextLtrDirection() {
@@ -71,27 +71,28 @@ class LayoutGetHorizontalMultiLineTest {
         // | _ | _  | _ | _ | // as a result of last new line
         val lineStart = 0f
         val lineEnd = fontSize
-        assertThat(result).isEqualTo(
-            arrayOf(
-                // first ltr char in ltr direction is always at line start
-                Pos(lineStart),
-                // new line: all values are the end of the line
-                Pos(lineEnd),
-                // char at the beginning of line, upstream is previous lineEnd
-                Pos(
-                    primaryUpstream = lineEnd,
-                    primaryDownstream = lineStart,
-                    secondaryUpstream = lineEnd,
-                    secondaryDownstream = lineStart
-                ),
-                // remaining is the repetition
-                Pos(lineEnd),
-                Pos(lineEnd, lineStart, lineEnd, lineStart),
-                Pos(lineEnd),
-                Pos(lineEnd, lineStart, lineEnd, lineStart),
-                Pos(lineEnd),
+        assertThat(result)
+            .isEqualTo(
+                arrayOf(
+                    // first ltr char in ltr direction is always at line start
+                    Pos(lineStart),
+                    // new line: all values are the end of the line
+                    Pos(lineEnd),
+                    // char at the beginning of line, upstream is previous lineEnd
+                    Pos(
+                        primaryUpstream = lineEnd,
+                        primaryDownstream = lineStart,
+                        secondaryUpstream = lineEnd,
+                        secondaryDownstream = lineStart
+                    ),
+                    // remaining is the repetition
+                    Pos(lineEnd),
+                    Pos(lineEnd, lineStart, lineEnd, lineStart),
+                    Pos(lineEnd),
+                    Pos(lineEnd, lineStart, lineEnd, lineStart),
+                    Pos(lineEnd),
+                )
             )
-        )
     }
 
     @Test
@@ -111,27 +112,28 @@ class LayoutGetHorizontalMultiLineTest {
         // | _ | _  | _ | _ | // as a result of last new line
         val lineStart = width
         val lineEnd = width - fontSize
-        assertThat(result).isEqualTo(
-            arrayOf(
-                // first rtl char in rtl direction is always at line start
-                Pos(lineStart),
-                // new line: all values are the end of the line
-                Pos(lineEnd),
-                // char at the beginning of line, upstream is previous lineEnd
-                Pos(
-                    primaryUpstream = lineEnd,
-                    primaryDownstream = lineStart,
-                    secondaryUpstream = lineEnd,
-                    secondaryDownstream = lineStart
-                ),
-                // remaining is the repetition
-                Pos(lineEnd),
-                Pos(lineEnd, lineStart, lineEnd, lineStart),
-                Pos(lineEnd),
-                Pos(lineEnd, lineStart, lineEnd, lineStart),
-                Pos(lineEnd)
+        assertThat(result)
+            .isEqualTo(
+                arrayOf(
+                    // first rtl char in rtl direction is always at line start
+                    Pos(lineStart),
+                    // new line: all values are the end of the line
+                    Pos(lineEnd),
+                    // char at the beginning of line, upstream is previous lineEnd
+                    Pos(
+                        primaryUpstream = lineEnd,
+                        primaryDownstream = lineStart,
+                        secondaryUpstream = lineEnd,
+                        secondaryDownstream = lineStart
+                    ),
+                    // remaining is the repetition
+                    Pos(lineEnd),
+                    Pos(lineEnd, lineStart, lineEnd, lineStart),
+                    Pos(lineEnd),
+                    Pos(lineEnd, lineStart, lineEnd, lineStart),
+                    Pos(lineEnd)
+                )
             )
-        )
     }
 
     /**
@@ -139,10 +141,7 @@ class LayoutGetHorizontalMultiLineTest {
      *
      * Failure was java.lang.IllegalArgumentException: Invalid ranges (start=2, limit=3, length=2)
      *
-     * State is:
-     *  RTL text
-     *  LTR TextDirection
-     *  multi line with line feeds in between
+     * State is: RTL text LTR TextDirection multi line with line feeds in between
      */
     @Test
     fun rtlTextLtrDirection() {
@@ -160,45 +159,47 @@ class LayoutGetHorizontalMultiLineTest {
         // | ← | \n | _ | _ |
         // | _ | _  | _ | _ | // as a result of last new line
 
-        assertThat(result).isEqualTo(
-            arrayOf(
-                Pos(
-                    // primary (ltr) direction puts the position to 0, first char has no upstream
-                    primaryUpstream = 0f,
-                    primaryDownstream = 0f,
-                    // secondary starts writing from 1 char right which is the line end
-                    secondaryUpstream = fontSize,
-                    secondaryDownstream = fontSize
-                ),
-                // new line
-                Pos(
-                    // new line for ltr starts from lineEnd
-                    primaryUpstream = fontSize,
-                    primaryDownstream = fontSize,
-                    // new line for rtl continues on 0 on new line
-                    secondaryUpstream = 0f,
-                    secondaryDownstream = 0f
-                ),
-                // second line first char
-                Pos(
-                    // primary ltr direction upstream is previous line end
-                    primaryUpstream = fontSize,
-                    // primary ltr direction downstream is next line start
-                    primaryDownstream = 0f,
-                    // rtl direction *** I did not understand this part ***
-                    secondaryUpstream = 0f,
-                    // downstream is where character is rendered, from right to left starting
-                    // from the 1 char width
-                    secondaryDownstream = fontSize
-                ),
-                // remaining is the repetition
-                Pos(fontSize, fontSize, 0f, 0f),
-                Pos(fontSize, 0f, 0f, fontSize),
-                Pos(fontSize, fontSize, 0f, 0f),
-                Pos(fontSize, 0f, 0f, fontSize),
-                Pos(fontSize, fontSize, 0f, 0f),
+        assertThat(result)
+            .isEqualTo(
+                arrayOf(
+                    Pos(
+                        // primary (ltr) direction puts the position to 0, first char has no
+                        // upstream
+                        primaryUpstream = 0f,
+                        primaryDownstream = 0f,
+                        // secondary starts writing from 1 char right which is the line end
+                        secondaryUpstream = fontSize,
+                        secondaryDownstream = fontSize
+                    ),
+                    // new line
+                    Pos(
+                        // new line for ltr starts from lineEnd
+                        primaryUpstream = fontSize,
+                        primaryDownstream = fontSize,
+                        // new line for rtl continues on 0 on new line
+                        secondaryUpstream = 0f,
+                        secondaryDownstream = 0f
+                    ),
+                    // second line first char
+                    Pos(
+                        // primary ltr direction upstream is previous line end
+                        primaryUpstream = fontSize,
+                        // primary ltr direction downstream is next line start
+                        primaryDownstream = 0f,
+                        // rtl direction *** I did not understand this part ***
+                        secondaryUpstream = 0f,
+                        // downstream is where character is rendered, from right to left starting
+                        // from the 1 char width
+                        secondaryDownstream = fontSize
+                    ),
+                    // remaining is the repetition
+                    Pos(fontSize, fontSize, 0f, 0f),
+                    Pos(fontSize, 0f, 0f, fontSize),
+                    Pos(fontSize, fontSize, 0f, 0f),
+                    Pos(fontSize, 0f, 0f, fontSize),
+                    Pos(fontSize, fontSize, 0f, 0f),
+                )
             )
-        )
     }
 
     @Test
@@ -218,51 +219,54 @@ class LayoutGetHorizontalMultiLineTest {
         // | _ | _ | _  | _ | // as a result of last new line
         val lineStart = width
         val lineEnd = width - fontSize
-        assertThat(result).isEqualTo(
-            arrayOf(
-                Pos(
-                    // rtl direction line start is width
-                    primaryUpstream = width,
-                    // rtl direction no upstream for first char
-                    primaryDownstream = width,
-                    // ltr direction char, *** I did not understand this part ***
-                    secondaryUpstream = lineEnd,
-                    secondaryDownstream = lineEnd
-                ),
-                Pos(
-                    primaryUpstream = lineEnd,
-                    primaryDownstream = lineEnd,
-                    secondaryUpstream = width,
-                    secondaryDownstream = width
-                ),
-                Pos(
-                    primaryUpstream = lineEnd,
-                    primaryDownstream = width,
-                    secondaryUpstream = width,
-                    secondaryDownstream = lineEnd
-                ),
-                // remaining is the repetition
-                Pos(lineEnd, lineEnd, width, lineStart),
-                Pos(lineEnd, width, width, lineEnd),
-                Pos(lineEnd, lineEnd, width, width),
-                Pos(lineEnd, width, width, lineEnd),
-                Pos(lineEnd, lineEnd, width, width)
+        assertThat(result)
+            .isEqualTo(
+                arrayOf(
+                    Pos(
+                        // rtl direction line start is width
+                        primaryUpstream = width,
+                        // rtl direction no upstream for first char
+                        primaryDownstream = width,
+                        // ltr direction char, *** I did not understand this part ***
+                        secondaryUpstream = lineEnd,
+                        secondaryDownstream = lineEnd
+                    ),
+                    Pos(
+                        primaryUpstream = lineEnd,
+                        primaryDownstream = lineEnd,
+                        secondaryUpstream = width,
+                        secondaryDownstream = width
+                    ),
+                    Pos(
+                        primaryUpstream = lineEnd,
+                        primaryDownstream = width,
+                        secondaryUpstream = width,
+                        secondaryDownstream = lineEnd
+                    ),
+                    // remaining is the repetition
+                    Pos(lineEnd, lineEnd, width, lineStart),
+                    Pos(lineEnd, width, width, lineEnd),
+                    Pos(lineEnd, lineEnd, width, width),
+                    Pos(lineEnd, width, width, lineEnd),
+                    Pos(lineEnd, lineEnd, width, width)
+                )
             )
-        )
     }
 
     private fun collectResult(text: String, layout: TextLayout): Array<Pos> {
-        return text.indices.map { index ->
-            Pos(
-                primaryUpstream = layout.getPrimaryHorizontal(offset = index, upstream = true),
-                primaryDownstream = layout.getPrimaryHorizontal(offset = index, upstream = false),
-                secondaryUpstream = layout.getSecondaryHorizontal(offset = index, upstream = true),
-                secondaryDownstream = layout.getSecondaryHorizontal(
-                    offset = index,
-                    upstream = false
+        return text.indices
+            .map { index ->
+                Pos(
+                    primaryUpstream = layout.getPrimaryHorizontal(offset = index, upstream = true),
+                    primaryDownstream =
+                        layout.getPrimaryHorizontal(offset = index, upstream = false),
+                    secondaryUpstream =
+                        layout.getSecondaryHorizontal(offset = index, upstream = true),
+                    secondaryDownstream =
+                        layout.getSecondaryHorizontal(offset = index, upstream = false)
                 )
-            )
-        }.toTypedArray()
+            }
+            .toTypedArray()
     }
 
     private data class Pos(
@@ -271,7 +275,9 @@ class LayoutGetHorizontalMultiLineTest {
         val secondaryUpstream: Float,
         val secondaryDownstream: Float,
     ) {
-        constructor(value: Float) : this(
+        constructor(
+            value: Float
+        ) : this(
             primaryUpstream = value,
             primaryDownstream = value,
             secondaryUpstream = value,

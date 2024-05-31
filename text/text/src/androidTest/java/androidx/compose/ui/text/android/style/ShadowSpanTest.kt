@@ -36,7 +36,6 @@ class ShadowSpanTest {
         val shadowSpan = ShadowSpan(color, offsetX, offsetY, radius)
         val textPaint = Mockito.mock(TextPaint::class.java)
         shadowSpan.updateDrawState(textPaint)
-        Mockito.verify(textPaint, Mockito.times(1))
-            .setShadowLayer(radius, offsetX, offsetY, color)
+        Mockito.verify(textPaint, Mockito.times(1)).setShadowLayer(radius, offsetX, offsetY, color)
     }
 }

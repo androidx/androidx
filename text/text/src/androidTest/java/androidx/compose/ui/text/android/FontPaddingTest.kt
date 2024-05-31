@@ -46,16 +46,8 @@ class FontPaddingTest {
     // latin font tests
     @Test
     fun latinIncludeFontPaddingDoesNotAffectLineMetricsSingleLine() {
-        val withPadding = TextLayout(
-            latinText,
-            typeface = latinTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            latinText,
-            typeface = latinTypeface,
-            includePadding = false
-        )
+        val withPadding = TextLayout(latinText, typeface = latinTypeface, includePadding = true)
+        val withoutPadding = TextLayout(latinText, typeface = latinTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
         assertThat(withPadding.getLineTop(0)).isEqualTo(withoutPadding.getLineTop(0))
@@ -65,16 +57,10 @@ class FontPaddingTest {
 
     @Test
     fun latinIncludeFontPaddingDoesNotAffectLineMetricsMultiLine() {
-        val withPadding = TextLayout(
-            latinTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            latinTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = false
-        )
+        val withPadding =
+            TextLayout(latinTextMultiLine, typeface = latinTypeface, includePadding = true)
+        val withoutPadding =
+            TextLayout(latinTextMultiLine, typeface = latinTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
         for (index in 0 until withPadding.lineCount) {
@@ -88,16 +74,10 @@ class FontPaddingTest {
 
     @Test
     fun latinIncludeFontPaddingDoesNotAffectGetLineForVertical() {
-        val withPadding = TextLayout(
-            latinTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            latinTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = false
-        )
+        val withPadding =
+            TextLayout(latinTextMultiLine, typeface = latinTypeface, includePadding = true)
+        val withoutPadding =
+            TextLayout(latinTextMultiLine, typeface = latinTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
 
@@ -109,16 +89,8 @@ class FontPaddingTest {
     // tall font tests
     @Test
     fun tallIincludeFontPaddingDoesNotAffectLineMetricsSingleLine() {
-        val withPadding = TextLayout(
-            tallText,
-            typeface = tallTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            tallText,
-            typeface = tallTypeface,
-            includePadding = false
-        )
+        val withPadding = TextLayout(tallText, typeface = tallTypeface, includePadding = true)
+        val withoutPadding = TextLayout(tallText, typeface = tallTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
         assertThat(withPadding.getLineTop(0)).isEqualTo(withoutPadding.getLineTop(0))
@@ -128,16 +100,10 @@ class FontPaddingTest {
 
     @Test
     fun tallIncludeFontPaddingDoesNotAffectLineMetricsMultiLine() {
-        val withPadding = TextLayout(
-            tallTextMultiLine,
-            typeface = tallTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            tallTextMultiLine,
-            typeface = tallTypeface,
-            includePadding = false
-        )
+        val withPadding =
+            TextLayout(tallTextMultiLine, typeface = tallTypeface, includePadding = true)
+        val withoutPadding =
+            TextLayout(tallTextMultiLine, typeface = tallTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
         for (index in 0 until withPadding.lineCount) {
@@ -151,16 +117,10 @@ class FontPaddingTest {
 
     @Test
     fun tallIncludeFontPaddingDoesNotAffectGetLineForVertical() {
-        val withPadding = TextLayout(
-            tallTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = true
-        )
-        val withoutPadding = TextLayout(
-            tallTextMultiLine,
-            typeface = latinTypeface,
-            includePadding = false
-        )
+        val withPadding =
+            TextLayout(tallTextMultiLine, typeface = latinTypeface, includePadding = true)
+        val withoutPadding =
+            TextLayout(tallTextMultiLine, typeface = latinTypeface, includePadding = false)
 
         assertThat(withPadding.height).isEqualTo(withoutPadding.height)
 
@@ -191,10 +151,11 @@ class FontPaddingTest {
         includePadding: Boolean = false,
         typeface: Typeface = latinTypeface
     ): TextLayout {
-        val textPaint = TextPaint().apply {
-            this.typeface = typeface
-            this.textSize = fontSize
-        }
+        val textPaint =
+            TextPaint().apply {
+                this.typeface = typeface
+                this.textSize = fontSize
+            }
 
         /**
          * fallbackLineSpacing has to be false so that the real impact can be tested.

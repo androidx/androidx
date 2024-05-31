@@ -19,16 +19,15 @@ import android.graphics.Paint.FontMetricsInt
 import kotlin.math.ceil
 
 /**
- * The span which modifies the height of the covered paragraphs. A paragraph is defined as a
- * segment of string divided by '\n' character. To make sure the span work as expected, the
- * boundary of this span should align with paragraph boundary.
- * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
+ * The span which modifies the height of the covered paragraphs. A paragraph is defined as a segment
+ * of string divided by '\n' character. To make sure the span work as expected, the boundary of this
+ * span should align with paragraph boundary.
+ *
  * @param lineHeight The specified line height in pixel unit, which is the space between the
- * baseline of adjacent lines.
+ *   baseline of adjacent lines.
+ * @constructor Create a LineHeightSpan which sets the line height to `height` physical pixels.
  */
-internal class LineHeightSpan(
-    val lineHeight: Float
-) : android.text.style.LineHeightSpan {
+internal class LineHeightSpan(val lineHeight: Float) : android.text.style.LineHeightSpan {
 
     override fun chooseHeight(
         text: CharSequence,
