@@ -54,7 +54,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -440,35 +440,28 @@ public fun SwipeToReveal(
             // connection applied before this modifier consume the scroll/fling events.
             .nestedScroll(noOpNestedScrollConnection, state.nestedScrollDispatcher)
     ) {
-        val swipeCompleted by remember {
-            derivedStateOf { state.currentValue == RevealValue.Revealed }
+        val swipeCompleted = state.currentValue == RevealValue.Revealed
+        val lastActionIsSecondary = state.lastActionType == RevealActionType.SecondaryAction
+        val isWithinRevealOffset by remember {
+            derivedStateOf {
+                abs(state.offset) <= revealScope.revealOffset
+            }
         }
-        val density = LocalDensity.current
-
-        // Total width available for the slot(s) based on the current swipe offset
-        val availableWidth = if (state.offset.isNaN()) 0.dp
-        else with(density) { abs(state.offset).toDp() }
-        val offsetWidth = with(density) { revealScope.revealOffset.toDp() }
 
         // Determines whether the secondary action will be visible based on the current
         // reveal offset
-        val showSecondaryAction by remember {
-            derivedStateOf {
-                abs(state.offset) <= revealScope.revealOffset ||
-                    state.lastActionType == RevealActionType.SecondaryAction
-            }
-        }
+        val showSecondaryAction = isWithinRevealOffset || lastActionIsSecondary
+
         // Determines whether both primary and secondary action should be hidden, usually the case
         // when secondary action is clicked
-        val hideActions by remember {
-            derivedStateOf {
-                abs(state.offset) >= revealScope.revealOffset &&
-                    state.lastActionType == RevealActionType.SecondaryAction
-            }
+        val hideActions = !isWithinRevealOffset && lastActionIsSecondary
+
+        val shouldDrawActions by remember {
+            derivedStateOf { abs(state.offset) > 0 }
         }
 
         // Draw the buttons only when offset is greater than zero.
-        if (abs(state.offset) > 0) {
+        if (shouldDrawActions) {
             Box(
                 modifier = Modifier.matchParentSize(),
                 contentAlignment = AbsoluteAlignment.CenterRight
@@ -533,7 +526,20 @@ public fun SwipeToReveal(
                         Row(
                             modifier = Modifier
                                 .graphicsLayer { alpha = revealedContentAlpha.value }
-                                .width(if (hideActions) offsetWidth else availableWidth),
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(
+                                        constraints.copy(
+                                            maxWidth = if (hideActions) {
+                                                revealScope.revealOffset
+                                            } else {
+                                                abs(state.offset)
+                                            }.roundToInt()
+                                        )
+                                    )
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.placeRelative(0, 0)
+                                    }
+                                },
                             horizontalArrangement = Arrangement.Absolute.Right
                         ) {
                             // weight cannot be 0 so remove the composable when weight becomes 0
