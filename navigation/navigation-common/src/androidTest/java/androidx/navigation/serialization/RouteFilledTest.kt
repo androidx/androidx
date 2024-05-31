@@ -619,6 +619,36 @@ class RouteFilledTest {
             )
             .isEqualTo("$PATH_SERIAL_NAME?list=1&list=3&list=5")
     }
+
+    @Test
+    fun nullStringList() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val list: List<String>?)
+
+        val clazz = TestClass(null)
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.StringListType
+                nullable = true
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+    }
+
+    @Test
+    fun nullIntList() {
+        @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass(val list: List<Int>?)
+
+        val clazz = TestClass(null)
+
+        val listArg =
+            navArgument("list") {
+                type = NavType.IntListType
+                nullable = true
+            }
+
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME?list=null")
+    }
 }
 
 private fun <T : Any> assertThatRouteFilledFrom(
