@@ -28,33 +28,26 @@ import androidx.paging.insertSeparators
 import kotlinx.coroutines.flow.map
 
 class V3ViewModel : ViewModel() {
-    val flow = Pager(PagingConfig(10), pagingSourceFactory = ItemPagingSource.Factory)
-        .flow
-        .map { pagingData ->
-            pagingData
-                .insertSeparators { before: Item?, after: Item? ->
-                    if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
-                        // no separator, because at bottom or not needed yet
-                        null
-                    } else {
-                        Item(
-                            id = -1,
-                            text = "DIVIDER" + after.id / 3,
-                            bgColor = Color.DKGRAY
-                        )
+    val flow =
+        Pager(PagingConfig(10), pagingSourceFactory = ItemPagingSource.Factory)
+            .flow
+            .map { pagingData ->
+                pagingData
+                    .insertSeparators { before: Item?, after: Item? ->
+                        if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
+                            // no separator, because at bottom or not needed yet
+                            null
+                        } else {
+                            Item(id = -1, text = "DIVIDER" + after.id / 3, bgColor = Color.DKGRAY)
+                        }
                     }
-                }
-                .insertSeparators { before: Item?, _: Item? ->
-                    if (before != null && before.id == -1) {
-                        Item(
-                            id = -2,
-                            text = "RIGHT BELOW DIVIDER",
-                            bgColor = Color.BLACK
-                        )
-                    } else null
-                }
-                .insertHeaderItem(item = Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
-                .insertFooterItem(item = Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
-        }
-        .cachedIn(viewModelScope)
+                    .insertSeparators { before: Item?, _: Item? ->
+                        if (before != null && before.id == -1) {
+                            Item(id = -2, text = "RIGHT BELOW DIVIDER", bgColor = Color.BLACK)
+                        } else null
+                    }
+                    .insertHeaderItem(item = Item(Int.MIN_VALUE, "HEADER", Color.MAGENTA))
+                    .insertFooterItem(item = Item(Int.MAX_VALUE, "FOOTER", Color.MAGENTA))
+            }
+            .cachedIn(viewModelScope)
 }

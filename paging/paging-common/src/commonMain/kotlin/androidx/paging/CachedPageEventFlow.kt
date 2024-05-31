@@ -35,56 +35,55 @@ import kotlinx.coroutines.sync.withLock
  * An intermediate flow producer that flattens previous page events and gives any new downstream
  * just those events instead of the full history.
  */
-internal class CachedPageEventFlow<T : Any>(
-    src: Flow<PageEvent<T>>,
-    scope: CoroutineScope
-) {
+internal class CachedPageEventFlow<T : Any>(src: Flow<PageEvent<T>>, scope: CoroutineScope) {
     private val pageController = FlattenedPageController<T>()
 
     /**
-     * Shared flow for downstreams where we dispatch each event coming from upstream.
-     * This only has reply = 1 so it does not keep the previous events. Meanwhile, it still buffers
-     * them for active subscribers.
-     * A final `null` value is emitted as the end of stream message once the job is complete.
+     * Shared flow for downstreams where we dispatch each event coming from upstream. This only has
+     * reply = 1 so it does not keep the previous events. Meanwhile, it still buffers them for
+     * active subscribers. A final `null` value is emitted as the end of stream message once the job
+     * is complete.
      */
-    private val mutableSharedSrc = MutableSharedFlow<IndexedValue<PageEvent<T>>?>(
-        replay = 1,
-        extraBufferCapacity = Channel.UNLIMITED,
-        onBufferOverflow = BufferOverflow.SUSPEND
-    )
+    private val mutableSharedSrc =
+        MutableSharedFlow<IndexedValue<PageEvent<T>>?>(
+            replay = 1,
+            extraBufferCapacity = Channel.UNLIMITED,
+            onBufferOverflow = BufferOverflow.SUSPEND
+        )
 
     /**
      * Shared flow used for downstream which also sends the history. Each downstream connects to
-     * this where it first receives a history event and then any other event that was emitted by
-     * the upstream.
+     * this where it first receives a history event and then any other event that was emitted by the
+     * upstream.
      */
-    private val sharedForDownstream = mutableSharedSrc.onSubscription {
-        val history = pageController.getStateAsEvents()
-        // start the job if it has not started yet. We do this after capturing the history so that
-        // the first subscriber does not receive any history.
-        job.start()
-        history.forEach {
-            emit(it)
+    private val sharedForDownstream =
+        mutableSharedSrc.onSubscription {
+            val history = pageController.getStateAsEvents()
+            // start the job if it has not started yet. We do this after capturing the history so
+            // that
+            // the first subscriber does not receive any history.
+            job.start()
+            history.forEach { emit(it) }
         }
-    }
 
-    /**
-     * The actual job that collects the upstream.
-     */
-    private val job = scope.launch(start = CoroutineStart.LAZY) {
-        src.withIndex()
-            .collect {
-                mutableSharedSrc.emit(it)
-                pageController.record(it)
+    /** The actual job that collects the upstream. */
+    private val job =
+        scope
+            .launch(start = CoroutineStart.LAZY) {
+                src.withIndex().collect {
+                    mutableSharedSrc.emit(it)
+                    pageController.record(it)
+                }
             }
-    }.also {
-        it.invokeOnCompletion {
-            // Emit a final `null` message to the mutable shared flow.
-            // Even though, this tryEmit might technically fail, it shouldn't because we have
-            // unlimited buffer in the shared flow.
-            mutableSharedSrc.tryEmit(null)
-        }
-    }
+            .also {
+                it.invokeOnCompletion {
+                    // Emit a final `null` message to the mutable shared flow.
+                    // Even though, this tryEmit might technically fail, it shouldn't because we
+                    // have
+                    // unlimited buffer in the shared flow.
+                    mutableSharedSrc.tryEmit(null)
+                }
+            }
 
     fun close() {
         job.cancel()
@@ -109,8 +108,8 @@ internal class CachedPageEventFlow<T : Any>(
     }
 
     /**
-     * Returns cached data as PageEvent.Insert. Null if cached data is empty (for example on
-     * initial refresh).
+     * Returns cached data as PageEvent.Insert. Null if cached data is empty (for example on initial
+     * refresh).
      */
     internal fun getCachedEvent(): PageEvent.Insert<T>? = pageController.getCachedEvent()
 }
@@ -120,9 +119,7 @@ private class FlattenedPageController<T : Any> {
     private val lock = Mutex()
     private var maxEventIndex = -1
 
-    /**
-     * Record the event.
-     */
+    /** Record the event. */
     suspend fun record(event: IndexedValue<PageEvent<T>>) {
         lock.withLock {
             maxEventIndex = event.index
@@ -130,26 +127,22 @@ private class FlattenedPageController<T : Any> {
         }
     }
 
-    /**
-     * Create a list of events that represents the current state of the list.
-     */
+    /** Create a list of events that represents the current state of the list. */
     suspend fun getStateAsEvents(): List<IndexedValue<PageEvent<T>>> {
         return lock.withLock {
             // condensed events to bring downstream up to the current state
             val catchupEvents = list.getAsEvents()
             val startEventIndex = maxEventIndex - catchupEvents.size + 1
             catchupEvents.mapIndexed { index, pageEvent ->
-                IndexedValue(
-                    index = startEventIndex + index,
-                    value = pageEvent
-                )
+                IndexedValue(index = startEventIndex + index, value = pageEvent)
             }
         }
     }
 
-    fun getCachedEvent(): PageEvent.Insert<T>? = list.getAsEvents().firstOrNull()?.let {
-        if (it is PageEvent.Insert && it.loadType == LoadType.REFRESH) it else null
-    }
+    fun getCachedEvent(): PageEvent.Insert<T>? =
+        list.getAsEvents().firstOrNull()?.let {
+            if (it is PageEvent.Insert && it.loadType == LoadType.REFRESH) it else null
+        }
 }
 
 /**
@@ -165,9 +158,9 @@ internal class FlattenedPageEventStorage<T : Any> {
     private val pages = ArrayDeque<TransformablePage<T>>()
 
     /**
-     * Note - this is initialized without remote state, since we don't know if we have remote
-     * data once we start getting events. This is fine, since downstream needs to handle this
-     * anyway - remote state being added after initial, empty, PagingData.
+     * Note - this is initialized without remote state, since we don't know if we have remote data
+     * once we start getting events. This is fine, since downstream needs to handle this anyway -
+     * remote state being added after initial, empty, PagingData.
      */
     private val sourceStates = MutableLoadStateCollection()
     private var mediatorStates: LoadStates? = null
@@ -177,6 +170,7 @@ internal class FlattenedPageEventStorage<T : Any> {
      * to new downstream subscribers.
      */
     private var receivedFirstEvent: Boolean = false
+
     fun add(event: PageEvent<T>) {
         receivedFirstEvent = true
         when (event) {
@@ -219,9 +213,7 @@ internal class FlattenedPageEventStorage<T : Any> {
             }
             LoadType.PREPEND -> {
                 placeholdersBefore = event.placeholdersBefore
-                (event.pages.size - 1 downTo 0).forEach {
-                    pages.addFirst(event.pages[it])
-                }
+                (event.pages.size - 1 downTo 0).forEach { pages.addFirst(event.pages[it]) }
             }
             LoadType.APPEND -> {
                 placeholdersAfter = event.placeholdersAfter
@@ -267,12 +259,7 @@ internal class FlattenedPageEventStorage<T : Any> {
                 )
             )
         } else {
-            events.add(
-                PageEvent.LoadStateUpdate(
-                    source = source,
-                    mediator = mediatorStates
-                )
-            )
+            events.add(PageEvent.LoadStateUpdate(source = source, mediator = mediatorStates))
         }
 
         return events

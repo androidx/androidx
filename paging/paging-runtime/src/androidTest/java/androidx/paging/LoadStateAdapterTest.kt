@@ -39,7 +39,9 @@ import org.junit.runner.RunWith
 class LoadStateAdapterTest {
     class AdapterEventRecorder : RecyclerView.AdapterDataObserver() {
         enum class Event {
-            CHANGE, INSERT, REMOVED
+            CHANGE,
+            INSERT,
+            REMOVED
         }
 
         private val observedEvents = mutableListOf<Event>()
@@ -93,24 +95,15 @@ class LoadStateAdapterTest {
             return object : RecyclerView.ViewHolder(View(parent.context)) {}
         }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, loadState: LoadState) {
-        }
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, loadState: LoadState) {}
     }
 
     @Test
     fun init() {
         val adapter = SimpleLoadStateAdapter()
         assertEquals(0, adapter.itemCount)
-        assertFalse(
-            adapter.displayLoadStateAsItem(
-                NotLoading(endOfPaginationReached = false)
-            )
-        )
-        assertFalse(
-            adapter.displayLoadStateAsItem(
-                NotLoading(endOfPaginationReached = true)
-            )
-        )
+        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = false)))
+        assertFalse(adapter.displayLoadStateAsItem(NotLoading(endOfPaginationReached = true)))
         assertTrue(adapter.displayLoadStateAsItem(Error(Throwable())))
         assertTrue(adapter.displayLoadStateAsItem(Loading))
     }

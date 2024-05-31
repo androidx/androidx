@@ -91,7 +91,8 @@ internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
         )
     }
 
-    override fun getKey(item: B): K = synchronized(keyMap) {
-        return keyMap[item]!!
-    }
+    override fun getKey(item: B): K =
+        synchronized(keyMap) {
+            return keyMap[item]!!
+        }
 }

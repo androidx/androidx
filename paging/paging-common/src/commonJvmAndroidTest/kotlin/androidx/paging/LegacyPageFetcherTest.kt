@@ -49,13 +49,12 @@ class LegacyPageFetcherTest {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
             val key = params.key ?: 0
 
-            val (start, end) = when (params) {
-                is Refresh -> key to key + params.loadSize
-                is LoadParams.Prepend -> key - params.loadSize to key
-                is LoadParams.Append -> key to key + params.loadSize
-            }.let { (start, end) ->
-                start.coerceAtLeast(0) to end.coerceAtMost(data.size)
-            }
+            val (start, end) =
+                when (params) {
+                    is Refresh -> key to key + params.loadSize
+                    is LoadParams.Prepend -> key - params.loadSize to key
+                    is LoadParams.Append -> key to key + params.loadSize
+                }.let { (start, end) -> start.coerceAtLeast(0) to end.coerceAtMost(data.size) }
 
             if (invalidData) {
                 invalidData = false
@@ -73,18 +72,16 @@ class LegacyPageFetcherTest {
         override fun getRefreshKey(state: PagingState<Int, String>): Int? = null
     }
 
-    private fun rangeResult(start: Int, end: Int) = Page(
-        data = data.subList(start, end),
-        prevKey = if (start > 0) start else null,
-        nextKey = if (end < data.size) end else null,
-        itemsBefore = start,
-        itemsAfter = data.size - end
-    )
+    private fun rangeResult(start: Int, end: Int) =
+        Page(
+            data = data.subList(start, end),
+            prevKey = if (start > 0) start else null,
+            nextKey = if (end < data.size) end else null,
+            itemsBefore = start,
+            itemsAfter = data.size - end
+        )
 
-    private data class Result(
-        val type: LoadType,
-        val pageResult: LoadResult<*, String>
-    )
+    private data class Result(val type: LoadType, val pageResult: LoadResult<*, String>)
 
     private class MockConsumer : LegacyPageFetcher.PageConsumer<String> {
         private val results: MutableList<Result> = arrayListOf()
@@ -131,20 +128,17 @@ class LegacyPageFetcherTest {
         val config = Config(2, 2, true, 10, Config.MAX_SIZE_UNBOUNDED)
         val pagingSource = ImmediateListDataSource(data)
 
-        val initialResult = pagingSource.load(
-            Refresh(
-                key = start,
-                loadSize = end - start,
-                placeholdersEnabled = config.enablePlaceholders,
+        val initialResult =
+            pagingSource.load(
+                Refresh(
+                    key = start,
+                    loadSize = end - start,
+                    placeholdersEnabled = config.enablePlaceholders,
+                )
             )
-        )
 
         val initialData = (initialResult as Page).data
-        val storage = PagedStorage(
-            start,
-            initialResult,
-            data.size - initialData.size - start
-        )
+        val storage = PagedStorage(start, initialResult, data.size - initialData.size - start)
         consumer.storage = storage
 
         @Suppress("UNCHECKED_CAST")
@@ -160,270 +154,218 @@ class LegacyPageFetcherTest {
     }
 
     @Test
-    fun simplePagerAppend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 2, 6)
+    fun simplePagerAppend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 2, 6)
 
-        assertTrue(consumer.takeResults().isEmpty())
-        assertTrue(consumer.takeStateChanges().isEmpty())
+            assertTrue(consumer.takeResults().isEmpty())
+            assertTrue(consumer.takeStateChanges().isEmpty())
 
-        pager.tryScheduleAppend()
+            pager.tryScheduleAppend()
 
-        assertTrue(consumer.takeResults().isEmpty())
-        assertEquals(
-            listOf(StateChange(APPEND, Loading)),
-            consumer.takeStateChanges()
-        )
+            assertTrue(consumer.takeResults().isEmpty())
+            assertEquals(listOf(StateChange(APPEND, Loading)), consumer.takeStateChanges())
 
-        advanceUntilIdle()
+            advanceUntilIdle()
 
-        assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
-        assertEquals(
-            listOf(
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            consumer.takeStateChanges()
-        )
-    }
+            assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
+            assertEquals(
+                listOf(StateChange(APPEND, NotLoading(endOfPaginationReached = false))),
+                consumer.takeStateChanges()
+            )
+        }
 
     @Test
-    fun simplePagerPrepend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 4, 8)
+    fun simplePagerPrepend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 4, 8)
 
-        pager.trySchedulePrepend()
+            pager.trySchedulePrepend()
 
-        assertTrue(consumer.takeResults().isEmpty())
-        assertEquals(
-            listOf(StateChange(PREPEND, Loading)),
-            consumer.takeStateChanges()
-        )
+            assertTrue(consumer.takeResults().isEmpty())
+            assertEquals(listOf(StateChange(PREPEND, Loading)), consumer.takeStateChanges())
 
-        advanceUntilIdle()
+            advanceUntilIdle()
 
-        assertEquals(
-            listOf(Result(PREPEND, rangeResult(2, 4))),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            consumer.takeStateChanges()
-        )
-    }
+            assertEquals(listOf(Result(PREPEND, rangeResult(2, 4))), consumer.takeResults())
+            assertEquals(
+                listOf(StateChange(PREPEND, NotLoading(endOfPaginationReached = false))),
+                consumer.takeStateChanges()
+            )
+        }
 
     @Test
-    fun doubleAppend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 2, 6)
+    fun doubleAppend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 2, 6)
 
-        pager.tryScheduleAppend()
-        advanceUntilIdle()
+            pager.tryScheduleAppend()
+            advanceUntilIdle()
 
-        assertEquals(
-            listOf(
-                Result(APPEND, rangeResult(6, 8))
-            ),
-            consumer.takeResults()
-        )
+            assertEquals(listOf(Result(APPEND, rangeResult(6, 8))), consumer.takeResults())
 
-        assertEquals(
-            listOf(
-                StateChange(APPEND, Loading),
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            consumer.takeStateChanges()
-        )
+            assertEquals(
+                listOf(
+                    StateChange(APPEND, Loading),
+                    StateChange(APPEND, NotLoading(endOfPaginationReached = false))
+                ),
+                consumer.takeStateChanges()
+            )
 
-        pager.tryScheduleAppend()
-        advanceUntilIdle()
+            pager.tryScheduleAppend()
+            advanceUntilIdle()
 
-        assertEquals(
-            listOf(
-                Result(APPEND, rangeResult(8, 9))
-            ),
-            consumer.takeResults()
-        )
+            assertEquals(listOf(Result(APPEND, rangeResult(8, 9))), consumer.takeResults())
 
-        assertEquals(
-            listOf(
-                StateChange(APPEND, Loading),
-                StateChange(
-                    APPEND,
-                    NotLoading(endOfPaginationReached = false)
-                )
-            ),
-            consumer.takeStateChanges()
-        )
-    }
+            assertEquals(
+                listOf(
+                    StateChange(APPEND, Loading),
+                    StateChange(APPEND, NotLoading(endOfPaginationReached = false))
+                ),
+                consumer.takeStateChanges()
+            )
+        }
 
     @Test
-    fun doublePrepend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 4, 8)
+    fun doublePrepend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 4, 8)
 
-        pager.trySchedulePrepend()
-        advanceUntilIdle()
+            pager.trySchedulePrepend()
+            advanceUntilIdle()
 
-        assertEquals(
-            listOf(
-                Result(PREPEND, rangeResult(2, 4))
-            ),
-            consumer.takeResults()
-        )
+            assertEquals(listOf(Result(PREPEND, rangeResult(2, 4))), consumer.takeResults())
 
-        assertEquals(
-            listOf(
-                StateChange(PREPEND, Loading),
-                StateChange(
-                    PREPEND, NotLoading(endOfPaginationReached = false)
+            assertEquals(
+                listOf(
+                    StateChange(PREPEND, Loading),
+                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false))
+                ),
+                consumer.takeStateChanges()
+            )
+
+            pager.trySchedulePrepend()
+            advanceUntilIdle()
+
+            assertEquals(listOf(Result(PREPEND, rangeResult(0, 2))), consumer.takeResults())
+            assertEquals(
+                listOf(
+                    StateChange(PREPEND, Loading),
+                    StateChange(PREPEND, NotLoading(endOfPaginationReached = false))
+                ),
+                consumer.takeStateChanges()
+            )
+        }
+
+    @Test
+    fun emptyAppend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 0, 9)
+
+            pager.tryScheduleAppend()
+
+            // Pager triggers an immediate empty response here, so we don't need to flush the
+            // executor
+            assertEquals(listOf(Result(APPEND, Page.empty<Int, String>())), consumer.takeResults())
+            assertEquals(
+                listOf(StateChange(APPEND, NotLoading(endOfPaginationReached = true))),
+                consumer.takeStateChanges()
+            )
+        }
+
+    @Test
+    fun emptyPrepend() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 0, 9)
+
+            pager.trySchedulePrepend()
+
+            // Pager triggers an immediate empty response here, so we don't need to flush the
+            // executor
+            assertEquals(listOf(Result(PREPEND, Page.empty<Int, String>())), consumer.takeResults())
+            assertEquals(
+                listOf(StateChange(PREPEND, NotLoading(endOfPaginationReached = true))),
+                consumer.takeStateChanges()
+            )
+        }
+
+    @Test
+    fun append_invalidData() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 0, 3)
+
+            // try a normal append first
+            pager.tryScheduleAppend()
+            advanceUntilIdle()
+
+            assertThat(consumer.takeResults()).containsExactly(Result(APPEND, rangeResult(3, 5)))
+            assertThat(consumer.takeStateChanges())
+                .containsExactly(
+                    StateChange(APPEND, Loading),
+                    StateChange(APPEND, NotLoading.Incomplete)
                 )
-            ),
-            consumer.takeStateChanges()
-        )
 
-        pager.trySchedulePrepend()
-        advanceUntilIdle()
+            // now make next append return LoadResult.Invalid
+            val pagingSource = pager.source as ImmediateListDataSource
+            pagingSource.invalidData = true
 
-        assertEquals(
-            listOf(
-                Result(PREPEND, rangeResult(0, 2))
-            ),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(
-                StateChange(PREPEND, Loading),
-                StateChange(
-                    PREPEND, NotLoading(endOfPaginationReached = false)
+            pager.tryScheduleAppend()
+            advanceUntilIdle()
+
+            // the load should return before returning any data
+            assertThat(consumer.takeResults()).isEmpty()
+            assertThat(consumer.takeStateChanges())
+                .containsExactly(
+                    StateChange(APPEND, Loading),
                 )
-            ),
-            consumer.takeStateChanges()
-        )
-    }
+
+            // exception handler should invalidate the paging source and result in fetcher to be
+            // detached
+            assertTrue(pagingSource.invalid)
+            assertTrue(pager.isDetached)
+        }
 
     @Test
-    fun emptyAppend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 0, 9)
+    fun prepend_invalidData() =
+        runTest(testDispatcher) {
+            val consumer = MockConsumer()
+            val pager = createPager(consumer, 6, 9)
 
-        pager.tryScheduleAppend()
+            // try a normal prepend first
+            pager.trySchedulePrepend()
+            advanceUntilIdle()
 
-        // Pager triggers an immediate empty response here, so we don't need to flush the executor
-        assertEquals(
-            listOf(Result(APPEND, Page.empty<Int, String>())),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(
-                StateChange(APPEND, NotLoading(endOfPaginationReached = true))
-            ),
-            consumer.takeStateChanges()
-        )
-    }
-
-    @Test
-    fun emptyPrepend() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 0, 9)
-
-        pager.trySchedulePrepend()
-
-        // Pager triggers an immediate empty response here, so we don't need to flush the executor
-        assertEquals(
-            listOf(Result(PREPEND, Page.empty<Int, String>())),
-            consumer.takeResults()
-        )
-        assertEquals(
-            listOf(
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = true)
+            assertThat(consumer.takeResults()).containsExactly(Result(PREPEND, rangeResult(4, 6)))
+            assertThat(consumer.takeStateChanges())
+                .containsExactly(
+                    StateChange(PREPEND, Loading),
+                    StateChange(PREPEND, NotLoading.Incomplete)
                 )
-            ),
-            consumer.takeStateChanges()
-        )
-    }
 
-    @Test
-    fun append_invalidData() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 0, 3)
+            // now make next prepend throw error
+            val pagingSource = pager.source as ImmediateListDataSource
+            pagingSource.invalidData = true
 
-        // try a normal append first
-        pager.tryScheduleAppend()
-        advanceUntilIdle()
+            pager.trySchedulePrepend()
+            advanceUntilIdle()
 
-        assertThat(consumer.takeResults()).containsExactly(
-            Result(APPEND, rangeResult(3, 5))
-        )
-        assertThat(consumer.takeStateChanges()).containsExactly(
-            StateChange(APPEND, Loading),
-            StateChange(APPEND, NotLoading.Incomplete)
-        )
+            // the load should return before returning any data
+            assertThat(consumer.takeResults()).isEmpty()
+            assertThat(consumer.takeStateChanges())
+                .containsExactly(
+                    StateChange(PREPEND, Loading),
+                )
 
-        // now make next append return LoadResult.Invalid
-        val pagingSource = pager.source as ImmediateListDataSource
-        pagingSource.invalidData = true
-
-        pager.tryScheduleAppend()
-        advanceUntilIdle()
-
-        // the load should return before returning any data
-        assertThat(consumer.takeResults()).isEmpty()
-        assertThat(consumer.takeStateChanges()).containsExactly(
-            StateChange(APPEND, Loading),
-        )
-
-        // exception handler should invalidate the paging source and result in fetcher to be
-        // detached
-        assertTrue(pagingSource.invalid)
-        assertTrue(pager.isDetached)
-    }
-
-    @Test
-    fun prepend_invalidData() = runTest(testDispatcher) {
-        val consumer = MockConsumer()
-        val pager = createPager(consumer, 6, 9)
-
-        // try a normal prepend first
-        pager.trySchedulePrepend()
-        advanceUntilIdle()
-
-        assertThat(consumer.takeResults()).containsExactly(
-            Result(PREPEND, rangeResult(4, 6))
-        )
-        assertThat(consumer.takeStateChanges()).containsExactly(
-            StateChange(PREPEND, Loading),
-            StateChange(PREPEND, NotLoading.Incomplete)
-        )
-
-        // now make next prepend throw error
-        val pagingSource = pager.source as ImmediateListDataSource
-        pagingSource.invalidData = true
-
-        pager.trySchedulePrepend()
-        advanceUntilIdle()
-
-        // the load should return before returning any data
-        assertThat(consumer.takeResults()).isEmpty()
-        assertThat(consumer.takeStateChanges()).containsExactly(
-            StateChange(PREPEND, Loading),
-        )
-
-        // exception handler should invalidate the paging source and result in fetcher to be
-        // detached
-        assertTrue(pagingSource.invalid)
-        assertTrue(pager.isDetached)
-    }
+            // exception handler should invalidate the paging source and result in fetcher to be
+            // detached
+            assertTrue(pagingSource.invalid)
+            assertTrue(pager.isDetached)
+        }
 }

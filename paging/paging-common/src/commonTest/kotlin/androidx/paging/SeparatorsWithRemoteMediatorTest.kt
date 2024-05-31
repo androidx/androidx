@@ -32,24 +32,27 @@ import kotlinx.coroutines.test.runTest
 class SeparatorsWithRemoteMediatorTest {
     @Test
     fun prependAfterPrependComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generatePrepend(
-                originalPageOffset = 0,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete,
-                )
-            ),
-            generatePrepend(
-                originalPageOffset = -1,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete,
+        val pageEventFlow =
+            flowOf(
+                generatePrepend(
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                        )
+                ),
+                generatePrepend(
+                    originalPageOffset = -1,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                        )
                 )
             )
-        )
         assertFailsWith<IllegalArgumentException>(
             "Prepend after endOfPaginationReached already true is invalid"
         ) {
@@ -58,30 +61,34 @@ class SeparatorsWithRemoteMediatorTest {
                     terminalSeparatorType = FULLY_COMPLETE,
                     generator = LETTER_SEPARATOR_GENERATOR
                 )
-                .flow.toList()
+                .flow
+                .toList()
         }
     }
 
     @Test
     fun appendAfterAppendComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generateAppend(
-                originalPageOffset = 0,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete,
+        val pageEventFlow =
+            flowOf(
+                generateAppend(
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-            generateAppend(
-                originalPageOffset = 1,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete,
+                generateAppend(
+                    originalPageOffset = 1,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-        )
+            )
         assertFailsWith<IllegalArgumentException>(
             "Append after endOfPaginationReached already true is invalid"
         ) {
@@ -90,296 +97,334 @@ class SeparatorsWithRemoteMediatorTest {
                     terminalSeparatorType = FULLY_COMPLETE,
                     generator = LETTER_SEPARATOR_GENERATOR
                 )
-                .flow.toList()
+                .flow
+                .toList()
         }
     }
 
     @Test
     fun insertValidation_emptyRemoteAfterHeaderAdded() = runTest {
-        val pageEventFlow = flowOf(
-            generatePrepend(
-                originalPageOffset = 0,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Incomplete,
-                    prependRemote = NotLoading.Complete,
+        val pageEventFlow =
+            flowOf(
+                generatePrepend(
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Incomplete,
+                            prependRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-            generatePrepend(
-                originalPageOffset = 1,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete,
+                generatePrepend(
+                    originalPageOffset = 1,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-        )
+            )
 
         // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
         // or append that arrives after remote prepend or append marking endOfPagination.
         PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators { _, _ -> -1 }.flow.toList()
+            .insertSeparators { _, _ -> -1 }
+            .flow
+            .toList()
     }
 
     @Test
     fun insertValidation_emptyRemoteAfterFooterAdded() = runTest {
-        val pageEventFlow = flowOf(
-            generateAppend(
-                originalPageOffset = 0,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Incomplete,
-                    appendRemote = NotLoading.Complete,
+        val pageEventFlow =
+            flowOf(
+                generateAppend(
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Incomplete,
+                            appendRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-            generateAppend(
-                originalPageOffset = 1,
-                pages = listOf(listOf("a1")),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete,
+                generateAppend(
+                    originalPageOffset = 1,
+                    pages = listOf(listOf("a1")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete,
+                        ),
                 ),
-            ),
-        )
+            )
 
         // Verify asserts in separators do not throw IllegalArgumentException for a local prepend
         // or append that arrives after remote prepend or append marking endOfPagination.
         PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators { _, _ -> -1 }.flow.toList()
+            .insertSeparators { _, _ -> -1 }
+            .flow
+            .toList()
     }
 
     @Test
     fun emptyPrependThenEmptyRemote_fullyComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generatePrepend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
-            ),
-            generatePrepend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete
+        val pageEventFlow =
+            flowOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generatePrepend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                ),
+                generatePrepend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
-        val expected = listOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generatePrepend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
-            ),
-            generatePrepend(
-                // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
-                originalPageOffset = 0,
-                pages = listOf(listOf("A")),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete
+        val expected =
+            listOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generatePrepend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                ),
+                generatePrepend(
+                    // page offset becomes 0 here, as it's adjacent to page 0, the only page with
+                    // data.
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("A")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
 
-        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators(
-                terminalSeparatorType = FULLY_COMPLETE,
-                generator = LETTER_SEPARATOR_GENERATOR
-            )
-            .flow.toList()
+        val actual =
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+                .insertSeparators(
+                    terminalSeparatorType = FULLY_COMPLETE,
+                    generator = LETTER_SEPARATOR_GENERATOR
+                )
+                .flow
+                .toList()
 
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun emptyPrependThenEmptyRemote_sourceComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generatePrepend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
-            ),
-            generatePrepend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete
+        val pageEventFlow =
+            flowOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generatePrepend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                ),
+                generatePrepend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
-        val expected = listOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generatePrepend(
-                // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
-                originalPageOffset = 0,
-                pages = listOf(listOf("A")),
-                loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
-            ),
-            generatePrepend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    prependLocal = NotLoading.Complete,
-                    prependRemote = NotLoading.Complete
+        val expected =
+            listOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generatePrepend(
+                    // page offset becomes 0 here, as it's adjacent to page 0, the only page with
+                    // data.
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("A")),
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                ),
+                generatePrepend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            prependLocal = NotLoading.Complete,
+                            prependRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
 
-        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators(
-                terminalSeparatorType = SOURCE_COMPLETE,
-                generator = LETTER_SEPARATOR_GENERATOR
-            )
-            .flow.toList()
+        val actual =
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+                .insertSeparators(
+                    terminalSeparatorType = SOURCE_COMPLETE,
+                    generator = LETTER_SEPARATOR_GENERATOR
+                )
+                .flow
+                .toList()
 
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun emptyAppendThenEmptyRemote_fullyComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generateAppend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
-            ),
-            generateAppend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete
+        val pageEventFlow =
+            flowOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generateAppend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                ),
+                generateAppend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
-        val expected = listOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generateAppend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
-            ),
-            generateAppend(
-                // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
-                originalPageOffset = 0,
-                pages = listOf(listOf("END")),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete
+        val expected =
+            listOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generateAppend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                ),
+                generateAppend(
+                    // page offset becomes 0 here, as it's adjacent to page 0, the only page with
+                    // data.
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("END")),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
 
-        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators(
-                terminalSeparatorType = FULLY_COMPLETE,
-                generator = LETTER_SEPARATOR_GENERATOR
-            )
-            .flow.toList()
+        val actual =
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+                .insertSeparators(
+                    terminalSeparatorType = FULLY_COMPLETE,
+                    generator = LETTER_SEPARATOR_GENERATOR
+                )
+                .flow
+                .toList()
 
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun emptyAppendThenEmptyRemote_sourceComplete() = runTest {
-        val pageEventFlow = flowOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generateAppend(
-                originalPageOffset = 1,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
-            ),
-            generateAppend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete
+        val pageEventFlow =
+            flowOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generateAppend(
+                    originalPageOffset = 1,
+                    pages = listOf(),
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                ),
+                generateAppend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
-        val expected = listOf(
-            generateRefresh(listOf("a1"), remoteLoadStatesOf()),
-            generateAppend(
-                // page offset becomes 0 here, as it's adjacent to page 0, the only page with data.
-                originalPageOffset = 0,
-                pages = listOf(listOf("END")),
-                loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
-            ),
-            generateAppend(
-                originalPageOffset = 2,
-                pages = listOf(),
-                loadStates = remoteLoadStatesOf(
-                    appendLocal = NotLoading.Complete,
-                    appendRemote = NotLoading.Complete
+        val expected =
+            listOf(
+                generateRefresh(listOf("a1"), remoteLoadStatesOf()),
+                generateAppend(
+                    // page offset becomes 0 here, as it's adjacent to page 0, the only page with
+                    // data.
+                    originalPageOffset = 0,
+                    pages = listOf(listOf("END")),
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                ),
+                generateAppend(
+                    originalPageOffset = 2,
+                    pages = listOf(),
+                    loadStates =
+                        remoteLoadStatesOf(
+                            appendLocal = NotLoading.Complete,
+                            appendRemote = NotLoading.Complete
+                        )
                 )
             )
-        )
 
-        val actual = PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
-            .insertSeparators(
-                terminalSeparatorType = SOURCE_COMPLETE,
-                generator = LETTER_SEPARATOR_GENERATOR
-            )
-            .flow.toList()
+        val actual =
+            PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
+                .insertSeparators(
+                    terminalSeparatorType = SOURCE_COMPLETE,
+                    generator = LETTER_SEPARATOR_GENERATOR
+                )
+                .flow
+                .toList()
 
         assertThat(actual).isEqualTo(expected)
     }
 }
 
-private fun transformablePage(
-    originalPageOffset: Int,
-    data: List<String>
-) = TransformablePage(
-    originalPageOffsets = intArrayOf(originalPageOffset),
-    data = data,
-    hintOriginalPageOffset = originalPageOffset,
-    hintOriginalIndices = data.fold(mutableListOf()) { acc, s ->
-        acc.apply {
-            add(
-                when {
-                    acc.isEmpty() -> 0
-                    s.all { it.isUpperCase() } -> acc.last()
-                    else -> acc.last() + 1
+private fun transformablePage(originalPageOffset: Int, data: List<String>) =
+    TransformablePage(
+        originalPageOffsets = intArrayOf(originalPageOffset),
+        data = data,
+        hintOriginalPageOffset = originalPageOffset,
+        hintOriginalIndices =
+            data.fold(mutableListOf()) { acc, s ->
+                acc.apply {
+                    add(
+                        when {
+                            acc.isEmpty() -> 0
+                            s.all { it.isUpperCase() } -> acc.last()
+                            else -> acc.last() + 1
+                        }
+                    )
                 }
-            )
-        }
-    }
-)
+            }
+    )
 
-private fun generateRefresh(
-    data: List<String>,
-    loadStates: CombinedLoadStates
-) = remoteRefresh(
-    pages = listOf(transformablePage(0, data)),
-    source = loadStates.source,
-    mediator = loadStates.mediator ?: loadStates()
-)
+private fun generateRefresh(data: List<String>, loadStates: CombinedLoadStates) =
+    remoteRefresh(
+        pages = listOf(transformablePage(0, data)),
+        source = loadStates.source,
+        mediator = loadStates.mediator ?: loadStates()
+    )
 
 private fun generatePrepend(
     originalPageOffset: Int,
     pages: List<List<String>>,
     loadStates: CombinedLoadStates
-) = remotePrepend(
-    pages = pages.map { data -> transformablePage(originalPageOffset, data) },
-    placeholdersBefore = 0,
-    source = loadStates.source,
-    mediator = loadStates.mediator ?: loadStates()
-)
+) =
+    remotePrepend(
+        pages = pages.map { data -> transformablePage(originalPageOffset, data) },
+        placeholdersBefore = 0,
+        source = loadStates.source,
+        mediator = loadStates.mediator ?: loadStates()
+    )
 
 private fun generateAppend(
     originalPageOffset: Int,
     pages: List<List<String>>,
     loadStates: CombinedLoadStates
-) = remoteAppend(
-    pages = pages.map { data -> transformablePage(originalPageOffset, data) },
-    placeholdersAfter = 0,
-    source = loadStates.source,
-    mediator = loadStates.mediator ?: loadStates()
-)
+) =
+    remoteAppend(
+        pages = pages.map { data -> transformablePage(originalPageOffset, data) },
+        placeholdersAfter = 0,
+        source = loadStates.source,
+        mediator = loadStates.mediator ?: loadStates()
+    )

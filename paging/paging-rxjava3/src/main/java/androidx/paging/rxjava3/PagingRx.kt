@@ -43,13 +43,11 @@ import kotlinx.coroutines.rx3.asObservable
  * returns a new instance of [PagingData] with cached data pre-loaded.
  */
 val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData<Value>>
-    get() = flow
-        .conflate()
-        .asObservable()
+    get() = flow.conflate().asObservable()
 
 /**
- * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes
- * it as a [Flowable].
+ * A [Flowable] of [PagingData], which mirrors the stream provided by [Pager.flow], but exposes it
+ * as a [Flowable].
  *
  * NOTE: Instances of [PagingData] emitted by this [Flowable] are not re-usable and cannot be
  * submitted multiple times. This is especially relevant for transforms, which would replay the
@@ -58,55 +56,48 @@ val <Key : Any, Value : Any> Pager<Key, Value>.observable: Observable<PagingData
  * returns a new instance of [PagingData] with cached data pre-loaded.
  */
 val <Key : Any, Value : Any> Pager<Key, Value>.flowable: Flowable<PagingData<Value>>
-    get() = flow
-        .conflate()
-        .asFlowable()
+    get() = flow.conflate().asFlowable()
 
 /**
  * Operator which caches an [Observable] of [PagingData] within a [CoroutineScope].
  *
- * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
- * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those pages in memory.
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple observers
+ * on the same instance of [PagingData] to receive the same events, avoiding redundant work, but
+ * comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
- * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
- * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
- * same generation of [PagingData] is an unsupported operation.
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData] emitted
+ * by [Pager] or any of its transformed derivatives, as reloading data from scratch on the same
+ * generation of [PagingData] is an unsupported operation.
  *
- * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
- * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
- * manually cancelled to avoid memory leaks.
+ * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this would
+ *   be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after the
+ *   [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ *   manually cancelled to avoid memory leaks.
  */
 @ExperimentalCoroutinesApi
 fun <T : Any> Observable<PagingData<T>>.cachedIn(scope: CoroutineScope): Observable<PagingData<T>> {
-    return toFlowable(BackpressureStrategy.LATEST)
-        .asFlow()
-        .cachedIn(scope)
-        .asObservable()
+    return toFlowable(BackpressureStrategy.LATEST).asFlow().cachedIn(scope).asObservable()
 }
 
 /**
  * Operator which caches a [Flowable] of [PagingData] within a [CoroutineScope].
  *
- * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple
- * observers on the same instance of [PagingData] to receive the same events, avoiding redundant
- * work, but comes at the cost of buffering those pages in memory.
+ * [cachedIn] multicasts pages loaded and transformed by a [PagingData], allowing multiple observers
+ * on the same instance of [PagingData] to receive the same events, avoiding redundant work, but
+ * comes at the cost of buffering those pages in memory.
  *
  * Calling [cachedIn] is required to allow calling
- * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
- * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
- * same generation of [PagingData] is an unsupported operation.
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData] emitted
+ * by [Pager] or any of its transformed derivatives, as reloading data from scratch on the same
+ * generation of [PagingData] is an unsupported operation.
  *
- * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this
- * would be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after
- * the [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
- * manually cancelled to avoid memory leaks.
+ * @param scope The [CoroutineScope] where the page cache will be kept alive. Typically this would
+ *   be a managed scope such as `ViewModel.viewModelScope`, which automatically cancels after the
+ *   [PagingData] stream is no longer needed. Otherwise, the provided [CoroutineScope] must be
+ *   manually cancelled to avoid memory leaks.
  */
 @ExperimentalCoroutinesApi
 fun <T : Any> Flowable<PagingData<T>>.cachedIn(scope: CoroutineScope): Flowable<PagingData<T>> {
-    return asFlow()
-        .cachedIn(scope)
-        .asFlowable()
+    return asFlow().cachedIn(scope).asFlowable()
 }

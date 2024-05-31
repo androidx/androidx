@@ -20,14 +20,15 @@ import androidx.recyclerview.widget.DiffUtil
 
 data class Item(val id: Int, val text: String, val bgColor: Int) {
     companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<Item> = object : DiffUtil.ItemCallback<Item>() {
-            override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
-                return oldItem == newItem
-            }
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<Item> =
+            object : DiffUtil.ItemCallback<Item>() {
+                override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
+                    return oldItem == newItem
+                }
 
-            override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
-                return oldItem.id == newItem.id
+                override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
+                    return oldItem.id == newItem.id
+                }
             }
-        }
     }
 }

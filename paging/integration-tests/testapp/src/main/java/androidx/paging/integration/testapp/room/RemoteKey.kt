@@ -18,11 +18,8 @@ package androidx.paging.integration.testapp.room
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-/**
- * Sample entity to persist remote key for use in RemoteMediator.
- */
+/** Sample entity to persist remote key for use in RemoteMediator. */
 @Entity(tableName = "remote_key")
 class RemoteKey(val prevKey: Int, val nextKey: Int) {
-    @PrimaryKey
-    var id = 0
+    @PrimaryKey var id = 0
 }

@@ -25,13 +25,12 @@ import androidx.paging.PagingSource.LoadParams.Refresh
 import androidx.paging.PagingState
 
 /**
- * An implementation of [PagingSource] that loads data from a static [dataList]. The source
- * of data is expected to be immutable. This [PagingSource] should be be invalidated
- * externally whenever the [dataList] passed to this [PagingSource] becomes obsolete.
+ * An implementation of [PagingSource] that loads data from a static [dataList]. The source of data
+ * is expected to be immutable. This [PagingSource] should be be invalidated externally whenever the
+ * [dataList] passed to this [PagingSource] becomes obsolete.
  */
-internal class StaticListPagingSource<Value : Any>(
-    private val dataList: List<Value>
-) : PagingSource<Int, Value>() {
+internal class StaticListPagingSource<Value : Any>(private val dataList: List<Value>) :
+    PagingSource<Int, Value>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
         val key = params.key ?: 0
@@ -50,19 +49,18 @@ internal class StaticListPagingSource<Value : Any>(
     /**
      * Returns the index to start loading from the [dataList] for each [load] call.
      *
-     * Prepend: The [key] represents the index before the first loaded Page's first index, i.e.
-     * if first loaded page contains items in index[25, 26, 27], then [key] = 24. The `startIndex`
-     * is offset negatively by [LoadParams.loadSize]. For example, if [key] = 24 and loadSize = 5,
-     * then the startIndex = 19, such that items in index[20, 21, 22, 23, 24] are loaded.
+     * Prepend: The [key] represents the index before the first loaded Page's first index, i.e. if
+     * first loaded page contains items in index[25, 26, 27], then [key] = 24. The `startIndex` is
+     * offset negatively by [LoadParams.loadSize]. For example, if [key] = 24 and loadSize = 5, then
+     * the startIndex = 19, such that items in index[20, 21, 22, 23, 24] are loaded.
      *
-     * Refresh: The [key] may derive from either [getRefreshKey] or from the `initialKey` passed
-     * in to [Pager]. If the [key] is larger than [dataList].lastIndex (i.e. an initialKey
-     * that is out of bounds), the `startIndex` will be offset negatively from the lastIndex
-     * by [LoadParams.loadSize] such that it will start loading from the last page.
-     * For example if index[0 - 49] is available with [key] = 55 and loadSize = 5,
-     * the `startIndex` will be offset to 45 such that items in index[45, 46, 47, 48, 49] are
-     * loaded. The largest possible `startIndex` that can be returned for
-     * Refresh is [dataList].lastIndex.
+     * Refresh: The [key] may derive from either [getRefreshKey] or from the `initialKey` passed in
+     * to [Pager]. If the [key] is larger than [dataList].lastIndex (i.e. an initialKey that is out
+     * of bounds), the `startIndex` will be offset negatively from the lastIndex by
+     * [LoadParams.loadSize] such that it will start loading from the last page. For example if
+     * index[0 - 49] is available with [key] = 55 and loadSize = 5, the `startIndex` will be offset
+     * to 45 such that items in index[45, 46, 47, 48, 49] are loaded. The largest possible
+     * `startIndex` that can be returned for Refresh is [dataList].lastIndex.
      *
      * Negative startIndices are clipped to 0.
      */
@@ -82,17 +80,17 @@ internal class StaticListPagingSource<Value : Any>(
     /**
      * Returns the index to stop loading from the [dataList] for each [load] call.
      *
-     * Prepend: The [key] represents the index before the first loaded Page's first index, i.e.
-     * if first loaded page contains items in index[25, 26, 27], then [key] = 24. If loadSize
-     * exceeds available data to load, i.e. loadSize = 5 with only items in index[0, 1, 2] are
-     * available, the `endIndex` is clipped to the value of [key]. Reusing example with [key] = 2
-     * and items[0, 1, 2] available, the `startIndex` = 0 and the `endIndex` of `4` is clipped
-     * to `2` such that only items [0, 1, 2] are loaded.
+     * Prepend: The [key] represents the index before the first loaded Page's first index, i.e. if
+     * first loaded page contains items in index[25, 26, 27], then [key] = 24. If loadSize exceeds
+     * available data to load, i.e. loadSize = 5 with only items in index[0, 1, 2] are available,
+     * the `endIndex` is clipped to the value of [key]. Reusing example with [key] = 2 and items[0,
+     * 1, 2] available, the `startIndex` = 0 and the `endIndex` of `4` is clipped to `2` such that
+     * only items [0, 1, 2] are loaded.
      *
-     * Refresh: The [key] may derive from either [getRefreshKey] or from the `initialKey` passed
-     * in to [Pager]. As long as the `endIndex` is within bounds of [dataList] indices, `endIndex`
-     * will load the maximum amount of available data as requested by [LoadParams.loadSize]. If
-     * the [key] is out of bounds, it will be clipped to a maximum value of [dataList].lastIndex.
+     * Refresh: The [key] may derive from either [getRefreshKey] or from the `initialKey` passed in
+     * to [Pager]. As long as the `endIndex` is within bounds of [dataList] indices, `endIndex` will
+     * load the maximum amount of available data as requested by [LoadParams.loadSize]. If the [key]
+     * is out of bounds, it will be clipped to a maximum value of [dataList].lastIndex.
      */
     private fun computeIndexEnd(params: LoadParams<Int>, key: Int, startIndex: Int): Int {
         val defaultOffset = startIndex + params.loadSize - 1
@@ -107,11 +105,11 @@ internal class StaticListPagingSource<Value : Any>(
      *
      * It is unknown whether anchorPosition represents the item at the top of the screen or item at
      * the bottom of the screen. To ensure the number of items loaded is enough to fill up the
-     * screen, half of loadSize is loaded before the anchorPosition and the other half is
-     * loaded after the anchorPosition -- anchorPosition becomes the middle item.
+     * screen, half of loadSize is loaded before the anchorPosition and the other half is loaded
+     * after the anchorPosition -- anchorPosition becomes the middle item.
      *
      * Negative refreshKeys are clipped to 0.
-    */
+     */
     override fun getRefreshKey(state: PagingState<Int, Value>): Int? {
         return when (val anchorPosition = state.anchorPosition) {
             null -> null

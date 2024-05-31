@@ -53,22 +53,19 @@ import kotlinx.coroutines.withContext
  * will dispatch new PagedLists, as well as their updates to that scheduler.
  *
  * @param Key Type of input valued used to load data from the [DataSource]. Must be integer if
- * you're using [PositionalDataSource].
+ *   you're using [PositionalDataSource].
  * @param Value Item type being presented.
- *
  */
 @Deprecated("PagedList is deprecated and has been replaced by PagingData")
 class RxPagedListBuilder<Key : Any, Value : Any> {
     private val pagingSourceFactory: (() -> PagingSource<Key, Value>)?
     private val dataSourceFactory: DataSource.Factory<Key, Value>?
 
-    @Suppress("DEPRECATION")
-    private val config: PagedList.Config
+    @Suppress("DEPRECATION") private val config: PagedList.Config
 
     private var initialLoadKey: Key? = null
 
-    @Suppress("DEPRECATION")
-    private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
+    @Suppress("DEPRECATION") private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var notifyDispatcher: CoroutineDispatcher? = null
     private var notifyScheduler: Scheduler? = null
     private var fetchDispatcher: CoroutineDispatcher? = null
@@ -82,8 +79,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      */
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """Pager(
+        replaceWith =
+            ReplaceWith(
+                """Pager(
                 config = PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -94,10 +92,10 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 initialKey = null,
                 pagingSourceFactory = pagingSourceFactory
             ).flowable""",
-            "androidx.paging.PagingConfig",
-            "androidx.paging.Pager",
-            "androidx.paging.rxjava3.flowable"
-        )
+                "androidx.paging.PagingConfig",
+                "androidx.paging.Pager",
+                "androidx.paging.rxjava3.flowable"
+            )
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
@@ -125,21 +123,22 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Suppress("DEPRECATION")
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """Pager(
+        replaceWith =
+            ReplaceWith(
+                """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
                 pagingSourceFactory = pagingSourceFactory
             ).flowable""",
-            "androidx.paging.PagingConfig",
-            "androidx.paging.Pager",
-            "androidx.paging.rxjava3.flowable"
-        )
+                "androidx.paging.PagingConfig",
+                "androidx.paging.Pager",
+                "androidx.paging.rxjava3.flowable"
+            )
     )
-    constructor(pagingSourceFactory: () -> PagingSource<Key, Value>, pageSize: Int) : this(
-        pagingSourceFactory,
-        PagedList.Config.Builder().setPageSize(pageSize).build()
-    )
+    constructor(
+        pagingSourceFactory: () -> PagingSource<Key, Value>,
+        pageSize: Int
+    ) : this(pagingSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
      * Creates a [RxPagedListBuilder] with required parameters.
@@ -149,8 +148,9 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      */
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """Pager(
+        replaceWith =
+            ReplaceWith(
+                """Pager(
                 config = PagingConfig(
                     config.pageSize,
                     config.prefetchDistance,
@@ -161,11 +161,11 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
                 initialKey = null,
                 pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
-            "androidx.paging.PagingConfig",
-            "androidx.paging.Pager",
-            "androidx.paging.rxjava3.flowable",
-            "kotlinx.coroutines.Dispatchers"
-        )
+                "androidx.paging.PagingConfig",
+                "androidx.paging.Pager",
+                "androidx.paging.rxjava3.flowable",
+                "kotlinx.coroutines.Dispatchers"
+            )
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
@@ -193,25 +193,23 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
     @Suppress("DEPRECATION")
     @Deprecated(
         message = "PagedList is deprecated and has been replaced by PagingData",
-        replaceWith = ReplaceWith(
-            """Pager(
+        replaceWith =
+            ReplaceWith(
+                """Pager(
                 config = PagingConfig(pageSize),
                 initialKey = null,
                 pagingSourceFactory = dataSourceFactory.asPagingSourceFactory(Dispatchers.IO)
             ).flowable""",
-            "androidx.paging.PagingConfig",
-            "androidx.paging.Pager",
-            "androidx.paging.rxjava3.flowable",
-            "kotlinx.coroutines.Dispatchers"
-        )
+                "androidx.paging.PagingConfig",
+                "androidx.paging.Pager",
+                "androidx.paging.rxjava3.flowable",
+                "kotlinx.coroutines.Dispatchers"
+            )
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
         pageSize: Int
-    ) : this(
-        dataSourceFactory,
-        PagedList.Config.Builder().setPageSize(pageSize).build()
-    )
+    ) : this(dataSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
      * First loading key passed to the first PagedList/DataSource.
@@ -222,26 +220,24 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * @param key Initial load key passed to the first PagedList/DataSource.
      * @return this
      */
-    fun setInitialLoadKey(key: Key?) = apply {
-        initialLoadKey = key
-    }
+    fun setInitialLoadKey(key: Key?) = apply { initialLoadKey = key }
 
     /**
-     * Sets a [androidx.paging.PagedList.BoundaryCallback] on each PagedList created,
-     * typically used to load additional data from network when paging from local storage.
+     * Sets a [androidx.paging.PagedList.BoundaryCallback] on each PagedList created, typically used
+     * to load additional data from network when paging from local storage.
      *
      * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load. If this
-     * method is not called, or `null` is passed, you will not be notified when each
-     * DataSource runs out of data to provide to its PagedList.
+     * method is not called, or `null` is passed, you will not be notified when each DataSource runs
+     * out of data to provide to its PagedList.
      *
      * If you are paging from a DataSource.Factory backed by local storage, you can set a
-     * BoundaryCallback to know when there is no more information to page from local storage.
-     * This is useful to page from the network when local storage is a cache of network data.
+     * BoundaryCallback to know when there is no more information to page from local storage. This
+     * is useful to page from the network when local storage is a cache of network data.
      *
-     * Note that when using a BoundaryCallback with a `Observable<PagedList>`, method calls
-     * on the callback may be dispatched multiple times - one for each PagedList/DataSource
-     * pair. If loading network data from a BoundaryCallback, you should prevent multiple
-     * dispatches of the same method from triggering multiple simultaneous network loads.
+     * Note that when using a BoundaryCallback with a `Observable<PagedList>`, method calls on the
+     * callback may be dispatched multiple times - one for each PagedList/DataSource pair. If
+     * loading network data from a BoundaryCallback, you should prevent multiple dispatches of the
+     * same method from triggering multiple simultaneous network loads.
      *
      * @param boundaryCallback The boundary callback for listening to PagedList load state.
      * @return this
@@ -260,7 +256,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * receiving PagedLists will also receive the internal updates to the PagedList.
      *
      * @param scheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
-     * calls are dispatched. Generally, this is the UI/main thread.
+     *   calls are dispatched. Generally, this is the UI/main thread.
      * @return this
      */
     fun setNotifyScheduler(scheduler: Scheduler) = apply {
@@ -277,7 +273,7 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      * The built [Observable] / [Flowable] will be subscribed on this scheduler.
      *
      * @param scheduler [Scheduler] used to fetch from DataSources, generally a background thread
-     * pool for e.g. I/O or network loading.
+     *   pool for e.g. I/O or network loading.
      * @return this
      */
     fun setFetchScheduler(scheduler: Scheduler) = apply {
@@ -295,23 +291,22 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      */
     @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
-        val notifyScheduler = notifyScheduler
-            ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
+        val notifyScheduler =
+            notifyScheduler ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
         val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
 
-        val fetchScheduler = fetchScheduler
-            ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
+        val fetchScheduler =
+            fetchScheduler ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
         val fetchDispatcher = fetchDispatcher ?: fetchScheduler.asCoroutineDispatcher()
 
-        val pagingSourceFactory = pagingSourceFactory
-            ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
+        val pagingSourceFactory =
+            pagingSourceFactory ?: dataSourceFactory?.asPagingSourceFactory(fetchDispatcher)
 
         check(pagingSourceFactory != null) {
             "RxPagedList cannot be built without a PagingSourceFactory or DataSource.Factory"
         }
 
-        return Observable
-            .create(
+        return Observable.create(
                 PagingObservableOnSubscribe(
                     initialLoadKey,
                     config,
@@ -354,20 +349,19 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
         private var currentJob: Job? = null
         private lateinit var emitter: ObservableEmitter<PagedList<Value>>
 
-        private val callback = {
-            invalidate(true)
-        }
+        private val callback = { invalidate(true) }
 
         private val refreshRetryCallback = Runnable { invalidate(true) }
 
         init {
-            currentData = InitialPagedList(
-                coroutineScope = GlobalScope,
-                notifyDispatcher = notifyDispatcher,
-                backgroundDispatcher = fetchDispatcher,
-                config = config,
-                initialLastKey = initialLoadKey
-            )
+            currentData =
+                InitialPagedList(
+                    coroutineScope = GlobalScope,
+                    notifyDispatcher = notifyDispatcher,
+                    backgroundDispatcher = fetchDispatcher,
+                    config = config,
+                    initialLastKey = initialLoadKey
+                )
             currentData.setRetryCallback(refreshRetryCallback)
         }
 
@@ -392,52 +386,53 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
             if (currentJob != null && !force) return
 
             currentJob?.cancel()
-            currentJob = GlobalScope.launch(fetchDispatcher) {
-                currentData.pagingSource.unregisterInvalidatedCallback(callback)
-                val pagingSource = pagingSourceFactory()
-                pagingSource.registerInvalidatedCallback(callback)
-                if (pagingSource is LegacyPagingSource) {
-                    pagingSource.setPageSize(config.pageSize)
-                }
+            currentJob =
+                GlobalScope.launch(fetchDispatcher) {
+                    currentData.pagingSource.unregisterInvalidatedCallback(callback)
+                    val pagingSource = pagingSourceFactory()
+                    pagingSource.registerInvalidatedCallback(callback)
+                    if (pagingSource is LegacyPagingSource) {
+                        pagingSource.setPageSize(config.pageSize)
+                    }
 
-                withContext(notifyDispatcher) {
-                    currentData.setInitialLoadState(LoadType.REFRESH, Loading)
-                }
+                    withContext(notifyDispatcher) {
+                        currentData.setInitialLoadState(LoadType.REFRESH, Loading)
+                    }
 
-                @Suppress("UNCHECKED_CAST")
-                val lastKey = currentData.lastKey as Key?
-                val params = config.toRefreshLoadParams(lastKey)
-                when (val initialResult = pagingSource.load(params)) {
-                    is PagingSource.LoadResult.Invalid -> {
-                        currentData.setInitialLoadState(
-                            LoadType.REFRESH,
-                            LoadState.NotLoading(endOfPaginationReached = false)
-                        )
-                        pagingSource.invalidate()
-                    }
-                    is PagingSource.LoadResult.Error -> {
-                        currentData.setInitialLoadState(
-                            LoadType.REFRESH,
-                            LoadState.Error(initialResult.throwable)
-                        )
-                    }
-                    is PagingSource.LoadResult.Page -> {
-                        val pagedList = PagedList.create(
-                            pagingSource,
-                            initialResult,
-                            GlobalScope,
-                            notifyDispatcher,
-                            fetchDispatcher,
-                            boundaryCallback,
-                            config,
-                            lastKey
-                        )
-                        onItemUpdate(currentData, pagedList)
-                        currentData = pagedList
-                        emitter.onNext(pagedList)
+                    @Suppress("UNCHECKED_CAST") val lastKey = currentData.lastKey as Key?
+                    val params = config.toRefreshLoadParams(lastKey)
+                    when (val initialResult = pagingSource.load(params)) {
+                        is PagingSource.LoadResult.Invalid -> {
+                            currentData.setInitialLoadState(
+                                LoadType.REFRESH,
+                                LoadState.NotLoading(endOfPaginationReached = false)
+                            )
+                            pagingSource.invalidate()
+                        }
+                        is PagingSource.LoadResult.Error -> {
+                            currentData.setInitialLoadState(
+                                LoadType.REFRESH,
+                                LoadState.Error(initialResult.throwable)
+                            )
+                        }
+                        is PagingSource.LoadResult.Page -> {
+                            val pagedList =
+                                PagedList.create(
+                                    pagingSource,
+                                    initialResult,
+                                    GlobalScope,
+                                    notifyDispatcher,
+                                    fetchDispatcher,
+                                    boundaryCallback,
+                                    config,
+                                    lastKey
+                                )
+                            onItemUpdate(currentData, pagedList)
+                            currentData = pagedList
+                            emitter.onNext(pagedList)
+                        }
                     }
                 }
-            }
         }
 
         private fun onItemUpdate(previous: PagedList<Value>, next: PagedList<Value>) {

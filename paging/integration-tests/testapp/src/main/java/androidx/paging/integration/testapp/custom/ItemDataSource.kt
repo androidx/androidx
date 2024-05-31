@@ -25,9 +25,7 @@ import kotlinx.coroutines.delay
 
 val dataSourceError = AtomicBoolean(false)
 
-/**
- * Sample position-based PagingSource with artificial data.
- */
+/** Sample position-based PagingSource with artificial data. */
 internal class ItemDataSource : PagingSource<Int, Item>() {
     class RetryableItemError : Exception()
 
@@ -44,31 +42,19 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
                 )
             is LoadParams.Prepend -> {
                 val loadSize = minOf(params.key, params.loadSize)
-                loadInternal(
-                    position = params.key - loadSize,
-                    loadSize = loadSize
-                )
+                loadInternal(position = params.key - loadSize, loadSize = loadSize)
             }
-            is LoadParams.Append ->
-                loadInternal(
-                    position = params.key,
-                    loadSize = params.loadSize
-                )
+            is LoadParams.Append -> loadInternal(position = params.key, loadSize = params.loadSize)
         }
 
-    private suspend fun loadInternal(
-        position: Int,
-        loadSize: Int
-    ): LoadResult<Int, Item> {
+    private suspend fun loadInternal(position: Int, loadSize: Int): LoadResult<Int, Item> {
         delay(1000)
         if (dataSourceError.compareAndSet(true, false)) {
             return LoadResult.Error(RetryableItemError())
         } else {
             val bgColor = COLORS[generationId % COLORS.size]
             val endExclusive = (position + loadSize).coerceAtMost(COUNT)
-            val data = (position until endExclusive).map {
-                Item(it, "item $it", bgColor)
-            }
+            val data = (position until endExclusive).map { Item(it, "item $it", bgColor) }
 
             return LoadResult.Page(
                 data = data,
@@ -83,8 +69,7 @@ internal class ItemDataSource : PagingSource<Int, Item>() {
     companion object {
         private const val COUNT = 60
 
-        @ColorInt
-        private val COLORS = intArrayOf(Color.RED, Color.BLUE, Color.BLACK)
+        @ColorInt private val COLORS = intArrayOf(Color.RED, Color.BLUE, Color.BLACK)
         private var sGenerationId: Int = 0
     }
 }

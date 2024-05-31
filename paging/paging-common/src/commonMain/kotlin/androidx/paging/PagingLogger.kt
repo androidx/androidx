@@ -26,6 +26,7 @@ public const val LOG_TAG: String = "Paging"
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public expect object PagingLogger {
     public fun isLoggable(level: Int): Boolean
+
     public fun log(level: Int, message: String, tr: Throwable? = null)
 }
 

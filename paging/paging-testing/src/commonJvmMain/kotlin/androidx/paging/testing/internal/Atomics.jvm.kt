@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+
 package androidx.paging.testing.internal
 
 internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger

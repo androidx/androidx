@@ -26,15 +26,15 @@ import androidx.paging.integration.testapp.R
 import androidx.paging.integration.testapp.room.Customer
 import androidx.recyclerview.widget.RecyclerView
 
-class V3RoomAdapter : PagingDataAdapter<Customer, RecyclerView.ViewHolder>(
-    diffCallback = Customer.DIFF_CALLBACK
-) {
+class V3RoomAdapter :
+    PagingDataAdapter<Customer, RecyclerView.ViewHolder>(diffCallback = Customer.DIFF_CALLBACK) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return object : RecyclerView.ViewHolder(TextView(parent.context)) {}
-            .apply<RecyclerView.ViewHolder> {
-                itemView.minimumHeight = 150
-                itemView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-            }
+        return object : RecyclerView.ViewHolder(TextView(parent.context)) {}.apply<
+            RecyclerView.ViewHolder
+        > {
+            itemView.minimumHeight = 150
+            itemView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

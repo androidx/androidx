@@ -20,14 +20,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * Adapter for displaying a RecyclerView item based on [LoadState], such as a loading spinner, or
- * a retry error button.
+ * Adapter for displaying a RecyclerView item based on [LoadState], such as a loading spinner, or a
+ * retry error button.
  *
- * By default will use one shared [view type][RecyclerView.Adapter.getItemViewType] for all
- * items.
+ * By default will use one shared [view type][RecyclerView.Adapter.getItemViewType] for all items.
  *
- * By default, both [LoadState.Loading] and [LoadState.Error] are presented as adapter items,
- * other states are not. To configure this, override [displayLoadStateAsItem].
+ * By default, both [LoadState.Loading] and [LoadState.Error] are presented as adapter items, other
+ * states are not. To configure this, override [displayLoadStateAsItem].
  *
  * To present this Adapter as a header and or footer alongside your [PagingDataAdapter], see
  * [PagingDataAdapter.withLoadStateHeaderAndFooter], or use
@@ -78,10 +77,9 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
     /**
      * Called to create a ViewHolder for the given LoadState.
      *
-     * @param parent The ViewGroup into which the new View will be added after it is bound to
-     *               an adapter position.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an
+     *   adapter position.
      * @param loadState The LoadState to be initially presented by the new ViewHolder.
-     *
      * @see [getItemViewType]
      * @see [displayLoadStateAsItem]
      */
@@ -92,7 +90,6 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
      *
      * @param holder the ViewHolder to bind to
      * @param loadState LoadState to display.
-     *
      * @see [getItemViewType]
      * @see [displayLoadStateAsItem]
      */

@@ -33,8 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 
 /**
- * [RecyclerView.Adapter] base class for presenting paged data from [PagingData]s in
- * a [RecyclerView].
+ * [RecyclerView.Adapter] base class for presenting paged data from [PagingData]s in a
+ * [RecyclerView].
  *
  * This class is a convenience wrapper around [AsyncPagingDataDiffer] that implements common default
  * behavior for item counting, and listening to update events.
@@ -53,10 +53,10 @@ import kotlinx.coroutines.flow.Flow
  * *State Restoration*: To be able to restore [RecyclerView] state (e.g. scroll position) after a
  * configuration change / application recreate, [PagingDataAdapter] calls
  * [RecyclerView.Adapter.setStateRestorationPolicy] with
- * [RecyclerView.Adapter.StateRestorationPolicy.PREVENT] upon initialization and waits for the
- * first page to load before allowing state restoration.
- * Any other call to [RecyclerView.Adapter.setStateRestorationPolicy] by the application will
- * disable this logic and will rely on the user set value.
+ * [RecyclerView.Adapter.StateRestorationPolicy.PREVENT] upon initialization and waits for the first
+ * page to load before allowing state restoration. Any other call to
+ * [RecyclerView.Adapter.setStateRestorationPolicy] by the application will disable this logic and
+ * will rely on the user set value.
  *
  * @sample androidx.paging.samples.pagingDataAdapterSample
  */
@@ -64,14 +64,14 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder>
 /**
  * Construct a [PagingDataAdapter].
  *
- * @param mainDispatcher [CoroutineContext] where UI events are dispatched. Typically, this should be
- * [Dispatchers.Main].
- * @param workerDispatcher [CoroutineContext] where the work to generate UI events is dispatched, for
- * example when diffing lists on [REFRESH]. Typically, this should have a background
- * [CoroutineDispatcher] set; [Dispatchers.Default] by default.
+ * @param mainDispatcher [CoroutineContext] where UI events are dispatched. Typically, this should
+ *   be [Dispatchers.Main].
+ * @param workerDispatcher [CoroutineContext] where the work to generate UI events is dispatched,
+ *   for example when diffing lists on [REFRESH]. Typically, this should have a background
+ *   [CoroutineDispatcher] set; [Dispatchers.Default] by default.
  * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
- * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster path
- * for generating the UI events required to display the new list.
+ *   [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
+ *   path for generating the UI events required to display the new list.
  */
 @JvmOverloads
 constructor(
@@ -84,10 +84,10 @@ constructor(
      * Construct a [PagingDataAdapter].
      *
      * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
-     * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
-     * path for generating the UI events required to display the new list.
-     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically,
-     * this should be [Dispatchers.Main].
+     *   [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
+     *   path for generating the UI events required to display the new list.
+     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically, this
+     *   should be [Dispatchers.Main].
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
@@ -109,13 +109,13 @@ constructor(
      * Construct a [PagingDataAdapter].
      *
      * @param diffCallback Callback for calculating the diff between two non-disjoint lists on
-     * [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
-     * path for generating the UI events required to display the new list.
-     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically,
-     * this should be [Dispatchers.Main].
+     *   [REFRESH]. Used as a fallback for item-level diffing when Paging is unable to find a faster
+     *   path for generating the UI events required to display the new list.
+     * @param mainDispatcher [CoroutineDispatcher] where UI events are dispatched. Typically, this
+     *   should be [Dispatchers.Main].
      * @param workerDispatcher [CoroutineDispatcher] where the work to generate UI events is
-     * dispatched, for example when diffing lists on [REFRESH]. Typically, this should dispatch on a
-     * background thread; [Dispatchers.Default] by default.
+     *   dispatched, for example when diffing lists on [REFRESH]. Typically, this should dispatch on
+     *   a background thread; [Dispatchers.Default] by default.
      */
     @Deprecated(
         message = "Superseded by constructors which accept CoroutineContext",
@@ -145,12 +145,13 @@ constructor(
         super.setStateRestorationPolicy(strategy)
     }
 
-    private val differ = AsyncPagingDataDiffer(
-        diffCallback = diffCallback,
-        updateCallback = AdapterListUpdateCallback(this),
-        mainDispatcher = mainDispatcher,
-        workerDispatcher = workerDispatcher
-    )
+    private val differ =
+        AsyncPagingDataDiffer(
+            diffCallback = diffCallback,
+            updateCallback = AdapterListUpdateCallback(this),
+            mainDispatcher = mainDispatcher,
+            workerDispatcher = workerDispatcher
+        )
 
     init {
         // Wait on state restoration until the first insert event.
@@ -165,30 +166,34 @@ constructor(
         // Watch for adapter insert before triggering state restoration. This is almost redundant
         // with loadState below, but can handle cached case.
         @Suppress("LeakingThis")
-        registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                considerAllowingStateRestoration()
-                unregisterAdapterDataObserver(this)
-                super.onItemRangeInserted(positionStart, itemCount)
+        registerAdapterDataObserver(
+            object : RecyclerView.AdapterDataObserver() {
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    considerAllowingStateRestoration()
+                    unregisterAdapterDataObserver(this)
+                    super.onItemRangeInserted(positionStart, itemCount)
+                }
             }
-        })
+        )
 
         // Watch for loadState update before triggering state restoration. This is almost
         // redundant with data observer above, but can handle empty page case.
-        addLoadStateListener(object : Function1<CombinedLoadStates, Unit> {
-            // Ignore the first event we get, which is always the initial state, since we only
-            // want to observe for Insert events.
-            private var ignoreNextEvent = true
+        addLoadStateListener(
+            object : Function1<CombinedLoadStates, Unit> {
+                // Ignore the first event we get, which is always the initial state, since we only
+                // want to observe for Insert events.
+                private var ignoreNextEvent = true
 
-            override fun invoke(loadStates: CombinedLoadStates) {
-                if (ignoreNextEvent) {
-                    ignoreNextEvent = false
-                } else if (loadStates.source.refresh is NotLoading) {
-                    considerAllowingStateRestoration()
-                    removeLoadStateListener(this)
+                override fun invoke(loadStates: CombinedLoadStates) {
+                    if (ignoreNextEvent) {
+                        ignoreNextEvent = false
+                    } else if (loadStates.source.refresh is NotLoading) {
+                        considerAllowingStateRestoration()
+                        removeLoadStateListener(this)
+                    }
                 }
             }
-        })
+        )
     }
 
     /**
@@ -208,9 +213,8 @@ constructor(
      * result in an [UnsupportedOperationException].
      *
      * @param hasStableIds Whether items in data set have unique identifiers or not.
-     *
      * @throws UnsupportedOperationException Always thrown, since this is unsupported by
-     * [PagingDataAdapter].
+     *   [PagingDataAdapter].
      */
     final override fun setHasStableIds(hasStableIds: Boolean) {
         throw UnsupportedOperationException("Stable ids are unsupported on PagingDataAdapter.")
@@ -247,6 +251,7 @@ constructor(
      * via [CoroutineScope][kotlinx.coroutines.CoroutineScope] instead of relying of [Lifecycle].
      *
      * @sample androidx.paging.samples.submitDataLiveDataSample
+     *
      * @sample androidx.paging.samples.submitDataRxSample
      *
      * @see submitData
@@ -264,8 +269,8 @@ constructor(
      * within the same generation of [PagingData].
      *
      * [LoadState.Error] can be generated from two types of load requests:
-     *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
-     *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
+     * * [PagingSource.load] returning [PagingSource.LoadResult.Error]
+     * * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     fun retry() {
         differ.retry()
@@ -298,8 +303,7 @@ constructor(
      * @param position Index of the presented item to return, including placeholders.
      * @return The presented item at [position], `null` if it is a placeholder
      */
-    @MainThread
-    protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
+    @MainThread protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
 
     /**
      * Returns the presented item at the specified position, without notifying Paging of the item
@@ -308,8 +312,7 @@ constructor(
      * @param index Index of the presented item to return, including placeholders.
      * @return The presented item at position [index], `null` if it is a placeholder.
      */
-    @MainThread
-    fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
+    @MainThread fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
 
     /**
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
@@ -323,28 +326,27 @@ constructor(
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
      * current [PagingData] changes.
      *
-     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and
-     * immediately delivers the current load states on collection.
+     * This flow is conflated, so it buffers the last update to [CombinedLoadStates] and immediately
+     * delivers the current load states on collection.
      */
     val loadStateFlow: Flow<CombinedLoadStates> = differ.loadStateFlow
 
     /**
-     * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
-     * actual items presented don't change.
+     * A hot [Flow] that emits after the pages presented to the UI are updated, even if the actual
+     * items presented don't change.
      *
      * An update is triggered from one of the following:
-     *   * [submitData] is called and initial load completes, regardless of any differences in
-     *     the loaded data
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     * * [submitData] is called and initial load completes, regardless of any differences in the
+     *   loaded data
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
      *
-     * Note: This is a [SharedFlow][kotlinx.coroutines.flow.SharedFlow] configured to replay
-     * 0 items with a buffer of size 64. If a collector lags behind page updates, it may
-     * trigger multiple times for each intermediate update that was presented while your collector
-     * was still working. To avoid this behavior, you can
-     * [conflate][kotlinx.coroutines.flow.conflate] this [Flow] so that you only receive the latest
-     * update, which is useful in cases where you are simply updating UI and don't care about
-     * tracking the exact number of page updates.
+     * Note: This is a [SharedFlow][kotlinx.coroutines.flow.SharedFlow] configured to replay 0 items
+     * with a buffer of size 64. If a collector lags behind page updates, it may trigger multiple
+     * times for each intermediate update that was presented while your collector was still working.
+     * To avoid this behavior, you can [conflate][kotlinx.coroutines.flow.conflate] this [Flow] so
+     * that you only receive the latest update, which is useful in cases where you are simply
+     * updating UI and don't care about tracking the exact number of page updates.
      */
     val onPagesUpdatedFlow: Flow<Unit> = differ.onPagesUpdatedFlow
 
@@ -355,8 +357,8 @@ constructor(
      * reflect the current [CombinedLoadStates].
      *
      * @param listener [LoadStates] listener to receive updates.
-     *
      * @see removeLoadStateListener
+     *
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
     fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
@@ -378,13 +380,12 @@ constructor(
      * actual items presented don't change.
      *
      * An update is triggered from one of the following:
-     *   * [submitData] is called and initial load completes, regardless of any differences in
-     *     the loaded data
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
-     *   * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
+     * * [submitData] is called and initial load completes, regardless of any differences in the
+     *   loaded data
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is inserted
+     * * A [Page][androidx.paging.PagingSource.LoadResult.Page] is dropped
      *
      * @param listener called after pages presented are updated.
-     *
      * @see removeOnPagesUpdatedListener
      */
     fun addOnPagesUpdatedListener(listener: () -> Unit) {
@@ -392,11 +393,10 @@ constructor(
     }
 
     /**
-     * Remove a previously registered listener for new [PagingData] generations completing
-     * initial load and presenting to the UI.
+     * Remove a previously registered listener for new [PagingData] generations completing initial
+     * load and presenting to the UI.
      *
      * @param listener Previously registered listener.
-     *
      * @see addOnPagesUpdatedListener
      */
     fun removeOnPagesUpdatedListener(listener: () -> Unit) {
@@ -411,12 +411,8 @@ constructor(
      * @see withLoadStateHeaderAndFooter
      * @see withLoadStateFooter
      */
-    fun withLoadStateHeader(
-        header: LoadStateAdapter<*>
-    ): ConcatAdapter {
-        addLoadStateListener { loadStates ->
-            header.loadState = loadStates.prepend
-        }
+    fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
+        addLoadStateListener { loadStates -> header.loadState = loadStates.prepend }
         return ConcatAdapter(header, this)
     }
 
@@ -428,12 +424,8 @@ constructor(
      * @see withLoadStateHeaderAndFooter
      * @see withLoadStateHeader
      */
-    fun withLoadStateFooter(
-        footer: LoadStateAdapter<*>
-    ): ConcatAdapter {
-        addLoadStateListener { loadStates ->
-            footer.loadState = loadStates.append
-        }
+    fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
+        addLoadStateListener { loadStates -> footer.loadState = loadStates.append }
         return ConcatAdapter(this, footer)
     }
 

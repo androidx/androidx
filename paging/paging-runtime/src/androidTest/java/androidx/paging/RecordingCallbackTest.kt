@@ -31,11 +31,14 @@ class RecordingCallbackTest {
         val recordingCallback = RecordingCallback()
 
         @Suppress("DEPRECATION")
-        val failCallback = object : PagedList.Callback() {
-            override fun onChanged(position: Int, count: Int) = fail("not expected")
-            override fun onInserted(position: Int, count: Int) = fail("not expected")
-            override fun onRemoved(position: Int, count: Int) = fail("not expected")
-        }
+        val failCallback =
+            object : PagedList.Callback() {
+                override fun onChanged(position: Int, count: Int) = fail("not expected")
+
+                override fun onInserted(position: Int, count: Int) = fail("not expected")
+
+                override fun onRemoved(position: Int, count: Int) = fail("not expected")
+            }
 
         // nothing recorded, verify nothing dispatched
         recordingCallback.dispatchRecordingTo(failCallback)
@@ -46,28 +49,29 @@ class RecordingCallbackTest {
 
         var inc = 0
         @Suppress("DEPRECATION")
-        val verifyCallback = object : PagedList.Callback() {
-            override fun onChanged(position: Int, count: Int) {
-                assertEquals(inc, 0)
-                assertEquals(position, 1)
-                assertEquals(count, 2)
-                inc += 1
-            }
+        val verifyCallback =
+            object : PagedList.Callback() {
+                override fun onChanged(position: Int, count: Int) {
+                    assertEquals(inc, 0)
+                    assertEquals(position, 1)
+                    assertEquals(count, 2)
+                    inc += 1
+                }
 
-            override fun onInserted(position: Int, count: Int) {
-                assertEquals(inc, 1)
-                assertEquals(position, 3)
-                assertEquals(count, 4)
-                inc += 1
-            }
+                override fun onInserted(position: Int, count: Int) {
+                    assertEquals(inc, 1)
+                    assertEquals(position, 3)
+                    assertEquals(count, 4)
+                    inc += 1
+                }
 
-            override fun onRemoved(position: Int, count: Int) {
-                assertEquals(inc, 2)
-                assertEquals(position, 5)
-                assertEquals(count, 6)
-                inc += 1
+                override fun onRemoved(position: Int, count: Int) {
+                    assertEquals(inc, 2)
+                    assertEquals(position, 5)
+                    assertEquals(count, 6)
+                    inc += 1
+                }
             }
-        }
         recordingCallback.dispatchRecordingTo(verifyCallback)
         assertEquals(3, inc)
 

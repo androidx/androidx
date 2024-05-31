@@ -33,30 +33,32 @@ import org.junit.runners.JUnit4
 class ListenableFutureRemoteMediatorTest {
     @Test
     fun initializeFuture() = runTest {
-        val remoteMediator = object : ListenableFutureRemoteMediator<Int, Int>() {
-            override fun loadFuture(
-                loadType: LoadType,
-                state: PagingState<Int, Int>
-            ): ListenableFuture<MediatorResult> {
-                fail("Unexpected call")
-            }
+        val remoteMediator =
+            object : ListenableFutureRemoteMediator<Int, Int>() {
+                override fun loadFuture(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>
+                ): ListenableFuture<MediatorResult> {
+                    fail("Unexpected call")
+                }
 
-            override fun initializeFuture() = Futures.immediateFuture(SKIP_INITIAL_REFRESH)
-        }
+                override fun initializeFuture() = Futures.immediateFuture(SKIP_INITIAL_REFRESH)
+            }
 
         assertEquals(SKIP_INITIAL_REFRESH, remoteMediator.initialize())
     }
 
     @Test
     fun initializeFutureDefault() = runTest {
-        val remoteMediator = object : ListenableFutureRemoteMediator<Int, Int>() {
-            override fun loadFuture(
-                loadType: LoadType,
-                state: PagingState<Int, Int>
-            ): ListenableFuture<MediatorResult> {
-                fail("Unexpected call")
+        val remoteMediator =
+            object : ListenableFutureRemoteMediator<Int, Int>() {
+                override fun loadFuture(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>
+                ): ListenableFuture<MediatorResult> {
+                    fail("Unexpected call")
+                }
             }
-        }
 
         assertEquals(LAUNCH_INITIAL_REFRESH, remoteMediator.initialize())
     }

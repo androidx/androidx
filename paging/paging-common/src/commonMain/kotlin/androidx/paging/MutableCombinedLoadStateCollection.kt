@@ -46,18 +46,17 @@ internal class MutableCombinedLoadStateCollection {
         }
 
     // load states are de-duplicated
-    fun set(type: LoadType, remote: Boolean, state: LoadState) =
-        dispatchNewState { currState ->
-            var source = currState?.source ?: LoadStates.IDLE
-            var mediator = currState?.mediator
+    fun set(type: LoadType, remote: Boolean, state: LoadState) = dispatchNewState { currState ->
+        var source = currState?.source ?: LoadStates.IDLE
+        var mediator = currState?.mediator
 
-            if (remote) {
-                mediator = LoadStates.IDLE.modifyState(type, state)
-            } else {
-                source = source.modifyState(type, state)
-            }
-            computeNewState(currState, source, mediator)
+        if (remote) {
+            mediator = LoadStates.IDLE.modifyState(type, state)
+        } else {
+            source = source.modifyState(type, state)
         }
+        computeNewState(currState, source, mediator)
+    }
 
     fun get(type: LoadType, remote: Boolean): LoadState? {
         val state = _stateFlow.value
@@ -81,15 +80,15 @@ internal class MutableCombinedLoadStateCollection {
     }
 
     /**
-     * Computes and dispatches the new CombinedLoadStates. No-op if new value is same as
-     * previous value.
+     * Computes and dispatches the new CombinedLoadStates. No-op if new value is same as previous
+     * value.
      *
      * We manually de-duplicate emissions to StateFlow and to listeners even though
      * [MutableStateFlow.update] de-duplicates automatically in that duplicated values are set but
      * not sent to collectors. However it doesn't indicate whether the new value is indeed a
-     * duplicate or not, so we still need to manually compare previous/updated values before
-     * sending to listeners. Because of that, we manually de-dupe both stateFlow and listener
-     * emissions to ensure they are in sync.
+     * duplicate or not, so we still need to manually compare previous/updated values before sending
+     * to listeners. Because of that, we manually de-dupe both stateFlow and listener emissions to
+     * ensure they are in sync.
      */
     private fun dispatchNewState(
         computeNewState: (currState: CombinedLoadStates?) -> CombinedLoadStates
@@ -113,25 +112,27 @@ internal class MutableCombinedLoadStateCollection {
         newSource: LoadStates,
         newRemote: LoadStates?
     ): CombinedLoadStates {
-        val refresh = computeHelperState(
-            previousState = previousState?.refresh ?: NotLoading.Incomplete,
-            sourceRefreshState = newSource.refresh,
-            sourceState = newSource.refresh,
-            remoteState = newRemote?.refresh
-
-        )
-        val prepend = computeHelperState(
-            previousState = previousState?.prepend ?: NotLoading.Incomplete,
-            sourceRefreshState = newSource.refresh,
-            sourceState = newSource.prepend,
-            remoteState = newRemote?.prepend
-        )
-        val append = computeHelperState(
-            previousState = previousState?.append ?: NotLoading.Incomplete,
-            sourceRefreshState = newSource.refresh,
-            sourceState = newSource.append,
-            remoteState = newRemote?.append
-        )
+        val refresh =
+            computeHelperState(
+                previousState = previousState?.refresh ?: NotLoading.Incomplete,
+                sourceRefreshState = newSource.refresh,
+                sourceState = newSource.refresh,
+                remoteState = newRemote?.refresh
+            )
+        val prepend =
+            computeHelperState(
+                previousState = previousState?.prepend ?: NotLoading.Incomplete,
+                sourceRefreshState = newSource.refresh,
+                sourceState = newSource.prepend,
+                remoteState = newRemote?.prepend
+            )
+        val append =
+            computeHelperState(
+                previousState = previousState?.append ?: NotLoading.Incomplete,
+                sourceRefreshState = newSource.refresh,
+                sourceState = newSource.append,
+                remoteState = newRemote?.append
+            )
 
         return CombinedLoadStates(
             refresh = refresh,
@@ -143,11 +144,11 @@ internal class MutableCombinedLoadStateCollection {
     }
 
     /**
-     * Computes the next value for the convenience helpers in [CombinedLoadStates], which
-     * generally defers to remote state, but waits for both source and remote states to become
-     * [NotLoading] before moving to that state. This provides a reasonable default for the common
-     * use-case where you generally want to wait for both RemoteMediator to return and for the
-     * update to get applied before signaling to UI that a network fetch has "finished".
+     * Computes the next value for the convenience helpers in [CombinedLoadStates], which generally
+     * defers to remote state, but waits for both source and remote states to become [NotLoading]
+     * before moving to that state. This provides a reasonable default for the common use-case where
+     * you generally want to wait for both RemoteMediator to return and for the update to get
+     * applied before signaling to UI that a network fetch has "finished".
      */
     private fun computeHelperState(
         previousState: LoadState,
@@ -158,11 +159,12 @@ internal class MutableCombinedLoadStateCollection {
         if (remoteState == null) return sourceState
 
         return when (previousState) {
-            is Loading -> when {
-                sourceRefreshState is NotLoading && remoteState is NotLoading -> remoteState
-                remoteState is Error -> remoteState
-                else -> previousState
-            }
+            is Loading ->
+                when {
+                    sourceRefreshState is NotLoading && remoteState is NotLoading -> remoteState
+                    remoteState is Error -> remoteState
+                    else -> previousState
+                }
             else -> remoteState
         }
     }

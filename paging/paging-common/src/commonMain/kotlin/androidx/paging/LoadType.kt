@@ -27,18 +27,14 @@ package androidx.paging
  */
 public enum class LoadType {
     /**
-     * [PagingData] content being refreshed, which can be a result of [PagingSource]
-     * invalidation, refresh that may contain content updates, or the initial load.
+     * [PagingData] content being refreshed, which can be a result of [PagingSource] invalidation,
+     * refresh that may contain content updates, or the initial load.
      */
     REFRESH,
 
-    /**
-     * Load at the start of a [PagingData].
-     */
+    /** Load at the start of a [PagingData]. */
     PREPEND,
 
-    /**
-     * Load at the end of a [PagingData].
-     */
+    /** Load at the end of a [PagingData]. */
     APPEND
 }

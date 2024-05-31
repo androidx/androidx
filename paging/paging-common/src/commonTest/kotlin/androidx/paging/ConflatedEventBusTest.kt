@@ -31,52 +31,34 @@ class ConflatedEventBusTest {
     @Test
     fun noInitialValue() {
         val bus = ConflatedEventBus<Unit>(null)
-        val collector = bus.createCollector().also {
-            it.start()
-        }
+        val collector = bus.createCollector().also { it.start() }
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).isEmpty()
+        assertThat(collector.values).isEmpty()
         bus.send(Unit)
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(Unit)
+        assertThat(collector.values).containsExactly(Unit)
     }
 
     @Test
     fun withInitialValue() {
         val bus = ConflatedEventBus<Int>(1)
-        val collector = bus.createCollector().also {
-            it.start()
-        }
+        val collector = bus.createCollector().also { it.start() }
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(1)
+        assertThat(collector.values).containsExactly(1)
         bus.send(2)
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(1, 2)
+        assertThat(collector.values).containsExactly(1, 2)
     }
 
     @Test
     fun allowDuplicateValues() {
         val bus = ConflatedEventBus<Int>(1)
-        val collector = bus.createCollector().also {
-            it.start()
-        }
+        val collector = bus.createCollector().also { it.start() }
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(1)
+        assertThat(collector.values).containsExactly(1)
         bus.send(1)
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(1, 1)
+        assertThat(collector.values).containsExactly(1, 1)
     }
 
     @Test
@@ -87,28 +69,20 @@ class ConflatedEventBusTest {
         bus.send(2)
         collector.start()
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(2)
+        assertThat(collector.values).containsExactly(2)
         bus.send(3)
         testScope.runCurrent()
-        assertThat(
-            collector.values
-        ).containsExactly(2, 3)
+        assertThat(collector.values).containsExactly(2, 3)
     }
 
     @Test
     fun multipleCollectors() {
         val bus = ConflatedEventBus(1)
-        val c1 = bus.createCollector().also {
-            it.start()
-        }
+        val c1 = bus.createCollector().also { it.start() }
         testScope.runCurrent()
         bus.send(2)
         testScope.runCurrent()
-        val c2 = bus.createCollector().also {
-            it.start()
-        }
+        val c2 = bus.createCollector().also { it.start() }
         testScope.runCurrent()
         assertThat(c1.values).containsExactly(1, 2)
         assertThat(c2.values).containsExactly(2)
@@ -133,11 +107,7 @@ class ConflatedEventBusTest {
             get() = _values
 
         fun start() {
-            scope.launch {
-                bus.flow.collect {
-                    _values.add(it)
-                }
-            }
+            scope.launch { bus.flow.collect { _values.add(it) } }
         }
     }
 }

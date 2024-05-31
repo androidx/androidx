@@ -37,9 +37,8 @@ import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
 
 /**
- * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
- * is represented as kotlin.Int on darwin platforms and kotlin.UInt on linuxX64
- * See: // https://youtrack.jetbrains.com/issue/KT-41509
+ * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which is represented as kotlin.Int on darwin
+ * platforms and kotlin.UInt on linuxX64 See: // https://youtrack.jetbrains.com/issue/KT-41509
  */
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
@@ -116,19 +115,22 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
 internal actual class CopyOnWriteArrayList<T> : Iterable<T> {
     private var data: List<T> = emptyList()
     private val lock = ReentrantLock()
+
     actual override fun iterator(): Iterator<T> {
         return data.iterator()
     }
 
-    actual fun add(value: T) = lock.withLock {
-        data = data + value
-        true
-    }
+    actual fun add(value: T) =
+        lock.withLock {
+            data = data + value
+            true
+        }
 
-    actual fun remove(value: T): Boolean = lock.withLock {
-        val newList = data.toMutableList()
-        val result = newList.remove(value)
-        data = newList
-        result
-    }
+    actual fun remove(value: T): Boolean =
+        lock.withLock {
+            val newList = data.toMutableList()
+            val result = newList.remove(value)
+            data = newList
+            result
+        }
 }

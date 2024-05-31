@@ -56,15 +56,15 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * We are only capable of restoring state if one the two is valid:
- * a) pager's flow is cached in the view model (only for config change)
- * b) data source is counted and placeholders are enabled (both config change and app restart)
+ * We are only capable of restoring state if one the two is valid: a) pager's flow is cached in the
+ * view model (only for config change) b) data source is counted and placeholders are enabled (both
+ * config change and app restart)
  *
- * Both of these cases actually work without using the initial key, except it is relatively
- * slower in option B because we need to load all items from initial key to the required position.
+ * Both of these cases actually work without using the initial key, except it is relatively slower
+ * in option B because we need to load all items from initial key to the required position.
  *
- * This test validates those two cases for now. For more complicated cases, we need some helper
- * as developer needs to intervene to provide more information.
+ * This test validates those two cases for now. For more complicated cases, we need some helper as
+ * developer needs to intervene to provide more information.
  */
 @ExperimentalCoroutinesApi
 @ExperimentalTime
@@ -72,10 +72,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class StateRestorationTest {
     /**
-     * List of dispatchers we track in the test for idling + pushing execution.
-     * We have 3 dispatchers for more granular control:
-     * main, and background for pager.
-     * testScope for running tests.
+     * List of dispatchers we track in the test for idling + pushing execution. We have 3
+     * dispatchers for more granular control: main, and background for pager. testScope for running
+     * tests.
      */
     private val scheduler = TestCoroutineScheduler()
     private val mainDispatcher = StandardTestDispatcher(scheduler)
@@ -98,12 +97,7 @@ class StateRestorationTest {
     @Test
     fun restoreState_withPlaceholders() {
         runTest {
-            collectPagesAsync(
-                createPager(
-                    pageSize = 100,
-                    enablePlaceholders = true
-                ).flow
-            )
+            collectPagesAsync(createPager(pageSize = 100, enablePlaceholders = true).flow)
             measureAndLayout()
             val visible = recyclerView.captureSnapshot()
             assertThat(visible).isNotEmpty()
@@ -111,36 +105,22 @@ class StateRestorationTest {
             val expected = recyclerView.captureSnapshot()
             saveAndRestore()
             // make sure state is not restored before items are loaded
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
             // pause item loads
-            val delayedJob = launch(start = CoroutineStart.LAZY) {
-                collectPagesAsync(
-                    createPager(
-                        pageSize = 10,
-                        enablePlaceholders = true
-                    ).flow
-                )
-            }
+            val delayedJob =
+                launch(start = CoroutineStart.LAZY) {
+                    collectPagesAsync(createPager(pageSize = 10, enablePlaceholders = true).flow)
+                }
             measureAndLayout()
             // item load is paused, still shouldn't restore state
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
 
             // now load items
             delayedJob.start()
 
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isTrue()
-            assertThat(
-                recyclerView.captureSnapshot()
-            ).containsExactlyElementsIn(
-                expected
-            )
+            assertThat(layoutManager.restoredState).isTrue()
+            assertThat(recyclerView.captureSnapshot()).containsExactlyElementsIn(expected)
         }
     }
 
@@ -148,10 +128,7 @@ class StateRestorationTest {
     @Test
     fun restoreState_withoutPlaceholders_cachedIn() {
         runTest {
-            val pager = createPager(
-                pageSize = 60,
-                enablePlaceholders = false
-            )
+            val pager = createPager(pageSize = 60, enablePlaceholders = false)
             val cacheScope = TestScope(Job() + scheduler)
             val cachedFlow = pager.flow.cachedIn(cacheScope)
             collectPagesAsync(cachedFlow)
@@ -160,14 +137,10 @@ class StateRestorationTest {
             scrollToPosition(50)
             val snapshot = recyclerView.captureSnapshot()
             saveAndRestore()
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
             collectPagesAsync(cachedFlow)
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isTrue()
+            assertThat(layoutManager.restoredState).isTrue()
             val restoredSnapshot = recyclerView.captureSnapshot()
             assertThat(restoredSnapshot).containsExactlyElementsIn(snapshot)
             cacheScope.cancel()
@@ -179,21 +152,14 @@ class StateRestorationTest {
     fun emptyNewPage_allowRestoration() {
         // check that we don't block restoration indefinitely if new pager is empty.
         runTest {
-            val pager = createPager(
-                pageSize = 60,
-                enablePlaceholders = true
-            )
+            val pager = createPager(pageSize = 60, enablePlaceholders = true)
             collectPagesAsync(pager.flow)
             measureAndLayout()
             scrollToPosition(50)
             saveAndRestore()
             assertThat(layoutManager.restoredState).isFalse()
 
-            val emptyPager = createPager(
-                pageSize = 10,
-                itemCount = 0,
-                enablePlaceholders = true
-            )
+            val emptyPager = createPager(pageSize = 10, itemCount = 0, enablePlaceholders = true)
             collectPagesAsync(emptyPager.flow)
             measureAndLayout()
             assertThat(layoutManager.restoredState).isTrue()
@@ -204,35 +170,25 @@ class StateRestorationTest {
     @Test
     fun userOverridesStateRestoration() {
         runTest {
-            val pager = createPager(
-                pageSize = 40,
-                enablePlaceholders = true
-            )
+            val pager = createPager(pageSize = 40, enablePlaceholders = true)
             collectPagesAsync(pager.flow)
             measureAndLayout()
             scrollToPosition(20)
             val snapshot = recyclerView.captureSnapshot()
             saveAndRestore()
-            val pager2 = createPager(
-                pageSize = 40,
-                enablePlaceholders = true
-            )
+            val pager2 = createPager(pageSize = 40, enablePlaceholders = true)
             // when user calls prevent, we should not trigger state restoration even after we
             // receive the first page
             adapter.stateRestorationPolicy = PREVENT
             collectPagesAsync(pager2.flow)
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isFalse()
+            assertThat(layoutManager.restoredState).isFalse()
             // make sure test did work as expected, that is, new items are loaded
             assertThat(adapter.itemCount).isGreaterThan(0)
             // now if user allows it, restoration should happen properly
             adapter.stateRestorationPolicy = ALLOW
             measureAndLayout()
-            assertThat(
-                layoutManager.restoredState
-            ).isTrue()
+            assertThat(layoutManager.restoredState).isTrue()
             assertThat(recyclerView.captureSnapshot()).isEqualTo(snapshot)
         }
     }
@@ -242,9 +198,7 @@ class StateRestorationTest {
         if (this::lifecycleScope.isInitialized) {
             this.lifecycleScope.cancel()
         }
-        lifecycleScope = TestScope(
-            SupervisorJob() + mainDispatcher
-        )
+        lifecycleScope = TestScope(SupervisorJob() + mainDispatcher)
         val context = ApplicationProvider.getApplicationContext<Application>()
         recyclerView = TestRecyclerView(context)
         recyclerView.itemAnimator = null
@@ -268,14 +222,10 @@ class StateRestorationTest {
         recyclerView.scrollToPosition(pos)
         measureAndLayout()
         val child = layoutManager.findViewByPosition(pos)
-        assertWithMessage("scrolled child $pos exists")
-            .that(child)
-            .isNotNull()
+        assertWithMessage("scrolled child $pos exists").that(child).isNotNull()
 
         val vh = recyclerView.getChildViewHolder(child!!) as ItemViewHolder
-        assertWithMessage("scrolled child should be fully loaded")
-            .that(vh.item)
-            .isNotNull()
+        assertWithMessage("scrolled child should be fully loaded").that(vh.item).isNotNull()
     }
 
     private fun measureAndLayout() {
@@ -313,20 +263,12 @@ class StateRestorationTest {
                     lifecycleScope.cancel()
                 }
             }
-    }
-
-    /**
-     * collects pages in the lifecycle scope and sends them to the adapter
-     */
-    private fun collectPagesAsync(
-        flow: Flow<PagingData<Item>>
-    ) {
-        val targetAdapter = adapter
-        lifecycleScope.launch {
-            flow.collectLatest {
-                targetAdapter.submitData(it)
-            }
         }
+
+    /** collects pages in the lifecycle scope and sends them to the adapter */
+    private fun collectPagesAsync(flow: Flow<PagingData<Item>>) {
+        val targetAdapter = adapter
+        lifecycleScope.launch { flow.collectLatest { targetAdapter.submitData(it) } }
     }
 
     private fun createPager(
@@ -336,10 +278,11 @@ class StateRestorationTest {
         initialKey: Int? = null
     ): Pager<Int, Item> {
         return Pager(
-            config = PagingConfig(
-                pageSize = pageSize,
-                enablePlaceholders = enablePlaceholders,
-            ),
+            config =
+                PagingConfig(
+                    pageSize = pageSize,
+                    enablePlaceholders = enablePlaceholders,
+                ),
             initialKey = initialKey,
             pagingSourceFactory = {
                 ItemPagingSource(
@@ -350,9 +293,7 @@ class StateRestorationTest {
         )
     }
 
-    /**
-     * Returns the list of all visible items in the recyclerview including their locations.
-     */
+    /** Returns the list of all visible items in the recyclerview including their locations. */
     private fun RecyclerView.captureSnapshot(): List<PositionSnapshot> {
         return (0 until childCount).mapNotNull {
             val child = getChildAt(it)
@@ -380,11 +321,7 @@ class StateRestorationTest {
 
         fun captureSnapshot(): PositionSnapshot {
             val item = checkNotNull(item)
-            return PositionSnapshot(
-                item = item,
-                top = itemView.top,
-                bottom = itemView.bottom
-            )
+            return PositionSnapshot(item = item, top = itemView.top, bottom = itemView.bottom)
         }
 
         fun bindTo(item: Item?) {
@@ -394,28 +331,27 @@ class StateRestorationTest {
         }
     }
 
-    data class Item(
-        val id: Int,
-        val height: Int = (RV_HEIGHT / 10) + (1 + (id % 10))
-    ) {
+    data class Item(val id: Int, val height: Int = (RV_HEIGHT / 10) + (1 + (id % 10))) {
         companion object {
-            val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Item>() {
-                override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
-                    return oldItem.id == newItem.id
-                }
+            val DIFF_CALLBACK =
+                object : DiffUtil.ItemCallback<Item>() {
+                    override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
+                        return oldItem.id == newItem.id
+                    }
 
-                override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
-                    return oldItem == newItem
+                    override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
+                        return oldItem == newItem
+                    }
                 }
-            }
         }
     }
 
-    inner class TestAdapter : PagingDataAdapter<Item, ItemViewHolder>(
-        diffCallback = Item.DIFF_CALLBACK,
-        mainDispatcher = mainDispatcher,
-        workerDispatcher = backgroundDispatcher
-    ) {
+    inner class TestAdapter :
+        PagingDataAdapter<Item, ItemViewHolder>(
+            diffCallback = Item.DIFF_CALLBACK,
+            mainDispatcher = mainDispatcher,
+            workerDispatcher = backgroundDispatcher
+        ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             return ItemViewHolder(parent.context)
         }
@@ -427,10 +363,8 @@ class StateRestorationTest {
         fun triggerItemLoad(pos: Int) = super.getItem(pos)
     }
 
-    class ItemPagingSource(
-        private val context: CoroutineContext,
-        private val items: List<Item>
-    ) : PagingSource<Int, Item>() {
+    class ItemPagingSource(private val context: CoroutineContext, private val items: List<Item>) :
+        PagingSource<Int, Item>() {
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
             return withContext(context) {
                 val key = params.key ?: 0
@@ -451,18 +385,10 @@ class StateRestorationTest {
         override fun getRefreshKey(state: PagingState<Int, Item>): Int? = null
     }
 
-    /**
-     * Snapshot of an item in RecyclerView.
-     */
-    data class PositionSnapshot(
-        val item: Item,
-        val top: Int,
-        val bottom: Int
-    )
+    /** Snapshot of an item in RecyclerView. */
+    data class PositionSnapshot(val item: Item, val top: Int, val bottom: Int)
 
-    /**
-     * RecyclerView class that allows saving and restoring state.
-     */
+    /** RecyclerView class that allows saving and restoring state. */
     class TestRecyclerView(context: Context) : RecyclerView(context) {
         fun restoreState(state: Parcelable) {
             super.onRestoreInstanceState(state)
@@ -478,6 +404,7 @@ class StateRestorationTest {
      */
     class RestoreAwareLayoutManager(context: Context) : LinearLayoutManager(context) {
         var restoredState = false
+
         override fun onRestoreInstanceState(state: Parcelable) {
             super.onRestoreInstanceState(state)
             restoredState = true

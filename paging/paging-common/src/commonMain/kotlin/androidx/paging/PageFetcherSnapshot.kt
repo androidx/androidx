@@ -49,9 +49,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 /**
- * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance
- * of [PageFetcherSnapshot] and its corresponding [PageFetcherSnapshotState] should be launched
- * within a scope that is cancelled when [PagingSource.invalidate] is called.
+ * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance of
+ * [PageFetcherSnapshot] and its corresponding [PageFetcherSnapshotState] should be launched within
+ * a scope that is cancelled when [PagingSource.invalidate] is called.
  */
 internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     internal val initialKey: Key?,
@@ -77,113 +77,124 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
     private val pageEventChannelFlowJob = Job()
 
-    val pageEventFlow: Flow<PageEvent<Value>> = cancelableChannelFlow<PageEvent<Value>>(
-        pageEventChannelFlowJob
-    ) {
-        check(pageEventChCollected.compareAndSet(false, true)) {
-            "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
-                "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
-        }
-
-        // Start collection on pageEventCh, which the rest of this class uses to send PageEvents
-        // to this flow.
-        launch {
-            pageEventCh.consumeAsFlow().collect {
-                // Protect against races where a subsequent call to submitData invoked close(),
-                // but a pageEvent arrives after closing causing ClosedSendChannelException.
-                try {
-                    send(it)
-                } catch (e: ClosedSendChannelException) {
-                    // Safe to drop PageEvent here, since collection has been cancelled.
+    val pageEventFlow: Flow<PageEvent<Value>> =
+        cancelableChannelFlow<PageEvent<Value>>(pageEventChannelFlowJob) {
+                check(pageEventChCollected.compareAndSet(false, true)) {
+                    "Attempt to collect twice from pageEventFlow, which is an illegal operation. Did you " +
+                        "forget to call Flow<PagingData<*>>.cachedIn(coroutineScope)?"
                 }
-            }
-        }
 
-        // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from buffering
-        // retry signals.
-        val retryChannel = Channel<Unit>(Channel.RENDEZVOUS)
-        launch { retryFlow.collect { retryChannel.trySend(it) } }
-
-        // Start collection on retry signals.
-        launch {
-            retryChannel.consumeAsFlow()
-                .collect {
-                    val (sourceLoadStates, remotePagingState) = stateHolder.withLock { state ->
-                        state.sourceLoadStates.snapshot() to state.currentPagingState(
-                            hintHandler.lastAccessHint
-                        )
-                    }
-                    // tell remote mediator to retry and it will trigger necessary work / change
-                    // its state as necessary.
-                    remoteMediatorConnection?.retryFailed(remotePagingState)
-                    // change source (local) states
-                    sourceLoadStates.forEach { loadType, loadState ->
-                        if (loadState !is Error) return@forEach
-
-                        // Reset error state before sending hint.
-                        if (loadType != REFRESH) {
-                            stateHolder.withLock { state -> state.setLoading(loadType) }
+                // Start collection on pageEventCh, which the rest of this class uses to send
+                // PageEvents
+                // to this flow.
+                launch {
+                    pageEventCh.consumeAsFlow().collect {
+                        // Protect against races where a subsequent call to submitData invoked
+                        // close(),
+                        // but a pageEvent arrives after closing causing ClosedSendChannelException.
+                        try {
+                            send(it)
+                        } catch (e: ClosedSendChannelException) {
+                            // Safe to drop PageEvent here, since collection has been cancelled.
                         }
+                    }
+                }
 
-                        retryLoadError(
-                            loadType = loadType,
-                            viewportHint = when (loadType) {
-                                // ViewportHint is only used when retrying source PREPEND / APPEND.
-                                REFRESH -> null
-                                else -> stateHolder.withLock { state ->
-                                    state.failedHintsByLoadType[loadType]
+                // Wrap collection behind a RendezvousChannel to prevent the RetryChannel from
+                // buffering
+                // retry signals.
+                val retryChannel = Channel<Unit>(Channel.RENDEZVOUS)
+                launch { retryFlow.collect { retryChannel.trySend(it) } }
+
+                // Start collection on retry signals.
+                launch {
+                    retryChannel.consumeAsFlow().collect {
+                        val (sourceLoadStates, remotePagingState) =
+                            stateHolder.withLock { state ->
+                                state.sourceLoadStates.snapshot() to
+                                    state.currentPagingState(hintHandler.lastAccessHint)
+                            }
+                        // tell remote mediator to retry and it will trigger necessary work / change
+                        // its state as necessary.
+                        remoteMediatorConnection?.retryFailed(remotePagingState)
+                        // change source (local) states
+                        sourceLoadStates.forEach { loadType, loadState ->
+                            if (loadState !is Error) return@forEach
+
+                            // Reset error state before sending hint.
+                            if (loadType != REFRESH) {
+                                stateHolder.withLock { state -> state.setLoading(loadType) }
+                            }
+
+                            retryLoadError(
+                                loadType = loadType,
+                                viewportHint =
+                                    when (loadType) {
+                                        // ViewportHint is only used when retrying source PREPEND /
+                                        // APPEND.
+                                        REFRESH -> null
+                                        else ->
+                                            stateHolder.withLock { state ->
+                                                state.failedHintsByLoadType[loadType]
+                                            }
+                                    }
+                            )
+
+                            // If retrying REFRESH from PagingSource succeeds, start collection on
+                            // ViewportHints for PREPEND / APPEND loads.
+                            if (loadType == REFRESH) {
+                                val newRefreshState =
+                                    stateHolder.withLock { state ->
+                                        state.sourceLoadStates.get(REFRESH)
+                                    }
+
+                                if (newRefreshState !is Error) {
+                                    startConsumingHints()
                                 }
                             }
-                        )
-
-                        // If retrying REFRESH from PagingSource succeeds, start collection on
-                        // ViewportHints for PREPEND / APPEND loads.
-                        if (loadType == REFRESH) {
-                            val newRefreshState = stateHolder.withLock { state ->
-                                state.sourceLoadStates.get(REFRESH)
-                            }
-
-                            if (newRefreshState !is Error) {
-                                startConsumingHints()
-                            }
                         }
                     }
                 }
-        }
 
-        // NOTE: We always try to enqueue on init, but this request will only go through if
-        // [RemoteMediatorConnection.refreshEnabled] is `true`. It is important for it to be done
-        // this way to ensure that we always have a valid [LoadStates] for [PagingSource] before we
-        // trigger remote load, in case remote emits multiple [LoadStates] before [PagingSource]
-        // starts, which would cause us to drop remote [LoadStates] emissions since we wait for
-        // valid events from both.
-        remoteMediatorConnection?.let {
-            val pagingState = previousPagingState ?: stateHolder.withLock { state ->
-                state.currentPagingState(null)
+                // NOTE: We always try to enqueue on init, but this request will only go through if
+                // [RemoteMediatorConnection.refreshEnabled] is `true`. It is important for it to be
+                // done
+                // this way to ensure that we always have a valid [LoadStates] for [PagingSource]
+                // before we
+                // trigger remote load, in case remote emits multiple [LoadStates] before
+                // [PagingSource]
+                // starts, which would cause us to drop remote [LoadStates] emissions since we wait
+                // for
+                // valid events from both.
+                remoteMediatorConnection?.let {
+                    val pagingState =
+                        previousPagingState
+                            ?: stateHolder.withLock { state -> state.currentPagingState(null) }
+                    it.requestRefreshIfAllowed(pagingState)
+                }
+
+                // Setup finished, start the initial load even if RemoteMediator throws an error.
+                doInitialLoad()
+
+                // Only start collection on ViewportHints if the initial load succeeded.
+                if (
+                    stateHolder.withLock { state -> state.sourceLoadStates.get(REFRESH) } !is Error
+                ) {
+                    startConsumingHints()
+                }
             }
-            it.requestRefreshIfAllowed(pagingState)
-        }
-
-        // Setup finished, start the initial load even if RemoteMediator throws an error.
-        doInitialLoad()
-
-        // Only start collection on ViewportHints if the initial load succeeded.
-        if (stateHolder.withLock { state -> state.sourceLoadStates.get(REFRESH) } !is Error) {
-            startConsumingHints()
-        }
-    }.onStart {
-        // Immediately emit the initial load state when creating a new generation to give
-        // PageFetcher a real event from source side as soon as possible. This allows PageFetcher
-        // to operate on this stream in a way that waits for a real event (for example, by using
-        // Flow.combine) without the consequence of getting "stuck".
-        emit(LoadStateUpdate(stateHolder.withLock { it.sourceLoadStates.snapshot() }))
-    }
+            .onStart {
+                // Immediately emit the initial load state when creating a new generation to give
+                // PageFetcher a real event from source side as soon as possible. This allows
+                // PageFetcher
+                // to operate on this stream in a way that waits for a real event (for example, by
+                // using
+                // Flow.combine) without the consequence of getting "stuck".
+                emit(LoadStateUpdate(stateHolder.withLock { it.sourceLoadStates.snapshot() }))
+            }
 
     @Suppress("SuspendFunctionOnCoroutineScope")
-    private suspend fun retryLoadError(
-        loadType: LoadType,
-        viewportHint: ViewportHint?
-    ) {
+    private suspend fun retryLoadError(loadType: LoadType, viewportHint: ViewportHint?) {
         when (loadType) {
             REFRESH -> {
                 doInitialLoad()
@@ -216,8 +227,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         // Pseudo-tiling via invalidation on jumps.
         if (config.jumpThreshold != COUNT_UNDEFINED) {
             launch {
-                val jumpHint = merge(hintHandler.hintFor(APPEND), hintHandler.hintFor(PREPEND))
-                    .firstOrNull { hint ->
+                val jumpHint =
+                    merge(hintHandler.hintFor(APPEND), hintHandler.hintFor(PREPEND)).firstOrNull {
+                        hint ->
                         hint.presentedItemsBefore * -1 > config.jumpThreshold ||
                             hint.presentedItemsAfter * -1 > config.jumpThreshold
                     }
@@ -229,56 +241,60 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
 
         launch {
-            stateHolder.withLock { state -> state.consumePrependGenerationIdAsFlow() }
+            stateHolder
+                .withLock { state -> state.consumePrependGenerationIdAsFlow() }
                 .collectAsGenerationalViewportHints(PREPEND)
         }
 
         launch {
-            stateHolder.withLock { state -> state.consumeAppendGenerationIdAsFlow() }
+            stateHolder
+                .withLock { state -> state.consumeAppendGenerationIdAsFlow() }
                 .collectAsGenerationalViewportHints(APPEND)
         }
     }
 
     /**
      * Maps a [Flow] of generation ids from [PageFetcherSnapshotState] to [ViewportHint]s from
-     * [hintHandler] with back-pressure handling via conflation by prioritizing hints which
-     * either update presenter state or those that would load the most items.
+     * [hintHandler] with back-pressure handling via conflation by prioritizing hints which either
+     * update presenter state or those that would load the most items.
      *
      * @param loadType [PREPEND] or [APPEND]
      */
-    private suspend fun Flow<Int>.collectAsGenerationalViewportHints(
-        loadType: LoadType
-    ) = simpleFlatMapLatest { generationId ->
-        // Reset state to Idle and setup a new flow for consuming incoming load hints.
-        // Subsequent generationIds are normally triggered by cancellation.
-        stateHolder.withLock { state ->
-            // Skip this generationId of loads if there is no more to load in this
-            // direction. In the case of the terminal page getting dropped, a new
-            // generationId will be sent after load state is updated to Idle.
-            if (state.sourceLoadStates.get(loadType) == NotLoading.Complete) {
-                return@simpleFlatMapLatest flowOf()
-            } else if (state.sourceLoadStates.get(loadType) !is Error) {
-                state.sourceLoadStates.set(loadType, NotLoading.Incomplete)
+    private suspend fun Flow<Int>.collectAsGenerationalViewportHints(loadType: LoadType) =
+        simpleFlatMapLatest { generationId ->
+                // Reset state to Idle and setup a new flow for consuming incoming load hints.
+                // Subsequent generationIds are normally triggered by cancellation.
+                stateHolder.withLock { state ->
+                    // Skip this generationId of loads if there is no more to load in this
+                    // direction. In the case of the terminal page getting dropped, a new
+                    // generationId will be sent after load state is updated to Idle.
+                    if (state.sourceLoadStates.get(loadType) == NotLoading.Complete) {
+                        return@simpleFlatMapLatest flowOf()
+                    } else if (state.sourceLoadStates.get(loadType) !is Error) {
+                        state.sourceLoadStates.set(loadType, NotLoading.Incomplete)
+                    }
+                }
+
+                hintHandler
+                    .hintFor(loadType)
+                    // Prevent infinite loop when competing PREPEND / APPEND cancel each other
+                    .drop(if (generationId == 0) 0 else 1)
+                    .map { hint -> GenerationalViewportHint(generationId, hint) }
             }
-        }
+            .simpleRunningReduce { previous, next ->
+                // Prioritize new hints that would load the maximum number of items.
+                if (next.shouldPrioritizeOver(previous, loadType)) next else previous
+            }
+            .conflate()
+            .collect { generationalHint -> doLoad(loadType, generationalHint) }
 
-        hintHandler.hintFor(loadType)
-            // Prevent infinite loop when competing PREPEND / APPEND cancel each other
-            .drop(if (generationId == 0) 0 else 1)
-            .map { hint -> GenerationalViewportHint(generationId, hint) }
-    }.simpleRunningReduce { previous, next ->
-        // Prioritize new hints that would load the maximum number of items.
-        if (next.shouldPrioritizeOver(previous, loadType)) next else previous
-    }.conflate().collect { generationalHint ->
-        doLoad(loadType, generationalHint)
-    }
-
-    private fun loadParams(loadType: LoadType, key: Key?) = LoadParams.create(
-        loadType = loadType,
-        key = key,
-        loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
-        placeholdersEnabled = config.enablePlaceholders,
-    )
+    private fun loadParams(loadType: LoadType, key: Key?) =
+        LoadParams.create(
+            loadType = loadType,
+            key = key,
+            loadSize = if (loadType == REFRESH) config.initialLoadSize else config.pageSize,
+            placeholdersEnabled = config.enablePlaceholders,
+        )
 
     private suspend fun doInitialLoad() {
         stateHolder.withLock { state -> state.setLoading(REFRESH) }
@@ -291,29 +307,21 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             is Page<Key, Value> -> {
                 // Atomically update load states + pages while still holding the mutex, otherwise
                 // remote state can race here and lead to confusing load states.
-                val insertApplied = stateHolder.withLock { state ->
-                    val insertApplied = state.insert(0, REFRESH, result)
+                val insertApplied =
+                    stateHolder.withLock { state ->
+                        val insertApplied = state.insert(0, REFRESH, result)
 
-                    // Update loadStates which are sent along with this load's Insert PageEvent.
-                    state.sourceLoadStates.set(
-                        type = REFRESH,
-                        state = NotLoading.Incomplete
-                    )
-                    if (result.prevKey == null) {
-                        state.sourceLoadStates.set(
-                            type = PREPEND,
-                            state = NotLoading.Complete
-                        )
-                    }
-                    if (result.nextKey == null) {
-                        state.sourceLoadStates.set(
-                            type = APPEND,
-                            state = NotLoading.Complete
-                        )
-                    }
+                        // Update loadStates which are sent along with this load's Insert PageEvent.
+                        state.sourceLoadStates.set(type = REFRESH, state = NotLoading.Incomplete)
+                        if (result.prevKey == null) {
+                            state.sourceLoadStates.set(type = PREPEND, state = NotLoading.Complete)
+                        }
+                        if (result.nextKey == null) {
+                            state.sourceLoadStates.set(type = APPEND, state = NotLoading.Complete)
+                        }
 
-                    insertApplied
-                }
+                        insertApplied
+                    }
 
                 // Send insert event after load state updates, so that endOfPaginationReached is
                 // correctly reflected in the insert event. Note that we only send the event if the
@@ -322,9 +330,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     log(DEBUG) { loadResultLog(REFRESH, initialKey, result) }
 
                     stateHolder.withLock { state ->
-                        with(state) {
-                            pageEventCh.send(result.toPageEvent(REFRESH))
-                        }
+                        with(state) { pageEventCh.send(result.toPageEvent(REFRESH)) }
                     }
                 } else {
                     log(VERBOSE) { loadResultLog(REFRESH, initialKey, null) }
@@ -333,9 +339,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 // Launch any RemoteMediator boundary calls after applying initial insert.
                 if (remoteMediatorConnection != null) {
                     if (result.prevKey == null || result.nextKey == null) {
-                        val pagingState = stateHolder.withLock { state ->
-                            state.currentPagingState(hintHandler.lastAccessHint)
-                        }
+                        val pagingState =
+                            stateHolder.withLock { state ->
+                                state.currentPagingState(hintHandler.lastAccessHint)
+                            }
 
                         if (result.prevKey == null) {
                             remoteMediatorConnection.requestLoad(PREPEND, pagingState)
@@ -362,10 +369,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     }
 
     // TODO: Consider making this a transform operation which emits PageEvents
-    private suspend fun doLoad(
-        loadType: LoadType,
-        generationalHint: GenerationalViewportHint
-    ) {
+    private suspend fun doLoad(loadType: LoadType, generationalHint: GenerationalViewportHint) {
         require(loadType != REFRESH) { "Use doInitialLoad for LoadType == REFRESH" }
 
         // If placeholder counts differ between the hint and PageFetcherSnapshotState, then
@@ -407,13 +411,16 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
         }
 
-        var loadKey: Key? = stateHolder.withLock { state ->
-            state.nextLoadKeyOrNull(
-                loadType,
-                generationalHint.generationId,
-                generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
-            )?.also { state.setLoading(loadType) }
-        }
+        var loadKey: Key? =
+            stateHolder.withLock { state ->
+                state
+                    .nextLoadKeyOrNull(
+                        loadType,
+                        generationalHint.generationId,
+                        generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+                    )
+                    ?.also { state.setLoading(loadType) }
+            }
 
         // Keep track of whether endOfPaginationReached so we can update LoadState accordingly when
         // this load loop terminates due to fulfilling prefetchDistance.
@@ -426,13 +433,15 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 is Page<Key, Value> -> {
                     // First, check for common error case where the same key is re-used to load
                     // new pages, often resulting in infinite loops.
-                    val nextKey = when (loadType) {
-                        PREPEND -> result.prevKey
-                        APPEND -> result.nextKey
-                        else -> throw IllegalArgumentException(
-                            "Use doInitialLoad for LoadType == REFRESH"
-                        )
-                    }
+                    val nextKey =
+                        when (loadType) {
+                            PREPEND -> result.prevKey
+                            APPEND -> result.nextKey
+                            else ->
+                                throw IllegalArgumentException(
+                                    "Use doInitialLoad for LoadType == REFRESH"
+                                )
+                        }
 
                     check(pagingSource.keyReuseSupported || nextKey != loadKey) {
                         val keyFieldName = if (loadType == PREPEND) "prevKey" else "nextKey"
@@ -440,12 +449,14 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                             | sequential Pages loaded from a PagingSource. Re-using load keys in
                             | PagingSource is often an error, and must be explicitly enabled by
                             | overriding PagingSource.keyReuseSupported.
-                            """.trimMargin()
+                            """
+                            .trimMargin()
                     }
 
-                    val insertApplied = stateHolder.withLock { state ->
-                        state.insert(generationalHint.generationId, loadType, result)
-                    }
+                    val insertApplied =
+                        stateHolder.withLock { state ->
+                            state.insert(generationalHint.generationId, loadType, result)
+                        }
 
                     // Break if insert was skipped due to cancellation
                     if (!insertApplied) {
@@ -459,8 +470,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
 
                     // Set endOfPaginationReached to false if no more data to load in current
                     // direction.
-                    if ((loadType == PREPEND && result.prevKey == null) ||
-                        (loadType == APPEND && result.nextKey == null)
+                    if (
+                        (loadType == PREPEND && result.prevKey == null) ||
+                            (loadType == APPEND && result.nextKey == null)
                     ) {
                         endOfPaginationReached = true
                     }
@@ -484,10 +496,11 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
             }
 
-            val dropType = when (loadType) {
-                PREPEND -> APPEND
-                else -> PREPEND
-            }
+            val dropType =
+                when (loadType) {
+                    PREPEND -> APPEND
+                    else -> PREPEND
+                }
 
             stateHolder.withLock { state ->
                 state.dropEventOrNull(dropType, generationalHint.hint)?.let { event ->
@@ -495,28 +508,28 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                     pageEventCh.send(event)
                 }
 
-                loadKey = state.nextLoadKeyOrNull(
-                    loadType,
-                    generationalHint.generationId,
-                    generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
-                )
+                loadKey =
+                    state.nextLoadKeyOrNull(
+                        loadType,
+                        generationalHint.generationId,
+                        generationalHint.hint.presentedItemsBeyondAnchor(loadType) + itemsLoaded,
+                    )
 
                 // Update load state to success if this is the final load result for this
                 // load hint, and only if we didn't error out.
                 if (loadKey == null && state.sourceLoadStates.get(loadType) !is Error) {
                     state.sourceLoadStates.set(
                         type = loadType,
-                        state = when {
-                            endOfPaginationReached -> NotLoading.Complete
-                            else -> NotLoading.Incomplete
-                        }
+                        state =
+                            when {
+                                endOfPaginationReached -> NotLoading.Complete
+                                else -> NotLoading.Incomplete
+                            }
                     )
                 }
 
                 // Send page event for successful insert, now that PagerState has been updated.
-                val pageEvent = with(state) {
-                    result.toPageEvent(loadType)
-                }
+                val pageEvent = with(state) { result.toPageEvent(loadType) }
 
                 pageEventCh.send(pageEvent)
             }
@@ -524,9 +537,10 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             val endsPrepend = params is LoadParams.Prepend && result.prevKey == null
             val endsAppend = params is LoadParams.Append && result.nextKey == null
             if (remoteMediatorConnection != null && (endsPrepend || endsAppend)) {
-                val pagingState = stateHolder.withLock { state ->
-                    state.currentPagingState(hintHandler.lastAccessHint)
-                }
+                val pagingState =
+                    stateHolder.withLock { state ->
+                        state.currentPagingState(hintHandler.lastAccessHint)
+                    }
 
                 if (endsPrepend) {
                     remoteMediatorConnection.requestLoad(PREPEND, pagingState)
@@ -578,9 +592,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         }
     }
 
-    /**
-     * The next load key for a [loadType] or `null` if we should stop loading in that direction.
-     */
+    /** The next load key for a [loadType] or `null` if we should stop loading in that direction. */
     private fun PageFetcherSnapshotState<Key, Value>.nextLoadKeyOrNull(
         loadType: LoadType,
         generationId: Int,
@@ -621,8 +633,7 @@ internal data class GenerationalViewportHint(val generationId: Int, val hint: Vi
  * [PageFetcherSnapshot] to load more items.
  *
  * @param previous [GenerationalViewportHint] that would normally be processed next if [this]
- * [GenerationalViewportHint] was not sent.
- *
+ *   [GenerationalViewportHint] was not sent.
  * @return `true` if [this] [GenerationalViewportHint] should be prioritized over [previous].
  */
 internal fun GenerationalViewportHint.shouldPrioritizeOver(

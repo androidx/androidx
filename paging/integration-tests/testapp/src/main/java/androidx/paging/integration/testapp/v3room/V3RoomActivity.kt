@@ -37,11 +37,7 @@ class V3RoomActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
         recyclerView.adapter = adapter
 
-        lifecycleScope.launch {
-            viewModel.flow.collectLatest {
-                adapter.submitData(it)
-            }
-        }
+        lifecycleScope.launch { viewModel.flow.collectLatest { adapter.submitData(it) } }
 
         val addButton = findViewById<Button>(R.id.addButton)
         addButton.setOnClickListener { viewModel.insertCustomer() }

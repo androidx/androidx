@@ -19,59 +19,53 @@ package androidx.paging
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.TestPagingSource.Companion.ITEMS
 
-internal fun createRefresh(
-    range: IntRange,
-    combinedLoadStates: CombinedLoadStates
-) = PageEvent.Insert.Refresh(
-    pages = pages(0, range),
-    placeholdersBefore = range.first.coerceAtLeast(0),
-    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    sourceLoadStates = combinedLoadStates.source,
-    mediatorLoadStates = combinedLoadStates.mediator,
-)
+internal fun createRefresh(range: IntRange, combinedLoadStates: CombinedLoadStates) =
+    PageEvent.Insert.Refresh(
+        pages = pages(0, range),
+        placeholdersBefore = range.first.coerceAtLeast(0),
+        placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
+        sourceLoadStates = combinedLoadStates.source,
+        mediatorLoadStates = combinedLoadStates.mediator,
+    )
 
 internal fun createRefresh(
     range: IntRange,
     startState: LoadState = NotLoading.Incomplete,
     endState: LoadState = NotLoading.Incomplete
-) = PageEvent.Insert.Refresh(
-    pages = pages(0, range),
-    placeholdersBefore = range.first.coerceAtLeast(0),
-    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    sourceLoadStates = loadStates(prepend = startState, append = endState),
-    mediatorLoadStates = null,
-)
+) =
+    PageEvent.Insert.Refresh(
+        pages = pages(0, range),
+        placeholdersBefore = range.first.coerceAtLeast(0),
+        placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
+        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        mediatorLoadStates = null,
+    )
 
 internal fun createPrepend(
     pageOffset: Int,
     range: IntRange,
     startState: LoadState = NotLoading.Incomplete,
     endState: LoadState = NotLoading.Incomplete
-) = PageEvent.Insert.Prepend(
-    pages = pages(pageOffset, range),
-    placeholdersBefore = range.first.coerceAtLeast(0),
-    sourceLoadStates = loadStates(prepend = startState, append = endState),
-    mediatorLoadStates = null,
-)
+) =
+    PageEvent.Insert.Prepend(
+        pages = pages(pageOffset, range),
+        placeholdersBefore = range.first.coerceAtLeast(0),
+        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        mediatorLoadStates = null,
+    )
 
 internal fun createAppend(
     pageOffset: Int,
     range: IntRange,
     startState: LoadState = NotLoading.Incomplete,
     endState: LoadState = NotLoading.Incomplete
-) = PageEvent.Insert.Append(
-    pages = pages(pageOffset, range),
-    placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
-    sourceLoadStates = loadStates(prepend = startState, append = endState),
-    mediatorLoadStates = null,
-)
-
-private fun pages(
-    pageOffset: Int,
-    range: IntRange
-) = listOf(
-    TransformablePage(
-        originalPageOffset = pageOffset,
-        data = ITEMS.slice(range)
+) =
+    PageEvent.Insert.Append(
+        pages = pages(pageOffset, range),
+        placeholdersAfter = (ITEMS.size - range.last - 1).coerceAtLeast(0),
+        sourceLoadStates = loadStates(prepend = startState, append = endState),
+        mediatorLoadStates = null,
     )
-)
+
+private fun pages(pageOffset: Int, range: IntRange) =
+    listOf(TransformablePage(originalPageOffset = pageOffset, data = ITEMS.slice(range)))

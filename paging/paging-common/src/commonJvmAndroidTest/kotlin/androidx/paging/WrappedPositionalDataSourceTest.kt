@@ -26,15 +26,15 @@ class WrappedPositionalDataSourceTest {
         val dataSource = WrapperPositionalDataSource(TestPositionalDataSource(listOf(0))) { it }
 
         var kotlinInvalidated = false
-        dataSource.addInvalidatedCallback {
-            kotlinInvalidated = true
-        }
+        dataSource.addInvalidatedCallback { kotlinInvalidated = true }
         var javaInvalidated = false
-        dataSource.addInvalidatedCallback(object : DataSource.InvalidatedCallback {
-            override fun onInvalidated() {
-                javaInvalidated = true
+        dataSource.addInvalidatedCallback(
+            object : DataSource.InvalidatedCallback {
+                override fun onInvalidated() {
+                    javaInvalidated = true
+                }
             }
-        })
+        )
 
         dataSource.invalidate()
         assertTrue { dataSource.isInvalid }

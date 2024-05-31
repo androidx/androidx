@@ -90,11 +90,12 @@ class PageKeyedDataSourceTest {
         val dispatcher = UnconfinedTestDispatcher()
         val testCoroutineScope = CoroutineScope(dispatcher)
         @Suppress("DEPRECATION")
-        val pagedList = PagedList.Builder(ItemDataSource(), 100)
-            .setCoroutineScope(testCoroutineScope)
-            .setNotifyDispatcher(dispatcher)
-            .setFetchDispatcher(dispatcher)
-            .build()
+        val pagedList =
+            PagedList.Builder(ItemDataSource(), 100)
+                .setCoroutineScope(testCoroutineScope)
+                .setNotifyDispatcher(dispatcher)
+                .setFetchDispatcher(dispatcher)
+                .build()
 
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
@@ -113,35 +114,35 @@ class PageKeyedDataSourceTest {
     @Suppress("DEPRECATION")
     private fun performLoadInitial(
         invalidateDataSource: Boolean = false,
-        callbackInvoker:
-            (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit
+        callbackInvoker: (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit
     ) {
-        val dataSource = object : PageKeyedDataSource<String, String>() {
-            override fun loadInitial(
-                params: LoadInitialParams<String>,
-                callback: LoadInitialCallback<String, String>
-            ) {
-                if (invalidateDataSource) {
-                    // invalidate data source so it's invalid when onResult() called
-                    invalidate()
+        val dataSource =
+            object : PageKeyedDataSource<String, String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams<String>,
+                    callback: LoadInitialCallback<String, String>
+                ) {
+                    if (invalidateDataSource) {
+                        // invalidate data source so it's invalid when onResult() called
+                        invalidate()
+                    }
+                    callbackInvoker(callback)
                 }
-                callbackInvoker(callback)
-            }
 
-            override fun loadBefore(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                fail("loadBefore not expected")
-            }
+                override fun loadBefore(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    fail("loadBefore not expected")
+                }
 
-            override fun loadAfter(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                fail("loadAfter not expected")
+                override fun loadAfter(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    fail("loadAfter not expected")
+                }
             }
-        }
 
         @Suppress("DEPRECATION")
         PagedList.Builder(dataSource, 10)
@@ -211,30 +212,31 @@ class PageKeyedDataSourceTest {
     @Test
     fun testBoundaryCallback() {
         @Suppress("DEPRECATION")
-        val dataSource = object : PageKeyedDataSource<String, String>() {
-            override fun loadInitial(
-                params: LoadInitialParams<String>,
-                callback: LoadInitialCallback<String, String>
-            ) {
-                callback.onResult(listOf("B"), "a", "c")
-            }
+        val dataSource =
+            object : PageKeyedDataSource<String, String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams<String>,
+                    callback: LoadInitialCallback<String, String>
+                ) {
+                    callback.onResult(listOf("B"), "a", "c")
+                }
 
-            override fun loadBefore(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                assertEquals("a", params.key)
-                callback.onResult(listOf("A"), null)
-            }
+                override fun loadBefore(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    assertEquals("a", params.key)
+                    callback.onResult(listOf("A"), null)
+                }
 
-            override fun loadAfter(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                assertEquals("c", params.key)
-                callback.onResult(listOf("C"), null)
+                override fun loadAfter(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    assertEquals("c", params.key)
+                    callback.onResult(listOf("C"), null)
+                }
             }
-        }
 
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val boundaryCallback =
@@ -243,12 +245,13 @@ class PageKeyedDataSourceTest {
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         @Suppress("DEPRECATION")
-        val pagedList = PagedList.Builder(dataSource, 10)
-            .setBoundaryCallback(boundaryCallback)
-            .setCoroutineScope(testCoroutineScope)
-            .setFetchDispatcher(Dispatchers.Unconfined)
-            .setNotifyDispatcher(dispatcher)
-            .build()
+        val pagedList =
+            PagedList.Builder(dataSource, 10)
+                .setBoundaryCallback(boundaryCallback)
+                .setCoroutineScope(testCoroutineScope)
+                .setFetchDispatcher(Dispatchers.Unconfined)
+                .setNotifyDispatcher(dispatcher)
+                .build()
 
         pagedList.loadAround(0)
 
@@ -265,29 +268,30 @@ class PageKeyedDataSourceTest {
     @Test
     fun testBoundaryCallbackJustInitial() {
         @Suppress("DEPRECATION")
-        val dataSource = object : PageKeyedDataSource<String, String>() {
-            override fun loadInitial(
-                params: LoadInitialParams<String>,
-                callback: LoadInitialCallback<String, String>
-            ) {
-                // just the one load, but boundary callbacks should still be triggered
-                callback.onResult(listOf("B"), null, null)
-            }
+        val dataSource =
+            object : PageKeyedDataSource<String, String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams<String>,
+                    callback: LoadInitialCallback<String, String>
+                ) {
+                    // just the one load, but boundary callbacks should still be triggered
+                    callback.onResult(listOf("B"), null, null)
+                }
 
-            override fun loadBefore(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                fail("loadBefore not expected")
-            }
+                override fun loadBefore(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    fail("loadBefore not expected")
+                }
 
-            override fun loadAfter(
-                params: LoadParams<String>,
-                callback: LoadCallback<String, String>
-            ) {
-                fail("loadBefore not expected")
+                override fun loadAfter(
+                    params: LoadParams<String>,
+                    callback: LoadCallback<String, String>
+                ) {
+                    fail("loadBefore not expected")
+                }
             }
-        }
 
         @Suppress("UNCHECKED_CAST", "DEPRECATION")
         val boundaryCallback =
@@ -296,12 +300,13 @@ class PageKeyedDataSourceTest {
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         @Suppress("DEPRECATION")
-        val pagedList = PagedList.Builder(dataSource, 10)
-            .setBoundaryCallback(boundaryCallback)
-            .setCoroutineScope(testCoroutineScope)
-            .setFetchDispatcher(Dispatchers.Unconfined)
-            .setNotifyDispatcher(dispatcher)
-            .build()
+        val pagedList =
+            PagedList.Builder(dataSource, 10)
+                .setBoundaryCallback(boundaryCallback)
+                .setCoroutineScope(testCoroutineScope)
+                .setFetchDispatcher(Dispatchers.Unconfined)
+                .setNotifyDispatcher(dispatcher)
+                .build()
 
         pagedList.loadAround(0)
 
@@ -407,22 +412,26 @@ class PageKeyedDataSourceTest {
 
         // load initial
         @Suppress("UNCHECKED_CAST")
-        val loadInitialCallback = mock(PageKeyedDataSource.LoadInitialCallback::class.java)
-            as PageKeyedDataSource.LoadInitialCallback<String, String>
+        val loadInitialCallback =
+            mock(PageKeyedDataSource.LoadInitialCallback::class.java)
+                as PageKeyedDataSource.LoadInitialCallback<String, String>
 
         val initParams = PageKeyedDataSource.LoadInitialParams<String>(4, true)
         wrapper.loadInitial(initParams, loadInitialCallback)
         val expectedInitial = PAGE_MAP.getValue(INIT_KEY)
-        verify(loadInitialCallback).onResult(
-            expectedInitial.data.map { it.toString() },
-            expectedInitial.prev, expectedInitial.next
-        )
+        verify(loadInitialCallback)
+            .onResult(
+                expectedInitial.data.map { it.toString() },
+                expectedInitial.prev,
+                expectedInitial.next
+            )
         verifyNoMoreInteractions(loadInitialCallback)
 
         @Suppress("UNCHECKED_CAST")
         // load after
-        var loadCallback = mock(PageKeyedDataSource.LoadCallback::class.java)
-            as PageKeyedDataSource.LoadCallback<String, String>
+        var loadCallback =
+            mock(PageKeyedDataSource.LoadCallback::class.java)
+                as PageKeyedDataSource.LoadCallback<String, String>
         wrapper.loadAfter(PageKeyedDataSource.LoadParams(expectedInitial.next!!, 4), loadCallback)
         val expectedAfter = PAGE_MAP[expectedInitial.next]!!
         verify(loadCallback).onResult(expectedAfter.data.map { it.toString() }, expectedAfter.next)
@@ -433,13 +442,12 @@ class PageKeyedDataSourceTest {
 
         // load before
         @Suppress("UNCHECKED_CAST")
-        loadCallback = mock(PageKeyedDataSource.LoadCallback::class.java)
-            as PageKeyedDataSource.LoadCallback<String, String>
+        loadCallback =
+            mock(PageKeyedDataSource.LoadCallback::class.java)
+                as PageKeyedDataSource.LoadCallback<String, String>
         wrapper.loadBefore(PageKeyedDataSource.LoadParams(expectedAfter.prev!!, 4), loadCallback)
-        verify(loadCallback).onResult(
-            expectedInitial.data.map { it.toString() },
-            expectedInitial.prev
-        )
+        verify(loadCallback)
+            .onResult(expectedInitial.data.map { it.toString() }, expectedInitial.prev)
         verifyNoMoreInteractions(loadCallback)
         // load before - error
         orig.enqueueError()
@@ -452,9 +460,7 @@ class PageKeyedDataSourceTest {
     }
 
     @Test
-    fun testManualWrappedDataSource() = verifyWrappedDataSource {
-        StringWrapperDataSource(it)
-    }
+    fun testManualWrappedDataSource() = verifyWrappedDataSource { StringWrapperDataSource(it) }
 
     @Test
     fun testListConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->

@@ -29,9 +29,7 @@ import androidx.paging.integration.testapp.R
 import androidx.paging.integration.testapp.v3.StateItemAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-/**
- * Sample PagedList activity with artificial data source.
- */
+/** Sample PagedList activity with artificial data source. */
 class PagedListSampleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,21 +38,18 @@ class PagedListSampleActivity : AppCompatActivity() {
 
         val pagingAdapter = PagedListItemAdapter()
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        recyclerView.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
-            header = StateItemAdapter { pagingAdapter.currentList?.retry() },
-            footer = StateItemAdapter { pagingAdapter.currentList?.retry() }
-        )
+        recyclerView.adapter =
+            pagingAdapter.withLoadStateHeaderAndFooter(
+                header = StateItemAdapter { pagingAdapter.currentList?.retry() },
+                footer = StateItemAdapter { pagingAdapter.currentList?.retry() }
+            )
 
         @Suppress("DEPRECATION")
-        viewModel.livePagedList.observe(this) { pagedList ->
-            pagingAdapter.submitList(pagedList)
-        }
+        viewModel.livePagedList.observe(this) { pagedList -> pagingAdapter.submitList(pagedList) }
 
         setupLoadStateButtons(viewModel, pagingAdapter)
 
-        findViewById<Button>(R.id.button_error).setOnClickListener {
-            dataSourceError.set(true)
-        }
+        findViewById<Button>(R.id.button_error).setOnClickListener { dataSourceError.set(true) }
     }
 
     private fun setupLoadStateButtons(
@@ -64,9 +59,7 @@ class PagedListSampleActivity : AppCompatActivity() {
     ) {
         val button = findViewById<Button>(R.id.button_refresh)
 
-        button.setOnClickListener {
-            viewModel.invalidateList()
-        }
+        button.setOnClickListener { viewModel.invalidateList() }
 
         adapter.addLoadStateListener { type: LoadType, state: LoadState ->
             if (type != LoadType.REFRESH) return@addLoadStateListener

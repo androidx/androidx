@@ -21,5 +21,6 @@ package androidx.paging
  */
 internal interface UiReceiver {
     fun retry()
+
     fun refresh()
 }

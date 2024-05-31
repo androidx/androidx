@@ -21,9 +21,8 @@ import kotlin.test.fail
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
 
-class FailDispatcher(
-    val string: String = "Executor expected to be unused"
-) : CoroutineDispatcher() {
+class FailDispatcher(val string: String = "Executor expected to be unused") :
+    CoroutineDispatcher() {
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         fail(string)
     }

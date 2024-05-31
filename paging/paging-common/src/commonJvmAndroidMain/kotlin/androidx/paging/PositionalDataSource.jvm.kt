@@ -28,9 +28,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Position-based data loader for a fixed-size, countable data set, supporting fixed-size loads at
  * arbitrary page positions.
  *
- * Extend PositionalDataSource if you can load pages of a requested size at arbitrary positions,
- * and provide a fixed item count. If your data source can't support loading arbitrary requested
- * page sizes (e.g. when network page size constraints are only known at runtime), either use
+ * Extend PositionalDataSource if you can load pages of a requested size at arbitrary positions, and
+ * provide a fixed item count. If your data source can't support loading arbitrary requested page
+ * sizes (e.g. when network page size constraints are only known at runtime), either use
  * [PageKeyedDataSource] or [ItemKeyedDataSource], or pass the initial result with the two parameter
  * [LoadInitialCallback.onResult].
  *
@@ -47,16 +47,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @Deprecated(
     message = "PositionalDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith(
-        "PagingSource<Int, T>",
-        "androidx.paging.PagingSource"
-    )
+    replaceWith = ReplaceWith("PagingSource<Int, T>", "androidx.paging.PagingSource")
 )
 public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
 
-    /**
-     * Holder object for inputs to [loadInitial].
-     */
+    /** Holder object for inputs to [loadInitial]. */
     public open class LoadInitialParams(
         /**
          * Initial load position requested.
@@ -64,60 +59,46 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * Note that this may not be within the bounds of your data set, it may need to be adjusted
          * before you execute your load.
          */
-        @JvmField
-        public val requestedStartPosition: Int,
+        @JvmField public val requestedStartPosition: Int,
         /**
          * Requested number of items to load.
          *
          * Note that this may be larger than available data.
          */
-        @JvmField
-        public val requestedLoadSize: Int,
+        @JvmField public val requestedLoadSize: Int,
         /**
          * Defines page size acceptable for return values.
          *
          * List of items passed to the callback must be an integer multiple of page size.
          */
-        @JvmField
-        public val pageSize: Int,
+        @JvmField public val pageSize: Int,
         /**
          * Defines whether placeholders are enabled, and whether the loaded total count will be
          * ignored.
          */
-        @JvmField
-        public val placeholdersEnabled: Boolean
+        @JvmField public val placeholdersEnabled: Boolean
     ) {
         init {
-            check(requestedStartPosition >= 0) {
-                "invalid start position: $requestedStartPosition"
-            }
-            check(requestedLoadSize >= 0) {
-                "invalid load size: $requestedLoadSize"
-            }
-            check(pageSize >= 0) {
-                "invalid page size: $pageSize"
-            }
+            check(requestedStartPosition >= 0) { "invalid start position: $requestedStartPosition" }
+            check(requestedLoadSize >= 0) { "invalid load size: $requestedLoadSize" }
+            check(pageSize >= 0) { "invalid page size: $pageSize" }
         }
     }
 
-    /**
-     * Holder object for inputs to [loadRange].
-     */
+    /** Holder object for inputs to [loadRange]. */
     public open class LoadRangeParams(
         /**
          * START position of data to load.
          *
          * Returned data must start at this position.
          */
-        @JvmField
-        public val startPosition: Int,
+        @JvmField public val startPosition: Int,
         /**
          * Number of items to load.
          *
          * Returned data must be of this size, unless at end of the list.
          */
-        @JvmField
-        public val loadSize: Int
+        @JvmField public val loadSize: Int
     )
 
     /**
@@ -142,12 +123,12 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * [LoadInitialParams.placeholdersEnabled] is false), you can instead call [onResult].
          *
          * @param data List of items loaded from the [DataSource]. If this is empty, the
-         * [DataSource] is treated as empty, and no further loads will occur.
+         *   [DataSource] is treated as empty, and no further loads will occur.
          * @param position Position of the item at the front of the list. If there are N items
-         * before the items in data that can be loaded from this DataSource, pass N.
+         *   before the items in data that can be loaded from this DataSource, pass N.
          * @param totalCount Total number of items that may be returned from this DataSource.
-         * Includes the number in the initial [data] parameter as well as any items that can be
-         * loaded in front or behind of [data].
+         *   Includes the number in the initial [data] parameter as well as any items that can be
+         *   loaded in front or behind of [data].
          */
         public abstract fun onResult(data: List<T>, position: Int, totalCount: Int)
 
@@ -163,9 +144,9 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * [onResult].
          *
          * @param data List of items loaded from the [DataSource]. If this is empty, the
-         * [DataSource] is treated as empty, and no further loads will occur.
+         *   [DataSource] is treated as empty, and no further loads will occur.
          * @param position Position of the item at the front of the list. If there are N items
-         * before the items in data that can be provided by this [DataSource], pass N.
+         *   before the items in data that can be provided by this [DataSource], pass N.
          */
         public abstract fun onResult(data: List<T>, position: Int)
     }
@@ -186,7 +167,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * Called to pass loaded data from [loadRange].
          *
          * @param data List of items loaded from the [DataSource]. Must be same size as requested,
-         * unless at end of list.
+         *   unless at end of list.
          */
         public abstract fun onResult(data: List<T>)
     }
@@ -228,10 +209,9 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * ```
          *
          * @param params Params passed to [loadInitial], including page size, and requested start /
-         * loadSize.
+         *   loadSize.
          * @param totalCount Total size of the data set.
          * @return Position to start loading at.
-         *
          * @see [computeInitialLoadSize]
          */
         @JvmStatic
@@ -289,11 +269,10 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * ```
          *
          * @param params Params passed to [loadInitial], including page size, and requested start /
-         * loadSize.
+         *   loadSize.
          * @param initialLoadPosition Value returned by [computeInitialLoadPosition]
          * @param totalCount Total size of the data set.
          * @return Number of items to load.
-         *
          * @see [computeInitialLoadPosition]
          */
         @JvmStatic
@@ -313,8 +292,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
 
                 if (params.placeholdersEnabled) {
                     // snap load size to page multiple (minimum two)
-                    initialLoadSize =
-                        maxOf(initialLoadSize / params.pageSize, 2) * params.pageSize
+                    initialLoadSize = maxOf(initialLoadSize / params.pageSize, 2) * params.pageSize
 
                     // move start so the load is centered around the key, not starting at it
                     val idealStart = initialPosition - initialLoadSize / 2
@@ -324,12 +302,13 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                     initialPosition = maxOf(0, initialPosition - initialLoadSize / 2)
                 }
             }
-            val initParams = LoadInitialParams(
-                initialPosition,
-                initialLoadSize,
-                params.pageSize,
-                params.placeholdersEnabled
-            )
+            val initParams =
+                LoadInitialParams(
+                    initialPosition,
+                    initialLoadSize,
+                    params.pageSize,
+                    params.placeholdersEnabled
+                )
             return loadInitial(initParams)
         } else {
             var startIndex = params.key!!
@@ -390,7 +369,8 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                                     data = data,
                                     // skip passing prevKey if nothing else to load
                                     prevKey = if (position == 0) null else position,
-                                    // can't do same for nextKey, since we don't know if load is terminal
+                                    // can't do same for nextKey, since we don't know if load is
+                                    // terminal
                                     nextKey = position + data.size,
                                     itemsBefore = position,
                                     itemsAfter = COUNT_UNDEFINED
@@ -426,17 +406,19 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                 object : LoadRangeCallback<T>() {
                     override fun onResult(data: List<T>) {
                         // skip passing prevKey if nothing else to load. We only do this for prepend
-                        // direction, since 0 as first index is well defined, but max index may not be
+                        // direction, since 0 as first index is well defined, but max index may not
+                        // be
                         val prevKey = if (params.startPosition == 0) null else params.startPosition
                         when {
                             isInvalid -> cont.resume(BaseResult.empty())
-                            else -> cont.resume(
-                                BaseResult(
-                                    data = data,
-                                    prevKey = prevKey,
-                                    nextKey = params.startPosition + data.size
+                            else ->
+                                cont.resume(
+                                    BaseResult(
+                                        data = data,
+                                        prevKey = prevKey,
+                                        nextKey = params.startPosition + data.size
+                                    )
                                 )
-                            )
                         }
                     }
                 }
@@ -451,9 +433,9 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
      * LoadResult list must be a multiple of pageSize to enable efficient tiling.
      *
      * @param params Parameters for initial load, including requested start position, load size, and
-     * page size.
+     *   page size.
      * @param callback Callback that receives initial load data, including position and total data
-     * set size.
+     *   set size.
      */
     @WorkerThread
     public abstract fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>)

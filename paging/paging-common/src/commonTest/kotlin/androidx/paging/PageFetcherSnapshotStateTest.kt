@@ -35,472 +35,467 @@ class PageFetcherSnapshotStateTest {
     val testScope = TestScope()
 
     @Test
-    fun placeholders_uncounted() = testScope.runTest {
-        val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
-            config = PagingConfig(2, enablePlaceholders = false)
-        ).withLock { it }
+    fun placeholders_uncounted() =
+        testScope.runTest {
+            val pagerState =
+                PageFetcherSnapshotState.Holder<Int, Int>(
+                        config = PagingConfig(2, enablePlaceholders = false)
+                    )
+                    .withLock { it }
 
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
 
-        pagerState.insert(
-            loadId = 0, loadType = REFRESH,
-            page = Page(
-                data = listOf(),
-                prevKey = -1,
-                nextKey = 1,
-                itemsBefore = 50,
-                itemsAfter = 50
+            pagerState.insert(
+                loadId = 0,
+                loadType = REFRESH,
+                page =
+                    Page(
+                        data = listOf(),
+                        prevKey = -1,
+                        nextKey = 1,
+                        itemsBefore = 50,
+                        itemsAfter = 50
+                    )
             )
-        )
 
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
 
-        pagerState.insert(
-            loadId = 0, loadType = PREPEND,
-            page = Page(
-                data = listOf(),
-                prevKey = -2,
-                nextKey = 0,
-                itemsBefore = 25
-            )
-        )
-        pagerState.insert(
-            loadId = 0, loadType = APPEND,
-            page = Page(
-                data = listOf(),
-                prevKey = 0,
-                nextKey = 2,
-                itemsBefore = 25
-            )
-        )
-
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
-
-        // Should automatically decrement remaining placeholders when counted.
-        pagerState.insert(
-            loadId = 0,
-            loadType = PREPEND,
-            page = Page(
-                data = listOf(0),
-                prevKey = -3,
-                nextKey = 0,
-                itemsBefore = COUNT_UNDEFINED,
-                itemsAfter = COUNT_UNDEFINED
-            )
-        )
-        pagerState.insert(
-            loadId = 0,
-            loadType = APPEND,
-            page = Page(
-                data = listOf(0),
-                prevKey = 0,
-                nextKey = 3,
-                itemsBefore = COUNT_UNDEFINED,
-                itemsAfter = COUNT_UNDEFINED
-            )
-        )
-
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
-
-        pagerState.drop(
-            event = PageEvent.Drop(
+            pagerState.insert(
+                loadId = 0,
                 loadType = PREPEND,
-                minPageOffset = -2,
-                maxPageOffset = -2,
-                placeholdersRemaining = 100
+                page = Page(data = listOf(), prevKey = -2, nextKey = 0, itemsBefore = 25)
             )
-        )
-        pagerState.drop(
-            event = PageEvent.Drop(
+            pagerState.insert(
+                loadId = 0,
                 loadType = APPEND,
-                minPageOffset = 2,
-                maxPageOffset = 2,
-                placeholdersRemaining = 100
+                page = Page(data = listOf(), prevKey = 0, nextKey = 2, itemsBefore = 25)
             )
-        )
 
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
-    }
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
 
-    @Test
-    fun placeholders_counted() = testScope.runTest {
-        val pagerState = PageFetcherSnapshotState.Holder<Int, Int>(
-            config = PagingConfig(2, enablePlaceholders = true)
-        ).withLock { it }
-
-        assertEquals(0, pagerState.placeholdersBefore)
-        assertEquals(0, pagerState.placeholdersAfter)
-
-        pagerState.insert(
-            loadId = 0,
-            loadType = REFRESH,
-            page = Page(
-                data = listOf(),
-                prevKey = -1,
-                nextKey = 1,
-                itemsBefore = 50,
-                itemsAfter = 50
-            )
-        )
-
-        assertEquals(50, pagerState.placeholdersBefore)
-        assertEquals(50, pagerState.placeholdersAfter)
-
-        pagerState.insert(
-            loadId = 0,
-            loadType = PREPEND,
-            page = Page(
-                data = listOf(),
-                prevKey = -2,
-                nextKey = 0,
-                itemsBefore = 25,
-                itemsAfter = COUNT_UNDEFINED
-            )
-        )
-        pagerState.insert(
-            loadId = 0,
-            loadType = APPEND,
-            page = Page(
-                data = listOf(),
-                prevKey = 0,
-                nextKey = 2,
-                itemsBefore = COUNT_UNDEFINED,
-                itemsAfter = 25
-            )
-        )
-
-        assertEquals(25, pagerState.placeholdersBefore)
-        assertEquals(25, pagerState.placeholdersAfter)
-
-        // Should automatically decrement remaining placeholders when counted.
-        pagerState.insert(
-            loadId = 0,
-            loadType = PREPEND,
-            page = Page(
-                data = listOf(0),
-                prevKey = -3,
-                nextKey = 0,
-                itemsBefore = COUNT_UNDEFINED,
-                itemsAfter = COUNT_UNDEFINED
-            )
-        )
-        pagerState.insert(
-            loadId = 0,
-            loadType = APPEND,
-            page = Page(
-                data = listOf(0),
-                prevKey = 0,
-                nextKey = 3,
-                itemsBefore = COUNT_UNDEFINED,
-                itemsAfter = COUNT_UNDEFINED
-            )
-        )
-
-        assertEquals(24, pagerState.placeholdersBefore)
-        assertEquals(24, pagerState.placeholdersAfter)
-
-        pagerState.drop(
-            event = PageEvent.Drop(
+            // Should automatically decrement remaining placeholders when counted.
+            pagerState.insert(
+                loadId = 0,
                 loadType = PREPEND,
-                minPageOffset = -2,
-                maxPageOffset = -2,
-                placeholdersRemaining = 100
+                page =
+                    Page(
+                        data = listOf(0),
+                        prevKey = -3,
+                        nextKey = 0,
+                        itemsBefore = COUNT_UNDEFINED,
+                        itemsAfter = COUNT_UNDEFINED
+                    )
             )
-        )
-        pagerState.drop(
-            event = PageEvent.Drop(
+            pagerState.insert(
+                loadId = 0,
                 loadType = APPEND,
-                minPageOffset = 2,
-                maxPageOffset = 2,
-                placeholdersRemaining = 100
+                page =
+                    Page(
+                        data = listOf(0),
+                        prevKey = 0,
+                        nextKey = 3,
+                        itemsBefore = COUNT_UNDEFINED,
+                        itemsAfter = COUNT_UNDEFINED
+                    )
             )
-        )
 
-        assertEquals(100, pagerState.placeholdersBefore)
-        assertEquals(100, pagerState.placeholdersAfter)
-    }
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
+
+            pagerState.drop(
+                event =
+                    PageEvent.Drop(
+                        loadType = PREPEND,
+                        minPageOffset = -2,
+                        maxPageOffset = -2,
+                        placeholdersRemaining = 100
+                    )
+            )
+            pagerState.drop(
+                event =
+                    PageEvent.Drop(
+                        loadType = APPEND,
+                        minPageOffset = 2,
+                        maxPageOffset = 2,
+                        placeholdersRemaining = 100
+                    )
+            )
+
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
+        }
 
     @Test
-    fun currentPagingState() = testScope.runTest {
-        val config = PagingConfig(pageSize = 2)
-        val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
+    fun placeholders_counted() =
+        testScope.runTest {
+            val pagerState =
+                PageFetcherSnapshotState.Holder<Int, Int>(
+                        config = PagingConfig(2, enablePlaceholders = true)
+                    )
+                    .withLock { it }
 
-        val pages = listOf(
-            Page(
-                data = listOf(2, 3),
-                prevKey = 1,
-                nextKey = 4
-            ),
-            Page(
-                data = listOf(4, 5),
-                prevKey = 3,
-                nextKey = 6,
-                itemsBefore = 4,
-                itemsAfter = 4
-            ),
-            Page(
-                data = listOf(6, 7),
-                prevKey = 5,
-                nextKey = 8
-            )
-        )
+            assertEquals(0, pagerState.placeholdersBefore)
+            assertEquals(0, pagerState.placeholdersAfter)
 
-        state.insert(0, REFRESH, pages[1])
-        state.insert(0, PREPEND, pages[0])
-        state.insert(0, APPEND, pages[2])
-
-        val storage = pages.toPageStore(1)
-        val storageMissingPrepend = pages.drop(1).toPageStore(0)
-        val storageMissingAppend = pages.dropLast(1).toPageStore(1)
-        val storageExtraPrepend = pages.toMutableList().apply {
-            add(
-                0,
-                Page(
-                    data = listOf(0, 1),
-                    prevKey = null,
-                    nextKey = 2
-                )
-            )
-        }.toPageStore(2)
-        val storageExtraAppend = pages.toMutableList().apply {
-            add(
-                Page(
-                    data = listOf(8, 9),
-                    prevKey = 7,
-                    nextKey = null
-                )
-            )
-        }.toPageStore(1)
-
-        // Hint in loaded items, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(4)))
-            .isEqualTo(
-                PagingState(
-                    pages = pages,
-                    anchorPosition = 4,
-                    config = config,
-                    leadingPlaceholderCount = 2
-                )
+            pagerState.insert(
+                loadId = 0,
+                loadType = REFRESH,
+                page =
+                    Page(
+                        data = listOf(),
+                        prevKey = -1,
+                        nextKey = 1,
+                        itemsBefore = 50,
+                        itemsAfter = 50
+                    )
             )
 
-        // Hint in placeholders before, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(0)))
-            .isEqualTo(
-                PagingState(
-                    pages = pages,
-                    anchorPosition = 0,
-                    config = config,
-                    leadingPlaceholderCount = 2
-                )
+            assertEquals(50, pagerState.placeholdersBefore)
+            assertEquals(50, pagerState.placeholdersAfter)
+
+            pagerState.insert(
+                loadId = 0,
+                loadType = PREPEND,
+                page =
+                    Page(
+                        data = listOf(),
+                        prevKey = -2,
+                        nextKey = 0,
+                        itemsBefore = 25,
+                        itemsAfter = COUNT_UNDEFINED
+                    )
+            )
+            pagerState.insert(
+                loadId = 0,
+                loadType = APPEND,
+                page =
+                    Page(
+                        data = listOf(),
+                        prevKey = 0,
+                        nextKey = 2,
+                        itemsBefore = COUNT_UNDEFINED,
+                        itemsAfter = 25
+                    )
             )
 
-        // Hint in placeholders after, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(9)))
-            .isEqualTo(
-                PagingState(
-                    pages = pages,
-                    anchorPosition = 9,
-                    config = config,
-                    leadingPlaceholderCount = 2
-                )
+            assertEquals(25, pagerState.placeholdersBefore)
+            assertEquals(25, pagerState.placeholdersAfter)
+
+            // Should automatically decrement remaining placeholders when counted.
+            pagerState.insert(
+                loadId = 0,
+                loadType = PREPEND,
+                page =
+                    Page(
+                        data = listOf(0),
+                        prevKey = -3,
+                        nextKey = 0,
+                        itemsBefore = COUNT_UNDEFINED,
+                        itemsAfter = COUNT_UNDEFINED
+                    )
+            )
+            pagerState.insert(
+                loadId = 0,
+                loadType = APPEND,
+                page =
+                    Page(
+                        data = listOf(0),
+                        prevKey = 0,
+                        nextKey = 3,
+                        itemsBefore = COUNT_UNDEFINED,
+                        itemsAfter = COUNT_UNDEFINED
+                    )
             )
 
-        // Hint in loaded items, fetcher state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(4))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 4,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
+            assertEquals(24, pagerState.placeholdersBefore)
+            assertEquals(24, pagerState.placeholdersAfter)
 
-        // Hint in placeholders before, fetcher state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(0))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 0,
-                config = config,
-                leadingPlaceholderCount = 2
+            pagerState.drop(
+                event =
+                    PageEvent.Drop(
+                        loadType = PREPEND,
+                        minPageOffset = -2,
+                        maxPageOffset = -2,
+                        placeholdersRemaining = 100
+                    )
             )
-        )
+            pagerState.drop(
+                event =
+                    PageEvent.Drop(
+                        loadType = APPEND,
+                        minPageOffset = 2,
+                        maxPageOffset = 2,
+                        placeholdersRemaining = 100
+                    )
+            )
 
-        // Hint in placeholders after, fetcher state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(9))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 9,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in loaded items, fetcher state has an extra appended page.
-        assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(4))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 4,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders before, fetcher state has an extra appended page.
-        assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(0))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 0,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders after, fetcher state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(9))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 9,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in loaded items, storage state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(4))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 4,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders before, storage state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(0))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 0,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders after, storage state has an extra prepended page.
-        assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(9))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 9,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in loaded items, storage state has an extra appended page.
-        assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(4))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 4,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders before, storage state has an extra appended page.
-        assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(0))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 0,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-
-        // Hint in placeholders after, fetcher state has an extra appended page.
-        assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(9))
-        ).isEqualTo(
-            PagingState(
-                pages = pages,
-                anchorPosition = 9,
-                config = config,
-                leadingPlaceholderCount = 2
-            )
-        )
-    }
+            assertEquals(100, pagerState.placeholdersBefore)
+            assertEquals(100, pagerState.placeholdersAfter)
+        }
 
     @Test
-    fun loadStates() = testScope.runTest {
-        val config = PagingConfig(pageSize = 2)
-        val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
+    fun currentPagingState() =
+        testScope.runTest {
+            val config = PagingConfig(pageSize = 2)
+            val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
 
-        // assert initial state
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(loadStates(refresh = Loading))
+            val pages =
+                listOf(
+                    Page(data = listOf(2, 3), prevKey = 1, nextKey = 4),
+                    Page(
+                        data = listOf(4, 5),
+                        prevKey = 3,
+                        nextKey = 6,
+                        itemsBefore = 4,
+                        itemsAfter = 4
+                    ),
+                    Page(data = listOf(6, 7), prevKey = 5, nextKey = 8)
+                )
 
-        // assert APPEND state is updated
-        state.sourceLoadStates.set(APPEND, NotLoading.Complete)
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
-            loadStates(
-                refresh = Loading,
-                append = NotLoading.Complete
-            )
-        )
+            state.insert(0, REFRESH, pages[1])
+            state.insert(0, PREPEND, pages[0])
+            state.insert(0, APPEND, pages[2])
 
-        // assert REFRESH state is incrementally updated
-        state.sourceLoadStates.set(REFRESH, NotLoading.Incomplete)
-        assertThat(state.sourceLoadStates.snapshot()).isEqualTo(
-            loadStates(
-                refresh = NotLoading.Incomplete,
-                append = NotLoading.Complete,
-            )
-        )
-        assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
-    }
+            val storage = pages.toPageStore(1)
+            val storageMissingPrepend = pages.drop(1).toPageStore(0)
+            val storageMissingAppend = pages.dropLast(1).toPageStore(1)
+            val storageExtraPrepend =
+                pages
+                    .toMutableList()
+                    .apply { add(0, Page(data = listOf(0, 1), prevKey = null, nextKey = 2)) }
+                    .toPageStore(2)
+            val storageExtraAppend =
+                pages
+                    .toMutableList()
+                    .apply { add(Page(data = listOf(8, 9), prevKey = 7, nextKey = null)) }
+                    .toPageStore(1)
+
+            // Hint in loaded items, fetcher state == storage state.
+            assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(4)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 4,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders before, fetcher state == storage state.
+            assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(0)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 0,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders after, fetcher state == storage state.
+            assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(9)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 9,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in loaded items, fetcher state has an extra prepended page.
+            assertThat(
+                    state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(4))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 4,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders before, fetcher state has an extra prepended page.
+            assertThat(
+                    state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(0))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 0,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders after, fetcher state has an extra prepended page.
+            assertThat(
+                    state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(9))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 9,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in loaded items, fetcher state has an extra appended page.
+            assertThat(
+                    state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(4))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 4,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders before, fetcher state has an extra appended page.
+            assertThat(
+                    state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(0))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 0,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders after, fetcher state has an extra prepended page.
+            assertThat(
+                    state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(9))
+                )
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 9,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in loaded items, storage state has an extra prepended page.
+            assertThat(state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(4)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 4,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders before, storage state has an extra prepended page.
+            assertThat(state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(0)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 0,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders after, storage state has an extra prepended page.
+            assertThat(state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(9)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 9,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in loaded items, storage state has an extra appended page.
+            assertThat(state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(4)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 4,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders before, storage state has an extra appended page.
+            assertThat(state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(0)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 0,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+
+            // Hint in placeholders after, fetcher state has an extra appended page.
+            assertThat(state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(9)))
+                .isEqualTo(
+                    PagingState(
+                        pages = pages,
+                        anchorPosition = 9,
+                        config = config,
+                        leadingPlaceholderCount = 2
+                    )
+                )
+        }
+
+    @Test
+    fun loadStates() =
+        testScope.runTest {
+            val config = PagingConfig(pageSize = 2)
+            val state = PageFetcherSnapshotState.Holder<Int, Int>(config = config).withLock { it }
+
+            // assert initial state
+            assertThat(state.sourceLoadStates.snapshot()).isEqualTo(loadStates(refresh = Loading))
+
+            // assert APPEND state is updated
+            state.sourceLoadStates.set(APPEND, NotLoading.Complete)
+            assertThat(state.sourceLoadStates.snapshot())
+                .isEqualTo(loadStates(refresh = Loading, append = NotLoading.Complete))
+
+            // assert REFRESH state is incrementally updated
+            state.sourceLoadStates.set(REFRESH, NotLoading.Incomplete)
+            assertThat(state.sourceLoadStates.snapshot())
+                .isEqualTo(
+                    loadStates(
+                        refresh = NotLoading.Incomplete,
+                        append = NotLoading.Complete,
+                    )
+                )
+            assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
+        }
 
     private fun List<Page<Int, Int>>.toPageStore(initialPageIndex: Int): PageStore<Int> {
         val pageSize = 2
         val initialPage = get(initialPageIndex)
-        val storage = PageStore(
-            insertEvent = localRefresh(
-                pages = listOf(TransformablePage(initialPage.data)),
-                placeholdersBefore = initialPage.itemsBefore,
-                placeholdersAfter = initialPage.itemsAfter,
+        val storage =
+            PageStore(
+                insertEvent =
+                    localRefresh(
+                        pages = listOf(TransformablePage(initialPage.data)),
+                        placeholdersBefore = initialPage.itemsBefore,
+                        placeholdersAfter = initialPage.itemsAfter,
+                    )
             )
-        )
 
         for (i in 0 until initialPageIndex) {
             val offset = i + 1
             storage.processEvent(
                 localPrepend(
-                    pages = listOf(
-                        TransformablePage(originalPageOffset = -offset, data = get(i).data)
-                    ),
+                    pages =
+                        listOf(TransformablePage(originalPageOffset = -offset, data = get(i).data)),
                     placeholdersBefore = initialPage.itemsBefore - (offset * pageSize),
                 )
             )
@@ -510,9 +505,8 @@ class PageFetcherSnapshotStateTest {
             val offset = i - initialPageIndex
             storage.processEvent(
                 localAppend(
-                    pages = listOf(
-                        TransformablePage(originalPageOffset = offset, data = get(i).data)
-                    ),
+                    pages =
+                        listOf(TransformablePage(originalPageOffset = offset, data = get(i).data)),
                     placeholdersAfter = initialPage.itemsAfter - (offset * pageSize),
                 )
             )

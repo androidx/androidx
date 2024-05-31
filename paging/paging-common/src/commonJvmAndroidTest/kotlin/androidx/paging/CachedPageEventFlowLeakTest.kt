@@ -29,57 +29,47 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 
-/**
- * reproduces b/203594733
- */
+/** reproduces b/203594733 */
 public class CachedPageEventFlowLeakTest {
     private val gcHelper = GarbageCollectionTestHelper()
 
-    private data class Item(
-        val generation: Int,
-        val pagePos: Int
-    )
+    private data class Item(val generation: Int, val pagePos: Int)
 
     private var sourceGeneration = 0
-    private val pager = Pager(
-        config = PagingConfig(
-            pageSize = 10,
-            initialLoadSize = 20
-        ),
-        pagingSourceFactory = {
-            val generation = sourceGeneration++
-            object : PagingSource<Int, Item>() {
-                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
-                    return LoadResult.Page(
-                        data = (0 until params.loadSize).map {
-                            Item(
-                                generation = generation,
-                                pagePos = it
-                            )
-                        },
-                        prevKey = (params.key ?: 0) - 1,
-                        nextKey = (params.key ?: 0) + 1
-                    )
-                }
+    private val pager =
+        Pager(
+            config = PagingConfig(pageSize = 10, initialLoadSize = 20),
+            pagingSourceFactory = {
+                val generation = sourceGeneration++
+                object : PagingSource<Int, Item>() {
+                    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {
+                        return LoadResult.Page(
+                            data =
+                                (0 until params.loadSize).map {
+                                    Item(generation = generation, pagePos = it)
+                                },
+                            prevKey = (params.key ?: 0) - 1,
+                            nextKey = (params.key ?: 0) + 1
+                        )
+                    }
 
-                override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
-                    return null
+                    override fun getRefreshKey(state: PagingState<Int, Item>): Int? {
+                        return null
+                    }
                 }
             }
-        }
-    )
+        )
 
-    private val tracker = object : ActiveFlowTracker {
-        override fun onNewCachedEventFlow(cachedPageEventFlow: CachedPageEventFlow<*>) {
-            gcHelper.track(cachedPageEventFlow)
-        }
+    private val tracker =
+        object : ActiveFlowTracker {
+            override fun onNewCachedEventFlow(cachedPageEventFlow: CachedPageEventFlow<*>) {
+                gcHelper.track(cachedPageEventFlow)
+            }
 
-        override suspend fun onStart(flowType: ActiveFlowTracker.FlowType) {
-        }
+            override suspend fun onStart(flowType: ActiveFlowTracker.FlowType) {}
 
-        override suspend fun onComplete(flowType: ActiveFlowTracker.FlowType) {
+            override suspend fun onComplete(flowType: ActiveFlowTracker.FlowType) {}
         }
-    }
 
     private suspend fun <T : Any> collectPages(
         flow: Flow<PagingData<T>>,
@@ -97,9 +87,7 @@ public class CachedPageEventFlowLeakTest {
         // collect expected generations to generate garbage
         var remaining = generationCount
         flow
-            .takeWhile {
-                !finishCollecting || remaining > 0
-            }
+            .takeWhile { !finishCollecting || remaining > 0 }
             .collectLatest { pagingData ->
                 val willInvalidate = remaining-- > 0
                 if (willInvalidate) {

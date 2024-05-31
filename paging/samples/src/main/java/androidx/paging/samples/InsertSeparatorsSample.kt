@@ -75,14 +75,16 @@ fun insertSeparatorsRxSample() {
         // map outer stream, so we can perform transformations on each paging generation
         pagingData.insertSeparatorsAsync { before: String?, after: String? ->
             Maybe.fromCallable<String> {
-                if (after != null && before?.first() != after.first()) {
-                    // separator - after is first item that starts with its first letter
-                    after.first().uppercaseChar().toString()
-                } else {
-                    // no separator - either end of list, or first letters of before/after are the same
-                    null
+                    if (after != null && before?.first() != after.first()) {
+                        // separator - after is first item that starts with its first letter
+                        after.first().uppercaseChar().toString()
+                    } else {
+                        // no separator - either end of list, or first letters of before/after are
+                        // the same
+                        null
+                    }
                 }
-            }.subscribeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
         }
     }
 }
@@ -112,7 +114,8 @@ fun insertSeparatorsFutureSample() {
                             // separator - after is first item that starts with its first letter
                             after.first().uppercaseChar().toString()
                         } else {
-                            // no separator - either end of list, or first letters of before/after are the same
+                            // no separator - either end of list, or first letters of before/after
+                            // are the same
                             null
                         }
                     },

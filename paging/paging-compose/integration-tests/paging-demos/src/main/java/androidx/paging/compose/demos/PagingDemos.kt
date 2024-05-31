@@ -21,10 +21,11 @@ import androidx.compose.integration.demos.common.DemoCategory
 import androidx.paging.compose.demos.room.PagingRoomDemo
 import androidx.paging.compose.samples.PagingBackendSample
 
-val PagingDemos = DemoCategory(
-    "Paging",
-    listOf(
-        ComposableDemo("Paging Backend Demo") { PagingBackendSample() },
-        ComposableDemo("Paging Room Demo") { PagingRoomDemo() }
+val PagingDemos =
+    DemoCategory(
+        "Paging",
+        listOf(
+            ComposableDemo("Paging Backend Demo") { PagingBackendSample() },
+            ComposableDemo("Paging Room Demo") { PagingRoomDemo() }
+        )
     )
-)

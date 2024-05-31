@@ -36,8 +36,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * For some tests, this test uses a real recyclerview with a real adapter to serve as an
- * integration test so that we can validate all updates and state restorations after updates.
+ * For some tests, this test uses a real recyclerview with a real adapter to serve as an integration
+ * test so that we can validate all updates and state restorations after updates.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -49,12 +49,11 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
     @Before
     fun init() {
         context = ApplicationProvider.getApplicationContext()
-        recyclerView = RecyclerView(
-            context
-        ).also {
-            it.layoutManager = LinearLayoutManager(context)
-            it.itemAnimator = null
-        }
+        recyclerView =
+            RecyclerView(context).also {
+                it.layoutManager = LinearLayoutManager(context)
+                it.itemAnimator = null
+            }
         adapter = PlaceholderPaddedListAdapter()
         recyclerView.adapter = adapter
     }
@@ -71,35 +70,39 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun basic() {
-        val storage = PlaceholderPaddedStorage(
-            placeholdersBefore = 0,
-            data = createItems(0, 10),
-            placeholdersAfter = 0
-        )
+        val storage =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 0,
+                data = createItems(0, 10),
+                placeholdersAfter = 0
+            )
         adapter.setItems(storage)
         measureAndLayout()
         val snapshot = captureUISnapshot()
-        assertThat(snapshot).containsExactlyElementsIn(
-            createExpectedSnapshot(
-                firstItemTopOffset = 0,
-                startItemIndex = 0,
-                backingList = storage
+        assertThat(snapshot)
+            .containsExactlyElementsIn(
+                createExpectedSnapshot(
+                    firstItemTopOffset = 0,
+                    startItemIndex = 0,
+                    backingList = storage
+                )
             )
-        )
     }
 
     @Test
     fun distinctLists_fullyOverlappingRange() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 8),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 100, count = 8),
-            placeholdersAfter = 30
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 8),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 100, count = 8),
+                placeholdersAfter = 30
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -108,34 +111,35 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_loadedBefore_or_After() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 10),
-            placeholdersAfter = 10
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 5,
-            data = createItems(startId = 5, count = 5),
-            placeholdersAfter = 20
-        )
-        distinctListTest_withVariousInitialPositions(
-            pre = pre,
-            post = post
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 10),
+                placeholdersAfter = 10
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 5,
+                data = createItems(startId = 5, count = 5),
+                placeholdersAfter = 20
+            )
+        distinctListTest_withVariousInitialPositions(pre = pre, post = post)
     }
 
     @Test
     fun distinctLists_partiallyOverlapping() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 0, count = 8),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 15,
-            data = createItems(startId = 100, count = 8),
-            placeholdersAfter = 30
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 0, count = 8),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 15,
+                data = createItems(startId = 100, count = 8),
+                placeholdersAfter = 30
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -144,16 +148,18 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_fewerItemsLoaded_withMorePlaceholdersBefore() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 8),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 15,
-            data = createItems(startId = 100, count = 3),
-            placeholdersAfter = 30
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 8),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 15,
+                data = createItems(startId = 100, count = 3),
+                placeholdersAfter = 30
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -162,16 +168,18 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_noPlaceholdersLeft() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 8),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 0,
-            data = createItems(startId = 100, count = 3),
-            placeholdersAfter = 0
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 8),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 0,
+                data = createItems(startId = 100, count = 3),
+                placeholdersAfter = 0
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -180,16 +188,18 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_moreItemsLoaded() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 3),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 100, count = 8),
-            placeholdersAfter = 30
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 3),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 100, count = 8),
+                placeholdersAfter = 30
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -198,16 +208,18 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_moreItemsLoaded_andAlsoMoreOffset() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(startId = 10, count = 3),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 15,
-            data = createItems(startId = 100, count = 8),
-            placeholdersAfter = 30
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(startId = 10, count = 3),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 15,
+                data = createItems(startId = 100, count = 8),
+                placeholdersAfter = 30
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
@@ -216,25 +228,25 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_expandShrink() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(10, 10),
-            placeholdersAfter = 20
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 0,
-            data = createItems(100, 1),
-            placeholdersAfter = 0
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(10, 10),
+                placeholdersAfter = 20
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 0,
+                data = createItems(100, 1),
+                placeholdersAfter = 0
+            )
         distinctListTest_withVariousInitialPositions(
             pre = pre,
             post = post,
         )
     }
 
-    /**
-     * Runs a state restoration test with various "current scroll positions".
-     */
+    /** Runs a state restoration test with various "current scroll positions". */
     private fun distinctListTest_withVariousInitialPositions(
         pre: PlaceholderPaddedStorage,
         post: PlaceholderPaddedStorage
@@ -260,45 +272,48 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun distinctLists_visibleRangeRemoved() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(10, 10),
-            placeholdersAfter = 30
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 0,
-            data = createItems(100, 4),
-            placeholdersAfter = 20
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(10, 10),
+                placeholdersAfter = 30
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 0,
+                data = createItems(100, 4),
+                placeholdersAfter = 20
+            )
         swapListTest(
             pre = pre,
             post = post,
-            preSwapAction = {
-                recyclerView.scrollBy(0, 30 * ITEM_HEIGHT)
-            },
+            preSwapAction = { recyclerView.scrollBy(0, 30 * ITEM_HEIGHT) },
             validate = { _, newSnapshot ->
-                assertThat(newSnapshot).containsExactlyElementsIn(
-                    createExpectedSnapshot(
-                        startItemIndex = post.size - RV_HEIGHT / ITEM_HEIGHT,
-                        backingList = post
+                assertThat(newSnapshot)
+                    .containsExactlyElementsIn(
+                        createExpectedSnapshot(
+                            startItemIndex = post.size - RV_HEIGHT / ITEM_HEIGHT,
+                            backingList = post
+                        )
                     )
-                )
             }
         )
     }
 
     @Test
     fun distinctLists_validateDiff() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 10,
-            data = createItems(10, 10), // their positions won't be in the new list
-            placeholdersAfter = 20
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 0,
-            data = createItems(100, 1),
-            placeholdersAfter = 0
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 10,
+                data = createItems(10, 10), // their positions won't be in the new list
+                placeholdersAfter = 20
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 0,
+                data = createItems(100, 1),
+                placeholdersAfter = 0
+            )
         updateDiffTest(pre, post)
     }
 
@@ -308,14 +323,12 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         // this is a random test but if it fails, the exception will have enough information to
         // create an isolated test
         val rand = Random(System.nanoTime())
-        fun randomPlaceholderPaddedStorage(startId: Int) = PlaceholderPaddedStorage(
-            placeholdersBefore = rand.nextInt(0, 20),
-            data = createItems(
-                startId = startId,
-                count = rand.nextInt(0, 20)
-            ),
-            placeholdersAfter = rand.nextInt(0, 20)
-        )
+        fun randomPlaceholderPaddedStorage(startId: Int) =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = rand.nextInt(0, 20),
+                data = createItems(startId = startId, count = rand.nextInt(0, 20)),
+                placeholdersAfter = rand.nextInt(0, 20)
+            )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             updateDiffTest(
                 pre = randomPlaceholderPaddedStorage(0),
@@ -326,61 +339,69 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     @Test
     fun continuousMatch_1() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 4,
-            data = createItems(startId = 0, count = 16),
-            placeholdersAfter = 1
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 1,
-            data = createItems(startId = 13, count = 4),
-            placeholdersAfter = 19
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 4,
+                data = createItems(startId = 0, count = 16),
+                placeholdersAfter = 1
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 1,
+                data = createItems(startId = 13, count = 4),
+                placeholdersAfter = 19
+            )
         updateDiffTest(pre, post)
     }
 
     @Test
     fun continuousMatch_2() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 6,
-            data = createItems(startId = 0, count = 9),
-            placeholdersAfter = 19
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 14,
-            data = createItems(startId = 4, count = 3),
-            placeholdersAfter = 11
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 6,
+                data = createItems(startId = 0, count = 9),
+                placeholdersAfter = 19
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 14,
+                data = createItems(startId = 4, count = 3),
+                placeholdersAfter = 11
+            )
         updateDiffTest(pre, post)
     }
 
     @Test
     fun continuousMatch_3() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 11,
-            data = createItems(startId = 0, count = 4),
-            placeholdersAfter = 6
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 7,
-            data = createItems(startId = 0, count = 1),
-            placeholdersAfter = 11
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 11,
+                data = createItems(startId = 0, count = 4),
+                placeholdersAfter = 6
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 7,
+                data = createItems(startId = 0, count = 1),
+                placeholdersAfter = 11
+            )
         updateDiffTest(pre, post)
     }
 
     @Test
     fun continuousMatch_4() {
-        val pre = PlaceholderPaddedStorage(
-            placeholdersBefore = 4,
-            data = createItems(startId = 0, count = 15),
-            placeholdersAfter = 18
-        )
-        val post = PlaceholderPaddedStorage(
-            placeholdersBefore = 11,
-            data = createItems(startId = 5, count = 17),
-            placeholdersAfter = 9
-        )
+        val pre =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 4,
+                data = createItems(startId = 0, count = 15),
+                placeholdersAfter = 18
+            )
+        val post =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = 11,
+                data = createItems(startId = 5, count = 17),
+                placeholdersAfter = 9
+            )
         updateDiffTest(pre, post)
     }
 
@@ -397,47 +418,39 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
     }
 
     /**
-     * Tests that if two lists have some overlaps, we dispatch the right diff events.
-     * It can also optionally shuffle the lists.
+     * Tests that if two lists have some overlaps, we dispatch the right diff events. It can also
+     * optionally shuffle the lists.
      */
     private fun randomContinuousMatchTest(shuffle: Boolean) {
         // this is a random test but if it fails, the exception will have enough information to
         // create an isolated test
         val rand = Random(System.nanoTime())
-        fun randomPlaceholderPaddedStorage(startId: Int) = PlaceholderPaddedStorage(
-            placeholdersBefore = rand.nextInt(0, 20),
-            data = createItems(
-                startId = startId,
-                count = rand.nextInt(0, 20)
-            ).let {
-                if (shuffle) it.shuffled()
-                else it
-            },
-            placeholdersAfter = rand.nextInt(0, 20)
-        )
+        fun randomPlaceholderPaddedStorage(startId: Int) =
+            PlaceholderPaddedStorage(
+                placeholdersBefore = rand.nextInt(0, 20),
+                data =
+                    createItems(startId = startId, count = rand.nextInt(0, 20)).let {
+                        if (shuffle) it.shuffled() else it
+                    },
+                placeholdersAfter = rand.nextInt(0, 20)
+            )
         repeat(RANDOM_TEST_REPEAT_SIZE) {
             val pre = randomPlaceholderPaddedStorage(0)
-            val post = randomPlaceholderPaddedStorage(
-                startId = if (pre.dataCount > 0) {
-                    pre.getItem(rand.nextInt(pre.dataCount)).id
-                } else {
-                    0
-                }
-            )
-            updateDiffTest(
-                pre = pre,
-                post = post
-            )
+            val post =
+                randomPlaceholderPaddedStorage(
+                    startId =
+                        if (pre.dataCount > 0) {
+                            pre.getItem(rand.nextInt(pre.dataCount)).id
+                        } else {
+                            0
+                        }
+                )
+            updateDiffTest(pre = pre, post = post)
         }
     }
 
-    /**
-     * Validates that the update events between [pre] and [post] are correct.
-     */
-    private fun updateDiffTest(
-        pre: PlaceholderPaddedStorage,
-        post: PlaceholderPaddedStorage
-    ) {
+    /** Validates that the update events between [pre] and [post] are correct. */
+    private fun updateDiffTest(pre: PlaceholderPaddedStorage, post: PlaceholderPaddedStorage) {
         val callback = ValidatingListUpdateCallback(pre, post)
         val diffResult = pre.computeDiff(post, PlaceholderPaddedListItem.CALLBACK)
         pre.dispatchDiff(callback, post, diffResult)
@@ -455,34 +468,29 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         swapListTest(
             pre = pre,
             post = post,
-            preSwapAction = {
-                recyclerView.scrollBy(
-                    0,
-                    initialListPos * ITEM_HEIGHT
-                )
-            },
+            preSwapAction = { recyclerView.scrollBy(0, initialListPos * ITEM_HEIGHT) },
             validate = { _, snapshot ->
                 assertWithMessage(
-                    """
+                        """
                     initial pos: $initialListPos
                     expected final pos: $finalListPos
                     pre: $pre
                     post: $post
-                    """.trimIndent()
-                ).that(snapshot).containsExactlyElementsIn(
-                    createExpectedSnapshot(
-                        startItemIndex = finalListPos,
-                        backingList = post
+                    """
+                            .trimIndent()
                     )
-                )
+                    .that(snapshot)
+                    .containsExactlyElementsIn(
+                        createExpectedSnapshot(startItemIndex = finalListPos, backingList = post)
+                    )
             }
         )
     }
 
     /**
      * Helper function to run tests where we submit the [pre] list, run [preSwapAction] (where it
-     * can scroll etc) then submit [post] list, run [postSwapAction] and then call [validate]
-     * with UI snapshots.
+     * can scroll etc) then submit [post] list, run [postSwapAction] and then call [validate] with
+     * UI snapshots.
      */
     private fun swapListTest(
         pre: PlaceholderPaddedStorage,
@@ -502,9 +510,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         validate(preSnapshot, postSnapshot)
     }
 
-    /**
-     * Captures positions and data of each visible item in the RecyclerView.
-     */
+    /** Captures positions and data of each visible item in the RecyclerView. */
     private fun captureUISnapshot(): List<UIItemSnapshot> {
         return (0 until recyclerView.childCount).mapNotNull { childPos ->
             val view = recyclerView.getChildAt(childPos)!!
@@ -522,9 +528,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         }
     }
 
-    /**
-     * Custom adapter class that also validates its update events to ensure they are correct.
-     */
+    /** Custom adapter class that also validates its update events to ensure they are correct. */
     private class PlaceholderPaddedListAdapter :
         RecyclerView.Adapter<PlaceholderPaddedListViewHolder>() {
         private var items: PlaceholderPaddedList<PlaceholderPaddedListItem>? = null
@@ -551,10 +555,8 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             viewType: Int
         ): PlaceholderPaddedListViewHolder {
             return PlaceholderPaddedListViewHolder(parent.context).also {
-                it.itemView.layoutParams = RecyclerView.LayoutParams(
-                    RecyclerView.LayoutParams.MATCH_PARENT,
-                    ITEM_HEIGHT
-                )
+                it.itemView.layoutParams =
+                    RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, ITEM_HEIGHT)
             }
         }
 
@@ -569,34 +571,32 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         }
     }
 
-    private data class PlaceholderPaddedListItem(
-        val id: Int,
-        val value: String
-    ) {
+    private data class PlaceholderPaddedListItem(val id: Int, val value: String) {
         companion object {
-            val CALLBACK = object : DiffUtil.ItemCallback<PlaceholderPaddedListItem>() {
-                override fun areItemsTheSame(
-                    oldItem: PlaceholderPaddedListItem,
-                    newItem: PlaceholderPaddedListItem
-                ): Boolean {
-                    return oldItem.id == newItem.id
-                }
+            val CALLBACK =
+                object : DiffUtil.ItemCallback<PlaceholderPaddedListItem>() {
+                    override fun areItemsTheSame(
+                        oldItem: PlaceholderPaddedListItem,
+                        newItem: PlaceholderPaddedListItem
+                    ): Boolean {
+                        return oldItem.id == newItem.id
+                    }
 
-                override fun areContentsTheSame(
-                    oldItem: PlaceholderPaddedListItem,
-                    newItem: PlaceholderPaddedListItem
-                ): Boolean {
-                    return oldItem == newItem
+                    override fun areContentsTheSame(
+                        oldItem: PlaceholderPaddedListItem,
+                        newItem: PlaceholderPaddedListItem
+                    ): Boolean {
+                        return oldItem == newItem
+                    }
                 }
-            }
         }
     }
 
-    private class PlaceholderPaddedListViewHolder(
-        context: Context
-    ) : RecyclerView.ViewHolder(View(context)) {
+    private class PlaceholderPaddedListViewHolder(context: Context) :
+        RecyclerView.ViewHolder(View(context)) {
         var boundItem: PlaceholderPaddedListItem? = null
         var boundPos: Int = -1
+
         override fun toString(): String {
             return "VH[$boundPos , $boundItem]"
         }
@@ -620,7 +620,8 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             """
             $placeholdersBefore:${data.size}:$placeholdersAfter
             $data
-            """.trimIndent()
+            """
+                .trimIndent()
         }
 
         override fun getItem(index: Int): PlaceholderPaddedListItem = data[index]
@@ -634,41 +635,25 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         override fun toString() = stringRepresentation
     }
 
-    private fun createItems(
-        startId: Int,
-        count: Int
-    ): List<PlaceholderPaddedListItem> {
+    private fun createItems(startId: Int, count: Int): List<PlaceholderPaddedListItem> {
         return (startId until startId + count).map {
-            PlaceholderPaddedListItem(
-                id = it,
-                value = "$it"
-            )
+            PlaceholderPaddedListItem(id = it, value = "$it")
         }
     }
 
-    /**
-     * Creates an expected UI snapshot based on the given list and scroll position / offset.
-     */
+    /** Creates an expected UI snapshot based on the given list and scroll position / offset. */
     private fun createExpectedSnapshot(
         firstItemTopOffset: Int = 0,
         startItemIndex: Int,
         backingList: PlaceholderPaddedList<PlaceholderPaddedListItem>
     ): List<UIItemSnapshot> {
-        check(firstItemTopOffset <= 0) {
-            "first item offset should not be negative"
-        }
+        check(firstItemTopOffset <= 0) { "first item offset should not be negative" }
         var remainingHeight = RV_HEIGHT - firstItemTopOffset
         var pos = startItemIndex
         var top = firstItemTopOffset
         val result = mutableListOf<UIItemSnapshot>()
         while (remainingHeight > 0 && pos < backingList.size) {
-            result.add(
-                UIItemSnapshot(
-                    top = top,
-                    boundItem = backingList.get(pos),
-                    boundPos = pos
-                )
-            )
+            result.add(UIItemSnapshot(top = top, boundItem = backingList.get(pos), boundPos = pos))
             top += ITEM_HEIGHT
             remainingHeight -= ITEM_HEIGHT
             pos++
@@ -678,20 +663,20 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
 
     /**
      * A ListUpdateCallback implementation that tracks all change notifications and then validate
-     * that
-     * a) changes are correct
-     * b) no unnecessary events are dispatched (e.g. dispatching change for an item then removing
-     * it)
+     * that a) changes are correct b) no unnecessary events are dispatched (e.g. dispatching change
+     * for an item then removing it)
      */
     private class ValidatingListUpdateCallback<T>(
         previousList: PlaceholderPaddedList<T>?,
         private val newList: PlaceholderPaddedList<T>
     ) : ListUpdateCallback {
         // used in assertion messages
-        val msg = """
+        val msg =
+            """
                 oldList: $previousList
                 newList: $newList
-        """.trimIndent()
+        """
+                .trimIndent()
 
         // all changes are applied to this list, at the end, we'll validate against the new list
         // to ensure all updates made sense and no unnecessary updates are made
@@ -709,9 +694,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
         override fun onInserted(position: Int, count: Int) {
             position.assertWithinBounds()
             assertWithMessage(msg).that(count).isAtLeast(1)
-            repeat(count) {
-                runningList.add(position, ListSnapshotItem.Inserted)
-            }
+            repeat(count) { runningList.add(position, ListSnapshotItem.Inserted) }
         }
 
         override fun onRemoved(position: Int, count: Int) {
@@ -720,15 +703,13 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             assertWithMessage(msg).that(count).isAtLeast(1)
             (position until position + count).forEach { pos ->
                 assertWithMessage(
-                    "$msg\nshouldn't be removing an item that already got a change event" +
-                        " pos: $pos , ${runningList[pos]}"
-                )
+                        "$msg\nshouldn't be removing an item that already got a change event" +
+                            " pos: $pos , ${runningList[pos]}"
+                    )
                     .that(runningList[pos].isOriginalItem())
                     .isTrue()
             }
-            repeat(count) {
-                runningList.removeAt(position)
-            }
+            repeat(count) { runningList.removeAt(position) }
         }
 
         override fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -744,25 +725,25 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             (position until position + count).forEach { pos ->
                 // make sure we don't dispatch overlapping updates
                 assertWithMessage(
-                    "$msg\nunnecessary change event for position $pos $payload " +
-                        "${runningList[pos]}"
-                )
+                        "$msg\nunnecessary change event for position $pos $payload " +
+                            "${runningList[pos]}"
+                    )
                     .that(runningList[pos].isOriginalItem())
                     .isTrue()
-                if (payload == DiffingChangePayload.PLACEHOLDER_TO_ITEM ||
-                    payload == DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE
+                if (
+                    payload == DiffingChangePayload.PLACEHOLDER_TO_ITEM ||
+                        payload == DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE
                 ) {
-                    assertWithMessage(msg).that(runningList[pos]).isInstanceOf(
-                        ListSnapshotItem.Placeholder::class.java
-                    )
+                    assertWithMessage(msg)
+                        .that(runningList[pos])
+                        .isInstanceOf(ListSnapshotItem.Placeholder::class.java)
                 } else {
-                    assertWithMessage(msg).that(runningList[pos]).isInstanceOf(
-                        ListSnapshotItem.Item::class.java
-                    )
+                    assertWithMessage(msg)
+                        .that(runningList[pos])
+                        .isInstanceOf(ListSnapshotItem.Item::class.java)
                 }
-                runningList[pos] = ListSnapshotItem.Changed(
-                    payload = payload as? DiffingChangePayload
-                )
+                runningList[pos] =
+                    ListSnapshotItem.Changed(payload = payload as? DiffingChangePayload)
             }
         }
 
@@ -772,10 +753,7 @@ class PlaceholderPaddedListDiffWithRecyclerViewTest {
             val newListSnapshot = newList.createSnapshot()
             runningList.forEachIndexed { index, listSnapshotItem ->
                 val newListItem = newListSnapshot[index]
-                listSnapshotItem.assertReplacement(
-                    msg,
-                    newListItem
-                )
+                listSnapshotItem.assertReplacement(msg, newListItem)
                 if (!listSnapshotItem.isOriginalItem()) {
                     // if it changed, replace from new snapshot
                     runningList[index] = newListSnapshot[index]
@@ -827,70 +805,39 @@ private fun <T> PlaceholderPaddedList<T>.get(index: Int): T? {
     return getItem(storageIndex)
 }
 
-/**
- * Create a snapshot of this current that can be used to verify diffs.
- */
-private fun <T> PlaceholderPaddedList<T>.createSnapshot():
-    MutableList<ListSnapshotItem> = (0 until size)
-    .mapTo(mutableListOf()) { pos ->
-        get(pos)?.let {
-            ListSnapshotItem.Item(it)
-        } ?: ListSnapshotItem.Placeholder(pos)
+/** Create a snapshot of this current that can be used to verify diffs. */
+private fun <T> PlaceholderPaddedList<T>.createSnapshot(): MutableList<ListSnapshotItem> =
+    (0 until size).mapTo(mutableListOf()) { pos ->
+        get(pos)?.let { ListSnapshotItem.Item(it) } ?: ListSnapshotItem.Placeholder(pos)
     }
 
-/**
- * Sealed classes to identify items in the list.
- */
+/** Sealed classes to identify items in the list. */
 internal sealed class ListSnapshotItem {
     // means the item didn't change at all in diffs.
     fun isOriginalItem() = this is Item<*> || this is Placeholder
 
-    /**
-     * Asserts that this item properly represents the replacement (newListItem).
-     */
-    abstract fun assertReplacement(
-        msg: String,
-        newListItem: ListSnapshotItem
-    )
+    /** Asserts that this item properly represents the replacement (newListItem). */
+    abstract fun assertReplacement(msg: String, newListItem: ListSnapshotItem)
 
     data class Item<T>(val item: T) : ListSnapshotItem() {
-        override fun assertReplacement(
-            msg: String,
-            newListItem: ListSnapshotItem
-        ) {
+        override fun assertReplacement(msg: String, newListItem: ListSnapshotItem) {
             // no change
-            assertWithMessage(msg).that(
-                newListItem
-            ).isEqualTo(this)
+            assertWithMessage(msg).that(newListItem).isEqualTo(this)
         }
     }
 
     data class Placeholder(val pos: Int) : ListSnapshotItem() {
-        override fun assertReplacement(
-            msg: String,
-            newListItem: ListSnapshotItem
-        ) {
-            assertWithMessage(msg).that(
-                newListItem
-            ).isInstanceOf(
-                Placeholder::class.java
-            )
+        override fun assertReplacement(msg: String, newListItem: ListSnapshotItem) {
+            assertWithMessage(msg).that(newListItem).isInstanceOf(Placeholder::class.java)
             val replacement = newListItem as Placeholder
             // make sure position didn't change. If it did, we would be replaced with a [Changed].
-            assertWithMessage(msg).that(
-                pos
-            ).isEqualTo(replacement.pos)
+            assertWithMessage(msg).that(pos).isEqualTo(replacement.pos)
         }
     }
 
-    /**
-     * Inserted into the list when we receive a change notification about an item/placeholder.
-     */
+    /** Inserted into the list when we receive a change notification about an item/placeholder. */
     data class Changed(val payload: DiffingChangePayload?) : ListSnapshotItem() {
-        override fun assertReplacement(
-            msg: String,
-            newListItem: ListSnapshotItem
-        ) {
+        override fun assertReplacement(msg: String, newListItem: ListSnapshotItem) {
             // there are 4 cases for changes.
             // is either placeholder -> placeholder with new position
             // placeholder to item
@@ -898,29 +845,23 @@ internal sealed class ListSnapshotItem {
             // item change from original diffing.
             when (payload) {
                 DiffingChangePayload.ITEM_TO_PLACEHOLDER -> {
-                    assertWithMessage(msg).that(newListItem)
-                        .isInstanceOf(Placeholder::class.java)
+                    assertWithMessage(msg).that(newListItem).isInstanceOf(Placeholder::class.java)
                 }
                 DiffingChangePayload.PLACEHOLDER_TO_ITEM -> {
-                    assertWithMessage(msg).that(newListItem)
-                        .isInstanceOf(Item::class.java)
+                    assertWithMessage(msg).that(newListItem).isInstanceOf(Item::class.java)
                 }
                 DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE -> {
-                    assertWithMessage(msg).that(newListItem)
-                        .isInstanceOf(Placeholder::class.java)
+                    assertWithMessage(msg).that(newListItem).isInstanceOf(Placeholder::class.java)
                 }
                 else -> {
                     // item change that came from diffing.
-                    assertWithMessage(msg).that(newListItem)
-                        .isInstanceOf(Item::class.java)
+                    assertWithMessage(msg).that(newListItem).isInstanceOf(Item::class.java)
                 }
             }
         }
     }
 
-    /**
-     * Used when an item/placeholder is inserted to the list
-     */
+    /** Used when an item/placeholder is inserted to the list */
     object Inserted : ListSnapshotItem() {
         override fun assertReplacement(msg: String, newListItem: ListSnapshotItem) {
             // nothing to assert here, it can represent anything in the new list.

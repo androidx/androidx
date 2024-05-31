@@ -22,9 +22,8 @@ import kotlinx.coroutines.withContext
 /**
  * Utility class to convert the paging source factory to a suspend one.
  *
- * This is internal because it is only necessary for the legacy paging source implementation
- * where the data source must be created on the given thread pool for API guarantees.
- * see: b/173029013
+ * This is internal because it is only necessary for the legacy paging source implementation where
+ * the data source must be created on the given thread pool for API guarantees. see: b/173029013
  * see: b/168061354
  */
 internal class SuspendingPagingSourceFactory<Key : Any, Value : Any>(
@@ -32,9 +31,7 @@ internal class SuspendingPagingSourceFactory<Key : Any, Value : Any>(
     private val delegate: () -> PagingSource<Key, Value>
 ) : () -> PagingSource<Key, Value> {
     suspend fun create(): PagingSource<Key, Value> {
-        return withContext(dispatcher) {
-            delegate()
-        }
+        return withContext(dispatcher) { delegate() }
     }
 
     override fun invoke(): PagingSource<Key, Value> {

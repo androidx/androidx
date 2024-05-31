@@ -22,5 +22,6 @@ import androidx.annotation.RestrictTo
 @Deprecated("Logger interface is no longer supported.")
 public interface Logger {
     public fun isLoggable(level: Int): Boolean
+
     public fun log(level: Int, message: String, tr: Throwable? = null)
 }
