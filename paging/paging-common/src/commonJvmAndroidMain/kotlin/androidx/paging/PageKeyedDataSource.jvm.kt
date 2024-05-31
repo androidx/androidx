@@ -33,22 +33,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * The `InMemoryByPageRepository` in the
  * [PagingWithNetworkSample](https://github.com/googlesamples/android-architecture-components/blob/master/PagingWithNetworkSample/README.md)
  * shows how to implement a network PageKeyedDataSource using
- * [Retrofit](https://square.github.io/retrofit/), while
- * handling swipe-to-refresh, network errors, and retry.
+ * [Retrofit](https://square.github.io/retrofit/), while handling swipe-to-refresh, network errors,
+ * and retry.
  *
  * @param Key Type of data used to query Value types out of the [DataSource].
  * @param Value Type of items being loaded by the [DataSource].
  */
 @Deprecated(
     message = "PageKeyedDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith(
-        "PagingSource<Key, Value>",
-        "androidx.paging.PagingSource"
-    )
+    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource")
 )
-public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(
-    PAGE_KEYED
-) {
+public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
+    DataSource<Key, Value>(PAGE_KEYED) {
 
     /**
      * Holder object for inputs to [loadInitial].
@@ -57,8 +53,9 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * @param requestedLoadSize Requested number of items to load.
      *
      * Note that this may be larger than available data.
-     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the
-     * loaded total count will be ignored.
+     *
+     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the loaded
+     *   total count will be ignored.
      */
     public open class LoadInitialParams<Key : Any>(
         @JvmField public val requestedLoadSize: Int,
@@ -72,6 +69,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * @param key Load items before/after this key.
      *
      * Returned data must begin directly adjacent to this position.
+     *
      * @param requestedLoadSize Requested number of items to load.
      *
      * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
@@ -104,25 +102,25 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
         /**
          * Called to pass initial load state from a DataSource.
          *
-         * Call this method from your DataSource's `loadInitial` function to return data,
-         * and inform how many placeholders should be shown before and after. If counting is cheap
-         * to compute (for example, if a network load returns the information regardless), it's
-         * recommended to pass data back through this method.
+         * Call this method from your DataSource's `loadInitial` function to return data, and inform
+         * how many placeholders should be shown before and after. If counting is cheap to compute
+         * (for example, if a network load returns the information regardless), it's recommended to
+         * pass data back through this method.
          *
          * It is always valid to pass a different amount of data than what is requested. Pass an
          * empty list if there is no more data to load.
          *
          * @param data List of items loaded from the [DataSource]. If this is empty, the
-         * [DataSource] is treated as empty, and no further loads will occur.
-         * @param position Position of the item at the front of the list. If there are `N`
-         * items before the items in data that can be loaded from this DataSource, pass `N`.
+         *   [DataSource] is treated as empty, and no further loads will occur.
+         * @param position Position of the item at the front of the list. If there are `N` items
+         *   before the items in data that can be loaded from this DataSource, pass `N`.
          * @param totalCount Total number of items that may be returned from this DataSource.
-         * Includes the number in the initial `data` parameter as well as any items that can be
-         * loaded in front or behind of `data`.
+         *   Includes the number in the initial `data` parameter as well as any items that can be
+         *   loaded in front or behind of `data`.
          * @param previousPageKey Key for page before the initial load result, or `null` if no more
-         * data can be loaded before.
+         *   data can be loaded before.
          * @param nextPageKey Key for page after the initial load result, or `null` if no more data
-         * can be loaded after.
+         *   can be loaded after.
          */
         public abstract fun onResult(
             data: List<Value>,
@@ -143,9 +141,9 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
          *
          * @param data List of items loaded from the [PageKeyedDataSource].
          * @param previousPageKey Key for page before the initial load result, or `null` if no more
-         * data can be loaded before.
+         *   data can be loaded before.
          * @param nextPageKey Key for page after the initial load result, or `null` if no more data
-         * can be loaded after.
+         *   can be loaded after.
          */
         public abstract fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?)
     }
@@ -174,33 +172,28 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
          *
          * Pass the key for the subsequent page to load to adjacentPageKey. For example, if you've
          * loaded a page in [loadBefore], pass the key for the previous page, or `null` if the
-         * loaded page is the first. If in [loadAfter], pass the key for the next page, or `null`
-         * if the loaded page is the last.
+         * loaded page is the first. If in [loadAfter], pass the key for the next page, or `null` if
+         * the loaded page is the last.
          *
          * @param data List of items loaded from the PageKeyedDataSource.
          * @param adjacentPageKey Key for subsequent page load (previous page in [loadBefore] / next
-         * page in [loadAfter]), or `null` if there are no more pages to load in the current load
-         * direction.
+         *   page in [loadAfter]), or `null` if there are no more pages to load in the current load
+         *   direction.
          */
         public abstract fun onResult(data: List<Value>, adjacentPageKey: Key?)
     }
 
-    /**
-     * @throws [IllegalArgumentException] when passed an unsupported load type.
-     */
+    /** @throws [IllegalArgumentException] when passed an unsupported load type. */
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> = when {
-        params.type == LoadType.REFRESH -> loadInitial(
-            LoadInitialParams(
-                params.initialLoadSize,
-                params.placeholdersEnabled
-            )
-        )
-        params.key == null -> BaseResult.empty()
-        params.type == LoadType.PREPEND -> loadBefore(LoadParams(params.key, params.pageSize))
-        params.type == LoadType.APPEND -> loadAfter(LoadParams(params.key, params.pageSize))
-        else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
-    }
+    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> =
+        when {
+            params.type == LoadType.REFRESH ->
+                loadInitial(LoadInitialParams(params.initialLoadSize, params.placeholdersEnabled))
+            params.key == null -> BaseResult.empty()
+            params.type == LoadType.PREPEND -> loadBefore(LoadParams(params.key, params.pageSize))
+            params.type == LoadType.APPEND -> loadAfter(LoadParams(params.key, params.pageSize))
+            else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
+        }
 
     private suspend fun loadInitial(params: LoadInitialParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
@@ -299,7 +292,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * prevent further loading.
      *
      * @param params Parameters for the load, including the key for the new page, and requested load
-     * size.
+     *   size.
      * @param callback Callback that receives loaded data.
      */
     public abstract fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
@@ -319,7 +312,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * prevent further loading.
      *
      * @param params Parameters for the load, including the key for the new page, and requested load
-     * size.
+     *   size.
      * @param callback Callback that receives loaded data.
      */
     public abstract fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)

@@ -33,27 +33,18 @@ internal fun <T : Any> adjacentInsertEvent(
     page: List<T>,
     originalPageOffset: Int,
     placeholdersRemaining: Int
-) = if (isPrepend) {
-    localPrepend(
-        pages = listOf(
-            TransformablePage(
-                originalPageOffset = originalPageOffset,
-                data = page
-            )
-        ),
-        placeholdersBefore = placeholdersRemaining,
-    )
-} else {
-    localAppend(
-        pages = listOf(
-            TransformablePage(
-                originalPageOffset = originalPageOffset,
-                data = page
-            )
-        ),
-        placeholdersAfter = placeholdersRemaining,
-    )
-}
+) =
+    if (isPrepend) {
+        localPrepend(
+            pages = listOf(TransformablePage(originalPageOffset = originalPageOffset, data = page)),
+            placeholdersBefore = placeholdersRemaining,
+        )
+    } else {
+        localAppend(
+            pages = listOf(TransformablePage(originalPageOffset = originalPageOffset, data = page)),
+            placeholdersAfter = placeholdersRemaining,
+        )
+    }
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PageEventTest {
@@ -112,229 +103,234 @@ class PageEventTest {
     }
 
     @Test
-    fun dropTransform() = runTest(UnconfinedTestDispatcher()) {
-        val drop = Drop<Char>(
-            loadType = PREPEND,
-            minPageOffset = 0,
-            maxPageOffset = 0,
-            placeholdersRemaining = 0
-        )
+    fun dropTransform() =
+        runTest(UnconfinedTestDispatcher()) {
+            val drop =
+                Drop<Char>(
+                    loadType = PREPEND,
+                    minPageOffset = 0,
+                    maxPageOffset = 0,
+                    placeholdersRemaining = 0
+                )
 
-        assertSame(drop, drop.map { it + 1 })
-        assertSame(drop, drop.flatMap { listOf(it, it) })
-        assertSame(drop, drop.filter { false })
-    }
-
-    @Test
-    fun stateTransform() = runTest(UnconfinedTestDispatcher()) {
-        val state = localLoadStateUpdate<Char>(
-            refreshLocal = LoadState.Loading
-        )
-
-        assertSame(state, state.map { it + 1 })
-        assertSame(state, state.flatMap { listOf(it, it) })
-        assertSame(state, state.filter { false })
-    }
-
-    @Test
-    fun insertMap() = runTest(UnconfinedTestDispatcher()) {
-        val insert = localAppend(
-            pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersAfter = 4,
-        )
-        assertEquals(
-            localAppend(
-                pages = listOf(TransformablePage(listOf("a", "b"))),
-                placeholdersAfter = 4,
-            ),
-            insert.map { it.toString() }
-        )
-
-        assertEquals(
-            insert,
-            insert.map { it.toString() }.map { it[0] }
-        )
-    }
-
-    @Test
-    fun insertMapTransformed() = runTest(UnconfinedTestDispatcher()) {
-        assertEquals(
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf("a", "b"),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(0, 2)
-                    )
-                ),
-                placeholdersAfter = 4,
-            ),
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf("a", "b"),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(0, 2)
-                    )
-                ),
-                placeholdersAfter = 4,
-            ).map { it.toString() }
-        )
-    }
-
-    @Test
-    fun insertFilter() = runTest(UnconfinedTestDispatcher()) {
-        val insert = localAppend(
-            pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
-            placeholdersAfter = 4,
-        )
-
-        // filter out C
-        val insertNoC = insert.filter { it != 'c' }
-
-        assertEquals(
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf('a', 'b', 'd'),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(0, 1, 3)
-                    )
-                ),
-                placeholdersAfter = 4,
-            ),
-            insertNoC
-        )
-
-        // now filter out A, to validate filtration when lookup present
-        assertEquals(
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf('b', 'd'),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(1, 3)
-                    )
-                ),
-                placeholdersAfter = 4,
-            ),
-            insertNoC.filter { it != 'a' }
-        )
-    }
-
-    @Test
-    fun insertFlatMap() = runTest(UnconfinedTestDispatcher()) {
-        val insert = localAppend(
-            pages = listOf(TransformablePage(listOf('a', 'b'))),
-            placeholdersAfter = 4,
-        )
-
-        val flatMapped = insert.flatMap {
-            listOf("${it}1", "${it}2")
+            assertSame(drop, drop.map { it + 1 })
+            assertSame(drop, drop.flatMap { listOf(it, it) })
+            assertSame(drop, drop.filter { false })
         }
 
-        assertEquals(
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf("a1", "a2", "b1", "b2"),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(0, 0, 1, 1)
-                    )
-                ),
-                placeholdersAfter = 4,
-            ),
-            flatMapped
-        )
+    @Test
+    fun stateTransform() =
+        runTest(UnconfinedTestDispatcher()) {
+            val state = localLoadStateUpdate<Char>(refreshLocal = LoadState.Loading)
 
-        val flatMappedAgain = flatMapped.flatMap {
-            listOf(it, "-")
+            assertSame(state, state.map { it + 1 })
+            assertSame(state, state.flatMap { listOf(it, it) })
+            assertSame(state, state.filter { false })
         }
 
-        assertEquals(
-            localAppend(
-                pages = listOf(
-                    TransformablePage(
-                        originalPageOffsets = intArrayOf(0),
-                        data = listOf("a1", "-", "a2", "-", "b1", "-", "b2", "-"),
-                        hintOriginalPageOffset = 0,
-                        hintOriginalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
-                    )
+    @Test
+    fun insertMap() =
+        runTest(UnconfinedTestDispatcher()) {
+            val insert =
+                localAppend(
+                    pages = listOf(TransformablePage(listOf('a', 'b'))),
+                    placeholdersAfter = 4,
+                )
+            assertEquals(
+                localAppend(
+                    pages = listOf(TransformablePage(listOf("a", "b"))),
+                    placeholdersAfter = 4,
                 ),
-                placeholdersAfter = 4,
-            ),
-            flatMappedAgain
-        )
-    }
+                insert.map { it.toString() }
+            )
+
+            assertEquals(insert, insert.map { it.toString() }.map { it[0] })
+        }
+
+    @Test
+    fun insertMapTransformed() =
+        runTest(UnconfinedTestDispatcher()) {
+            assertEquals(
+                localAppend(
+                    pages =
+                        listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf("a", "b"),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = listOf(0, 2)
+                            )
+                        ),
+                    placeholdersAfter = 4,
+                ),
+                localAppend(
+                        pages =
+                            listOf(
+                                TransformablePage(
+                                    originalPageOffsets = intArrayOf(0),
+                                    data = listOf("a", "b"),
+                                    hintOriginalPageOffset = 0,
+                                    hintOriginalIndices = listOf(0, 2)
+                                )
+                            ),
+                        placeholdersAfter = 4,
+                    )
+                    .map { it.toString() }
+            )
+        }
+
+    @Test
+    fun insertFilter() =
+        runTest(UnconfinedTestDispatcher()) {
+            val insert =
+                localAppend(
+                    pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
+                    placeholdersAfter = 4,
+                )
+
+            // filter out C
+            val insertNoC = insert.filter { it != 'c' }
+
+            assertEquals(
+                localAppend(
+                    pages =
+                        listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf('a', 'b', 'd'),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = listOf(0, 1, 3)
+                            )
+                        ),
+                    placeholdersAfter = 4,
+                ),
+                insertNoC
+            )
+
+            // now filter out A, to validate filtration when lookup present
+            assertEquals(
+                localAppend(
+                    pages =
+                        listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf('b', 'd'),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = listOf(1, 3)
+                            )
+                        ),
+                    placeholdersAfter = 4,
+                ),
+                insertNoC.filter { it != 'a' }
+            )
+        }
+
+    @Test
+    fun insertFlatMap() =
+        runTest(UnconfinedTestDispatcher()) {
+            val insert =
+                localAppend(
+                    pages = listOf(TransformablePage(listOf('a', 'b'))),
+                    placeholdersAfter = 4,
+                )
+
+            val flatMapped = insert.flatMap { listOf("${it}1", "${it}2") }
+
+            assertEquals(
+                localAppend(
+                    pages =
+                        listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf("a1", "a2", "b1", "b2"),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = listOf(0, 0, 1, 1)
+                            )
+                        ),
+                    placeholdersAfter = 4,
+                ),
+                flatMapped
+            )
+
+            val flatMappedAgain = flatMapped.flatMap { listOf(it, "-") }
+
+            assertEquals(
+                localAppend(
+                    pages =
+                        listOf(
+                            TransformablePage(
+                                originalPageOffsets = intArrayOf(0),
+                                data = listOf("a1", "-", "a2", "-", "b1", "-", "b2", "-"),
+                                hintOriginalPageOffset = 0,
+                                hintOriginalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
+                            )
+                        ),
+                    placeholdersAfter = 4,
+                ),
+                flatMappedAgain
+            )
+        }
 
     class StaticPagingData {
         companion object {
-            fun initParameters() = listOf(
-                listOf("a", "b", "c"),
-                emptyList(),
-            )
+            fun initParameters() =
+                listOf(
+                    listOf("a", "b", "c"),
+                    emptyList(),
+                )
         }
 
         private val presenter = TestPagingDataPresenter<String>(EmptyCoroutineContext)
 
-        @Test
-        fun map_nonEmpty() = map(PagingData.from(listOf("a", "b", "c")))
+        @Test fun map_nonEmpty() = map(PagingData.from(listOf("a", "b", "c")))
 
-        @Test
-        fun map_empty() = map(PagingData.empty())
+        @Test fun map_empty() = map(PagingData.empty())
 
-        private fun map(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
-            val transform = { it: String -> it + it }
-            presenter.collectFrom(pagingData)
-            val originalItems = presenter.snapshot().items
-            val expectedItems = originalItems.map(transform)
-            val transformedPagingData = pagingData.map { transform(it) }
-            presenter.collectFrom(transformedPagingData)
-            assertEquals(expectedItems, presenter.snapshot().items)
-        }
+        private fun map(pagingData: PagingData<String>) =
+            runTest(UnconfinedTestDispatcher()) {
+                val transform = { it: String -> it + it }
+                presenter.collectFrom(pagingData)
+                val originalItems = presenter.snapshot().items
+                val expectedItems = originalItems.map(transform)
+                val transformedPagingData = pagingData.map { transform(it) }
+                presenter.collectFrom(transformedPagingData)
+                assertEquals(expectedItems, presenter.snapshot().items)
+            }
 
-        @Test
-        fun flatMap_nonEmpty() = flatMap(PagingData.from(listOf("a", "b", "c")))
+        @Test fun flatMap_nonEmpty() = flatMap(PagingData.from(listOf("a", "b", "c")))
 
-        @Test
-        fun flatMap_empty() = flatMap(PagingData.empty())
+        @Test fun flatMap_empty() = flatMap(PagingData.empty())
 
-        private fun flatMap(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
-            val transform = { it: String -> listOf(it, it) }
-            presenter.collectFrom(pagingData)
-            val originalItems = presenter.snapshot().items
-            val expectedItems = originalItems.flatMap(transform)
-            val transformedPagingData = pagingData.flatMap { transform(it) }
-            presenter.collectFrom(transformedPagingData)
-            assertEquals(expectedItems, presenter.snapshot().items)
-        }
+        private fun flatMap(pagingData: PagingData<String>) =
+            runTest(UnconfinedTestDispatcher()) {
+                val transform = { it: String -> listOf(it, it) }
+                presenter.collectFrom(pagingData)
+                val originalItems = presenter.snapshot().items
+                val expectedItems = originalItems.flatMap(transform)
+                val transformedPagingData = pagingData.flatMap { transform(it) }
+                presenter.collectFrom(transformedPagingData)
+                assertEquals(expectedItems, presenter.snapshot().items)
+            }
 
-        @Test
-        fun filter_nonEmpty() = filter(PagingData.from(listOf("a", "b", "c")))
+        @Test fun filter_nonEmpty() = filter(PagingData.from(listOf("a", "b", "c")))
 
-        @Test
-        fun filter_empty() = filter(PagingData.empty())
+        @Test fun filter_empty() = filter(PagingData.empty())
 
-        private fun filter(pagingData: PagingData<String>) = runTest(UnconfinedTestDispatcher()) {
-            val predicate = { it: String -> it != "b" }
-            presenter.collectFrom(pagingData)
-            val originalItems = presenter.snapshot().items
-            val expectedItems = originalItems.filter(predicate)
-            val transformedPagingData = pagingData.filter { predicate(it) }
-            presenter.collectFrom(transformedPagingData)
-            assertEquals(expectedItems, presenter.snapshot().items)
-        }
+        private fun filter(pagingData: PagingData<String>) =
+            runTest(UnconfinedTestDispatcher()) {
+                val predicate = { it: String -> it != "b" }
+                presenter.collectFrom(pagingData)
+                val originalItems = presenter.snapshot().items
+                val expectedItems = originalItems.filter(predicate)
+                val transformedPagingData = pagingData.filter { predicate(it) }
+                presenter.collectFrom(transformedPagingData)
+                assertEquals(expectedItems, presenter.snapshot().items)
+            }
 
         @Test
         fun insertSeparators_nonEmpty() = insertSeparators(PagingData.from(listOf("a", "b", "c")))
 
-        @Test
-        fun insertSeparators_empty() = insertSeparators(PagingData.empty())
+        @Test fun insertSeparators_empty() = insertSeparators(PagingData.empty())
 
         private fun insertSeparators(pagingData: PagingData<String>) =
             runTest(UnconfinedTestDispatcher()) {
@@ -343,21 +339,21 @@ class PageEventTest {
                 }
                 presenter.collectFrom(pagingData)
                 val originalItems = presenter.snapshot().items
-                val expectedItems = originalItems.flatMapIndexed { index, s ->
-                    val result = mutableListOf<String>()
-                    if (index == 0) {
-                        transform(null, s)?.let(result::add)
+                val expectedItems =
+                    originalItems.flatMapIndexed { index, s ->
+                        val result = mutableListOf<String>()
+                        if (index == 0) {
+                            transform(null, s)?.let(result::add)
+                        }
+                        result.add(s)
+                        transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
+                        if (index == originalItems.lastIndex) {
+                            transform(s, null)?.let(result::add)
+                        }
+                        result
                     }
-                    result.add(s)
-                    transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
-                    if (index == originalItems.lastIndex) {
-                        transform(s, null)?.let(result::add)
-                    }
-                    result
-                }
-                val transformedPagingData = pagingData.insertSeparators { left, right ->
-                    transform(left, right)
-                }
+                val transformedPagingData =
+                    pagingData.insertSeparators { left, right -> transform(left, right) }
                 presenter.collectFrom(transformedPagingData)
                 assertEquals(expectedItems, presenter.snapshot().items)
             }

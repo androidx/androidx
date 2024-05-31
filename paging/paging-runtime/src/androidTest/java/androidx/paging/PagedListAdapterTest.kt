@@ -34,9 +34,10 @@ class PagedListAdapterTest {
     private val mainThread = TestExecutor()
     private val diffThread = TestExecutor()
 
-    private val differConfig = AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-        .setBackgroundThreadExecutor(diffThread)
-        .build()
+    private val differConfig =
+        AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
+            .setBackgroundThreadExecutor(diffThread)
+            .build()
 
     @Suppress("DEPRECATION")
     inner class Adapter(
@@ -217,14 +218,15 @@ class PagedListAdapterTest {
     }
 
     companion object {
-        private val STRING_DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
-            }
+        private val STRING_DIFF_CALLBACK =
+            object : DiffUtil.ItemCallback<String>() {
+                override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
 
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
+                override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
             }
-        }
     }
 }

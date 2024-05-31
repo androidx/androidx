@@ -61,9 +61,7 @@ class PagingSourceTest {
         val errorParams = LoadParams.Refresh(key, 10, false)
         // Verify error is propagated correctly.
         pagingSource.enqueueError()
-        assertFailsWith<CustomException> {
-            pagingSource.load(errorParams)
-        }
+        assertFailsWith<CustomException> { pagingSource.load(errorParams) }
         // Verify LoadResult.Invalid is returned
         pagingSource.invalidateLoad()
         assertTrue(pagingSource.load(errorParams) is LoadResult.Invalid)
@@ -201,9 +199,7 @@ class PagingSourceTest {
         val errorParams = LoadParams.Prepend(key, 5, false)
         // Verify error is propagated correctly.
         dataSource.enqueueError()
-        assertFailsWith<CustomException> {
-            dataSource.load(errorParams)
-        }
+        assertFailsWith<CustomException> { dataSource.load(errorParams) }
         // Verify LoadResult.Invalid is returned
         dataSource.invalidateLoad()
         assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
@@ -222,9 +218,7 @@ class PagingSourceTest {
         val errorParams = LoadParams.Append(key, 5, false)
         // Verify error is propagated correctly.
         dataSource.enqueueError()
-        assertFailsWith<CustomException> {
-            dataSource.load(errorParams)
-        }
+        assertFailsWith<CustomException> { dataSource.load(errorParams) }
         // Verify LoadResult.Invalid is returned
         dataSource.invalidateLoad()
         assertTrue(dataSource.load(errorParams) is LoadResult.Invalid)
@@ -277,26 +271,19 @@ class PagingSourceTest {
         }
 
         // second page
-        val params2 = LoadParams.Append(
-            ITEMS_BY_NAME_ID[10].key(), 5, false
-        )
+        val params2 = LoadParams.Append(ITEMS_BY_NAME_ID[10].key(), 5, false)
         val page2 = dataSource.load(params2) as LoadResult.Page
         pages.add(page2)
 
         // iterate through list of pages
-        assertThat(pages.flatten()).containsExactlyElementsIn(
-            ITEMS_BY_NAME_ID.subList(6, 16)
-        ).inOrder()
+        assertThat(pages.flatten())
+            .containsExactlyElementsIn(ITEMS_BY_NAME_ID.subList(6, 16))
+            .inOrder()
     }
 
     data class Key(val name: String, val id: Int)
 
-    data class Item(
-        val name: String,
-        val id: Int,
-        val balance: Double,
-        val address: String
-    )
+    data class Item(val name: String, val id: Int, val balance: Double, val address: String)
 
     fun Item.key() = Key(name, id)
 
@@ -309,13 +296,14 @@ class PagingSourceTest {
         private fun List<Item>.asPage(
             itemsBefore: Int = COUNT_UNDEFINED,
             itemsAfter: Int = COUNT_UNDEFINED
-        ): LoadResult.Page<Key, Item> = LoadResult.Page(
-            data = this,
-            prevKey = firstOrNull()?.key(),
-            nextKey = lastOrNull()?.key(),
-            itemsBefore = itemsBefore,
-            itemsAfter = itemsAfter
-        )
+        ): LoadResult.Page<Key, Item> =
+            LoadResult.Page(
+                data = this,
+                prevKey = firstOrNull()?.key(),
+                nextKey = lastOrNull()?.key(),
+                itemsBefore = itemsBefore,
+                itemsAfter = itemsAfter
+            )
 
         private var error = false
 
@@ -387,9 +375,8 @@ class PagingSourceTest {
         }
 
         private fun findFirstIndexAfter(key: Key): Int {
-            return items.indices.firstOrNull {
-                KEY_COMPARATOR.compare(key, items[it].key()) < 0
-            } ?: items.size
+            return items.indices.firstOrNull { KEY_COMPARATOR.compare(key, items[it].key()) < 0 }
+                ?: items.size
         }
 
         private fun findFirstIndexBefore(key: Key): Int {
@@ -413,15 +400,17 @@ class PagingSourceTest {
         private val ITEM_COMPARATOR = compareBy<Item> { it.name }.thenByDescending { it.id }
         private val KEY_COMPARATOR = compareBy<Key> { it.name }.thenByDescending { it.id }
 
-        private val ITEMS_BY_NAME_ID = List(100) {
-            val names = Array(10) { index -> "f" + ('a' + index) }
-            Item(
-                names[it % 10],
-                it,
-                Random.nextDouble(1000.0),
-                Random.nextInt(200).toString() + " fake st."
-            )
-        }.sortedWith(ITEM_COMPARATOR)
+        private val ITEMS_BY_NAME_ID =
+            List(100) {
+                    val names = Array(10) { index -> "f" + ('a' + index) }
+                    Item(
+                        names[it % 10],
+                        it,
+                        Random.nextDouble(1000.0),
+                        Random.nextInt(200).toString() + " fake st."
+                    )
+                }
+                .sortedWith(ITEM_COMPARATOR)
 
         private val EXCEPTION = CustomException()
     }

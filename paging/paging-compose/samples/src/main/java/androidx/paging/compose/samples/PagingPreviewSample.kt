@@ -38,16 +38,14 @@ fun PagingPreview() {
     /**
      * The composable that displays data from LazyPagingItems.
      *
-     * This composable is inlined only for the purposes of this sample. In production code,
-     * this function should be its own top-level function.
+     * This composable is inlined only for the purposes of this sample. In production code, this
+     * function should be its own top-level function.
      */
     @Composable
     fun DisplayPaging(flow: Flow<PagingData<String>>) {
         // Flow of real data i.e. flow from a ViewModel, or flow of fake data i.e. from a Preview.
         val lazyPagingItems = flow.collectAsLazyPagingItems()
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().background(Color.Red)) {
             items(count = lazyPagingItems.itemCount) { index ->
                 val item = lazyPagingItems[index]
                 Text(text = "$item", fontSize = 35.sp, color = Color.Black)

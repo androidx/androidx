@@ -22,8 +22,8 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual object PagingLogger {
     /**
-     * isLoggable returns true if Logging is enabled via adb shell  command i.e.
-     * "adb shell setprop log.tag.Paging VERBOSE"
+     * isLoggable returns true if Logging is enabled via adb shell command i.e. "adb shell setprop
+     * log.tag.Paging VERBOSE"
      */
     public actual fun isLoggable(level: Int): Boolean {
         return Log.isLoggable(LOG_TAG, level)

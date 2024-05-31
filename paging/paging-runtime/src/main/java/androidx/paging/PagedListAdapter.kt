@@ -99,22 +99,18 @@ import androidx.recyclerview.widget.RecyclerView
  * ```
  *
  * Advanced users that wish for more control over adapter behavior, or to provide a specific base
- * class should refer to [AsyncPagedListDiffer], which provides the mapping from paging
- * events to adapter-friendly callbacks.
+ * class should refer to [AsyncPagedListDiffer], which provides the mapping from paging events to
+ * adapter-friendly callbacks.
  *
  * @param T Type of the PagedLists this Adapter will receive.
  * @param VH A class that extends ViewHolder that will be used by the adapter.
  */
 @Deprecated(
     message = "PagedListAdapter is deprecated and has been replaced by PagingDataAdapter",
-    replaceWith = ReplaceWith(
-        "PagingDataAdapter<T, VH>",
-        "androidx.paging.PagingDataAdapter"
-    )
+    replaceWith = ReplaceWith("PagingDataAdapter<T, VH>", "androidx.paging.PagingDataAdapter")
 )
 abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : RecyclerView.Adapter<VH> {
-    @Suppress("DEPRECATION")
-    internal val differ: AsyncPagedListDiffer<T>
+    @Suppress("DEPRECATION") internal val differ: AsyncPagedListDiffer<T>
     @Suppress("DEPRECATION")
     private val listener = { previousList: PagedList<T>?, currentList: PagedList<T>? ->
         this@PagedListAdapter.onCurrentListChanged(currentList)
@@ -129,7 +125,6 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * currentList value. May be null if no PagedList is being presented.
      *
      * @return The list currently being displayed.
-     *
      * @see onCurrentListChanged
      */
     @Suppress("DEPRECATION")
@@ -142,8 +137,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      *
      * Convenience for [PagedListAdapter], which uses default threading behavior.
      *
-     * @param diffCallback The [DiffUtil.ItemCallback] instance to
-     * compare items in the list.
+     * @param diffCallback The [DiffUtil.ItemCallback] instance to compare items in the list.
      */
     protected constructor(diffCallback: DiffUtil.ItemCallback<T>) {
         @Suppress("DEPRECATION")
@@ -174,13 +168,13 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * If a list is already being displayed, a diff will be computed on a background thread, which
      * will dispatch Adapter.notifyItem events on the main thread.
      *
-     * The commit callback can be used to know when the PagedList is committed, but note that it
-     * may not be executed. If PagedList B is submitted immediately after PagedList A, and is
-     * committed directly, the callback associated with PagedList A will not be run.
+     * The commit callback can be used to know when the PagedList is committed, but note that it may
+     * not be executed. If PagedList B is submitted immediately after PagedList A, and is committed
+     * directly, the callback associated with PagedList A will not be run.
      *
      * @param pagedList The new list to be displayed.
      * @param commitCallback Optional runnable that is executed when the PagedList is committed, if
-     * it is committed.
+     *   it is committed.
      */
     open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,
@@ -194,48 +188,42 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
     /**
      * Called when the current PagedList is updated.
      *
-     * This may be dispatched as part of [submitList] if a background diff isn't
-     * needed (such as when the first list is passed, or the list is cleared). In either case,
-     * PagedListAdapter will simply call
-     * [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].
+     * This may be dispatched as part of [submitList] if a background diff isn't needed (such as
+     * when the first list is passed, or the list is cleared). In either case, PagedListAdapter will
+     * simply call [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].
      *
-     * This method will *not*be called when the Adapter switches from presenting a PagedList
-     * to a snapshot version of the PagedList during a diff. This means you cannot observe each
-     * PagedList via this method.
+     * This method will *not*be called when the Adapter switches from presenting a PagedList to a
+     * snapshot version of the PagedList during a diff. This means you cannot observe each PagedList
+     * via this method.
      *
      * @param currentList new PagedList being displayed, may be null.
-     *
      * @see currentList
      */
     @Deprecated(
         "Use the two argument variant instead.",
         ReplaceWith("onCurrentListChanged(previousList, currentList)")
     )
-    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {
-    }
+    open fun onCurrentListChanged(@Suppress("DEPRECATION") currentList: PagedList<T>?) {}
 
     /**
      * Called when the current PagedList is updated.
      *
-     * This may be dispatched as part of [submitList] if a background diff isn't
-     * needed (such as when the first list is passed, or the list is cleared). In either case,
-     * PagedListAdapter will simply call
-     * [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].
+     * This may be dispatched as part of [submitList] if a background diff isn't needed (such as
+     * when the first list is passed, or the list is cleared). In either case, PagedListAdapter will
+     * simply call [notifyItemRangeInserted/Removed(0, mPreviousSize)][notifyItemRangeInserted].
      *
-     * This method will *not*be called when the Adapter switches from presenting a PagedList
-     * to a snapshot version of the PagedList during a diff. This means you cannot observe each
-     * PagedList via this method.
+     * This method will *not*be called when the Adapter switches from presenting a PagedList to a
+     * snapshot version of the PagedList during a diff. This means you cannot observe each PagedList
+     * via this method.
      *
      * @param previousList [PagedList] that was previously displayed, may be null.
      * @param currentList new [PagedList] being displayed, may be null.
-     *
      * @see currentList
      */
     open fun onCurrentListChanged(
         @Suppress("DEPRECATION") previousList: PagedList<T>?,
         @Suppress("DEPRECATION") currentList: PagedList<T>?
-    ) {
-    }
+    ) {}
 
     /**
      * Add a [LoadState] listener to observe the loading state of the current [PagedList].
@@ -244,7 +232,6 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * current [LoadType.REFRESH], [LoadType.PREPEND], and [LoadType.APPEND] states.
      *
      * @param listener Listener to receive [LoadState] updates.
-     *
      * @see removeLoadStateListener
      */
     open fun addLoadStateListener(listener: (LoadType, LoadState) -> Unit) {
@@ -265,9 +252,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.PREPEND] [LoadState] as a list item at the end of the presented list.
      */
-    fun withLoadStateHeader(
-        header: LoadStateAdapter<*>
-    ): ConcatAdapter {
+    fun withLoadStateHeader(header: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.PREPEND) {
                 header.loadState = loadState
@@ -280,9 +265,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * Create a [ConcatAdapter] with the provided [LoadStateAdapter]s displaying the
      * [LoadType.APPEND] [LoadState] as a list item at the start of the presented list.
      */
-    fun withLoadStateFooter(
-        footer: LoadStateAdapter<*>
-    ): ConcatAdapter {
+    fun withLoadStateFooter(footer: LoadStateAdapter<*>): ConcatAdapter {
         addLoadStateListener { loadType, loadState ->
             if (loadType == LoadType.APPEND) {
                 footer.loadState = loadState

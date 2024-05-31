@@ -27,18 +27,20 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     companion object {
-        @Volatile
-        private var Instance: AppDatabase? = null
+        @Volatile private var Instance: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
             if (Instance != null) {
                 return Instance!!
             }
             return Room.databaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java,
-                "app_database"
-            ).fallbackToDestructiveMigration(true).build().also { Instance = it }
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "app_database"
+                )
+                .fallbackToDestructiveMigration(true)
+                .build()
+                .also { Instance = it }
         }
     }
 }

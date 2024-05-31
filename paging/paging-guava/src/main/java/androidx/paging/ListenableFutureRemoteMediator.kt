@@ -16,30 +16,24 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.APPEND
-import androidx.paging.LoadType.PREPEND
-import androidx.paging.LoadType.REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.guava.await
 
-/**
- * [ListenableFuture]-based  compatibility wrapper around [RemoteMediator]'s suspending APIs.
- */
+/** [ListenableFuture]-based compatibility wrapper around [RemoteMediator]'s suspending APIs. */
 @ExperimentalPagingApi
 abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
     RemoteMediator<Key, Value>() {
     /**
      * Implement this method to load additional remote data, which will then be stored for the
      * [PagingSource] to access. These loads take one of two forms:
-     *  * type == [LoadType.PREPEND] / [LoadType.APPEND]
-     *  The [PagingSource] has loaded a 'boundary' page, with a `null` adjacent key. This means
-     *  this method should load additional remote data to append / prepend as appropriate, and store
-     *  it locally.
-     *  * type == [LoadType.REFRESH]
-     *  The app (or [initialize]) has requested a remote refresh of data. This means the method
-     *  should generally load remote data, and **replace** all local data.
+     *     * type == [LoadType.PREPEND] / [LoadType.APPEND] The [PagingSource] has loaded a
+     *       'boundary' page, with a `null` adjacent key. This means this method should load
+     *       additional remote data to append / prepend as appropriate, and store it locally.
+     * * type == [LoadType.REFRESH] The app (or [initialize]) has requested a remote refresh of
+     *   data. This means the method should generally load remote data, and **replace** all local
+     *   data.
      *
      * The runtime of this method defines loading state behavior in boundary conditions, which
      * affects e.g., [LoadState] callbacks registered to [androidx.paging.PagingDataAdapter].
@@ -49,17 +43,16 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      * [LoadType.APPEND] or both. [LoadType.REFRESH] occurs as a result of [initialize].
      *
      * @param loadType [LoadType] of the boundary condition which triggered this callback.
-     *  * [LoadType.PREPEND] indicates a boundary condition at the front of the list.
-     *  * [LoadType.APPEND] indicates a boundary condition at the end of the list.
-     *  * [LoadType.REFRESH] indicates this callback was triggered as the result of a requested
-     *  refresh - either driven by the UI, or by [initialize].
-     * @param state A copy of the state including the list of pages currently held in
-     * memory of the currently presented [PagingData] at the time of starting the load. E.g. for
-     * load(loadType = END), you can use the page or item at the end as input for what to load from
-     * the network.
+     *     * [LoadType.PREPEND] indicates a boundary condition at the front of the list.
+     *     * [LoadType.APPEND] indicates a boundary condition at the end of the list.
+     *     * [LoadType.REFRESH] indicates this callback was triggered as the result of a requested
+     *       refresh - either driven by the UI, or by [initialize].
      *
+     * @param state A copy of the state including the list of pages currently held in memory of the
+     *   currently presented [PagingData] at the time of starting the load. E.g. for load(loadType =
+     *   END), you can use the page or item at the end as input for what to load from the network.
      * @return [MediatorResult] signifying what [LoadState] to be passed to the UI, and whether
-     * there's more data available.
+     *   there's more data available.
      */
     @Suppress("AsyncSuffixFuture")
     abstract fun loadFuture(
@@ -73,12 +66,12 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      * This function runs to completion before any loading is performed.
      *
      * @return [InitializeAction] indicating the action to take after initialization:
-     *  * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
-     *  [LoadType.REFRESH], to update paginated content when the stream is initialized.
-     *  Note: This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
-     *  [REFRESH] succeeds.
-     *  * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a
-     *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
+     *     * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
+     *       [LoadType.REFRESH], to update paginated content when the stream is initialized. Note:
+     *       This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
+     *       [REFRESH] succeeds.
+     *     * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a refresh
+     *       request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */
     @Suppress("AsyncSuffixFuture")
     open fun initializeFuture(): ListenableFuture<InitializeAction> {

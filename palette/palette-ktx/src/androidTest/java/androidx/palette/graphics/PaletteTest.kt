@@ -27,10 +27,9 @@ import org.junit.Test
 
 @SmallTest
 class PaletteTest {
-    @Test fun operatorGet() {
-        val bitmap = Bitmap.createBitmap(10, 10, ARGB_8888).apply {
-            Canvas(this).drawColor(RED)
-        }
+    @Test
+    fun operatorGet() {
+        val bitmap = Bitmap.createBitmap(10, 10, ARGB_8888).apply { Canvas(this).drawColor(RED) }
         val palette = Palette.from(bitmap).generate()
         assertSame(palette.getSwatchForTarget(VIBRANT), palette[VIBRANT])
     }

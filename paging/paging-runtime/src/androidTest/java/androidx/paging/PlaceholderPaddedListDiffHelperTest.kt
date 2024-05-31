@@ -40,8 +40,10 @@ class PlaceholderPaddedListDiffHelperTest {
         override val placeholdersAfter: Int
     ) : PlaceholderPaddedList<String> {
         override fun getItem(index: Int): String = data[index]
+
         override val size: Int
             get() = placeholdersBefore + data.size + placeholdersAfter
+
         override val dataCount: Int
             get() = data.size
     }
@@ -58,14 +60,8 @@ class PlaceholderPaddedListDiffHelperTest {
 
     @Test
     fun appendFill() {
-        validateTwoListDiff(
-            Storage(5, listOf("a", "b"), 5),
-            Storage(5, listOf("a", "b", "c"), 4)
-        ) {
-            assertEquals(
-                OnChangedEvent(7, 1, PLACEHOLDER_TO_ITEM),
-                it.onChangedEvents[0]
-            )
+        validateTwoListDiff(Storage(5, listOf("a", "b"), 5), Storage(5, listOf("a", "b", "c"), 4)) {
+            assertEquals(OnChangedEvent(7, 1, PLACEHOLDER_TO_ITEM), it.onChangedEvents[0])
             assertEquals(1, it.interactions)
         }
     }
@@ -76,24 +72,15 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(5, listOf("a", "b", "c"), 4),
             Storage(5, listOf("a", "b"), 5),
         ) {
-            assertEquals(
-                OnChangedEvent(7, 1, ITEM_TO_PLACEHOLDER),
-                it.onChangedEvents[0]
-            )
+            assertEquals(OnChangedEvent(7, 1, ITEM_TO_PLACEHOLDER), it.onChangedEvents[0])
             assertEquals(1, it.interactions)
         }
     }
 
     @Test
     fun prependFill() {
-        validateTwoListDiff(
-            Storage(5, listOf("b", "c"), 5),
-            Storage(4, listOf("a", "b", "c"), 5)
-        ) {
-            assertEquals(
-                OnChangedEvent(4, 1, PLACEHOLDER_TO_ITEM),
-                it.onChangedEvents[0]
-            )
+        validateTwoListDiff(Storage(5, listOf("b", "c"), 5), Storage(4, listOf("a", "b", "c"), 5)) {
+            assertEquals(OnChangedEvent(4, 1, PLACEHOLDER_TO_ITEM), it.onChangedEvents[0])
             assertEquals(1, it.interactions)
         }
     }
@@ -104,10 +91,7 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(4, listOf("a", "b", "c"), 5),
             Storage(5, listOf("b", "c"), 5),
         ) {
-            assertEquals(
-                OnChangedEvent(4, 1, ITEM_TO_PLACEHOLDER),
-                it.onChangedEvents[0]
-            )
+            assertEquals(OnChangedEvent(4, 1, ITEM_TO_PLACEHOLDER), it.onChangedEvents[0])
             assertEquals(1, it.interactions)
         }
     }
@@ -142,20 +126,19 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(5, listOf("a", "b", "c"), 5),
             Storage(5, listOf("c", "x", "y", "a", "b"), 5)
         ) {
-            assertThat(
-                it.allEvents
-            ).containsExactly(
-                // convert 2 placeholders to x,y
-                OnChangedEvent(3, 2, PLACEHOLDER_TO_ITEM),
-                // move c to before x,y
-                OnMovedEvent(7, 3),
-                // these placeholders will shift down in the list as we'll re-add 2 placeholders
-                OnChangedEvent(0, 3, PLACEHOLDER_POSITION_CHANGE),
-                // now we need 2 new placeholders
-                OnInsertedEvent(0, 2),
-                // all trailing placeholders shifted 2 positions
-                OnChangedEvent(10, 5, PLACEHOLDER_POSITION_CHANGE),
-            )
+            assertThat(it.allEvents)
+                .containsExactly(
+                    // convert 2 placeholders to x,y
+                    OnChangedEvent(3, 2, PLACEHOLDER_TO_ITEM),
+                    // move c to before x,y
+                    OnMovedEvent(7, 3),
+                    // these placeholders will shift down in the list as we'll re-add 2 placeholders
+                    OnChangedEvent(0, 3, PLACEHOLDER_POSITION_CHANGE),
+                    // now we need 2 new placeholders
+                    OnInsertedEvent(0, 2),
+                    // all trailing placeholders shifted 2 positions
+                    OnChangedEvent(10, 5, PLACEHOLDER_POSITION_CHANGE),
+                )
         }
     }
 
@@ -165,12 +148,8 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(5, listOf("a", "b", "c"), 5),
             Storage(3, listOf("c", "x", "y", "a", "b"), 5)
         ) {
-            assertThat(
-                it.allEvents
-            ).containsExactly(
-                OnChangedEvent(3, 2, PLACEHOLDER_TO_ITEM),
-                OnMovedEvent(7, 3)
-            )
+            assertThat(it.allEvents)
+                .containsExactly(OnChangedEvent(3, 2, PLACEHOLDER_TO_ITEM), OnMovedEvent(7, 3))
         }
     }
 
@@ -180,16 +159,15 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(5, listOf("a", "b", "c"), 5),
             Storage(5, listOf("b", "c", "x", "y", "a"), 5)
         ) {
-            assertThat(
-                it.allEvents
-            ).containsExactly(
-                // insert x, y as placeholder changes
-                OnChangedEvent(8, 2, PLACEHOLDER_TO_ITEM),
-                // move a to after x,y
-                OnMovedEvent(5, 9),
-                // insert new placeholders to the end
-                OnInsertedEvent(13, 2)
-            )
+            assertThat(it.allEvents)
+                .containsExactly(
+                    // insert x, y as placeholder changes
+                    OnChangedEvent(8, 2, PLACEHOLDER_TO_ITEM),
+                    // move a to after x,y
+                    OnMovedEvent(5, 9),
+                    // insert new placeholders to the end
+                    OnInsertedEvent(13, 2)
+                )
         }
     }
 
@@ -199,22 +177,21 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(4, listOf("a", "b", "c", "d", "e"), 1),
             Storage(1, listOf("d", "e", "f", "g"), 20)
         ) {
-            assertThat(
-                it.allEvents
-            ).containsExactly(
-                // add f to replace the placeholder after e
-                OnChangedEvent(9, 1, PLACEHOLDER_TO_ITEM),
-                // add g, we don't have a placeholder for it so it is an insertion
-                OnInsertedEvent(10, 1),
-                // rm a,b,c
-                OnRemovedEvent(4, 3),
-                // rm 3 unnecessary leading placeholders
-                OnRemovedEvent(0, 3),
-                // 3rd placeholder moved to pos 0, so dispatch a change for it
-                OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
-                // add 20 trailing placeholders
-                OnInsertedEvent(5, 20)
-            )
+            assertThat(it.allEvents)
+                .containsExactly(
+                    // add f to replace the placeholder after e
+                    OnChangedEvent(9, 1, PLACEHOLDER_TO_ITEM),
+                    // add g, we don't have a placeholder for it so it is an insertion
+                    OnInsertedEvent(10, 1),
+                    // rm a,b,c
+                    OnRemovedEvent(4, 3),
+                    // rm 3 unnecessary leading placeholders
+                    OnRemovedEvent(0, 3),
+                    // 3rd placeholder moved to pos 0, so dispatch a change for it
+                    OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
+                    // add 20 trailing placeholders
+                    OnInsertedEvent(5, 20)
+                )
         }
     }
 
@@ -282,20 +259,16 @@ class PlaceholderPaddedListDiffHelperTest {
 
     @Test
     fun transformAnchorIndex_offset() {
-        validateTwoListDiffTransform(
-            Storage(5, listOf("a"), 6),
-            Storage(7, listOf("a"), 8)
-        ) { transformAnchorIndex ->
+        validateTwoListDiffTransform(Storage(5, listOf("a"), 6), Storage(7, listOf("a"), 8)) {
+            transformAnchorIndex ->
             assertEquals(7, transformAnchorIndex(5))
         }
     }
 
     @Test
     fun transformAnchorIndex_nullBehavior() {
-        validateTwoListDiffTransform(
-            Storage(3, listOf("a"), 4),
-            Storage(1, listOf("a"), 2)
-        ) { transformAnchorIndex ->
+        validateTwoListDiffTransform(Storage(3, listOf("a"), 4), Storage(1, listOf("a"), 2)) {
+            transformAnchorIndex ->
             // null, so map to same position in new list
             assertEquals(0, transformAnchorIndex(0))
             assertEquals(1, transformAnchorIndex(1))
@@ -313,10 +286,8 @@ class PlaceholderPaddedListDiffHelperTest {
 
     @Test
     fun transformAnchorIndex_boundaryBehavior() {
-        validateTwoListDiffTransform(
-            Storage(3, listOf("a"), 4),
-            Storage(1, listOf("a"), 2)
-        ) { transformAnchorIndex ->
+        validateTwoListDiffTransform(Storage(3, listOf("a"), 4), Storage(1, listOf("a"), 2)) {
+            transformAnchorIndex ->
             // shouldn't happen, but to be safe, indices are clamped
             assertEquals(0, transformAnchorIndex(-1))
             assertEquals(3, transformAnchorIndex(100))
@@ -329,14 +300,16 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(4, listOf("c_4", "4", "d_5", "5", "e_6", "6"), 3),
             Storage(0, listOf("a_0", "0", "b_1", "1"), 8)
         ) {
-            assertThat(it.allEvents).containsExactly(
-                // replace previous items with placeholders
-                OnChangedEvent(4, 6, ITEM_TO_PLACEHOLDER),
-                // swap first 4 placeholders with newly loaded items
-                OnChangedEvent(0, 4, PLACEHOLDER_TO_ITEM),
-                // remove extra placeholder
-                OnRemovedEvent(12, 1)
-            ).inOrder()
+            assertThat(it.allEvents)
+                .containsExactly(
+                    // replace previous items with placeholders
+                    OnChangedEvent(4, 6, ITEM_TO_PLACEHOLDER),
+                    // swap first 4 placeholders with newly loaded items
+                    OnChangedEvent(0, 4, PLACEHOLDER_TO_ITEM),
+                    // remove extra placeholder
+                    OnRemovedEvent(12, 1)
+                )
+                .inOrder()
         }
     }
 
@@ -346,32 +319,34 @@ class PlaceholderPaddedListDiffHelperTest {
             Storage(4, listOf("a_4", "4", "b_5", "5", "c_6", "6"), 3),
             Storage(8, listOf("d_8", "8", "e_9", "9"), 0),
         ) {
-            assertThat(it.allEvents).containsExactly(
-                // remove c_6 and 6, their positions overlap w/ newly loaded items
-                OnRemovedEvent(8, 2),
-                // now insert d_8 and 8
-                OnInsertedEvent(8, 2),
-                // first 4 of the loaded items becomes placeholders: "a_4", "4", "b_5", "5"
-                OnChangedEvent(4, 4, ITEM_TO_PLACEHOLDER),
-                // insert e_9 and 9 using placeholders
-                OnChangedEvent(10, 2, PLACEHOLDER_TO_ITEM),
-                // finally, remove the last placeholder that we won't use
-                OnRemovedEvent(12, 1)
-            )
+            assertThat(it.allEvents)
+                .containsExactly(
+                    // remove c_6 and 6, their positions overlap w/ newly loaded items
+                    OnRemovedEvent(8, 2),
+                    // now insert d_8 and 8
+                    OnInsertedEvent(8, 2),
+                    // first 4 of the loaded items becomes placeholders: "a_4", "4", "b_5", "5"
+                    OnChangedEvent(4, 4, ITEM_TO_PLACEHOLDER),
+                    // insert e_9 and 9 using placeholders
+                    OnChangedEvent(10, 2, PLACEHOLDER_TO_ITEM),
+                    // finally, remove the last placeholder that we won't use
+                    OnRemovedEvent(12, 1)
+                )
         }
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
-            override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-                // first char means same item
-                return oldItem[0] == newItem[0]
-            }
+        private val DIFF_CALLBACK =
+            object : DiffUtil.ItemCallback<String>() {
+                override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
+                    // first char means same item
+                    return oldItem[0] == newItem[0]
+                }
 
-            override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-                return oldItem == newItem
+                override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
+                    return oldItem == newItem
+                }
             }
-        }
 
         private fun validateTwoListDiff(
             oldList: Storage,

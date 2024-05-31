@@ -18,17 +18,22 @@ package androidx.paging.testing.internal
 
 internal expect class AtomicInt(initialValue: Int) {
     fun get(): Int
+
     fun set(value: Int)
 }
 
 internal expect class AtomicBoolean(initialValue: Boolean) {
     fun get(): Boolean
+
     fun set(value: Boolean)
+
     fun compareAndSet(expect: Boolean, update: Boolean): Boolean
 }
 
 internal expect class AtomicRef<T>(initialValue: T) {
     fun get(): T
+
     fun set(value: T)
+
     fun getAndSet(value: T): T
 }

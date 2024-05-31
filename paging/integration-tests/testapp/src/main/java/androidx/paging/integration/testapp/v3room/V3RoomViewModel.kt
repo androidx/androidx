@@ -34,11 +34,9 @@ import java.util.UUID
 import kotlinx.coroutines.flow.map
 
 class V3RoomViewModel(application: Application) : AndroidViewModel(application) {
-    val database = Room.databaseBuilder(
-        getApplication(),
-        SampleDatabase::class.java,
-        "customerDatabaseV3"
-    ).build()
+    val database =
+        Room.databaseBuilder(getApplication(), SampleDatabase::class.java, "customerDatabaseV3")
+            .build()
 
     private fun createCustomer(): Customer {
         val customer = Customer()
@@ -48,8 +46,9 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     internal fun insertCustomer() {
-        ArchTaskExecutor.getInstance()
-            .executeOnDiskIO { database.customerDao.insert(createCustomer()) }
+        ArchTaskExecutor.getInstance().executeOnDiskIO {
+            database.customerDao.insert(createCustomer())
+        }
     }
 
     internal fun clearAllCustomers() {
@@ -62,52 +61,53 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    val flow = Pager(
-        PagingConfig(10),
-        remoteMediator = V3RemoteMediator(
-            database,
-            NetworkCustomerPagingSource.FACTORY
-        )
-    ) {
-        database.customerDao.loadPagedAgeOrderPagingSource()
-    }.flow
-        .map { pagingData ->
-            pagingData
-                .insertSeparators { before: Customer?, after: Customer? ->
-                    if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
-                        // no separator, because at bottom or not needed yet
-                        null
-                    } else {
-                        Customer().apply {
-                            id = -1
-                            name = "RIGHT ABOVE DIVIDER"
-                            lastName = "RIGHT ABOVE DIVIDER"
+    val flow =
+        Pager(
+                PagingConfig(10),
+                remoteMediator = V3RemoteMediator(database, NetworkCustomerPagingSource.FACTORY)
+            ) {
+                database.customerDao.loadPagedAgeOrderPagingSource()
+            }
+            .flow
+            .map { pagingData ->
+                pagingData
+                    .insertSeparators { before: Customer?, after: Customer? ->
+                        if (after == null || (after.id / 3) == (before?.id ?: 0) / 3) {
+                            // no separator, because at bottom or not needed yet
+                            null
+                        } else {
+                            Customer().apply {
+                                id = -1
+                                name = "RIGHT ABOVE DIVIDER"
+                                lastName = "RIGHT ABOVE DIVIDER"
+                            }
                         }
                     }
-                }
-                .insertSeparators { before: Customer?, _: Customer? ->
-                    if (before != null && before.id == -1) {
-                        Customer().apply {
-                            id = -2
-                            name = "RIGHT BELOW DIVIDER"
-                            lastName = "RIGHT BELOW DIVIDER"
-                        }
-                    } else null
-                }
-                .insertHeaderItem(
-                    item = Customer().apply {
-                        id = Int.MIN_VALUE
-                        name = "HEADER"
-                        lastName = "HEADER"
+                    .insertSeparators { before: Customer?, _: Customer? ->
+                        if (before != null && before.id == -1) {
+                            Customer().apply {
+                                id = -2
+                                name = "RIGHT BELOW DIVIDER"
+                                lastName = "RIGHT BELOW DIVIDER"
+                            }
+                        } else null
                     }
-                )
-                .insertFooterItem(
-                    item = Customer().apply {
-                        id = Int.MAX_VALUE
-                        name = "FOOTER"
-                        lastName = "FOOTER"
-                    }
-                )
-        }
-        .cachedIn(viewModelScope)
+                    .insertHeaderItem(
+                        item =
+                            Customer().apply {
+                                id = Int.MIN_VALUE
+                                name = "HEADER"
+                                lastName = "HEADER"
+                            }
+                    )
+                    .insertFooterItem(
+                        item =
+                            Customer().apply {
+                                id = Int.MAX_VALUE
+                                name = "FOOTER"
+                                lastName = "FOOTER"
+                            }
+                    )
+            }
+            .cachedIn(viewModelScope)
 }

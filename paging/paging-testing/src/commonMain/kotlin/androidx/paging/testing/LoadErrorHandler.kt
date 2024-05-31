@@ -24,48 +24,41 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
 
 /**
- * An interface to implement the error recovery strategy when [PagingSource]
- * returns a [LoadResult.Error].
+ * An interface to implement the error recovery strategy when [PagingSource] returns a
+ * [LoadResult.Error].
  */
 @VisibleForTesting
 public fun interface LoadErrorHandler {
     /**
-     * The lambda that should return an [ErrorRecovery] given the [CombinedLoadStates]
-     * indicating which [LoadState] contains the [LoadState.Error].
+     * The lambda that should return an [ErrorRecovery] given the [CombinedLoadStates] indicating
+     * which [LoadState] contains the [LoadState.Error].
      *
-     * Sample use case:
-     * val onError = LoadErrorHandler { combinedLoadStates ->
-     *     if (combinedLoadStates.refresh is LoadResult.Error) {
-     *         ErrorRecovery.RETRY
-     *     } else {
-     *         ErrorRecovery.THROW
-     *     }
-     * }
+     * Sample use case: val onError = LoadErrorHandler { combinedLoadStates -> if
+     * (combinedLoadStates.refresh is LoadResult.Error) { ErrorRecovery.RETRY } else {
+     * ErrorRecovery.THROW } }
      */
     public fun onError(combinedLoadStates: CombinedLoadStates): ErrorRecovery
 }
 
 /**
- * The method of recovery when [PagingSource] returns [LoadResult.Error]. The error
- * is indicated when [PagingDataPresenter.loadStateFlow] emits a [CombinedLoadStates] where one or
- * more of the [LoadState] is [LoadState.Error].
+ * The method of recovery when [PagingSource] returns [LoadResult.Error]. The error is indicated
+ * when [PagingDataPresenter.loadStateFlow] emits a [CombinedLoadStates] where one or more of the
+ * [LoadState] is [LoadState.Error].
  */
 @VisibleForTesting
 public enum class ErrorRecovery {
     /**
-     * Rethrow the original [Throwable][LoadState.Error.error] that was caught when loading from
-     * the data source.
+     * Rethrow the original [Throwable][LoadState.Error.error] that was caught when loading from the
+     * data source.
      */
     THROW,
 
     /**
-     * Retry the failed load. This does not guarantee a successful load as the data source
-     * may still return an error.
+     * Retry the failed load. This does not guarantee a successful load as the data source may still
+     * return an error.
      */
     RETRY,
 
-    /**
-     * Returns a snapshot with any data that has been loaded up till the point of error.
-     */
+    /** Returns a snapshot with any data that has been loaded up till the point of error. */
     RETURN_CURRENT_SNAPSHOT,
 }

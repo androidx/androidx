@@ -33,32 +33,34 @@ import org.junit.runners.JUnit4
 class RxRemoteMediatorTest {
     @Test
     fun initializeSingle() = runTest {
-        val remoteMediator = object : RxRemoteMediator<Int, Int>() {
-            override fun loadSingle(
-                loadType: LoadType,
-                state: PagingState<Int, Int>
-            ): Single<MediatorResult> {
-                fail("Unexpected call")
-            }
+        val remoteMediator =
+            object : RxRemoteMediator<Int, Int>() {
+                override fun loadSingle(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>
+                ): Single<MediatorResult> {
+                    fail("Unexpected call")
+                }
 
-            override fun initializeSingle(): Single<InitializeAction> {
-                return Single.just(SKIP_INITIAL_REFRESH)
+                override fun initializeSingle(): Single<InitializeAction> {
+                    return Single.just(SKIP_INITIAL_REFRESH)
+                }
             }
-        }
 
         assertEquals(SKIP_INITIAL_REFRESH, remoteMediator.initialize())
     }
 
     @Test
     fun initializeSingleDefault() = runTest {
-        val remoteMediator = object : RxRemoteMediator<Int, Int>() {
-            override fun loadSingle(
-                loadType: LoadType,
-                state: PagingState<Int, Int>
-            ): Single<MediatorResult> {
-                fail("Unexpected call")
+        val remoteMediator =
+            object : RxRemoteMediator<Int, Int>() {
+                override fun loadSingle(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>
+                ): Single<MediatorResult> {
+                    fail("Unexpected call")
+                }
             }
-        }
 
         assertEquals(LAUNCH_INITIAL_REFRESH, remoteMediator.initialize())
     }

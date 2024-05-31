@@ -23,12 +23,13 @@ import androidx.paging.compose.samples.PagingWithLazyGrid
 import androidx.paging.compose.samples.PagingWithLazyList
 import androidx.paging.compose.samples.PagingWithVerticalPager
 
-val PagingFoundationDemos = DemoCategory(
-    "Paging",
-    listOf(
-        ComposableDemo("Paging with HorizontalPager") { PagingWithHorizontalPager() },
-        ComposableDemo("Paging with VerticalPager") { PagingWithVerticalPager() },
-        ComposableDemo("Paging with LazyGrid") { PagingWithLazyGrid() },
-        ComposableDemo("Paging with LazyColumn") { PagingWithLazyList() },
+val PagingFoundationDemos =
+    DemoCategory(
+        "Paging",
+        listOf(
+            ComposableDemo("Paging with HorizontalPager") { PagingWithHorizontalPager() },
+            ComposableDemo("Paging with VerticalPager") { PagingWithVerticalPager() },
+            ComposableDemo("Paging with LazyGrid") { PagingWithLazyGrid() },
+            ComposableDemo("Paging with LazyColumn") { PagingWithLazyList() },
+        )
     )
-)

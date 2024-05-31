@@ -43,28 +43,28 @@ class PagingDataAdapterTest {
 
     @Test
     fun hasStableIds() {
-        val pagingDataAdapter = object : PagingDataAdapter<Int, ViewHolder>(
-            diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
+        val pagingDataAdapter =
+            object :
+                PagingDataAdapter<Int, ViewHolder>(
+                    diffCallback =
+                        object : DiffUtil.ItemCallback<Int>() {
+                            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+
+                            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+                        }
+                ) {
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                    fail("Should never get here")
                 }
 
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
+                override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+                    fail("Should never get here")
                 }
             }
-        ) {
-            override fun onCreateViewHolder(
-                parent: ViewGroup,
-                viewType: Int
-            ): ViewHolder {
-                fail("Should never get here")
-            }
-
-            override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-                fail("Should never get here")
-            }
-        }
 
         assertFailsWith<UnsupportedOperationException> { pagingDataAdapter.setHasStableIds(true) }
     }
@@ -73,28 +73,27 @@ class PagingDataAdapterTest {
     fun workerContext() = runTest {
         val workerExecutor = TestExecutor()
         val workerContext: CoroutineContext = workerExecutor.asCoroutineDispatcher()
-        val adapter = object : PagingDataAdapter<Int, ViewHolder>(
-            object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
+        val adapter =
+            object :
+                PagingDataAdapter<Int, ViewHolder>(
+                    object : DiffUtil.ItemCallback<Int>() {
+                        override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+
+                        override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+                    },
+                    coroutineContext,
+                    workerContext,
+                ) {
+                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                    return object : ViewHolder(TextView(parent.context)) {}
                 }
 
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-            },
-            coroutineContext,
-            workerContext,
-        ) {
-            override fun onCreateViewHolder(
-                parent: ViewGroup,
-                viewType: Int
-            ): ViewHolder {
-                return object : ViewHolder(TextView(parent.context)) {}
+                override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
             }
-
-            override fun onBindViewHolder(holder: ViewHolder, position: Int) {}
-        }
 
         val job = launch {
             adapter.submitData(PagingData.from(listOf(1)))

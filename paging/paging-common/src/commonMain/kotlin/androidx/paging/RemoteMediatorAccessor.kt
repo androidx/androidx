@@ -27,24 +27,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * Interface provided to the snapshot to trigger load events.
- */
+/** Interface provided to the snapshot to trigger load events. */
 internal interface RemoteMediatorConnection<Key : Any, Value : Any> {
-    fun requestRefreshIfAllowed(
-        pagingState: PagingState<Key, Value>
-    )
+    fun requestRefreshIfAllowed(pagingState: PagingState<Key, Value>)
 
-    fun requestLoad(
-        loadType: LoadType,
-        pagingState: PagingState<Key, Value>
-    )
+    fun requestLoad(loadType: LoadType, pagingState: PagingState<Key, Value>)
 
     fun retryFailed(pagingState: PagingState<Key, Value>)
 
-    /**
-     * Allow a single call to [requestRefreshIfAllowed] to successfully get enqueued.
-     */
+    /** Allow a single call to [requestRefreshIfAllowed] to successfully get enqueued. */
     fun allowRefresh()
 }
 
@@ -63,9 +54,7 @@ internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
     delegate: RemoteMediator<Key, Value>
 ): RemoteMediatorAccessor<Key, Value> = RemoteMediatorAccessImpl(scope, delegate)
 
-/**
- * Simple wrapper around the local state of accessor to ensure we don't concurrently change it.
- */
+/** Simple wrapper around the local state of accessor to ensure we don't concurrently change it. */
 private class AccessorStateHolder<Key : Any, Value : Any> {
     private val lock = ReentrantLock()
 
@@ -77,9 +66,7 @@ private class AccessorStateHolder<Key : Any, Value : Any> {
 
     fun <R> use(block: (AccessorState<Key, Value>) -> R): R {
         return lock.withLock {
-            block(internalState).also {
-                _loadStates.value = internalState.computeLoadStates()
-            }
+            block(internalState).also { _loadStates.value = internalState.computeLoadStates() }
         }
     }
 }
@@ -95,14 +82,10 @@ private class AccessorStateHolder<Key : Any, Value : Any> {
  */
 private class AccessorState<Key : Any, Value : Any> {
     // TODO this can be a bit flag instead
-    private val blockStates = Array<BlockState>(LoadType.values().size) {
-        UNBLOCKED
-    }
+    private val blockStates = Array<BlockState>(LoadType.values().size) { UNBLOCKED }
 
     // keep these as error states to avoid recreating them all the time
-    private val errors = Array<LoadState.Error?>(LoadType.values().size) {
-        null
-    }
+    private val errors = Array<LoadState.Error?>(LoadType.values().size) { null }
     private val pendingRequests = ArrayDeque<PendingRequest<Key, Value>>()
 
     /**
@@ -130,9 +113,7 @@ private class AccessorState<Key : Any, Value : Any> {
 
     private fun computeLoadTypeState(loadType: LoadType): LoadState {
         val blockState = blockStates[loadType.ordinal]
-        val hasPending = pendingRequests.any {
-            it.loadType == loadType
-        }
+        val hasPending = pendingRequests.any { it.loadType == loadType }
         // Boundary requests maybe queue in pendingRequest before getting launched later when
         // refresh resolves if their block state is REQUIRES_REFRESH.
         if (hasPending && blockState != REQUIRES_REFRESH) {
@@ -146,33 +127,28 @@ private class AccessorState<Key : Any, Value : Any> {
         // b) it might be blocked due to refresh being required first -> Incomplete
         // c) it might have never run -> Incomplete
         return when (blockState) {
-            COMPLETED -> when (loadType) {
-                LoadType.REFRESH -> LoadState.NotLoading.Incomplete
-                else -> LoadState.NotLoading.Complete
-            }
+            COMPLETED ->
+                when (loadType) {
+                    LoadType.REFRESH -> LoadState.NotLoading.Incomplete
+                    else -> LoadState.NotLoading.Complete
+                }
             REQUIRES_REFRESH -> LoadState.NotLoading.Incomplete
             UNBLOCKED -> LoadState.NotLoading.Incomplete
         }
     }
 
     /**
-     * Tries to add a new pending request for the provided [loadType], and launches it
-     * immediately if it should run.
+     * Tries to add a new pending request for the provided [loadType], and launches it immediately
+     * if it should run.
      *
-     * In cases where pending request for the provided [loadType] already exists, the
-     * [pagingState] will just be updated in the existing request instead of queuing up multiple
-     * requests. This effectively de-dupes requests by [loadType], but always keeps the most
-     * recent request.
+     * In cases where pending request for the provided [loadType] already exists, the [pagingState]
+     * will just be updated in the existing request instead of queuing up multiple requests. This
+     * effectively de-dupes requests by [loadType], but always keeps the most recent request.
      *
      * @return `true` if fetchers should be launched, `false` otherwise.
      */
-    fun add(
-        loadType: LoadType,
-        pagingState: PagingState<Key, Value>
-    ): Boolean {
-        val existing = pendingRequests.firstOrNull {
-            it.loadType == loadType
-        }
+    fun add(loadType: LoadType, pagingState: PagingState<Key, Value>): Boolean {
+        val existing = pendingRequests.firstOrNull { it.loadType == loadType }
         // De-dupe requests with the same LoadType, just update PagingState and return.
         if (existing != null) {
             existing.pagingState = pagingState
@@ -217,25 +193,25 @@ private class AccessorState<Key : Any, Value : Any> {
         blockStates[loadType.ordinal] = state
     }
 
-    fun getPendingRefresh() = pendingRequests.firstOrNull {
-        it.loadType == LoadType.REFRESH
-    }?.pagingState
+    fun getPendingRefresh() =
+        pendingRequests.firstOrNull { it.loadType == LoadType.REFRESH }?.pagingState
 
-    fun getPendingBoundary() = pendingRequests.firstOrNull {
-        it.loadType != LoadType.REFRESH && blockStates[it.loadType.ordinal] == UNBLOCKED
-    }?.let {
-        // make a copy
-        it.loadType to it.pagingState
-    }
+    fun getPendingBoundary() =
+        pendingRequests
+            .firstOrNull {
+                it.loadType != LoadType.REFRESH && blockStates[it.loadType.ordinal] == UNBLOCKED
+            }
+            ?.let {
+                // make a copy
+                it.loadType to it.pagingState
+            }
 
     fun clearPendingRequests() {
         pendingRequests.clear()
     }
 
     fun clearPendingRequest(loadType: LoadType) {
-        pendingRequests.removeAll {
-            it.loadType == loadType
-        }
+        pendingRequests.removeAll { it.loadType == loadType }
     }
 
     fun clearErrors() {
@@ -296,9 +272,7 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
         loadType: LoadType,
         pagingState: PagingState<Key, Value>,
     ) {
-        val newRequest = use {
-            it.add(loadType, pagingState)
-        }
+        val newRequest = use { it.add(loadType, pagingState) }
 
         if (newRequest) {
             when (loadType) {
@@ -311,66 +285,69 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private fun launchRefresh() {
         scope.launch {
             var launchAppendPrepend = false
-            isolationRunner.runInIsolation(
-                priority = PRIORITY_REFRESH
-            ) {
-                val pendingPagingState = accessorState.use {
-                    it.getPendingRefresh()
-                }
+            isolationRunner.runInIsolation(priority = PRIORITY_REFRESH) {
+                val pendingPagingState = accessorState.use { it.getPendingRefresh() }
                 pendingPagingState?.let {
                     val loadResult = remoteMediator.load(LoadType.REFRESH, pendingPagingState)
-                    launchAppendPrepend = when (loadResult) {
-                        is MediatorResult.Success -> {
-                            accessorState.use {
-                                // First clear refresh from pending requests to update LoadState.
-                                // Note: Only clear refresh request, allowing potentially
-                                // out-of-date boundary requests as there's no guarantee that
-                                // refresh will trigger invalidation, and clearing boundary requests
-                                // here could prevent Paging from making progress.
-                                it.clearPendingRequest(LoadType.REFRESH)
+                    launchAppendPrepend =
+                        when (loadResult) {
+                            is MediatorResult.Success -> {
+                                accessorState.use {
+                                    // First clear refresh from pending requests to update
+                                    // LoadState.
+                                    // Note: Only clear refresh request, allowing potentially
+                                    // out-of-date boundary requests as there's no guarantee that
+                                    // refresh will trigger invalidation, and clearing boundary
+                                    // requests
+                                    // here could prevent Paging from making progress.
+                                    it.clearPendingRequest(LoadType.REFRESH)
 
-                                if (loadResult.endOfPaginationReached) {
-                                    it.setBlockState(LoadType.REFRESH, COMPLETED)
-                                    it.setBlockState(LoadType.PREPEND, COMPLETED)
-                                    it.setBlockState(LoadType.APPEND, COMPLETED)
+                                    if (loadResult.endOfPaginationReached) {
+                                        it.setBlockState(LoadType.REFRESH, COMPLETED)
+                                        it.setBlockState(LoadType.PREPEND, COMPLETED)
+                                        it.setBlockState(LoadType.APPEND, COMPLETED)
 
-                                    // Now that blockState is updated, which should block
-                                    // new boundary requests, clear all requests since
-                                    // endOfPaginationReached from refresh should prevent prepend
-                                    // and append from triggering, even if they are queued up.
-                                    it.clearPendingRequests()
-                                } else {
-                                    // Update block state for boundary requests now that we can
-                                    // handle them if they required refresh.
-                                    it.setBlockState(LoadType.PREPEND, UNBLOCKED)
-                                    it.setBlockState(LoadType.APPEND, UNBLOCKED)
+                                        // Now that blockState is updated, which should block
+                                        // new boundary requests, clear all requests since
+                                        // endOfPaginationReached from refresh should prevent
+                                        // prepend
+                                        // and append from triggering, even if they are queued up.
+                                        it.clearPendingRequests()
+                                    } else {
+                                        // Update block state for boundary requests now that we can
+                                        // handle them if they required refresh.
+                                        it.setBlockState(LoadType.PREPEND, UNBLOCKED)
+                                        it.setBlockState(LoadType.APPEND, UNBLOCKED)
+                                    }
+
+                                    // clean their errors
+                                    it.setError(LoadType.PREPEND, null)
+                                    it.setError(LoadType.APPEND, null)
+
+                                    // If there is a pending boundary, trigger its launch, allowing
+                                    // out-of-date requests in the case where queued requests were
+                                    // from previous generation. See b/176855944.
+                                    it.getPendingBoundary() != null
                                 }
+                            }
+                            is MediatorResult.Error -> {
+                                // if refresh failed, don't change append/prepend states so that if
+                                // refresh is not required, they can run.
+                                accessorState.use {
+                                    // only clear refresh. we can use append prepend
+                                    it.clearPendingRequest(LoadType.REFRESH)
+                                    it.setError(
+                                        LoadType.REFRESH,
+                                        LoadState.Error(loadResult.throwable)
+                                    )
 
-                                // clean their errors
-                                it.setError(LoadType.PREPEND, null)
-                                it.setError(LoadType.APPEND, null)
-
-                                // If there is a pending boundary, trigger its launch, allowing
-                                // out-of-date requests in the case where queued requests were
-                                // from previous generation. See b/176855944.
-                                it.getPendingBoundary() != null
+                                    // If there is a pending boundary, trigger its launch, allowing
+                                    // out-of-date requests in the case where queued requests were
+                                    // from previous generation. See b/176855944.
+                                    it.getPendingBoundary() != null
+                                }
                             }
                         }
-                        is MediatorResult.Error -> {
-                            // if refresh failed, don't change append/prepend states so that if
-                            // refresh is not required, they can run.
-                            accessorState.use {
-                                // only clear refresh. we can use append prepend
-                                it.clearPendingRequest(LoadType.REFRESH)
-                                it.setError(LoadType.REFRESH, LoadState.Error(loadResult.throwable))
-
-                                // If there is a pending boundary, trigger its launch, allowing
-                                // out-of-date requests in the case where queued requests were
-                                // from previous generation. See b/176855944.
-                                it.getPendingBoundary() != null
-                            }
-                        }
-                    }
                 }
             }
             // launch this after we leave the restricted scope otherwise append / prepend won't
@@ -383,13 +360,10 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
 
     private fun launchBoundary() {
         scope.launch {
-            isolationRunner.runInIsolation(
-                priority = PRIORITY_APPEND_PREPEND
-            ) {
+            isolationRunner.runInIsolation(priority = PRIORITY_APPEND_PREPEND) {
                 while (true) {
-                    val (loadType, pendingPagingState) = accessorState.use {
-                        it.getPendingBoundary()
-                    } ?: break
+                    val (loadType, pendingPagingState) =
+                        accessorState.use { it.getPendingBoundary() } ?: break
                     when (val loadResult = remoteMediator.load(loadType, pendingPagingState)) {
                         is MediatorResult.Success -> {
                             accessorState.use {
@@ -436,9 +410,7 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
             }
         }
 
-        toBeStarted.forEach {
-            requestLoad(it, pagingState)
-        }
+        toBeStarted.forEach { requestLoad(it, pagingState) }
     }
 
     override suspend fun initialize(): RemoteMediator.InitializeAction {

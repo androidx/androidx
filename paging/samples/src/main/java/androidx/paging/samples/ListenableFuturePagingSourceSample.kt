@@ -27,11 +27,7 @@ import java.io.IOException
 import java.util.concurrent.Executor
 import retrofit2.HttpException
 
-data class RemoteResult(
-    val items: List<Item>,
-    val prev: String,
-    val next: String
-)
+data class RemoteResult(val items: List<Item>, val prev: String, val next: String)
 
 private class GuavaBackendService {
     @Suppress("UNUSED_PARAMETER")
@@ -52,10 +48,7 @@ fun listenableFuturePagingSourceSample() {
             params: LoadParams<String>
         ): ListenableFuture<LoadResult<String, Item>> {
             return myBackend
-                .searchUsers(
-                    searchTerm = searchTerm,
-                    pageKey = params.key
-                )
+                .searchUsers(searchTerm = searchTerm, pageKey = params.key)
                 .transform<LoadResult<String, Item>>(
                     { response ->
                         LoadResult.Page(

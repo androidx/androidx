@@ -19,8 +19,8 @@
 package androidx.palette.graphics
 
 /**
- * Returns the selected swatch for the given target from the palette, or `null` if one
- * could not be found.
+ * Returns the selected swatch for the given target from the palette, or `null` if one could not be
+ * found.
  *
  * @see Palette.getSwatchForTarget
  */

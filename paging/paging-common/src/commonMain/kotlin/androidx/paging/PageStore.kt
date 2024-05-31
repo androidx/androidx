@@ -23,8 +23,8 @@ import androidx.paging.PageEvent.Insert.Companion.EMPTY_REFRESH_LOCAL
 import androidx.paging.internal.BUGANIZER_URL
 
 /**
- * Presents post-transform paging data as a list, with list update notifications when
- * PageEvents are dispatched.
+ * Presents post-transform paging data as a list, with list update notifications when PageEvents are
+ * dispatched.
  */
 internal class PageStore<T : Any>(
     pages: List<TransformablePage<T>>,
@@ -42,12 +42,16 @@ internal class PageStore<T : Any>(
     private val pages: MutableList<TransformablePage<T>> = pages.toMutableList()
     override var dataCount: Int = pages.fullCount()
         private set
+
     private val originalPageOffsetFirst: Int
         get() = pages.first().originalPageOffsets.minOrNull()!!
+
     private val originalPageOffsetLast: Int
         get() = pages.last().originalPageOffsets.maxOrNull()!!
+
     override var placeholdersBefore: Int = placeholdersBefore
         private set
+
     override var placeholdersAfter: Int = placeholdersAfter
         private set
 
@@ -73,11 +77,7 @@ internal class PageStore<T : Any>(
     }
 
     fun snapshot(): ItemSnapshotList<T> {
-        return ItemSnapshotList(
-            placeholdersBefore,
-            placeholdersAfter,
-            pages.flatMap { it.data }
-        )
+        return ItemSnapshotList(placeholdersBefore, placeholdersAfter, pages.flatMap { it.data })
     }
 
     override fun getItem(index: Int): T {
@@ -107,12 +107,14 @@ internal class PageStore<T : Any>(
         return when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent)
             is PageEvent.Drop -> dropPages(pageEvent)
-            else -> throw IllegalStateException(
-                """Paging received an event to process StaticList or LoadStateUpdate while
+            else ->
+                throw IllegalStateException(
+                    """Paging received an event to process StaticList or LoadStateUpdate while
                 |processing Inserts and Drops. If you see this exception, it is most
                 |likely a bug in the library. Please file a bug so we can fix it at:
-                |$BUGANIZER_URL""".trimMargin()
-            )
+                |$BUGANIZER_URL"""
+                        .trimMargin()
+                )
         }
     }
 
@@ -151,12 +153,14 @@ internal class PageStore<T : Any>(
     private fun insertPage(insert: PageEvent.Insert<T>): PagingDataEvent<T> {
         val insertSize = insert.pages.fullCount()
         return when (insert.loadType) {
-            REFRESH -> throw IllegalStateException(
-                """Paging received a refresh event in the middle of an actively loading generation
+            REFRESH ->
+                throw IllegalStateException(
+                    """Paging received a refresh event in the middle of an actively loading generation
                 |of PagingData. If you see this exception, it is most likely a bug in the library.
                 |Please file a bug so we can fix it at:
-                |$BUGANIZER_URL""".trimMargin()
-            )
+                |$BUGANIZER_URL"""
+                        .trimMargin()
+                )
             PREPEND -> {
                 val oldPlaceholdersBefore = placeholdersBefore
                 // update all states
@@ -207,14 +211,12 @@ internal class PageStore<T : Any>(
     }
 
     /**
-     * Helper which converts a [PageEvent.Drop] to a [PagingDataEvent] by
-     * dropping all pages that depend on the n-lowest or n-highest originalPageOffsets.
+     * Helper which converts a [PageEvent.Drop] to a [PagingDataEvent] by dropping all pages that
+     * depend on the n-lowest or n-highest originalPageOffsets.
      */
     private fun dropPages(drop: PageEvent.Drop<T>): PagingDataEvent<T> {
         // update states
-        val itemDropCount = dropPagesWithOffsets(
-            drop.minPageOffset..drop.maxPageOffset
-        )
+        val itemDropCount = dropPagesWithOffsets(drop.minPageOffset..drop.maxPageOffset)
         dataCount -= itemDropCount
 
         return if (drop.loadType == PREPEND) {

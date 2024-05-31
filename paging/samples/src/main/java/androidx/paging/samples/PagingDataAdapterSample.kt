@@ -40,11 +40,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-data class User(
-    val userId: String,
-    val favoriteFood: String,
-    val isFavorite: Boolean
-)
+data class User(val userId: String, val favoriteFood: String, val isFavorite: Boolean)
 
 // TODO: consider adding a fleshed out ViewHolder as part of the sample
 @Suppress("UNUSED_PARAMETER")
@@ -61,15 +57,16 @@ class UserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 @Suppress("LocalVariableName") // We're pretending local val is global
 @Sampled
 fun pagingDataAdapterSample() {
-    val USER_COMPARATOR = object : DiffUtil.ItemCallback<User>() {
-        override fun areItemsTheSame(oldItem: User, newItem: User): Boolean =
-            // User ID serves as unique ID
-            oldItem.userId == newItem.userId
+    val USER_COMPARATOR =
+        object : DiffUtil.ItemCallback<User>() {
+            override fun areItemsTheSame(oldItem: User, newItem: User): Boolean =
+                // User ID serves as unique ID
+                oldItem.userId == newItem.userId
 
-        override fun areContentsTheSame(oldItem: User, newItem: User): Boolean =
-            // Compare full contents (note: Java users should call .equals())
-            oldItem == newItem
-    }
+            override fun areContentsTheSame(oldItem: User, newItem: User): Boolean =
+                // Compare full contents (note: Java users should call .equals())
+                oldItem == newItem
+        }
 
     class UserAdapter : PagingDataAdapter<User, UserViewHolder>(USER_COMPARATOR) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
@@ -85,6 +82,7 @@ fun pagingDataAdapterSample() {
 }
 
 internal class UserPagingAdapter : BasePagingAdapter<User>()
+
 internal class UserListViewModel : BaseViewModel<User>()
 
 internal class MyActivityBinding {
@@ -116,9 +114,7 @@ fun refreshSample() {
                 binding.swipeRefreshLayout.isRefreshing = loadStates.refresh is LoadState.Loading
             }
 
-            binding.swipeRefreshLayout.setOnRefreshListener {
-                pagingAdapter.refresh()
-            }
+            binding.swipeRefreshLayout.setOnRefreshListener { pagingAdapter.refresh() }
         }
     }
 }
@@ -182,12 +178,11 @@ fun submitDataFlowSample() {
             val viewModel by viewModels<UserListViewModel>()
 
             lifecycleScope.launch {
-                viewModel.pagingFlow
-                    .collectLatest { pagingData ->
-                        // submitData suspends until loading this generation of data stops
-                        // so be sure to use collectLatest {} when presenting a Flow<PagingData>
-                        pagingAdapter.submitData(pagingData)
-                    }
+                viewModel.pagingFlow.collectLatest { pagingData ->
+                    // submitData suspends until loading this generation of data stops
+                    // so be sure to use collectLatest {} when presenting a Flow<PagingData>
+                    pagingAdapter.submitData(pagingData)
+                }
             }
         }
     }
@@ -227,9 +222,7 @@ fun submitDataRxSample() {
 
             viewModel.pagingFlowable
                 .autoDispose(this) // Using AutoDispose to handle subscription lifecycle
-                .subscribe { pagingData ->
-                    pagingAdapter.submitData(lifecycle, pagingData)
-                }
+                .subscribe { pagingData -> pagingAdapter.submitData(lifecycle, pagingData) }
         }
     }
 }

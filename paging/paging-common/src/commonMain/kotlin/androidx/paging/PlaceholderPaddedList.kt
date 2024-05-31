@@ -19,15 +19,15 @@ package androidx.paging
 /**
  * Interface to paged list that could contain placeholders.
  *
- * Contains a paged list's snapshot state. For example, in the context of
- * [PagingDataEvent.Refresh] exposed by [PagingDataPresenter], each [PlaceholderPaddedList]
- * represents a generation of paged data whereby a new generation is distinguished with
- * a refresh load.
+ * Contains a paged list's snapshot state. For example, in the context of [PagingDataEvent.Refresh]
+ * exposed by [PagingDataPresenter], each [PlaceholderPaddedList] represents a generation of paged
+ * data whereby a new generation is distinguished with a refresh load.
  */
 public interface PlaceholderPaddedList<T> {
     public val placeholdersBefore: Int
     public val placeholdersAfter: Int
     public val size: Int
     public val dataCount: Int
+
     public fun getItem(index: Int): T
 }

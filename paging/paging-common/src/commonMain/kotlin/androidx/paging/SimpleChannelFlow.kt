@@ -33,48 +33,48 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * This is a simplified channelFlow implementation as a temporary measure until channel flow
- * leaves experimental state.
+ * This is a simplified channelFlow implementation as a temporary measure until channel flow leaves
+ * experimental state.
  *
- * The exact same implementation is not possible due to [FusibleFlow] being an internal API. To
- * get close to that implementation, internally we use a [Channel.RENDEZVOUS] channel and use a
- * [buffer] ([Channel.BUFFERED]) operator on the resulting Flow. This gives us a close behavior
- * where the default is buffered and any followup buffer operation will result in +1 value being
- * produced.
+ * The exact same implementation is not possible due to [FusibleFlow] being an internal API. To get
+ * close to that implementation, internally we use a [Channel.RENDEZVOUS] channel and use a [buffer]
+ * ([Channel.BUFFERED]) operator on the resulting Flow. This gives us a close behavior where the
+ * default is buffered and any followup buffer operation will result in +1 value being produced.
  */
-internal fun <T> simpleChannelFlow(
-    block: suspend SimpleProducerScope<T>.() -> Unit
-): Flow<T> {
+internal fun <T> simpleChannelFlow(block: suspend SimpleProducerScope<T>.() -> Unit): Flow<T> {
     return flow {
-        coroutineScope {
-            val channel = Channel<T>(capacity = Channel.RENDEZVOUS)
-            val producer = launch {
-                try {
-                    // run producer in a separate inner scope to ensure we wait for its children
-                    // to finish, in case it does more launches inside.
-                    coroutineScope {
-                        val producerScopeImpl = SimpleProducerScopeImpl(
-                            scope = this,
-                            channel = channel,
-                        )
-                        producerScopeImpl.block()
+            coroutineScope {
+                val channel = Channel<T>(capacity = Channel.RENDEZVOUS)
+                val producer = launch {
+                    try {
+                        // run producer in a separate inner scope to ensure we wait for its children
+                        // to finish, in case it does more launches inside.
+                        coroutineScope {
+                            val producerScopeImpl =
+                                SimpleProducerScopeImpl(
+                                    scope = this,
+                                    channel = channel,
+                                )
+                            producerScopeImpl.block()
+                        }
+                        channel.close()
+                    } catch (t: Throwable) {
+                        channel.close(t)
                     }
-                    channel.close()
-                } catch (t: Throwable) {
-                    channel.close(t)
                 }
+                for (item in channel) {
+                    emit(item)
+                }
+                // in case channel closed before producer completes, cancel the producer.
+                producer.cancel()
             }
-            for (item in channel) {
-                emit(item)
-            }
-            // in case channel closed before producer completes, cancel the producer.
-            producer.cancel()
         }
-    }.buffer(Channel.BUFFERED)
+        .buffer(Channel.BUFFERED)
 }
 
 internal interface SimpleProducerScope<T> : CoroutineScope, SendChannel<T> {
     val channel: SendChannel<T>
+
     suspend fun awaitClose(block: () -> Unit)
 }
 
@@ -84,13 +84,10 @@ internal class SimpleProducerScopeImpl<T>(
 ) : SimpleProducerScope<T>, CoroutineScope by scope, SendChannel<T> by channel {
     override suspend fun awaitClose(block: () -> Unit) {
         try {
-            val job = checkNotNull(coroutineContext[Job]) {
-                "Internal error, context should have a job."
-            }
+            val job =
+                checkNotNull(coroutineContext[Job]) { "Internal error, context should have a job." }
             suspendCancellableCoroutine<Unit> { cont ->
-                job.invokeOnCompletion {
-                    cont.resume(Unit)
-                }
+                job.invokeOnCompletion { cont.resume(Unit) }
             }
         } finally {
             block()

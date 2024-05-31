@@ -21,9 +21,7 @@ import androidx.paging.PagingState
 import androidx.paging.integration.testapp.room.Customer
 import java.util.UUID
 
-/**
- * Sample position-based PagingSource with artificial data.
- */
+/** Sample position-based PagingSource with artificial data. */
 internal class NetworkCustomerPagingSource : PagingSource<Int, Customer>() {
     private fun createCustomer(i: Int): Customer {
         val customer = Customer()
@@ -32,19 +30,17 @@ internal class NetworkCustomerPagingSource : PagingSource<Int, Customer>() {
         return customer
     }
 
-    override fun getRefreshKey(
-        state: PagingState<Int, Customer>
-    ): Int? = state.anchorPosition?.let {
-        maxOf(0, it - 5)
-    }
+    override fun getRefreshKey(state: PagingState<Int, Customer>): Int? =
+        state.anchorPosition?.let { maxOf(0, it - 5) }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Customer> {
         val key = params.key ?: 0
-        val data = if (params is LoadParams.Prepend) {
-            List(params.loadSize) { createCustomer(it + key - params.loadSize) }
-        } else {
-            List(params.loadSize) { createCustomer(it + key) }
-        }
+        val data =
+            if (params is LoadParams.Prepend) {
+                List(params.loadSize) { createCustomer(it + key - params.loadSize) }
+            } else {
+                List(params.loadSize) { createCustomer(it + key) }
+            }
         return LoadResult.Page(
             data = data,
             prevKey = if (key > 0) key else null,

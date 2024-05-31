@@ -23,11 +23,11 @@ import androidx.paging.internal.withLock
 /**
  * Wrapper class for a [PagingSource] factory intended for usage in [Pager] construction.
  *
- * Calling [invalidate] on this [InvalidatingPagingSourceFactory] will forward invalidate signals
- * to all active [PagingSource]s that were produced by calling [invoke].
+ * Calling [invalidate] on this [InvalidatingPagingSourceFactory] will forward invalidate signals to
+ * all active [PagingSource]s that were produced by calling [invoke].
  *
- * This class is thread-safe for concurrent calls to any mutative operations including both
- * [invoke] and [invalidate].
+ * This class is thread-safe for concurrent calls to any mutative operations including both [invoke]
+ * and [invalidate].
  *
  * @param pagingSourceFactory The [PagingSource] factory that returns a PagingSource when called
  */
@@ -38,19 +38,14 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
 
     private var pagingSources: List<PagingSource<Key, Value>> = emptyList()
 
-    @VisibleForTesting
-    internal fun pagingSources() = pagingSources
+    @VisibleForTesting internal fun pagingSources() = pagingSources
 
     /**
-     * @return [PagingSource] which will be invalidated when this factory's [invalidate] method
-     * is called
+     * @return [PagingSource] which will be invalidated when this factory's [invalidate] method is
+     *   called
      */
     override fun invoke(): PagingSource<Key, Value> {
-        return pagingSourceFactory().also {
-            lock.withLock {
-                pagingSources = pagingSources + it
-            }
-        }
+        return pagingSourceFactory().also { lock.withLock { pagingSources = pagingSources + it } }
     }
 
     /**
@@ -58,11 +53,7 @@ public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
      * [InvalidatingPagingSourceFactory]
      */
     public fun invalidate() {
-        val previousList = lock.withLock {
-            pagingSources.also {
-                pagingSources = emptyList()
-            }
-        }
+        val previousList = lock.withLock { pagingSources.also { pagingSources = emptyList() } }
         for (pagingSource in previousList) {
             if (!pagingSource.invalid) {
                 pagingSource.invalidate()

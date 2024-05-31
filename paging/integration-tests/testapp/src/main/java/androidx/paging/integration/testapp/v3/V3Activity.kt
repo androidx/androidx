@@ -43,11 +43,12 @@ class V3Activity : AppCompatActivity() {
         setContentView(R.layout.activity_recycler_view)
         val viewModel by viewModels<V3ViewModel>()
 
-        val orientationText = when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> "land"
-            Configuration.ORIENTATION_PORTRAIT -> "port"
-            else -> "unknown"
-        }
+        val orientationText =
+            when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> "land"
+                Configuration.ORIENTATION_PORTRAIT -> "port"
+                else -> "unknown"
+            }
         // NOTE: lifecycleScope means we don't respect paused state here
         lifecycleScope.launch {
             viewModel.flow
@@ -58,26 +59,26 @@ class V3Activity : AppCompatActivity() {
         }
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
-        recyclerView.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
-            header = StateItemAdapter { pagingAdapter.retry() },
-            footer = StateItemAdapter { pagingAdapter.retry() }
-        )
+        recyclerView.adapter =
+            pagingAdapter.withLoadStateHeaderAndFooter(
+                header = StateItemAdapter { pagingAdapter.retry() },
+                footer = StateItemAdapter { pagingAdapter.retry() }
+            )
 
         setupLoadStateButtons(pagingAdapter)
 
-        findViewById<Button>(R.id.button_error).setOnClickListener {
-            dataSourceError.set(true)
-        }
+        findViewById<Button>(R.id.button_error).setOnClickListener { dataSourceError.set(true) }
     }
 
     private fun setupLoadStateButtons(adapter: PagingDataAdapter<Item, RecyclerView.ViewHolder>) {
         val button = findViewById<Button>(R.id.button_refresh)
         adapter.addLoadStateListener { loadStates: CombinedLoadStates ->
-            button.text = when (loadStates.refresh) {
-                is NotLoading -> "Refresh"
-                is Loading -> "Loading"
-                is Error -> "Error"
-            }
+            button.text =
+                when (loadStates.refresh) {
+                    is NotLoading -> "Refresh"
+                    is Loading -> "Loading"
+                    is Error -> "Error"
+                }
 
             if (loadStates.refresh is NotLoading) {
                 button.setOnClickListener { adapter.refresh() }

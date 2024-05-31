@@ -35,9 +35,7 @@ internal class GarbageCollectionTestHelper {
         size++
     }
 
-    fun assertLiveObjects(
-        vararg expected: Pair<KClass<*>, Int>
-    ) {
+    fun assertLiveObjects(vararg expected: Pair<KClass<*>, Int>) {
         val continueTriggeringGc = AtomicBoolean(true)
         thread {
             val leak: ArrayList<ByteArray> = ArrayList()
@@ -49,41 +47,38 @@ internal class GarbageCollectionTestHelper {
         }
         var collectedItemCount = 0
         val expectedItemCount = size - expected.sumOf { it.second }
-        while (collectedItemCount < expectedItemCount &&
-            queue.remove(5.seconds.inWholeMilliseconds) != null
+        while (
+            collectedItemCount < expectedItemCount &&
+                queue.remove(5.seconds.inWholeMilliseconds) != null
         ) {
             collectedItemCount++
         }
         continueTriggeringGc.set(false)
         val leakedObjects = countLiveObjects()
-        val leakedObjectToStrings = references.mapNotNull {
-            it.get()
-        }.joinToString("\n")
+        val leakedObjectToStrings = references.mapNotNull { it.get() }.joinToString("\n")
+        assertWithMessage("expected to collect $expectedItemCount, collected $collectedItemCount")
+            .that(collectedItemCount)
+            .isEqualTo(expectedItemCount)
         assertWithMessage(
-            "expected to collect $expectedItemCount, collected $collectedItemCount"
-        ).that(collectedItemCount).isEqualTo(expectedItemCount)
-        assertWithMessage(
-            """
+                """
             expected to collect $expectedItemCount, collected $collectedItemCount.
             live objects: $leakedObjectToStrings
-            """.trimIndent()
-        ).that(leakedObjects).containsExactlyElementsIn(expected)
+            """
+                    .trimIndent()
+            )
+            .that(leakedObjects)
+            .containsExactlyElementsIn(expected)
     }
 
-    /**
-     * Tries to trigger garbage collection until an element is available in the given queue.
-     */
+    /** Tries to trigger garbage collection until an element is available in the given queue. */
     fun assertEverythingIsCollected() {
         assertLiveObjects()
     }
 
     private fun countLiveObjects(): List<Pair<KClass<*>, Int>> {
-        return references.mapNotNull {
-            it.get()
-        }.groupBy {
-            it::class
-        }.map { entry ->
-            entry.key to entry.value.size
-        }
+        return references
+            .mapNotNull { it.get() }
+            .groupBy { it::class }
+            .map { entry -> entry.key to entry.value.size }
     }
 }
