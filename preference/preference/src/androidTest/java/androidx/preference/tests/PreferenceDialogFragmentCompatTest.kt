@@ -54,9 +54,8 @@ class PreferenceDialogFragmentCompatTest(private val xmlLayoutId: Int) {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule(
-        PreferenceTestHelperActivity::class.java
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule(PreferenceTestHelperActivity::class.java)
 
     @Test
     fun testInflatedChildDialogFragment() {
@@ -66,9 +65,7 @@ class PreferenceDialogFragmentCompatTest(private val xmlLayoutId: Int) {
         activityTestRule.runOnUiThread {
             fragment = InflatedFragment(xmlLayoutId)
 
-            fm.beginTransaction()
-                .add(fragment, null)
-                .commitNow()
+            fm.beginTransaction().add(fragment, null).commitNow()
         }
 
         // Show the dialog
@@ -86,15 +83,17 @@ class PreferenceDialogFragmentCompatTest(private val xmlLayoutId: Int) {
 class InflatedFragment(val xmlLayoutId: Int) : PreferenceFragmentCompat() {
 
     lateinit var dialogFragment: DialogFragment
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(xmlLayoutId, rootKey)
     }
 
     @Suppress("DEPRECATION")
     override fun onDisplayPreferenceDialog(preference: Preference) {
-        dialogFragment = DialogFragment(preference.key)
-            .also { it.setTargetFragment(this, 0) }
-            .also { it.show(parentFragmentManager, null) }
+        dialogFragment =
+            DialogFragment(preference.key)
+                .also { it.setTargetFragment(this, 0) }
+                .also { it.show(parentFragmentManager, null) }
     }
 }
 
@@ -102,16 +101,23 @@ class NestedFragment : Fragment(R.layout.simple_layout)
 
 class TestFragmentContainerViewDialogPreference(context: Context, attrs: AttributeSet?) :
     DialogPreference(context, attrs) {
-    init { dialogLayoutResource = R.layout.inflated_fragment_container_view }
+    init {
+        dialogLayoutResource = R.layout.inflated_fragment_container_view
+    }
 }
 
 class TestFragmentTagDialogPreference(context: Context, attrs: AttributeSet?) :
     DialogPreference(context, attrs) {
-    init { dialogLayoutResource = R.layout.inflated_fragment_tag }
+    init {
+        dialogLayoutResource = R.layout.inflated_fragment_tag
+    }
 }
 
 class DialogFragment(val key: String) : PreferenceDialogFragmentCompat() {
-    init { arguments = Bundle(1).apply { putString(ARG_KEY, key) } }
+    init {
+        arguments = Bundle(1).apply { putString(ARG_KEY, key) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -119,5 +125,6 @@ class DialogFragment(val key: String) : PreferenceDialogFragmentCompat() {
     ): View? {
         return inflater.inflate(R.layout.simple_layout, container, false)
     }
+
     override fun onDialogClosed(positiveResult: Boolean) {}
 }

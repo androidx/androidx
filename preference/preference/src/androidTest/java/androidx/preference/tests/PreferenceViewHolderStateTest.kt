@@ -44,9 +44,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test for resetting [PreferenceViewHolder] state.
- */
+/** Test for resetting [PreferenceViewHolder] state. */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class PreferenceViewHolderStateTest {
@@ -72,18 +70,17 @@ class PreferenceViewHolderStateTest {
         // Add 20 unselectable + copyable Preferences. This is so that when we add a new item, it
         // will be offscreen, and when scrolling to it RecyclerView will attempt to reuse an
         // existing cached ViewHolder.
-        val preferences = (1..20).map { index ->
-            TestPreference(fragment.context!!).apply {
-                title = copyableTitle + index
-                summary = "Summary to copy"
-                isCopyingEnabled = true
-                isSelectable = false
+        val preferences =
+            (1..20).map { index ->
+                TestPreference(fragment.context!!).apply {
+                    title = copyableTitle + index
+                    summary = "Summary to copy"
+                    isCopyingEnabled = true
+                    isSelectable = false
+                }
             }
-        }
 
-        activityRule.runOnUiThread {
-            preferences.forEach { preferenceScreen.addPreference(it) }
-        }
+        activityRule.runOnUiThread { preferences.forEach { preferenceScreen.addPreference(it) } }
 
         // Wait for a Preference to be visible
         onView(withText("${copyableTitle}1")).check(matches(isDisplayed()))
@@ -98,19 +95,18 @@ class PreferenceViewHolderStateTest {
 
         // Add a normal, selectable Preference to the end. This will currently be displayed off
         // screen, and not yet bound.
-        val normalPreference = TestPreference(fragment.context!!).apply {
-            title = normalTitle
-            summary = "Normal summary"
-        }
+        val normalPreference =
+            TestPreference(fragment.context!!).apply {
+                title = normalTitle
+                summary = "Normal summary"
+            }
 
         // Assert that we haven't bound this Preference yet
         assertNull(normalPreference.background)
         assertNull(normalPreference.titleColor)
         assertNull(normalPreference.summaryColor)
 
-        activityRule.runOnUiThread {
-            preferenceScreen.addPreference(normalPreference)
-        }
+        activityRule.runOnUiThread { preferenceScreen.addPreference(normalPreference) }
 
         val maxAttempts = 10
 
@@ -138,16 +134,15 @@ class PreferenceViewHolderStateTest {
         // Add 40 disabled Preferences. The ones at the end haven't been bound yet, and we want
         // to ensure that when they are bound, reusing a ViewHolder, they should have the correct
         // disabled state.
-        val preferences = (1..40).map { index ->
-            TestPreference(fragment.context!!).apply {
-                title = disabledTitle + index
-                isEnabled = false
+        val preferences =
+            (1..40).map { index ->
+                TestPreference(fragment.context!!).apply {
+                    title = disabledTitle + index
+                    isEnabled = false
+                }
             }
-        }
 
-        activityRule.runOnUiThread {
-            preferences.forEach { preferenceScreen.addPreference(it) }
-        }
+        activityRule.runOnUiThread { preferences.forEach { preferenceScreen.addPreference(it) } }
 
         // Wait for a Preference to be visible
         onView(withText("${disabledTitle}1")).check(matches(isDisplayed()))
@@ -174,8 +169,8 @@ class PreferenceViewHolderStateTest {
 }
 
 /**
- * Testing [Preference] class that records the background [Drawable] and the color of its title
- * and summary once bound.
+ * Testing [Preference] class that records the background [Drawable] and the color of its title and
+ * summary once bound.
  */
 private class TestPreference(context: Context) : Preference(context) {
     var background: Drawable? = null
