@@ -630,6 +630,22 @@ public final class Row implements Item {
             return this;
         }
 
+        /**
+         * Sets the {@link OnClickDelegate} to be called back when the row is clicked.
+         *
+         * <p>Note that the listener relates to UI events and will be executed on the main thread
+         * using {@link Looper#getMainLooper()}.
+         *
+         * @throws NullPointerException if {@code onClickListener} is {@code null}
+         */
+        @NonNull
+        @SuppressLint({"MissingGetterMatchingBuilder"})
+        @RestrictTo(LIBRARY)
+        public Builder setOnClickDelegate(@NonNull OnClickDelegate onClickDelegate) {
+            mOnClickDelegate = onClickDelegate;
+            return this;
+        }
+
 
         /**
          * Sets the {@link Metadata} associated with the row.
