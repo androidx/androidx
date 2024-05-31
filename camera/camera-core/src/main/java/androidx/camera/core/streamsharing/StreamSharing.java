@@ -19,11 +19,9 @@ package androidx.camera.core.streamsharing;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
-import static androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
-import static androidx.camera.core.impl.SessionConfig.getHigherPriorityTemplateType;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
@@ -275,7 +273,6 @@ public class StreamSharing extends UseCase {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config,
                 streamSpec.getResolution());
 
-        propagateChildrenTemplate(builder);
         propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
 
         builder.addSurface(mCameraEdge.getDeferrableSurface(),
@@ -291,21 +288,6 @@ public class StreamSharing extends UseCase {
         mSessionConfigBuilder = builder;
         return builder.build();
     }
-
-    private void propagateChildrenTemplate(@NonNull SessionConfig.Builder builder) {
-        int targetTemplate = TEMPLATE_TYPE_NONE;
-        for (UseCase child : getChildren()) {
-            targetTemplate = getHigherPriorityTemplateType(targetTemplate, getChildTemplate(child));
-        }
-        if (targetTemplate != TEMPLATE_TYPE_NONE) {
-            builder.setTemplateType(targetTemplate);
-        }
-    }
-
-    private static int getChildTemplate(@NonNull UseCase useCase) {
-        return useCase.getCurrentConfig().getDefaultSessionConfig().getTemplateType();
-    }
-
 
     /**
      * Propagates children Camera2interop settings.

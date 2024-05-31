@@ -52,15 +52,6 @@ import java.util.Set;
  */
 public final class SessionConfig {
     public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
-    // Current supported session template values and the bigger index in the list, the
-    // priority is higher.
-    private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
-            CameraDevice.TEMPLATE_PREVIEW,
-            // TODO(230673983): Based on the framework assumptions, we prioritize video capture
-            //  and disable ZSL (fallback to regular) if both use cases are bound.
-            CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
-            CameraDevice.TEMPLATE_RECORD
-    );
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
     /** The {@link OutputConfig} for the postview. */
@@ -352,12 +343,6 @@ public final class SessionConfig {
     @NonNull
     public CaptureConfig getRepeatingCaptureConfig() {
         return mRepeatingCaptureConfig;
-    }
-
-    /** Returns the one which has higher priority. */
-    public static int getHigherPriorityTemplateType(int type1, int type2) {
-        return SUPPORTED_TEMPLATE_PRIORITY.indexOf(type1)
-                >= SUPPORTED_TEMPLATE_PRIORITY.indexOf(type2) ? type1 : type2;
     }
 
     public enum SessionError {
@@ -815,6 +800,16 @@ public final class SessionConfig {
      * the parameters for the {@link SessionConfig} are compatible with each other
      */
     public static final class ValidatingBuilder extends BaseBuilder {
+        // Current supported session template values and the bigger index in the list, the
+        // priority is higher.
+        private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
+                CameraDevice.TEMPLATE_PREVIEW,
+                // TODO(230673983): Based on the framework assumptions, we prioritize video capture
+                //  and disable ZSL (fallback to regular) if both use cases are bound.
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
+                CameraDevice.TEMPLATE_RECORD
+        );
+
         private static final String TAG = "ValidatingBuilder";
         private final SurfaceSorter mSurfaceSorter = new SurfaceSorter();
         private boolean mValid = true;
@@ -840,7 +835,7 @@ public final class SessionConfig {
             if (captureConfig.getTemplateType() != CaptureConfig.TEMPLATE_TYPE_NONE) {
                 mTemplateSet = true;
                 mCaptureConfigBuilder.setTemplateType(
-                        getHigherPriorityTemplateType(captureConfig.getTemplateType(),
+                        selectTemplateType(captureConfig.getTemplateType(),
                                 mCaptureConfigBuilder.getTemplateType()));
             }
 
@@ -992,6 +987,11 @@ public final class SessionConfig {
                     mInputConfiguration,
                     mSessionType,
                     mPostviewOutputConfig);
+        }
+
+        private int selectTemplateType(int type1, int type2) {
+            return SUPPORTED_TEMPLATE_PRIORITY.indexOf(type1)
+                    >= SUPPORTED_TEMPLATE_PRIORITY.indexOf(type2) ? type1 : type2;
         }
     }
 }
