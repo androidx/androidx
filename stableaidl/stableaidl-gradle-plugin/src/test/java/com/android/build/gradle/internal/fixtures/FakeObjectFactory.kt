@@ -20,9 +20,6 @@ import org.gradle.api.model.ObjectFactory
 
 class FakeObjectFactory {
     companion object {
-        @JvmStatic
-        val factory: ObjectFactory by lazy {
-            ProjectFactory.project.objects
-        }
+        @JvmStatic val factory: ObjectFactory by lazy { ProjectFactory.project.objects }
     }
 }

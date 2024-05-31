@@ -39,13 +39,12 @@ private const val INTERMEDIATES_PATH = "intermediates/${PLUGIN_DIRNAME}_parcelab
 abstract class StableAidlPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
-            ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
+        val androidComponents =
+            project.extensions.getByType(AndroidComponentsExtension::class.java)
+                ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
 
-        val extension = project.extensions.create(
-            EXTENSION_NAME,
-            StableAidlExtensionImpl::class.java
-        )
+        val extension =
+            project.extensions.create(EXTENSION_NAME, StableAidlExtensionImpl::class.java)
 
         val aidl = androidComponents.sdkComponents.aidl.get()
         val aidlExecutable = aidl.executable
@@ -64,16 +63,15 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 .build()
         ) { variantExtensionConfig ->
             // Propagate project and buildType configuration to variant.
-            project.objects.newInstance(
-                StableAidlVariantExtension::class.java
-            ).also { variantExtension ->
+            project.objects.newInstance(StableAidlVariantExtension::class.java).also {
+                variantExtension ->
                 variantExtension.version.set(
-                    variantExtensionConfig.buildTypeExtension(
-                        StableAidlBuildTypeDslExtension::class.java
-                    ).version
-                        ?: variantExtensionConfig.projectExtension(
-                            StableAidlProjectDslExtension::class.java
-                        ).version
+                    variantExtensionConfig
+                        .buildTypeExtension(StableAidlBuildTypeDslExtension::class.java)
+                        .version
+                        ?: variantExtensionConfig
+                            .projectExtension(StableAidlProjectDslExtension::class.java)
+                            .version
                 )
             }
         }
@@ -82,76 +80,76 @@ abstract class StableAidlPlugin : Plugin<Project> {
             val sourceDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL)
             val importsDir = variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL_IMPORTS)
             val depImports = project.getAidlArtifactsOnCompileClasspath(variant)
-            val outputDir = project.layout.buildDirectory.dir(
-                "$GENERATED_PATH/${variant.name}")
-            val packagedDir = project.layout.buildDirectory.dir(
-                "$INTERMEDIATES_PATH/${variant.name}/out")
+            val outputDir = project.layout.buildDirectory.dir("$GENERATED_PATH/${variant.name}")
+            val packagedDir =
+                project.layout.buildDirectory.dir("$INTERMEDIATES_PATH/${variant.name}/out")
 
             val apiDirName = "$API_DIR/aidl${variant.name.usLocaleCapitalize()}"
             val builtApiDir = project.layout.buildDirectory.dir(apiDirName)
             val frozenApiDir = project.layout.projectDirectory.dir("$apiDirName/$CURRENT_API_DIR")
 
-            val compileAidlApiTask = registerCompileAidlApi(
-                project,
-                variant,
-                aidlExecutable,
-                aidlFramework,
-                aidlVersion,
-                sourceDir,
-                packagedDir,
-                importsDir,
-                depImports,
-                outputDir
-            )
+            val compileAidlApiTask =
+                registerCompileAidlApi(
+                    project,
+                    variant,
+                    aidlExecutable,
+                    aidlFramework,
+                    aidlVersion,
+                    sourceDir,
+                    packagedDir,
+                    importsDir,
+                    depImports,
+                    outputDir
+                )
 
             // To avoid using the same output directory as AGP's AidlCompile task, we need to
             // register a post-processing task to copy packaged parcelable headers into the AAR.
-            registerPackageAidlApi(
-                project,
-                variant,
-                compileAidlApiTask
-            )
+            registerPackageAidlApi(project, variant, compileAidlApiTask)
 
-            val generateAidlApiTask = registerGenerateAidlApi(
-                project,
-                variant,
-                aidlExecutable,
-                aidlFramework,
-                aidlVersion,
-                sourceDir,
-                importsDir,
-                depImports,
-                builtApiDir,
-                compileAidlApiTask
-            )
-            val checkAidlApiReleaseTask = registerCheckApiAidlRelease(
-                project,
-                variant,
-                aidlExecutable,
-                aidlFramework,
-                importsDir,
-                depImports,
-                frozenApiDir,
-                generateAidlApiTask
-            )
-            val checkAidlApiTask = registerCheckAidlApi(
-                project,
-                variant,
-                aidlExecutable,
-                aidlFramework,
-                importsDir,
-                depImports,
-                frozenApiDir,
-                generateAidlApiTask,
-                checkAidlApiReleaseTask
-            )
-            val updateAidlApiTask = registerUpdateAidlApi(
-                project,
-                variant,
-                frozenApiDir,
-                generateAidlApiTask,
-                checkAidlApiReleaseTask
-            )
+            val generateAidlApiTask =
+                registerGenerateAidlApi(
+                    project,
+                    variant,
+                    aidlExecutable,
+                    aidlFramework,
+                    aidlVersion,
+                    sourceDir,
+                    importsDir,
+                    depImports,
+                    builtApiDir,
+                    compileAidlApiTask
+                )
+            val checkAidlApiReleaseTask =
+                registerCheckApiAidlRelease(
+                    project,
+                    variant,
+                    aidlExecutable,
+                    aidlFramework,
+                    importsDir,
+                    depImports,
+                    frozenApiDir,
+                    generateAidlApiTask
+                )
+            val checkAidlApiTask =
+                registerCheckAidlApi(
+                    project,
+                    variant,
+                    aidlExecutable,
+                    aidlFramework,
+                    importsDir,
+                    depImports,
+                    frozenApiDir,
+                    generateAidlApiTask,
+                    checkAidlApiReleaseTask
+                )
+            val updateAidlApiTask =
+                registerUpdateAidlApi(
+                    project,
+                    variant,
+                    frozenApiDir,
+                    generateAidlApiTask,
+                    checkAidlApiReleaseTask
+                )
 
             if (variant.name == DEFAULT_VARIANT_NAME) {
                 extension.updateTaskProvider = updateAidlApiTask
@@ -162,30 +160,25 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 variant.sources.getByName(SOURCE_TYPE_STABLE_AIDL_IMPORTS)
             )
 
-            extension.allTasks[variant.name] = setOf(
-                compileAidlApiTask,
-                generateAidlApiTask,
-                checkAidlApiReleaseTask,
-                checkAidlApiTask,
-                updateAidlApiTask
-            )
+            extension.allTasks[variant.name] =
+                setOf(
+                    compileAidlApiTask,
+                    generateAidlApiTask,
+                    checkAidlApiReleaseTask,
+                    checkAidlApiTask,
+                    updateAidlApiTask
+                )
         }
     }
 }
 
-/**
- * Directory under the project root in which various types of API files are stored.
- */
+/** Directory under the project root in which various types of API files are stored. */
 internal const val API_DIR = "api"
 
-/**
- * Directory under [API_DIR] where the frozen API files are stored.
- */
+/** Directory under [API_DIR] where the frozen API files are stored. */
 internal const val CURRENT_API_DIR = "current"
 
-/**
- * Source type for Stable AIDL files.
- */
+/** Source type for Stable AIDL files. */
 internal const val SOURCE_TYPE_STABLE_AIDL = "stableAidl"
 
 /**
@@ -196,20 +189,21 @@ internal const val SOURCE_TYPE_STABLE_AIDL = "stableAidl"
 internal const val SOURCE_TYPE_STABLE_AIDL_IMPORTS = "stableAidlImports"
 
 internal fun SdkComponents.aidl(): Provider<RegularFile> =
-    @Suppress("UnstableApiUsage")
-    aidl.flatMap { it.executable }
+    @Suppress("UnstableApiUsage") aidl.flatMap { it.executable }
 
-/**
- * Returns the AIDL import directories for the given variant of the project.
- */
+/** Returns the AIDL import directories for the given variant of the project. */
 internal fun Project.getAidlArtifactsOnCompileClasspath(variant: Variant): List<FileCollection> {
     val incoming = variant.compileConfiguration.incoming
-    val aidlFiles = incoming.artifactView { config ->
-        config.attributes(ArtifactType.AIDL)
-    }.artifacts.artifactFiles
-    val stableAidlFiles = incoming.artifactView { config ->
-        config.attributes(ArtifactType.STABLE_AIDL)
-    }.artifacts.artifactFiles
+    val aidlFiles =
+        incoming
+            .artifactView { config -> config.attributes(ArtifactType.AIDL) }
+            .artifacts
+            .artifactFiles
+    val stableAidlFiles =
+        incoming
+            .artifactView { config -> config.attributes(ArtifactType.STABLE_AIDL) }
+            .artifacts
+            .artifactFiles
     return listOfNotNull(aidlFiles, stableAidlFiles)
 }
 

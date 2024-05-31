@@ -82,13 +82,14 @@ fun callStableAidlProcessor(
         throw IOException(pe)
     }
 
-    val relativeInputFile = if (startDir != null && inputFilePath != null) {
-        FileUtils.toSystemIndependentPath(
-            FileOpUtils.makeRelative(startDir.toFile(), inputFilePath.toFile())
-        )
-    } else {
-        null
-    }
+    val relativeInputFile =
+        if (startDir != null && inputFilePath != null) {
+            FileUtils.toSystemIndependentPath(
+                FileOpUtils.makeRelative(startDir.toFile(), inputFilePath.toFile())
+            )
+        } else {
+            null
+        }
 
     // Process the dependency file by deleting empty generated source files and copying parcelable
     // headers to secondary output for AAR packaging.
@@ -101,8 +102,9 @@ fun callStableAidlProcessor(
         if (outputFiles.isNotEmpty()) {
             for (path in outputFiles) {
                 val outputFileContent = Files.readLines(File(path), StandardCharsets.UTF_8)
-                val emptyFileLine = "// This file is intentionally left blank as placeholder for " +
-                    "parcel declaration."
+                val emptyFileLine =
+                    "// This file is intentionally left blank as placeholder for " +
+                        "parcel declaration."
                 if (outputFileContent.size <= 2 && outputFileContent[0].equals(emptyFileLine)) {
                     FileUtils.delete(File(path))
                 } else {

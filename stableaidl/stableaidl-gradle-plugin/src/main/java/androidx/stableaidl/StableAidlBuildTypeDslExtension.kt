@@ -22,8 +22,6 @@ package androidx.stableaidl
  * This is passed to AGP's `DslExtension` to generate a Kotlin DSL for use in build files.
  */
 interface StableAidlBuildTypeDslExtension {
-    /**
-     * The version of the AIDL interface and parcelable. Must be greater than 0.
-     */
+    /** The version of the AIDL interface and parcelable. Must be greater than 0. */
     var version: Int?
 }

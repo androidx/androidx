@@ -47,6 +47,7 @@ class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
         value ?: valueProvider?.get() ?: convention ?: throw IllegalStateException("Value not set")
 
     override fun getOrNull() = value ?: valueProvider?.get() ?: convention
+
     override fun filter(spec: Spec<in T>): Provider<T> {
         throw NotImplementedError()
     }

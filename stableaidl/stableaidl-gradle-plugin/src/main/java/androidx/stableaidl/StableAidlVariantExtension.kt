@@ -19,9 +19,7 @@ package androidx.stableaidl
 import com.android.build.api.variant.VariantExtension
 import org.gradle.api.provider.Property
 
-/**
- * Stable AIDL properties scoped to the AGP variant object.
- */
+/** Stable AIDL properties scoped to the AGP variant object. */
 interface StableAidlVariantExtension : VariantExtension {
     val version: Property<Int>
 }
