@@ -60,7 +60,9 @@ class ListDelegateTest {
 
     private fun requestItemRange(startIndex: Int, endIndex: Int): List<Int> {
         // Serialize and deserialize the ListDelegate
-        val remoteListDelegate = Bundler.fromBundle(Bundler.toBundle(listDelegate)) as ListDelegate
+        @Suppress("UNCHECKED_CAST")
+        val remoteListDelegate =
+            Bundler.fromBundle(Bundler.toBundle(listDelegate)) as ListDelegate<Int>
 
         remoteListDelegate.requestItemRange(startIndex, endIndex, onDoneCallback)
 
