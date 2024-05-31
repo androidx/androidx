@@ -50,14 +50,14 @@ class RoomInvalidationHookTest {
 
     @Before
     fun initDb() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            TestDatabase::class.java
-        ).setQueryExecutor {
-            it.run()
-        }.setTransactionExecutor {
-            it.run()
-        }.build()
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    TestDatabase::class.java
+                )
+                .setQueryExecutor { it.run() }
+                .setTransactionExecutor { it.run() }
+                .build()
     }
 
     @After
@@ -77,57 +77,60 @@ class RoomInvalidationHookTest {
      * invalidation observer on the Room side is invoked.
      */
     @Test
-    fun invalidationHook() = runBlocking<Unit>(testJob) {
-        val testArtTI = TestArtTooling(
-            roomDatabase = db,
-            sqliteDb = db.getSqliteDb()
-        )
+    fun invalidationHook() =
+        runBlocking<Unit>(testJob) {
+            val testArtTI = TestArtTooling(roomDatabase = db, sqliteDb = db.getSqliteDb())
 
-        val testEnv = DefaultTestInspectorEnvironment(
-            artTooling = testArtTI,
-            testInspectorExecutors = testInspectorExecutors
-        )
-        val tester = InspectorTester(
-            inspectorId = "androidx.sqlite.inspection",
-            environment = testEnv
-        )
-        val invalidatedTables = CompletableDeferred<List<String>>()
-        db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("TestEntity") {
-            override fun onInvalidated(tables: Set<String>) {
-                invalidatedTables.complete(tables.toList())
-            }
-        })
-        val startTrackingCommand = SqliteInspectorProtocol.Command.newBuilder().setTrackDatabases(
-            SqliteInspectorProtocol.TrackDatabasesCommand.getDefaultInstance()
-        ).build()
-        tester.sendCommand(startTrackingCommand.toByteArray())
-        // no invalidation yet
-        assertWithMessage("test sanity. no invalidation should happen yet")
-            .that(invalidatedTables.isActive)
-            .isTrue()
-        // send a write query
-        val insertQuery = """INSERT INTO TestEntity VALUES(1, "foo")"""
-        val insertCommand = SqliteInspectorProtocol.Command.newBuilder().setQuery(
-            SqliteInspectorProtocol.QueryCommand.newBuilder()
-                .setDatabaseId(1)
-                .setQuery(insertQuery)
-                .build()
-        ).build()
-        val responseBytes = tester.sendCommand(insertCommand.toByteArray())
-        val response = SqliteInspectorProtocol.Response.parseFrom(responseBytes)
-        assertWithMessage("test sanity, insert query should succeed")
-            .that(response.hasErrorOccurred())
-            .isFalse()
+            val testEnv =
+                DefaultTestInspectorEnvironment(
+                    artTooling = testArtTI,
+                    testInspectorExecutors = testInspectorExecutors
+                )
+            val tester =
+                InspectorTester(inspectorId = "androidx.sqlite.inspection", environment = testEnv)
+            val invalidatedTables = CompletableDeferred<List<String>>()
+            db.invalidationTracker.addObserver(
+                object : InvalidationTracker.Observer("TestEntity") {
+                    override fun onInvalidated(tables: Set<String>) {
+                        invalidatedTables.complete(tables.toList())
+                    }
+                }
+            )
+            val startTrackingCommand =
+                SqliteInspectorProtocol.Command.newBuilder()
+                    .setTrackDatabases(
+                        SqliteInspectorProtocol.TrackDatabasesCommand.getDefaultInstance()
+                    )
+                    .build()
+            tester.sendCommand(startTrackingCommand.toByteArray())
+            // no invalidation yet
+            assertWithMessage("test sanity. no invalidation should happen yet")
+                .that(invalidatedTables.isActive)
+                .isTrue()
+            // send a write query
+            val insertQuery = """INSERT INTO TestEntity VALUES(1, "foo")"""
+            val insertCommand =
+                SqliteInspectorProtocol.Command.newBuilder()
+                    .setQuery(
+                        SqliteInspectorProtocol.QueryCommand.newBuilder()
+                            .setDatabaseId(1)
+                            .setQuery(insertQuery)
+                            .build()
+                    )
+                    .build()
+            val responseBytes = tester.sendCommand(insertCommand.toByteArray())
+            val response = SqliteInspectorProtocol.Response.parseFrom(responseBytes)
+            assertWithMessage("test sanity, insert query should succeed")
+                .that(response.hasErrorOccurred())
+                .isFalse()
 
-        assertWithMessage("writing into db should trigger the table observer")
-            .that(invalidatedTables.await())
-            .containsExactly("TestEntity")
-    }
+            assertWithMessage("writing into db should trigger the table observer")
+                .that(invalidatedTables.await())
+                .containsExactly("TestEntity")
+        }
 }
 
-/**
- * extract the framework sqlite database instance from a room database via reflection.
- */
+/** extract the framework sqlite database instance from a room database via reflection. */
 private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
     val supportDb = this.openHelper.writableDatabase
     // this runs with defaults so we can extract db from it until inspection supports support
@@ -139,10 +142,8 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
 }
 
 @Suppress("UNCHECKED_CAST")
-class TestArtTooling(
-    private val roomDatabase: RoomDatabase,
-    private val sqliteDb: SQLiteDatabase
-) : ArtTooling {
+class TestArtTooling(private val roomDatabase: RoomDatabase, private val sqliteDb: SQLiteDatabase) :
+    ArtTooling {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
@@ -169,16 +170,7 @@ class TestArtTooling(
     }
 }
 
-@Database(
-    exportSchema = false,
-    entities = [TestEntity::class],
-    version = 1
-)
+@Database(exportSchema = false, entities = [TestEntity::class], version = 1)
 abstract class TestDatabase : RoomDatabase()
 
-@Entity
-data class TestEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long,
-    val value: String
-)
+@Entity data class TestEntity(@PrimaryKey(autoGenerate = true) val id: Long, val value: String)

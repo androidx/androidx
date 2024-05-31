@@ -57,17 +57,17 @@ internal sealed class AndroidSQLiteStatement(
                 return false
             }
             return when (prefix.substring(0, 3).uppercase()) {
-                "SEL", "PRA", "WIT" -> true
+                "SEL",
+                "PRA",
+                "WIT" -> true
                 else -> false
             }
         }
     }
 
     // TODO(b/304298743): Use android.database.SQLiteRawStatement on Android V+
-    private class SelectAndroidSQLiteStatement(
-        db: SQLiteDatabase,
-        sql: String
-    ) : AndroidSQLiteStatement(db, sql) {
+    private class SelectAndroidSQLiteStatement(db: SQLiteDatabase, sql: String) :
+        AndroidSQLiteStatement(db, sql) {
 
         private var bindingTypes: IntArray = IntArray(0)
         private var longBindings: LongArray = LongArray(0)
@@ -220,15 +220,16 @@ internal sealed class AndroidSQLiteStatement(
 
         private fun ensureCursor() {
             if (cursor == null) {
-                cursor = db.rawQueryWithFactory(
-                    /* cursorFactory = */ { _, masterQuery, editTable, query ->
-                        bindTo(query)
-                        SQLiteCursor(masterQuery, editTable, query)
-                    },
-                    /* sql = */ sql,
-                    /* selectionArgs = */ arrayOfNulls(0),
-                    /* editTable = */ null
-                )
+                cursor =
+                    db.rawQueryWithFactory(
+                        /* cursorFactory = */ { _, masterQuery, editTable, query ->
+                            bindTo(query)
+                            SQLiteCursor(masterQuery, editTable, query)
+                        },
+                        /* sql = */ sql,
+                        /* selectionArgs = */ arrayOfNulls(0),
+                        /* editTable = */ null
+                    )
             }
         }
 
@@ -263,10 +264,8 @@ internal sealed class AndroidSQLiteStatement(
         }
     }
 
-    private class OtherAndroidSQLiteStatement(
-        db: SQLiteDatabase,
-        sql: String
-    ) : AndroidSQLiteStatement(db, sql) {
+    private class OtherAndroidSQLiteStatement(db: SQLiteDatabase, sql: String) :
+        AndroidSQLiteStatement(db, sql) {
 
         private val delegate: FrameworkStatement = db.compileStatement(sql)
 

@@ -21,15 +21,11 @@ import androidx.sqlite.db.SupportSQLiteStatement
 /**
  * Delegates all calls to a [SQLiteStatement].
  *
- * @constructor Creates a wrapper around a framework [SQLiteStatement].
- *
  * @param delegate The SQLiteStatement to delegate calls to.
+ * @constructor Creates a wrapper around a framework [SQLiteStatement].
  */
-internal class FrameworkSQLiteStatement(
-    private val delegate: SQLiteStatement
-) : FrameworkSQLiteProgram(
-    delegate
-), SupportSQLiteStatement {
+internal class FrameworkSQLiteStatement(private val delegate: SQLiteStatement) :
+    FrameworkSQLiteProgram(delegate), SupportSQLiteStatement {
     override fun execute() {
         delegate.execute()
     }

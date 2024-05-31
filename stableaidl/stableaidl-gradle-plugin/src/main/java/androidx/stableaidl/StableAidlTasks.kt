@@ -51,17 +51,13 @@ class ArtifactType {
     companion object {
         private val KEY = Attribute.of("artifactType", String::class.java)
 
-        /**
-         * Artifact type for filtering on AIDL artifacts.
-         */
+        /** Artifact type for filtering on AIDL artifacts. */
         internal val AIDL: Action<AttributeContainer> = Action { container ->
             // Value inlined from AGP's internal `ArtifactType.AIDL` constant.
             container.attribute(KEY, ARTIFACT_TYPE_AIDL)
         }
 
-        /**
-         * Artifact type for filtering on Stable AIDL artifacts.
-         */
+        /** Artifact type for filtering on Stable AIDL artifacts. */
         internal val STABLE_AIDL: Action<AttributeContainer> = Action { container ->
             container.attribute(KEY, ARTIFACT_TYPE_STABLE_AIDL)
         }
@@ -79,52 +75,49 @@ fun registerCompileAidlApi(
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
     outputDir: Provider<Directory>
-): TaskProvider<StableAidlCompile> = project.tasks.register(
-    computeTaskName("compile", variant, "AidlApi"),
-    StableAidlCompile::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Compiles AIDL source code"
-    task.variantName = variant.name
-    task.aidlExecutable.set(aidlExecutable)
-    task.aidlFrameworkProvider.set(aidlFramework)
-    task.aidlVersion.set(aidlVersion)
-    task.minSdkVersion.set(variant.minSdk)
-    task.sourceDirs.set(sourceDir.all)
-    task.sourceOutputDir.set(outputDir)
-    task.packagedDir.set(packagedDir)
-    task.importDirs.set(importsDir.all)
-    depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
-    task.extraArgs.set(
-        listOf(
-            "--structured"
-        )
-    )
-}.also { taskProvider ->
-    variant.sources.java?.addGeneratedSourceDirectory(
-        taskProvider,
-        StableAidlCompile::sourceOutputDir
-    )
+): TaskProvider<StableAidlCompile> =
+    project.tasks
+        .register(computeTaskName("compile", variant, "AidlApi"), StableAidlCompile::class.java) {
+            task ->
+            task.group = TASK_GROUP_API
+            task.description = "Compiles AIDL source code"
+            task.variantName = variant.name
+            task.aidlExecutable.set(aidlExecutable)
+            task.aidlFrameworkProvider.set(aidlFramework)
+            task.aidlVersion.set(aidlVersion)
+            task.minSdkVersion.set(variant.minSdk)
+            task.sourceDirs.set(sourceDir.all)
+            task.sourceOutputDir.set(outputDir)
+            task.packagedDir.set(packagedDir)
+            task.importDirs.set(importsDir.all)
+            depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
+            task.extraArgs.set(listOf("--structured"))
+        }
+        .also { taskProvider ->
+            variant.sources.java?.addGeneratedSourceDirectory(
+                taskProvider,
+                StableAidlCompile::sourceOutputDir
+            )
 
-    // The API elements config is used by the compile classpath.
-    val targetConfig = "${variant.name}ApiElements"
+            // The API elements config is used by the compile classpath.
+            val targetConfig = "${variant.name}ApiElements"
 
-    // Register packaged output for use by Stable AIDL in other projects.
-    project.artifacts.add(targetConfig, packagedDir) { artifact ->
-        artifact.type = ARTIFACT_TYPE_STABLE_AIDL
-        artifact.builtBy(taskProvider)
-    }
-
-    // Register packaged output for use by AGP's AIDL in other projects.
-    variant.compileConfiguration.outgoing.variants { variants ->
-        variants.allNamed(ARTIFACT_TYPE_AIDL) { variant ->
-            variant.artifact(packagedDir) { artifact ->
-                artifact.type = ARTIFACT_TYPE_AIDL
+            // Register packaged output for use by Stable AIDL in other projects.
+            project.artifacts.add(targetConfig, packagedDir) { artifact ->
+                artifact.type = ARTIFACT_TYPE_STABLE_AIDL
                 artifact.builtBy(taskProvider)
             }
+
+            // Register packaged output for use by AGP's AIDL in other projects.
+            variant.compileConfiguration.outgoing.variants { variants ->
+                variants.allNamed(ARTIFACT_TYPE_AIDL) { variant ->
+                    variant.artifact(packagedDir) { artifact ->
+                        artifact.type = ARTIFACT_TYPE_AIDL
+                        artifact.builtBy(taskProvider)
+                    }
+                }
+            }
         }
-    }
-}
 
 /**
  * Executes an action on the object with the given name, or any object with the given name that is
@@ -143,19 +136,23 @@ fun registerPackageAidlApi(
     project: Project,
     variant: Variant,
     compileAidlApiTask: TaskProvider<StableAidlCompile>
-): TaskProvider<StableAidlPackageApi> = project.tasks.register(
-    computeTaskName("package", variant, "AidlApi"),
-    StableAidlPackageApi::class.java
-) { task ->
-    task.packagedDir.set(compileAidlApiTask.flatMap { it.packagedDir })
-}.also { taskProvider ->
-    variant.artifacts.use(taskProvider)
-        .wiredWithFiles(
-            StableAidlPackageApi::aarFile,
-            StableAidlPackageApi::updatedAarFile,
-        )
-        .toTransform(SingleArtifact.AAR)
-}
+): TaskProvider<StableAidlPackageApi> =
+    project.tasks
+        .register(
+            computeTaskName("package", variant, "AidlApi"),
+            StableAidlPackageApi::class.java
+        ) { task ->
+            task.packagedDir.set(compileAidlApiTask.flatMap { it.packagedDir })
+        }
+        .also { taskProvider ->
+            variant.artifacts
+                .use(taskProvider)
+                .wiredWithFiles(
+                    StableAidlPackageApi::aarFile,
+                    StableAidlPackageApi::updatedAarFile,
+                )
+                .toTransform(SingleArtifact.AAR)
+        }
 
 fun registerGenerateAidlApi(
     project: Project,
@@ -168,28 +165,24 @@ fun registerGenerateAidlApi(
     depImports: List<FileCollection>,
     builtApiDir: Provider<Directory>,
     compileAidlApiTask: Provider<StableAidlCompile>
-): TaskProvider<StableAidlCompile> = project.tasks.register(
-    computeTaskName("generate", variant, "AidlApi"),
-    StableAidlCompile::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Generates API files from AIDL source code"
-    task.variantName = variant.name
-    task.aidlExecutable.set(aidlExecutable)
-    task.aidlFrameworkProvider.set(aidlFramework)
-    task.aidlVersion.set(aidlVersion)
-    task.sourceDirs.set(sourceDir.all)
-    task.sourceOutputDir.set(builtApiDir)
-    task.importDirs.set(importsDir.all)
-    depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
-    task.extraArgs.set(
-        listOf(
-            "--structured",
-            "--dumpapi"
-        )
-    )
-    task.dependsOn(compileAidlApiTask)
-}
+): TaskProvider<StableAidlCompile> =
+    project.tasks.register(
+        computeTaskName("generate", variant, "AidlApi"),
+        StableAidlCompile::class.java
+    ) { task ->
+        task.group = TASK_GROUP_API
+        task.description = "Generates API files from AIDL source code"
+        task.variantName = variant.name
+        task.aidlExecutable.set(aidlExecutable)
+        task.aidlFrameworkProvider.set(aidlFramework)
+        task.aidlVersion.set(aidlVersion)
+        task.sourceDirs.set(sourceDir.all)
+        task.sourceOutputDir.set(builtApiDir)
+        task.importDirs.set(importsDir.all)
+        depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
+        task.extraArgs.set(listOf("--structured", "--dumpapi"))
+        task.dependsOn(compileAidlApiTask)
+    }
 
 // Policy: If the artifact has previously been released, e.g. has a beta or later API file
 // checked in, then we must verify "release compatibility" against the work-in-progress
@@ -203,24 +196,25 @@ fun registerCheckApiAidlRelease(
     depImports: List<FileCollection>,
     lastReleasedApiDir: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
-): TaskProvider<StableAidlCheckApi> = project.tasks.register(
-    computeTaskName("check", variant, "AidlApiRelease"),
-    StableAidlCheckApi::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Checks the AIDL source code API surface against the " +
-        "stabilized AIDL API files"
-    task.variantName = variant.name
-    task.aidlExecutable.set(aidlExecutable)
-    task.aidlFrameworkProvider.set(aidlFramework)
-    task.importDirs.set(importsDir.all)
-    depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
-    task.checkApiMode.set(StableAidlCheckApi.MODE_COMPATIBLE)
-    task.expectedApiDir.set(lastReleasedApiDir)
-    task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
-    task.failOnMissingExpected.set(false)
-    task.cacheEvenIfNoOutputs()
-}
+): TaskProvider<StableAidlCheckApi> =
+    project.tasks.register(
+        computeTaskName("check", variant, "AidlApiRelease"),
+        StableAidlCheckApi::class.java
+    ) { task ->
+        task.group = TASK_GROUP_API
+        task.description =
+            "Checks the AIDL source code API surface against the " + "stabilized AIDL API files"
+        task.variantName = variant.name
+        task.aidlExecutable.set(aidlExecutable)
+        task.aidlFrameworkProvider.set(aidlFramework)
+        task.importDirs.set(importsDir.all)
+        depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
+        task.checkApiMode.set(StableAidlCheckApi.MODE_COMPATIBLE)
+        task.expectedApiDir.set(lastReleasedApiDir)
+        task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
+        task.failOnMissingExpected.set(false)
+        task.cacheEvenIfNoOutputs()
+    }
 
 // Policy: All changes to API surfaces for which compatibility is enforced must be
 // explicitly confirmed by running the updateApi task. To enforce this, the implementation
@@ -234,25 +228,26 @@ fun registerCheckAidlApi(
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
     checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
-): TaskProvider<StableAidlCheckApi> = project.tasks.register(
-    computeTaskName("check", variant, "AidlApi"),
-    StableAidlCheckApi::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Checks the AIDL source code API surface against the checked-in " +
-        "AIDL API files"
-    task.variantName = variant.name
-    task.aidlExecutable.set(aidlExecutable)
-    task.aidlFrameworkProvider.set(aidlFramework)
-    task.importDirs.set(importsDir.all)
-    depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
-    task.checkApiMode.set(StableAidlCheckApi.MODE_EQUAL)
-    task.expectedApiDir.set(lastCheckedInApiFile)
-    task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
-    task.failOnMissingExpected.set(true)
-    task.cacheEvenIfNoOutputs()
-    task.dependsOn(checkAidlApiReleaseTask)
-}
+): TaskProvider<StableAidlCheckApi> =
+    project.tasks.register(
+        computeTaskName("check", variant, "AidlApi"),
+        StableAidlCheckApi::class.java
+    ) { task ->
+        task.group = TASK_GROUP_API
+        task.description =
+            "Checks the AIDL source code API surface against the checked-in " + "AIDL API files"
+        task.variantName = variant.name
+        task.aidlExecutable.set(aidlExecutable)
+        task.aidlFrameworkProvider.set(aidlFramework)
+        task.importDirs.set(importsDir.all)
+        depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }
+        task.checkApiMode.set(StableAidlCheckApi.MODE_EQUAL)
+        task.expectedApiDir.set(lastCheckedInApiFile)
+        task.actualApiDir.set(generateAidlTask.flatMap { it.sourceOutputDir })
+        task.failOnMissingExpected.set(true)
+        task.cacheEvenIfNoOutputs()
+        task.dependsOn(checkAidlApiReleaseTask)
+    }
 
 fun registerUpdateAidlApi(
     project: Project,
@@ -260,22 +255,21 @@ fun registerUpdateAidlApi(
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
     checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
-): TaskProvider<UpdateStableAidlApiTask> = project.tasks.register(
-    computeTaskName("update", variant, "AidlApi"),
-    UpdateStableAidlApiTask::class.java
-) { task ->
-    task.group = TASK_GROUP_API
-    task.description = "Updates the checked-in AIDL API files to AIDL match source code " +
-        "API surface"
-    task.apiLocation.set(generateAidlTask.flatMap { it.sourceOutputDir })
-    task.outputApiLocations.set(listOf(lastCheckedInApiFile.asFile))
-    task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
-    task.dependsOn(checkAidlApiReleaseTask)
-}
+): TaskProvider<UpdateStableAidlApiTask> =
+    project.tasks.register(
+        computeTaskName("update", variant, "AidlApi"),
+        UpdateStableAidlApiTask::class.java
+    ) { task ->
+        task.group = TASK_GROUP_API
+        task.description =
+            "Updates the checked-in AIDL API files to AIDL match source code " + "API surface"
+        task.apiLocation.set(generateAidlTask.flatMap { it.sourceOutputDir })
+        task.outputApiLocations.set(listOf(lastCheckedInApiFile.asFile))
+        task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
+        task.dependsOn(checkAidlApiReleaseTask)
+    }
 
-/**
- * Tells Gradle to skip running this task, even if this task declares no output files.
- */
+/** Tells Gradle to skip running this task, even if this task declares no output files. */
 private fun Task.cacheEvenIfNoOutputs(): TaskOutputFilePropertyBuilder =
     outputs.file(getPlaceholderOutput())
 

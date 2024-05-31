@@ -24,7 +24,8 @@ import androidx.sqlite.SQLiteDriver
  * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of the
  * library.
  */
-// TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external functions.
+// TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external
+// functions.
 actual class BundledSQLiteDriver : SQLiteDriver {
     override fun open(fileName: String): SQLiteConnection {
         val address = nativeOpen(fileName)

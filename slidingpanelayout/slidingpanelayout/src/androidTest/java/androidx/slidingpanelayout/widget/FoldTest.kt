@@ -43,24 +43,19 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Test views split on the fold
- */
+/** Test views split on the fold */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class FoldTest {
 
-    @get:Rule
-    val rule: WindowLayoutInfoPublisherRule = WindowLayoutInfoPublisherRule()
+    @get:Rule val rule: WindowLayoutInfoPublisherRule = WindowLayoutInfoPublisherRule()
 
     @After
     fun tearDown() {
         TestActivity.onActivityCreated = {}
     }
 
-    /**
-     * Test split views in middle when fold vertically
-     */
+    /** Test split views in middle when fold vertically */
     @Test
     fun testFoldVertical() {
         TestActivity.onActivityCreated = { activity ->
@@ -79,9 +74,7 @@ class FoldTest {
         }
     }
 
-    /**
-     * Test split views not applicable when fold horizontally.
-     */
+    /** Test split views not applicable when fold horizontally. */
     @Test
     fun testFoldHorizontal() {
         TestActivity.onActivityCreated = { activity ->
@@ -95,19 +88,18 @@ class FoldTest {
         }
     }
 
-    /**
-     * Test split views when fold pane is smaller than required min width
-     */
+    /** Test split views when fold pane is smaller than required min width */
     @Test
     fun testFoldExceedMinWidth() {
         val detailViewExtraWidth = 200
         TestActivity.onActivityCreated = { activity ->
             activity.setContentView(R.layout.activity_test_fold_layout)
             val detailView = activity.findViewById<View>(R.id.detail_pane)
-            detailView.minimumWidth = WindowMetricsCalculator.getOrCreate()
-                .computeCurrentWindowMetrics(activity)
-                .bounds
-                .width() / 2 + detailViewExtraWidth
+            detailView.minimumWidth =
+                WindowMetricsCalculator.getOrCreate()
+                    .computeCurrentWindowMetrics(activity)
+                    .bounds
+                    .width() / 2 + detailViewExtraWidth
         }
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
@@ -123,9 +115,7 @@ class FoldTest {
         }
     }
 
-    /**
-     * Test layout updates when unfold a foldable device
-     */
+    /** Test layout updates when unfold a foldable device */
     @Test
     fun testUnfold() {
         TestActivity.onActivityCreated = { activity ->
@@ -134,16 +124,9 @@ class FoldTest {
 
         with(ActivityScenario.launch(TestActivity::class.java)) {
             onActivity { activity ->
-                val halfOpenFeature = FoldingFeature(
-                    activity = activity,
-                    state = HALF_OPENED,
-                    orientation = VERTICAL
-                )
-                val flat = FoldingFeature(
-                    activity = activity,
-                    state = FLAT,
-                    orientation = VERTICAL
-                )
+                val halfOpenFeature =
+                    FoldingFeature(activity = activity, state = HALF_OPENED, orientation = VERTICAL)
+                val flat = FoldingFeature(activity = activity, state = FLAT, orientation = VERTICAL)
                 val halfOpenInfo = WindowLayoutInfo(listOf(halfOpenFeature))
                 val flatInfo = WindowLayoutInfo(listOf(flat))
                 rule.overrideWindowLayoutInfo(halfOpenInfo)

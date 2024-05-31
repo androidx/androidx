@@ -28,8 +28,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class StableAidlPackageApiTest {
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
+    @get:Rule val temporaryFolder = TemporaryFolder()
 
     @Test
     fun testPackageDirectoryIntoAar() {
@@ -47,12 +46,7 @@ class StableAidlPackageApiTest {
         val updatedAarFile = createFile("updatedAarFile.aar", outputDir)
 
         with(ProjectBuilder.builder().withProjectDir(temporaryFolder.newFolder()).build()) {
-            aidlPackageApiDelegate(
-                aarFile,
-                updatedAarFile,
-                project.fileTree(packagedDir),
-                "test"
-            )
+            aidlPackageApiDelegate(aarFile, updatedAarFile, project.fileTree(packagedDir), "test")
         }
 
         ZipFile(updatedAarFile).use { zip ->

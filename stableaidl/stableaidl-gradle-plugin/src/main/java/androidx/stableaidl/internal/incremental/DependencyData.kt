@@ -23,9 +23,8 @@ import java.io.IOException
 import java.nio.file.Files
 
 /**
- * Holds dependency information, including the main compiled file, secondary input files
- * (usually headers), and output files.
- *
+ * Holds dependency information, including the main compiled file, secondary input files (usually
+ * headers), and output files.
  *
  * Cloned from `com.android.builder.internal.incremental.DependencyData`.
  */
@@ -60,9 +59,13 @@ class DependencyData internal constructor() {
 
     override fun toString(): String {
         return "DependencyData{" +
-            "mMainFile='" + mainFile + '\'' +
-            ", mSecondaryFiles=" + mSecondaryFiles +
-            ", mOutputFiles=" + mOutputFiles +
+            "mMainFile='" +
+            mainFile +
+            '\'' +
+            ", mSecondaryFiles=" +
+            mSecondaryFiles +
+            ", mOutputFiles=" +
+            mOutputFiles +
             '}'
     }
 
@@ -79,8 +82,7 @@ class DependencyData internal constructor() {
                 return null
             }
             Files.lines(dependencyFile.toPath(), Charsets.UTF_8).use { lines ->
-                return processDependencyData(
-                    Iterable { lines.iterator() })
+                return processDependencyData(Iterable { lines.iterator() })
             }
         }
 
@@ -110,11 +112,12 @@ class DependencyData internal constructor() {
 
                 // detect : at the end indicating a parse mode change *after* we process this line.
                 if (line.endsWith(":")) {
-                    nextMode = if (parseMode == ParseMode.SECONDARY) {
-                        ParseMode.DONE
-                    } else {
-                        ParseMode.MAIN
-                    }
+                    nextMode =
+                        if (parseMode == ParseMode.SECONDARY) {
+                            ParseMode.DONE
+                        } else {
+                            ParseMode.MAIN
+                        }
                     line = line.substring(0, line.length - 1).trim { it <= ' ' }
                 }
                 if (nextMode == ParseMode.DONE) {

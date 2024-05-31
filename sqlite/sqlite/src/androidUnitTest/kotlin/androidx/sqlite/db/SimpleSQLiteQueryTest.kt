@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package androidx.sqlite.db
+
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -22,6 +23,7 @@ import org.junit.runners.JUnit4
 import org.mockito.Mockito
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+
 @RunWith(JUnit4::class)
 class SimpleSQLiteQueryTest {
     @Test
@@ -29,6 +31,7 @@ class SimpleSQLiteQueryTest {
         val query = SimpleSQLiteQuery("foo", emptyArray())
         assertThat(query.sql, `is`("foo"))
     }
+
     @Test
     fun bindTo_noArgs() {
         val query = SimpleSQLiteQuery("foo", emptyArray())
@@ -36,6 +39,7 @@ class SimpleSQLiteQueryTest {
         query.bindTo(program)
         verifyNoMoreInteractions(program)
     }
+
     @Test
     fun bindTo_withArgs() {
         val bytes = ByteArray(3)
@@ -45,19 +49,18 @@ class SimpleSQLiteQueryTest {
         verify(program).bindString(1, "bar")
         verify(program).bindLong(2, 2)
         verify(program).bindLong(3, 1)
-        verify(program).bindDouble(
-            4,
-            (0.5f).toDouble()
-        )
+        verify(program).bindDouble(4, (0.5f).toDouble())
         verify(program).bindNull(5)
         verify(program).bindBlob(6, bytes)
         verifyNoMoreInteractions(program)
     }
+
     @Test
     fun argCount_withArgs() {
         val query = SimpleSQLiteQuery("foo", arrayOf("bar", 2, true))
         assertThat(query.argCount, `is`(3))
     }
+
     @Test
     fun argCount_noArgs() {
         val query = SimpleSQLiteQuery("foo", emptyArray())

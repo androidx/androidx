@@ -47,18 +47,13 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
-/**
- * Extension of AidlCompile that allows specifying extra command-line arguments.
- */
+/** Extension of AidlCompile that allows specifying extra command-line arguments. */
 @CacheableTask
 abstract class StableAidlCheckApi : DefaultTask() {
 
-    @get:Internal
-    abstract var variantName: String
+    @get:Internal abstract var variantName: String
 
-    /**
-     * List of directories containing AIDL sources available as imports.
-     */
+    /** List of directories containing AIDL sources available as imports. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
@@ -87,31 +82,27 @@ abstract class StableAidlCheckApi : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val actualApiDir: DirectoryProperty
 
-    @get:Input
-    abstract val checkApiMode: Property<String>
+    @get:Input abstract val checkApiMode: Property<String>
 
-    @get:Input
-    @get:Optional
-    abstract val failOnMissingExpected: Property<Boolean>
+    @get:Input @get:Optional abstract val failOnMissingExpected: Property<Boolean>
 
-    @get:Input
-    @get:Optional
-    abstract val extraArgs: ListProperty<String>
+    @get:Input @get:Optional abstract val extraArgs: ListProperty<String>
 
-    @get:Inject
-    abstract val workerExecutor: WorkerExecutor
+    @get:Inject abstract val workerExecutor: WorkerExecutor
 
     @TaskAction
     fun checkApi() {
         val checkApiMode = checkApiMode.get()
         val expectedApiDir = expectedApiDir.get()
         val actualApiDir = actualApiDir.get()
-        val extraArgs = extraArgs.get() + listOf(
-            "--structured",
-            "--checkapi=$checkApiMode",
-            expectedApiDir.asFile.absolutePath,
-            actualApiDir.asFile.absolutePath,
-        )
+        val extraArgs =
+            extraArgs.get() +
+                listOf(
+                    "--structured",
+                    "--checkapi=$checkApiMode",
+                    expectedApiDir.asFile.absolutePath,
+                    actualApiDir.asFile.absolutePath,
+                )
 
         if (!expectedApiDir.asFile.exists()) {
             if (failOnMissingExpected.getOrElse(false)) {
@@ -139,16 +130,14 @@ abstract class StableAidlCheckApi : DefaultTask() {
             abstract val extraArgs: ListProperty<String>
         }
 
-        @get:Inject
-        abstract val execOperations: ExecOperations
+        @get:Inject abstract val execOperations: ExecOperations
 
         override fun execute() {
-            val executor =
-                GradleProcessExecutor(
-                    execOperations::exec
+            val executor = GradleProcessExecutor(execOperations::exec)
+            val logger =
+                LoggedProcessOutputHandler(
+                    LoggerWrapper.getLogger(StableAidlCheckApiRunnable::class.java)
                 )
-            val logger = LoggedProcessOutputHandler(
-                LoggerWrapper.getLogger(StableAidlCheckApiRunnable::class.java))
 
             callStableAidlProcessor(
                 parameters.aidlExecutable.get().asFile.canonicalPath,

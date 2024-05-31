@@ -17,8 +17,4 @@ package androidx.slidingpanelayout
 
 import android.app.Activity
 
-class DemoItem<T : Activity>(
-    val clazz: Class<T>,
-    val title: String,
-    val description: String
-)
+class DemoItem<T : Activity>(val clazz: Class<T>, val title: String, val description: String)

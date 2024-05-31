@@ -24,9 +24,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.testutils.withActivity
 import java.util.concurrent.CountDownLatch
 
-public inline fun <reified A : Activity> ActivityScenario<A>.findViewX(
-    @IdRes resId: Int
-): Int {
+public inline fun <reified A : Activity> ActivityScenario<A>.findViewX(@IdRes resId: Int): Int {
     return withActivity {
         val locationInWindow = IntArray(2)
         val view = findViewById<View>(resId)
@@ -45,14 +43,18 @@ public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForOpenLatch
     val latch = CountDownLatch(1)
     withActivity {
         val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
-        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
-            override fun onPanelSlide(panel: View, slideOffset: Float) {}
-            override fun onPanelOpened(panel: View) {
-                latch.countDown()
-                slidingPaneLayout.removePanelSlideListener(this)
+        slidingPaneLayout.addPanelSlideListener(
+            object : SlidingPaneLayout.PanelSlideListener {
+                override fun onPanelSlide(panel: View, slideOffset: Float) {}
+
+                override fun onPanelOpened(panel: View) {
+                    latch.countDown()
+                    slidingPaneLayout.removePanelSlideListener(this)
+                }
+
+                override fun onPanelClosed(panel: View) {}
             }
-            override fun onPanelClosed(panel: View) {}
-        })
+        )
     }
     return latch
 }
@@ -63,14 +65,18 @@ public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForCloseLatc
     val latch = CountDownLatch(1)
     withActivity {
         val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
-        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
-            override fun onPanelSlide(panel: View, slideOffset: Float) {}
-            override fun onPanelOpened(panel: View) {}
-            override fun onPanelClosed(panel: View) {
-                latch.countDown()
-                slidingPaneLayout.removePanelSlideListener(this)
+        slidingPaneLayout.addPanelSlideListener(
+            object : SlidingPaneLayout.PanelSlideListener {
+                override fun onPanelSlide(panel: View, slideOffset: Float) {}
+
+                override fun onPanelOpened(panel: View) {}
+
+                override fun onPanelClosed(panel: View) {
+                    latch.countDown()
+                    slidingPaneLayout.removePanelSlideListener(this)
+                }
             }
-        })
+        )
     }
     return latch
 }
@@ -81,14 +87,18 @@ public inline fun <reified A : Activity> ActivityScenario<A>.addWaitForSlideLatc
     val latch = CountDownLatch(1)
     withActivity {
         val slidingPaneLayout = findViewById<SlidingPaneLayout>(resId)
-        slidingPaneLayout.addPanelSlideListener(object : SlidingPaneLayout.PanelSlideListener {
-            override fun onPanelSlide(panel: View, slideOffset: Float) {
-                latch.countDown()
-                slidingPaneLayout.removePanelSlideListener(this)
+        slidingPaneLayout.addPanelSlideListener(
+            object : SlidingPaneLayout.PanelSlideListener {
+                override fun onPanelSlide(panel: View, slideOffset: Float) {
+                    latch.countDown()
+                    slidingPaneLayout.removePanelSlideListener(this)
+                }
+
+                override fun onPanelOpened(panel: View) {}
+
+                override fun onPanelClosed(panel: View) {}
             }
-            override fun onPanelOpened(panel: View) {}
-            override fun onPanelClosed(panel: View) {}
-        })
+        )
     }
     return latch
 }

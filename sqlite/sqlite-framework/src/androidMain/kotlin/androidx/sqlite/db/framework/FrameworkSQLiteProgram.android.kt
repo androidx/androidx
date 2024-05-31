@@ -18,12 +18,9 @@ package androidx.sqlite.db.framework
 import android.database.sqlite.SQLiteProgram
 import androidx.sqlite.db.SupportSQLiteProgram
 
-/**
- * An wrapper around [SQLiteProgram] to implement [SupportSQLiteProgram] API.
- */
-internal open class FrameworkSQLiteProgram(
-    private val delegate: SQLiteProgram
-) : SupportSQLiteProgram {
+/** A wrapper around [SQLiteProgram] to implement [SupportSQLiteProgram] API. */
+internal open class FrameworkSQLiteProgram(private val delegate: SQLiteProgram) :
+    SupportSQLiteProgram {
     override fun bindNull(index: Int) {
         delegate.bindNull(index)
     }
