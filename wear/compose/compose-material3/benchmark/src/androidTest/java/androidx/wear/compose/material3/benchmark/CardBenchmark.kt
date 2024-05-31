@@ -21,10 +21,12 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.filters.MediumTest
+import androidx.wear.compose.material3.AppCard
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedCard
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TitleCard
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,6 +60,22 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
         when (type) {
             CardType.Card ->
                 Card(onClick = { /* do something */ }) { Text("Card") }
+
+            CardType.AppCard ->
+                AppCard(
+                    onClick = { /* do something */ },
+                    appName = { Text("App name") },
+                    title = { Text("Card title") },
+                ) { Text("App Card") }
+
+            CardType.TitleCard ->
+                TitleCard(
+                    onClick = { /* do something */ },
+                    title = { Text("Title card") },
+                ) {
+                    Text("Title Card")
+                }
+
             CardType.OutlinedCard ->
                 OutlinedCard(onClick = { /* do something */ }) { Text("Outlined Card") }
         }
@@ -72,5 +90,5 @@ private class CardTestCase(private val type: CardType) : LayeredComposeTestCase(
 }
 
 enum class CardType {
-    Card, OutlinedCard
+    Card, AppCard, TitleCard, OutlinedCard
 }
