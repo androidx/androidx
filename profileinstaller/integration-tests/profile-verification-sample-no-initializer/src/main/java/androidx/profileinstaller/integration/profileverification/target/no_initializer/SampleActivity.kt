@@ -34,12 +34,14 @@ class SampleActivity : Activity() {
         Executors.newSingleThreadExecutor().submit {
             val result = ProfileVerifier.writeProfileVerification(this)
             runOnUiThread {
-                findViewById<TextView>(R.id.txtNotice).text = """
+                findViewById<TextView>(R.id.txtNotice).text =
+                    """
                     Profile installed: ${result.profileInstallResultCode}
                     Has reference profile: ${result.isCompiledWithProfile}
                     Has current profile: ${result.hasProfileEnqueuedForCompilation()}
                     Has embedded profile: ${result.appApkHasEmbeddedProfile()}
-                """.trimIndent()
+                """
+                        .trimIndent()
             }
         }
     }

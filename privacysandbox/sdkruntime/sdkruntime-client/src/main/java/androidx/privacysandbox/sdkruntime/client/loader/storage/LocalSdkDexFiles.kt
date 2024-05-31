@@ -21,15 +21,9 @@ package androidx.privacysandbox.sdkruntime.client.loader.storage
 import androidx.annotation.RestrictTo
 import java.io.File
 
-/**
- * Represent SDK Dex files extracted to device storage.
- */
-internal data class LocalSdkDexFiles(
-    val files: List<File>
-)
+/** Represent SDK Dex files extracted to device storage. */
+internal data class LocalSdkDexFiles(val files: List<File>)
 
-/**
- * Convert [LocalSdkDexFiles] to ClassPath string.
- */
+/** Convert [LocalSdkDexFiles] to ClassPath string. */
 internal fun LocalSdkDexFiles.toClassPathString() =
     files.joinToString(separator = File.pathSeparator, transform = File::getPath)

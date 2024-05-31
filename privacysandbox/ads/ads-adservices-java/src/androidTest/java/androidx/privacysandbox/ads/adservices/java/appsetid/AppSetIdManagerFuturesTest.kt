@@ -61,9 +61,10 @@ class AppSetIdManagerFuturesTest {
         if (mValidAdExtServicesSdkExtVersion) {
             // setup a mockitoSession to return the mocked manager
             // when the static method .get() is called
-            mSession = ExtendedMockito.mockitoSession()
-                .mockStatic(android.adservices.appsetid.AppSetIdManager::class.java)
-                .startMocking()
+            mSession =
+                ExtendedMockito.mockitoSession()
+                    .mockStatic(android.adservices.appsetid.AppSetIdManager::class.java)
+                    .startMocking()
         }
     }
 
@@ -75,19 +76,25 @@ class AppSetIdManagerFuturesTest {
     @Test
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAppSetIdOlderVersions() {
-        Assume.assumeFalse("maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
+        Assume.assumeFalse(
+            "maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 4,
-                /* minExtServicesVersion=*/ 9))
+                /* minExtServicesVersion=*/ 9
+            )
+        )
         assertThat(AppSetIdManagerFutures.from(mContext)).isEqualTo(null)
     }
 
     @Test
     fun testAppSetIdAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 4,
-                /* minExtServicesVersion=*/ 9))
+                /* minExtServicesVersion=*/ 9
+            )
+        )
 
         val appSetIdManager = mockAppSetIdManager(mContext, mValidAdExtServicesSdkExtVersion)
         setupResponse(appSetIdManager)
@@ -117,8 +124,11 @@ class AppSetIdManagerFuturesTest {
                 `when`(android.adservices.appsetid.AppSetIdManager.get(ArgumentMatchers.any()))
                     .thenReturn(appSetIdManager)
             } else {
-                `when`(spyContext.getSystemService(
-                    android.adservices.appsetid.AppSetIdManager::class.java))
+                `when`(
+                        spyContext.getSystemService(
+                            android.adservices.appsetid.AppSetIdManager::class.java
+                        )
+                    )
                     .thenReturn(appSetIdManager)
             }
             return appSetIdManager
@@ -126,21 +136,23 @@ class AppSetIdManagerFuturesTest {
 
         private fun setupResponse(appSetIdManager: android.adservices.appsetid.AppSetIdManager) {
             // Set up the response that AdIdManager will return when the compat code calls it.
-            val appSetId = android.adservices.appsetid.AppSetId(
-                "1234",
-                android.adservices.appsetid.AppSetId.SCOPE_APP)
+            val appSetId =
+                android.adservices.appsetid.AppSetId(
+                    "1234",
+                    android.adservices.appsetid.AppSetId.SCOPE_APP
+                )
             val answer = { args: InvocationOnMock ->
                 assertNotEquals(Looper.getMainLooper(), Looper.myLooper())
-                val receiver = args.getArgument<
-                    OutcomeReceiver<android.adservices.appsetid.AppSetId, Exception>>(1)
+                val receiver =
+                    args.getArgument<
+                        OutcomeReceiver<android.adservices.appsetid.AppSetId, Exception>
+                    >(
+                        1
+                    )
                 receiver.onResult(appSetId)
                 null
             }
-            doAnswer(answer)
-                .`when`(appSetIdManager).getAppSetId(
-                    any(),
-                    any()
-                )
+            doAnswer(answer).`when`(appSetIdManager).getAppSetId(any(), any())
         }
 
         private fun verifyResponse(appSetId: AppSetId) {

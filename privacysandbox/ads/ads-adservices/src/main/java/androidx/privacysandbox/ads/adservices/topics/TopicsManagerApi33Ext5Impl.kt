@@ -25,11 +25,13 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-class TopicsManagerApi33Ext5Impl(context: Context) : TopicsManagerImplCommon(
-    context.getSystemService(android.adservices.topics.TopicsManager::class.java),
-) {
-    override fun convertRequest(request: GetTopicsRequest):
-        android.adservices.topics.GetTopicsRequest {
+class TopicsManagerApi33Ext5Impl(context: Context) :
+    TopicsManagerImplCommon(
+        context.getSystemService(android.adservices.topics.TopicsManager::class.java),
+    ) {
+    override fun convertRequest(
+        request: GetTopicsRequest
+    ): android.adservices.topics.GetTopicsRequest {
         return GetTopicsRequestHelper.convertRequestWithRecordObservation(request)
     }
 }

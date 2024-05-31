@@ -38,7 +38,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
 open class MeasurementManagerImplCommon(
     protected val mMeasurementManager: android.adservices.measurement.MeasurementManager
-    ) : MeasurementManager() {
+) : MeasurementManager() {
     @DoNotInline
     override suspend fun deleteRegistrations(deletionRequest: DeletionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
@@ -70,7 +70,8 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerTrigger(
                 trigger,
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asOutcomeReceiver()
+            )
         }
     }
 
@@ -81,16 +82,15 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerWebSource(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asOutcomeReceiver()
+            )
         }
     }
 
     @DoNotInline
     @ExperimentalFeatures.RegisterSourceOptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    override suspend fun registerSource(
-        request: SourceRegistrationRequest
-    ): Unit = coroutineScope {
+    override suspend fun registerSource(request: SourceRegistrationRequest): Unit = coroutineScope {
         request.registrationUris.forEach { uri ->
             launch {
                 suspendCancellableCoroutine<Any> { continuation ->
@@ -112,16 +112,18 @@ open class MeasurementManagerImplCommon(
             mMeasurementManager.registerWebTrigger(
                 request.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver())
+                continuation.asOutcomeReceiver()
+            )
         }
     }
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    override suspend fun getMeasurementApiStatus(): Int = suspendCancellableCoroutine {
-            continuation ->
-        mMeasurementManager.getMeasurementApiStatus(
-            Runnable::run,
-            continuation.asOutcomeReceiver())
-    }
+    override suspend fun getMeasurementApiStatus(): Int =
+        suspendCancellableCoroutine { continuation ->
+            mMeasurementManager.getMeasurementApiStatus(
+                Runnable::run,
+                continuation.asOutcomeReceiver()
+            )
+        }
 }

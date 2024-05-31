@@ -24,24 +24,17 @@ import dalvik.system.BaseDexClassLoader
 import java.io.File
 
 /**
- * Loading SDK using BaseDexClassLoader.
- * Using [LocalSdkStorage] to get SDK DEX files,
- * if no files available - delegating to fallback.
+ * Loading SDK using BaseDexClassLoader. Using [LocalSdkStorage] to get SDK DEX files, if no files
+ * available - delegating to fallback.
  */
 internal class FileClassLoaderFactory(
     private val localSdkStorage: LocalSdkStorage,
     private val fallback: SdkLoader.ClassLoaderFactory,
 ) : SdkLoader.ClassLoaderFactory {
 
-    override fun createClassLoaderFor(
-        sdkConfig: LocalSdkConfig,
-        parent: ClassLoader
-    ): ClassLoader {
+    override fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
         return tryCreateBaseDexClassLoaderFor(sdkConfig, parent)
-            ?: fallback.createClassLoaderFor(
-                sdkConfig,
-                parent
-            )
+            ?: fallback.createClassLoaderFor(sdkConfig, parent)
     }
 
     private fun tryCreateBaseDexClassLoaderFor(
@@ -80,7 +73,6 @@ internal class FileClassLoaderFactory(
     }
 
     companion object {
-        const val LOG_TAG =
-            "FileClassLoaderFactory"
+        const val LOG_TAG = "FileClassLoaderFactory"
     }
 }

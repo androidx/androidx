@@ -22,39 +22,31 @@ import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
-/**
- * Create proxy of [ActivityHolder] that implements same interface loaded by SDK Classloader.
- */
-internal class ActivityHolderProxyFactory private constructor(
+/** Create proxy of [ActivityHolder] that implements same interface loaded by SDK Classloader. */
+internal class ActivityHolderProxyFactory
+private constructor(
     private val sdkClassLoader: ClassLoader,
-
     private val activityHolderClass: Class<*>,
-
     private val backPressedDispatcherProxyFactory: BackPressedDispatcherProxyFactory,
-
     private val lifecycleRegistryProxyFactory: LifecycleRegistryProxyFactory,
 ) {
 
     fun createProxyFor(activityHolder: ActivityHolder): Any {
-        val dispatcherProxy = backPressedDispatcherProxyFactory.setupOnBackPressedDispatcherProxy(
-            activityHolder.getOnBackPressedDispatcher()
-        )
+        val dispatcherProxy =
+            backPressedDispatcherProxyFactory.setupOnBackPressedDispatcherProxy(
+                activityHolder.getOnBackPressedDispatcher()
+            )
 
-        val handler = ActivityHolderHandler(
-            activityHolder.getActivity(),
-            dispatcherProxy
-        )
+        val handler = ActivityHolderHandler(activityHolder.getActivity(), dispatcherProxy)
 
-        val activityHolderProxy = Proxy.newProxyInstance(
-            sdkClassLoader,
-            arrayOf(activityHolderClass),
-            handler
-        )
+        val activityHolderProxy =
+            Proxy.newProxyInstance(sdkClassLoader, arrayOf(activityHolderClass), handler)
 
-        val lifecycleProxy = lifecycleRegistryProxyFactory.setupLifecycleProxy(
-            activityHolderProxy,
-            activityHolder.lifecycle
-        )
+        val lifecycleProxy =
+            lifecycleRegistryProxyFactory.setupLifecycleProxy(
+                activityHolderProxy,
+                activityHolder.lifecycle
+            )
         handler.lifecycleProxy = lifecycleProxy
 
         return activityHolderProxy
@@ -86,11 +78,8 @@ internal class ActivityHolderProxyFactory private constructor(
 
     companion object {
         fun createFor(classLoader: ClassLoader): ActivityHolderProxyFactory {
-            val activityHolderClass = Class.forName(
-                ActivityHolder::class.java.name,
-                /* initialize = */ false,
-                classLoader
-            )
+            val activityHolderClass =
+                Class.forName(ActivityHolder::class.java.name, /* initialize= */ false, classLoader)
 
             val lifecycleRegistryProxyFactory = LifecycleRegistryProxyFactory.createFor(classLoader)
             val backPressedDispatcherProxyFactory =

@@ -73,20 +73,19 @@ fun hasAllExpectedGeneratedSourceFilesAndContent(
     val actualRelativePathMap = actualKotlinSources.associateBy(Source::relativePath)
     for (expectedKotlinSource in expectedKotlinSources) {
         assertWithMessage(
-            "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
-                "match golden."
-        ).that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
+                "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
+                    "match golden."
+            )
+            .that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
             .isEqualTo(expectedKotlinSource.contents)
     }
 }
 
 class CompilationResultSubject(private val result: TestCompilationResult) {
     fun succeeds() {
-        assertWithMessage(
-            "Unexpected errors:\n${getFullErrorMessages().joinToString("\n")}"
-        ).that(
-            result.success && getRawErrorMessages().isEmpty()
-        ).isTrue()
+        assertWithMessage("Unexpected errors:\n${getFullErrorMessages().joinToString("\n")}")
+            .that(result.success && getRawErrorMessages().isEmpty())
+            .isTrue()
     }
 
     fun hasAllExpectedGeneratedSourceFilesAndContent(
@@ -125,13 +124,14 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
     private fun getShortErrorMessages() =
         result.diagnostics[Diagnostic.Kind.ERROR]?.map(DiagnosticMessage::msg)
 
-    private fun getFullErrorMessages() =
-        getRawErrorMessages().map { it.toFormattedMessage() }
+    private fun getFullErrorMessages() = getRawErrorMessages().map { it.toFormattedMessage() }
 
-    private fun DiagnosticMessage.toFormattedMessage() = """
+    private fun DiagnosticMessage.toFormattedMessage() =
+        """
             |$kind: $msg
             |${location?.toFormattedLocation()}$
-        """.trimMargin()
+        """
+            .trimMargin()
 
     private fun DiagnosticLocation.toFormattedLocation(): String {
         if (source == null) return "Location information missing"
@@ -139,7 +139,8 @@ class CompilationResultSubject(private val result: TestCompilationResult) {
             |Location: ${source!!.relativePath}:$line
             |File:
             |${contentsHighlightingLine(source!!.contents, line)}
-        """.trimMargin()
+        """
+            .trimMargin()
     }
 
     private fun contentsHighlightingLine(contents: String, line: Int): String {

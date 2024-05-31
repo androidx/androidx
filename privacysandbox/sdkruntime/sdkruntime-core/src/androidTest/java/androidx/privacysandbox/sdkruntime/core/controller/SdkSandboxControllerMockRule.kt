@@ -23,9 +23,7 @@ import androidx.test.core.app.ApplicationProvider
 import org.junit.rules.ExternalResource
 import org.mockito.Mockito
 
-/**
- * Creates [SdkSandboxControllerCompat] using mocked [SdkSandboxController].
- */
+/** Creates [SdkSandboxControllerCompat] using mocked [SdkSandboxController]. */
 @RequiresApi(34)
 class SdkSandboxControllerMockRule : ExternalResource() {
 
@@ -38,7 +36,8 @@ class SdkSandboxControllerMockRule : ExternalResource() {
 
         contextSpy = Mockito.spy(ApplicationProvider.getApplicationContext<Context>())
         Mockito.doReturn(sdkSandboxControllerMock)
-            .`when`(contextSpy).getSystemService(SdkSandboxController::class.java)
+            .`when`(contextSpy)
+            .getSystemService(SdkSandboxController::class.java)
 
         controllerCompat = SdkSandboxControllerCompat.from(contextSpy)
     }

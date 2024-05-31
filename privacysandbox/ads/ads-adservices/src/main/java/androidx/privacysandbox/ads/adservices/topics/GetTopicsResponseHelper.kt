@@ -23,9 +23,7 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 
-/**
- * Helper class to consolidate conversion logic for GetTopicsResponse.
- */
+/** Helper class to consolidate conversion logic for GetTopicsResponse. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("ClassVerificationFailure")
 object GetTopicsResponseHelper {
@@ -33,7 +31,7 @@ object GetTopicsResponseHelper {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     internal fun convertResponse(
         response: android.adservices.topics.GetTopicsResponse,
-        ): GetTopicsResponse {
+    ): GetTopicsResponse {
         val topics = mutableListOf<Topic>()
         for (topic in response.topics) {
             topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))
@@ -46,7 +44,7 @@ object GetTopicsResponseHelper {
     @ExperimentalFeatures.Ext11OptIn
     internal fun convertResponseWithEncryptedTopics(
         response: android.adservices.topics.GetTopicsResponse,
-        ): GetTopicsResponse {
+    ): GetTopicsResponse {
         val topics = mutableListOf<Topic>()
         for (topic in response.topics) {
             topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))

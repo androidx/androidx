@@ -34,21 +34,22 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
  *
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
  * @param decisionLogicUri the URI used to retrieve the JS code containing the seller/SSP scoreAd
- *     function used during the ad selection and reporting processes.
- * @param customAudienceBuyers a list of custom audience buyers allowed by the SSP to participate
- *     in the ad selection process.
+ *   function used during the ad selection and reporting processes.
+ * @param customAudienceBuyers a list of custom audience buyers allowed by the SSP to participate in
+ *   the ad selection process.
  * @param adSelectionSignals signals given to the participating buyers in the ad selection and
- *     reporting processes.
- * @param sellerSignals represents any information that the SSP used in the ad
- *     scoring process to tweak the results of the ad selection process (e.g. brand safety
- *     checks, excluded contextual ads).
+ *   reporting processes.
+ * @param sellerSignals represents any information that the SSP used in the ad scoring process to
+ *   tweak the results of the ad selection process (e.g. brand safety checks, excluded contextual
+ *   ads).
  * @param perBuyerSignals any information that each buyer would provide during ad selection to
- *     participants (such as bid floor, ad selection type, etc.)
+ *   participants (such as bid floor, ad selection type, etc.)
  * @param trustedScoringSignalsUri URI endpoint of sell-side trusted signal from which creative
- *     specific realtime information can be fetched from.
+ *   specific realtime information can be fetched from.
  */
 @SuppressLint("ClassVerificationFailure")
-class AdSelectionConfig public constructor(
+class AdSelectionConfig
+public constructor(
     val seller: AdTechIdentifier,
     val decisionLogicUri: Uri,
     val customAudienceBuyers: List<AdTechIdentifier>,
@@ -58,7 +59,7 @@ class AdSelectionConfig public constructor(
     val trustedScoringSignalsUri: Uri
 ) {
 
-    /** Checks whether two [AdSelectionConfig] objects contain the same information.  */
+    /** Checks whether two [AdSelectionConfig] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AdSelectionConfig) return false
@@ -71,7 +72,7 @@ class AdSelectionConfig public constructor(
             this.trustedScoringSignalsUri == other.trustedScoringSignalsUri
     }
 
-    /** Returns the hash of the [AdSelectionConfig] object's data.  */
+    /** Returns the hash of the [AdSelectionConfig] object's data. */
     override fun hashCode(): Int {
         var hash = seller.hashCode()
         hash = 31 * hash + decisionLogicUri.hashCode()
@@ -83,7 +84,7 @@ class AdSelectionConfig public constructor(
         return hash
     }
 
-    /** Overrides the toString method.  */
+    /** Overrides the toString method. */
     override fun toString(): String {
         return "AdSelectionConfig: seller=$seller, decisionLogicUri='$decisionLogicUri', " +
             "customAudienceBuyers=$customAudienceBuyers, adSelectionSignals=$adSelectionSignals, " +
@@ -111,39 +112,45 @@ class AdSelectionConfig public constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     private fun List<AdTechIdentifier>.convertToAdServices():
         MutableList<android.adservices.common.AdTechIdentifier> {
-            val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
-            for (buyer in this) {
-                ids.add(buyer.convertToAdServices())
-            }
-            return ids
+        val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
+        for (buyer in this) {
+            ids.add(buyer.convertToAdServices())
+        }
+        return ids
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
     private fun Map<AdTechIdentifier, AdSelectionSignals>.convertToAdServices():
-        MutableMap<android.adservices.common.AdTechIdentifier,
-                android.adservices.common.AdSelectionSignals?> {
-            val map = HashMap<android.adservices.common.AdTechIdentifier,
-                android.adservices.common.AdSelectionSignals?>()
-            for (key in this.keys) {
-                val id = key.convertToAdServices()
-                val value = this[key]?.convertToAdServices()
-                map[id] = value
-            }
-            return map
+        MutableMap<
+            android.adservices.common.AdTechIdentifier,
+            android.adservices.common.AdSelectionSignals?
+        > {
+        val map =
+            HashMap<
+                android.adservices.common.AdTechIdentifier,
+                android.adservices.common.AdSelectionSignals?
+            >()
+        for (key in this.keys) {
+            val id = key.convertToAdServices()
+            val value = this[key]?.convertToAdServices()
+            map[id] = value
+        }
+        return map
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal companion object {
-        val EMPTY = AdSelectionConfig(
-            AdTechIdentifier(""),
-            Uri.EMPTY,
-            emptyList(),
-            AdSelectionSignals(""),
-            AdSelectionSignals(""),
-            emptyMap(),
-            Uri.EMPTY
-        )
+        val EMPTY =
+            AdSelectionConfig(
+                AdTechIdentifier(""),
+                Uri.EMPTY,
+                emptyList(),
+                AdSelectionSignals(""),
+                AdSelectionSignals(""),
+                emptyMap(),
+                Uri.EMPTY
+            )
     }
 }

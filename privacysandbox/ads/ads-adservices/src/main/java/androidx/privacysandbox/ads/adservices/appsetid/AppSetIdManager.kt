@@ -38,10 +38,10 @@ abstract class AppSetIdManager internal constructor() {
     companion object {
 
         /**
-         *  Creates [AppSetIdManager].
+         * Creates [AppSetIdManager].
          *
-         *  @return AppSetIdManager object. If the device is running an incompatible
-         *  build, the value returned is null.
+         * @return AppSetIdManager object. If the device is running an incompatible build, the value
+         *   returned is null.
          */
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")

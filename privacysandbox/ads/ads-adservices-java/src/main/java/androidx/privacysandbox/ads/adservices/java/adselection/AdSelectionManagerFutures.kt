@@ -42,8 +42,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
 /**
- * This class provides APIs to select ads and report impressions.
- * This class can be used by Java clients.
+ * This class provides APIs to select ads and report impressions. This class can be used by Java
+ * clients.
  */
 @OptIn(ExperimentalFeatures.Ext8OptIn::class)
 abstract class AdSelectionManagerFutures internal constructor() {
@@ -53,25 +53,25 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * application.
      *
      * @param adSelectionConfig the config The input {@code adSelectionConfig} is provided by the
-     * Ads SDK and the [AdSelectionConfig] object is transferred via a Binder call. For this
-     * reason, the total size of these objects is bound to the Android IPC limitations. Failures to
-     * transfer the [AdSelectionConfig] will throws an [TransactionTooLargeException].
+     *   Ads SDK and the [AdSelectionConfig] object is transferred via a Binder call. For this
+     *   reason, the total size of these objects is bound to the Android IPC limitations. Failures
+     *   to transfer the [AdSelectionConfig] will throws an [TransactionTooLargeException].
      *
-     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
-     * for a successful run, or an [Exception] includes the type of the exception thrown and
-     * the corresponding error message.
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome] for a
+     * successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to run the ad selection.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to run the ad selection.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
-     * during bidding, scoring, or overall selection process to find winning Ad.
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered during
+     * bidding, scoring, or overall selection process to find winning Ad.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun selectAdsAsync(
@@ -82,28 +82,28 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * Selects an ad from the results of previously ran ad selections.
      *
      * @param adSelectionFromOutcomesConfig is provided by the Ads SDK and the
-     * [AdSelectionFromOutcomesConfig] object is transferred via a Binder call. For this reason, the
-     * total size of these objects is bound to the Android IPC limitations. Failures to transfer the
-     * [AdSelectionFromOutcomesConfig] will throw an [TransactionTooLargeException].
+     *   [AdSelectionFromOutcomesConfig] object is transferred via a Binder call. For this reason,
+     *   the total size of these objects is bound to the Android IPC limitations. Failures to
+     *   transfer the [AdSelectionFromOutcomesConfig] will throw an [TransactionTooLargeException].
      *
-     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
-     * for a successful run, or an [Exception] includes the type of the exception thrown and
-     * the corresponding error message.
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome] for a
+     * successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to run the ad selection.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to run the ad selection.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
-     * during bidding, scoring, or overall selection process to find winning Ad.
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered during
+     * bidding, scoring, or overall selection process to find winning Ad.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      *
-     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
-     * or permission is not requested.
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized or
+     * permission is not requested.
      *
      * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
      * AdServices module versions don't support this API.
@@ -115,25 +115,25 @@ abstract class AdSelectionManagerFutures internal constructor() {
     ): ListenableFuture<AdSelectionOutcome>
 
     /**
-     * Report the given impression. The [ReportImpressionRequest] is provided by the Ads SDK.
-     * The receiver either returns a {@code void} for a successful run, or an [Exception]
-     * indicates the error.
+     * Report the given impression. The [ReportImpressionRequest] is provided by the Ads SDK. The
+     * receiver either returns a {@code void} for a successful run, or an [Exception] indicates the
+     * error.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to report the impression.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to report the impression.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      *
-     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
-     * or permission is not requested.
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized or
+     * permission is not requested.
      *
      * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
-     * AdServices module versions don't support [ReportImpressionRequest] with null
-     * {@code AdSelectionConfig}
+     * AdServices module versions don't support [ReportImpressionRequest] with null {@code
+     * AdSelectionConfig}
      *
      * @param reportImpressionRequest the request for reporting impression.
      */
@@ -149,28 +149,28 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * when the ad event will be reported. The event reporting could be delayed and reports could be
      * batched.
      *
-     * Using [ReportEventRequest#getKey()], the service will fetch the {@code reportingUri}
-     * that was registered in {@code registerAdBeacon}. See documentation of [reportImpressionAsync]
-     * for more details regarding {@code registerAdBeacon}. Then, the service will attach
+     * Using [ReportEventRequest#getKey()], the service will fetch the {@code reportingUri} that was
+     * registered in {@code registerAdBeacon}. See documentation of [reportImpressionAsync] for more
+     * details regarding {@code registerAdBeacon}. Then, the service will attach
      * [ReportEventRequest#getData()] to the request body of a POST request and send the request.
      * The body of the POST request will have the {@code content-type} of {@code text/plain}, and
      * the data will be transmitted in {@code charset=UTF-8}.
      *
-     * The output is passed by the receiver, which either returns an empty [Object] for a
-     * successful run, or an [Exception] includes the type of the exception thrown and the
-     * corresponding error message.
+     * The output is passed by the receiver, which either returns an empty [Object] for a successful
+     * run, or an [Exception] includes the type of the exception thrown and the corresponding error
+     * message.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to report the ad event.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to report the ad event.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      *
-     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
-     * or permission is not requested.
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized or
+     * permission is not requested.
      *
      * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
      * AdServices module versions don't support this API.
@@ -181,9 +181,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun reportEventAsync(
-        reportEventRequest: ReportEventRequest
-    ): ListenableFuture<Unit>
+    abstract fun reportEventAsync(reportEventRequest: ReportEventRequest): ListenableFuture<Unit>
 
     /**
      * Updates the counter histograms for an ad which was previously selected by a call to
@@ -193,16 +191,14 @@ abstract class AdSelectionManagerFutures internal constructor() {
      * candidate ads, where ads whose frequency caps are met or exceeded are removed from the
      * bidding process during ad selection.
      *
-     * Counter histograms can only be updated for ads specified by the given {@code
-     * adSelectionId} returned by a recent call to Protected Audience API ad selection from the same
-     * caller app.
+     * Counter histograms can only be updated for ads specified by the given {@code adSelectionId}
+     * returned by a recent call to Protected Audience API ad selection from the same caller app.
      *
      * A [SecurityException] is returned if:
-     *
      * <ol>
-     *   <li>the app has not declared the correct permissions in its manifest, or
-     *   <li>the app or entity identified by the {@code callerAdTechIdentifier} are not authorized
-     *       to use the API.
+     * <li>the app has not declared the correct permissions in its manifest, or
+     * <li>the app or entity identified by the {@code callerAdTechIdentifier} are not authorized to
+     *   use the API.
      * </ol>
      *
      * An [IllegalStateException] is returned if the call does not come from an app with a
@@ -220,8 +216,7 @@ abstract class AdSelectionManagerFutures internal constructor() {
      */
     @ExperimentalFeatures.Ext8OptIn
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
-    abstract fun
-        updateAdCounterHistogramAsync(
+    abstract fun updateAdCounterHistogramAsync(
         updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
     ): ListenableFuture<Unit>
 
@@ -231,27 +226,27 @@ abstract class AdSelectionManagerFutures internal constructor() {
      *
      * Custom audience ads must have a {@code ad_render_id} to be eligible for to be collected.
      *
-     * See [AdSelectionManager#persistAdSelectionResult] for how to process the results of
-     * the ad selection run on server-side with the blob generated by this API.
+     * See [AdSelectionManager#persistAdSelectionResult] for how to process the results of the ad
+     * selection run on server-side with the blob generated by this API.
      *
-     * The output is passed by the receiver, which either returns an [GetAdSelectionDataOutcome]
-     * for a successful run, or an [Exception] includes the type of
-     * the exception thrown and the corresponding error message.
+     * The output is passed by the receiver, which either returns an [GetAdSelectionDataOutcome] for
+     * a successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to run the ad selection.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to run the ad selection.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
-     * during bidding, scoring, or overall selection process to find winning Ad.
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered during
+     * bidding, scoring, or overall selection process to find winning Ad.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      *
-     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
-     * or permission is not requested.
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized or
+     * permission is not requested.
      *
      * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
      * AdServices module versions don't support this API.
@@ -267,27 +262,27 @@ abstract class AdSelectionManagerFutures internal constructor() {
     /**
      * Persists the ad selection results from the server-side.
      *
-     * See [AdSelectionManager#getAdSelectionData] for how to generate an encrypted blob to
-     * run an ad selection on the server side.
+     * See [AdSelectionManager#getAdSelectionData] for how to generate an encrypted blob to run an
+     * ad selection on the server side.
      *
-     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
-     * for a successful run, or an [Exception] includes the type of the exception thrown and
-     * the corresponding error message.
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome] for a
+     * successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
      *
-     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
-     * the API received to run the ad selection.
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument the API
+     * received to run the ad selection.
      *
      * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
      * services.", it is caused by an internal failure of the ad selection service.
      *
-     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
-     * during bidding, scoring, or overall selection process to find winning Ad.
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered during
+     * bidding, scoring, or overall selection process to find winning Ad.
      *
-     * If the [LimitExceededException] is thrown, it is caused when the calling package
-     * exceeds the allowed rate limits and is throttled.
+     * If the [LimitExceededException] is thrown, it is caused when the calling package exceeds the
+     * allowed rate limits and is throttled.
      *
-     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
-     * or permission is not requested.
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized or
+     * permission is not requested.
      *
      * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
      * AdServices module versions don't support this API.
@@ -300,17 +295,16 @@ abstract class AdSelectionManagerFutures internal constructor() {
         persistAdSelectionResultRequest: PersistAdSelectionResultRequest
     ): ListenableFuture<AdSelectionOutcome>
 
-    private class Api33Ext4JavaImpl(
-        private val mAdSelectionManager: AdSelectionManager?
-    ) : AdSelectionManagerFutures() {
+    private class Api33Ext4JavaImpl(private val mAdSelectionManager: AdSelectionManager?) :
+        AdSelectionManagerFutures() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
         override fun selectAdsAsync(
             adSelectionConfig: AdSelectionConfig
         ): ListenableFuture<AdSelectionOutcome> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.selectAds(adSelectionConfig)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdSelectionManager!!.selectAds(adSelectionConfig) }
+                .asListenableFuture()
         }
 
         @OptIn(ExperimentalFeatures.Ext10OptIn::class)
@@ -319,9 +313,9 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun selectAdsAsync(
             adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
         ): ListenableFuture<AdSelectionOutcome> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.selectAds(adSelectionFromOutcomesConfig)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdSelectionManager!!.selectAds(adSelectionFromOutcomesConfig) }
+                .asListenableFuture()
         }
 
         @DoNotInline
@@ -329,9 +323,9 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun reportImpressionAsync(
             reportImpressionRequest: ReportImpressionRequest
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.reportImpression(reportImpressionRequest)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdSelectionManager!!.reportImpression(reportImpressionRequest) }
+                .asListenableFuture()
         }
 
         @DoNotInline
@@ -339,9 +333,11 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun updateAdCounterHistogramAsync(
             updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.updateAdCounterHistogram(updateAdCounterHistogramRequest)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async {
+                    mAdSelectionManager!!.updateAdCounterHistogram(updateAdCounterHistogramRequest)
+                }
+                .asListenableFuture()
         }
 
         @OptIn(ExperimentalFeatures.Ext8OptIn::class)
@@ -350,9 +346,9 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun reportEventAsync(
             reportEventRequest: ReportEventRequest
         ): ListenableFuture<Unit> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.reportEvent(reportEventRequest)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdSelectionManager!!.reportEvent(reportEventRequest) }
+                .asListenableFuture()
         }
 
         @OptIn(ExperimentalFeatures.Ext10OptIn::class)
@@ -361,9 +357,9 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun getAdSelectionDataAsync(
             getAdSelectionDataRequest: GetAdSelectionDataRequest
         ): ListenableFuture<GetAdSelectionDataOutcome> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.getAdSelectionData(getAdSelectionDataRequest)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async { mAdSelectionManager!!.getAdSelectionData(getAdSelectionDataRequest) }
+                .asListenableFuture()
         }
 
         @OptIn(ExperimentalFeatures.Ext10OptIn::class)
@@ -372,18 +368,20 @@ abstract class AdSelectionManagerFutures internal constructor() {
         override fun persistAdSelectionResultAsync(
             persistAdSelectionResultRequest: PersistAdSelectionResultRequest
         ): ListenableFuture<AdSelectionOutcome> {
-            return CoroutineScope(Dispatchers.Default).async {
-                mAdSelectionManager!!.persistAdSelectionResult(persistAdSelectionResultRequest)
-            }.asListenableFuture()
+            return CoroutineScope(Dispatchers.Default)
+                .async {
+                    mAdSelectionManager!!.persistAdSelectionResult(persistAdSelectionResultRequest)
+                }
+                .asListenableFuture()
         }
     }
 
     companion object {
         /**
-         *  Creates [AdSelectionManagerFutures].
+         * Creates [AdSelectionManagerFutures].
          *
-         *  @return AdSelectionManagerFutures object. If the device is running an incompatible
-         *  build, the value returned is null.
+         * @return AdSelectionManagerFutures object. If the device is running an incompatible build,
+         *   the value returned is null.
          */
         @JvmStatic
         fun from(context: Context): AdSelectionManagerFutures? {

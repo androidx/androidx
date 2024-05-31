@@ -31,10 +31,12 @@ class PersistAdSelectionResultRequestTest {
     private val adSelectionId = 1234L
     private val seller: AdTechIdentifier = AdTechIdentifier("1234")
     private val adSelectionResult = byteArrayOf(0x01, 0x02, 0x03, 0x04)
+
     @Test
     fun testToString() {
-        val result = "PersistAdSelectionResultRequest: adSelectionId=$adSelectionId, " +
-            "seller=$seller, adSelectionResult=$adSelectionResult"
+        val result =
+            "PersistAdSelectionResultRequest: adSelectionId=$adSelectionId, " +
+                "seller=$seller, adSelectionResult=$adSelectionResult"
         val request = PersistAdSelectionResultRequest(adSelectionId, seller, adSelectionResult)
 
         Truth.assertThat(request.toString()).isEqualTo(result)
@@ -42,16 +44,14 @@ class PersistAdSelectionResultRequestTest {
 
     @Test
     fun testEquals() {
-        val persistAdSelectionResultRequest = PersistAdSelectionResultRequest(
-            adSelectionId,
-            seller,
-            adSelectionResult
-        )
-        var persistAdSelectionResultRequest2 = PersistAdSelectionResultRequest(
-            1234L,
-            AdTechIdentifier("1234"),
-            byteArrayOf(0x01, 0x02, 0x03, 0x04)
-        )
+        val persistAdSelectionResultRequest =
+            PersistAdSelectionResultRequest(adSelectionId, seller, adSelectionResult)
+        var persistAdSelectionResultRequest2 =
+            PersistAdSelectionResultRequest(
+                1234L,
+                AdTechIdentifier("1234"),
+                byteArrayOf(0x01, 0x02, 0x03, 0x04)
+            )
 
         Truth.assertThat(persistAdSelectionResultRequest == persistAdSelectionResultRequest2)
             .isTrue()

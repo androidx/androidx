@@ -16,13 +16,9 @@
 
 package androidx.privacysandbox.ads.adservices.common
 
-/**
- * Contains AdServices experimental feature opt-in annotations.
- */
+/** Contains AdServices experimental feature opt-in annotations. */
 sealed interface ExperimentalFeatures {
-    /**
-     * Clients should use it when they want to use [MeasurementManager#registerSource] API.
-     */
+    /** Clients should use it when they want to use [MeasurementManager#registerSource] API. */
     @RequiresOptIn("This API is experimental.", RequiresOptIn.Level.WARNING)
     annotation class RegisterSourceOptIn
 

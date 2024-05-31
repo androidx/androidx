@@ -24,25 +24,20 @@ import java.util.Enumeration
 /**
  * Delegate java resources related calls to app classloader.
  *
- * Classloaders normally delegate calls to parent classloader first, that's why this factory
- * creates classloader that will work with java resources and pass it as parent to
- * [codeClassLoaderFactory] thus overrides java resources for all classes loaded down the line.
+ * Classloaders normally delegate calls to parent classloader first, that's why this factory creates
+ * classloader that will work with java resources and pass it as parent to [codeClassLoaderFactory]
+ * thus overrides java resources for all classes loaded down the line.
  *
- * Add [LocalSdkConfig.javaResourcesRoot] as prefix to resource names before delegating calls,
- * thus allowing isolating java resources for different local sdks.
+ * Add [LocalSdkConfig.javaResourcesRoot] as prefix to resource names before delegating calls, thus
+ * allowing isolating java resources for different local sdks.
  */
 internal class JavaResourcesLoadingClassLoaderFactory(
     private val appClassloader: ClassLoader,
     private val codeClassLoaderFactory: SdkLoader.ClassLoaderFactory
 ) : SdkLoader.ClassLoaderFactory {
-    override fun createClassLoaderFor(
-        sdkConfig: LocalSdkConfig,
-        parent: ClassLoader
-    ): ClassLoader {
-        val javaResourcesLoadingClassLoader = createJavaResourcesLoadingClassLoader(
-            sdkConfig,
-            parent
-        )
+    override fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
+        val javaResourcesLoadingClassLoader =
+            createJavaResourcesLoadingClassLoader(sdkConfig, parent)
         return codeClassLoaderFactory.createClassLoaderFor(
             sdkConfig,
             parent = javaResourcesLoadingClassLoader
@@ -64,7 +59,8 @@ internal class JavaResourcesLoadingClassLoaderFactory(
         }
     }
 
-    private class JavaResourcesLoadingClassLoader constructor(
+    private class JavaResourcesLoadingClassLoader
+    constructor(
         parent: ClassLoader,
         private val appClassloader: ClassLoader,
         private val javaResourcePrefix: File

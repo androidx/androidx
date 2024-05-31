@@ -27,9 +27,7 @@ import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import java.util.concurrent.Executor
 
-/**
- * Local implementation that will be injected to locally loaded SDKs.
- */
+/** Local implementation that will be injected to locally loaded SDKs. */
 internal class LocalController(
     private val sdkPackageName: String,
     private val localSdkRegistry: SdkRegistry,
@@ -44,13 +42,9 @@ internal class LocalController(
     ) {
         try {
             val result = localSdkRegistry.loadSdk(sdkName, params)
-            executor.execute {
-                callback.onResult(result)
-            }
+            executor.execute { callback.onResult(result) }
         } catch (ex: LoadSdkCompatException) {
-            executor.execute {
-                callback.onError(ex)
-            }
+            executor.execute { callback.onError(ex) }
         }
     }
 

@@ -28,27 +28,29 @@ class PrivacySandboxCancellationExceptionFileGenerator(private val basePackageNa
     private val privacySandboxCancellationExceptionName = "PrivacySandboxCancellationException"
 
     fun generate(): FileSpec {
-        val classSpec = TypeSpec.classBuilder(privacySandboxCancellationExceptionName).build {
-            superclass(CancellationException::class)
-            addModifiers(KModifier.PUBLIC)
-            primaryConstructor(
-                listOf(
-                    PropertySpec.builder(
-                        "message",
-                        String::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build(),
-                    PropertySpec.builder(
-                        "cause",
-                        Throwable::class.asTypeName().copy(nullable = true),
-                    ).addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE).build()
+        val classSpec =
+            TypeSpec.classBuilder(privacySandboxCancellationExceptionName).build {
+                superclass(CancellationException::class)
+                addModifiers(KModifier.PUBLIC)
+                primaryConstructor(
+                    listOf(
+                        PropertySpec.builder(
+                                "message",
+                                String::class.asTypeName().copy(nullable = true),
+                            )
+                            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                            .build(),
+                        PropertySpec.builder(
+                                "cause",
+                                Throwable::class.asTypeName().copy(nullable = true),
+                            )
+                            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                            .build()
+                    )
                 )
-            )
-        }
+            }
 
-        return FileSpec.builder(
-            basePackageName,
-            privacySandboxCancellationExceptionName
-        ).build {
+        return FileSpec.builder(basePackageName, privacySandboxCancellationExceptionName).build {
             addCommonSettings()
             addType(classSpec)
         }

@@ -26,7 +26,6 @@ import java.util.concurrent.Executor
 /**
  * An Adapter that provides content from a SandboxedSdk to be displayed as part of a host app's UI.
  */
-
 interface SandboxedUiAdapter {
 
     /**
@@ -46,9 +45,7 @@ interface SandboxedUiAdapter {
         client: SessionClient
     )
 
-    /**
-     * A single session with the provider of remote content.
-     */
+    /** A single session with the provider of remote content. */
     interface Session : AutoCloseable {
 
         /**
@@ -70,22 +67,18 @@ interface SandboxedUiAdapter {
          */
         fun notifyZOrderChanged(isZOrderOnTop: Boolean)
 
-        /**
-         * Notify the session that the host configuration has changed to [configuration].
-         */
+        /** Notify the session that the host configuration has changed to [configuration]. */
         fun notifyConfigurationChanged(configuration: Configuration)
 
         /**
-         * Close this session, indicating that the remote provider of content should
-         * dispose of associated resources and that the [SessionClient] should not
-         * receive further callback events.
+         * Close this session, indicating that the remote provider of content should dispose of
+         * associated resources and that the [SessionClient] should not receive further callback
+         * events.
          */
         override fun close()
     }
 
-    /**
-     * The client of a single session that will receive callback events from an active session.
-     */
+    /** The client of a single session that will receive callback events from an active session. */
     interface SessionClient {
         /**
          * Called to report that the session was opened successfully, delivering the [Session]
@@ -94,9 +87,9 @@ interface SandboxedUiAdapter {
         fun onSessionOpened(session: Session)
 
         /**
-         * Called to report a terminal error in the session. No further events will be reported
-         * to this [SessionClient] and any further or currently pending calls to the [Session]
-         * that may have been in flight may be ignored.
+         * Called to report a terminal error in the session. No further events will be reported to
+         * this [SessionClient] and any further or currently pending calls to the [Session] that may
+         * have been in flight may be ignored.
          */
         fun onSessionError(throwable: Throwable)
 

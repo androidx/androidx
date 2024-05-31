@@ -49,8 +49,8 @@ class AppSetIdTest {
 
     @Test
     fun testScopeUndefined() {
-        assertThrows<IllegalArgumentException> {
-            AppSetId("1234", 3 /* Invalid scope */)
-        }.hasMessageThat().contains("Scope undefined.")
+        assertThrows<IllegalArgumentException> { AppSetId("1234", 3 /* Invalid scope */) }
+            .hasMessageThat()
+            .contains("Scope undefined.")
     }
 }

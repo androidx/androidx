@@ -49,8 +49,7 @@ internal object AdServicesInfo {
     @RequiresApi(30)
     private object Extensions30Impl {
         @DoNotInline
-        fun getAdServicesVersion() =
-            SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
+        fun getAdServicesVersion() = SdkExtensions.getExtensionVersion(SdkExtensions.AD_SERVICES)
     }
 
     @RequiresApi(30)
@@ -59,11 +58,9 @@ internal object AdServicesInfo {
         // for the build version. Use S for now, but this can be changed to R when we add
         // support for R later.
         @DoNotInline
-        fun getAdExtServicesVersionS() =
-            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
+        fun getAdExtServicesVersionS() = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
 
         @DoNotInline
-        fun getAdExtServicesVersionR() =
-            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
+        fun getAdExtServicesVersionR() = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
     }
 }

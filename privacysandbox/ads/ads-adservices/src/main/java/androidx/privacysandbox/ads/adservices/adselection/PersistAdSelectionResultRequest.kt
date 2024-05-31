@@ -27,12 +27,13 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  * Represent input parameters to the [AdSelectionManager#persistAdSelectionResult] API.
  *
  * @param adSelectionId An ID unique only to a device user that identifies a successful ad
- * selection.
+ *   selection.
  * @param seller AdTechIdentifier of the seller, for example "www.example-ssp.com".
  * @param adSelectionResult The adSelectionResult that is collected from device.
  */
 @ExperimentalFeatures.Ext10OptIn
-class PersistAdSelectionResultRequest public constructor(
+class PersistAdSelectionResultRequest
+public constructor(
     val adSelectionId: Long,
     val seller: AdTechIdentifier? = null,
     val adSelectionResult: ByteArray? = null,

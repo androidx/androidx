@@ -33,27 +33,31 @@ class AidlMethodSpecTest {
     @Test
     fun automaticallyCreatesTransactionId() {
         val name = "methodName"
-        val parameters = listOf(
-            AidlParameterSpec(
-                "foo", AidlTypeSpec(
-                    Type("", "boolean"),
-                    AidlTypeKind.PRIMITIVE,
-                    isList = true,
-                )
-            ),
-            AidlParameterSpec(
-                "bar",
-                AidlTypeSpec(
-                    Type("com.mysdk", "IListStringTransactionCallback"),
-                    AidlTypeKind.INTERFACE
-                )
-            ),
-        )
+        val parameters =
+            listOf(
+                AidlParameterSpec(
+                    "foo",
+                    AidlTypeSpec(
+                        Type("", "boolean"),
+                        AidlTypeKind.PRIMITIVE,
+                        isList = true,
+                    )
+                ),
+                AidlParameterSpec(
+                    "bar",
+                    AidlTypeSpec(
+                        Type("com.mysdk", "IListStringTransactionCallback"),
+                        AidlTypeKind.INTERFACE
+                    )
+                ),
+            )
         val method = AidlMethodSpec(name, parameters)
 
         val expectedSignature = "methodName(boolean[],com.mysdk.IListStringTransactionCallback)"
         val expectedHash =
-            Hashing.farmHashFingerprint64().hashString(expectedSignature, Charsets.UTF_8).asLong()
+            Hashing.farmHashFingerprint64()
+                .hashString(expectedSignature, Charsets.UTF_8)
+                .asLong()
                 .toULong()
         val expectedTransactionId = expectedHash % (0xffff9bUL - 100UL - 65535UL)
 

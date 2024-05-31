@@ -24,17 +24,15 @@ import androidx.annotation.RestrictTo
 /**
  * A container class for filters which are associated with an ad.
  *
- * If any of the filters in an [AdFilters] instance are not satisfied, the associated ad
- * will not be eligible for ad selection. Filters are optional ad parameters and are not required as
- * part of [AdData].
+ * If any of the filters in an [AdFilters] instance are not satisfied, the associated ad will not be
+ * eligible for ad selection. Filters are optional ad parameters and are not required as part of
+ * [AdData].
  *
  * @param frequencyCapFilters Gets the [FrequencyCapFilters] instance that represents all frequency
- * cap filters for the ad.
+ *   cap filters for the ad.
  */
 @ExperimentalFeatures.Ext8OptIn
-class AdFilters public constructor(
-    val frequencyCapFilters: FrequencyCapFilters?
-) {
+class AdFilters public constructor(val frequencyCapFilters: FrequencyCapFilters?) {
     /** Checks whether two [AdFilters] objects contain the same information. */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

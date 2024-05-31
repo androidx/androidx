@@ -17,18 +17,15 @@
 package androidx.privacysandbox.sdkruntime.core
 
 /**
- * Information about runtime enabled SDK.
- * Could represent SDK loaded in sandbox or locally loaded SDK.
+ * Information about runtime enabled SDK. Could represent SDK loaded in sandbox or locally loaded
+ * SDK.
  */
 class SandboxedSdkInfo(
-    /**
-     * Sdk Name.
-     * This is a value of `android:name` attribute <sdk-library> tag of SDK Manifest.
-     */
+    /** Sdk Name. This is a value of `android:name` attribute <sdk-library> tag of SDK Manifest. */
     val name: String,
     /**
-     * Sdk Version.
-     * This is a value of `android:versionMajor` attribute <sdk-library> tag of SDK Manifest.
+     * Sdk Version. This is a value of `android:versionMajor` attribute <sdk-library> tag of SDK
+     * Manifest.
      */
     val version: Long
 ) {

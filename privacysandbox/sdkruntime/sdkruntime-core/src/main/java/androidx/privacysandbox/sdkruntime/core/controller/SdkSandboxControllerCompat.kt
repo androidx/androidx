@@ -44,20 +44,19 @@ import org.jetbrains.annotations.TestOnly
 /**
  * Compat version of [android.app.sdksandbox.sdkprovider.SdkSandboxController].
  *
- * Controller that is used by SDK loaded in the sandbox or locally to access information provided
- * by the sandbox environment.
+ * Controller that is used by SDK loaded in the sandbox or locally to access information provided by
+ * the sandbox environment.
  *
  * It enables the SDK to communicate with other SDKS and know about the state of the sdks that are
  * currently loaded.
  *
- * An instance can be obtained using [SdkSandboxControllerCompat.from].
- * The [Context] can be obtained using [SandboxedSdkProviderCompat.context].
+ * An instance can be obtained using [SdkSandboxControllerCompat.from]. The [Context] can be
+ * obtained using [SandboxedSdkProviderCompat.context].
  *
  * @see [android.app.sdksandbox.sdkprovider.SdkSandboxController]
  */
-class SdkSandboxControllerCompat internal constructor(
-    private val controllerImpl: SandboxControllerImpl
-) {
+class SdkSandboxControllerCompat
+internal constructor(private val controllerImpl: SandboxControllerImpl) {
 
     /**
      * Load SDK in a SDK sandbox java process or locally.
@@ -65,8 +64,8 @@ class SdkSandboxControllerCompat internal constructor(
      * The caller may only load SDKs the client app depends on into the SDK sandbox.
      *
      * @param sdkName name of the SDK to be loaded.
-     * @param params additional parameters to be passed to the SDK in the form of a [Bundle]
-     *  as agreed between the client and the SDK.
+     * @param params additional parameters to be passed to the SDK in the form of a [Bundle] as
+     *   agreed between the client and the SDK.
      * @return [SandboxedSdkCompat] from SDK on a successful run.
      * @throws [LoadSdkCompatException] on fail.
      */
@@ -84,11 +83,9 @@ class SdkSandboxControllerCompat internal constructor(
      * Fetches information about Sdks that are loaded in the sandbox or locally.
      *
      * @return List of [SandboxedSdkCompat] containing all currently loaded sdks
-     *
      * @see [android.app.sdksandbox.sdkprovider.SdkSandboxController.getSandboxedSdks]
      */
-    fun getSandboxedSdks(): List<SandboxedSdkCompat> =
-        controllerImpl.getSandboxedSdks()
+    fun getSandboxedSdks(): List<SandboxedSdkCompat> = controllerImpl.getSandboxedSdks()
 
     /**
      * Fetches all [AppOwnedSdkSandboxInterfaceCompat] that are registered by the app.
@@ -101,16 +98,16 @@ class SdkSandboxControllerCompat internal constructor(
     /**
      * Returns an identifier for a [SdkSandboxActivityHandlerCompat] after registering it.
      *
-     * This function registers an implementation of [SdkSandboxActivityHandlerCompat] created by
-     * an SDK and returns an [IBinder] which uniquely identifies the passed
+     * This function registers an implementation of [SdkSandboxActivityHandlerCompat] created by an
+     * SDK and returns an [IBinder] which uniquely identifies the passed
      * [SdkSandboxActivityHandlerCompat] object.
      *
      * @param handlerCompat is the [SdkSandboxActivityHandlerCompat] to register
      * @return [IBinder] uniquely identify the passed [SdkSandboxActivityHandlerCompat]
      * @see SdkSandboxController.registerSdkSandboxActivityHandler
      */
-    fun registerSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat):
-        IBinder = controllerImpl.registerSdkSandboxActivityHandler(handlerCompat)
+    fun registerSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat): IBinder =
+        controllerImpl.registerSdkSandboxActivityHandler(handlerCompat)
 
     /**
      * Unregister an already registered [SdkSandboxActivityHandlerCompat].
@@ -132,8 +129,7 @@ class SdkSandboxControllerCompat internal constructor(
      *
      * @return Package name of the client app.
      */
-    fun getClientPackageName(): String =
-        controllerImpl.getClientPackageName()
+    fun getClientPackageName(): String = controllerImpl.getClientPackageName()
 
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
@@ -144,12 +140,11 @@ class SdkSandboxControllerCompat internal constructor(
 
         fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat>
 
-        fun registerSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat):
-            IBinder
-
-        fun unregisterSdkSandboxActivityHandler(
+        fun registerSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat
-        )
+        ): IBinder
+
+        fun unregisterSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat)
 
         fun getClientPackageName(): String
     }
@@ -159,19 +154,20 @@ class SdkSandboxControllerCompat internal constructor(
         private var localImpl: SandboxControllerImpl? = null
 
         /**
-         *  Creates [SdkSandboxControllerCompat].
+         * Creates [SdkSandboxControllerCompat].
          *
-         *  @param context SDK context
-         *
-         *  @return SdkSandboxControllerCompat object.
+         * @param context SDK context
+         * @return SdkSandboxControllerCompat object.
          */
         @JvmStatic
         fun from(context: Context): SdkSandboxControllerCompat {
             val clientVersion = Versions.CLIENT_VERSION
             if (clientVersion != null) {
-                val implFromClient = localImpl ?: throw UnsupportedOperationException(
-                    "Shouldn't happen: No controller implementation available"
-                )
+                val implFromClient =
+                    localImpl
+                        ?: throw UnsupportedOperationException(
+                            "Shouldn't happen: No controller implementation available"
+                        )
                 return SdkSandboxControllerCompat(LocalImpl(implFromClient, context, clientVersion))
             }
             val platformImpl = PlatformImplFactory.create(context)
@@ -179,10 +175,8 @@ class SdkSandboxControllerCompat internal constructor(
         }
 
         /**
-         * Inject implementation from client library.
-         * Implementation will be used only if loaded locally.
-         * This method will be called from client side via reflection during loading SDK.
-         *
+         * Inject implementation from client library. Implementation will be used only if loaded
+         * locally. This method will be called from client side via reflection during loading SDK.
          */
         @JvmStatic
         @Keep

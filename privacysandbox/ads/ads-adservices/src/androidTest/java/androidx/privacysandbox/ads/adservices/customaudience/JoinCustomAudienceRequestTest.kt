@@ -46,16 +46,18 @@ class JoinCustomAudienceRequestTest {
 
     @Test
     fun testToString() {
-        val customAudience = CustomAudience(
-            buyer,
-            name,
-            uri,
-            uri,
-            ads,
-            activationTime,
-            expirationTime,
-            userBiddingSignals,
-            trustedBiddingSignals)
+        val customAudience =
+            CustomAudience(
+                buyer,
+                name,
+                uri,
+                uri,
+                ads,
+                activationTime,
+                expirationTime,
+                userBiddingSignals,
+                trustedBiddingSignals
+            )
         val result = "JoinCustomAudience: customAudience=$customAudience"
         val joinCustomAudienceRequest = JoinCustomAudienceRequest(customAudience)
         Truth.assertThat(joinCustomAudienceRequest.toString()).isEqualTo(result)

@@ -32,8 +32,7 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import org.jetbrains.annotations.TestOnly
 
 /**
- * Responsible for lifecycle of SDKs bundled with app.
- * Shared between:
+ * Responsible for lifecycle of SDKs bundled with app. Shared between:
  * 1) [androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat]
  * 2) [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]
  */
@@ -56,11 +55,12 @@ internal class LocalSdkRegistry(
         params: Bundle,
         overrideVersionHandshake: VersionHandshake?
     ): SandboxedSdkCompat {
-        val sdkConfig = configHolder.getSdkConfig(sdkName)
-            ?: throw LoadSdkCompatException(
-                LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-                "$sdkName not bundled with app"
-            )
+        val sdkConfig =
+            configHolder.getSdkConfig(sdkName)
+                ?: throw LoadSdkCompatException(
+                    LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+                    "$sdkName not bundled with app"
+                )
 
         synchronized(sdks) {
             if (sdks.containsKey(sdkName)) {
@@ -72,20 +72,13 @@ internal class LocalSdkRegistry(
 
             val sdkProvider = sdkLoader.loadSdk(sdkConfig, overrideVersionHandshake)
             val sandboxedSdkCompat = sdkProvider.onLoadSdk(params)
-            sdks.put(
-                sdkName, Entry(
-                    sdkProvider = sdkProvider,
-                    sdk = sandboxedSdkCompat
-                )
-            )
+            sdks.put(sdkName, Entry(sdkProvider = sdkProvider, sdk = sandboxedSdkCompat))
             return sandboxedSdkCompat
         }
     }
 
     override fun unloadSdk(sdkName: String) {
-        val loadedEntry = synchronized(sdks) {
-            sdks.remove(sdkName)
-        }
+        val loadedEntry = synchronized(sdks) { sdks.remove(sdkName) }
         if (loadedEntry == null) {
             Log.w(LOG_TAG, "Unloading SDK that is not loaded - $sdkName")
             return
@@ -95,19 +88,18 @@ internal class LocalSdkRegistry(
         LocalSdkActivityHandlerRegistry.unregisterAllActivityHandlersForSdk(sdkName)
     }
 
-    override fun getLoadedSdks(): List<SandboxedSdkCompat> = synchronized(sdks) {
-        return sdks.values.map { it.sdk }
-    }
+    override fun getLoadedSdks(): List<SandboxedSdkCompat> =
+        synchronized(sdks) {
+            return sdks.values.map { it.sdk }
+        }
 
     @TestOnly
-    fun getLoadedSdkProvider(sdkName: String): LocalSdkProvider? = synchronized(sdks) {
-        return sdks[sdkName]?.sdkProvider
-    }
+    fun getLoadedSdkProvider(sdkName: String): LocalSdkProvider? =
+        synchronized(sdks) {
+            return sdks[sdkName]?.sdkProvider
+        }
 
-    private data class Entry(
-        val sdkProvider: LocalSdkProvider,
-        val sdk: SandboxedSdkCompat
-    )
+    private data class Entry(val sdkProvider: LocalSdkProvider, val sdk: SandboxedSdkCompat)
 
     companion object {
         const val LOG_TAG = "LocalSdkRegistry"
@@ -119,20 +111,15 @@ internal class LocalSdkRegistry(
          * @param appOwnedSdkRegistry AppOwnedSdkRegistry for [LocalControllerFactory]
          * @return LocalSdkRegistry that could load SDKs bundled with app.
          */
-        fun create(
-            context: Context,
-            appOwnedSdkRegistry: AppOwnedSdkRegistry
-        ): LocalSdkRegistry {
+        fun create(context: Context, appOwnedSdkRegistry: AppOwnedSdkRegistry): LocalSdkRegistry {
             val configHolder = LocalSdkConfigsHolder.load(context)
 
             val localSdkRegistry = LocalSdkRegistry(configHolder)
-            localSdkRegistry.sdkLoader = SdkLoader.create(
-                context,
-                LocalControllerFactory(
-                    localSdkRegistry,
-                    appOwnedSdkRegistry
+            localSdkRegistry.sdkLoader =
+                SdkLoader.create(
+                    context,
+                    LocalControllerFactory(localSdkRegistry, appOwnedSdkRegistry)
                 )
-            )
 
             return localSdkRegistry
         }

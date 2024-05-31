@@ -20,9 +20,7 @@ import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
-/**
- * Create [LocalController] instance for specific sdk.
- */
+/** Create [LocalController] instance for specific sdk. */
 internal class LocalControllerFactory(
     private val localSdkRegistry: SdkRegistry,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry

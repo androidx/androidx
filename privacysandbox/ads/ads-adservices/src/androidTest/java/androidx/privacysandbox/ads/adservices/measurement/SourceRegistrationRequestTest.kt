@@ -31,8 +31,9 @@ import org.junit.runner.RunWith
 class SourceRegistrationRequestTest {
     @Test
     fun testToString() {
-        val result = "AppSourcesRegistrationRequest { RegistrationUris=" +
-            "[[www.abc.com, www.xyz.com]], InputEvent=null }"
+        val result =
+            "AppSourcesRegistrationRequest { RegistrationUris=" +
+                "[[www.abc.com, www.xyz.com]], InputEvent=null }"
 
         val uri1 = Uri.parse("www.abc.com")
         val uri2 = Uri.parse("www.xyz.com")
@@ -47,9 +48,7 @@ class SourceRegistrationRequestTest {
         val uri2 = Uri.parse("www.xyz.com")
         val params = listOf(uri1, uri2)
         val inputEvent = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
-        val request1 = SourceRegistrationRequest.Builder(params)
-            .setInputEvent(inputEvent)
-            .build()
+        val request1 = SourceRegistrationRequest.Builder(params).setInputEvent(inputEvent).build()
         val request2 = SourceRegistrationRequest(params, inputEvent)
         val request3 = SourceRegistrationRequest.Builder(params).build()
 

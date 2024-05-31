@@ -39,8 +39,10 @@ class ValueParserTest {
 
     @Test
     fun parseDataClass_ok() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -56,55 +58,72 @@ class ValueParserTest {
                     @PrivacySandboxValue
                     data class MagicPayload(val magicList: List<Long>)
                 """
-        )
-        assertThat(parseSources(source)).isEqualTo(
-            ParsedApi(
-                services = setOf(
-                    AnnotatedInterface(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                        methods = listOf(
-                            Method(
-                                name = "doStuff",
-                                parameters = listOf(
-                                    Parameter("request", Type("com.mysdk", "MySdkRequest"))
-                                ),
-                                returnType = Type("com.mysdk", "MySdkResponse"),
-                                isSuspend = true
+            )
+        assertThat(parseSources(source))
+            .isEqualTo(
+                ParsedApi(
+                    services =
+                        setOf(
+                            AnnotatedInterface(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
+                                methods =
+                                    listOf(
+                                        Method(
+                                            name = "doStuff",
+                                            parameters =
+                                                listOf(
+                                                    Parameter(
+                                                        "request",
+                                                        Type("com.mysdk", "MySdkRequest")
+                                                    )
+                                                ),
+                                            returnType = Type("com.mysdk", "MySdkResponse"),
+                                            isSuspend = true
+                                        )
+                                    )
                             )
-                        )
-                    )
-                ),
-                values = setOf(
-                    AnnotatedDataClass(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdkRequest"),
-                        properties = listOf(
-                            ValueProperty("id", Types.int),
-                            ValueProperty("message", Types.string.asNullable()),
-                        )
-                    ),
-                    AnnotatedDataClass(
-                        type = Type(packageName = "com.mysdk", simpleName = "MySdkResponse"),
-                        properties = listOf(
-                            ValueProperty(
-                                "magicPayload",
-                                Type(packageName = "com.mysdk", simpleName = "MagicPayload")
+                        ),
+                    values =
+                        setOf(
+                            AnnotatedDataClass(
+                                type = Type(packageName = "com.mysdk", simpleName = "MySdkRequest"),
+                                properties =
+                                    listOf(
+                                        ValueProperty("id", Types.int),
+                                        ValueProperty("message", Types.string.asNullable()),
+                                    )
                             ),
-                            ValueProperty("isTrulyMagic", Types.boolean),
+                            AnnotatedDataClass(
+                                type =
+                                    Type(packageName = "com.mysdk", simpleName = "MySdkResponse"),
+                                properties =
+                                    listOf(
+                                        ValueProperty(
+                                            "magicPayload",
+                                            Type(
+                                                packageName = "com.mysdk",
+                                                simpleName = "MagicPayload"
+                                            )
+                                        ),
+                                        ValueProperty("isTrulyMagic", Types.boolean),
+                                    )
+                            ),
+                            AnnotatedDataClass(
+                                type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
+                                properties =
+                                    listOf(ValueProperty("magicList", Types.list(Types.long)))
+                            ),
                         )
-                    ),
-                    AnnotatedDataClass(
-                        type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
-                        properties = listOf(ValueProperty("magicList", Types.list(Types.long)))
-                    ),
                 )
             )
-        )
     }
 
     @Test
     fun parseEnumClass_ok() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -114,21 +133,24 @@ class ValueParserTest {
                     @PrivacySandboxValue
                     enum class MyEnum { FOO, BAR }
                 """
-        )
-        assertThat(parseSources(source).values).isEqualTo(
-            setOf(
-                AnnotatedEnumClass(
-                    Type(packageName = "com.mysdk", simpleName = "MyEnum"),
-                    listOf("FOO", "BAR")
+            )
+        assertThat(parseSources(source).values)
+            .isEqualTo(
+                setOf(
+                    AnnotatedEnumClass(
+                        Type(packageName = "com.mysdk", simpleName = "MyEnum"),
+                        listOf("FOO", "BAR")
+                    )
                 )
             )
-        )
     }
 
     @Test
     fun enumClassImplementingInterface_fails() {
-        val source = Source.kotlin(
-            "com/mysdk/MySdk.kt", """
+        val source =
+            Source.kotlin(
+                "com/mysdk/MySdk.kt",
+                """
                     package com.mysdk
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -141,11 +163,12 @@ class ValueParserTest {
                         STOP, GO;
                     }
                 """
-        )
-        checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MoveState: values annotated with @PrivacySandboxValue" +
-                " may not inherit other types (com.mysdk.Transmogrifable)"
-        )
+            )
+        checkSourceFails(source)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MoveState: values annotated with @PrivacySandboxValue" +
+                    " may not inherit other types (com.mysdk.Transmogrifable)"
+            )
     }
 
     @Test
@@ -176,15 +199,17 @@ class ValueParserTest {
 
     @Test
     fun dataClassWithCompanionObject_fails() {
-        val dataClass = annotatedValue(
-            """
+        val dataClass =
+            annotatedValue(
+                """
             |data class MySdkRequest(val id: Int) {
             |   companion object {
             |       val someConstant = 12
             |   }
             |}
-        """.trimMargin()
-        )
+        """
+                    .trimMargin()
+            )
         checkSourceFails(dataClass)
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdkRequest: annotated values cannot declare companion " +
@@ -204,9 +229,7 @@ class ValueParserTest {
 
     @Test
     fun dataClassWithMutableProperty_fails() {
-        val dataClass = annotatedValue(
-            "data class MySdkRequest(val id: Int, var data: String)"
-        )
+        val dataClass = annotatedValue("data class MySdkRequest(val id: Int, var data: String)")
         checkSourceFails(dataClass)
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdkRequest.data: properties cannot be mutable."
@@ -215,9 +238,7 @@ class ValueParserTest {
 
     @Test
     fun dataClassWithInvalidPropertyType_fails() {
-        val dataClass = annotatedValue(
-            "data class MySdkRequest(val foo: IntArray)"
-        )
+        val dataClass = annotatedValue("data class MySdkRequest(val foo: IntArray)")
         checkSourceFails(dataClass)
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdkRequest.foo: only primitives, lists, data/enum classes " +
@@ -227,8 +248,10 @@ class ValueParserTest {
             )
     }
 
-    private fun annotatedValue(declaration: String) = Source.kotlin(
-        "com/mysdk/MySdk.kt", """
+    private fun annotatedValue(declaration: String) =
+        Source.kotlin(
+            "com/mysdk/MySdk.kt",
+            """
             package com.mysdk
             import androidx.privacysandbox.tools.PrivacySandboxService
             import androidx.privacysandbox.tools.PrivacySandboxValue
@@ -237,5 +260,5 @@ class ValueParserTest {
             @PrivacySandboxValue
             $declaration
         """
-    )
+        )
 }

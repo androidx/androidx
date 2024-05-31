@@ -33,12 +33,13 @@ class AidlCompiler(
         // TODO(b/269458005): Remove this fallback and make frameworkAidlPath non-nullable
         //  (dependent on our callers always providing the argument)
         val bundleFile = Files.createTempFile("bundle", "aidl")
-        val preProcessedAidlPath = if (frameworkAidlPath != null) {
-            frameworkAidlPath
-        } else {
-            bundleFile.writeText("parcelable android.os.Bundle;")
-            bundleFile.toAbsolutePath()
-        }
+        val preProcessedAidlPath =
+            if (frameworkAidlPath != null) {
+                frameworkAidlPath
+            } else {
+                bundleFile.writeText("parcelable android.os.Bundle;")
+                bundleFile.toAbsolutePath()
+            }
 
         try {
             val command =
@@ -72,7 +73,9 @@ class AidlCompiler(
     private fun getProcessErrors(process: Process): String {
         try {
             process.errorStream.bufferedReader().use { outputReader ->
-                return outputReader.lines().toArray()
+                return outputReader
+                    .lines()
+                    .toArray()
                     .joinToString(separator = "\n\t", prefix = "\n\t")
             }
         } catch (e: IOException) {

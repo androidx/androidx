@@ -31,22 +31,23 @@ object SdkActivityLauncherFactory {
     /**
      * Creates a [SdkActivityLauncher] using the given [launcherInfo] Bundle.
      *
-     * You can create such a Bundle by calling [toLauncherInfo][androidx.privacysandbox.activity.client.toLauncherInfo].
-     * A [launcherInfo] is expected to have a valid SdkActivityLauncher Binder with
-     * `"sdkActivityLauncherBinderKey"` for a key, [IllegalArgumentException] is thrown otherwise.
+     * You can create such a Bundle by calling
+     * [toLauncherInfo][androidx.privacysandbox.activity.client.toLauncherInfo]. A [launcherInfo] is
+     * expected to have a valid SdkActivityLauncher Binder with `"sdkActivityLauncherBinderKey"` for
+     * a key, [IllegalArgumentException] is thrown otherwise.
      */
     @JvmStatic
     fun fromLauncherInfo(launcherInfo: Bundle): SdkActivityLauncher {
-        val remote: ISdkActivityLauncher? = ISdkActivityLauncher.Stub.asInterface(
-            launcherInfo.getBinder(SDK_ACTIVITY_LAUNCHER_BINDER_KEY)
-        )
+        val remote: ISdkActivityLauncher? =
+            ISdkActivityLauncher.Stub.asInterface(
+                launcherInfo.getBinder(SDK_ACTIVITY_LAUNCHER_BINDER_KEY)
+            )
         requireNotNull(remote) { "Invalid SdkActivityLauncher info bundle." }
         return SdkActivityLauncherProxy(remote)
     }
 
-    private class SdkActivityLauncherProxy(
-        private val remote: ISdkActivityLauncher
-    ) : SdkActivityLauncher {
+    private class SdkActivityLauncherProxy(private val remote: ISdkActivityLauncher) :
+        SdkActivityLauncher {
         override suspend fun launchSdkActivity(sdkActivityHandlerToken: IBinder): Boolean =
             suspendCancellableCoroutine {
                 remote.launchSdkActivity(
@@ -63,7 +64,8 @@ object SdkActivityLauncherFactory {
                         override fun onLaunchError(message: String?) {
                             it.resumeWithException(RuntimeException(message))
                         }
-                    })
+                    }
+                )
             }
     }
 }

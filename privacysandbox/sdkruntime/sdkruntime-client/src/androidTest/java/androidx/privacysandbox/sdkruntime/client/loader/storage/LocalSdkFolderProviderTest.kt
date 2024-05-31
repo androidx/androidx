@@ -80,9 +80,7 @@ class LocalSdkFolderProviderTest {
     @Test
     fun create_whenVersionChanged_deleteSdkRootFolderContentAndCreateVersionFile() {
         val fileToDelete = createFileToDeleteInSdkRootFolder()
-        createVersionFile {
-            it.writeLong(42)
-        }
+        createVersionFile { it.writeLong(42) }
 
         LocalSdkFolderProvider.create(context)
 
@@ -122,28 +120,28 @@ class LocalSdkFolderProviderTest {
     @Test
     fun dexFolderFor_returnPathToSdkDexFolder() {
         val sdkFolderProvider = LocalSdkFolderProvider.create(context)
-        val dexFolder = sdkFolderProvider.dexFolderFor(
-            LocalSdkConfig(
-                packageName = "com.test.sdk.package",
-                dexPaths = listOf("1.dex", "2.dex"),
-                entryPoint = "compat.sdk.provider",
+        val dexFolder =
+            sdkFolderProvider.dexFolderFor(
+                LocalSdkConfig(
+                    packageName = "com.test.sdk.package",
+                    dexPaths = listOf("1.dex", "2.dex"),
+                    entryPoint = "compat.sdk.provider",
+                )
             )
-        )
         assertThat(dexFolder.exists()).isTrue()
-        assertThat(dexFolder).isEqualTo(
-            File(sdkRootFolder, "com.test.sdk.package")
-        )
+        assertThat(dexFolder).isEqualTo(File(sdkRootFolder, "com.test.sdk.package"))
     }
 
     @Test
     fun dexFolderFor_doNotRemoveExistingFiles() {
         val sdkFolderProvider = LocalSdkFolderProvider.create(context)
 
-        val sdkConfig = LocalSdkConfig(
-            packageName = "com.test.sdk.package",
-            dexPaths = listOf("1.dex", "2.dex"),
-            entryPoint = "compat.sdk.provider",
-        )
+        val sdkConfig =
+            LocalSdkConfig(
+                packageName = "com.test.sdk.package",
+                dexPaths = listOf("1.dex", "2.dex"),
+                entryPoint = "compat.sdk.provider",
+            )
 
         val dexFolder = sdkFolderProvider.dexFolderFor(sdkConfig)
 
@@ -168,9 +166,7 @@ class LocalSdkFolderProviderTest {
 
     private fun readVersionFromFile(): Long {
         return versionFile.inputStream().use { inputStream ->
-            DataInputStream(inputStream).use { dataStream ->
-                dataStream.readLong()
-            }
+            DataInputStream(inputStream).use { dataStream -> dataStream.readLong() }
         }
     }
 
@@ -180,9 +176,7 @@ class LocalSdkFolderProviderTest {
         }
         versionFile.createNewFile()
         versionFile.outputStream().use { outputStream ->
-            DataOutputStream(outputStream).use { dataStream ->
-                versionWriter(dataStream)
-            }
+            DataOutputStream(outputStream).use { dataStream -> versionWriter(dataStream) }
         }
     }
 }

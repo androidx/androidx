@@ -76,8 +76,7 @@ class SandboxedSdkViewTest {
     private var mainLayoutWidth = -1
     private var mainLayoutHeight = -1
 
-    @get:Rule
-    var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
+    @get:Rule var activityScenarioRule = ActivityScenarioRule(UiLibActivity::class.java)
 
     class FailingTestSandboxedUiAdapter : SandboxedUiAdapter {
         override fun openSession(
@@ -119,8 +118,7 @@ class SandboxedSdkViewTest {
             client: SandboxedUiAdapter.SessionClient
         ) {
             internalClient = client
-            testSession =
-                TestSession(context, initialWidth, initialHeight)
+            testSession = TestSession(context, initialWidth, initialHeight)
             if (!delayOpenSessionCallback) {
                 client.onSessionOpened(testSession!!)
             }
@@ -177,8 +175,7 @@ class SandboxedSdkViewTest {
                 configChangedLatch.countDown()
             }
 
-            override fun close() {
-            }
+            override fun close() {}
         }
     }
 
@@ -199,10 +196,11 @@ class SandboxedSdkViewTest {
             view = SandboxedSdkView(this)
             stateChangedListener = StateChangedListener()
             view.addStateChangedListener(stateChangedListener)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            layoutParams =
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
             view.layoutParams = layoutParams
             testSandboxedUiAdapter = TestSandboxedUiAdapter()
             view.setAdapter(testSandboxedUiAdapter)
@@ -333,9 +331,7 @@ class SandboxedSdkViewTest {
         view.orderProviderUiAboveClientUi(false)
         val session = testSandboxedUiAdapter.testSession!!
         assertThat(session.zOrderChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
-        activityScenarioRule.withActivity {
-            testSandboxedUiAdapter.sendOnSessionOpened()
-        }
+        activityScenarioRule.withActivity { testSandboxedUiAdapter.sendOnSessionOpened() }
 
         // After session has opened, the pending Z order changed made while loading is notified
         // th the session.
@@ -350,13 +346,17 @@ class SandboxedSdkViewTest {
         testSandboxedUiAdapter.assertSessionOpened()
         // newWindow() will be triggered by a window state change, even if the activity handles
         // orientation changes without recreating the activity.
-        device.performActionAndWait({
-            device.setOrientationLeft()
-        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
+        device.performActionAndWait(
+            { device.setOrientationLeft() },
+            Until.newWindow(),
+            UI_INTENSIVE_TIMEOUT
+        )
         testSandboxedUiAdapter.assertSessionOpened()
-        device.performActionAndWait({
-            device.setOrientationNatural()
-        }, Until.newWindow(), UI_INTENSIVE_TIMEOUT)
+        device.performActionAndWait(
+            { device.setOrientationNatural() },
+            Until.newWindow(),
+            UI_INTENSIVE_TIMEOUT
+        )
     }
 
     @Test
@@ -397,8 +397,12 @@ class SandboxedSdkViewTest {
         val rightShift = 10
         val upperShift = 30
         activityScenarioRule.withActivity {
-            view.layout(view.left + rightShift, view.top - upperShift,
-                view.right + rightShift, view.bottom - upperShift)
+            view.layout(
+                view.left + rightShift,
+                view.top - upperShift,
+                view.right + rightShift,
+                view.bottom - upperShift
+            )
         }
         assertThat(testSandboxedUiAdapter.wasNotifyResizedCalled()).isFalse()
     }
@@ -408,22 +412,22 @@ class SandboxedSdkViewTest {
         val globalLayoutLatch = CountDownLatch(1)
         lateinit var layout: LinearLayout
         activityScenarioRule.withActivity {
-            layout = findViewById<LinearLayout>(
-                R.id.mainlayout
-            )
+            layout = findViewById<LinearLayout>(R.id.mainlayout)
             layout.addView(view)
         }
         testSandboxedUiAdapter.assertSessionOpened()
         testSandboxedUiAdapter.testSession?.requestSizeChange(layout.width, layout.height)
         val observer = view.viewTreeObserver
-        observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                if (view.width == layout.width && view.height == layout.height) {
-                    globalLayoutLatch.countDown()
-                    observer.removeOnGlobalLayoutListener(this)
+        observer.addOnGlobalLayoutListener(
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    if (view.width == layout.width && view.height == layout.height) {
+                        globalLayoutLatch.countDown()
+                        observer.removeOnGlobalLayoutListener(this)
+                    }
                 }
             }
-        })
+        )
         globalLayoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)
         assertTrue(view.width == layout.width && view.height == layout.height)
     }
@@ -439,14 +443,13 @@ class SandboxedSdkViewTest {
     @Test
     fun sandboxedSdkViewInflatesTransitionGroup() {
         activityScenarioRule.withActivity {
-            val view = layoutInflater.inflate(
-                R.layout.sandboxedsdkview_transition_group_false,
-                null,
-                false
-            ) as ViewGroup
-            assertFalse(
-                "XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup
-            )
+            val view =
+                layoutInflater.inflate(
+                    R.layout.sandboxedsdkview_transition_group_false,
+                    null,
+                    false
+                ) as ViewGroup
+            assertFalse("XML overrides SandboxedSdkView.isTransitionGroup", view.isTransitionGroup)
         }
     }
 
@@ -472,16 +475,13 @@ class SandboxedSdkViewTest {
                     surfaceViewLatch.countDown()
                 }
 
-                override fun onViewDetachedFromWindow(p0: View) {
-                }
+                override fun onViewDetachedFromWindow(p0: View) {}
             }
         )
 
         // Attach SurfaceView
         activityScenarioRule.withActivity {
-            layout = findViewById(
-                R.id.mainlayout
-            )
+            layout = findViewById(R.id.mainlayout)
             layout.addView(surfaceView)
             layout.removeView(surfaceView)
         }
@@ -558,7 +558,8 @@ class SandboxedSdkViewTest {
             /* requestedWidth=*/ mainLayoutWidth - 100,
             /* requestedHeight=*/ mainLayoutHeight - 100,
             /* expectedWidth=*/ mainLayoutWidth - 100,
-            /* expectedHeight=*/ mainLayoutHeight - 100)
+            /* expectedHeight=*/ mainLayoutHeight - 100
+        )
     }
 
     @Test
@@ -570,7 +571,8 @@ class SandboxedSdkViewTest {
             /* requestedWidth=*/ mainLayoutWidth + 100,
             /* requestedHeight=*/ mainLayoutHeight + 100,
             /* expectedWidth=*/ mainLayoutWidth,
-            /* expectedHeight=*/ mainLayoutHeight)
+            /* expectedHeight=*/ mainLayoutHeight
+        )
     }
 
     @Test
@@ -584,7 +586,8 @@ class SandboxedSdkViewTest {
             /* requestedWidth=*/ currentWidth - 100,
             /* requestedHeight=*/ currentHeight - 100,
             /* expectedWidth=*/ currentWidth,
-            /* expectedHeight=*/ currentHeight)
+            /* expectedHeight=*/ currentHeight
+        )
     }
 
     private fun addViewToLayout(waitToBeActive: Boolean = false) {
@@ -623,9 +626,7 @@ class SandboxedSdkViewTest {
             height = bottom - top
             layoutLatch.countDown()
         }
-        activityScenarioRule.withActivity {
-            view.requestSize(requestedWidth, requestedHeight)
-        }
+        activityScenarioRule.withActivity { view.requestSize(requestedWidth, requestedHeight) }
         assertThat(layoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(width).isEqualTo(expectedWidth)
         assertThat(height).isEqualTo(expectedHeight)

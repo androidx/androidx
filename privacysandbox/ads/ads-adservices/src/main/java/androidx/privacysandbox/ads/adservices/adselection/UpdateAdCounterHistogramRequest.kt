@@ -31,12 +31,13 @@ import androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters
  * the [AdSelectionManager#updateAdCounterHistogram] API.
  *
  * @param adSelectionId An ID unique only to a device user that identifies a successful ad
- * selection.
+ *   selection.
  * @param adEventType A render URL for the winning ad.
  * @param callerAdTech The caller adtech entity's [AdTechIdentifier].
  */
 @ExperimentalFeatures.Ext8OptIn
-class UpdateAdCounterHistogramRequest public constructor(
+class UpdateAdCounterHistogramRequest
+public constructor(
     val adSelectionId: Long,
     @FrequencyCapFilters.AdEventType val adEventType: Int,
     val callerAdTech: AdTechIdentifier
@@ -45,9 +46,11 @@ class UpdateAdCounterHistogramRequest public constructor(
         require(adEventType != FrequencyCapFilters.AD_EVENT_TYPE_WIN) {
             "Win event types cannot be manually updated."
         }
-        require(adEventType == FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION ||
-            adEventType == FrequencyCapFilters.AD_EVENT_TYPE_VIEW ||
-            adEventType == FrequencyCapFilters.AD_EVENT_TYPE_CLICK) {
+        require(
+            adEventType == FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION ||
+                adEventType == FrequencyCapFilters.AD_EVENT_TYPE_VIEW ||
+                adEventType == FrequencyCapFilters.AD_EVENT_TYPE_CLICK
+        ) {
             "Ad event type must be one of AD_EVENT_TYPE_IMPRESSION, AD_EVENT_TYPE_VIEW, or" +
                 " AD_EVENT_TYPE_CLICK"
         }
@@ -74,13 +77,14 @@ class UpdateAdCounterHistogramRequest public constructor(
 
     /** Overrides the toString method. */
     override fun toString(): String {
-        val adEventTypeStr = when (adEventType) {
-            FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION -> "AD_EVENT_TYPE_IMPRESSION"
-            FrequencyCapFilters.AD_EVENT_TYPE_VIEW -> "AD_EVENT_TYPE_VIEW"
-            FrequencyCapFilters.AD_EVENT_TYPE_WIN -> "AD_EVENT_TYPE_WIN"
-            FrequencyCapFilters.AD_EVENT_TYPE_CLICK -> "AD_EVENT_TYPE_CLICK"
-            else -> "Invalid ad event type"
-        }
+        val adEventTypeStr =
+            when (adEventType) {
+                FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION -> "AD_EVENT_TYPE_IMPRESSION"
+                FrequencyCapFilters.AD_EVENT_TYPE_VIEW -> "AD_EVENT_TYPE_VIEW"
+                FrequencyCapFilters.AD_EVENT_TYPE_WIN -> "AD_EVENT_TYPE_WIN"
+                FrequencyCapFilters.AD_EVENT_TYPE_CLICK -> "AD_EVENT_TYPE_CLICK"
+                else -> "Invalid ad event type"
+            }
         return "UpdateAdCounterHistogramRequest: adSelectionId=$adSelectionId, " +
             "adEventType=$adEventTypeStr, callerAdTech=$callerAdTech"
     }
@@ -91,9 +95,10 @@ class UpdateAdCounterHistogramRequest public constructor(
     internal fun convertToAdServices():
         android.adservices.adselection.UpdateAdCounterHistogramRequest {
         return android.adservices.adselection.UpdateAdCounterHistogramRequest.Builder(
-            adSelectionId,
-            adEventType,
-            callerAdTech.convertToAdServices())
+                adSelectionId,
+                adEventType,
+                callerAdTech.convertToAdServices()
+            )
             .build()
     }
 }

@@ -65,9 +65,11 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
     }
 
     private fun parseEnumClass(classDeclaration: KSClassDeclaration): AnnotatedEnumClass {
-        val variants = classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
-            .map { it.simpleName.asString() }
-            .toList()
+        val variants =
+            classDeclaration.declarations
+                .filterIsInstance<KSClassDeclaration>()
+                .map { it.simpleName.asString() }
+                .toList()
         return AnnotatedEnumClass(
             type = typeParser.parseFromDeclaration(classDeclaration),
             variants = variants
@@ -75,12 +77,12 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
     }
 
     private fun ensureNoCompanion(classDeclaration: KSClassDeclaration, name: String) {
-        if (classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
+        if (
+            classDeclaration.declarations
+                .filterIsInstance<KSClassDeclaration>()
                 .any(KSClassDeclaration::isCompanionObject)
         ) {
-            logger.error(
-                "Error in $name: annotated values cannot declare companion objects."
-            )
+            logger.error("Error in $name: annotated values cannot declare companion objects.")
         }
     }
 
