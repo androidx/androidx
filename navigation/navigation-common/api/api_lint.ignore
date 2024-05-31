@@ -41,12 +41,6 @@ BuilderSetStyle: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.f
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.navigation.NavOptionsBuilder.popUpTo(int,kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>)
 
 
-DocumentExceptions: androidx.navigation.NavArgumentBuilder#getType():
-    Method NavArgumentBuilder.getType appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.navigation.NavGraphBuilder#build():
-    Method NavGraphBuilder.build appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
 GetterOnBuilder: androidx.navigation.AnimBuilder#getEnter():
     Getter should be on the built object, not the builder: method androidx.navigation.AnimBuilder.getEnter()
 GetterOnBuilder: androidx.navigation.AnimBuilder#getExit():
@@ -124,11 +118,27 @@ MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.
 
 
 NullableCollection: androidx.navigation.NavAction#getDefaultArguments():
-    Return type of method androidx.navigation.NavAction.getDefaultArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.navigation.NavAction.getDefaultArguments() uses a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.navigation.NavBackStackEntry#getArguments():
-    Return type of method androidx.navigation.NavBackStackEntry.getArguments() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.navigation.NavBackStackEntry.getArguments() uses a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: androidx.navigation.NavType#BoolListType:
+    Type of field androidx.navigation.NavType.BoolListType uses a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.navigation.NavType#FloatListType:
+    Type of field androidx.navigation.NavType.FloatListType uses a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.navigation.NavType#IntListType:
+    Type of field androidx.navigation.NavType.IntListType uses a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.navigation.NavType#LongListType:
+    Type of field androidx.navigation.NavType.LongListType uses a nullable collection (`java.util.List`); must be non-null
+NullableCollection: androidx.navigation.NavType#StringArrayType:
+    Type of field androidx.navigation.NavType.StringArrayType uses a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.navigation.NavType#StringListType:
+    Type of field androidx.navigation.NavType.StringListType uses a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.navigation.Navigator#onSaveState():
-    Return type of method androidx.navigation.Navigator.onSaveState() is a nullable collection (`android.os.Bundle`); must be non-null
+    Return type of method androidx.navigation.Navigator.onSaveState() uses a nullable collection (`android.os.Bundle`); must be non-null
+
+
+NullableCollectionElement: androidx.navigation.NavActionBuilder#getDefaultArguments():
+    Collection java.util.Map<java.lang.String,java.lang.Object> should not have a nullable element type (java.lang.Object) in method androidx.navigation.NavActionBuilder.getDefaultArguments()
 
 
 OptionalBuilderConstructorArgument: androidx.navigation.NavDestinationBuilder#NavDestinationBuilder(androidx.navigation.Navigator<? extends D>, String) parameter #1:
