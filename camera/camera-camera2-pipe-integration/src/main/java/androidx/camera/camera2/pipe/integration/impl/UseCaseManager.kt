@@ -28,6 +28,7 @@ import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
 import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
@@ -124,6 +125,7 @@ public class UseCaseManager
 @Inject
 constructor(
     private val cameraPipe: CameraPipe,
+    private val cameraDevices: CameraDevices,
     @GuardedBy("lock") private val cameraCoordinator: CameraCoordinator,
     private val callbackMap: CameraCallbackMap,
     private val requestListener: ComboRequestListener,
@@ -352,6 +354,7 @@ constructor(
                 closingCameraJobs.toList()
             }
         closingJobs.joinAll()
+        cameraDevices.disconnectAll()
     }
 
     override fun toString(): String = "UseCaseManager<${cameraConfig.cameraId}>"

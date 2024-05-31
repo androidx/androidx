@@ -189,6 +189,9 @@ public interface CameraBackends {
      */
     public val activeIds: Set<CameraBackendId>
 
+    /** This instructs all backends to each shutdown their respective cameras. */
+    public suspend fun shutdown()
+
     /**
      * Get a previously created [CameraBackend] instance, or create a new one. If the backend fails
      * to load or is not available, this method will return null.
