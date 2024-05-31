@@ -48,16 +48,11 @@ import org.junit.Rule
 import org.junit.Test
 
 public class SliderTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun slider_button_supports_testtag() {
-        rule.setContent {
-            SliderButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { SliderButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -65,10 +60,7 @@ public class SliderTest {
     @Test
     public fun slider_button_has_click_action_when_enabled() {
         rule.setContent {
-            SliderButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SliderButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -77,10 +69,7 @@ public class SliderTest {
     @Test
     public fun slider_button_has_click_action_when_disabled() {
         rule.setContent {
-            SliderButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SliderButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasClickAction()
@@ -89,10 +78,7 @@ public class SliderTest {
     @Test
     public fun slider_button_is_correctly_enabled() {
         rule.setContent {
-            SliderButtonWithDefaults(
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SliderButtonWithDefaults(enabled = true, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
@@ -101,10 +87,7 @@ public class SliderTest {
     @Test
     public fun slider_button_is_correctly_disabled() {
         rule.setContent {
-            SliderButtonWithDefaults(
-                enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
+            SliderButtonWithDefaults(enabled = false, modifier = Modifier.testTag(TEST_TAG))
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsNotEnabled()
@@ -123,9 +106,7 @@ public class SliderTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            Assert.assertEquals(true, clicked)
-        }
+        rule.runOnIdle { Assert.assertEquals(true, clicked) }
     }
 
     @Test
@@ -141,9 +122,7 @@ public class SliderTest {
 
         rule.onNodeWithTag(TEST_TAG).performClick()
 
-        rule.runOnIdle {
-            Assert.assertEquals(false, clicked)
-        }
+        rule.runOnIdle { Assert.assertEquals(false, clicked) }
     }
 
     @Test
@@ -157,18 +136,15 @@ public class SliderTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             .onChild()
             .assertContentDescriptionContains(testContentDescription)
     }
 
     @Test
     public fun slider_progress_bar_supports_testtag() {
-        rule.setContent {
-            ProgressBarWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
+        rule.setContent { ProgressBarWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -184,7 +160,8 @@ public class SliderTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertContainsColor(expectedColor = BarSeparatorColor, 0.1f)
     }
@@ -200,7 +177,8 @@ public class SliderTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertDoesNotContainColor(unexpectedColor = BarSeparatorColor)
     }
@@ -316,20 +294,21 @@ public class SliderTest {
         }
 
         Box(
-            modifier = modifier
-                .height(ProgressBarHeight)
-                .fillMaxWidth()
-                .drawProgressBar(
-                    selectedBarColor = selectedBarColor,
-                    unselectedBarColor = unselectedBarColor,
-                    barSeparatorColor = barSeparatorColor,
-                    visibleSegments = visibleSegments,
-                    valueRatio = valueRatio,
-                    direction = layoutDirection,
-                    drawSelectedProgressBar = drawSelectedProgressBar,
-                    drawUnselectedProgressBar = drawUnselectedProgressBar,
-                    drawProgressBarSeparator = drawProgressBarSeparator
-                )
+            modifier =
+                modifier
+                    .height(ProgressBarHeight)
+                    .fillMaxWidth()
+                    .drawProgressBar(
+                        selectedBarColor = selectedBarColor,
+                        unselectedBarColor = unselectedBarColor,
+                        barSeparatorColor = barSeparatorColor,
+                        visibleSegments = visibleSegments,
+                        valueRatio = valueRatio,
+                        direction = layoutDirection,
+                        drawSelectedProgressBar = drawSelectedProgressBar,
+                        drawUnselectedProgressBar = drawUnselectedProgressBar,
+                        drawProgressBarSeparator = drawProgressBarSeparator
+                    )
         )
     }
 
@@ -340,12 +319,8 @@ public class SliderTest {
     ) {
         drawLine(
             color,
-            Offset(
-                directedValue(direction, 0f, size.width * (1 - valueRatio)), size.height / 2
-            ),
-            Offset(
-                directedValue(direction, size.width * valueRatio, size.width), size.height / 2
-            ),
+            Offset(directedValue(direction, 0f, size.width * (1 - valueRatio)), size.height / 2),
+            Offset(directedValue(direction, size.width * valueRatio, size.width), size.height / 2),
             strokeWidth = size.height
         )
     }
@@ -357,11 +332,10 @@ public class SliderTest {
     ) {
         drawLine(
             color,
+            Offset(directedValue(direction, size.width * valueRatio, 0f), size.height / 2),
             Offset(
-                directedValue(direction, size.width * valueRatio, 0f), size.height / 2
-            ),
-            Offset(
-                directedValue(direction, size.width, size.width * (1 - valueRatio)), size.height / 2
+                directedValue(direction, size.width, size.width * (1 - valueRatio)),
+                size.height / 2
             ),
             strokeWidth = size.height
         )

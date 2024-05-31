@@ -33,8 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ListHeaderBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val listHeaderCaseFactory = { ListHeaderTestCase() }
 
@@ -46,16 +45,12 @@ class ListHeaderBenchmark {
     internal class ListHeaderTestCase : LayeredComposeTestCase() {
         @Composable
         override fun MeasuredContent() {
-            ListHeader {
-                Text("Test")
-            }
+            ListHeader { Text("Test") }
         }
 
         @Composable
         override fun ContentWrappers(content: @Composable () -> Unit) {
-            MaterialTheme {
-                content()
-            }
+            MaterialTheme { content() }
         }
     }
 }

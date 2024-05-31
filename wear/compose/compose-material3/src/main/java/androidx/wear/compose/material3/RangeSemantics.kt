@@ -27,14 +27,14 @@ import androidx.wear.compose.materialcore.RangeDefaults
  * Modifier to add semantics signifying progress of the Stepper/Slider.
  *
  * @param value Current value of the ProgressIndicator/Slider. If outside of [valueRange] provided,
- * value will be coerced to this range. Must not be NaN.
+ *   value will be coerced to this range. Must not be NaN.
  * @param enabled If false then semantics will not be added.
  * @param onValueChange Lambda which updates [value].
  * @param valueRange Range of values that value can take. Passed [value] will be coerced to this
- * range.
+ *   range.
  * @param steps If greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, any value from the range specified is allowed.
- * Must not be negative.
+ *   between across the whole value range. If 0, any value from the range specified is allowed. Must
+ *   not be negative.
  */
 public fun Modifier.rangeSemantics(
     value: Float,
@@ -45,21 +45,24 @@ public fun Modifier.rangeSemantics(
 ): Modifier {
     val step = RangeDefaults.snapValueToStep(value, valueRange, steps)
     return semantics(mergeDescendants = true) {
-        if (!enabled) disabled()
-        setProgress(
-            action = { targetValue ->
-                val newStepIndex = RangeDefaults.snapValueToStep(targetValue, valueRange, steps)
-                if (step == newStepIndex) {
-                    false
-                } else {
-                    onValueChange(targetValue)
-                    true
+            if (!enabled) disabled()
+            setProgress(
+                action = { targetValue ->
+                    val newStepIndex = RangeDefaults.snapValueToStep(targetValue, valueRange, steps)
+                    if (step == newStepIndex) {
+                        false
+                    } else {
+                        onValueChange(targetValue)
+                        true
+                    }
                 }
-            }
+            )
+        }
+        .progressSemantics(
+            RangeDefaults.calculateCurrentStepValue(step, steps, valueRange),
+            valueRange,
+            steps
         )
-    }.progressSemantics(
-        RangeDefaults.calculateCurrentStepValue(step, steps, valueRange), valueRange, steps
-    )
 }
 
 internal fun IntProgression.stepsNumber(): Int = (last - first) / step - 1

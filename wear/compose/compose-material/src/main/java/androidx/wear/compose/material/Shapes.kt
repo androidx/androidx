@@ -25,34 +25,27 @@ import androidx.compose.ui.unit.dp
 /**
  * Components are grouped into shape categories based on common features. These categories provide a
  * way to change multiple component values at once, by changing the category’s values.
- *
  */
 @Immutable
 public class Shapes(
-    /**
-     * Buttons and Chips use this shape
-     */
+    /** Buttons and Chips use this shape */
     public val small: CornerBasedShape = RoundedCornerShape(corner = CornerSize(50)),
-
     public val medium: CornerBasedShape = RoundedCornerShape(4.dp),
-    /**
-     * Cards use this shape
-     */
+    /** Cards use this shape */
     public val large: CornerBasedShape = RoundedCornerShape(26.dp),
 ) {
 
-    /**
-     * Returns a copy of this Shapes, optionally overriding some of the values.
-     */
+    /** Returns a copy of this Shapes, optionally overriding some of the values. */
     public fun copy(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
-    ): Shapes = Shapes(
-        small = small,
-        medium = medium,
-        large = large,
-    )
+    ): Shapes =
+        Shapes(
+            small = small,
+            medium = medium,
+            large = large,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -77,7 +70,5 @@ public class Shapes(
     }
 }
 
-/**
- * CompositionLocal used to specify the default shapes for the surfaces.
- */
+/** CompositionLocal used to specify the default shapes for the surfaces. */
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

@@ -421,7 +421,7 @@ private constructor(
             val id =
                 getStringRefAttribute(resources, parser, "id")
                     ?: parent?.id?.value
-                        ?: throw IllegalArgumentException("$settingType must have id")
+                    ?: throw IllegalArgumentException("$settingType must have id")
             val displayName =
                 createDisplayText(resources, parser, "displayName", parent?.displayNameInternal)
             val description =
@@ -1114,8 +1114,7 @@ private constructor(
                         perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) },
                         perComplicationTypeMargins?.let { margins ->
                             margins.mapKeys { ComplicationType.fromWireType(it.key) }
-                        }
-                            ?: emptyMap()
+                        } ?: emptyMap()
                     )
                 },
                 wireFormat.accessibilityTraversalIndex,
@@ -1678,8 +1677,7 @@ private constructor(
                         PerComplicationTypeMargins(
                             overlay.complicationSlotBounds?.perComplicationTypeMargins?.mapKeys {
                                 it.key.toWireComplicationType()
-                            }
-                                ?: emptyMap()
+                            } ?: emptyMap()
                         )
                     },
                     complicationSlotOverlays.map { it.nameResourceId ?: 0 },

@@ -48,61 +48,59 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A [ToggleChip] is a specialized type of [Chip] that includes a slot for a bi-state toggle control
- * such as a toggle or checkbox. This overload provides suitable accessibility semantics
- * for a toggleable control like [Checkbox] and [Switch]. For selectable controls
- * like [RadioButton], use [SelectableChip] in order to provide the correct semantics for
- * accessibility.
+ * such as a toggle or checkbox. This overload provides suitable accessibility semantics for a
+ * toggleable control like [Checkbox] and [Switch]. For selectable controls like [RadioButton], use
+ * [SelectableChip] in order to provide the correct semantics for accessibility.
  *
  * The Wear Material [ToggleChip] offers four slots and a specific layout for an application icon, a
  * label, a secondaryLabel and toggle control. The application icon and secondaryLabel are optional.
  * The items are laid out in a row with the optional icon at the start, a column containing the two
  * label slots in the middle and a slot for the toggle control at the end.
  *
- * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than
- * two lines of text of [Typography.button] style.
- * With localisation and/or large font sizes, the [ToggleChip] height adjusts to
- * accommodate the contents. The label and secondary label should be consistently aligned.
+ * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than two lines
+ * of text of [Typography.button] style. With localisation and/or large font sizes, the [ToggleChip]
+ * height adjusts to accommodate the contents. The label and secondary label should be consistently
+ * aligned.
  *
- * The recommended set of [ToggleChipColors] can be obtained from
- * [ToggleChipDefaults], e.g. [ToggleChipDefaults.toggleChipColors].
+ * The recommended set of [ToggleChipColors] can be obtained from [ToggleChipDefaults], e.g.
+ * [ToggleChipDefaults.toggleChipColors].
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
  * Example of a [ToggleChip] with an icon, label and secondary label (defaults to switch toggle):
+ *
  * @sample androidx.wear.compose.material.samples.ToggleChipWithSwitch
  *
  * For more information, see the
- * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
- * guide.
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips) guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
  * @param onCheckedChange Callback to be invoked when this button's checked status changes
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- * which is "start" aligned.
- * @param toggleControl A slot for providing the chip's toggle control. Two built-in types
- * of toggle control are supported - [Checkbox] and [Switch]. For [RadioButton],
- * use [SelectableChip], in order to provide the correct semantics for accessibility.
+ *   which is "start" aligned.
+ * @param toggleControl A slot for providing the chip's toggle control. Two built-in types of toggle
+ *   control are supported - [Checkbox] and [Switch]. For [RadioButton], use [SelectableChip], in
+ *   order to provide the correct semantics for accessibility.
  * @param modifier Modifier to be applied to the chip
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
- * contents are expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled the
- * icon must set its alpha value to [LocalContentAlpha].
+ *   contents are expected to be a horizontally and vertically centre aligned icon of size
+ *   [ToggleChipDefaults.IconSize]. In order to correctly render when the Chip is not enabled the
+ *   icon must set its alpha value to [LocalContentAlpha].
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
- * not. label and secondaryLabel contents should be consistently aligned.
- * @param colors [ToggleChipColors] that will be used to resolve the background and
- * content color for this chip in different states, see
- * [ToggleChipDefaults.toggleChipColors].
- * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
- * be clickable
+ *   to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned
+ *   if not. label and secondaryLabel contents should be consistently aligned.
+ * @param colors [ToggleChipColors] that will be used to resolve the background and content color
+ *   for this chip in different states, see [ToggleChipDefaults.toggleChipColors].
+ * @param enabled Controls the enabled state of the chip. When `false`, this chip will not be
+ *   clickable
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
- * chip's appearance or preview the chip in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ *   chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  */
 @Composable
 public fun ToggleChip(
@@ -118,64 +116,65 @@ public fun ToggleChip(
     interactionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
-) = androidx.wear.compose.materialcore.ToggleButton(
-    checked = checked,
-    onCheckedChange = onCheckedChange,
-    label = provideScopeContent(
-        contentColor = colors.contentColor(enabled = enabled, checked),
-        textStyle = MaterialTheme.typography.button,
-        content = label
-    ),
-    toggleControl = provideContent(
-        contentColor = colors.toggleControlColor(enabled, checked),
-        content = toggleControl
-    ),
-    selectionControl = null,
-    modifier = modifier
-        .defaultMinSize(minHeight = ToggleChipDefaults.Height)
-        .height(IntrinsicSize.Min),
-    icon = provideNullableScopeContent(
-        contentColor = colors.contentColor(enabled = enabled, checked = checked),
-        content = appIcon
-    ),
-    secondaryLabel = provideNullableScopeContent(
-        contentColor = colors.secondaryContentColor(enabled = enabled, checked),
-        textStyle = MaterialTheme.typography.caption2,
-        content = secondaryLabel
-    ),
-    background = { isEnabled, isChecked ->
-        val painter = colors.background(
-            enabled = isEnabled,
-            checked = isChecked
-        ).value
+) =
+    androidx.wear.compose.materialcore.ToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled = enabled, checked),
+                textStyle = MaterialTheme.typography.button,
+                content = label
+            ),
+        toggleControl =
+            provideContent(
+                contentColor = colors.toggleControlColor(enabled, checked),
+                content = toggleControl
+            ),
+        selectionControl = null,
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+                .height(IntrinsicSize.Min),
+        icon =
+            provideNullableScopeContent(
+                contentColor = colors.contentColor(enabled = enabled, checked = checked),
+                content = appIcon
+            ),
+        secondaryLabel =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled = enabled, checked),
+                textStyle = MaterialTheme.typography.caption2,
+                content = secondaryLabel
+            ),
+        background = { isEnabled, isChecked ->
+            val painter = colors.background(enabled = isEnabled, checked = isChecked).value
 
-        Modifier.paint(painter = painter, contentScale = ContentScale.Crop)
-    },
-    enabled = enabled,
-    interactionSource = interactionSource,
-    contentPadding = contentPadding,
-    shape = shape,
-    toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
-    toggleControlWidth = TOGGLE_CONTROL_WIDTH,
-    labelSpacerSize = 0.dp,
-    toggleControlSpacing = TOGGLE_CONTROL_SPACING,
-    iconSpacing = ICON_SPACING,
-    ripple = rippleOrFallbackImplementation()
-)
+            Modifier.paint(painter = painter, contentScale = ContentScale.Crop)
+        },
+        enabled = enabled,
+        interactionSource = interactionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
+        toggleControlWidth = TOGGLE_CONTROL_WIDTH,
+        labelSpacerSize = 0.dp,
+        toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+        iconSpacing = ICON_SPACING,
+        ripple = rippleOrFallbackImplementation()
+    )
 
 /**
  * A [SplitToggleChip] is a specialized type of [Chip] that includes a slot for a toggle control,
- * such as a toggle or checkbox. The [SplitToggleChip] differs from the
- * [ToggleChip] by having two "tappable" areas, one clickable and one toggleable.
+ * such as a toggle or checkbox. The [SplitToggleChip] differs from the [ToggleChip] by having two
+ * "tappable" areas, one clickable and one toggleable.
  *
- * This overload provides suitable accessibility semantics for a toggleable control like
- * [Checkbox] and [Switch]. For selectable controls like [RadioButton],
- * use [SelectableChip] instead.
+ * This overload provides suitable accessibility semantics for a toggleable control like [Checkbox]
+ * and [Switch]. For selectable controls like [RadioButton], use [SelectableChip] instead.
  *
  * The Wear Material [SplitToggleChip] offers three slots and a specific layout for a label,
- * secondaryLabel and toggle control. The secondaryLabel is optional. The items are laid out
- * with a column containing the two label slots and a slot for the toggle control at the
- * end.
+ * secondaryLabel and toggle control. The secondaryLabel is optional. The items are laid out with a
+ * column containing the two label slots and a slot for the toggle control at the end.
  *
  * A [SplitToggleChip] has two tappable areas, one tap area for the labels and another for the
  * toggle control. The [onClick] listener will be associated with the main body of the split toggle
@@ -184,57 +183,54 @@ public fun ToggleChip(
  * For a split toggle chip the background of the tappable background area behind the toggle control
  * will have a visual effect applied to provide a "divider" between the two tappable areas.
  *
- * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than
- * two lines of text of [Typography.button] style.
- * With localisation and/or large font sizes, the [SplitToggleChip] height adjusts
- * to accommodate the contents. The label and secondary label should be consistently aligned.
+ * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than two
+ * lines of text of [Typography.button] style. With localisation and/or large font sizes, the
+ * [SplitToggleChip] height adjusts to accommodate the contents. The label and secondary label
+ * should be consistently aligned.
  *
- * The recommended set of [SplitToggleChipColors] can be obtained from
- * [ToggleChipDefaults], e.g. [ToggleChipDefaults.splitToggleChipColors].
+ * The recommended set of [SplitToggleChipColors] can be obtained from [ToggleChipDefaults], e.g.
+ * [ToggleChipDefaults.splitToggleChipColors].
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
  * Example of a [SplitToggleChip] with a label and the toggle control changed to checkbox:
+ *
  * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
  *
  * For more information, see the
- * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
- * guide.
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips) guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked status is
- * changed.
+ * @param onCheckedChange Callback to be invoked when this buttons checked status is changed.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- * which is "start" aligned.
+ *   which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
- * behind the labels.
- * @param toggleControl A slot for providing the chip's toggle controls(s). Two built-in types
- * of toggle control are supported, see [Checkbox] and [Switch]. For [RadioButton],
- * use [SelectableChip] instead.
- * [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon], [ToggleChipDefaults.radioIcon]
- * and [ToggleChipDefaults.checkboxIcon]. In order to correctly render when the Chip is not enabled the
- * icon must set its alpha value to [LocalContentAlpha].
+ *   behind the labels.
+ * @param toggleControl A slot for providing the chip's toggle controls(s). Two built-in types of
+ *   toggle control are supported, see [Checkbox] and [Switch]. For [RadioButton], use
+ *   [SelectableChip] instead. [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon],
+ *   [ToggleChipDefaults.radioIcon] and [ToggleChipDefaults.checkboxIcon]. In order to correctly
+ *   render when the Chip is not enabled the icon must set its alpha value to [LocalContentAlpha].
  * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
- * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
- * aligned.
- * @param colors [SplitToggleChipColors] that will be used to resolve the background and
- * content color for this chip in different states, see
- * [ToggleChipDefaults.splitToggleChipColors].
- * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
- * be clickable
+ *   to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
+ *   aligned.
+ * @param colors [SplitToggleChipColors] that will be used to resolve the background and content
+ *   color for this chip in different states, see [ToggleChipDefaults.splitToggleChipColors].
+ * @param enabled Controls the enabled state of the chip. When `false`, this chip will not be
+ *   clickable
  * @param checkedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
- * chip's appearance or preview the chip in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ *   chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
- * chip's appearance or preview the chip in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
+ *   chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
- * content
+ *   content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
- * shape is a key characteristic of the Wear Material Theme
+ *   shape is a key characteristic of the Wear Material Theme
  */
 @Composable
 public fun SplitToggleChip(
@@ -251,60 +247,58 @@ public fun SplitToggleChip(
     clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
-) = androidx.wear.compose.materialcore.SplitToggleButton(
-    checked = checked,
-    onCheckedChange = onCheckedChange,
-    label = provideScopeContent(
-        contentColor = colors.contentColor(enabled = enabled),
-        textStyle = MaterialTheme.typography.button,
-        content = label
-    ),
-    onClick = onClick,
-    toggleControl = provideScopeContent(
-        contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
-        content = toggleControl
-    ),
-    selectionControl = null,
-    modifier = modifier
-        .defaultMinSize(minHeight = ToggleChipDefaults.Height)
-        .height(IntrinsicSize.Min),
-    secondaryLabel = provideNullableScopeContent(
-        contentColor = colors.secondaryContentColor(enabled = enabled),
-        textStyle = MaterialTheme.typography.caption2,
-        content = secondaryLabel
-    ),
-    backgroundColor = { isEnabled, _ -> colors.backgroundColor(enabled = isEnabled) },
-    splitBackgroundColor = { isEnabled, isChecked ->
-        colors.splitBackgroundOverlay(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    enabled = enabled,
-    checkedInteractionSource = checkedInteractionSource,
-    clickInteractionSource = clickInteractionSource,
-    contentPadding = contentPadding,
-    shape = shape,
-    labelSpacerSize = 0.dp,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.SplitToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        label =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled = enabled),
+                textStyle = MaterialTheme.typography.button,
+                content = label
+            ),
+        onClick = onClick,
+        toggleControl =
+            provideScopeContent(
+                contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
+                content = toggleControl
+            ),
+        selectionControl = null,
+        modifier =
+            modifier
+                .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+                .height(IntrinsicSize.Min),
+        secondaryLabel =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled = enabled),
+                textStyle = MaterialTheme.typography.caption2,
+                content = secondaryLabel
+            ),
+        backgroundColor = { isEnabled, _ -> colors.backgroundColor(enabled = isEnabled) },
+        splitBackgroundColor = { isEnabled, isChecked ->
+            colors.splitBackgroundOverlay(enabled = isEnabled, checked = isChecked)
+        },
+        enabled = enabled,
+        checkedInteractionSource = checkedInteractionSource,
+        clickInteractionSource = clickInteractionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        labelSpacerSize = 0.dp,
+        ripple = rippleOrFallbackImplementation()
+    )
 
-/**
- * Represents the background and content colors used in [ToggleChip]s
- * in different states.
- */
+/** Represents the background and content colors used in [ToggleChip]s in different states. */
 @Stable
 public interface ToggleChipColors {
     /**
      * Represents the background treatment for this chip, depending on the [enabled] and [checked]
-     * properties. Backgrounds are typically a linear gradient when the chip is checked
-     * and solid when it is not.
+     * properties. Backgrounds are typically a linear gradient when the chip is checked and solid
+     * when it is not.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun background(enabled: Boolean, checked: Boolean): State<Painter>
+    @Composable public fun background(enabled: Boolean, checked: Boolean): State<Painter>
 
     /**
      * Represents the content color for this chip, depending on the [enabled] and [checked]
@@ -313,8 +307,7 @@ public interface ToggleChipColors {
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the secondary content color for this chip, depending on the [enabled] and
@@ -323,23 +316,19 @@ public interface ToggleChipColors {
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
-     * Represents the color for the toggle control content for this chip, depending on the
-     * [enabled] and [checked] properties.
+     * Represents the color for the toggle control content for this chip, depending on the [enabled]
+     * and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-/**
- * Represents the background and content colors used in [SplitToggleChip]s in different states.
- */
+/** Represents the background and content colors used in [SplitToggleChip]s in different states. */
 @Stable
 public interface SplitToggleChipColors {
     /**
@@ -347,89 +336,81 @@ public interface SplitToggleChipColors {
      *
      * @param enabled Whether the chip is enabled
      */
-    @Composable
-    public fun backgroundColor(enabled: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the content color for this chip, depending on whether it is [enabled]
      *
      * @param enabled Whether the chip is enabled
      */
-    @Composable
-    public fun contentColor(enabled: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean): State<Color>
 
     /**
      * Represents the secondary content color for this chip, depending on whether it is [enabled]
      *
      * @param enabled Whether the chip is enabled
      */
-    @Composable
-    public fun secondaryContentColor(enabled: Boolean): State<Color>
+    @Composable public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the color for the toggle control content for this chip, depending on the
-     * [enabled] and [checked] properties.
+     * Represents the color for the toggle control content for this chip, depending on the [enabled]
+     * and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
-     * Represents the overlay to apply to a split background SplitToggleChip to distinguish
-     * between the two tappable areas. The overlay will be applied to "lighten" the background of
-     * area under the toggle control, depending on the [enabled] and [checked] properties.
+     * Represents the overlay to apply to a split background SplitToggleChip to distinguish between
+     * the two tappable areas. The overlay will be applied to "lighten" the background of area under
+     * the toggle control, depending on the [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
      * @param checked Whether the chip is currently checked or unchecked
      */
-    @Composable
-    public fun splitBackgroundOverlay(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun splitBackgroundOverlay(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-/**
- * Contains the default values used by [ToggleChip]s and [SplitToggleChip]s
- */
+/** Contains the default values used by [ToggleChip]s and [SplitToggleChip]s */
 public object ToggleChipDefaults {
 
     /**
-     * Creates a [ToggleChipColors] for use in a [ToggleChip].
-     * [ToggleChip]s are expected to have a linear gradient background when
-     * checked, similar to a [ChipDefaults.gradientBackgroundChipColors] and a solid
-     * neutral background when not checked (similar to a
-     * [ChipDefaults.secondaryChipColors])
+     * Creates a [ToggleChipColors] for use in a [ToggleChip]. [ToggleChip]s are expected to have a
+     * linear gradient background when checked, similar to a
+     * [ChipDefaults.gradientBackgroundChipColors] and a solid neutral background when not checked
+     * (similar to a [ChipDefaults.secondaryChipColors])
      *
      * @param checkedStartBackgroundColor The background color used at the start of the gradient of
-     * a [ToggleChip] when enabled and checked.
+     *   a [ToggleChip] when enabled and checked.
      * @param checkedEndBackgroundColor The background color used at the end of the gradient of a
-     * [ToggleChip] when enabled and checked.
-     * @param checkedContentColor The content color of a [ToggleChip] when enabled and
-     * checked.
+     *   [ToggleChip] when enabled and checked.
+     * @param checkedContentColor The content color of a [ToggleChip] when enabled and checked.
      * @param checkedSecondaryContentColor The secondary content color of this [ToggleChip] when
-     * enabled and checked, used for secondaryLabel content
+     *   enabled and checked, used for secondaryLabel content
      * @param checkedToggleControlColor The toggle control color of this [ToggleChip] when enabled
-     * and checked, used for toggleControl content
+     *   and checked, used for toggleControl content
      * @param uncheckedStartBackgroundColor The background color used at the start of the gradient
-     * of a [ToggleChip] when enabled and unchecked.
+     *   of a [ToggleChip] when enabled and unchecked.
      * @param uncheckedEndBackgroundColor The background color used at the end of the gradient of a
-     * [ToggleChip] when enabled and unchecked.
-     * @param uncheckedContentColor The content color of a [ToggleChip] when enabled and
-     * checked.
+     *   [ToggleChip] when enabled and unchecked.
+     * @param uncheckedContentColor The content color of a [ToggleChip] when enabled and checked.
      * @param uncheckedSecondaryContentColor The secondary content color of this [ToggleChip] when
-     * enabled and unchecked, used for secondaryLabel content
+     *   enabled and unchecked, used for secondaryLabel content
      * @param uncheckedToggleControlColor The toggle control color of this [ToggleChip] when enabled
-     * and unchecked.
+     *   and unchecked.
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
-     * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
+     *   [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
     @Composable
     public fun toggleChipColors(
         checkedStartBackgroundColor: Color =
-            MaterialTheme.colors.surface.copy(alpha = 0f)
+            MaterialTheme.colors.surface
+                .copy(alpha = 0f)
                 .compositeOver(MaterialTheme.colors.surface),
         checkedEndBackgroundColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = 0.5f)
+            MaterialTheme.colors.primary
+                .copy(alpha = 0.5f)
                 .compositeOver(MaterialTheme.colors.surface),
         checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
@@ -444,44 +425,38 @@ public object ToggleChipDefaults {
         val checkedBackgroundColors: List<Color>
         val disabledCheckedBackgroundColors: List<Color>
         if (gradientDirection == LayoutDirection.Ltr) {
-            checkedBackgroundColors = listOf(
-                checkedStartBackgroundColor,
-                checkedEndBackgroundColor
-            )
-            disabledCheckedBackgroundColors = listOf(
-                checkedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
-            )
+            checkedBackgroundColors = listOf(checkedStartBackgroundColor, checkedEndBackgroundColor)
+            disabledCheckedBackgroundColors =
+                listOf(
+                    checkedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                    checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                )
         } else {
-            checkedBackgroundColors = listOf(
-                checkedEndBackgroundColor,
-                checkedStartBackgroundColor
-            )
-            disabledCheckedBackgroundColors = listOf(
-                checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                checkedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-            )
+            checkedBackgroundColors = listOf(checkedEndBackgroundColor, checkedStartBackgroundColor)
+            disabledCheckedBackgroundColors =
+                listOf(
+                    checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                    checkedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                )
         }
         val uncheckedBackgroundColors: List<Color>
         val disabledUncheckedBackgroundColors: List<Color>
         if (gradientDirection == LayoutDirection.Ltr) {
-            uncheckedBackgroundColors = listOf(
-                uncheckedStartBackgroundColor,
-                uncheckedEndBackgroundColor
-            )
-            disabledUncheckedBackgroundColors = listOf(
-                uncheckedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
-            )
+            uncheckedBackgroundColors =
+                listOf(uncheckedStartBackgroundColor, uncheckedEndBackgroundColor)
+            disabledUncheckedBackgroundColors =
+                listOf(
+                    uncheckedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                    uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                )
         } else {
-            uncheckedBackgroundColors = listOf(
-                uncheckedEndBackgroundColor,
-                uncheckedStartBackgroundColor
-            )
-            disabledUncheckedBackgroundColors = listOf(
-                uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                uncheckedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-            )
+            uncheckedBackgroundColors =
+                listOf(uncheckedEndBackgroundColor, uncheckedStartBackgroundColor)
+            disabledUncheckedBackgroundColors =
+                listOf(
+                    uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                    uncheckedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
+                )
         }
 
         return DefaultToggleChipColors(
@@ -489,34 +464,26 @@ public object ToggleChipDefaults {
             checkedContentColor = checkedContentColor,
             checkedSecondaryContentColor = checkedSecondaryContentColor,
             checkedIconColor = checkedToggleControlColor,
-            uncheckedBackgroundPainter = BrushPainter(
-                Brush.linearGradient(uncheckedBackgroundColors)
-            ),
+            uncheckedBackgroundPainter =
+                BrushPainter(Brush.linearGradient(uncheckedBackgroundColors)),
             uncheckedContentColor = uncheckedContentColor,
             uncheckedSecondaryContentColor = uncheckedSecondaryContentColor,
             uncheckedIconColor = uncheckedToggleControlColor,
-            disabledCheckedBackgroundPainter = BrushPainter(
-                Brush.linearGradient(disabledCheckedBackgroundColors)
-            ),
+            disabledCheckedBackgroundPainter =
+                BrushPainter(Brush.linearGradient(disabledCheckedBackgroundColors)),
             disabledCheckedContentColor = checkedContentColor.copy(alpha = ContentAlpha.disabled),
-            disabledCheckedSecondaryContentColor = checkedSecondaryContentColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledCheckedIconColor = checkedToggleControlColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledUncheckedBackgroundPainter = BrushPainter(
-                Brush.linearGradient(disabledUncheckedBackgroundColors)
-            ),
-            disabledUncheckedContentColor = uncheckedContentColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledUncheckedSecondaryContentColor = uncheckedSecondaryContentColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledUncheckedIconColor = uncheckedToggleControlColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
+            disabledCheckedSecondaryContentColor =
+                checkedSecondaryContentColor.copy(alpha = ContentAlpha.disabled),
+            disabledCheckedIconColor =
+                checkedToggleControlColor.copy(alpha = ContentAlpha.disabled),
+            disabledUncheckedBackgroundPainter =
+                BrushPainter(Brush.linearGradient(disabledUncheckedBackgroundColors)),
+            disabledUncheckedContentColor =
+                uncheckedContentColor.copy(alpha = ContentAlpha.disabled),
+            disabledUncheckedSecondaryContentColor =
+                uncheckedSecondaryContentColor.copy(alpha = ContentAlpha.disabled),
+            disabledUncheckedIconColor =
+                uncheckedToggleControlColor.copy(alpha = ContentAlpha.disabled),
         )
     }
 
@@ -526,15 +493,15 @@ public object ToggleChipDefaults {
      * @param backgroundColor The background color of this [SplitToggleChip] when enabled
      * @param contentColor The content color of this [SplitToggleChip] when enabled.
      * @param secondaryContentColor The secondary content color of this[SplitToggleChip] when
-     * enabled
+     *   enabled
      * @param checkedToggleControlColor The toggle control content color of this [SplitToggleChip]
-     * when enabled.
+     *   when enabled.
      * @param uncheckedToggleControlColor The toggle control content color of this [SplitToggleChip]
-     * when enabled.
+     *   when enabled.
      * @param splitBackgroundOverlayColor The color to use to lighten/distinguish the background
-     * behind the ToggleControl for a split background chip. A split background chip has two
-     * tappable areas, one for the main body of the chip and one for area around the toggle
-     * control icon.
+     *   behind the ToggleControl for a split background chip. A split background chip has two
+     *   tappable areas, one for the main body of the chip and one for area around the toggle
+     *   control icon.
      */
     @Composable
     public fun splitToggleChipColors(
@@ -555,46 +522,40 @@ public object ToggleChipDefaults {
             uncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
             disabledBackgroundColor = backgroundColor.copy(alpha = ContentAlpha.disabled),
             disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
-            disabledSecondaryContentColor = secondaryContentColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledCheckedIconColor = checkedToggleControlColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
+            disabledSecondaryContentColor =
+                secondaryContentColor.copy(alpha = ContentAlpha.disabled),
+            disabledCheckedIconColor =
+                checkedToggleControlColor.copy(alpha = ContentAlpha.disabled),
             disabledCheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
-            disabledUncheckedIconColor = uncheckedToggleControlColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
+            disabledUncheckedIconColor =
+                uncheckedToggleControlColor.copy(alpha = ContentAlpha.disabled),
             disabledUncheckedSplitBackgroundOverlay = splitBackgroundOverlayColor,
         )
     }
 
-    /**
-     * The Wear Material UX recommended color to use for an unchecked switch icon.
-     */
+    /** The Wear Material UX recommended color to use for an unchecked switch icon. */
     public val SwitchUncheckedIconColor: Color
         @Composable get() = MaterialTheme.colors.onSurface.copy(0.6f)
 
     private val ChipHorizontalPadding = 14.dp
     private val ChipVerticalPadding = 6.dp
 
-    /**
-     * The default content padding used by [ToggleChip] and [SplitToggleChip]
-     */
-    public val ContentPadding: PaddingValues = PaddingValues(
-        start = ChipHorizontalPadding,
-        top = ChipVerticalPadding,
-        end = ChipHorizontalPadding,
-        bottom = ChipVerticalPadding
-    )
+    /** The default content padding used by [ToggleChip] and [SplitToggleChip] */
+    public val ContentPadding: PaddingValues =
+        PaddingValues(
+            start = ChipHorizontalPadding,
+            top = ChipVerticalPadding,
+            end = ChipHorizontalPadding,
+            bottom = ChipVerticalPadding
+        )
 
     /**
      * Creates switch style toggle [ImageVector]s for use in the toggleControl slot of a
-     * [ToggleChip] or [SplitToggleChip].
-     * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) switch icon.
+     * [ToggleChip] or [SplitToggleChip]. Depending on [checked] will return either an 'on'
+     * (checked) or 'off' (unchecked) switch icon.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
-     * or 'off' (unchecked/false)
+     *   or 'off' (unchecked/false)
      */
     public fun switchIcon(
         checked: Boolean,
@@ -602,12 +563,11 @@ public object ToggleChipDefaults {
 
     /**
      * Creates a radio button style toggle [ImageVector]s for use in the toggleControl slot of a
-     * [ToggleChip] or [SplitToggleChip].
-     * Depending on [checked] will return either an 'on' (checked) or 'off' (unchecked) radio button
-     * icon.
+     * [ToggleChip] or [SplitToggleChip]. Depending on [checked] will return either an 'on'
+     * (checked) or 'off' (unchecked) radio button icon.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
-     * or 'off' (unchecked/false)
+     *   or 'off' (unchecked/false)
      */
     public fun radioIcon(
         checked: Boolean,
@@ -615,21 +575,19 @@ public object ToggleChipDefaults {
 
     /**
      * Creates checkbox style toggle [ImageVector]s for use in the toggleControl slot of a
-     * [ToggleChip] or [SplitToggleChip].
-     * Depending on [checked] will return either an 'on' (ticked/checked) or 'off'
-     * (unticked/unchecked) checkbox image.
+     * [ToggleChip] or [SplitToggleChip]. Depending on [checked] will return either an 'on'
+     * (ticked/checked) or 'off' (unticked/unchecked) checkbox image.
      *
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
-     * or 'off' (unchecked/false)
+     *   or 'off' (unchecked/false)
      */
     public fun checkboxIcon(
         checked: Boolean,
     ): ImageVector = if (checked) CheckboxOn else CheckboxOff
 
     /**
-     * The default height applied for the [ToggleChip] or [SplitToggleChip].
-     * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip] or
-     * [SplitToggleChip].
+     * The default height applied for the [ToggleChip] or [SplitToggleChip]. Note that you can
+     * override it by applying Modifier.heightIn directly on [ToggleChip] or [SplitToggleChip].
      */
     public val Height = 52.dp
 
@@ -644,28 +602,29 @@ public object ToggleChipDefaults {
             if (_switchOn != null) {
                 return _switchOn!!
             }
-            _switchOn = materialIcon(name = "SwitchOn") {
-                materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
-                    moveTo(5.0f, 7.0f)
-                    lineTo(19.0f, 7.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
-                    lineTo(24.0f, 12.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
-                    lineTo(5.0f, 17.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
-                    lineTo(0.0f, 12.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
-                    close()
+            _switchOn =
+                materialIcon(name = "SwitchOn") {
+                    materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
+                        moveTo(5.0f, 7.0f)
+                        lineTo(19.0f, 7.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
+                        lineTo(24.0f, 12.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
+                        lineTo(5.0f, 17.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
+                        lineTo(0.0f, 12.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
+                        close()
+                    }
+                    materialPath(pathFillType = PathFillType.EvenOdd) {
+                        moveTo(17.0f, 19.0f)
+                        curveTo(20.866f, 19.0f, 24.0f, 15.866f, 24.0f, 12.0f)
+                        curveTo(24.0f, 8.134f, 20.866f, 5.0f, 17.0f, 5.0f)
+                        curveTo(13.134f, 5.0f, 10.0f, 8.134f, 10.0f, 12.0f)
+                        curveTo(10.0f, 15.866f, 13.134f, 19.0f, 17.0f, 19.0f)
+                        close()
+                    }
                 }
-                materialPath(pathFillType = PathFillType.EvenOdd) {
-                    moveTo(17.0f, 19.0f)
-                    curveTo(20.866f, 19.0f, 24.0f, 15.866f, 24.0f, 12.0f)
-                    curveTo(24.0f, 8.134f, 20.866f, 5.0f, 17.0f, 5.0f)
-                    curveTo(13.134f, 5.0f, 10.0f, 8.134f, 10.0f, 12.0f)
-                    curveTo(10.0f, 15.866f, 13.134f, 19.0f, 17.0f, 19.0f)
-                    close()
-                }
-            }
             return _switchOn!!
         }
 
@@ -676,28 +635,29 @@ public object ToggleChipDefaults {
             if (_switchOff != null) {
                 return _switchOff!!
             }
-            _switchOff = materialIcon(name = "SwitchOff") {
-                materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
-                    moveTo(5.0f, 7.0f)
-                    lineTo(19.0f, 7.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
-                    lineTo(24.0f, 12.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
-                    lineTo(5.0f, 17.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
-                    lineTo(0.0f, 12.0f)
-                    arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
-                    close()
+            _switchOff =
+                materialIcon(name = "SwitchOff") {
+                    materialPath(fillAlpha = 0.38f, strokeAlpha = 0.38f) {
+                        moveTo(5.0f, 7.0f)
+                        lineTo(19.0f, 7.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 24.0f, 12.0f)
+                        lineTo(24.0f, 12.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 19.0f, 17.0f)
+                        lineTo(5.0f, 17.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 0.0f, 12.0f)
+                        lineTo(0.0f, 12.0f)
+                        arcTo(5.0f, 5.0f, 0.0f, false, true, 5.0f, 7.0f)
+                        close()
+                    }
+                    materialPath(pathFillType = PathFillType.EvenOdd) {
+                        moveTo(7.0f, 19.0f)
+                        curveTo(10.866f, 19.0f, 14.0f, 15.866f, 14.0f, 12.0f)
+                        curveTo(14.0f, 8.134f, 10.866f, 5.0f, 7.0f, 5.0f)
+                        curveTo(3.134f, 5.0f, 0.0f, 8.134f, 0.0f, 12.0f)
+                        curveTo(0.0f, 15.866f, 3.134f, 19.0f, 7.0f, 19.0f)
+                        close()
+                    }
                 }
-                materialPath(pathFillType = PathFillType.EvenOdd) {
-                    moveTo(7.0f, 19.0f)
-                    curveTo(10.866f, 19.0f, 14.0f, 15.866f, 14.0f, 12.0f)
-                    curveTo(14.0f, 8.134f, 10.866f, 5.0f, 7.0f, 5.0f)
-                    curveTo(3.134f, 5.0f, 0.0f, 8.134f, 0.0f, 12.0f)
-                    curveTo(0.0f, 15.866f, 3.134f, 19.0f, 7.0f, 19.0f)
-                    close()
-                }
-            }
             return _switchOff!!
         }
 
@@ -708,28 +668,29 @@ public object ToggleChipDefaults {
             if (_radioOn != null) {
                 return _radioOn!!
             }
-            _radioOn = materialIcon(name = "RadioOn") {
-                materialPath {
-                    moveTo(12.0f, 2.0f)
-                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
-                    curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
-                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
-                    curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
-                    close()
-                    moveTo(12.0f, 20.0f)
-                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
-                    curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
-                    curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
-                    curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
-                    close()
+            _radioOn =
+                materialIcon(name = "RadioOn") {
+                    materialPath {
+                        moveTo(12.0f, 2.0f)
+                        curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                        curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
+                        curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                        curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
+                        close()
+                        moveTo(12.0f, 20.0f)
+                        curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                        curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
+                        curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
+                        curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
+                        close()
+                    }
+                    materialPath {
+                        moveTo(12.0f, 12.0f)
+                        moveToRelative(-5.0f, 0.0f)
+                        arcToRelative(5.0f, 5.0f, 0.0f, true, true, 10.0f, 0.0f)
+                        arcToRelative(5.0f, 5.0f, 0.0f, true, true, -10.0f, 0.0f)
+                    }
                 }
-                materialPath {
-                    moveTo(12.0f, 12.0f)
-                    moveToRelative(-5.0f, 0.0f)
-                    arcToRelative(5.0f, 5.0f, 0.0f, true, true, 10.0f, 0.0f)
-                    arcToRelative(5.0f, 5.0f, 0.0f, true, true, -10.0f, 0.0f)
-                }
-            }
             return _radioOn!!
         }
 
@@ -740,22 +701,23 @@ public object ToggleChipDefaults {
             if (_radioOff != null) {
                 return _radioOff!!
             }
-            _radioOff = materialIcon(name = "RadioOff") {
-                materialPath {
-                    moveTo(12.0f, 2.0f)
-                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
-                    curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
-                    curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
-                    curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
-                    close()
-                    moveTo(12.0f, 20.0f)
-                    curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
-                    curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
-                    curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
-                    curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
-                    close()
+            _radioOff =
+                materialIcon(name = "RadioOff") {
+                    materialPath {
+                        moveTo(12.0f, 2.0f)
+                        curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
+                        curveTo(2.0f, 17.52f, 6.48f, 22.0f, 12.0f, 22.0f)
+                        curveTo(17.52f, 22.0f, 22.0f, 17.52f, 22.0f, 12.0f)
+                        curveTo(22.0f, 6.48f, 17.52f, 2.0f, 12.0f, 2.0f)
+                        close()
+                        moveTo(12.0f, 20.0f)
+                        curveTo(7.58f, 20.0f, 4.0f, 16.42f, 4.0f, 12.0f)
+                        curveTo(4.0f, 7.58f, 7.58f, 4.0f, 12.0f, 4.0f)
+                        curveTo(16.42f, 4.0f, 20.0f, 7.58f, 20.0f, 12.0f)
+                        curveTo(20.0f, 16.42f, 16.42f, 20.0f, 12.0f, 20.0f)
+                        close()
+                    }
                 }
-            }
             return _radioOff!!
         }
 
@@ -766,35 +728,36 @@ public object ToggleChipDefaults {
             if (_checkboxOn != null) {
                 return _checkboxOn!!
             }
-            _checkboxOn = materialIcon(name = "CheckboxOn") {
-                materialPath {
-                    moveTo(19.0f, 3.0f)
-                    horizontalLineTo(5.0f)
-                    curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
-                    verticalLineTo(19.0f)
-                    curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
-                    horizontalLineTo(19.0f)
-                    curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
-                    verticalLineTo(5.0f)
-                    curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
-                    close()
-                    moveTo(19.0f, 19.0f)
-                    horizontalLineTo(5.0f)
-                    verticalLineTo(5.0f)
-                    horizontalLineTo(19.0f)
-                    verticalLineTo(19.0f)
-                    close()
-                    moveTo(18.0f, 9.0f)
-                    lineTo(16.6f, 7.6f)
-                    lineTo(13.3f, 10.9f)
-                    lineTo(10.0f, 14.2f)
-                    lineTo(7.4f, 11.6f)
-                    lineTo(6.0f, 13.0f)
-                    lineTo(10.0f, 17.0f)
-                    lineTo(18.0f, 9.0f)
-                    close()
+            _checkboxOn =
+                materialIcon(name = "CheckboxOn") {
+                    materialPath {
+                        moveTo(19.0f, 3.0f)
+                        horizontalLineTo(5.0f)
+                        curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
+                        verticalLineTo(19.0f)
+                        curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
+                        horizontalLineTo(19.0f)
+                        curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
+                        verticalLineTo(5.0f)
+                        curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
+                        close()
+                        moveTo(19.0f, 19.0f)
+                        horizontalLineTo(5.0f)
+                        verticalLineTo(5.0f)
+                        horizontalLineTo(19.0f)
+                        verticalLineTo(19.0f)
+                        close()
+                        moveTo(18.0f, 9.0f)
+                        lineTo(16.6f, 7.6f)
+                        lineTo(13.3f, 10.9f)
+                        lineTo(10.0f, 14.2f)
+                        lineTo(7.4f, 11.6f)
+                        lineTo(6.0f, 13.0f)
+                        lineTo(10.0f, 17.0f)
+                        lineTo(18.0f, 9.0f)
+                        close()
+                    }
                 }
-            }
             return _checkboxOn!!
         }
 
@@ -805,35 +768,34 @@ public object ToggleChipDefaults {
             if (_checkboxOff != null) {
                 return _checkboxOff!!
             }
-            _checkboxOff = materialIcon(name = "CheckboxOff") {
-                materialPath {
-                    moveTo(19.0f, 5.0f)
-                    verticalLineTo(19.0f)
-                    horizontalLineTo(5.0f)
-                    verticalLineTo(5.0f)
-                    horizontalLineTo(19.0f)
-                    close()
-                    moveTo(19.0f, 3.0f)
-                    horizontalLineTo(5.0f)
-                    curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
-                    verticalLineTo(19.0f)
-                    curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
-                    horizontalLineTo(19.0f)
-                    curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
-                    verticalLineTo(5.0f)
-                    curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
-                    close()
+            _checkboxOff =
+                materialIcon(name = "CheckboxOff") {
+                    materialPath {
+                        moveTo(19.0f, 5.0f)
+                        verticalLineTo(19.0f)
+                        horizontalLineTo(5.0f)
+                        verticalLineTo(5.0f)
+                        horizontalLineTo(19.0f)
+                        close()
+                        moveTo(19.0f, 3.0f)
+                        horizontalLineTo(5.0f)
+                        curveTo(3.9f, 3.0f, 3.0f, 3.9f, 3.0f, 5.0f)
+                        verticalLineTo(19.0f)
+                        curveTo(3.0f, 20.1f, 3.9f, 21.0f, 5.0f, 21.0f)
+                        horizontalLineTo(19.0f)
+                        curveTo(20.1f, 21.0f, 21.0f, 20.1f, 21.0f, 19.0f)
+                        verticalLineTo(5.0f)
+                        curveTo(21.0f, 3.9f, 20.1f, 3.0f, 19.0f, 3.0f)
+                        close()
+                    }
                 }
-            }
             return _checkboxOff!!
         }
 
     private var _checkboxOff: ImageVector? = null
 }
 
-/**
- * Default [ToggleChipColors] implementation.
- */
+/** Default [ToggleChipColors] implementation. */
 @Immutable
 private class DefaultToggleChipColors(
     private val checkedBackgroundPainter: Painter,
@@ -860,8 +822,8 @@ private class DefaultToggleChipColors(
             if (enabled) {
                 if (checked) checkedBackgroundPainter else uncheckedBackgroundPainter
             } else {
-                if (checked) disabledCheckedBackgroundPainter else
-                    disabledUncheckedBackgroundPainter
+                if (checked) disabledCheckedBackgroundPainter
+                else disabledUncheckedBackgroundPainter
             }
         )
     }
@@ -883,8 +845,8 @@ private class DefaultToggleChipColors(
             if (enabled) {
                 if (checked) checkedSecondaryContentColor else uncheckedSecondaryContentColor
             } else {
-                if (checked) disabledCheckedSecondaryContentColor else
-                    disabledUncheckedSecondaryContentColor
+                if (checked) disabledCheckedSecondaryContentColor
+                else disabledUncheckedSecondaryContentColor
             }
         )
     }
@@ -918,17 +880,14 @@ private class DefaultToggleChipColors(
         if (disabledCheckedBackgroundPainter != other.disabledCheckedBackgroundPainter) return false
         if (disabledCheckedContentColor != other.disabledCheckedContentColor) return false
         if (disabledCheckedIconColor != other.disabledCheckedIconColor) return false
-        if (disabledCheckedSecondaryContentColor !=
-            other.disabledCheckedSecondaryContentColor
-        ) return false
-        if (disabledUncheckedBackgroundPainter !=
-            other.disabledUncheckedBackgroundPainter
-        ) return false
+        if (disabledCheckedSecondaryContentColor != other.disabledCheckedSecondaryContentColor)
+            return false
+        if (disabledUncheckedBackgroundPainter != other.disabledUncheckedBackgroundPainter)
+            return false
         if (disabledUncheckedContentColor != other.disabledUncheckedContentColor) return false
         if (disabledUncheckedIconColor != other.disabledUncheckedIconColor) return false
-        if (disabledUncheckedSecondaryContentColor !=
-            other.disabledUncheckedSecondaryContentColor
-        ) return false
+        if (disabledUncheckedSecondaryContentColor != other.disabledUncheckedSecondaryContentColor)
+            return false
 
         return true
     }
@@ -954,9 +913,7 @@ private class DefaultToggleChipColors(
     }
 }
 
-/**
- * Default [SplitToggleChipColors] implementation.
- */
+/** Default [SplitToggleChipColors] implementation. */
 @Immutable
 private class DefaultSplitToggleChipColors(
     private val backgroundColor: Color,
@@ -977,16 +934,12 @@ private class DefaultSplitToggleChipColors(
 
     @Composable
     override fun backgroundColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) backgroundColor else disabledBackgroundColor
-        )
+        return rememberUpdatedState(if (enabled) backgroundColor else disabledBackgroundColor)
     }
 
     @Composable
     override fun contentColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(
-            if (enabled) contentColor else disabledContentColor
-        )
+        return rememberUpdatedState(if (enabled) contentColor else disabledContentColor)
     }
 
     @Composable
@@ -1013,8 +966,8 @@ private class DefaultSplitToggleChipColors(
             if (enabled) {
                 if (checked) checkedSplitBackgroundOverlay else uncheckedSplitBackgroundOverlay
             } else {
-                if (checked) disabledCheckedSplitBackgroundOverlay else
-                    disabledUncheckedSplitBackgroundOverlay
+                if (checked) disabledCheckedSplitBackgroundOverlay
+                else disabledUncheckedSplitBackgroundOverlay
             }
         )
     }
@@ -1036,13 +989,13 @@ private class DefaultSplitToggleChipColors(
         if (disabledContentColor != other.disabledContentColor) return false
         if (disabledCheckedIconColor != other.disabledCheckedIconColor) return false
         if (disabledSecondaryContentColor != other.disabledSecondaryContentColor) return false
-        if (disabledCheckedSplitBackgroundOverlay !=
-            other.disabledCheckedSplitBackgroundOverlay
-        ) return false
+        if (disabledCheckedSplitBackgroundOverlay != other.disabledCheckedSplitBackgroundOverlay)
+            return false
         if (disabledUncheckedIconColor != other.disabledUncheckedIconColor) return false
-        if (disabledUncheckedSplitBackgroundOverlay !=
-            other.disabledUncheckedSplitBackgroundOverlay
-        ) return false
+        if (
+            disabledUncheckedSplitBackgroundOverlay != other.disabledUncheckedSplitBackgroundOverlay
+        )
+            return false
 
         return true
     }

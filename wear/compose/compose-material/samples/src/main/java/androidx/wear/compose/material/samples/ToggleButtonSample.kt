@@ -43,9 +43,9 @@ fun ToggleButtonWithIcon() {
         Icon(
             painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
             contentDescription = "airplane",
-            modifier = Modifier
-                .size(ToggleButtonDefaults.DefaultIconSize)
-                .wrapContentSize(align = Alignment.Center),
+            modifier =
+                Modifier.size(ToggleButtonDefaults.DefaultIconSize)
+                    .wrapContentSize(align = Alignment.Center),
         )
     }
 }

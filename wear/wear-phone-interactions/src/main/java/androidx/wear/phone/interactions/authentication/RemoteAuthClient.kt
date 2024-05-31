@@ -39,10 +39,10 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
- * Provides a client for supporting remote authentication on Wear. The authentication session
- * will be opened on the user's paired phone.
- *
+ * Provides a client for supporting remote authentication on Wear. The authentication session will
+ * be opened on the user's paired phone.
  * * The following example triggers an authorization session to open on the phone.
+ *
  * ```
  * // PKCE (Proof Key for Code Exchange) is required for the auth
  * private var codeVerifier: CodeVerifier
@@ -90,41 +90,35 @@ import kotlinx.coroutines.flow.flowOf
  * }
  * ```
  */
-public class RemoteAuthClient internal constructor(
+public class RemoteAuthClient
+internal constructor(
     private val remoteInteractionsManager: IRemoteInteractionsManager,
     private val serviceBinder: ServiceBinder,
     private val uiThreadExecutor: Executor,
     private val packageName: String
 ) : AutoCloseable {
     public companion object {
-        /**
-         * The URL to be opened in a web browser on the companion.
-         * Value type: Uri
-         */
+        /** The URL to be opened in a web browser on the companion. Value type: Uri */
         internal const val KEY_REQUEST_URL: String = "requestUrl"
 
         /**
          * The package name obtained from calling getPackageName() on the context passed into
-         * [create].
-         * Value type: String
+         * [create]. Value type: String
          */
         internal const val KEY_PACKAGE_NAME: String = "packageName"
 
         /**
-         * The URL that the web browser is directed to that triggered the companion to open.
-         * Value type: Uri
+         * The URL that the web browser is directed to that triggered the companion to open. Value
+         * type: Uri
          */
         internal const val KEY_RESPONSE_URL: String = "responseUrl"
 
-        /**
-         * The error code explaining why the request failed.
-         * Value type: [ErrorCode]
-         */
+        /** The error code explaining why the request failed. Value type: [ErrorCode] */
         internal const val KEY_ERROR_CODE: String = "errorCode"
 
         /**
-         * Package name for the service provider on Wearable.
-         * Home app for Wear 2, and Wear Core Service for wear 3
+         * Package name for the service provider on Wearable. Home app for Wear 2, and Wear Core
+         * Service for wear 3
          */
         internal const val WEARABLE_PACKAGE_NAME: String = "com.google.android.wearable.app"
 
@@ -139,42 +133,42 @@ public class RemoteAuthClient internal constructor(
         /**
          * The remote auth's availability is unknown.
          *
-         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability states. To preserve
-         * compatibility with existing devices behavior, try [sendAuthorizationRequest] and handle
-         * error codes accordingly.
+         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability
+         * states. To preserve compatibility with existing devices behavior, try
+         * [sendAuthorizationRequest] and handle error codes accordingly.
          */
         public const val STATUS_UNKNOWN = 0
 
         /**
-         * Indicates that remote auth is unavailable because there is no paired device capable of handling the remote interaction.
+         * Indicates that remote auth is unavailable because there is no paired device capable of
+         * handling the remote interaction.
          */
         public const val STATUS_UNAVAILABLE = 1
 
         /**
          * Indicates that remote auth is temporarily unavailable.
          *
-         * There is a known paired device, but it is not currently connected or reachable to handle the remote interaction.
+         * There is a known paired device, but it is not currently connected or reachable to handle
+         * the remote interaction.
          */
         public const val STATUS_TEMPORARILY_UNAVAILABLE = 2
 
         /**
-         * Indicates that remote auth is available with a connected device capable to handle the remote interaction.
+         * Indicates that remote auth is available with a connected device capable to handle the
+         * remote interaction.
          */
         public const val STATUS_AVAILABLE = 3
 
-        /** Indicates 3p authentication is finished without error  */
+        /** Indicates 3p authentication is finished without error */
         public const val NO_ERROR: Int = -1
 
-        /** Indicates 3p authentication isn't supported by Wear OS  */
+        /** Indicates 3p authentication isn't supported by Wear OS */
         public const val ERROR_UNSUPPORTED: Int = 0
 
         /** Indicates no phone is connected, or the phone connected doesn't support 3p auth */
         public const val ERROR_PHONE_UNAVAILABLE: Int = 1
 
-        /**
-         * Errors returned in [Callback.onAuthorizationError].
-         *
-         */
+        /** Errors returned in [Callback.onAuthorizationError]. */
         @IntDef(NO_ERROR, ERROR_UNSUPPORTED, ERROR_PHONE_UNAVAILABLE)
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Retention(AnnotationRetention.SOURCE)
@@ -243,28 +237,30 @@ public class RemoteAuthClient internal constructor(
     }
 
     /**
-     * Returns status indicating whether remote auth operation (such as [sendAuthorizationRequest]) is available.
+     * Returns status indicating whether remote auth operation (such as [sendAuthorizationRequest])
+     * is available.
      *
-     * In scenarios of restricted connection or temporary disconnection with a paired device,
-     * remote auth operations will not be available. Please check status before [sendAuthorizationRequest]
+     * In scenarios of restricted connection or temporary disconnection with a paired device, remote
+     * auth operations will not be available. Please check status before [sendAuthorizationRequest]
      * to provide better experience for the user.
      *
-     * On older wear devices which do not support availability status, it will always return [STATUS_UNKNOWN].
-     * Wear devices start to support determining the availability status from Wear Sdk WEAR_TIRAMISU_4.
+     * On older wear devices which do not support availability status, it will always return
+     * [STATUS_UNKNOWN]. Wear devices start to support determining the availability status from Wear
+     * Sdk WEAR_TIRAMISU_4.
      *
      * @sample androidx.wear.phone.interactions.samples.AuthAvailabilitySample
      *
      * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
      *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
-     *
      */
-    public val availabilityStatus: Flow<Int> get() {
-        if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
-            return flowOf(STATUS_UNKNOWN)
-        }
+    public val availabilityStatus: Flow<Int>
+        get() {
+            if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
+                return flowOf(STATUS_UNKNOWN)
+            }
 
-        return getRemoteAuthAvailableInternal()
-    }
+            return getRemoteAuthAvailableInternal()
+        }
 
     private fun getRemoteAuthAvailableInternal(): Flow<Int> {
         return callbackFlow {
@@ -276,27 +272,26 @@ public class RemoteAuthClient internal constructor(
                     }
                 }
 
-            remoteInteractionsManager
-                .registerRemoteAuthClientStatusListener(Runnable::run, callback)
+            remoteInteractionsManager.registerRemoteAuthClientStatusListener(
+                Runnable::run,
+                callback
+            )
 
             awaitClose {
-                remoteInteractionsManager
-                    .unregisterRemoteAuthClientStatusListener(callback)
+                remoteInteractionsManager.unregisterRemoteAuthClientStatusListener(callback)
             }
         }
     }
 
     /**
-     * Send a remote auth request. This will cause an authorization UI to be presented on
-     * the user's phone.
-     * This request is asynchronous; the callback provided will be be notified when the request
-     * completes.
+     * Send a remote auth request. This will cause an authorization UI to be presented on the user's
+     * phone. This request is asynchronous; the callback provided will be be notified when the
+     * request completes.
      *
-     * @param request Request that will be sent to the phone. The auth response should redirect
-     * to the Wear OS companion. See [OAuthRequest.WEAR_REDIRECT_URL_PREFIX]
+     * @param request Request that will be sent to the phone. The auth response should redirect to
+     *   the Wear OS companion. See [OAuthRequest.WEAR_REDIRECT_URL_PREFIX]
      * @param executor The executor that callback will called on.
      * @param clientCallback The callback that will be notified when request is completed.
-     *
      * @Throws RuntimeException if the service has error to open the request
      */
     @UiThread
@@ -327,7 +322,7 @@ public class RemoteAuthClient internal constructor(
     /**
      * Check that the explicit termination method 'close' is called
      *
-     *  @Throws RuntimeException if the 'close' method was not called
+     * @Throws RuntimeException if the 'close' method was not called
      */
     protected fun finalize() {
         if (allocationSite != null) {
@@ -339,8 +334,8 @@ public class RemoteAuthClient internal constructor(
     }
 
     /**
-     * Frees any resources used by the client, dropping any outstanding requests. The client
-     * cannot be used to make requests thereafter.
+     * Frees any resources used by the client, dropping any outstanding requests. The client cannot
+     * be used to make requests thereafter.
      */
     @UiThread
     override fun close() {
@@ -351,10 +346,10 @@ public class RemoteAuthClient internal constructor(
     }
 
     internal interface ServiceBinder {
-        /** See [Context.bindService].  */
+        /** See [Context.bindService]. */
         fun bindService(intent: Intent, connection: ServiceConnection, flags: Int): Boolean
 
-        /** See [Context.unbindService].  */
+        /** See [Context.unbindService]. */
         fun unbindService(connection: ServiceConnection?)
     }
 
@@ -379,8 +374,7 @@ public class RemoteAuthClient internal constructor(
 
     private fun connect() {
         check(connectionState == STATE_DISCONNECTED) { "State is $connectionState" }
-        val intent =
-            Intent(ACTION_AUTH).setPackage(WEARABLE_PACKAGE_NAME)
+        val intent = Intent(ACTION_AUTH).setPackage(WEARABLE_PACKAGE_NAME)
         val success: Boolean =
             serviceBinder.bindService(intent, connection, Context.BIND_AUTO_CREATE)
         if (success) {
@@ -398,8 +392,9 @@ public class RemoteAuthClient internal constructor(
         }
     }
 
-    /** Receives results of async requests to the remote auth service.  */
-    internal inner class RequestCallback internal constructor(
+    /** Receives results of async requests to the remote auth service. */
+    internal inner class RequestCallback
+    internal constructor(
         private val request: OAuthRequest,
         private val clientCallback: Callback,
         private val executor: Executor
@@ -410,8 +405,7 @@ public class RemoteAuthClient internal constructor(
         /**
          * Called when an aync remote authentication request is completed.
          *
-         * Bundle contents:
-         * <ul><li>"responseUrl": the response URL from the Auth request (Uri)
+         * Bundle contents: <ul><li>"responseUrl": the response URL from the Auth request (Uri)
          * <ul><li>"error": an error code explaining why the request failed (int)
          */
         @Suppress("DEPRECATION")
@@ -440,7 +434,7 @@ public class RemoteAuthClient internal constructor(
         }
     }
 
-    /** Manages the connection with Wearable Auth service.  */
+    /** Manages the connection with Wearable Auth service. */
     private inner class RemoteAuthConnection : ServiceConnection {
         @UiThread
         override fun onServiceConnected(name: ComponentName, boundService: IBinder) {

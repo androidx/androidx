@@ -28,14 +28,15 @@ import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 
 /** The default values to use if they are not specified. */
-internal val DefaultCurvedTextStyles = CurvedTextStyle(
-    color = Color.Black,
-    fontSize = 14.sp,
-    background = Color.Transparent,
-    fontWeight = FontWeight.Normal,
-    fontStyle = FontStyle.Normal,
-    fontSynthesis = FontSynthesis.All
-)
+internal val DefaultCurvedTextStyles =
+    CurvedTextStyle(
+        color = Color.Black,
+        fontSize = 14.sp,
+        background = Color.Transparent,
+        fontWeight = FontWeight.Normal,
+        fontStyle = FontStyle.Normal,
+        fontSynthesis = FontSynthesis.All
+    )
 
 /**
  * Styling configuration for a curved text.
@@ -44,13 +45,13 @@ internal val DefaultCurvedTextStyles = CurvedTextStyle(
  *
  * @param background The background color for the text.
  * @param color The text color.
- * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
- * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+ * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This may be
+ *   [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
  * @param fontFamily The font family to be used when rendering the text.
  * @param fontWeight The thickness of the glyphs, in a range of [1, 1000]. see [FontWeight]
  * @param fontStyle The typeface variant to use when drawing the letters (e.g. italic).
- * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight
- * or style cannot be found in the provided font family.
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
+ *   style cannot be found in the provided font family.
  */
 class CurvedTextStyle(
     val background: Color = Color.Unspecified,
@@ -69,11 +70,13 @@ class CurvedTextStyle(
      * @param background The background color for the text.
      * @param color The text color.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
-     * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
+     *   may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
      */
-    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
-        "Wear OS 1.0. A newer overload is available with additional font parameters.",
-        level = DeprecationLevel.HIDDEN)
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for " +
+            "Wear OS 1.0. A newer overload is available with additional font parameters.",
+        level = DeprecationLevel.HIDDEN
+    )
     constructor(
         background: Color = Color.Unspecified,
         color: Color = Color.Unspecified,
@@ -84,10 +87,12 @@ class CurvedTextStyle(
      * Create a curved text style from the given text style.
      *
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
-     * [TextStyle.fontSize], [TextStyle.background], [TextStyle.fontFamily],
-     * [TextStyle.fontWeight], [TextStyle.fontStyle] and [TextStyle.fontSynthesis].
+     * [TextStyle.fontSize], [TextStyle.background], [TextStyle.fontFamily], [TextStyle.fontWeight],
+     * [TextStyle.fontStyle] and [TextStyle.fontSynthesis].
      */
-    constructor(style: TextStyle) : this(
+    constructor(
+        style: TextStyle
+    ) : this(
         style.background,
         style.color,
         style.fontSize,
@@ -98,8 +103,8 @@ class CurvedTextStyle(
     )
 
     /**
-     * Returns a new curved text style that is a combination of this style and the given
-     * [other] style.
+     * Returns a new curved text style that is a combination of this style and the given [other]
+     * style.
      *
      * [other] curved text style's null or inherit properties are replaced with the non-null
      * properties of this curved text style. Another way to think of it is that the "missing"
@@ -121,13 +126,13 @@ class CurvedTextStyle(
         )
     }
 
-    /**
-     * Plus operator overload that applies a [merge].
-     */
+    /** Plus operator overload that applies a [merge]. */
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
-    @Deprecated("This overload is provided for backwards compatibility with Compose for " +
-        "Wear OS 1.0. A newer overload is available with additional font parameters.")
+    @Deprecated(
+        "This overload is provided for backwards compatibility with Compose for " +
+            "Wear OS 1.0. A newer overload is available with additional font parameters."
+    )
     fun copy(
         background: Color = this.background,
         color: Color = this.color,

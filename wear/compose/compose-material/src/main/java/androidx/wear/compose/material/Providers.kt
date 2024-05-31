@@ -79,31 +79,33 @@ internal fun provideIcon(
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     content: (@Composable T.() -> Unit)?
-): (@Composable T.() -> Unit)? = content?.let {
-    {
-        val color = contentColor.value
-        CompositionLocalProvider(
-            LocalContentColor provides color,
-            LocalContentAlpha provides color.alpha
-        ) {
-            content()
+): (@Composable T.() -> Unit)? =
+    content?.let {
+        {
+            val color = contentColor.value
+            CompositionLocalProvider(
+                LocalContentColor provides color,
+                LocalContentAlpha provides color.alpha
+            ) {
+                content()
+            }
         }
     }
-}
 
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
     content: (@Composable T.() -> Unit)?
-): (@Composable T.() -> Unit)? = content?.let {
-    {
-        val color = contentColor.value
-        CompositionLocalProvider(
-            LocalContentColor provides color,
-            LocalContentAlpha provides color.alpha,
-            LocalTextStyle provides textStyle
-        ) {
-            content()
+): (@Composable T.() -> Unit)? =
+    content?.let {
+        {
+            val color = contentColor.value
+            CompositionLocalProvider(
+                LocalContentColor provides color,
+                LocalContentAlpha provides color.alpha,
+                LocalTextStyle provides textStyle
+            ) {
+                content()
+            }
         }
     }
-}

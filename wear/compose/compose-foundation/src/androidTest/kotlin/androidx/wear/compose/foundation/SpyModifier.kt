@@ -23,11 +23,10 @@ import androidx.compose.ui.layout.Placeable
 import org.junit.Assert
 
 /**
- * Class used to capture information regarding measure/layout.
- * This is used through CurvedModifier.spy, and captures information on that point in the modifier
- * chain.
- * This is also the single point of access to the internals of CurvedLayout, so tests are easier to
- * refactor if we change something there.
+ * Class used to capture information regarding measure/layout. This is used through
+ * CurvedModifier.spy, and captures information on that point in the modifier chain. This is also
+ * the single point of access to the internals of CurvedLayout, so tests are easier to refactor if
+ * we change something there.
  */
 internal data class CapturedInfo(
     // Counters
@@ -68,11 +67,7 @@ internal fun CapturedInfo.checkDimensions(
         )
     }
     if (expectedThicknessPx != null) {
-        Assert.assertEquals(
-            expectedThicknessPx,
-            lastLayoutInfo!!.thickness,
-            FINE_FLOAT_TOLERANCE
-        )
+        Assert.assertEquals(expectedThicknessPx, lastLayoutInfo!!.thickness, FINE_FLOAT_TOLERANCE)
     }
 }
 
@@ -100,11 +95,7 @@ internal fun CapturedInfo.checkParentDimensions(
         )
     }
     if (expectedThicknessPx != null) {
-        Assert.assertEquals(
-            expectedThicknessPx,
-            parentThickness,
-            FINE_FLOAT_TOLERANCE
-        )
+        Assert.assertEquals(expectedThicknessPx, parentThickness, FINE_FLOAT_TOLERANCE)
     }
 }
 
@@ -184,22 +175,20 @@ internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wra
     ): Float {
         capturedInfo.parentStartAngleRadians = parentStartAngleRadians
         capturedInfo.parentSweepRadians = parentSweepRadians
-        return wrapped.angularPosition(
-            parentStartAngleRadians,
-            parentSweepRadians,
-            centerOffset
-        )
+        return wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
     }
 
-    override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) {
-        capturedInfo.lastLayoutInfo = layoutInfo
-        capturedInfo.layoutsCount++
-        placeIfNeeded()
-    }
+    override fun (Placeable.PlacementScope).placeIfNeeded() =
+        with(wrapped) {
+            capturedInfo.lastLayoutInfo = layoutInfo
+            capturedInfo.layoutsCount++
+            placeIfNeeded()
+        }
 
-    override fun DrawScope.draw() = with(wrapped) {
-        capturedInfo.lastLayoutInfo = layoutInfo
-        capturedInfo.drawCount++
-        draw()
-    }
+    override fun DrawScope.draw() =
+        with(wrapped) {
+            capturedInfo.lastLayoutInfo = layoutInfo
+            capturedInfo.drawCount++
+            draw()
+        }
 }

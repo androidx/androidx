@@ -63,17 +63,9 @@ fun TimeTextWithStatus() {
     val leadingTextStyle = TimeTextDefaults.timeTextStyle(color = MaterialTheme.colors.primary)
 
     TimeText(
-        startLinearContent = {
-            Text(
-                text = "ETA 12:48",
-                style = leadingTextStyle
-            )
-        },
+        startLinearContent = { Text(text = "ETA 12:48", style = leadingTextStyle) },
         startCurvedContent = {
-            curvedText(
-                text = "ETA 12:48",
-                style = CurvedTextStyle(leadingTextStyle)
-            )
+            curvedText(text = "ETA 12:48", style = CurvedTextStyle(leadingTextStyle))
         },
     )
 }
@@ -82,9 +74,10 @@ fun TimeTextWithStatus() {
 @Composable
 fun TimeTextWithFullDateAndTimeFormat() {
     TimeText(
-        timeSource = TimeTextDefaults.timeSource(
-            DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy-MM-dd hh:mm")
-        )
+        timeSource =
+            TimeTextDefaults.timeSource(
+                DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy-MM-dd hh:mm")
+            )
     )
 }
 
@@ -95,35 +88,39 @@ fun TimeTextAnimation() {
     val showTransition = updateTransition(showState)
 
     val time = 350
-    val animatedColor by showTransition.animateColor(label = "animatedColor",
-        transitionSpec = {
-            tween(time, easing =
-                when {
-                    false isTransitioningTo true ->
-                        // Fade In
-                        CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
-                    else ->
-                        // Fade Out
-                        CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                }
-            )
+    val animatedColor by
+        showTransition.animateColor(
+            label = "animatedColor",
+            transitionSpec = {
+                tween(
+                    time,
+                    easing =
+                        when {
+                            false isTransitioningTo true ->
+                                // Fade In
+                                CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+                            else ->
+                                // Fade Out
+                                CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+                        }
+                )
+            }
+        ) { state ->
+            when (state) {
+                true -> Color.White
+                false -> Color.Transparent
+            }
         }
-    ) { state ->
-        when (state) {
-            true -> Color.White
-            false -> Color.Transparent
+    val animateSize by
+        showTransition.animateFloat(
+            label = "animatedSize",
+            transitionSpec = { tween(time, easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)) }
+        ) { state ->
+            when (state) {
+                true -> 1f
+                false -> 0f
+            }
         }
-    }
-    val animateSize by showTransition.animateFloat(label = "animatedSize",
-        transitionSpec = {
-            tween(time, easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f))
-        }
-    ) { state ->
-        when (state) {
-            true -> 1f
-            false -> 0f
-        }
-    }
 
     val text = "Long text to animate"
 
@@ -137,10 +134,8 @@ fun TimeTextAnimation() {
     val linearAnimatedSize = animateSize * (linearSeparatorSize + linearTextSize)
     val linearSeparatorGap = linearAnimatedSize.coerceAtMost(linearSeparatorSize) / 2f
 
-    val textStyle = TimeTextDefaults.timeTextStyle().copy(
-        fontWeight = FontWeight.Normal,
-        color = animatedColor
-    )
+    val textStyle =
+        TimeTextDefaults.timeTextStyle().copy(fontWeight = FontWeight.Normal, color = animatedColor)
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         TimeText(
             // Curved
@@ -150,13 +145,16 @@ fun TimeTextAnimation() {
                 curvedColumn(modifier = CurvedModifier.angularSize(curvedSeparatorGap)) {}
             },
             startCurvedContent = {
-                curvedRow(modifier = CurvedModifier.sizeIn(maxSweepDegrees =
-                    (curvedAnimatedSweep - curvedSeparatorSweep).coerceAtLeast(0f))) {
+                curvedRow(
+                    modifier =
+                        CurvedModifier.sizeIn(
+                            maxSweepDegrees =
+                                (curvedAnimatedSweep - curvedSeparatorSweep).coerceAtLeast(0f)
+                        )
+                ) {
                     curvedText(
                         text,
-                        CurvedModifier.sizeIn(
-                            maxSweepDegrees = curvedTextSweep
-                        ),
+                        CurvedModifier.sizeIn(maxSweepDegrees = curvedTextSweep),
                         style = CurvedTextStyle(textStyle),
                         overflow = TextOverflow.Ellipsis
                     )
@@ -169,28 +167,25 @@ fun TimeTextAnimation() {
                 Spacer(modifier = Modifier.width(linearSeparatorGap))
             },
             startLinearContent = {
-                Box(modifier = Modifier
-                    .clipToBounds()
-                    .widthIn(
-                        max = (linearAnimatedSize - linearSeparatorSize).coerceAtLeast(0.dp)
-                    )) {
+                Box(
+                    modifier =
+                        Modifier.clipToBounds()
+                            .widthIn(
+                                max = (linearAnimatedSize - linearSeparatorSize).coerceAtLeast(0.dp)
+                            )
+                ) {
                     Text(
                         text,
                         maxLines = 1,
                         style = textStyle,
-                        modifier = Modifier
-                            .wrapContentWidth(
-                                align = Alignment.Start,
-                                unbounded = true
-                            )
-                            .widthIn(max = linearTextSize),
+                        modifier =
+                            Modifier.wrapContentWidth(align = Alignment.Start, unbounded = true)
+                                .widthIn(max = linearTextSize),
                         overflow = TextOverflow.Ellipsis
                     )
                 }
             },
         )
-        Button(onClick = { showState = !showState }) {
-            Text("Go!")
-        }
+        Button(onClick = { showState = !showState }) { Text("Go!") }
     }
 }

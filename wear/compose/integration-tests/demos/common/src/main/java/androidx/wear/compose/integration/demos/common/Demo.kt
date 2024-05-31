@@ -29,9 +29,7 @@ import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import kotlin.reflect.KClass
 
-/**
- * Generic demo with a [title] that will be displayed in the list of demos.
- */
+/** Generic demo with a [title] that will be displayed in the list of demos. */
 sealed class Demo(val title: String, val description: String? = null) {
     override fun toString() = title
 }
@@ -42,38 +40,33 @@ sealed class Demo(val title: String, val description: String? = null) {
  * This should only be used for demos that need to customize the activity, the large majority of
  * demos should just use [ComposableDemo] instead.
  *
- * @property activityClass the KClass (Foo::class) of the activity that will be launched when
- * this demo is selected.
+ * @property activityClass the KClass (Foo::class) of the activity that will be launched when this
+ *   demo is selected.
  */
-class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) :
+    Demo(title)
 
-/**
- * A category of [Demo]s, that will display a list of [demos] when selected.
- */
-class DemoCategory(
-    title: String,
-    val demos: List<Demo>
-) : Demo(title) {
+/** A category of [Demo]s, that will display a list of [demos] when selected. */
+class DemoCategory(title: String, val demos: List<Demo>) : Demo(title) {
     private var scrollState: ScalingLazyListState? = null
 
     @Composable
-    fun getScrollStateOrInit(factory: @Composable () -> ScalingLazyListState):
-        ScalingLazyListState {
+    fun getScrollStateOrInit(
+        factory: @Composable () -> ScalingLazyListState
+    ): ScalingLazyListState {
         return scrollState ?: (factory().also { scrollState = it })
     }
 }
 
-/**
- * Parameters which are used by [Demo] screens.
- */
+/** Parameters which are used by [Demo] screens. */
 class DemoParameters(
     val navigateBack: () -> Unit,
     val swipeToDismissBoxState: SwipeToDismissBoxState
 )
 
 /**
- * Demo that displays [Composable] [content] when selected,
- * with a method to navigate back to the parent.
+ * Demo that displays [Composable] [content] when selected, with a method to navigate back to the
+ * parent.
  */
 class ComposableDemo(
     title: String,

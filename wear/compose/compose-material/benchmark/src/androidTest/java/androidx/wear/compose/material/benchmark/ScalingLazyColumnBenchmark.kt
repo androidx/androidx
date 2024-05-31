@@ -37,15 +37,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose ScalingLazyColumn.
- */
+/** Benchmark for Wear Compose ScalingLazyColumn. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ScalingLazyColumnBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val scalingLazyColumnCaseFactory = { ScalingLazyColumnTestCase() }
 
@@ -89,22 +86,14 @@ internal class ScalingLazyColumnTestCase : LayeredComposeTestCase() {
     override fun MeasuredContent() {
         ScalingLazyColumn(
             state = rememberScalingLazyListState(),
-            modifier = Modifier.requiredSize(
-                itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
-            ),
+            modifier = Modifier.requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
         ) {
-            items(10) { it ->
-                Box(Modifier.requiredSize(itemSizeDp)) {
-                    Text(text = "Item $it")
-                }
-            }
+            items(10) { it -> Box(Modifier.requiredSize(itemSizeDp)) { Text(text = "Item $it") } }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

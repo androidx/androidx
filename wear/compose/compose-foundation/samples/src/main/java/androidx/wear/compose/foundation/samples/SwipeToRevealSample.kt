@@ -62,25 +62,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun SwipeToRevealSample() {
     SwipeToReveal(
-        modifier = Modifier.semantics {
-            // Use custom actions to make the primary and secondary actions accessible
-            customActions = listOf(
-                CustomAccessibilityAction("Delete") {
-                    /* Add the primary action click handler */
-                    true
-                }
-            )
-        },
+        modifier =
+            Modifier.semantics {
+                // Use custom actions to make the primary and secondary actions accessible
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction("Delete") {
+                            /* Add the primary action click handler */
+                            true
+                        }
+                    )
+            },
         primaryAction = {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { /* Add the primary action */ },
+                modifier = Modifier.fillMaxSize().clickable { /* Add the primary action */ },
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete"
-                )
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "Delete")
             }
         },
         undoAction = {
@@ -107,36 +104,31 @@ fun SwipeToRevealSample() {
 fun SwipeToRevealWithDelayedText() {
     val state = rememberRevealState()
     SwipeToReveal(
-        modifier = Modifier.semantics {
-            // Use custom actions to make the primary and secondary actions accessible
-            customActions = listOf(
-                CustomAccessibilityAction("Delete") {
-                    /* Add the primary action click handler */
-                    true
-                }
-            )
-        },
+        modifier =
+            Modifier.semantics {
+                // Use custom actions to make the primary and secondary actions accessible
+                customActions =
+                    listOf(
+                        CustomAccessibilityAction("Delete") {
+                            /* Add the primary action click handler */
+                            true
+                        }
+                    )
+            },
         state = state,
         primaryAction = {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable { /* Add the primary action */ },
+                modifier = Modifier.fillMaxSize().clickable { /* Add the primary action */ },
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete"
-                )
+                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "Delete")
                 if (abs(state.offset) > revealOffset) {
                     // Delay the text appearance so that it has enough space to be displayed
-                    val textAlpha = animateFloatAsState(
-                        targetValue = 1f,
-                        animationSpec = tween(
-                            durationMillis = 250,
-                            delayMillis = 250
-                        ),
-                        label = "PrimaryActionTextAlpha"
-                    )
+                    val textAlpha =
+                        animateFloatAsState(
+                            targetValue = 1f,
+                            animationSpec = tween(durationMillis = 250, delayMillis = 250),
+                            label = "PrimaryActionTextAlpha"
+                        )
                     Box(modifier = Modifier.graphicsLayer { alpha = textAlpha.value }) {
                         Spacer(Modifier.size(5.dp))
                         Text("Clear")
@@ -175,17 +167,9 @@ fun SwipeToRevealWithExpandables() {
     val actionShape = RoundedCornerShape(corner = CornerSize(percent = 50))
     val itemCount = 10
     val coroutineScope = rememberCoroutineScope()
-    val expandableStates = List(itemCount) {
-        rememberExpandableState(initiallyExpanded = true)
-    }
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
-            ListHeader {
-                Text("Scaling Lazy Column")
-            }
-        }
+    val expandableStates = List(itemCount) { rememberExpandableState(initiallyExpanded = true) }
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize()) {
+        item { ListHeader { Text("Scaling Lazy Column") } }
         repeat(itemCount) { current ->
             expandableItem(
                 state = expandableStates[current],
@@ -193,29 +177,31 @@ fun SwipeToRevealWithExpandables() {
                 val revealState = rememberRevealState()
                 if (isExpanded) {
                     SwipeToReveal(
-                        modifier = Modifier.semantics {
-                            // Use custom actions to make the primary and secondary actions
-                            // accessible
-                            customActions = listOf(
-                                CustomAccessibilityAction("Delete") {
-                                    coroutineScope.launch {
-                                        revealState.animateTo(RevealValue.Revealed)
-                                    }
-                                    true
-                                }
-                            )
-                        },
+                        modifier =
+                            Modifier.semantics {
+                                // Use custom actions to make the primary and secondary actions
+                                // accessible
+                                customActions =
+                                    listOf(
+                                        CustomAccessibilityAction("Delete") {
+                                            coroutineScope.launch {
+                                                revealState.animateTo(RevealValue.Revealed)
+                                            }
+                                            true
+                                        }
+                                    )
+                            },
                         state = revealState,
                         primaryAction = {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Red, actionShape)
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            revealState.animateTo(RevealValue.Revealed)
-                                        }
-                                    },
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .background(Color.Red, actionShape)
+                                        .clickable {
+                                            coroutineScope.launch {
+                                                revealState.animateTo(RevealValue.Revealed)
+                                            }
+                                        },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -226,10 +212,10 @@ fun SwipeToRevealWithExpandables() {
                         },
                         secondaryAction = {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Gray, actionShape)
-                                    .clickable { /* trigger the optional action */ },
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .background(Color.Gray, actionShape)
+                                        .clickable { /* trigger the optional action */ },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(

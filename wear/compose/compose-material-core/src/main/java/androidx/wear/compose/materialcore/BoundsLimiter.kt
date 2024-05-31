@@ -44,40 +44,37 @@ fun BoundsLimiter(
     offset: Density.() -> IntOffset,
     size: Density.() -> IntSize,
     modifier: Modifier = Modifier,
-    onSizeChanged: (IntSize) -> Unit = { },
+    onSizeChanged: (IntSize) -> Unit = {},
     content: @Composable BoxScope.() -> Unit
-) = Box(
-    modifier = Modifier
-        .fillMaxSize()
-        .onSizeChanged(onSizeChanged)
-        .absoluteOffset(offset),
-    contentAlignment = AbsoluteAlignment.TopLeft
-) {
-    // This Box has the position and size we need, so any modifiers passed in should be applied
-    // here. We set the size using a custom modifier (that passes the constraints transparently to
-    // the content), and add a negative offset to make the content believe is drawing at the top
-    // left (position 0, 0).
+) =
     Box(
-        modifier
-            .transparentSizeModifier(size)
-            .absoluteOffset { -offset() }, content = content,
+        modifier = Modifier.fillMaxSize().onSizeChanged(onSizeChanged).absoluteOffset(offset),
         contentAlignment = AbsoluteAlignment.TopLeft
-    )
-}
+    ) {
+        // This Box has the position and size we need, so any modifiers passed in should be applied
+        // here. We set the size using a custom modifier (that passes the constraints transparently
+        // to
+        // the content), and add a negative offset to make the content believe is drawing at the top
+        // left (position 0, 0).
+        Box(
+            modifier.transparentSizeModifier(size).absoluteOffset { -offset() },
+            content = content,
+            contentAlignment = AbsoluteAlignment.TopLeft
+        )
+    }
 
 // Sets the size of this element, but lets the child measure using the constraints
 // of the element containing this.
-private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then(
-    object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints
-        ): MeasureResult {
-            val placeable = measurable.measure(constraints)
-            val actualSize = size()
-            return layout(actualSize.width, actualSize.height) {
-                placeable.place(0, 0)
+private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier =
+    this.then(
+        object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints
+            ): MeasureResult {
+                val placeable = measurable.measure(constraints)
+                val actualSize = size()
+                return layout(actualSize.width, actualSize.height) { placeable.place(0, 0) }
             }
         }
-    }
-)
+    )

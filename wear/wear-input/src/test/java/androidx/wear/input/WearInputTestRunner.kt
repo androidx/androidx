@@ -25,16 +25,13 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
  *
  * It has instrumentation turned off for the [androidx.wear.input] package.
  *
- * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters
- * companion objects, constructors with default values for parameters, and data classes with
- * inline classes. We don't need shadowing of our classes because we want to use the actual
- * objects in our tests.
+ * Robolectric tries to instrument Kotlin classes, and it throws errors when it encounters companion
+ * objects, constructors with default values for parameters, and data classes with inline classes.
+ * We don't need shadowing of our classes because we want to use the actual objects in our tests.
  */
 class WearInputTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(
-            super.createClassLoaderConfig(method)
-        )
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
             .doNotInstrumentPackage("androidx.wear.input")
             .build()
 }

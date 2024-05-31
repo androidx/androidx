@@ -89,8 +89,7 @@ internal class HeadlessWatchFaceImpl(
                 "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
             ) {
                 it.previewReferenceInstant.toEpochMilli()
-            }
-                ?: 0
+            } ?: 0
         }
 
     override fun getComplicationState() =

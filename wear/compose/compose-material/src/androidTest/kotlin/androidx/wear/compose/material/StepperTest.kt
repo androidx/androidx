@@ -49,8 +49,7 @@ import org.junit.Rule
 import org.junit.Test
 
 public class StepperTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun supports_testtag() {
@@ -69,22 +68,24 @@ public class StepperTest {
     }
 
     @Test
-    public fun coerces_value_top_limit() = rule.setNewValueAndCheck(
-        range = 0f..10f,
-        steps = 4,
-        initialValue = 4f,
-        newValue = 20f,
-        expectedFinalValue = 10f
-    )
+    public fun coerces_value_top_limit() =
+        rule.setNewValueAndCheck(
+            range = 0f..10f,
+            steps = 4,
+            initialValue = 4f,
+            newValue = 20f,
+            expectedFinalValue = 10f
+        )
 
     @Test
-    public fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
-        range = 0f..10f,
-        steps = 4,
-        initialValue = 4f,
-        newValue = -20f,
-        expectedFinalValue = 0f
-    )
+    public fun coerces_value_lower_limit() =
+        rule.setNewValueAndCheck(
+            range = 0f..10f,
+            steps = 4,
+            initialValue = 4f,
+            newValue = -20f,
+            expectedFinalValue = 0f
+        )
 
     @Test(expected = IllegalArgumentException::class)
     public fun throws_when_steps_negative() {
@@ -100,34 +101,37 @@ public class StepperTest {
     }
 
     @Test
-    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
-        range = 0f..1f,
-        steps = 4,
-        initialValue = 0f,
-        // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
-        newValue = 0.6f,
-        expectedFinalValue = 0.6f
-    )
+    public fun coerce_value_exactly() =
+        rule.setNewValueAndCheck(
+            range = 0f..1f,
+            steps = 4,
+            initialValue = 0f,
+            // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
+            newValue = 0.6f,
+            expectedFinalValue = 0.6f
+        )
 
     @Test
-    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
-        range = 0f..1f,
-        steps = 4,
-        initialValue = 0f,
-        // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
-        newValue = 0.65f,
-        expectedFinalValue = 0.6f
-    )
+    public fun coerce_value_to_previous() =
+        rule.setNewValueAndCheck(
+            range = 0f..1f,
+            steps = 4,
+            initialValue = 0f,
+            // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
+            newValue = 0.65f,
+            expectedFinalValue = 0.6f
+        )
 
     @Test
-    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
-        range = 0f..1f,
-        steps = 4,
-        initialValue = 0f,
-        // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
-        newValue = 0.55f,
-        expectedFinalValue = 0.6f
-    )
+    public fun coerce_value_to_next() =
+        rule.setNewValueAndCheck(
+            range = 0f..1f,
+            steps = 4,
+            initialValue = 0f,
+            // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
+            newValue = 0.55f,
+            expectedFinalValue = 0.6f
+        )
 
     @Test
     public fun decreases_value_by_clicking_bottom() {
@@ -139,9 +143,7 @@ public class StepperTest {
         // The clickable area for a decrease button takes bottom 35% of the screen
         rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width / 2f, height - 15f)) }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(1f)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(1f) }
     }
 
     @Test
@@ -154,9 +156,7 @@ public class StepperTest {
         // The clickable area for an increase button takes top 35% of the screen
         rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width / 2f, 15f)) }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(3f)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(3f) }
     }
 
     @Test
@@ -170,9 +170,7 @@ public class StepperTest {
         // The clickable area for a decrease button takes bottom 35% of the screen
         rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width / 2f, height - 15f)) }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(1f)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(1f) }
     }
 
     @Test
@@ -186,9 +184,7 @@ public class StepperTest {
         // The clickable area for an increase button takes top 35% of the screen
         rule.onNodeWithTag(TEST_TAG).performTouchInput { click(Offset(width / 2f, 15f)) }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.value).isWithin(0.001f).of(4f)
-        }
+        rule.runOnIdle { Truth.assertThat(state.value).isWithin(0.001f).of(4f) }
     }
 
     @Test
@@ -228,7 +224,7 @@ public class StepperTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 0f,
                 steps = 5,
-                onValueChange = { },
+                onValueChange = {},
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = {
                     Icon(
@@ -242,11 +238,11 @@ public class StepperTest {
         val unclippedBoundsInRoot = rule.onRoot().getUnclippedBoundsInRoot()
 
         rule.waitForIdle()
-        rule.onNodeWithTag(iconTag, true)
+        rule
+            .onNodeWithTag(iconTag, true)
             .assertExists()
             .assertTopPositionInRootIsEqualTo(
-                unclippedBoundsInRoot.height -
-                    BorderVerticalMargin - DefaultIconHeight
+                unclippedBoundsInRoot.height - BorderVerticalMargin - DefaultIconHeight
             )
     }
 
@@ -259,7 +255,7 @@ public class StepperTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 0f,
                 steps = 5,
-                onValueChange = { },
+                onValueChange = {},
                 increaseIcon = {
                     Icon(
                         modifier = Modifier.testTag(iconTag),
@@ -271,7 +267,8 @@ public class StepperTest {
             ) {}
         }
         rule.waitForIdle()
-        rule.onNodeWithTag(iconTag, true)
+        rule
+            .onNodeWithTag(iconTag, true)
             .assertExists()
             .assertTopPositionInRootIsEqualTo(BorderVerticalMargin)
     }
@@ -287,7 +284,7 @@ public class StepperTest {
                 steps = 5,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
             ) {
                 Text("Testing", modifier = Modifier.testTag(contentTag).fillMaxHeight())
             }
@@ -296,7 +293,8 @@ public class StepperTest {
         val rootHeight = rule.onRoot().getUnclippedBoundsInRoot().height
 
         rule.waitForIdle()
-        rule.onNodeWithTag(contentTag, true)
+        rule
+            .onNodeWithTag(contentTag, true)
             .assertExists()
             .assertTopPositionInRootIsEqualTo(
                 // Position of the content is a weight(35%) of (top button minus 2 spacers 8dp each)
@@ -316,12 +314,13 @@ public class StepperTest {
                 steps = 5,
                 increaseIcon = { Icon(StepperDefaults.Increase, testContentDescription) },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                onValueChange = { },
+                onValueChange = {},
             ) {}
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             // 0 is the index of increase button, 1 - decrease button, content is empty
             .onChildAt(0)
             .onChild()
@@ -339,12 +338,13 @@ public class StepperTest {
                 steps = 5,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, testContentDescription) },
-                onValueChange = { },
+                onValueChange = {},
             ) {}
         }
 
         rule.waitForIdle()
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             // 0 is the index of increase button, 1 - decrease button, content is empty
             .onChildAt(1)
             .onChild()
@@ -365,14 +365,15 @@ public class StepperTest {
                 value = value,
                 steps = steps,
                 valueRange = valueRange,
-                onValueChange = { },
+                onValueChange = {},
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
             ) {}
         }
         rule.waitForIdle()
 
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             .assertExists()
             .assertRangeInfoEquals(ProgressBarRangeInfo(value, valueRange, steps))
     }
@@ -389,7 +390,7 @@ public class StepperTest {
                 value = value,
                 steps = steps,
                 valueRange = valueRange,
-                onValueChange = { },
+                onValueChange = {},
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 enableRangeSemantics = false
@@ -397,7 +398,8 @@ public class StepperTest {
         }
         rule.waitForIdle()
         // Should throw assertion error for assertRangeInfoEquals
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             .assertExists()
             .assertRangeInfoEquals(ProgressBarRangeInfo(value, valueRange, steps))
     }
@@ -445,8 +447,7 @@ public class StepperTest {
 }
 
 public class IntegerStepperTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     public fun supports_testtag() {
@@ -477,49 +478,53 @@ public class IntegerStepperTest {
             ) {}
         }
 
-        rule.onNodeWithTag(TEST_TAG)
-            .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..10f, 9))
+        rule.onNodeWithTag(TEST_TAG).assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..10f, 9))
     }
 
     @Test
-    public fun coerces_value_top_limit() = rule.setNewValueAndCheck(
-        progression = 0..10,
-        initialValue = 4,
-        newValue = 20,
-        expectedFinalValue = 10
-    )
+    public fun coerces_value_top_limit() =
+        rule.setNewValueAndCheck(
+            progression = 0..10,
+            initialValue = 4,
+            newValue = 20,
+            expectedFinalValue = 10
+        )
 
     @Test
-    public fun coerces_value_lower_limit() = rule.setNewValueAndCheck(
-        progression = 0..10,
-        initialValue = 4,
-        newValue = -20,
-        expectedFinalValue = 0
-    )
+    public fun coerces_value_lower_limit() =
+        rule.setNewValueAndCheck(
+            progression = 0..10,
+            initialValue = 4,
+            newValue = -20,
+            expectedFinalValue = 0
+        )
 
     @Test
-    public fun coerce_value_exactly() = rule.setNewValueAndCheck(
-        progression = IntProgression.fromClosedRange(0, 12, 3),
-        initialValue = 0,
-        newValue = 3,
-        expectedFinalValue = 3
-    )
+    public fun coerce_value_exactly() =
+        rule.setNewValueAndCheck(
+            progression = IntProgression.fromClosedRange(0, 12, 3),
+            initialValue = 0,
+            newValue = 3,
+            expectedFinalValue = 3
+        )
 
     @Test
-    public fun coerce_value_to_previous() = rule.setNewValueAndCheck(
-        progression = IntProgression.fromClosedRange(0, 12, 3),
-        initialValue = 0,
-        newValue = 4,
-        expectedFinalValue = 3
-    )
+    public fun coerce_value_to_previous() =
+        rule.setNewValueAndCheck(
+            progression = IntProgression.fromClosedRange(0, 12, 3),
+            initialValue = 0,
+            newValue = 4,
+            expectedFinalValue = 3
+        )
 
     @Test
-    public fun coerce_value_to_next() = rule.setNewValueAndCheck(
-        progression = IntProgression.fromClosedRange(0, 12, 3),
-        initialValue = 0,
-        newValue = 5,
-        expectedFinalValue = 6
-    )
+    public fun coerce_value_to_next() =
+        rule.setNewValueAndCheck(
+            progression = IntProgression.fromClosedRange(0, 12, 3),
+            initialValue = 0,
+            newValue = 5,
+            expectedFinalValue = 6
+        )
 
     @Test
     fun supports_stepper_range_semantics_by_default() {
@@ -538,7 +543,8 @@ public class IntegerStepperTest {
         }
         rule.waitForIdle()
         // Should throw assertion error for assertRangeInfoEquals
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             .assertExists()
             .assertRangeInfoEquals(
                 ProgressBarRangeInfo(
@@ -567,7 +573,8 @@ public class IntegerStepperTest {
         }
         rule.waitForIdle()
         // Should throw assertion error for assertRangeInfoEquals
-        rule.onNodeWithTag(TEST_TAG, true)
+        rule
+            .onNodeWithTag(TEST_TAG, true)
             .assertExists()
             .assertRangeInfoEquals(
                 ProgressBarRangeInfo(

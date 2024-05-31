@@ -35,15 +35,15 @@ import org.junit.Rule
 import org.junit.Test
 
 public class RepeatableClickableTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
     @Test
     fun touch_hold_shorter_than_threshold_performs_click() {
         var repeatableClickCounter = 0
         var clicked = false
 
-        boxWithRepeatableClickable(rule,
+        boxWithRepeatableClickable(
+            rule,
             holdDelay = INITIAL_DELAY / 2,
             onRepeatableClick = { repeatableClickCounter++ },
             onClick = { clicked = true }
@@ -57,7 +57,8 @@ public class RepeatableClickableTest {
         var repeatableClickCounter = 0
         var clicked = false
 
-        boxWithRepeatableClickable(rule,
+        boxWithRepeatableClickable(
+            rule,
             holdDelay = INITIAL_DELAY,
             onRepeatableClick = { repeatableClickCounter++ },
             onClick = { clicked = true }
@@ -71,7 +72,8 @@ public class RepeatableClickableTest {
         var repeatableClickCounter = 0
         var clicked = false
 
-        boxWithRepeatableClickable(rule,
+        boxWithRepeatableClickable(
+            rule,
             holdDelay = INITIAL_DELAY + INCREMENTAL_DELAY * 2,
             onRepeatableClick = { repeatableClickCounter++ },
             onClick = { clicked = true }
@@ -86,7 +88,8 @@ public class RepeatableClickableTest {
         var repeatableClickCounter = 0
         var clicked = false
 
-        boxWithRepeatableClickable(rule,
+        boxWithRepeatableClickable(
+            rule,
             holdDelay = INITIAL_DELAY,
             enabled = false,
             onRepeatableClick = { repeatableClickCounter++ },
@@ -102,7 +105,8 @@ public class RepeatableClickableTest {
         var repeatableClickCounter = 0
         var clicked = false
 
-        boxWithRepeatableClickable(rule,
+        boxWithRepeatableClickable(
+            rule,
             holdDelay = INITIAL_DELAY / 2,
             enabled = true,
             releaseOutsideOfBox = true,
@@ -125,24 +129,21 @@ public class RepeatableClickableTest {
         onRepeatableClick: () -> Unit
     ) {
         rule.setContent {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 Box(
-                    modifier = Modifier
-                        .testTag(TEST_TAG)
-                        .size(50.dp)
-                        .align(Alignment.Center)
-                        .repeatableClickable(
-                            enabled = enabled,
-                            initialDelay = initialDelay,
-                            incrementalDelay = incrementalDelay,
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = onClick,
-                            onRepeatableClick = onRepeatableClick
-                        )
+                    modifier =
+                        Modifier.testTag(TEST_TAG)
+                            .size(50.dp)
+                            .align(Alignment.Center)
+                            .repeatableClickable(
+                                enabled = enabled,
+                                initialDelay = initialDelay,
+                                incrementalDelay = incrementalDelay,
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = onClick,
+                                onRepeatableClick = onRepeatableClick
+                            )
                 ) {}
             }
         }

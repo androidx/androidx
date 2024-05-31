@@ -38,13 +38,10 @@ import org.junit.runners.Parameterized
 class ButtonBenchmark(private val buttonType: ButtonType) {
 
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = ButtonType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = ButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val buttonTestCaseFactory = { ButtonTestCase(buttonType) }
 
@@ -54,14 +51,11 @@ class ButtonBenchmark(private val buttonType: ButtonType) {
     }
 }
 
-internal class ButtonTestCase(
-    private val buttonType: ButtonType
-) : LayeredComposeTestCase() {
+internal class ButtonTestCase(private val buttonType: ButtonType) : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         when (buttonType) {
-            ButtonType.FilledButton ->
-                Button(onClick = { /* do something */ }) { Text("Button") }
+            ButtonType.FilledButton -> Button(onClick = { /* do something */ }) { Text("Button") }
             ButtonType.FilledTonalButton ->
                 FilledTonalButton(onClick = { /* do something */ }) { Text("Filled Tonal Button") }
             ButtonType.OutlinedButton ->
@@ -75,12 +69,14 @@ internal class ButtonTestCase(
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class ButtonType {
-    FilledButton, FilledTonalButton, OutlinedButton, ChildButton, CompactButton
+    FilledButton,
+    FilledTonalButton,
+    OutlinedButton,
+    ChildButton,
+    CompactButton
 }

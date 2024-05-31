@@ -154,7 +154,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             )
 
     class ExampleSharedAssets : Renderer.SharedAssets {
-        override fun onDestroy() { }
+        override fun onDestroy() {}
     }
 
     @OptIn(WatchFaceExperimental::class)
@@ -172,36 +172,37 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             watchState,
             FRAME_PERIOD_MS,
             // Try a config with 4x MSAA if supported and if necessary fall back to one without.
-            eglConfigAttribListList = listOf(
-                intArrayOf(
-                    EGL14.EGL_RENDERABLE_TYPE,
-                    EGL14.EGL_OPENGL_ES2_BIT,
-                    EGL14.EGL_RED_SIZE,
-                    8,
-                    EGL14.EGL_GREEN_SIZE,
-                    8,
-                    EGL14.EGL_BLUE_SIZE,
-                    8,
-                    EGL14.EGL_ALPHA_SIZE,
-                    8,
-                    EGL14.EGL_SAMPLES, // 4x MSAA (anti-aliasing)
-                    4,
-                    EGL14.EGL_NONE
+            eglConfigAttribListList =
+                listOf(
+                    intArrayOf(
+                        EGL14.EGL_RENDERABLE_TYPE,
+                        EGL14.EGL_OPENGL_ES2_BIT,
+                        EGL14.EGL_RED_SIZE,
+                        8,
+                        EGL14.EGL_GREEN_SIZE,
+                        8,
+                        EGL14.EGL_BLUE_SIZE,
+                        8,
+                        EGL14.EGL_ALPHA_SIZE,
+                        8,
+                        EGL14.EGL_SAMPLES, // 4x MSAA (anti-aliasing)
+                        4,
+                        EGL14.EGL_NONE
+                    ),
+                    intArrayOf(
+                        EGL14.EGL_RENDERABLE_TYPE,
+                        EGL14.EGL_OPENGL_ES2_BIT,
+                        EGL14.EGL_RED_SIZE,
+                        8,
+                        EGL14.EGL_GREEN_SIZE,
+                        8,
+                        EGL14.EGL_BLUE_SIZE,
+                        8,
+                        EGL14.EGL_ALPHA_SIZE,
+                        8,
+                        EGL14.EGL_NONE
+                    )
                 ),
-                intArrayOf(
-                    EGL14.EGL_RENDERABLE_TYPE,
-                    EGL14.EGL_OPENGL_ES2_BIT,
-                    EGL14.EGL_RED_SIZE,
-                    8,
-                    EGL14.EGL_GREEN_SIZE,
-                    8,
-                    EGL14.EGL_BLUE_SIZE,
-                    8,
-                    EGL14.EGL_ALPHA_SIZE,
-                    8,
-                    EGL14.EGL_NONE
-                )
-            ),
             eglSurfaceAttribList = intArrayOf(EGL14.EGL_NONE),
             eglContextAttribList = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE)
         ) {

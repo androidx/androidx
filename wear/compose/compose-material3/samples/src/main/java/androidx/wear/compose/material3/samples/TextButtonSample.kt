@@ -28,9 +28,7 @@ import androidx.wear.compose.material3.TextButtonDefaults
 @Composable
 @Sampled
 fun TextButtonSample() {
-    TextButton(onClick = { /* Do something */ }) {
-        Text(text = "ABC")
-    }
+    TextButton(onClick = { /* Do something */ }) { Text(text = "ABC") }
 }
 
 @Composable

@@ -53,22 +53,17 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ProgressIndicatorScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun progress_indicator_fullscreen() = verifyScreenshot {
         CircularProgressIndicator(
             progress = { 0.25f },
-            modifier = Modifier
-                .aspectRatio(1f)
-                .testTag(TEST_TAG),
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
             startAngle = 120f,
             endAngle = 60f,
         )
@@ -78,15 +73,14 @@ class ProgressIndicatorScreenshotTest {
     fun progress_indicator_custom_color() = verifyScreenshot {
         CircularProgressIndicator(
             progress = { 0.75f },
-            modifier = Modifier
-                .size(200.dp)
-                .testTag(TEST_TAG),
+            modifier = Modifier.size(200.dp).testTag(TEST_TAG),
             startAngle = 120f,
             endAngle = 60f,
-            colors = ProgressIndicatorDefaults.colors(
-                indicatorColor = Color.Green,
-                trackColor = Color.Red.copy(alpha = 0.5f)
-            )
+            colors =
+                ProgressIndicatorDefaults.colors(
+                    indicatorColor = Color.Green,
+                    trackColor = Color.Red.copy(alpha = 0.5f)
+                )
         )
     }
 
@@ -94,18 +88,18 @@ class ProgressIndicatorScreenshotTest {
     fun progress_indicator_wrapping_media_button() = verifyScreenshot {
         val progressPadding = 4.dp
         Box(
-            modifier = Modifier
-                .size(IconButtonDefaults.DefaultButtonSize + progressPadding)
-                .testTag(TEST_TAG)
+            modifier =
+                Modifier.size(IconButtonDefaults.DefaultButtonSize + progressPadding)
+                    .testTag(TEST_TAG)
         ) {
             CircularProgressIndicator(progress = { 0.75f }, strokeWidth = progressPadding)
             IconButton(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(progressPadding)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceContainer),
-                onClick = { }
+                modifier =
+                    Modifier.align(Alignment.Center)
+                        .padding(progressPadding)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                onClick = {}
             ) {
                 Icon(
                     imageVector = Icons.Filled.PlayArrow,
@@ -119,19 +113,19 @@ class ProgressIndicatorScreenshotTest {
     fun progress_indicator_overflow() = verifyScreenshot {
         CircularProgressIndicator(
             progress = { 0.2f },
-            modifier = Modifier
-                .aspectRatio(1f)
-                .testTag(TEST_TAG),
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
             startAngle = 120f,
             endAngle = 60f,
-            colors = ProgressIndicatorDefaults.colors(
-                trackBrush = Brush.linearGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.surfaceContainer,
-                        MaterialTheme.colorScheme.primary
-                    )
+            colors =
+                ProgressIndicatorDefaults.colors(
+                    trackBrush =
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.surfaceContainer,
+                                MaterialTheme.colorScheme.primary
+                            )
+                        )
                 )
-            )
         )
     }
 
@@ -143,7 +137,8 @@ class ProgressIndicatorScreenshotTest {
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

@@ -79,13 +79,16 @@ public class TileUiClient(
             context = context,
             componentName = component,
             coroutineScope = coroutineScope,
-            coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+            coroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        )
 
     private var timelineManager: TilesTimelineManager? = null
     private var tileResources: ResourceBuilders.Resources? = null
     private val updateScheduler =
         UpdateScheduler(
-            context.getSystemService(AlarmManager::class.java), SystemClock::elapsedRealtime)
+            context.getSystemService(AlarmManager::class.java),
+            SystemClock::elapsedRealtime
+        )
 
     private val updateReceiver =
         object : BroadcastReceiver() {
@@ -170,9 +173,10 @@ public class TileUiClient(
                     System::currentTimeMillis,
                     tile.tileTimeline ?: TimelineBuilders.Timeline.Builder().build(),
                     0,
-                    ContextCompat.getMainExecutor(context)) { _, layout ->
-                        coroutineScope.launch { updateContents(layout) }
-                    }
+                    ContextCompat.getMainExecutor(context)
+                ) { _, layout ->
+                    coroutineScope.launch { updateContents(layout) }
+                }
             timelineManager = localTimelineManager
 
             val freshnessInterval = tile.freshnessIntervalMillis
@@ -214,7 +218,8 @@ public class TileUiClient(
             .setScreenDensity(displayMetrics.density)
             .setScreenShape(
                 if (isScreenRound) DeviceParametersBuilders.SCREEN_SHAPE_ROUND
-                else DeviceParametersBuilders.SCREEN_SHAPE_RECT)
+                else DeviceParametersBuilders.SCREEN_SHAPE_RECT
+            )
             .setDevicePlatform(DeviceParametersBuilders.DEVICE_PLATFORM_WEAR_OS)
             .build()
     }

@@ -41,39 +41,24 @@ fun ExpandableWithItemsSample() {
     val expandableState = rememberExpandableState()
 
     val sampleItem: @Composable (String) -> Unit = { label ->
-        Chip(
-            label = { Text(label) },
-            onClick = { },
-            secondaryLabel = { Text("line 2 - Secondary") }
-        )
+        Chip(label = { Text(label) }, onClick = {}, secondaryLabel = { Text("line 2 - Secondary") })
     }
 
     val items = List(10) { "Item $it" }
     val top = items.take(3)
     val rest = items.drop(3)
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(top.size) {
-            sampleItem(top[it])
-        }
-        expandableItems(expandableState, rest.size) {
-            sampleItem(rest[it])
-        }
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(top.size) { sampleItem(top[it]) }
+        expandableItems(expandableState, rest.size) { sampleItem(rest[it]) }
         expandableButton(expandableState) {
             OutlinedCompactChip(
                 label = {
                     Text("Show More")
                     Spacer(Modifier.size(6.dp))
-                    Icon(
-                        painterResource(R.drawable.ic_expand_more_24),
-                        "Expand"
-                    )
+                    Icon(painterResource(R.drawable.ic_expand_more_24), "Expand")
                 },
-                onClick = {
-                    expandableState.expanded = true
-                }
+                onClick = { expandableState.expanded = true }
             )
         }
     }
@@ -84,9 +69,7 @@ fun ExpandableWithItemsSample() {
 fun ExpandableTextSample() {
     val expandableState = rememberExpandableState()
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize()) {
         expandableItem(expandableState) { expanded ->
             Text(
                 "Account Alert: you have made a large purchase.\n" +
@@ -105,10 +88,7 @@ fun ExpandableTextSample() {
                 label = {
                     Text("Show More")
                     Spacer(Modifier.size(6.dp))
-                    Icon(
-                        painterResource(R.drawable.ic_expand_more_24),
-                        "Expand"
-                    )
+                    Icon(painterResource(R.drawable.ic_expand_more_24), "Expand")
                 },
                 onClick = { expandableState.expanded = true }
             )

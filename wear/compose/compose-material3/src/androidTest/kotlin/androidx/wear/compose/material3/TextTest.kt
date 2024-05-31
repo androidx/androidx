@@ -43,20 +43,20 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class TextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    private val ExpectedTextStyle = TextStyle(
-        color = Color.Red,
-        fontSize = 32.sp,
-        fontStyle = FontStyle.Italic,
-        fontWeight = FontWeight.Normal,
-        fontFamily = FontFamily.Default,
-        letterSpacing = 1.sp,
-        textDecoration = TextDecoration.Underline,
-        textAlign = TextAlign.End,
-        lineHeight = 10.sp,
-    )
+    private val ExpectedTextStyle =
+        TextStyle(
+            color = Color.Red,
+            fontSize = 32.sp,
+            fontStyle = FontStyle.Italic,
+            fontWeight = FontWeight.Normal,
+            fontFamily = FontFamily.Default,
+            letterSpacing = 1.sp,
+            textDecoration = TextDecoration.Underline,
+            textAlign = TextAlign.End,
+            lineHeight = 10.sp,
+        )
 
     private val TestText = "TestText"
 
@@ -71,13 +71,11 @@ class TextTest {
             }
         }
 
-        assertThat(
-            localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
-        ).isEqualTo(false)
+        assertThat(localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding)
+            .isEqualTo(false)
 
-        assertThat(
-            displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
-        ).isEqualTo(false)
+        assertThat(displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding)
+            .isEqualTo(false)
     }
 
     @Test
@@ -92,47 +90,30 @@ class TextTest {
                         "Lorem ipsum",
                         minLines = 1,
                         maxLines = 3,
-                        onTextLayout = {
-                            size1 = it.size.height
-                        }
+                        onTextLayout = { size1 = it.size.height }
                     )
 
                     Text(
                         "Lorem ipsum",
                         minLines = 2,
                         maxLines = 3,
-                        onTextLayout = {
-                            size2 = it.size.height
-                        }
+                        onTextLayout = { size2 = it.size.height }
                     )
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(size2).isGreaterThan(size1)
-        }
+        rule.runOnIdle { assertThat(size2).isGreaterThan(size1) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun validateMinLinesGreaterThanZero() {
-        rule.setContent {
-            Text(
-                TestText,
-                minLines = 0
-            )
-        }
+        rule.setContent { Text(TestText, minLines = 0) }
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun validateMaxLinesGreaterThanMinLines() {
-        rule.setContent {
-            Text(
-                TestText,
-                minLines = 2,
-                maxLines = 1
-            )
-        }
+        rule.setContent { Text(TestText, minLines = 2, maxLines = 1) }
     }
 
     @Test
@@ -147,18 +128,14 @@ class TextTest {
                         Text(
                             TestText,
                             color = expectedColor,
-                            onTextLayout = {
-                                textColor = it.layoutInput.style.color
-                            }
+                            onTextLayout = { textColor = it.layoutInput.style.color }
                         )
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(textColor).isEqualTo(expectedColor)
-        }
+        rule.runOnIdle { assertThat(textColor).isEqualTo(expectedColor) }
     }
 
     @Test
@@ -169,20 +146,13 @@ class TextTest {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 ProvideTextStyle(ExpectedTextStyle) {
                     Box(Modifier.background(Color.White)) {
-                        Text(
-                            TestText,
-                            onTextLayout = {
-                                textColor = it.layoutInput.style.color
-                            }
-                        )
+                        Text(TestText, onTextLayout = { textColor = it.layoutInput.style.color })
                     }
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
-        }
+        rule.runOnIdle { assertThat(textColor).isEqualTo(ExpectedTextStyle.color) }
     }
 
     @Test
@@ -192,19 +162,12 @@ class TextTest {
         rule.setContent {
             CompositionLocalProvider(LocalContentColor provides Color.Blue) {
                 Box(Modifier.background(Color.White)) {
-                    Text(
-                        TestText,
-                        onTextLayout = {
-                            textColor = it.layoutInput.style.color
-                        }
-                    )
+                    Text(TestText, onTextLayout = { textColor = it.layoutInput.style.color })
                 }
             }
         }
 
-        rule.runOnIdle {
-            assertThat(textColor).isEqualTo(Color.Blue)
-        }
+        rule.runOnIdle { assertThat(textColor).isEqualTo(Color.Blue) }
     }
 
     @Test

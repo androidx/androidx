@@ -18,36 +18,26 @@ package androidx.wear.compose.foundation.rotary
 
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 
-/**
- * A wrapper around VelocityTracker1D to provide support for rotary input.
- */
+/** A wrapper around VelocityTracker1D to provide support for rotary input. */
 internal class RotaryVelocityTracker {
     private var velocityTracker: VelocityTracker1D = VelocityTracker1D(true)
 
-    /**
-     * Retrieve the last computed velocity.
-     */
+    /** Retrieve the last computed velocity. */
     val velocity: Float
         get() = velocityTracker.calculateVelocity()
 
-    /**
-     * Start tracking motion.
-     */
+    /** Start tracking motion. */
     fun start(currentTime: Long) {
         velocityTracker.resetTracking()
         velocityTracker.addDataPoint(currentTime, 0f)
     }
 
-    /**
-     * Continue tracking motion as the input rotates.
-     */
+    /** Continue tracking motion as the input rotates. */
     fun move(currentTime: Long, delta: Float) {
         velocityTracker.addDataPoint(currentTime, delta)
     }
 
-    /**
-     * Stop tracking motion.
-     */
+    /** Stop tracking motion. */
     fun end() {
         velocityTracker.resetTracking()
     }

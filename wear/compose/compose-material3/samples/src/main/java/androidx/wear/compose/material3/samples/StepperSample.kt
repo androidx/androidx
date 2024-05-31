@@ -42,7 +42,9 @@ fun StepperSample() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 7
-    ) { Text("Value: $value") }
+    ) {
+        Text("Value: $value")
+    }
 }
 
 @Sampled
@@ -56,7 +58,9 @@ fun StepperWithIntegerSample() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         valueProgression = 1..10
-    ) { Text("Value: $value") }
+    ) {
+        Text("Value: $value")
+    }
 }
 
 @Sampled
@@ -76,5 +80,7 @@ fun StepperWithRangeSemanticsSample() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = steps,
-    ) { Text("Value: $value") }
+    ) {
+        Text("Value: $value")
+    }
 }

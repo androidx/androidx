@@ -77,8 +77,6 @@ internal class ImageWithScrimPainter(
             "scrimAlpha=$scrimAlpha)"
     }
 
-    /**
-     * Size of the combined painter, return Unspecified to allow us to fill the available space
-     */
+    /** Size of the combined painter, return Unspecified to allow us to fill the available space */
     override val intrinsicSize: Size = imagePainter.intrinsicSize
 }

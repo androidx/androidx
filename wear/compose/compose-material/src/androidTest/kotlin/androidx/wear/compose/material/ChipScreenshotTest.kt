@@ -51,90 +51,86 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ChipScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
-    @Test
-    fun chip_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleChip()
-    }
+    @Test fun chip_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { sampleChip() }
+
+    @Test fun chip_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleChip() }
 
     @Test
-    fun chip_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleChip()
-    }
+    fun chip_secondary_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleChip(colors = ChipDefaults.secondaryChipColors())
+        }
 
     @Test
-    fun chip_secondary_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleChip(colors = ChipDefaults.secondaryChipColors())
-    }
+    fun chip_secondary_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleChip(colors = ChipDefaults.secondaryChipColors())
+        }
 
     @Test
-    fun chip_secondary_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleChip(colors = ChipDefaults.secondaryChipColors())
-    }
+    fun chip_multiline_text() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleChip(
+                label = "Long label to show truncation which does not fit into 1 line",
+                secondaryLabel =
+                    "Long secondary label that will not fit on one single lines and " +
+                        "flows onto another line"
+            )
+        }
 
     @Test
-    fun chip_multiline_text() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+    fun chip_outlined_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { sampleOutlinedChip() }
+
+    @Test
+    fun chip_outlined_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleOutlinedChip() }
+
+    @Test
+    fun chip_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { sampleChip(enabled = false) }
+
+    @Test
+    fun chip_gradient_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleChip(colors = ChipDefaults.gradientBackgroundChipColors())
+        }
+
+    @Test
+    fun chip_gradient_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            sampleChip(colors = ChipDefaults.gradientBackgroundChipColors())
+        }
+
+    @Test
+    fun chip_image_background() = verifyScreenshot {
         sampleChip(
-            label = "Long label to show truncation which does not fit into 1 line",
-            secondaryLabel =
-                "Long secondary label that will not fit on one single lines and " +
-                "flows onto another line"
+            colors =
+                ChipDefaults.imageBackgroundChipColors(
+                    backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
+                )
         )
     }
 
     @Test
-    fun chip_outlined_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleOutlinedChip()
-    }
+    fun compact_chip_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { sampleCompactChip() }
 
     @Test
-    fun chip_outlined_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleOutlinedChip()
-    }
+    fun compact_chip_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { sampleCompactChip() }
 
     @Test
-    fun chip_disabled() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleChip(enabled = false)
-    }
-
-    @Test
-    fun chip_gradient_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleChip(colors = ChipDefaults.gradientBackgroundChipColors())
-    }
-
-    @Test
-    fun chip_gradient_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleChip(colors = ChipDefaults.gradientBackgroundChipColors())
-    }
-
-    @Test
-    fun chip_image_background() = verifyScreenshot {
-        sampleChip(colors = ChipDefaults.imageBackgroundChipColors(
-            backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)))
-    }
-
-    @Test
-    fun compact_chip_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleCompactChip()
-    }
-
-    @Test
-    fun compact_chip_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        sampleCompactChip()
-    }
-
-    @Test
-    fun compact_chip_disabled() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        sampleCompactChip(enabled = false)
-    }
+    fun compact_chip_disabled() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            sampleCompactChip(enabled = false)
+        }
 
     @Composable
     private fun sampleChip(
@@ -186,12 +182,11 @@ class ChipScreenshotTest {
         content: @Composable () -> Unit
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                content()
-            }
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

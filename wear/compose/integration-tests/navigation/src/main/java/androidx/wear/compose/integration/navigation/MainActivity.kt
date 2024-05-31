@@ -103,13 +103,15 @@ class MainActivity : ComponentActivity() {
                         val horizontalScrollState = rememberScrollState(0)
                         Box(modifier = Modifier.fillMaxSize()) {
                             Text(
-                                modifier = Modifier.align(Alignment.Center)
-                                    .edgeSwipeToDismiss(swipeToDismissBoxState)
-                                    .horizontalScroll(horizontalScrollState),
-                                text = "This text can be scrolled horizontally - " +
-                                    "to dismiss, swipe " +
-                                    "right from the left edge of the screen" +
-                                    " (called Edge Swiping)",
+                                modifier =
+                                    Modifier.align(Alignment.Center)
+                                        .edgeSwipeToDismiss(swipeToDismissBoxState)
+                                        .horizontalScroll(horizontalScrollState),
+                                text =
+                                    "This text can be scrolled horizontally - " +
+                                        "to dismiss, swipe " +
+                                        "right from the left edge of the screen" +
+                                        " (called Edge Swiping)",
                             )
                         }
                     }

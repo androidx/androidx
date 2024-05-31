@@ -47,14 +47,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 public class StepperScreenshotTest {
-    @get:Rule
-    public val rule = createComposeRule()
+    @get:Rule public val rule = createComposeRule()
 
-    @get:Rule
-    public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule public val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    public val testName = TestName()
+    @get:Rule public val testName = TestName()
 
     @Test
     public fun stepper_no_content() {
@@ -69,7 +66,8 @@ public class StepperScreenshotTest {
             ) {}
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -82,22 +80,15 @@ public class StepperScreenshotTest {
                 value = 2f,
                 steps = 3,
                 onValueChange = {},
-                decreaseIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = ""
-                    )
-                },
+                decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
                 increaseIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.ThumbUp,
-                        contentDescription = ""
-                    )
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
             ) {}
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -117,17 +108,13 @@ public class StepperScreenshotTest {
                     onClick = {},
                     modifier = Modifier.width(146.dp),
                     colors = ChipDefaults.secondaryChipColors(),
-                    label = {
-                        Text(
-                            text = "Demo",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) }
                 )
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -150,7 +137,8 @@ public class StepperScreenshotTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }
@@ -159,9 +147,5 @@ public class StepperScreenshotTest {
 private fun ComposeContentTestRule.setContentWithThemeAndBackground(
     composable: @Composable () -> Unit
 ) {
-    setContentWithTheme {
-        Box(modifier = Modifier.background(Color.Black)) {
-            composable()
-        }
-    }
+    setContentWithTheme { Box(modifier = Modifier.background(Color.Black)) { composable() } }
 }

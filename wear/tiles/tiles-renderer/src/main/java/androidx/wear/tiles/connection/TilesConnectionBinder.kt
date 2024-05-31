@@ -77,44 +77,41 @@ internal class TilesConnectionBinder(
      * Bind to the tile provider, if needed, then call the given coroutine, passing the tile
      * provider to it.
      */
-    suspend fun <T> runWithTilesConnection(
-        fn: suspend CoroutineScope.(TileProvider) -> T
-    ): T = coroutineScope {
-        // Cache the original context, then use withContext to dispatch fn on it. The alternative is
-        // to update mRefCnt in a withContext(mDispatcher), then putting the rest of the function
-        // in a try/finally, which itself uses withContext to call getBinder/releaseBinder and
-        // decrement mRefCnt again.
-        val originalContext = coroutineContext
-        withContext(backgroundCoroutineDispatcher) {
-            activeCoroutines++
+    suspend fun <T> runWithTilesConnection(fn: suspend CoroutineScope.(TileProvider) -> T): T =
+        coroutineScope {
+            // Cache the original context, then use withContext to dispatch fn on it. The
+            // alternative is
+            // to update mRefCnt in a withContext(mDispatcher), then putting the rest of the
+            // function
+            // in a try/finally, which itself uses withContext to call getBinder/releaseBinder and
+            // decrement mRefCnt again.
+            val originalContext = coroutineContext
+            withContext(backgroundCoroutineDispatcher) {
+                activeCoroutines++
 
-            try {
-                if (activeCoroutines == 1) {
-                    cancelBinderRelease()
-                }
+                try {
+                    if (activeCoroutines == 1) {
+                        cancelBinderRelease()
+                    }
 
-                val binder = getBinder()
+                    val binder = getBinder()
 
-                withContext(originalContext) {
-                    fn(binder)
-                }
-            } finally {
-                activeCoroutines--
-                if (activeCoroutines == 0) {
-                    scheduleBinderRelease()
+                    withContext(originalContext) { fn(binder) }
+                } finally {
+                    activeCoroutines--
+                    if (activeCoroutines == 0) {
+                        scheduleBinderRelease()
+                    }
                 }
             }
         }
-    }
 
     /**
-     * Run cleanup tasks. This should be called when the given coroutine scope is being
-     * destroyed, as that will also cancel the cleanup task.
+     * Run cleanup tasks. This should be called when the given coroutine scope is being destroyed,
+     * as that will also cancel the cleanup task.
      */
     suspend fun cleanUp() {
-        withContext(backgroundCoroutineDispatcher) {
-            disconnectFromService()
-        }
+        withContext(backgroundCoroutineDispatcher) { disconnectFromService() }
     }
 
     /**
@@ -133,31 +130,35 @@ internal class TilesConnectionBinder(
     }
 
     private suspend fun connectToService(): TileProvider = coroutineScope {
-        val bindJob = async(backgroundCoroutineDispatcher) {
-            suspendCancellableCoroutine<TileProvider> { continuation ->
-                val bindIntent = Intent(TileService.ACTION_BIND_TILE_PROVIDER)
-                bindIntent.component = componentName
+        val bindJob =
+            async(backgroundCoroutineDispatcher) {
+                suspendCancellableCoroutine<TileProvider> { continuation ->
+                    val bindIntent = Intent(TileService.ACTION_BIND_TILE_PROVIDER)
+                    bindIntent.component = componentName
 
-                val myConnection = object : ServiceConnection {
-                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                        val boundTileProvider = TileProvider.Stub.asInterface(service)
-                        continuation.resume(boundTileProvider)
-                    }
+                    val myConnection =
+                        object : ServiceConnection {
+                            override fun onServiceConnected(
+                                name: ComponentName?,
+                                service: IBinder?
+                            ) {
+                                val boundTileProvider = TileProvider.Stub.asInterface(service)
+                                continuation.resume(boundTileProvider)
+                            }
 
-                    override fun onServiceDisconnected(name: ComponentName?) {
-                        // This is called when the remote side hangs up, but will be dispatched
-                        // from an unknown thread. Ignore it for now.
-                    }
-                }
+                            override fun onServiceDisconnected(name: ComponentName?) {
+                                // This is called when the remote side hangs up, but will be
+                                // dispatched
+                                // from an unknown thread. Ignore it for now.
+                            }
+                        }
 
-                connection = myConnection
-                context.bindService(bindIntent, myConnection, Context.BIND_AUTO_CREATE)
+                    connection = myConnection
+                    context.bindService(bindIntent, myConnection, Context.BIND_AUTO_CREATE)
 
-                continuation.invokeOnCancellation {
-                    disconnectFromService()
+                    continuation.invokeOnCancellation { disconnectFromService() }
                 }
             }
-        }
 
         connectBinderJob = bindJob
 
@@ -179,14 +180,15 @@ internal class TilesConnectionBinder(
     }
 
     private fun scheduleBinderRelease() {
-        releaseBinderJob = coroutineScope.launch(backgroundCoroutineDispatcher) {
-            delay(INACTIVITY_TIMEOUT_MILLIS)
+        releaseBinderJob =
+            coroutineScope.launch(backgroundCoroutineDispatcher) {
+                delay(INACTIVITY_TIMEOUT_MILLIS)
 
-            // Only run the unbind if we didn't get cancelled.
-            if (isActive) {
-                disconnectFromService()
+                // Only run the unbind if we didn't get cancelled.
+                if (isActive) {
+                    disconnectFromService()
+                }
             }
-        }
     }
 
     private suspend fun cancelBinderRelease() {

@@ -39,8 +39,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class PickerGroupTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_test_tag() {
@@ -62,9 +61,8 @@ class PickerGroupTest {
         rule.setContentWithTheme {
             PickerGroup(
                 pickers = getPickerColumns(2),
-                pickerGroupState = rememberPickerGroupState(initiallySelectedColumn).also {
-                    pickerGroupState = it
-                }
+                pickerGroupState =
+                    rememberPickerGroupState(initiallySelectedColumn).also { pickerGroupState = it }
             )
         }
 
@@ -87,14 +85,13 @@ class PickerGroupTest {
 
         rule.onNodeWithText("2").assertExists()
     }
+
     @Test
     fun pickers_are_added_to_picker_group() {
         val pickerColumnZero = getPickerColumnWithTag(TEST_TAG_1)
         val pickerColumnOne = getPickerColumnWithTag(TEST_TAG_2)
 
-        rule.setContentWithTheme {
-            PickerGroup(pickerColumnZero, pickerColumnOne)
-        }
+        rule.setContentWithTheme { PickerGroup(pickerColumnZero, pickerColumnOne) }
 
         rule.onNodeWithTag(TEST_TAG_1).assertExists()
         rule.onNodeWithTag(TEST_TAG_2).assertExists()
@@ -124,16 +121,14 @@ class PickerGroupTest {
         assertThat(pickerGroupState.selectedIndex).isEqualTo(1)
     }
 
-    private fun getPickerColumns(count: Int): Array<PickerGroupItem> = Array(count) {
-        PickerGroupItem(pickerState = PickerState(10)) { _: Int, _: Boolean ->
-            Box(modifier = Modifier.size(20.dp))
+    private fun getPickerColumns(count: Int): Array<PickerGroupItem> =
+        Array(count) {
+            PickerGroupItem(pickerState = PickerState(10)) { _: Int, _: Boolean ->
+                Box(modifier = Modifier.size(20.dp))
+            }
         }
-    }
 
-    private fun getPickerColumnWithTag(
-        tag: String,
-        onSelected: () -> Unit = {}
-    ): PickerGroupItem {
+    private fun getPickerColumnWithTag(tag: String, onSelected: () -> Unit = {}): PickerGroupItem {
         return PickerGroupItem(
             pickerState = PickerState(10),
             modifier = Modifier.testTag(tag),

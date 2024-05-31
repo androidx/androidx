@@ -213,7 +213,7 @@ public class SystemDataSources private constructor() {
          * [ComplicationType.ICON] too since OEMs may choose to serve a shortcut to their health app
          * instead of the live value.
          *
-         *  Starting in Wear OS 5, this complication data source can only be configured with
+         * Starting in Wear OS 5, this complication data source can only be configured with
          * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
          * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
          * type may or may not be available.

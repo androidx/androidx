@@ -39,8 +39,7 @@ class TextToggleButtonBenchmark(private val type: TextToggleButtonType) {
         fun parameters() = TextToggleButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { TextToggleButtonTestCase(type) }
 
@@ -50,34 +49,25 @@ class TextToggleButtonBenchmark(private val type: TextToggleButtonType) {
     }
 }
 
-internal class TextToggleButtonTestCase(
-    private val type: TextToggleButtonType
-) : LayeredComposeTestCase() {
+internal class TextToggleButtonTestCase(private val type: TextToggleButtonType) :
+    LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         when (type) {
             TextToggleButtonType.TextToggleButtonOn ->
-                TextToggleButton(
-                    checked = true,
-                    onCheckedChange = {}
-                ) { Text("On") }
-
+                TextToggleButton(checked = true, onCheckedChange = {}) { Text("On") }
             TextToggleButtonType.TextToggleButtonOff ->
-                TextToggleButton(
-                    checked = false,
-                    onCheckedChange = {}
-                ) { Text("Off") }
+                TextToggleButton(checked = false, onCheckedChange = {}) { Text("Off") }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class TextToggleButtonType {
-    TextToggleButtonOn, TextToggleButtonOff
+    TextToggleButtonOn,
+    TextToggleButtonOff
 }

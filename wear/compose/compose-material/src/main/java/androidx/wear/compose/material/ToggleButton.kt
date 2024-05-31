@@ -34,25 +34,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
- * Wear Material [ToggleButton] that offers a single slot to take any content
- * (text, icon or image).
+ * Wear Material [ToggleButton] that offers a single slot to take any content (text, icon or image).
  *
  * The [ToggleButton] is circular in shape and defaults to size
  * [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
  * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
  * [ToggleButtonDefaults.SmallIconSize] respectively.
  *
- * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
- * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
- * checked colors being
- * a solid background of [Colors.primary] with content color of [Colors.onPrimary]
- * and unchecked colors being
- * a solid background of [Colors.surface] with content color of [Colors.onSurface].
+ * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained from
+ * [ToggleButtonDefaults.toggleButtonColors], which defaults to checked colors being a solid
+ * background of [Colors.primary] with content color of [Colors.onPrimary] and unchecked colors
+ * being a solid background of [Colors.surface] with content color of [Colors.onSurface].
  *
  * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
  * events.
  *
  * Example of a [ToggleButton] with an icon:
+ *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
  *
  * For more information, see the
@@ -62,19 +60,21 @@ import androidx.compose.ui.unit.dp
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
- * @param enabled Controls the enabled state of the toggle button. When `false`,
- * this toggle button will not be clickable.
- * @param colors [ToggleButtonColors] that will be used to resolve the background and
- * content color for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
+ *   will not be clickable.
+ * @param colors [ToggleButtonColors] that will be used to resolve the background and content color
+ *   for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
+ * @param interactionSource The [MutableInteractionSource] representing the stream of [Interaction]s
+ *   for this toggle button. You can create and pass in your own remembered
+ *   [MutableInteractionSource] if you want to observe [Interaction]s and customize the appearance /
+ *   behavior of this ToggleButton in different [Interaction]s.
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
-@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
-    "A newer overload is available with an additional shape parameter.",
-    level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
+        "A newer overload is available with an additional shape parameter.",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun ToggleButton(
     checked: Boolean,
@@ -84,36 +84,36 @@ public fun ToggleButton(
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable BoxScope.() -> Unit,
-) = ToggleButton(
-    checked,
-    onCheckedChange,
-    modifier,
-    enabled,
-    colors,
-    interactionSource,
-    CircleShape,
-    ToggleButtonDefaults.DefaultRole,
-    content)
+) =
+    ToggleButton(
+        checked,
+        onCheckedChange,
+        modifier,
+        enabled,
+        colors,
+        interactionSource,
+        CircleShape,
+        ToggleButtonDefaults.DefaultRole,
+        content
+    )
 
 /**
- * Wear Material [ToggleButton] that offers a single slot to take any content
- * (text, icon or image).
+ * Wear Material [ToggleButton] that offers a single slot to take any content (text, icon or image).
  *
- * The [ToggleButton] defaults to size [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
- * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
- * [ToggleButtonDefaults.SmallIconSize] respectively.
+ * The [ToggleButton] defaults to size [ToggleButtonDefaults.DefaultToggleButtonSize] or
+ * [ToggleButtonDefaults.SmallToggleButtonSize]. Icon content should be of size
+ * [ToggleButtonDefaults.DefaultIconSize] or [ToggleButtonDefaults.SmallIconSize] respectively.
  *
- * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
- * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
- * checked colors being
- * a solid background of [Colors.primary] with content color of [Colors.onPrimary]
- * and unchecked colors being
- * a solid background of [Colors.surface] with content color of [Colors.onSurface].
+ * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained from
+ * [ToggleButtonDefaults.toggleButtonColors], which defaults to checked colors being a solid
+ * background of [Colors.primary] with content color of [Colors.onPrimary] and unchecked colors
+ * being a solid background of [Colors.surface] with content color of [Colors.onSurface].
  *
  * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
  * events.
  *
  * Example of a [ToggleButton] with an icon:
+ *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
  *
  * For more information, see the
@@ -123,21 +123,23 @@ public fun ToggleButton(
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
- * @param enabled Controls the enabled state of the toggle button. When `false`,
- * this toggle button will not be clickable.
- * @param colors [ToggleButtonColors] that will be used to resolve the background and
- * content color for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this toggle button. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this ToggleButton in different [Interaction]s.
+ * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
+ *   will not be clickable.
+ * @param colors [ToggleButtonColors] that will be used to resolve the background and content color
+ *   for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
+ * @param interactionSource The [MutableInteractionSource] representing the stream of [Interaction]s
+ *   for this toggle button. You can create and pass in your own remembered
+ *   [MutableInteractionSource] if you want to observe [Interaction]s and customize the appearance /
+ *   behavior of this ToggleButton in different [Interaction]s.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
- * default as this shape is a key characteristic of the Wear Material Theme.
+ *   default as this shape is a key characteristic of the Wear Material Theme.
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
-@Deprecated("This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
-    "A newer overload is available with an additional semantic role parameter.",
-    level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
+        "A newer overload is available with an additional semantic role parameter.",
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 public fun ToggleButton(
     checked: Boolean,
@@ -148,36 +150,36 @@ public fun ToggleButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = CircleShape,
     content: @Composable BoxScope.() -> Unit,
-) = ToggleButton(
-    checked,
-    onCheckedChange,
-    modifier,
-    enabled,
-    colors,
-    interactionSource,
-    shape,
-    ToggleButtonDefaults.DefaultRole,
-    content)
+) =
+    ToggleButton(
+        checked,
+        onCheckedChange,
+        modifier,
+        enabled,
+        colors,
+        interactionSource,
+        shape,
+        ToggleButtonDefaults.DefaultRole,
+        content
+    )
 
 /**
- * Wear Material [ToggleButton] that offers a single slot to take any content
- * (text, icon or image).
+ * Wear Material [ToggleButton] that offers a single slot to take any content (text, icon or image).
  *
- * The [ToggleButton] defaults to size [ToggleButtonDefaults.DefaultToggleButtonSize] or [ToggleButtonDefaults.SmallToggleButtonSize].
- * Icon content should be of size [ToggleButtonDefaults.DefaultIconSize] or
- * [ToggleButtonDefaults.SmallIconSize] respectively.
+ * The [ToggleButton] defaults to size [ToggleButtonDefaults.DefaultToggleButtonSize] or
+ * [ToggleButtonDefaults.SmallToggleButtonSize]. Icon content should be of size
+ * [ToggleButtonDefaults.DefaultIconSize] or [ToggleButtonDefaults.SmallIconSize] respectively.
  *
- * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained
- * from [ToggleButtonDefaults.toggleButtonColors], which defaults to
- * checked colors being
- * a solid background of [Colors.primary] with content color of [Colors.onPrimary]
- * and unchecked colors being
- * a solid background of [Colors.surface] with content color of [Colors.onSurface].
+ * The recommended set of checked and unchecked [ToggleButtonColors] can be obtained from
+ * [ToggleButtonDefaults.toggleButtonColors], which defaults to checked colors being a solid
+ * background of [Colors.primary] with content color of [Colors.onPrimary] and unchecked colors
+ * being a solid background of [Colors.surface] with content color of [Colors.onSurface].
  *
  * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
  * events.
  *
  * Example of a [ToggleButton] with an icon:
+ *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIcon
  *
  * For more information, see the
@@ -187,18 +189,17 @@ public fun ToggleButton(
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
- * @param enabled Controls the enabled state of the toggle button. When `false`,
- * this toggle button will not be clickable.
- * @param colors [ToggleButtonColors] that will be used to resolve the background and
- * content color for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
+ * @param enabled Controls the enabled state of the toggle button. When `false`, this toggle button
+ *   will not be clickable.
+ * @param colors [ToggleButtonColors] that will be used to resolve the background and content color
+ *   for this toggle button. See [ToggleButtonDefaults.toggleButtonColors].
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
- * appearance or preview the toggle button in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ *   appearance or preview the toggle button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
- * default as this shape is a key characteristic of the Wear Material Theme.
- * @param role Role semantics that accessibility services can use to provide more
- * context to users.
+ *   default as this shape is a key characteristic of the Wear Material Theme.
+ * @param role Role semantics that accessibility services can use to provide more context to users.
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
 @Composable
@@ -226,13 +227,15 @@ public fun ToggleButton(
         interactionSource = interactionSource,
         shape = shape,
         ripple = rippleOrFallbackImplementation(),
-        content = provideScopeContent(
-            colors.contentColor(enabled = enabled, checked = checked),
-            MaterialTheme.typography.button,
-            content
-        )
+        content =
+            provideScopeContent(
+                colors.contentColor(enabled = enabled, checked = checked),
+                MaterialTheme.typography.button,
+                content
+            )
     )
 }
+
 /**
  * Represents the background and content colors used in a toggle button in different states.
  *
@@ -247,8 +250,7 @@ public interface ToggleButtonColors {
      * @param enabled whether the toggle button is enabled
      * @param checked whether the toggle button is checked
      */
-    @Composable
-    public fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun backgroundColor(enabled: Boolean, checked: Boolean): State<Color>
 
     /**
      * Represents the content color for this toggle button, depending on [enabled] and [checked].
@@ -256,61 +258,52 @@ public interface ToggleButtonColors {
      * @param enabled whether the toggle button is enabled
      * @param checked whether the toggle button is checked
      */
-    @Composable
-    public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
+    @Composable public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
 }
 
-/**
- * Contains the default values used by [ToggleButton].
- */
+/** Contains the default values used by [ToggleButton]. */
 public object ToggleButtonDefaults {
     /**
-     * The recommended size for a small [ToggleButton].
-     * You can apply this value for the size by overriding Modifier.size directly on [ToggleButton].
+     * The recommended size for a small [ToggleButton]. You can apply this value for the size by
+     * overriding Modifier.size directly on [ToggleButton].
      */
     public val SmallToggleButtonSize = 48.dp
 
     /**
-     * The default size applied for the [ToggleButton].
-     * Note that you can override it by applying Modifier.size directly on [ToggleButton].
+     * The default size applied for the [ToggleButton]. Note that you can override it by applying
+     * Modifier.size directly on [ToggleButton].
      */
     public val DefaultToggleButtonSize = 52.dp
 
-    /**
-     * The size of an icon when used inside a small-sized [ToggleButton].
-     */
+    /** The size of an icon when used inside a small-sized [ToggleButton]. */
     public val SmallIconSize = 24.dp
 
-    /**
-     * The default size of an icon when used inside a default-sized [ToggleButton].
-     */
+    /** The default size of an icon when used inside a default-sized [ToggleButton]. */
     public val DefaultIconSize = 26.dp
 
-    /**
-     * Role semantics that accessibility services can use to provide more context to users.
-     */
+    /** Role semantics that accessibility services can use to provide more context to users. */
     public val DefaultRole = Role.Checkbox
 
     /**
-     * Creates a [ToggleButtonColors] that represents the background and content colors
-     * used in a [ToggleButton]. Defaults to primary-styled checked colors
-     * and surface-styled unchecked colors.
+     * Creates a [ToggleButtonColors] that represents the background and content colors used in a
+     * [ToggleButton]. Defaults to primary-styled checked colors and surface-styled unchecked
+     * colors.
      *
      * @param checkedBackgroundColor the background color of this [ToggleButton] when enabled and
-     * checked
+     *   checked
      * @param checkedContentColor the content color of this [ToggleButton] when enabled and checked
      * @param disabledCheckedBackgroundColor the background color of this [ToggleButton] when
-     * checked and not enabled
-     * @param disabledCheckedContentColor the content color of this [ToggleButton] when checked
-     * and not enabled
+     *   checked and not enabled
+     * @param disabledCheckedContentColor the content color of this [ToggleButton] when checked and
+     *   not enabled
      * @param uncheckedBackgroundColor the background color of this [ToggleButton] when enabled and
-     * unchecked
+     *   unchecked
      * @param uncheckedContentColor the content color of this [ToggleButton] when enabled and
-     * unchecked
+     *   unchecked
      * @param disabledUncheckedBackgroundColor the background color of this [ToggleButton] when
-     * unchecked and not enabled
+     *   unchecked and not enabled
      * @param disabledUncheckedContentColor the content color of this [ToggleButton] when unchecked
-     * and not enabled
+     *   and not enabled
      */
     @Composable
     public fun toggleButtonColors(
@@ -325,21 +318,20 @@ public object ToggleButtonDefaults {
             uncheckedBackgroundColor.copy(alpha = ContentAlpha.disabled),
         disabledUncheckedContentColor: Color =
             uncheckedContentColor.copy(alpha = ContentAlpha.disabled),
-    ): ToggleButtonColors = DefaultToggleButtonColors(
-        checkedBackgroundColor = checkedBackgroundColor,
-        checkedContentColor = checkedContentColor,
-        disabledCheckedBackgroundColor = disabledCheckedBackgroundColor,
-        disabledCheckedContentColor = disabledCheckedContentColor,
-        uncheckedBackgroundColor = uncheckedBackgroundColor,
-        uncheckedContentColor = uncheckedContentColor,
-        disabledUncheckedBackgroundColor = disabledUncheckedBackgroundColor,
-        disabledUncheckedContentColor = disabledUncheckedContentColor,
-    )
+    ): ToggleButtonColors =
+        DefaultToggleButtonColors(
+            checkedBackgroundColor = checkedBackgroundColor,
+            checkedContentColor = checkedContentColor,
+            disabledCheckedBackgroundColor = disabledCheckedBackgroundColor,
+            disabledCheckedContentColor = disabledCheckedContentColor,
+            uncheckedBackgroundColor = uncheckedBackgroundColor,
+            uncheckedContentColor = uncheckedContentColor,
+            disabledUncheckedBackgroundColor = disabledUncheckedBackgroundColor,
+            disabledUncheckedContentColor = disabledUncheckedContentColor,
+        )
 }
 
-/**
- * Default [ToggleButtonColors] implementation.
- */
+/** Default [ToggleButtonColors] implementation. */
 @Immutable
 private class DefaultToggleButtonColors(
     private val checkedBackgroundColor: Color,

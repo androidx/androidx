@@ -56,23 +56,27 @@ fun HierarchicalFocusCoordinatorSample() {
                 var focused by remember { mutableStateOf(false) }
                 HierarchicalFocusCoordinator(requiresFocus = { selected == ix }) {
                     val focusRequester = rememberActiveFocusRequester()
-                    BasicText("$ix",
-                        style = TextStyle(
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            textAlign = TextAlign.Center
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { selected = ix }
-                            .onFocusChanged { focused = it.isFocused }
-                            .focusRequester(focusRequester)
-                            .focusable()
-                            .then(if (focused) {
-                                Modifier.border(BorderStroke(2.dp, Color.Red))
-                            } else {
-                                Modifier
-                            })
+                    BasicText(
+                        "$ix",
+                        style =
+                            TextStyle(
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
+                            ),
+                        modifier =
+                            Modifier.weight(1f)
+                                .clickable { selected = ix }
+                                .onFocusChanged { focused = it.isFocused }
+                                .focusRequester(focusRequester)
+                                .focusable()
+                                .then(
+                                    if (focused) {
+                                        Modifier.border(BorderStroke(2.dp, Color.Red))
+                                    } else {
+                                        Modifier
+                                    }
+                                )
                     )
                 }
             }

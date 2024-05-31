@@ -316,11 +316,7 @@ internal class TestWatchFaceRuntimeService(
                     CanvasType.HARDWARE,
                     16
                 ) {
-                override fun render(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime
-                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
                     // Actually rendering something isn't required.
                 }
 
@@ -405,11 +401,7 @@ internal class TestStatefulWatchFaceRuntimeService(
                     CanvasType.HARDWARE,
                     16
                 ) {
-                override fun render(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime
-                ) {
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
                     // Actually rendering something isn't required.
                 }
 

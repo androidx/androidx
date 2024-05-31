@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 /**
  * Apply additional space along the edges of the content.
  *
- * @param paddingValues The [ArcPaddingValues] to use. See that class and factory methods to see
- * how paddings can be specified.
+ * @param paddingValues The [ArcPaddingValues] to use. See that class and factory methods to see how
+ *   paddings can be specified.
  */
 public fun CurvedModifier.padding(paddingValues: ArcPaddingValues) =
     this.then { child -> PaddingWrapper(child, paddingValues) }
@@ -39,13 +39,13 @@ public fun CurvedModifier.padding(paddingValues: ArcPaddingValues) =
  * between dimension and angle).
  *
  * @param outer The space to add to the outer edge of the content (away from the center of the
- * containing CurvedLayout)
+ *   containing CurvedLayout)
  * @param inner The space to add to the inner edge of the content (towards the center of the
- * containing CurvedLayout)
+ *   containing CurvedLayout)
  * @param before The space added before the component, if it was draw clockwise. This is the edge of
- * the component with the "smallest" angle.
+ *   the component with the "smallest" angle.
  * @param after The space added after the component, if it was draw clockwise. This is the edge of
- * the component with the "biggest" angle.
+ *   the component with the "biggest" angle.
  */
 public fun CurvedModifier.padding(outer: Dp, inner: Dp, before: Dp, after: Dp) =
     padding(ArcPaddingValuesImpl(outer, inner, before, after))
@@ -68,20 +68,15 @@ public fun CurvedModifier.padding(radial: Dp = 0.dp, angular: Dp = 0.dp) =
 public fun CurvedModifier.padding(all: Dp = 0.dp) = padding(all, all, all, all)
 
 /**
- * Apply additional space along each edge of the content in [Dp].
- * See the [ArcPaddingValues] factories for convenient ways to
- * build [ArcPaddingValues].
+ * Apply additional space along each edge of the content in [Dp]. See the [ArcPaddingValues]
+ * factories for convenient ways to build [ArcPaddingValues].
  */
 @Stable
 public interface ArcPaddingValues {
-    /**
-     * Padding in the outward direction from the center of the [CurvedLayout]
-     */
+    /** Padding in the outward direction from the center of the [CurvedLayout] */
     fun calculateOuterPadding(radialDirection: CurvedDirection.Radial): Dp
 
-    /**
-     * Padding in the inwards direction towards the center of the [CurvedLayout]
-     */
+    /** Padding in the inwards direction towards the center of the [CurvedLayout] */
     fun calculateInnerPadding(radialDirection: CurvedDirection.Radial): Dp
 
     /**
@@ -107,8 +102,7 @@ public interface ArcPaddingValues {
  * Apply additional space along each edge of the content in [Dp]. Note that that all dimensions are
  * applied to a concrete edge, indepenend on layout direction and curved layout direction.
  *
- * @param outer Padding in the outward direction from the center of the
- * [CurvedLayout]
+ * @param outer Padding in the outward direction from the center of the [CurvedLayout]
  * @param inner Padding in the inwards direction towards the center of the [CurvedLayout]
  * @param before Padding added before the component, if it was draw clockwise.
  * @param after Padding added after the component, if it was draw clockwise.
@@ -118,12 +112,9 @@ public fun ArcPaddingValues(
     inner: Dp = 0.dp,
     before: Dp = 0.dp,
     after: Dp = 0.dp
-): ArcPaddingValues =
-    ArcPaddingValuesImpl(outer, inner, before, after)
+): ArcPaddingValues = ArcPaddingValuesImpl(outer, inner, before, after)
 
-/**
- * Apply [all] dp of additional space along each edge of the content.
- */
+/** Apply [all] dp of additional space along each edge of the content. */
 public fun ArcPaddingValues(all: Dp): ArcPaddingValues = ArcPaddingValuesImpl(all, all, all, all)
 
 /**
@@ -144,63 +135,65 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val before: Dp
             after == other.after
     }
 
-    override fun hashCode() = ((outer.hashCode() * 31 + inner.hashCode()) * 31 +
-        before.hashCode()) * 31 + after.hashCode()
+    override fun hashCode() =
+        ((outer.hashCode() * 31 + inner.hashCode()) * 31 + before.hashCode()) * 31 +
+            after.hashCode()
 
     override fun toString(): String {
         return "ArcPaddingValuesImpl(outer=$outer, inner=$inner, before=$before, after=$after)"
     }
 
     override fun calculateOuterPadding(radialDirection: CurvedDirection.Radial) = outer
+
     override fun calculateInnerPadding(radialDirection: CurvedDirection.Radial) = inner
+
     override fun calculateBeforePadding(
         layoutDirection: LayoutDirection,
         angularDirection: CurvedDirection.Angular
     ) = before
+
     override fun calculateAfterPadding(
         layoutDirection: LayoutDirection,
         angularDirection: CurvedDirection.Angular
     ) = after
 }
 
-internal class PaddingWrapper(
-    child: CurvedChild,
-    val paddingValues: ArcPaddingValues
-) : BaseCurvedChildWrapper(child) {
+internal class PaddingWrapper(child: CurvedChild, val paddingValues: ArcPaddingValues) :
+    BaseCurvedChildWrapper(child) {
     private var outerPx = 0f
     private var innerPx = 0f
     private var beforePx = 0f
     private var afterPx = 0f
 
-    override fun CurvedMeasureScope.initializeMeasure(
-        measurables: Iterator<Measurable>
-    ) {
+    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
         outerPx = paddingValues.calculateOuterPadding(curvedLayoutDirection.radial).toPx()
         innerPx = paddingValues.calculateInnerPadding(curvedLayoutDirection.radial).toPx()
-        beforePx = paddingValues.calculateBeforePadding(
-            curvedLayoutDirection.layoutDirection,
-            curvedLayoutDirection.angular
-        ).toPx()
-        afterPx = paddingValues.calculateAfterPadding(
-            curvedLayoutDirection.layoutDirection,
-            curvedLayoutDirection.angular
-        ).toPx()
-        with(wrapped) {
-            initializeMeasure(measurables)
-        }
+        beforePx =
+            paddingValues
+                .calculateBeforePadding(
+                    curvedLayoutDirection.layoutDirection,
+                    curvedLayoutDirection.angular
+                )
+                .toPx()
+        afterPx =
+            paddingValues
+                .calculateAfterPadding(
+                    curvedLayoutDirection.layoutDirection,
+                    curvedLayoutDirection.angular
+                )
+                .toPx()
+        with(wrapped) { initializeMeasure(measurables) }
     }
 
-    override fun doEstimateThickness(maxRadius: Float) = wrapped.estimateThickness(maxRadius) +
-        outerPx + innerPx
+    override fun doEstimateThickness(maxRadius: Float) =
+        wrapped.estimateThickness(maxRadius) + outerPx + innerPx
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float
     ): PartialLayoutInfo {
-        val partialLayoutInfo = wrapped.radialPosition(
-            parentOuterRadius - outerPx,
-            parentThickness - outerPx - innerPx
-        )
+        val partialLayoutInfo =
+            wrapped.radialPosition(parentOuterRadius - outerPx, parentThickness - outerPx - innerPx)
         val angularPadding = (beforePx + afterPx) / partialLayoutInfo.measureRadius
         return PartialLayoutInfo(
             partialLayoutInfo.sweepRadians + angularPadding,

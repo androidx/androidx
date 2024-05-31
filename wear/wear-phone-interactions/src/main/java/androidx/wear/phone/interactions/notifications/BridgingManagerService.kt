@@ -24,12 +24,11 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.wearable.notifications.IBridgingManagerService
 
-/**
- * Handler for applying the notification bridging configuration when received by the service.
- */
+/** Handler for applying the notification bridging configuration when received by the service. */
 public fun interface BridgingConfigurationHandler {
     /**
      * Apply the notification bridging configurations.
+     *
      * @param bridgingConfig The received bridging configuration
      */
     public fun applyBridgingConfiguration(bridgingConfig: BridgingConfig)
@@ -38,9 +37,9 @@ public fun interface BridgingConfigurationHandler {
 /**
  * Service class receiving notification bridging configurations.
  *
- * @param context  The [Context] of the application.
+ * @param context The [Context] of the application.
  * @param bridgingConfigurationHandler The handler for applying the notification bridging
- * configuration.
+ *   configuration.
  */
 public class BridgingManagerService(
     private val context: Context,
@@ -49,8 +48,7 @@ public class BridgingManagerService(
     override fun onBind(intent: Intent?): IBinder? =
         if (intent?.action == BridgingManager.ACTION_BIND_BRIDGING_MANAGER)
             BridgingManagerServiceImpl(context, bridgingConfigurationHandler)
-        else
-            null
+        else null
 }
 
 internal class BridgingManagerServiceImpl(
@@ -63,12 +61,10 @@ internal class BridgingManagerServiceImpl(
     override fun setBridgingConfig(bridgingConfigBundle: Bundle) {
         val bridgingConfig = BridgingConfig.fromBundle(bridgingConfigBundle)
         val packageName = bridgingConfig.packageName
-        val senderAppPackage: String? =
-            context.packageManager.getNameForUid(Binder.getCallingUid())
+        val senderAppPackage: String? = context.packageManager.getNameForUid(Binder.getCallingUid())
         require(senderAppPackage == packageName) {
             "Package invalid: $senderAppPackage not equals $packageName"
         }
-        bridgingConfigurationHandler
-            .applyBridgingConfiguration(bridgingConfig)
+        bridgingConfigurationHandler.applyBridgingConfiguration(bridgingConfig)
     }
 }

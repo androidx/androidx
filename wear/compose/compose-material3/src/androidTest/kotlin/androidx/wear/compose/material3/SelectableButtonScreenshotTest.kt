@@ -43,14 +43,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SelectableButtonScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
     @Test
     fun radio_button_selected() = verifyScreenshot {
@@ -188,12 +185,8 @@ class SelectableButtonScreenshotTest {
     ) {
         SelectableButton(
             icon = { TestIcon() },
-            label = {
-                Text("RadioButton")
-            },
-            secondaryLabel = {
-                Text("Secondary label")
-            },
+            label = { Text("RadioButton") },
+            secondaryLabel = { Text("Secondary label") },
             selected = selected,
             enabled = enabled,
             selectionControl = selectionControl,
@@ -209,17 +202,11 @@ class SelectableButtonScreenshotTest {
         selectionControl: @Composable SelectionControlScope.() -> Unit = { RadioButton() }
     ) {
         SplitSelectableButton(
-            label = {
-                Text("SplitRadioButton")
-            },
-            secondaryLabel = {
-                Text("Secondary label")
-            },
+            label = { Text("SplitRadioButton") },
+            secondaryLabel = { Text("Secondary label") },
             selected = selected,
             enabled = enabled,
-            selectionControl = {
-                selectionControl()
-            },
+            selectionControl = { selectionControl() },
             onSelectionClick = {},
             onContainerClick = {},
             modifier = Modifier.testTag(TEST_TAG),
@@ -232,15 +219,12 @@ class SelectableButtonScreenshotTest {
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                Box(
-                    modifier = Modifier.background(Color.Black)
-                ) {
-                    content()
-                }
+                Box(modifier = Modifier.background(Color.Black)) { content() }
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

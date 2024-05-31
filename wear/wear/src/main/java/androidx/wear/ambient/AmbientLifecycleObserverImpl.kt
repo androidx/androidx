@@ -34,7 +34,6 @@ import java.util.concurrent.Executor
  * ambient mode.
  *
  * As an example of how to use this class, see the following example:
- *
  * ```
  * class MyActivity : ComponentActivity() {
  *     private val callback = object : AmbientLifecycleObserver.AmbientLifecycleCallback {
@@ -52,7 +51,7 @@ import java.util.concurrent.Executor
  * @param activity The activity that this observer is being attached to.
  * @param callbackExecutor The executor to run the provided callback on.
  * @param callback An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
- *                  notify the observer about changes to the ambient state.
+ *   notify the observer about changes to the ambient state.
  */
 @Suppress("CallbackName")
 internal class AmbientLifecycleObserverImpl(
@@ -61,39 +60,42 @@ internal class AmbientLifecycleObserverImpl(
     callback: AmbientLifecycleObserver.AmbientLifecycleCallback,
 ) : AmbientLifecycleObserver {
     private val delegate: AmbientDelegate
-    private val callbackTranslator = object : AmbientDelegate.AmbientCallback {
-        override fun onEnterAmbient(ambientDetails: Bundle?) {
-            val burnInProtection = ambientDetails?.getBoolean(
-                WearableActivityController.EXTRA_BURN_IN_PROTECTION) ?: false
-            val lowBitAmbient = ambientDetails?.getBoolean(
-                WearableActivityController.EXTRA_LOWBIT_AMBIENT) ?: false
-            callbackExecutor.run {
-                callback.onEnterAmbient(AmbientLifecycleObserver.AmbientDetails(
-                    burnInProtectionRequired = burnInProtection,
-                    deviceHasLowBitAmbient = lowBitAmbient
-                ))
+    private val callbackTranslator =
+        object : AmbientDelegate.AmbientCallback {
+            override fun onEnterAmbient(ambientDetails: Bundle?) {
+                val burnInProtection =
+                    ambientDetails?.getBoolean(WearableActivityController.EXTRA_BURN_IN_PROTECTION)
+                        ?: false
+                val lowBitAmbient =
+                    ambientDetails?.getBoolean(WearableActivityController.EXTRA_LOWBIT_AMBIENT)
+                        ?: false
+                callbackExecutor.run {
+                    callback.onEnterAmbient(
+                        AmbientLifecycleObserver.AmbientDetails(
+                            burnInProtectionRequired = burnInProtection,
+                            deviceHasLowBitAmbient = lowBitAmbient
+                        )
+                    )
+                }
             }
-        }
 
-        override fun onUpdateAmbient() {
-            callbackExecutor.run { callback.onUpdateAmbient() }
-        }
+            override fun onUpdateAmbient() {
+                callbackExecutor.run { callback.onUpdateAmbient() }
+            }
 
-        override fun onExitAmbient() {
-            callbackExecutor.run { callback.onExitAmbient() }
-        }
+            override fun onExitAmbient() {
+                callbackExecutor.run { callback.onExitAmbient() }
+            }
 
-        override fun onAmbientOffloadInvalidated() {
+            override fun onAmbientOffloadInvalidated() {}
         }
-    }
 
     /**
-     * Construct a [AmbientLifecycleObserverImpl], using the UI thread to dispatch ambient
-     * callback.
+     * Construct a [AmbientLifecycleObserverImpl], using the UI thread to dispatch ambient callback.
      *
      * @param activity The activity that this observer is being attached to.
      * @param callback An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
-     *                  notify the observer about changes to the ambient state.
+     *   notify the observer about changes to the ambient state.
      */
     constructor(
         activity: Activity,

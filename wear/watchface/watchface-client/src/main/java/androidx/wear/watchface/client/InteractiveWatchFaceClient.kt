@@ -152,25 +152,18 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun overrideComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>) {}
 
-    /**
-     * Clears any overrides set by [overrideComplicationData].
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun clearComplicationDataOverride() {}
+    /** Clears any overrides set by [overrideComplicationData]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun clearComplicationDataOverride() {}
 
     /**
      * Pauses all animation on the watch face (including time ticks) until either [unpauseAnimation]
      * or [close] is called or the client process exits. Requires a compatible watchface, does
      * nothing on an older watch face.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun pauseAnimation() {}
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun pauseAnimation() {}
 
-    /**
-     * Restarts animations paused by [pauseAnimation].
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun unpauseAnimation() {}
+    /** Restarts animations paused by [pauseAnimation]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun unpauseAnimation() {}
 
     /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings. Note this
@@ -194,7 +187,8 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     ): Bitmap
 
     /** Whether or not the watch face supports [RemoteWatchFaceViewHost]. */
-    public val isRemoteWatchFaceViewHostSupported: Boolean get() = false
+    public val isRemoteWatchFaceViewHostSupported: Boolean
+        get() = false
 
     /**
      * Constructs a [RemoteWatchFaceViewHost] whose [RemoteWatchFaceViewHost.surfacePackage] can be
@@ -228,16 +222,15 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * The watchface's [OverlayStyle] which may be null.
      *
-     * Note while this plumbing got built, it was never used by the system ui on any platform
-     * and it will be removed.
+     * Note while this plumbing got built, it was never used by the system ui on any platform and it
+     * will be removed.
      */
     @Deprecated("OverlayStyle will be removed in a future release.")
     @get:Throws(RemoteException::class)
     @Suppress("Deprecation")
     public val overlayStyle: OverlayStyle
         // Default implementation, overridden below.
-        @Suppress("Deprecation")
-        get() = OverlayStyle()
+        @Suppress("Deprecation") get() = OverlayStyle()
 
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
@@ -253,9 +246,7 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side
-     * effect of enabling or disabling complicationSlots, which will be visible via
-     * [ComplicationSlotState.isEnabled].
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side effect of enabling or disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
      */
     @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
@@ -545,10 +536,7 @@ internal constructor(
         if (apiVersion >= 12) {
             iInteractiveWatchFace.overrideComplicationData(
                 slotIdToComplicationData.map {
-                    IdAndComplicationDataWireFormat(
-                        it.key,
-                        it.value.asWireComplicationData()
-                    )
+                    IdAndComplicationDataWireFormat(it.key, it.value.asWireComplicationData())
                 }
             )
         } else {
@@ -581,15 +569,16 @@ internal constructor(
                         instant.toEpochMilli(),
                         userStyle?.toWireFormat(),
                         if (apiVersion >= 12) {
-                            idAndComplicationData
-                        } else {
-                            mergeWithOverrideComplicationData(idAndComplicationData)
-                        }?.map {
-                            IdAndComplicationDataWireFormat(
-                                it.key,
-                                it.value.asWireComplicationData()
-                            )
-                        }
+                                idAndComplicationData
+                            } else {
+                                mergeWithOverrideComplicationData(idAndComplicationData)
+                            }
+                            ?.map {
+                                IdAndComplicationDataWireFormat(
+                                    it.key,
+                                    it.value.asWireComplicationData()
+                                )
+                            }
                     )
                 )
             )
@@ -727,8 +716,7 @@ internal constructor(
         get() =
             iInteractiveWatchFace.contentDescriptionLabels?.map {
                 ContentDescriptionLabel(it.text.toApiComplicationText(), it.bounds, it.tapAction)
-            }
-                ?: emptyList()
+            } ?: emptyList()
 
     override fun setWatchUiState(watchUiState: androidx.wear.watchface.client.WatchUiState) =
         TraceEvent("InteractiveWatchFaceClientImpl.setSystemState").use {

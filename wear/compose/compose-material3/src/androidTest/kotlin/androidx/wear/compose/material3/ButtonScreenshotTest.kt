@@ -55,72 +55,42 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ButtonScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_PATH)
 
-    @get:Rule
-    val testName = TestName()
+    @get:Rule val testName = TestName()
 
-    @Test
-    fun button_enabled() = verifyScreenshot() {
-        BaseButton()
-    }
+    @Test fun button_enabled() = verifyScreenshot() { BaseButton() }
+
+    @Test fun button_disabled() = verifyScreenshot() { BaseButton(enabled = false) }
 
     @Test
-    fun button_disabled() = verifyScreenshot() {
-        BaseButton(enabled = false)
-    }
+    fun three_slot_button_ltr() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { ThreeSlotButton() }
 
     @Test
-    fun three_slot_button_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        ThreeSlotButton()
-    }
+    fun three_slot_button_rtl() =
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { ThreeSlotButton() }
 
-    @Test
-    fun three_slot_button_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        ThreeSlotButton()
-    }
+    @Test fun button_outlined_enabled() = verifyScreenshot() { OutlinedButton() }
 
-    @Test
-    fun button_outlined_enabled() = verifyScreenshot() {
-        OutlinedButton()
-    }
+    @Test fun button_outlined_disabled() = verifyScreenshot() { OutlinedButton(enabled = false) }
 
-    @Test
-    fun button_outlined_disabled() = verifyScreenshot() {
-        OutlinedButton(enabled = false)
-    }
-
-    @Test
-    fun button_image_background_enabled() = verifyScreenshot {
-        ImageBackgroundButton()
-    }
+    @Test fun button_image_background_enabled() = verifyScreenshot { ImageBackgroundButton() }
 
     @Test
     fun button_image_background_disabled() = verifyScreenshot {
         ImageBackgroundButton(enabled = false)
     }
 
-    @Test
-    fun compact_button_enabled() = verifyScreenshot {
-        CompactButton()
-    }
+    @Test fun compact_button_enabled() = verifyScreenshot { CompactButton() }
 
-    @Test
-    fun compact_button_disabled() = verifyScreenshot {
-        CompactButton(enabled = false)
-    }
+    @Test fun compact_button_disabled() = verifyScreenshot { CompactButton(enabled = false) }
 
     @Composable
     private fun BaseButton(enabled: Boolean = true) {
-        Button(
-            enabled = enabled,
-            onClick = {},
-            modifier = Modifier.testTag(TEST_TAG)
-        ) {
+        Button(enabled = enabled, onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
             CenteredText("Base Button")
         }
     }
@@ -139,11 +109,7 @@ class ButtonScreenshotTest {
 
     @Composable
     private fun OutlinedButton(enabled: Boolean = true) {
-        OutlinedButton(
-            enabled = enabled,
-            onClick = {},
-            modifier = Modifier.testTag(TEST_TAG)
-        ) {
+        OutlinedButton(enabled = enabled, onClick = {}, modifier = Modifier.testTag(TEST_TAG)) {
             CenteredText("Outlined Button")
         }
     }
@@ -155,9 +121,10 @@ class ButtonScreenshotTest {
             onClick = {},
             label = { Text("Image Button") },
             secondaryLabel = { Text("Secondary Label") },
-            colors = ButtonDefaults.imageBackgroundButtonColors(
-                backgroundImagePainter = painterResource(R.drawable.backgroundimage1)
-            ),
+            colors =
+                ButtonDefaults.imageBackgroundButtonColors(
+                    backgroundImagePainter = painterResource(R.drawable.backgroundimage1)
+                ),
             icon = { TestIcon() },
             modifier = Modifier.testTag(TEST_TAG)
         )
@@ -181,16 +148,16 @@ class ButtonScreenshotTest {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background)
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
                 ) {
                     content()
                 }
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG)
+        rule
+            .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
     }

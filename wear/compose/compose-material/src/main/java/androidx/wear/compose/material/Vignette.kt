@@ -26,9 +26,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.materialcore.isRoundDevice
 
-/**
- * Possible combinations for vignette state.
- */
+/** Possible combinations for vignette state. */
 @kotlin.jvm.JvmInline
 public value class VignettePosition constructor(private val key: Int) {
     internal fun drawTop(): Boolean {
@@ -50,19 +48,13 @@ public value class VignettePosition constructor(private val key: Int) {
     }
 
     companion object {
-        /**
-         * Only the top part of the vignette is displayed.
-         */
+        /** Only the top part of the vignette is displayed. */
         val Top = VignettePosition(0)
 
-        /**
-         * Only the bottom part of the vignette is displayed.
-         */
+        /** Only the bottom part of the vignette is displayed. */
         val Bottom = VignettePosition(1)
 
-        /**
-         * Both the top and bottom of the vignette is displayed.
-         */
+        /** Both the top and bottom of the vignette is displayed. */
         val TopAndBottom = VignettePosition(2)
     }
 
@@ -82,8 +74,8 @@ public value class VignettePosition constructor(private val key: Int) {
  *
  * The vignette is designed to be used as an overlay, typically in the [Scaffold].
  *
- * Simple example of a Vignette with a [ScalingLazyColumn] as the main application content where
- * the top/bottom vignette images can be turned on/off can be found at
+ * Simple example of a Vignette with a [ScalingLazyColumn] as the main application content where the
+ * top/bottom vignette images can be turned on/off can be found at
  *
  * @sample androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
  *
@@ -99,28 +91,26 @@ public fun Vignette(
     Box(modifier = modifier.fillMaxSize()) {
         if (vignettePosition.drawTop()) {
             Image(
-                painter = imageResource(
-                    if (isRoundDevice()) ImageResources.CircularVignetteTop
-                    else ImageResources.RectangularVignetteTop
-                ),
+                painter =
+                    imageResource(
+                        if (isRoundDevice()) ImageResources.CircularVignetteTop
+                        else ImageResources.RectangularVignetteTop
+                    ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth(),
+                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth(),
             )
         }
         if (vignettePosition.drawBottom()) {
             Image(
-                painter = imageResource(
-                    if (isRoundDevice()) ImageResources.CircularVignetteBottom
-                    else ImageResources.RectangularVignetteBottom
-                ),
+                painter =
+                    imageResource(
+                        if (isRoundDevice()) ImageResources.CircularVignetteBottom
+                        else ImageResources.RectangularVignetteBottom
+                    ),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
             )
         }
     }

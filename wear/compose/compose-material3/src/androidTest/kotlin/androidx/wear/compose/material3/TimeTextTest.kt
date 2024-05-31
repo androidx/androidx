@@ -43,18 +43,11 @@ import org.junit.Rule
 import org.junit.Test
 
 class TimeTextTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
-        rule.setContentWithTheme {
-            TimeText(
-                modifier = Modifier.testTag(TEST_TAG)
-            ) {
-                time()
-            }
-        }
+        rule.setContentWithTheme { TimeText(modifier = Modifier.testTag(TEST_TAG)) { time() } }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -64,15 +57,13 @@ class TimeTextTest {
         val timeState = mutableStateOf("Unchanged")
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
-                    timeSource = object : TimeSource {
-                        @Composable
-                        override fun currentTime(): String = timeState.value
-                    },
+                    timeSource =
+                        object : TimeSource {
+                            @Composable override fun currentTime(): String = timeState.value
+                        },
                 ) {
                     time()
                 }
@@ -87,15 +78,13 @@ class TimeTextTest {
         val timeState = mutableStateOf("Unchanged")
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(true)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
-                    timeSource = object : TimeSource {
-                        @Composable
-                        override fun currentTime(): String = timeState.value
-                    },
+                    timeSource =
+                        object : TimeSource {
+                            @Composable override fun currentTime(): String = timeState.value
+                        },
                 ) {
                     time()
                 }
@@ -111,9 +100,7 @@ class TimeTextTest {
         val statusText = "Status"
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText {
                     text(statusText)
                     separator()
@@ -130,9 +117,7 @@ class TimeTextTest {
         val statusText = "Status"
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(true)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
                 TimeText {
                     text(statusText)
                     separator()
@@ -150,9 +135,7 @@ class TimeTextTest {
         val separatorText = "·"
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText {
                     text(statusText)
                     separator()
@@ -170,9 +153,7 @@ class TimeTextTest {
         val separatorText = "·"
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(true)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
                 TimeText {
                     text(statusText)
                     separator()
@@ -187,9 +168,7 @@ class TimeTextTest {
     @Test
     fun checks_composable_displayed_on_non_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText {
                     time()
                     separator()
@@ -209,9 +188,7 @@ class TimeTextTest {
     @Test
     fun checks_composable_displayed_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(true)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
                 TimeText {
                     time()
                     separator()
@@ -232,20 +209,15 @@ class TimeTextTest {
     fun changes_timeTextStyle_on_non_round_device() {
         val timeText = "testTime"
 
-        val testTextStyle = TextStyle(
-            color = Color.Green,
-            background = Color.Black,
-            fontSize = 20.sp
-        )
+        val testTextStyle =
+            TextStyle(color = Color.Green, background = Color.Black, fontSize = 20.sp)
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText(
-                    timeSource = object : TimeSource {
-                        @Composable
-                        override fun currentTime(): String = timeText
-                    },
+                    timeSource =
+                        object : TimeSource {
+                            @Composable override fun currentTime(): String = timeText
+                        },
                     timeTextStyle = testTextStyle
                 ) {
                     time()
@@ -262,27 +234,22 @@ class TimeTextTest {
     fun changes_material_theme_on_non_round_device_except_color() {
         val timeText = "testTime"
 
-        val testTextStyle = TextStyle(
-            color = Color.Green,
-            background = Color.Black,
-            fontStyle = FontStyle.Italic,
-            fontSize = 25.sp,
-            fontFamily = FontFamily.SansSerif
-        )
+        val testTextStyle =
+            TextStyle(
+                color = Color.Green,
+                background = Color.Black,
+                fontStyle = FontStyle.Italic,
+                fontSize = 25.sp,
+                fontFamily = FontFamily.SansSerif
+            )
         rule.setContent {
-            MaterialTheme(
-                typography = MaterialTheme.typography.copy(
-                    labelSmall = testTextStyle
-                )
-            ) {
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.RoundScreen(false)
-                ) {
+            MaterialTheme(typography = MaterialTheme.typography.copy(labelSmall = testTextStyle)) {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                     TimeText(
-                        timeSource = object : TimeSource {
-                            @Composable
-                            override fun currentTime(): String = timeText
-                        },
+                        timeSource =
+                            object : TimeSource {
+                                @Composable override fun currentTime(): String = timeText
+                            },
                     ) {
                         time()
                     }
@@ -302,28 +269,23 @@ class TimeTextTest {
         val timeText = "testTime"
         var onBackgroundColor = Color.Unspecified
 
-        val testTextStyle = TextStyle(
-            color = Color.Green,
-            background = Color.Black,
-            fontStyle = FontStyle.Italic,
-            fontSize = 25.sp,
-            fontFamily = FontFamily.SansSerif
-        )
+        val testTextStyle =
+            TextStyle(
+                color = Color.Green,
+                background = Color.Black,
+                fontStyle = FontStyle.Italic,
+                fontSize = 25.sp,
+                fontFamily = FontFamily.SansSerif
+            )
         rule.setContent {
-            MaterialTheme(
-                typography = MaterialTheme.typography.copy(
-                    labelSmall = testTextStyle
-                )
-            ) {
+            MaterialTheme(typography = MaterialTheme.typography.copy(labelSmall = testTextStyle)) {
                 onBackgroundColor = MaterialTheme.colorScheme.onBackground
-                DeviceConfigurationOverride(
-                    DeviceConfigurationOverride.RoundScreen(false)
-                ) {
+                DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                     TimeText(
-                        timeSource = object : TimeSource {
-                            @Composable
-                            override fun currentTime(): String = timeText
-                        },
+                        timeSource =
+                            object : TimeSource {
+                                @Composable override fun currentTime(): String = timeText
+                            },
                     ) {
                         time()
                     }
@@ -341,9 +303,7 @@ class TimeTextTest {
 
         rule.setContentWithTheme {
             primaryColor = MaterialTheme.colorScheme.primary
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText {
                     text(leadingText)
                     separator()
@@ -361,9 +321,7 @@ class TimeTextTest {
         val customColor = Color.Green
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                 TimeText(
                     contentColor = customColor,
                 ) {
@@ -381,23 +339,12 @@ class TimeTextTest {
     fun supports_custom_text_style_on_non_round_device() {
         val leadingText = "leadingText"
 
-        val timeTextStyle = TextStyle(
-            background = Color.Blue,
-            fontSize = 14.sp
-        )
-        val contentTextStyle = TextStyle(
-            color = Color.Green,
-            background = Color.Black,
-            fontSize = 20.sp
-        )
+        val timeTextStyle = TextStyle(background = Color.Blue, fontSize = 14.sp)
+        val contentTextStyle =
+            TextStyle(color = Color.Green, background = Color.Black, fontSize = 20.sp)
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(
-                DeviceConfigurationOverride.RoundScreen(false)
-            ) {
-                TimeText(
-                    contentColor = Color.Red,
-                    timeTextStyle = timeTextStyle
-                ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+                TimeText(contentColor = Color.Red, timeTextStyle = timeTextStyle) {
                     text(leadingText, contentTextStyle)
                     separator()
                     time()
@@ -418,9 +365,7 @@ class TimeTextTest {
         val convertedTime = DateFormat.format(format, currentCalendar).toString()
 
         var actualTime: String? = null
-        rule.setContentWithTheme {
-            actualTime = currentTime({ currentTimeInMillis }, format).value
-        }
+        rule.setContentWithTheme { actualTime = currentTime({ currentTimeInMillis }, format).value }
         Assert.assertEquals(convertedTime, actualTime)
     }
 
@@ -432,10 +377,8 @@ class TimeTextTest {
 
         var actualTime: String? = null
         rule.setContentWithTheme {
-            actualTime = currentTime(
-                { currentTimeInMillis },
-                TimeTextDefaults.TimeFormat12Hours
-            ).value
+            actualTime =
+                currentTime({ currentTimeInMillis }, TimeTextDefaults.TimeFormat12Hours).value
         }
         Assert.assertEquals(expectedTime, actualTime)
     }

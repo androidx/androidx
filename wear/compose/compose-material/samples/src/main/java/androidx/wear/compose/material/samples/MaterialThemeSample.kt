@@ -26,11 +26,13 @@ import androidx.wear.compose.material.Text
 @Sampled
 @Composable
 fun FixedFontSize() {
-    val typography = MaterialTheme.typography.copy(
-        display1 = MaterialTheme.typography.display1.copy(
-            fontSize = with(LocalDensity.current) { 40.dp.toSp() }
+    val typography =
+        MaterialTheme.typography.copy(
+            display1 =
+                MaterialTheme.typography.display1.copy(
+                    fontSize = with(LocalDensity.current) { 40.dp.toSp() }
+                )
         )
-    )
     MaterialTheme(typography = typography) {
         Text(
             text = "Fixed Font",

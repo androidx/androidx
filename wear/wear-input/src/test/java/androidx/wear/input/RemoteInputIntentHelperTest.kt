@@ -26,9 +26,8 @@ import org.junit.runner.RunWith
 
 @RunWith(WearInputTestRunner::class)
 class RemoteInputIntentHelperTest {
-    private val remoteInputs: List<RemoteInput> = listOf(
-        RemoteInput.Builder("ri1").build(), RemoteInput.Builder("ri2").build()
-    )
+    private val remoteInputs: List<RemoteInput> =
+        listOf(RemoteInput.Builder("ri1").build(), RemoteInput.Builder("ri2").build())
 
     @Test
     fun testCreateIntentWithRemoteInputAction() {

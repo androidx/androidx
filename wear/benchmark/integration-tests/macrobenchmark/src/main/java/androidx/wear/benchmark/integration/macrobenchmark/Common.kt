@@ -22,15 +22,19 @@ import androidx.test.uiautomator.UiDevice
 internal fun disableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device = UiDevice.getInstance(instrumentation)
-    device.executeShellCommand("am broadcast -a " +
-        "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
-        "--ez value \"false\" com.google.android.wearable.sysui")
+    device.executeShellCommand(
+        "am broadcast -a " +
+            "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
+            "--ez value \"false\" com.google.android.wearable.sysui"
+    )
 }
 
 internal fun enableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device = UiDevice.getInstance(instrumentation)
-    device.executeShellCommand("am broadcast -a " +
-        "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
-        "--ez value \"true\" com.google.android.wearable.sysui")
+    device.executeShellCommand(
+        "am broadcast -a " +
+            "com.google.android.clockwork.sysui.charging.ENABLE_CHARGING_EXPERIENCE " +
+            "--ez value \"true\" com.google.android.wearable.sysui"
+    )
 }

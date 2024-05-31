@@ -1200,12 +1200,11 @@ public abstract class WatchFaceService : WallpaperService() {
         val userStyleFlavors: UserStyleFlavors
     )
 
-    internal class ChoreographerCallback(
-        val watchFaceImpl: WatchFaceImpl
-    ) : Choreographer.FrameCallback {
+    internal class ChoreographerCallback(val watchFaceImpl: WatchFaceImpl) :
+        Choreographer.FrameCallback {
         /**
-         * Whether we already have a frameCallback posted and waiting in the [Choreographer]
-         * queue. This protects us from drawing multiple times in a single frame.
+         * Whether we already have a frameCallback posted and waiting in the [Choreographer] queue.
+         * This protects us from drawing multiple times in a single frame.
          */
         var frameCallbackPending = false
 
@@ -1213,8 +1212,8 @@ public abstract class WatchFaceService : WallpaperService() {
             frameCallbackPending = false
 
             /**
-             * It's possible we went ambient by the time our callback occurred in which case
-             * there's no point drawing.
+             * It's possible we went ambient by the time our callback occurred in which case there's
+             * no point drawing.
              */
             if (watchFaceImpl.renderer.shouldAnimate()) {
                 try {
@@ -1720,17 +1719,13 @@ public abstract class WatchFaceService : WallpaperService() {
          */
         @AnyThread
         internal fun clearComplicationSlotAfterEditing(slotId: Int) {
-            synchronized(lock) {
-                complicationSlotsToClearAfterEditing.add(slotId)
-            }
+            synchronized(lock) { complicationSlotsToClearAfterEditing.add(slotId) }
         }
 
         /** Forgets any calls to [clearComplicationSlotAfterEditing]. */
         @AnyThread
         internal fun dontClearAnyComplicationSlotsAfterEditing() {
-            synchronized(lock) {
-                complicationSlotsToClearAfterEditing.clear()
-            }
+            synchronized(lock) { complicationSlotsToClearAfterEditing.clear() }
         }
 
         /**
@@ -1761,18 +1756,15 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
                 complicationSlotsToClearAfterEditing.clear()
 
-                complicationsFlow.update {
-                    overriddenComplications!!
-                }
+                complicationsFlow.update { overriddenComplications!! }
 
                 overriddenComplications = null
             }
         }
 
         /** Used to keep track of whether the client has died while animation is paused. */
-        private inner class PauseAnimationDeathRecipient(
-            val binder: IBinder
-        ) : IBinder.DeathRecipient {
+        private inner class PauseAnimationDeathRecipient(val binder: IBinder) :
+            IBinder.DeathRecipient {
             override fun binderDied() {
                 synchronized(lock) {
                     // Remove the isVisible override. Typically privIsVisible will be true.
@@ -1794,9 +1786,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         internal fun unpauseAnimation() {
-            synchronized(lock) {
-                pauseAnimationDeathRecipient?.binderDied()
-            }
+            synchronized(lock) { pauseAnimationDeathRecipient?.binderDied() }
         }
 
         @WorkerThread
@@ -2120,7 +2110,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         extra
                     ),
                     resourceOnlyWatchFacePackageName,
-                extra
+                    extra
                 )
                 .toWireFormat()
         }
@@ -2128,16 +2118,16 @@ public abstract class WatchFaceService : WallpaperService() {
         /** This will be called from a binder thread. */
         @OptIn(ComplicationExperimental::class)
         @WorkerThread
-        internal fun
-        getComplicationSlotMetadataWireFormats(): Array<ComplicationSlotMetadataWireFormat> {
+        internal fun getComplicationSlotMetadataWireFormats():
+            Array<ComplicationSlotMetadataWireFormat> {
             val extra = createExtraInternal()
             return createComplicationSlotsManagerInternal(
-                CurrentUserStyleRepository(
-                    createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName, extra)
-                ),
-                resourceOnlyWatchFacePackageName,
-                extra
-            )
+                    CurrentUserStyleRepository(
+                        createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName, extra)
+                    ),
+                    resourceOnlyWatchFacePackageName,
+                    extra
+                )
                 .complicationSlots
                 .map {
                     val systemDataSourceFallbackDefaultType =
@@ -2157,11 +2147,9 @@ public abstract class WatchFaceService : WallpaperService() {
                         it.value.defaultDataSourcePolicy.systemDataSourceFallback,
                         systemDataSourceFallbackDefaultType,
                         it.value.defaultDataSourcePolicy.primaryDataSourceDefaultType
-                            ?.toWireComplicationType()
-                            ?: systemDataSourceFallbackDefaultType,
+                            ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                         it.value.defaultDataSourcePolicy.secondaryDataSourceDefaultType
-                            ?.toWireComplicationType()
-                            ?: systemDataSourceFallbackDefaultType,
+                            ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                         it.value.initiallyEnabled,
                         it.value.fixedComplicationDataSource,
                         it.value.configExtras,
@@ -2346,9 +2334,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 val userStyleFlavors: UserStyleFlavors
 
                 try {
-                    extra = TraceEvent("WatchFaceService.createExtra").use {
-                        createExtraInternal()
-                    }
+                    extra = TraceEvent("WatchFaceService.createExtra").use { createExtraInternal() }
                     currentUserStyleRepository =
                         TraceEvent("WatchFaceService.createUserStyleSchema").use {
                             CurrentUserStyleRepository(
@@ -3140,9 +3126,8 @@ abstract class StatefulWatchFaceService<Extra> : WatchFaceService() {
      *   to [createComplicationSlotsManager] and [createWatchFace].
      */
     @WorkerThread
-    protected open fun createUserStyleSchema(
-        extra: Extra
-    ): UserStyleSchema = super.createUserStyleSchema()
+    protected open fun createUserStyleSchema(extra: Extra): UserStyleSchema =
+        super.createUserStyleSchema()
 
     override fun createUserStyleSchemaInternal(
         resourceOnlyWatchFacePackageName: String?,
@@ -3561,8 +3546,7 @@ abstract class StatefulWatchFaceRuntimeService<Extra> : WatchFaceService() {
     override fun createUserStyleSchemaInternal(
         resourceOnlyWatchFacePackageName: String?,
         extra: Any?
-    ): UserStyleSchema =
-        createUserStyleSchema(resourceOnlyWatchFacePackageName!!, extra!! as Extra)
+    ): UserStyleSchema = createUserStyleSchema(resourceOnlyWatchFacePackageName!!, extra!! as Extra)
 
     @Suppress("DocumentExceptions") // NB this method isn't expected to be called from user code.
     final override fun createUserStyleSchema(): UserStyleSchema {

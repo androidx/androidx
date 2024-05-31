@@ -32,12 +32,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
  *
  * @param imageVector [ImageVector] to draw inside this Icon
  * @param contentDescription Text used by accessibility services to describe what this icon
- * represents. This should always be provided unless this icon is used for decorative purposes,
- * and does not represent a meaningful action that a user can take. This text should be
- * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   represents. This should always be provided unless this icon is used for decorative purposes,
+ *   and does not represent a meaningful action that a user can take. This text should be localized,
+ *   such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Optional [Modifier] for this Icon
- * @param tint Tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no
- *  tint is applied
+ * @param tint Tint to be applied to [imageVector]. If [Color.Unspecified] is provided, then no tint
+ *   is applied
  */
 @Composable
 fun Icon(
@@ -60,12 +60,12 @@ fun Icon(
  *
  * @param bitmap [ImageBitmap] to draw inside this Icon
  * @param contentDescription Text used by accessibility services to describe what this icon
- * represents. This should always be provided unless this icon is used for decorative purposes,
- * and does not represent a meaningful action that a user can take. This text should be
- * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   represents. This should always be provided unless this icon is used for decorative purposes,
+ *   and does not represent a meaningful action that a user can take. This text should be localized,
+ *   such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Optional [Modifier] for this Icon
- * @param tint Tint to be applied to [bitmap]. If [Color.Unspecified] is provided, then no
- *  tint is applied
+ * @param tint Tint to be applied to [bitmap]. If [Color.Unspecified] is provided, then no tint is
+ *   applied
  */
 @Composable
 fun Icon(
@@ -89,12 +89,12 @@ fun Icon(
  *
  * @param painter [Painter] to draw inside this Icon
  * @param contentDescription Text used by accessibility services to describe what this icon
- * represents. This should always be provided unless this icon is used for decorative purposes,
- * and does not represent a meaningful action that a user can take. This text should be
- * localized, such as by using [androidx.compose.ui.res.stringResource] or similar
+ *   represents. This should always be provided unless this icon is used for decorative purposes,
+ *   and does not represent a meaningful action that a user can take. This text should be localized,
+ *   such as by using [androidx.compose.ui.res.stringResource] or similar
  * @param modifier Optional [Modifier] for this Icon
- * @param tint Tint to be applied to [painter]. If [Color.Unspecified] is provided, then no
- *  tint is applied
+ * @param tint Tint to be applied to [painter]. If [Color.Unspecified] is provided, then no tint is
+ *   applied
  */
 @Composable
 fun Icon(

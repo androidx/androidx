@@ -32,16 +32,13 @@ import org.junit.Rule
 import org.junit.Test
 
 class SelectionControlsTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun radio_control_supports_testtag() {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                RadioButton(
-                    Modifier.testTag(TEST_TAG)
-                )
+                RadioButton(Modifier.testTag(TEST_TAG))
             }
         }
 
@@ -53,9 +50,7 @@ class SelectionControlsTest {
         rule
             .setContentWithThemeForSizeAssertions {
                 with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                    RadioButton(
-                        modifier = Modifier.testTag(TEST_TAG)
-                    )
+                    RadioButton(modifier = Modifier.testTag(TEST_TAG))
                 }
             }
             .assertHeightIsEqualTo(SELECTION_CONTROL_HEIGHT)
@@ -66,9 +61,7 @@ class SelectionControlsTest {
     fun radio_control_is_correctly_enabled() {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                RadioButton(
-                    modifier = Modifier.testTag(TEST_TAG)
-                )
+                RadioButton(modifier = Modifier.testTag(TEST_TAG))
             }
         }
 
@@ -82,9 +75,7 @@ class SelectionControlsTest {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
                 RadioButton(
-                    colors = RadioButtonDefaults.colors(
-                        selectedColor = color
-                    ),
+                    colors = RadioButtonDefaults.colors(selectedColor = color),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }
@@ -103,9 +94,10 @@ class SelectionControlsTest {
         rule.setContentWithTheme {
             with(SelectionControlScope(isEnabled = true, isSelected = false)) {
                 RadioButton(
-                    colors = RadioButtonDefaults.colors(
-                        unselectedColor = color,
-                    ),
+                    colors =
+                        RadioButtonDefaults.colors(
+                            unselectedColor = color,
+                        ),
                     modifier = Modifier.testTag(TEST_TAG)
                 )
             }

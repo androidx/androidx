@@ -689,23 +689,24 @@ constructor(
 
     init {
         val context = watchFaceHostApi.getContext()
-         displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-         displayListener = object : DisplayManager.DisplayListener {
-            override fun onDisplayAdded(displayId: Int) {}
+        displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        displayListener =
+            object : DisplayManager.DisplayListener {
+                override fun onDisplayAdded(displayId: Int) {}
 
-            override fun onDisplayChanged(displayId: Int) {
-                val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
-                if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
-                    // We want to avoid a glimpse of a stale time when transitioning from
-                    // hidden to visible, so we render two black frames to clear the buffers
-                    // when the display has been turned off and the watch is not visible.
-                    renderer.renderBlackFrame()
-                    renderer.renderBlackFrame()
+                override fun onDisplayChanged(displayId: Int) {
+                    val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
+                    if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
+                        // We want to avoid a glimpse of a stale time when transitioning from
+                        // hidden to visible, so we render two black frames to clear the buffers
+                        // when the display has been turned off and the watch is not visible.
+                        renderer.renderBlackFrame()
+                        renderer.renderBlackFrame()
+                    }
                 }
-            }
 
-            override fun onDisplayRemoved(displayId: Int) {}
-        }
+                override fun onDisplayRemoved(displayId: Int) {}
+            }
         displayManager.registerDisplayListener(
             displayListener,
             watchFaceHostApi.getUiThreadHandler()
@@ -919,8 +920,7 @@ constructor(
             get() =
                 InteractiveInstanceManager.getCurrentInteractiveInstance()
                     ?.engine
-                    ?.editorObscuresWatchFace
-                    ?: false
+                    ?.editorObscuresWatchFace ?: false
             set(value) {
                 InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
                     it.editorObscuresWatchFace = value
@@ -952,22 +952,19 @@ constructor(
         override fun setOverrideComplications(
             slotIdToComplicationData: Map<Int, ComplicationData>
         ) {
-            InteractiveInstanceManager
-                .getCurrentInteractiveInstance()
+            InteractiveInstanceManager.getCurrentInteractiveInstance()
                 ?.engine
                 ?.overrideComplicationsForEditing(slotIdToComplicationData)
         }
 
         override fun clearComplicationSlotAfterEditing(slotId: Int) {
-            InteractiveInstanceManager
-                .getCurrentInteractiveInstance()
+            InteractiveInstanceManager.getCurrentInteractiveInstance()
                 ?.engine
                 ?.clearComplicationSlotAfterEditing(slotId)
         }
 
         override fun dontClearAnyComplicationSlotsAfterEditing() {
-            InteractiveInstanceManager
-                .getCurrentInteractiveInstance()
+            InteractiveInstanceManager.getCurrentInteractiveInstance()
                 ?.engine
                 ?.dontClearAnyComplicationSlotsAfterEditing()
         }

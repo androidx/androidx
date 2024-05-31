@@ -60,12 +60,8 @@ fun ExpandableListItems() {
     val rest = items.drop(3)
     val color = MaterialTheme.colors.secondary
     ContainingScalingLazyColumn {
-        items(top.size) {
-            DemoItem(top[it], color = color)
-        }
-        expandableItems(state, rest.size) {
-            DemoItem(rest[it], color = color)
-        }
+        items(top.size) { DemoItem(top[it], color = color) }
+        expandableItems(state, rest.size) { DemoItem(rest[it], color = color) }
         expandButton(state, outline = true)
     }
 }
@@ -88,13 +84,17 @@ fun ExpandableMultipleItems() {
 
     val states = rememberExpandableStateMapping<Int>()
 
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize()) {
         items.forEachIndexed { ix, item ->
             val state = states.getOrPutNew(item.key)
             expandableItem(state, item.key) { expanded ->
-                Text((if (expanded) { "Expanded " } else { "" }) + item)
+                Text(
+                    (if (expanded) {
+                        "Expanded "
+                    } else {
+                        ""
+                    }) + item
+                )
             }
             item(key = item.key + 1_000_000) {
                 Row(
@@ -102,16 +102,16 @@ fun ExpandableMultipleItems() {
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Button(onClick = { state.expanded = !state.expanded }) {
-                        Text(if (state.expanded) { "-" } else { "+" })
+                        Text(
+                            if (state.expanded) {
+                                "-"
+                            } else {
+                                "+"
+                            }
+                        )
                     }
-                    Button(onClick = { items.removeAt(ix) }) {
-                        Text("Del")
-                    }
-                    Button(onClick = {
-                        items.add(ix, ItemsToShow("New"))
-                    }) {
-                        Text("Add")
-                    }
+                    Button(onClick = { items.removeAt(ix) }) { Text("Del") }
+                    Button(onClick = { items.add(ix, ItemsToShow("New")) }) { Text("Add") }
                 }
             }
         }
@@ -139,11 +139,7 @@ fun ExpandableText() {
         expandButton(state, outline = false)
 
         demoSeparator()
-        item {
-            ListHeader {
-                Text("Inline expandable.")
-            }
-        }
+        item { ListHeader { Text("Inline expandable.") } }
         expandableItem(state2) { expanded ->
             Row(verticalAlignment = CenterVertically) {
                 Text(if (expanded) "Expanded" else "Collapsed")
@@ -159,38 +155,22 @@ fun ExpandableText() {
 @Composable
 private fun ContainingScalingLazyColumn(content: ScalingLazyListScope.() -> Unit) {
     val color = MaterialTheme.colors.primary
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        repeat(10) {
-            item {
-                DemoItem("Item $it - before", color)
-            }
-        }
+    ScalingLazyColumn(modifier = Modifier.fillMaxSize()) {
+        repeat(10) { item { DemoItem("Item $it - before", color) } }
         demoSeparator()
         content()
         demoSeparator()
-        repeat(10) {
-            item {
-                DemoItem("Item $it - after", color)
-            }
-        }
+        repeat(10) { item { DemoItem("Item $it - after", color) } }
     }
 }
 
-private fun ScalingLazyListScope.expandButton(
-    state: ExpandableState,
-    outline: Boolean = true
-) {
+private fun ScalingLazyListScope.expandButton(state: ExpandableState, outline: Boolean = true) {
     expandableButton(state) {
         CompactChip(
             label = {
                 Text("Show More")
                 Spacer(Modifier.size(6.dp))
-                DemoIcon(
-                    resourceId = R.drawable.ic_expand_more_24,
-                    contentDescription = "Expand"
-                )
+                DemoIcon(resourceId = R.drawable.ic_expand_more_24, contentDescription = "Expand")
             },
             onClick = { state.expanded = true },
             border = if (outline) ChipDefaults.outlinedChipBorder() else ChipDefaults.chipBorder()
@@ -200,8 +180,7 @@ private fun ScalingLazyListScope.expandButton(
 
 private fun ScalingLazyListScope.demoSeparator() = item {
     Box(
-        Modifier
-            .padding(horizontal = 10.dp, vertical = 5.dp)
+        Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
             .background(Color.White)
             .fillMaxWidth()
             .height(2.dp)
@@ -209,13 +188,11 @@ private fun ScalingLazyListScope.demoSeparator() = item {
 }
 
 @Composable
-private fun DemoItem(
-    label: String,
-    color: Color
-) = Chip(
-    label = { Text(label) },
-    onClick = { },
-    secondaryLabel = { Text("line 2 - Secondary") },
-    icon = { DemoIcon(resourceId = R.drawable.ic_play) },
-    colors = ChipDefaults.primaryChipColors(backgroundColor = color)
-)
+private fun DemoItem(label: String, color: Color) =
+    Chip(
+        label = { Text(label) },
+        onClick = {},
+        secondaryLabel = { Text("line 2 - Secondary") },
+        icon = { DemoIcon(resourceId = R.drawable.ic_play) },
+        colors = ChipDefaults.primaryChipColors(backgroundColor = color)
+    )

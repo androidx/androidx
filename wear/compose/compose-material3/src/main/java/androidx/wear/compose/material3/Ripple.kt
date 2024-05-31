@@ -40,17 +40,17 @@ import androidx.compose.ui.unit.Dp
 /**
  * Creates a Ripple using the provided values and values inferred from the theme.
  *
- * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
- * by drawing ripple animations and state layers.
+ * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s by
+ * drawing ripple animations and state layers.
  *
- * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and
- * responds to other [Interaction]s by showing a fixed state layer with varying alpha values
- * depending on the [Interaction].
+ * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and responds to
+ * other [Interaction]s by showing a fixed state layer with varying alpha values depending on the
+ * [Interaction].
  *
  * [MaterialTheme] provides Ripples using [androidx.compose.foundation.LocalIndication], so a Ripple
  * will be used as the default [Indication] inside components such as
- * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in
- * addition to Material provided components that use a Ripple as well.
+ * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in addition
+ * to Material provided components that use a Ripple as well.
  *
  * You can also explicitly create a Ripple and provide it to custom components in order to change
  * the parameters from the default, such as to create an unbounded ripple with a fixed size.
@@ -59,15 +59,14 @@ import androidx.compose.ui.unit.Dp
  * [ripple] overload with a [ColorProducer] parameter. This will avoid unnecessary recompositions
  * when changing the color, and preserve existing ripple state when the color changes.
  *
- * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
- * ripples always animate from the target layout center, bounded ripples animate from the touch
- * position.
+ * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
+ *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
- * calculated based on the target layout size.
+ *   calculated based on the target layout size.
  * @param color the color of the ripple. This color is usually the same color used by the text or
- * iconography in the component. This color will then have alpha applied to calculate the final
- * color used to draw the ripple. If [Color.Unspecified] is provided the color used will be
- * [LocalContentColor] instead.
+ *   iconography in the component. This color will then have alpha applied to calculate the final
+ *   color used to draw the ripple. If [Color.Unspecified] is provided the color used will be
+ *   [LocalContentColor] instead.
  */
 @Stable
 fun ripple(
@@ -85,17 +84,17 @@ fun ripple(
 /**
  * Creates a Ripple using the provided values and values inferred from the theme.
  *
- * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s
- * by drawing ripple animations and state layers.
+ * A Ripple is a Material implementation of [Indication] that expresses different [Interaction]s by
+ * drawing ripple animations and state layers.
  *
- * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and
- * responds to other [Interaction]s by showing a fixed state layer with varying alpha values
- * depending on the [Interaction].
+ * A Ripple responds to [PressInteraction.Press] by starting a new ripple animation, and responds to
+ * other [Interaction]s by showing a fixed state layer with varying alpha values depending on the
+ * [Interaction].
  *
  * [MaterialTheme] provides Ripples using [androidx.compose.foundation.LocalIndication], so a Ripple
  * will be used as the default [Indication] inside components such as
- * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in
- * addition to Material provided components that use a Ripple as well.
+ * [androidx.compose.foundation.clickable] and [androidx.compose.foundation.indication], in addition
+ * to Material provided components that use a Ripple as well.
  *
  * You can also explicitly create a Ripple and provide it to custom components in order to change
  * the parameters from the default, such as to create an unbounded ripple with a fixed size.
@@ -105,16 +104,15 @@ fun ripple(
  * unnecessary recompositions.
  *
  * @param color the color of the ripple. This color is usually the same color used by the text or
- * iconography in the component. This color will then have alpha applied to calculate the final
- * color used to draw the ripple. If you are creating this [ColorProducer] outside of composition
- * (where it will be automatically remembered), make sure that its instance is stable
- * (such as by remembering the object that holds it), or remember the returned [ripple] object to
- * make sure that ripple nodes are not being created each recomposition.
- * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded
- * ripples always animate from the target layout center, bounded ripples animate from the touch
- * position.
+ *   iconography in the component. This color will then have alpha applied to calculate the final
+ *   color used to draw the ripple. If you are creating this [ColorProducer] outside of composition
+ *   (where it will be automatically remembered), make sure that its instance is stable (such as by
+ *   remembering the object that holds it), or remember the returned [ripple] object to make sure
+ *   that ripple nodes are not being created each recomposition.
+ * @param bounded If true, ripples are clipped by the bounds of the target layout. Unbounded ripples
+ *   always animate from the target layout center, bounded ripples animate from the touch position.
  * @param radius the radius for the ripple. If [Dp.Unspecified] is provided then the size will be
- * calculated based on the target layout size.
+ *   calculated based on the target layout size.
  */
 @Stable
 fun ripple(
@@ -128,8 +126,8 @@ fun ripple(
 /**
  * Temporary CompositionLocal to allow configuring whether the old ripple implementation that uses
  * the deprecated [androidx.compose.material.ripple.RippleTheme] API should be used in Material
- * components and LocalIndication, instead of the new [ripple] API. This flag defaults to false,
- * and will be removed after one stable release: it should only be used to temporarily unblock
+ * components and LocalIndication, instead of the new [ripple] API. This flag defaults to false, and
+ * will be removed after one stable release: it should only be used to temporarily unblock
  * upgrading.
  *
  * Provide this CompositionLocal before you provide [MaterialTheme] to make sure it is correctly
@@ -140,7 +138,9 @@ fun ripple(
 @get:ExperimentalWearMaterial3Api
 @ExperimentalWearMaterial3Api
 val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
-    staticCompositionLocalOf { false }
+    staticCompositionLocalOf {
+        false
+    }
 
 // TODO: b/304985887 - remove after one stable release
 @Suppress("DEPRECATION_ERROR")
@@ -166,13 +166,12 @@ internal object CompatRippleTheme : androidx.compose.material.ripple.RippleTheme
     @Composable
     override fun defaultColor() = LocalContentColor.current
 
-    @Deprecated("Super method is deprecated")
-    @Composable
-    override fun rippleAlpha() = RippleAlpha
+    @Deprecated("Super method is deprecated") @Composable override fun rippleAlpha() = RippleAlpha
 }
 
 @Stable
-private class RippleNodeFactory private constructor(
+private class RippleNodeFactory
+private constructor(
     private val bounded: Boolean,
     private val radius: Dp,
     private val colorProducer: ColorProducer?,
@@ -184,11 +183,7 @@ private class RippleNodeFactory private constructor(
         colorProducer: ColorProducer
     ) : this(bounded, radius, colorProducer, Color.Unspecified)
 
-    constructor(
-        bounded: Boolean,
-        radius: Dp,
-        color: Color
-    ) : this(bounded, radius, null, color)
+    constructor(bounded: Boolean, radius: Dp, color: Color) : this(bounded, radius, null, color)
 
     override fun create(interactionSource: InteractionSource): DelegatableNode {
         val colorProducer = colorProducer ?: ColorProducer { color }
@@ -241,22 +236,17 @@ private class DelegatingThemeAwareRippleNode(
     }
 }
 
-private val RippleAlpha: RippleAlpha = RippleAlpha(
-    pressedAlpha = 0.10f,
-    focusedAlpha = 0.10f,
-    draggedAlpha = 0.16f,
-    hoveredAlpha = 0.08f
-)
+private val RippleAlpha: RippleAlpha =
+    RippleAlpha(
+        pressedAlpha = 0.10f,
+        focusedAlpha = 0.10f,
+        draggedAlpha = 0.16f,
+        hoveredAlpha = 0.08f
+    )
 
 private val CalculateRippleAlpha = { RippleAlpha }
 
-private val DefaultBoundedRipple = RippleNodeFactory(
-    bounded = true,
-    radius = Dp.Unspecified,
-    color = Color.Unspecified
-)
-private val DefaultUnboundedRipple = RippleNodeFactory(
-    bounded = false,
-    radius = Dp.Unspecified,
-    color = Color.Unspecified
-)
+private val DefaultBoundedRipple =
+    RippleNodeFactory(bounded = true, radius = Dp.Unspecified, color = Color.Unspecified)
+private val DefaultUnboundedRipple =
+    RippleNodeFactory(bounded = false, radius = Dp.Unspecified, color = Color.Unspecified)

@@ -44,8 +44,7 @@ public fun interface TouchExplorationStateProvider {
      * attach the state to itself. This will allow composables to react to change in service state,
      * if required.
      */
-    @Composable
-    fun touchExplorationState(): State<Boolean>
+    @Composable fun touchExplorationState(): State<Boolean>
 }
 
 /**
@@ -87,9 +86,7 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         onDispose: () -> Unit = {}
     ) {
         DisposableEffect(this) {
-            val observer = LifecycleEventObserver { _, event ->
-                handleEvent(event)
-            }
+            val observer = LifecycleEventObserver { _, event -> handleEvent(event) }
             this@ObserveState.addObserver(observer)
             onDispose {
                 onDispose()
@@ -98,14 +95,14 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         }
     }
 
-    private class Listener constructor(
+    private class Listener
+    constructor(
         private val accessibilityManager: AccessibilityManager,
     ) : AccessibilityStateChangeListener, TouchExplorationStateChangeListener, State<Boolean> {
 
         private var accessibilityEnabled by mutableStateOf(accessibilityManager.isEnabled)
-        private var touchExplorationEnabled by mutableStateOf(
-            accessibilityManager.isTouchExplorationEnabled
-        )
+        private var touchExplorationEnabled by
+            mutableStateOf(accessibilityManager.isTouchExplorationEnabled)
 
         override val value: Boolean
             get() = accessibilityEnabled && touchExplorationEnabled

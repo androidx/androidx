@@ -38,15 +38,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Benchmark for Wear Compose TimeText.
- */
+/** Benchmark for Wear Compose TimeText. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TimeTextBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val timeTextCaseFactory = { TimeTextTestCase() }
 
@@ -95,34 +92,20 @@ internal class TimeTextTestCase : LayeredComposeTestCase() {
                     text = "Leading content",
                 )
             },
-            textLinearSeparator = {
-                TimeTextDefaults.TextSeparator()
-            },
+            textLinearSeparator = { TimeTextDefaults.TextSeparator() },
             endLinearContent = {
                 Text(
                     text = "Trailing content",
                 )
             },
-            startCurvedContent = {
-                curvedText(
-                    text = "Leading content"
-                )
-            },
-            textCurvedSeparator = {
-                CurvedTextSeparator()
-            },
-            endCurvedContent = {
-                curvedText(
-                    text = "Trailing content"
-                )
-            },
+            startCurvedContent = { curvedText(text = "Leading content") },
+            textCurvedSeparator = { CurvedTextSeparator() },
+            endCurvedContent = { curvedText(text = "Trailing content") },
         )
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

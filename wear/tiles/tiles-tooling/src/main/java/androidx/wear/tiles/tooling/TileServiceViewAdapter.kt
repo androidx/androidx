@@ -42,17 +42,18 @@ import kotlin.math.roundToInt
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
-private val defaultPlatformDataValues = PlatformDataValues.Builder()
-    .put(PlatformHealthSources.Keys.HEART_RATE_BPM, DynamicDataValue.fromFloat(80f))
-    .put(
-        PlatformHealthSources.Keys.HEART_RATE_ACCURACY,
-        DynamicHeartRateAccuracy.dynamicDataValueOf(HEART_RATE_ACCURACY_MEDIUM)
-    )
-    .put(PlatformHealthSources.Keys.DAILY_STEPS, DynamicDataValue.fromInt(4710))
-    .put(PlatformHealthSources.Keys.DAILY_FLOORS, DynamicDataValue.fromFloat(12.5f))
-    .put(PlatformHealthSources.Keys.DAILY_CALORIES, DynamicDataValue.fromFloat(245.3f))
-    .put(PlatformHealthSources.Keys.DAILY_DISTANCE_METERS, DynamicDataValue.fromFloat(3670.8f))
-    .build()
+private val defaultPlatformDataValues =
+    PlatformDataValues.Builder()
+        .put(PlatformHealthSources.Keys.HEART_RATE_BPM, DynamicDataValue.fromFloat(80f))
+        .put(
+            PlatformHealthSources.Keys.HEART_RATE_ACCURACY,
+            DynamicHeartRateAccuracy.dynamicDataValueOf(HEART_RATE_ACCURACY_MEDIUM)
+        )
+        .put(PlatformHealthSources.Keys.DAILY_STEPS, DynamicDataValue.fromInt(4710))
+        .put(PlatformHealthSources.Keys.DAILY_FLOORS, DynamicDataValue.fromFloat(12.5f))
+        .put(PlatformHealthSources.Keys.DAILY_CALORIES, DynamicDataValue.fromFloat(245.3f))
+        .put(PlatformHealthSources.Keys.DAILY_DISTANCE_METERS, DynamicDataValue.fromFloat(3670.8f))
+        .build()
 
 /**
  * A method extending functionality of [Class.getDeclaredMethod] allowing to finding the methods
@@ -71,7 +72,8 @@ internal fun Class<out Any>.findMethod(
     }
     val methodSignature = "$name(${parameterTypes.joinToString { ", " }})"
     throw NoSuchMethodException(
-        "Could not find method $methodSignature neither in $this nor in its superclasses.")
+        "Could not find method $methodSignature neither in $this nor in its superclasses."
+    )
 }
 
 /**
@@ -88,8 +90,8 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
     }
 
     private fun init(attrs: AttributeSet) {
-        val tilePreviewMethodFqn = attrs.getAttributeValue(TOOLS_NS_URI, "tilePreviewMethodFqn")
-            ?: return
+        val tilePreviewMethodFqn =
+            attrs.getAttributeValue(TOOLS_NS_URI, "tilePreviewMethodFqn") ?: return
 
         init(tilePreviewMethodFqn)
     }
@@ -99,14 +101,15 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         val platformDataValues = getPlatformDataValues(tilePreview)
 
         lateinit var tileRenderer: TileRenderer
-        tileRenderer = TileRenderer.Builder(context, executor) { newState ->
-            tileRenderer.previewTile(tilePreview, newState)
-        }
-            .addPlatformDataProvider(
-                StaticPlatformDataProvider(platformDataValues),
-                *platformDataValues.all.keys.toTypedArray()
-            )
-            .build()
+        tileRenderer =
+            TileRenderer.Builder(context, executor) { newState ->
+                    tileRenderer.previewTile(tilePreview, newState)
+                }
+                .addPlatformDataProvider(
+                    StaticPlatformDataProvider(platformDataValues),
+                    *platformDataValues.all.keys.toTypedArray()
+                )
+                .build()
 
         tileRenderer.previewTile(tilePreview)
     }
@@ -116,31 +119,34 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         currentState: StateBuilders.State? = null
     ) {
         val deviceParams = context.buildDeviceParameters()
-        val tileRequest = RequestBuilders.TileRequest
-            .Builder()
-            .apply {
-                currentState?.let { setCurrentState(it) }
-            }
-            .setDeviceConfiguration(deviceParams)
-            .build()
+        val tileRequest =
+            RequestBuilders.TileRequest.Builder()
+                .apply { currentState?.let { setCurrentState(it) } }
+                .setDeviceConfiguration(deviceParams)
+                .build()
 
-        val tile = tilePreview.onTileRequest(tileRequest).also { tile ->
-            tile.state?.let { setState(it.keyToValueMapping) }
-        }
+        val tile =
+            tilePreview.onTileRequest(tileRequest).also { tile ->
+                tile.state?.let { setState(it.keyToValueMapping) }
+            }
         val layout = tile.tileTimeline?.getCurrentLayout() ?: return
 
-        val resourcesRequest = ResourcesRequest.Builder()
-            .setDeviceConfiguration(deviceParams)
-            .setVersion(tile.resourcesVersion)
-            .build()
+        val resourcesRequest =
+            ResourcesRequest.Builder()
+                .setDeviceConfiguration(deviceParams)
+                .setVersion(tile.resourcesVersion)
+                .build()
         val resources = tilePreview.onTileResourceRequest(resourcesRequest)
 
         val inflateFuture = inflateAsync(layout, resources, this@TileServiceViewAdapter)
-        inflateFuture.addListener({
-            inflateFuture.get()?.let {
-                (it.layoutParams as LayoutParams).gravity = Gravity.CENTER
-            }
-        }, executor)
+        inflateFuture.addListener(
+            {
+                inflateFuture.get()?.let {
+                    (it.layoutParams as LayoutParams).gravity = Gravity.CENTER
+                }
+            },
+            executor
+        )
     }
 
     @SuppressLint("BanUncheckedReflection")
@@ -149,17 +155,19 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         val methodName = tilePreviewMethodFqn.substringAfterLast('.')
 
         val methods = Class.forName(className).declaredMethods.filter { it.name == methodName }
-        methods.firstOrNull {
-            it.parameterCount == 1 && it.parameters.first().type == Context::class.java
-        }?.let { methodWithContextParameter ->
-            return invokeTilePreviewMethod(methodWithContextParameter, context)
-        }
+        methods
+            .firstOrNull {
+                it.parameterCount == 1 && it.parameters.first().type == Context::class.java
+            }
+            ?.let { methodWithContextParameter ->
+                return invokeTilePreviewMethod(methodWithContextParameter, context)
+            }
 
-        return methods.firstOrNull {
-            it.name == methodName && it.parameterCount == 0
-        }?.let { methodWithoutContextParameter ->
-            return invokeTilePreviewMethod(methodWithoutContextParameter)
-        }
+        return methods
+            .firstOrNull { it.name == methodName && it.parameterCount == 0 }
+            ?.let { methodWithoutContextParameter ->
+                return invokeTilePreviewMethod(methodWithoutContextParameter)
+            }
     }
 
     @SuppressLint("BanUncheckedReflection")
@@ -188,22 +196,19 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
 internal fun TimelineBuilders.Timeline?.getCurrentLayout(): LayoutElementBuilders.Layout? {
     val now = System.currentTimeMillis()
     return this?.let {
-        val cache = TilesTimelineCache(it)
-        cache.findTileTimelineEntryForTime(now) ?: cache.findClosestTileTimelineEntry(now)
-    }?.layout
+            val cache = TilesTimelineCache(it)
+            cache.findTileTimelineEntryForTime(now) ?: cache.findClosestTileTimelineEntry(now)
+        }
+        ?.layout
 }
 
-/**
- * Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context].
- */
+/** Creates an instance of [DeviceParametersBuilders.DeviceParameters] from the [Context]. */
 internal fun Context.buildDeviceParameters(): DeviceParametersBuilders.DeviceParameters {
     val displayMetrics = resources.displayMetrics
     val isScreenRound = resources.configuration.isScreenRound
     return DeviceParametersBuilders.DeviceParameters.Builder()
-        .setScreenWidthDp(
-            (displayMetrics.widthPixels / displayMetrics.density).roundToInt())
-        .setScreenHeightDp(
-            (displayMetrics.heightPixels / displayMetrics.density).roundToInt())
+        .setScreenWidthDp((displayMetrics.widthPixels / displayMetrics.density).roundToInt())
+        .setScreenHeightDp((displayMetrics.heightPixels / displayMetrics.density).roundToInt())
         .setScreenDensity(displayMetrics.density)
         .setScreenShape(
             if (isScreenRound) DeviceParametersBuilders.SCREEN_SHAPE_ROUND

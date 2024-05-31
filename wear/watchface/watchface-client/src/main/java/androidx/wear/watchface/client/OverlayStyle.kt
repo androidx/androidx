@@ -21,8 +21,8 @@ import android.graphics.Color
 /**
  * This class reflects a snapshot of [androidx.wear.watchface.WatchFace.OverlayStyle].
  *
- * Note while this plumbing got built, it was never used by the system ui on any platform
- * and it will be removed.
+ * Note while this plumbing got built, it was never used by the system ui on any platform and it
+ * will be removed.
  */
 @Deprecated("OverlayStyle will be removed in a future release.")
 public class OverlayStyle(

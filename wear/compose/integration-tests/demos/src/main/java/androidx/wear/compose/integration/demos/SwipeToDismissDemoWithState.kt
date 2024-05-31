@@ -40,9 +40,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleButton
 
 @Composable
-fun SwipeToDismissBoxWithState(
-    quit: () -> Unit
-) {
+fun SwipeToDismissBoxWithState(quit: () -> Unit) {
     // This sample flips between 2 stateful composables when you swipe:
     //   1) ToggleScreen - displays a ToggleButton that alternates between On/Off
     //   2) CounterScreen - displays a counter Button that increments when clicked

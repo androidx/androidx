@@ -28,48 +28,44 @@ import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
- * [RadioButton] provides an animated radio selection control for use in [SelectableButton]
- * or [SplitSelectableButton].
+ * [RadioButton] provides an animated radio selection control for use in [SelectableButton] or
+ * [SplitSelectableButton].
  *
  * RadioButton sample:
+ *
  * @sample androidx.wear.compose.material3.samples.SelectableButtonSample
  *
  * @param modifier Modifier to be applied to the radio button control. This can be used to provide a
- * content description for accessibility.
+ *   content description for accessibility.
  * @param colors [RadioButtonColors] from which the [RadioButton] control colors will be obtained.
  */
 @Composable
 fun SelectionControlScope.RadioButton(
     modifier: Modifier = Modifier,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
-) = androidx.wear.compose.materialcore.RadioButton(
-    modifier = modifier,
-    selected = isSelected,
-    enabled = isEnabled,
-    ringColor = { isEnabled, isSelected ->
-        colors.color(
-            enabled = isEnabled,
-            selected = isSelected
-        )
-    },
-    dotColor = { isEnabled, isSelected ->
-        colors.color(
-            enabled = isEnabled,
-            selected = isSelected
-        )
-    },
-    onClick = null,
-    interactionSource = null,
-    dotRadiusProgressDuration = {
-        isSelected -> if (isSelected) MotionTokens.DurationMedium1 else MotionTokens.DurationShort3
-    },
-    dotAlphaProgressDuration = MotionTokens.DurationShort3,
-    dotAlphaProgressDelay = MotionTokens.DurationShort2,
-    easing = MotionTokens.EasingStandardDecelerate,
-    width = WIDTH,
-    height = HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) =
+    androidx.wear.compose.materialcore.RadioButton(
+        modifier = modifier,
+        selected = isSelected,
+        enabled = isEnabled,
+        ringColor = { isEnabled, isSelected ->
+            colors.color(enabled = isEnabled, selected = isSelected)
+        },
+        dotColor = { isEnabled, isSelected ->
+            colors.color(enabled = isEnabled, selected = isSelected)
+        },
+        onClick = null,
+        interactionSource = null,
+        dotRadiusProgressDuration = { isSelected ->
+            if (isSelected) MotionTokens.DurationMedium1 else MotionTokens.DurationShort3
+        },
+        dotAlphaProgressDuration = MotionTokens.DurationShort3,
+        dotAlphaProgressDelay = MotionTokens.DurationShort2,
+        easing = MotionTokens.EasingStandardDecelerate,
+        width = WIDTH,
+        height = HEIGHT,
+        ripple = rippleOrFallbackImplementation()
+    )
 
 /**
  * Represents the content colors used in the [RadioButton] selection control in different states.
@@ -87,15 +83,16 @@ class RadioButtonColors(
     val disabledUnselectedColor: Color
 ) {
     @Composable
-    internal fun color(enabled: Boolean, selected: Boolean): State<Color> = animateSelectionColor(
-        enabled = enabled,
-        checked = selected,
-        checkedColor = selectedColor,
-        uncheckedColor = unselectedColor,
-        disabledCheckedColor = disabledSelectedColor,
-        disabledUncheckedColor = disabledUnselectedColor,
-        animationSpec = COLOR_ANIMATION_SPEC
-    )
+    internal fun color(enabled: Boolean, selected: Boolean): State<Color> =
+        animateSelectionColor(
+            enabled = enabled,
+            checked = selected,
+            checkedColor = selectedColor,
+            uncheckedColor = unselectedColor,
+            disabledCheckedColor = disabledSelectedColor,
+            disabledUncheckedColor = disabledUnselectedColor,
+            animationSpec = COLOR_ANIMATION_SPEC
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -118,9 +115,7 @@ class RadioButtonColors(
     }
 }
 
-/**
- * Contains the default values used by the [RadioButton] selection control.
- */
+/** Contains the default values used by the [RadioButton] selection control. */
 object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] for use in a [RadioButton] selection control.

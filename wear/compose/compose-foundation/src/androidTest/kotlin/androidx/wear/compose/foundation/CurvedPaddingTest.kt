@@ -25,18 +25,11 @@ import org.junit.Test
 
 class CurvedPaddingTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun padding_all_works() =
-        check_padding_result(
-            3.dp,
-            3.dp,
-            3.dp,
-            3.dp,
-            CurvedModifier.padding(3.dp)
-        )
+        check_padding_result(3.dp, 3.dp, 3.dp, 3.dp, CurvedModifier.padding(3.dp))
 
     @Test
     fun padding_angular_and_radial_works() =
@@ -55,12 +48,7 @@ class CurvedPaddingTest {
             innerPadding = 4.dp,
             beforePadding = 5.dp,
             afterPadding = 6.dp,
-            CurvedModifier.padding(
-                outer = 3.dp,
-                inner = 4.dp,
-                before = 5.dp,
-                after = 6.dp
-            )
+            CurvedModifier.padding(outer = 3.dp, inner = 4.dp, before = 5.dp, after = 6.dp)
         )
 
     @Test
@@ -70,9 +58,7 @@ class CurvedPaddingTest {
             14.dp,
             18.dp,
             25.dp,
-            CurvedModifier
-                .padding(3.dp, 4.dp, 5.dp, 6.dp)
-                .padding(8.dp, 10.dp, 13.dp, 19.dp)
+            CurvedModifier.padding(3.dp, 4.dp, 5.dp, 6.dp).padding(8.dp, 10.dp, 13.dp, 19.dp)
         )
 
     private fun check_padding_result(
@@ -104,15 +90,16 @@ class CurvedPaddingTest {
                 componentThicknessPx = componentThickness.toPx()
             }
             CurvedLayout {
-                curvedRow(modifier = CurvedModifier
-                    .spy(paddedCapturedInfo)
-                    .then(modifier)
-                    .spy(componentCapturedInfo)
-                    .size(
-                        sweepDegrees = componentSweepDegrees,
-                        thickness = componentThickness
-                    )
-                ) { }
+                curvedRow(
+                    modifier =
+                        CurvedModifier.spy(paddedCapturedInfo)
+                            .then(modifier)
+                            .spy(componentCapturedInfo)
+                            .size(
+                                sweepDegrees = componentSweepDegrees,
+                                thickness = componentThickness
+                            )
+                ) {}
             }
         }
 

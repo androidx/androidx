@@ -26,8 +26,8 @@ import androidx.wear.watchface.WatchFaceService
 /**
  * Common base class for the androidx sample watch faces.
  *
- * You can trigger these to quit with:
- * `adb shell am broadcast -a androidx.wear.watchface.samples.QUIT`
+ * You can trigger these to quit with: `adb shell am broadcast -a
+ * androidx.wear.watchface.samples.QUIT`
  */
 abstract class SampleWatchFaceService : WatchFaceService() {
     override fun onCreate() {

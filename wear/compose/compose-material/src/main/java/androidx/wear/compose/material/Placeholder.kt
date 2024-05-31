@@ -71,19 +71,20 @@ import kotlinx.coroutines.isActive
  * that needs to be displayed in a component is not yet available, e.g. it is loading
  * asynchronously.
  *
- * A [PlaceholderState] should be created for each component that has placeholder data. The
- * state is used to coordinate all of the different placeholder effects and animations.
+ * A [PlaceholderState] should be created for each component that has placeholder data. The state is
+ * used to coordinate all of the different placeholder effects and animations.
  *
- * Placeholder has a number of different effects designed to work together.
- * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
- * can be multiple placeholders in a component.
- * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
- * placeholders. There should only be one placeholderShimmer for each component.
+ * Placeholder has a number of different effects designed to work together. [Modifier.placeholder]
+ * draws a placeholder shape on top of content that is waiting to load. There can be multiple
+ * placeholders in a component. [Modifier.placeholderShimmer] does a shimmer animation over the
+ * whole component that includes the placeholders. There should only be one placeholderShimmer for
+ * each component.
  *
  * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
  * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
  * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
  * modifiers.
+ *
  * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * Background placeholder effects are used to mask the background of components like chips and cards
@@ -97,7 +98,8 @@ import kotlinx.coroutines.isActive
  */
 @ExperimentalWearMaterialApi
 @Stable
-public class PlaceholderState internal constructor(
+public class PlaceholderState
+internal constructor(
     private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
     private val isReduceMotionEnabled: Boolean
@@ -117,16 +119,12 @@ public class PlaceholderState internal constructor(
      */
     internal var backgroundOffset: Offset = Offset.Zero
 
-    /**
-     * Start the animation of the placeholder state.
-     */
+    /** Start the animation of the placeholder state. */
     public suspend fun startPlaceholderAnimation() {
         if (!isReduceMotionEnabled) {
             coroutineScope {
                 while (isActive) {
-                    withInfiniteAnimationFrameMillis {
-                        frameMillis.longValue = it
-                    }
+                    withInfiniteAnimationFrameMillis { frameMillis.longValue = it }
                 }
             }
         }
@@ -146,10 +144,11 @@ public class PlaceholderState internal constructor(
      * [PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS]
      */
     internal val placeholderWipeOffProgression: Float by derivedStateOf {
-        val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
-        ).toFloat() /
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
+        val absoluteProgression =
+            ((frameMillis.longValue - startOfWipeOffAnimation)
+                    .coerceAtMost(PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS)
+                    .toFloat() / PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS)
+                .coerceAtMost(1f)
         val easedProgression = wipeOffInterpolator.transform(absoluteProgression)
         lerp(-maxScreenDimension * 1.75f, maxScreenDimension * 0.75f, easedProgression)
     }
@@ -161,20 +160,19 @@ public class PlaceholderState internal constructor(
      *
      * The progression represents the x and y coordinates in pixels of the Top|Left part of the
      * gradient that flows across the screen. The progression will start at -maxScreenDimension (max
-     * of height/width to create a 45 degree angle) and progress to the
-     * maximumScreenDimension.
+     * of height/width to create a 45 degree angle) and progress to the maximumScreenDimension.
      *
      * The time taken for this progression is [PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS]
      */
     @ExperimentalWearMaterialApi
     internal val placeholderWipeOffAlpha: Float by derivedStateOf {
-        val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS
-        ).toFloat() /
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).coerceAtMost(1f)
+        val absoluteProgression =
+            ((frameMillis.longValue - startOfWipeOffAnimation)
+                    .coerceAtMost(PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS)
+                    .toFloat() / PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS)
+                .coerceAtMost(1f)
 
-        val alpha =
-            lerp(0f, 1f, absoluteProgression)
+        val alpha = lerp(0f, 1f, absoluteProgression)
         wipeOffInterpolator.transform(alpha)
     }
 
@@ -187,9 +185,10 @@ public class PlaceholderState internal constructor(
     @ExperimentalWearMaterialApi
     public val placeholderProgression: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
-                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
-                PLACEHOLDER_SHIMMER_DURATION_MS)
+            (frameMillis.longValue
+                .mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
+                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS)
+                .toFloat() / PLACEHOLDER_SHIMMER_DURATION_MS)
         val easedProgression = progressionInterpolator.transform(absoluteProgression)
         lerp(-maxScreenDimension * 0.5f, maxScreenDimension * 1.5f, easedProgression)
     }
@@ -202,29 +201,29 @@ public class PlaceholderState internal constructor(
     @ExperimentalWearMaterialApi
     internal val placeholderShimmerAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue.mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
-                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS).toFloat() /
-                PLACEHOLDER_SHIMMER_DURATION_MS)
+            (frameMillis.longValue
+                .mod(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS)
+                .coerceAtMost(PLACEHOLDER_SHIMMER_DURATION_MS)
+                .toFloat() / PLACEHOLDER_SHIMMER_DURATION_MS)
 
         if (absoluteProgression <= 0.5f) {
-            val alpha =
-                lerp(0f, 0.15f, absoluteProgression * 2f)
+            val alpha = lerp(0f, 0.15f, absoluteProgression * 2f)
             progressionInterpolator.transform(alpha)
         } else {
-            val alpha =
-                lerp(0.15f, 0f, (absoluteProgression - 0.5f) * 2f)
+            val alpha = lerp(0.15f, 0f, (absoluteProgression - 0.5f) * 2f)
             progressionInterpolator.transform(alpha)
         }
     }
 
     /**
      * The current value of the placeholder visual effect gradient progression alpha/opacity during
-     * the fade-in part of reset placeholder animation. This allows the effect to be faded in
-     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION].
+     * the fade-in part of reset placeholder animation. This allows the effect to be faded in during
+     * the [PLACEHOLDER_RESET_ANIMATION_DURATION].
      */
     internal val resetPlaceholderFadeInAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue - startOfResetAnimation - RAPID).coerceAtMost(QUICK.toLong())
+            (frameMillis.longValue - startOfResetAnimation - RAPID)
+                .coerceAtMost(QUICK.toLong())
                 .toFloat() / QUICK.toFloat()
         if (absoluteProgression < 0f) {
             0f
@@ -241,8 +240,8 @@ public class PlaceholderState internal constructor(
      */
     internal val resetPlaceholderFadeOutAlpha: Float by derivedStateOf {
         val absoluteProgression =
-            (frameMillis.longValue - startOfResetAnimation).coerceAtMost(RAPID.toLong())
-                .toFloat() / RAPID.toFloat()
+            (frameMillis.longValue - startOfResetAnimation).coerceAtMost(RAPID.toLong()).toFloat() /
+                RAPID.toFloat()
         val alpha = lerp(1f, 0f, absoluteProgression)
         resetFadeOutInterpolator.transform(alpha)
     }
@@ -259,64 +258,67 @@ public class PlaceholderState internal constructor(
      * Should only be called when [isShowContent] is false. Returns true if the wipe-off effect that
      * reveals content should be shown and false if the placeholder effect should be shown.
      */
-    public val isWipeOff: Boolean by derivedStateOf {
-        placeholderStage == PlaceholderStage.WipeOff
-    }
+    public val isWipeOff: Boolean by derivedStateOf { placeholderStage == PlaceholderStage.WipeOff }
 
     /**
      * The width of the gradient to use for the placeholder shimmer and wipe-off effects. This is
-     * the value in pixels that should be used in either horizontal or vertical direction to
-     * be equivalent to a gradient width of 2 x maxScreenDimension rotated through 45 degrees.
+     * the value in pixels that should be used in either horizontal or vertical direction to be
+     * equivalent to a gradient width of 2 x maxScreenDimension rotated through 45 degrees.
      */
-    internal val gradientXYWidth: Float by derivedStateOf {
-        maxScreenDimension * 2f.pow(1.5f)
-    }
+    internal val gradientXYWidth: Float by derivedStateOf { maxScreenDimension * 2f.pow(1.5f) }
 
     internal var placeholderStage: PlaceholderStage =
         if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
         else PlaceholderStage.ShowPlaceholder
-        get() = derivedStateOf {
-            if (field == PlaceholderStage.WipeOff || field == PlaceholderStage.ShowPlaceholder) {
-                // WipeOff
-                if (startOfWipeOffAnimation != 0L) {
-                    if ((frameMillis.longValue - startOfWipeOffAnimation) >=
-                        PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
+        get() =
+            derivedStateOf {
+                    if (
+                        field == PlaceholderStage.WipeOff ||
+                            field == PlaceholderStage.ShowPlaceholder
                     ) {
-                        field = PlaceholderStage.ShowContent
-                    }
-                    // Placeholder
-                } else if (isContentReady.value()) {
-                    if (isReduceMotionEnabled) {
-                        field = PlaceholderStage.ShowContent
-                    } else {
-                        startOfWipeOffAnimation = frameMillis.longValue
-                        field = PlaceholderStage.WipeOff
-                    }
-                }
-            } else {
-                if (!isContentReady.value()) {
-                    // Reset
-                    if (startOfResetAnimation != 0L) {
-                        if (frameMillis.longValue - startOfResetAnimation >=
-                            PLACEHOLDER_RESET_ANIMATION_DURATION
-                        ) {
-                            startOfResetAnimation = 0L
-                            field = PlaceholderStage.ShowPlaceholder
+                        // WipeOff
+                        if (startOfWipeOffAnimation != 0L) {
+                            if (
+                                (frameMillis.longValue - startOfWipeOffAnimation) >=
+                                    PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
+                            ) {
+                                field = PlaceholderStage.ShowContent
+                            }
+                            // Placeholder
+                        } else if (isContentReady.value()) {
+                            if (isReduceMotionEnabled) {
+                                field = PlaceholderStage.ShowContent
+                            } else {
+                                startOfWipeOffAnimation = frameMillis.longValue
+                                field = PlaceholderStage.WipeOff
+                            }
                         }
                     } else {
-                        // ShowContent
-                        startOfWipeOffAnimation = 0L
-                        if (isReduceMotionEnabled) {
-                            field = PlaceholderStage.ShowPlaceholder
-                        } else {
-                            startOfResetAnimation = frameMillis.longValue
-                            field = PlaceholderStage.ResetContent
+                        if (!isContentReady.value()) {
+                            // Reset
+                            if (startOfResetAnimation != 0L) {
+                                if (
+                                    frameMillis.longValue - startOfResetAnimation >=
+                                        PLACEHOLDER_RESET_ANIMATION_DURATION
+                                ) {
+                                    startOfResetAnimation = 0L
+                                    field = PlaceholderStage.ShowPlaceholder
+                                }
+                            } else {
+                                // ShowContent
+                                startOfWipeOffAnimation = 0L
+                                if (isReduceMotionEnabled) {
+                                    field = PlaceholderStage.ShowPlaceholder
+                                } else {
+                                    startOfResetAnimation = frameMillis.longValue
+                                    field = PlaceholderStage.ResetContent
+                                }
+                            }
                         }
                     }
+                    field
                 }
-            }
-            field
-        }.value
+                .value
 
     /**
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate
@@ -337,14 +339,14 @@ public class PlaceholderState internal constructor(
  * Creates a [PlaceholderState] that is remembered across compositions. To start placeholder
  * animations run [PlaceholderState.startPlaceholderAnimation].
  *
- *  A [PlaceholderState] should be created for each component that has placeholder data. The
- * state is used to coordinate all of the different placeholder effects and animations.
+ * A [PlaceholderState] should be created for each component that has placeholder data. The state is
+ * used to coordinate all of the different placeholder effects and animations.
  *
- * Placeholder has a number of different effects designed to work together.
- * [Modifier.placeholder] draws a placeholder shape on top of content that is waiting to load. There
- * can be multiple placeholders in a component.
- * [Modifier.placeholderShimmer] does a shimmer animation over the whole component that includes the
- * placeholders. There should only be one placeholderShimmer for each component.
+ * Placeholder has a number of different effects designed to work together. [Modifier.placeholder]
+ * draws a placeholder shape on top of content that is waiting to load. There can be multiple
+ * placeholders in a component. [Modifier.placeholderShimmer] does a shimmer animation over the
+ * whole component that includes the placeholders. There should only be one placeholderShimmer for
+ * each component.
  *
  * Background placeholder effects are used to mask the background of components like chips and cards
  * until all of the data has loaded. Use [PlaceholderDefaults.placeholderChipColors]
@@ -356,26 +358,17 @@ public class PlaceholderState internal constructor(
  * and a wipe off animation will remove the placeholders to reveal the content.
  *
  * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
- * given component and is ready to be displayed.
+ *   given component and is ready to be displayed.
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 @ExperimentalWearMaterialApi
 @Composable
-public fun rememberPlaceholderState(
-    isContentReady: () -> Boolean
-): PlaceholderState {
-    val maxScreenDimension = with(LocalDensity.current) {
-        Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
-    }
+public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderState {
+    val maxScreenDimension =
+        with(LocalDensity.current) { Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx() }
     val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
     val myLambdaState = rememberUpdatedState(isContentReady)
-    return remember {
-        PlaceholderState(
-            myLambdaState,
-            maxScreenDimension,
-            isReduceMotionEnabled
-        )
-    }
+    return remember { PlaceholderState(myLambdaState, maxScreenDimension, isReduceMotionEnabled) }
 }
 
 /**
@@ -383,10 +376,12 @@ public fun rememberPlaceholderState(
  * the placeholder. Typically used whilst content is 'loading' and then 'revealed'.
  *
  * Example of a [Chip] with icon and a label that put placeholders over individual content slots:
+ *
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
  *
  * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip] over
  * the top of it when waiting for placeholder data to load:
+ *
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
  *
  * The [placeholderState] determines when to 'show' and 'wipe off' the placeholder.
@@ -395,10 +390,11 @@ public fun rememberPlaceholderState(
  * [Modifier.placeholderShimmer] to the same composable then the shimmer must be first in the
  * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
  * modifiers.
+ *
  * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * @param placeholderState determines whether the placeholder is visible and controls animation
- * effects for the placeholder.
+ *   effects for the placeholder.
  * @param shape the shape to apply to the placeholder
  * @param color the color of the placeholder.
  */
@@ -408,19 +404,23 @@ public fun Modifier.placeholder(
     placeholderState: PlaceholderState,
     shape: Shape = MaterialTheme.shapes.small,
     color: Color =
-        MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
+        MaterialTheme.colors.onSurface
+            .copy(alpha = 0.1f)
             .compositeOver(MaterialTheme.colors.surface)
-): Modifier = this then PlaceholderElement(
-    placeholderState = placeholderState,
-    color = color,
-    shape = shape,
-    inspectorInfo = debugInspectorInfo {
-        name = "placeholder"
-        properties["placeholderState"] = placeholderState
-        properties["shape"] = shape
-        properties["color"] = color
-    }
-)
+): Modifier =
+    this then
+        PlaceholderElement(
+            placeholderState = placeholderState,
+            color = color,
+            shape = shape,
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "placeholder"
+                    properties["placeholderState"] = placeholderState
+                    properties["shape"] = shape
+                    properties["color"] = color
+                }
+        )
 
 /**
  * Modifier to draw a placeholder shimmer over a component. The placeholder shimmer is a 45 degree
@@ -428,23 +428,26 @@ public fun Modifier.placeholder(
  * animation frame clock which orchestrates the shimmer so that every component will shimmer as the
  * gradient progresses across the screen.
  *
- * Example of a [Chip] with icon and a label that put placeholders over individual content slots
- * and then draws a placeholder shimmer over the result:
+ * Example of a [Chip] with icon and a label that put placeholders over individual content slots and
+ * then draws a placeholder shimmer over the result:
+ *
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
  *
  * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip] over
  * the top of it when waiting for placeholder data to load and then draws a placeholder shimmer over
  * the top:
+ *
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
  *
  * NOTE: The order of modifiers is important. If you are adding both [Modifier.placeholder] and
  * [Modifier.placeholderShimmer] to the same composable then the shimmer must be before in the
  * modifier chain. Example of [Text] composable with both placeholderShimmer and placeholder
  * modifiers.
+ *
  * @sample androidx.wear.compose.material.samples.TextPlaceholder
  *
  * @param placeholderState the current placeholder state that determine whether the placeholder
- * shimmer should be shown.
+ *   shimmer should be shown.
  * @param shape the shape of the component.
  * @param color the color to use in the shimmer.
  */
@@ -455,33 +458,35 @@ public fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
     shape: Shape = MaterialTheme.shapes.small,
     color: Color = MaterialTheme.colors.onSurface,
-): Modifier = this.then(
-    if (LocalReduceMotion.current.enabled()) {
-        Modifier
-    } else {
-        PlaceholderShimmerElement(
-            placeholderState = placeholderState,
-            color = color,
-            shape = shape,
-            inspectorInfo = debugInspectorInfo {
-                name = "placeholderShimmer"
-                properties["placeholderState"] = placeholderState
-                properties["shape"] = shape
-                properties["color"] = color
-            }
-        )
-    }
-)
+): Modifier =
+    this.then(
+        if (LocalReduceMotion.current.enabled()) {
+            Modifier
+        } else {
+            PlaceholderShimmerElement(
+                placeholderState = placeholderState,
+                color = color,
+                shape = shape,
+                inspectorInfo =
+                    debugInspectorInfo {
+                        name = "placeholderShimmer"
+                        properties["placeholderState"] = placeholderState
+                        properties["shape"] = shape
+                        properties["color"] = color
+                    }
+            )
+        }
+    )
 
 /**
  * Contains the default values used for providing placeholders.
  *
- * There are three distinct but coordinated aspects to placeholders in Compose for Wear OS.
- * Firstly placeholder [Modifier.placeholder] which is drawn over content that is not yet loaded.
- * Secondly a placeholder background which provides a background brush to cover the usual background
- * of containers such as [Chip] or [Card] until all of the content has loaded.
- * Thirdly a placeholder shimmer effect [Modifier.placeholderShimmer] effect which runs in an
- * animation loop while waiting for the data to load.
+ * There are three distinct but coordinated aspects to placeholders in Compose for Wear OS. Firstly
+ * placeholder [Modifier.placeholder] which is drawn over content that is not yet loaded. Secondly a
+ * placeholder background which provides a background brush to cover the usual background of
+ * containers such as [Chip] or [Card] until all of the content has loaded. Thirdly a placeholder
+ * shimmer effect [Modifier.placeholderShimmer] effect which runs in an animation loop while waiting
+ * for the data to load.
  */
 @ExperimentalWearMaterialApi
 public object PlaceholderDefaults {
@@ -489,15 +494,15 @@ public object PlaceholderDefaults {
     /**
      * Create a [ChipColors] that can be used in placeholder mode. This will provide the placeholder
      * background effect that covers the normal chip background with a solid background of [color]
-     * when the [placeholderState] is set to show the placeholder and a wipe off gradient
-     * brush when the state is in wipe-off mode. If the state is
-     * [PlaceholderState.isShowContent] then the normal background will be used. All other colors
-     * will be delegated to [originalChipColors].
+     * when the [placeholderState] is set to show the placeholder and a wipe off gradient brush when
+     * the state is in wipe-off mode. If the state is [PlaceholderState.isShowContent] then the
+     * normal background will be used. All other colors will be delegated to [originalChipColors].
      *
      * Example of a [Chip] with icon and a label that put placeholders over individual content slots
-     * and then draws a placeholder shimmer over the result and draws over the [Chip]s
-     * normal background color with [color] as the placeholder background color which will be wiped
-     * away once all of the placeholder data is loaded:
+     * and then draws a placeholder shimmer over the result and draws over the [Chip]s normal
+     * background color with [color] as the placeholder background color which will be wiped away
+     * once all of the placeholder data is loaded:
+     *
      * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
      *
      * @param originalChipColors the chip colors to use when not in placeholder mode.
@@ -512,23 +517,25 @@ public object PlaceholderDefaults {
     ): ChipColors {
         return if (!placeholderState.isShowContent) {
             ChipDefaults.chipColors(
-                backgroundPainter = PlaceholderBackgroundPainter(
-                    painter = originalChipColors.background(enabled = true).value,
-                    placeholderState = placeholderState,
-                    color = color
-                ),
+                backgroundPainter =
+                    PlaceholderBackgroundPainter(
+                        painter = originalChipColors.background(enabled = true).value,
+                        placeholderState = placeholderState,
+                        color = color
+                    ),
                 contentColor = originalChipColors.contentColor(enabled = true).value,
-                secondaryContentColor = originalChipColors
-                    .secondaryContentColor(enabled = true).value,
+                secondaryContentColor =
+                    originalChipColors.secondaryContentColor(enabled = true).value,
                 iconColor = originalChipColors.iconColor(enabled = true).value,
-                disabledBackgroundPainter = PlaceholderBackgroundPainter(
-                    painter = originalChipColors.background(enabled = false).value,
-                    placeholderState = placeholderState,
-                    color = color
-                ),
+                disabledBackgroundPainter =
+                    PlaceholderBackgroundPainter(
+                        painter = originalChipColors.background(enabled = false).value,
+                        placeholderState = placeholderState,
+                        color = color
+                    ),
                 disabledContentColor = originalChipColors.contentColor(enabled = false).value,
-                disabledSecondaryContentColor = originalChipColors
-                    .secondaryContentColor(enabled = false).value,
+                disabledSecondaryContentColor =
+                    originalChipColors.secondaryContentColor(enabled = false).value,
                 disabledIconColor = originalChipColors.iconColor(enabled = false).value,
             )
         } else {
@@ -537,14 +544,15 @@ public object PlaceholderDefaults {
     }
 
     /**
-     * Create a [ChipColors] that can be used for a [Chip] that is used as a placeholder drawn
-     * on top of another [Chip]. When not drawing a placeholder background brush the chip
-     * will be transparent allowing the contents of the chip below to be displayed.
+     * Create a [ChipColors] that can be used for a [Chip] that is used as a placeholder drawn on
+     * top of another [Chip]. When not drawing a placeholder background brush the chip will be
+     * transparent allowing the contents of the chip below to be displayed.
      *
      * Example of a [Chip] with icon and a primary and secondary labels that draws another [Chip]
      * over the top of it when waiting for placeholder data to load and draws over the [Chip]s
      * normal background color with [color] as the placeholder background color which will be wiped
      * away once all of the placeholder data is loaded:
+     *
      * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
      *
      * @param color the color to use for the placeholder background brush.
@@ -556,19 +564,21 @@ public object PlaceholderDefaults {
         color: Color = MaterialTheme.colors.surface,
     ): ChipColors {
         return ChipDefaults.chipColors(
-            backgroundPainter = PlaceholderBackgroundPainter(
-                painter = null,
-                placeholderState = placeholderState,
-                color = color
-            ),
+            backgroundPainter =
+                PlaceholderBackgroundPainter(
+                    painter = null,
+                    placeholderState = placeholderState,
+                    color = color
+                ),
             contentColor = Color.Transparent,
             secondaryContentColor = Color.Transparent,
             iconColor = Color.Transparent,
-            disabledBackgroundPainter = PlaceholderBackgroundPainter(
-                painter = null,
-                placeholderState = placeholderState,
-                color = color
-            ),
+            disabledBackgroundPainter =
+                PlaceholderBackgroundPainter(
+                    painter = null,
+                    placeholderState = placeholderState,
+                    color = color
+                ),
             disabledContentColor = Color.Transparent,
             disabledSecondaryContentColor = Color.Transparent,
             disabledIconColor = Color.Transparent,
@@ -576,11 +586,11 @@ public object PlaceholderDefaults {
     }
 
     /**
-     * Create a [Painter] that wraps another painter and overlays a placeholder background brush
-     * on top. If the [placeholderState] is [PlaceholderState.isShowContent] the original painter
-     * will be used. Otherwise the [painter] will be drawn and then a placeholder background will be
-     * drawn over it or a wipe-off brush will be used to reveal the background
-     * when the state is [PlaceholderState.isWipeOff].
+     * Create a [Painter] that wraps another painter and overlays a placeholder background brush on
+     * top. If the [placeholderState] is [PlaceholderState.isShowContent] the original painter will
+     * be used. Otherwise the [painter] will be drawn and then a placeholder background will be
+     * drawn over it or a wipe-off brush will be used to reveal the background when the state is
+     * [PlaceholderState.isWipeOff].
      *
      * @param placeholderState the state of the placeholder
      * @param painter the original painter that will be drawn over when in placeholder mode.
@@ -604,10 +614,10 @@ public object PlaceholderDefaults {
     }
 
     /**
-     * Create a [Painter] that paints with a placeholder background brush.
-     * If the [placeholderState] is [PlaceholderState.isShowContent] then a transparent background
-     * will be shown. Otherwise a placeholder background will be drawn or a wipe-off brush
-     * will be used to reveal the content underneath when [PlaceholderState.isWipeOff] is true.
+     * Create a [Painter] that paints with a placeholder background brush. If the [placeholderState]
+     * is [PlaceholderState.isShowContent] then a transparent background will be shown. Otherwise a
+     * placeholder background will be drawn or a wipe-off brush will be used to reveal the content
+     * underneath when [PlaceholderState.isWipeOff] is true.
      *
      * @param placeholderState the state of the placeholder
      * @param color the color to use for the placeholder background brush
@@ -628,27 +638,23 @@ public object PlaceholderDefaults {
 @ExperimentalWearMaterialApi
 @Immutable
 @JvmInline
-/**
- * Enumerate the possible stages (states) that a placeholder can be in.
- */
+/** Enumerate the possible stages (states) that a placeholder can be in. */
 internal value class PlaceholderStage internal constructor(internal val type: Int) {
 
     companion object {
-        /**
-         * Show placeholders and placeholder effects. Use when waiting for content to load.
-         */
+        /** Show placeholders and placeholder effects. Use when waiting for content to load. */
         val ShowPlaceholder = PlaceholderStage(0)
 
         /**
          * Wipe off placeholder effects. Used to animate the wiping away of placeholders and
-         * revealing the content underneath. Enter this stage from [ShowPlaceholder] when the
-         * next animation loop is started and the content is ready.
+         * revealing the content underneath. Enter this stage from [ShowPlaceholder] when the next
+         * animation loop is started and the content is ready.
          */
         val WipeOff = PlaceholderStage(1)
 
         /**
-         * Indicates that placeholders no longer to be shown. Enter this stage from
-         * [WipeOff] in the loop after the wire-off animation.
+         * Indicates that placeholders no longer to be shown. Enter this stage from [WipeOff] in the
+         * loop after the wire-off animation.
          */
         val ShowContent = PlaceholderStage(2)
 
@@ -670,25 +676,25 @@ internal value class PlaceholderStage internal constructor(internal val type: In
 }
 
 @OptIn(ExperimentalWearMaterialApi::class)
-private fun wipeOffBrush(
-    color: Color,
-    offset: Offset,
-    placeholderState: PlaceholderState
-): Brush {
+private fun wipeOffBrush(color: Color, offset: Offset, placeholderState: PlaceholderState): Brush {
     val halfGradientWidth = placeholderState.gradientXYWidth / 2f
     return Brush.linearGradient(
-        colorStops = listOf(
-            0f to Color.Transparent,
-            0.75f to color,
-        ).toTypedArray(),
-        start = Offset(
-            x = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.x,
-            y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y
-        ),
-        end = Offset(
-            x = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.x,
-            y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y
-        ),
+        colorStops =
+            listOf(
+                    0f to Color.Transparent,
+                    0.75f to color,
+                )
+                .toTypedArray(),
+        start =
+            Offset(
+                x = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.x,
+                y = placeholderState.placeholderWipeOffProgression - halfGradientWidth - offset.y
+            ),
+        end =
+            Offset(
+                x = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.x,
+                y = placeholderState.placeholderWipeOffProgression + halfGradientWidth - offset.y
+            ),
     )
 }
 
@@ -707,33 +713,31 @@ internal class PlaceholderBackgroundPainter(
         // Due to anti aliasing we can not use a SolidColor brush over the top of the background
         // painter without seeing some background color bleeding through. As a result we use
         // the colorFilter to tint the normal background painter instead - b/253667329
-        val (brush, colorFilter) = when (placeholderState.placeholderStage) {
-            PlaceholderStage.WipeOff -> {
-                wipeOffBrush(
-                    color,
-                    placeholderState.backgroundOffset,
-                    placeholderState
-                ) to null
-            }
-
-            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
-                if (painter == null) {
-                    SolidColor(color) to null
-                } else {
-                    null to ColorFilter.tint(color = color)
+        val (brush, colorFilter) =
+            when (placeholderState.placeholderStage) {
+                PlaceholderStage.WipeOff -> {
+                    wipeOffBrush(color, placeholderState.backgroundOffset, placeholderState) to null
+                }
+                PlaceholderStage.ShowPlaceholder,
+                PlaceholderStage.ResetContent -> {
+                    if (painter == null) {
+                        SolidColor(color) to null
+                    } else {
+                        null to ColorFilter.tint(color = color)
+                    }
+                }
+                // For the ShowContent case
+                else -> {
+                    null to null
                 }
             }
-            // For the ShowContent case
-            else -> {
-                null to null
-            }
-        }
 
-        alpha = if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
-            1f - placeholderState.resetPlaceholderFadeOutAlpha
-        } else {
-            1f
-        }
+        alpha =
+            if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
+                1f - placeholderState.resetPlaceholderFadeOutAlpha
+            } else {
+                1f
+            }
 
         val size = this.size
         if (painter != null) {
@@ -783,9 +787,7 @@ internal class PlaceholderBackgroundPainter(
             "intrinsicSize=$intrinsicSize)"
     }
 
-    /**
-     * Size of the combined painter, return Unspecified to allow us to fill the available space
-     */
+    /** Size of the combined painter, return Unspecified to allow us to fill the available space */
     override val intrinsicSize: Size = painter?.intrinsicSize ?: Size.Unspecified
 }
 
@@ -840,9 +842,7 @@ private abstract class AbstractPlaceholderModifierNode(
             outline = lastOutline!!
         } else {
             // Manually observe reads so we can directly invalidate the outline when it changes
-            observeReads {
-                outline = shape.createOutline(size, layoutDirection, this)
-            }
+            observeReads { outline = shape.createOutline(size, layoutDirection, this) }
         }
         drawOutline(outline!!, brush = brush, alpha = alpha)
         lastOutline = outline
@@ -909,21 +909,22 @@ private class PlaceholderModifierNode(
 ) : AbstractPlaceholderModifierNode(alpha, shape) {
     override fun generateBrush(offset: Offset): Brush? {
         return when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
+            PlaceholderStage.ShowPlaceholder,
+            PlaceholderStage.ResetContent -> {
                 SolidColor(
                     color.copy(
                         alpha =
-                        if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
-                            placeholderState.resetPlaceholderFadeInAlpha * color.alpha
-                        } else color.alpha
+                            if (
+                                placeholderState.placeholderStage == PlaceholderStage.ResetContent
+                            ) {
+                                placeholderState.resetPlaceholderFadeInAlpha * color.alpha
+                            } else color.alpha
                     )
                 )
             }
-
             PlaceholderStage.WipeOff -> {
                 wipeOffBrush(color, offset, placeholderState)
             }
-
             else -> {
                 null
             }
@@ -996,19 +997,23 @@ private class PlaceholderShimmerModifierNode(
         return if (placeholderState.placeholderStage == PlaceholderStage.ShowPlaceholder) {
             val halfGradientWidth = placeholderState.gradientXYWidth / 2f
             Brush.linearGradient(
-                start = Offset(
-                    x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
-                    y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
-                ),
-                end = Offset(
-                    x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
-                    y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
-                ),
-                colorStops = listOf(
-                    0.1f to color.copy(alpha = 0f),
-                    0.65f to color.copy(alpha = placeholderState.placeholderShimmerAlpha),
-                    0.9f to color.copy(alpha = 0f),
-                ).toTypedArray()
+                start =
+                    Offset(
+                        x = placeholderState.placeholderProgression - halfGradientWidth - offset.x,
+                        y = placeholderState.placeholderProgression - halfGradientWidth - offset.y
+                    ),
+                end =
+                    Offset(
+                        x = placeholderState.placeholderProgression + halfGradientWidth - offset.x,
+                        y = placeholderState.placeholderProgression + halfGradientWidth - offset.y
+                    ),
+                colorStops =
+                    listOf(
+                            0.1f to color.copy(alpha = 0f),
+                            0.65f to color.copy(alpha = placeholderState.placeholderShimmerAlpha),
+                            0.9f to color.copy(alpha = 0f),
+                        )
+                        .toTypedArray()
             )
         } else {
             null

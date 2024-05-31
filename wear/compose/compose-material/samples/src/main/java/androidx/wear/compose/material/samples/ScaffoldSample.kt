@@ -46,19 +46,14 @@ fun SimpleScaffoldWithScrollIndicator() {
 
     Scaffold(
         positionIndicator = {
-            PositionIndicator(
-                scalingLazyListState = listState,
-                modifier = Modifier
-            )
+            PositionIndicator(scalingLazyListState = listState, modifier = Modifier)
         },
         vignette = {
             if (showVignette.value) {
                 Vignette(vignettePosition = vignetteState.value)
             }
         },
-        timeText = {
-            TimeText()
-        }
+        timeText = { TimeText() }
     ) {
         ScalingLazyColumn(
             contentPadding = PaddingValues(top = 40.dp),
@@ -104,7 +99,7 @@ fun SimpleScaffoldWithScrollIndicator() {
             }
             items(20) {
                 Chip(
-                    onClick = { },
+                    onClick = {},
                     label = { Text("List item $it") },
                     colors = ChipDefaults.secondaryChipColors()
                 )

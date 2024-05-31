@@ -26,8 +26,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 /**
- * Creates a NavHostController that handles the adding of the [WearNavigator]
- * from androidx.wear.compose.navigation.
+ * Creates a NavHostController that handles the adding of the [WearNavigator] from
+ * androidx.wear.compose.navigation.
  */
 @Composable
 public fun rememberSwipeDismissableNavController(): NavHostController {
@@ -35,9 +35,9 @@ public fun rememberSwipeDismissableNavController(): NavHostController {
 }
 
 /**
- * Gets the current navigation back stack entry as a [State]. When the given navController
- * changes the back stack due to a [NavController.navigate] or [NavController.popBackStack] this
- * will trigger a recompose and return the top entry on the back stack.
+ * Gets the current navigation back stack entry as a [State]. When the given navController changes
+ * the back stack due to a [NavController.navigate] or [NavController.popBackStack] this will
+ * trigger a recompose and return the top entry on the back stack.
  *
  * @return state of the current back stack entry
  */

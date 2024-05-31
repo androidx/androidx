@@ -31,10 +31,11 @@ import org.mockito.kotlin.verifyNoInteractions
 
 internal class StaticPlatformDataProviderTest {
 
-    private val platformDataValues = PlatformDataValues.Builder()
-        .put(PlatformHealthSources.Keys.DAILY_CALORIES, DynamicDataValue.fromFloat(1000f))
-        .put(PlatformHealthSources.Keys.DAILY_STEPS, DynamicDataValue.fromInt(256))
-        .build()
+    private val platformDataValues =
+        PlatformDataValues.Builder()
+            .put(PlatformHealthSources.Keys.DAILY_CALORIES, DynamicDataValue.fromFloat(1000f))
+            .put(PlatformHealthSources.Keys.DAILY_STEPS, DynamicDataValue.fromInt(256))
+            .build()
 
     private val staticPlatformDataProvider = StaticPlatformDataProvider(platformDataValues)
 

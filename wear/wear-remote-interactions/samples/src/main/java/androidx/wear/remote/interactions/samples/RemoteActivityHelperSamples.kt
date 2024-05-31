@@ -24,15 +24,17 @@ suspend fun RemoteActivityAvailabilitySample(
     remoteActivityHelper: RemoteActivityHelper,
     remoteIntent: Intent
 ) {
-    remoteActivityHelper.availabilityStatus.collect {
-        status -> when (status) {
+    remoteActivityHelper.availabilityStatus.collect { status ->
+        when (status) {
             RemoteActivityHelper.STATUS_UNAVAILABLE ->
                 TODO("Hide or present alternative flow as remote flow is not available.")
             RemoteActivityHelper.STATUS_TEMPORARILY_UNAVAILABLE ->
                 TODO("Present education to user to connect devices or bring to proximity.")
-            RemoteActivityHelper.STATUS_AVAILABLE, RemoteActivityHelper.STATUS_UNKNOWN ->
+            RemoteActivityHelper.STATUS_AVAILABLE,
+            RemoteActivityHelper.STATUS_UNKNOWN ->
                 // Present normal remote device flow when we don't know (old devices)
                 // or when we know it is available.
                 remoteActivityHelper.startRemoteActivity(remoteIntent)
-        } }
+        }
+    }
 }

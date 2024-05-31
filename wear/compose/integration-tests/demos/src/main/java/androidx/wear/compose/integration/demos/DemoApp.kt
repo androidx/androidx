@@ -54,8 +54,7 @@ fun DemoApp(
     onNavigateBack: () -> Unit,
 ) {
     val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-    DisplayDemo(
-        swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
 }
 
 @Composable
@@ -72,12 +71,7 @@ private fun DisplayDemo(
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
         contentKey = currentDemo.title,
     ) { isBackground ->
-        BoxDemo(
-            state,
-            if (isBackground) parentDemo else currentDemo,
-            onNavigateTo,
-            onNavigateBack
-        )
+        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
     }
 }
 
@@ -92,32 +86,23 @@ private fun BoxScope.BoxDemo(
         is ActivityDemo<*> -> {
             /* should never get here as activity demos are not added to the backstack*/
         }
-
         is ComposableDemo -> {
             demo.content(DemoParameters(onNavigateBack, state))
         }
-
         is DemoCategory -> {
             DisplayDemoList(demo, onNavigateTo)
         }
-
-        else -> {
-        }
+        else -> {}
     }
 }
 
 @Composable
-internal fun BoxScope.DisplayDemoList(
-    category: DemoCategory,
-    onNavigateTo: (Demo) -> Unit
-) {
+internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Demo) -> Unit) {
     val state = category.getScrollStateOrInit { rememberScalingLazyListState() }
 
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag(DemoListTag),
+        modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
         state = state,
         autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
     ) {
@@ -129,23 +114,16 @@ internal fun BoxScope.DisplayDemoList(
                     color = Color.White,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
-
                 )
             }
         }
         category.demos.forEach { demo ->
             item {
                 Chip(
-                    onClick = {
-                        onNavigateTo(demo)
-                    },
+                    onClick = { onNavigateTo(demo) },
                     colors = ChipDefaults.secondaryChipColors(),
                     label = {
-                        Text(
-                            text = demo.title,
-                            modifier = Modifier.fillMaxWidth(),
-                            maxLines = 2
-                        )
+                        Text(text = demo.title, modifier = Modifier.fillMaxWidth(), maxLines = 2)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -157,9 +135,7 @@ internal fun BoxScope.DisplayDemoList(
                     ) {
                         Text(
                             text = description,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.Center),
+                            modifier = Modifier.fillMaxWidth().align(Alignment.Center),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -170,9 +146,7 @@ internal fun BoxScope.DisplayDemoList(
 }
 
 @Composable
-internal fun swipeDismissStateWithNavigation(
-    onNavigateBack: () -> Unit
-): SwipeToDismissBoxState {
+internal fun swipeDismissStateWithNavigation(onNavigateBack: () -> Unit): SwipeToDismissBoxState {
     val state = rememberSwipeToDismissBoxState()
     LaunchedEffect(state.currentValue) {
         if (state.currentValue == SwipeToDismissValue.Dismissed) {
