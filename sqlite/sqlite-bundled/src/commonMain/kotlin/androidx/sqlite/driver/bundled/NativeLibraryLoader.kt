@@ -16,12 +16,8 @@
 
 package androidx.sqlite.driver.bundled
 
-/**
- * Helper class to load native libraries based on the host platform.
- */
+/** Helper class to load native libraries based on the host platform. */
 internal expect object NativeLibraryLoader {
-    /**
-     * Loads the given native library via JNI (if running on JVM or Android).
-     */
+    /** Loads the given native library via JNI (if running on JVM or Android). */
     fun loadLibrary(name: String)
 }

@@ -24,13 +24,9 @@ import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual class BundledSQLiteConnection(
-    private val connectionPointer: Long
-) : SQLiteConnection {
+actual class BundledSQLiteConnection(private val connectionPointer: Long) : SQLiteConnection {
 
-    @OptIn(ExperimentalStdlibApi::class)
-    @Volatile
-    private var isClosed = false
+    @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
 
     override fun prepare(sql: String): SQLiteStatement {
         if (isClosed) {
@@ -49,4 +45,5 @@ actual class BundledSQLiteConnection(
 }
 
 private external fun nativePrepare(pointer: Long, sql: String): Long
+
 private external fun nativeClose(pointer: Long)

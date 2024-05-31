@@ -28,19 +28,20 @@ class SlidingPaneLayoutDemos : Activity() {
         setContentView(R.layout.activity_slidingpanelayout_demos)
         val recyclerView = findViewById<RecyclerView>(R.id.demo_recyclerview)
 
-        recyclerView.adapter = ItemAdapter(
-            listOf(
-                DemoItem(
-                    SlidingPaneLayoutSample::class.java,
-                    "SlidingPaneLayoutSample",
-                    "Basic SlidingPaneLayoutSample"
-                ),
-                DemoItem(
-                    SlidingPaneLayoutResizeSample::class.java,
-                    "SlidingPaneLayoutResizeSample",
-                    "SlidingPaneLayout with user resizing"
+        recyclerView.adapter =
+            ItemAdapter(
+                listOf(
+                    DemoItem(
+                        SlidingPaneLayoutSample::class.java,
+                        "SlidingPaneLayoutSample",
+                        "Basic SlidingPaneLayoutSample"
+                    ),
+                    DemoItem(
+                        SlidingPaneLayoutResizeSample::class.java,
+                        "SlidingPaneLayoutResizeSample",
+                        "SlidingPaneLayout with user resizing"
+                    )
                 )
             )
-        )
     }
 }

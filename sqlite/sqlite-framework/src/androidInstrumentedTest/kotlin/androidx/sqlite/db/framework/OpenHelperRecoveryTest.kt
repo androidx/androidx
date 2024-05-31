@@ -37,15 +37,10 @@ class OpenHelperRecoveryTest {
     fun setup() {
         context.deleteDatabase(dbName)
     }
+
     @Test
     fun delegateLaziness() {
-        val openHelper = FrameworkSQLiteOpenHelper(
-            context,
-            dbName,
-            EmptyCallback(),
-            false,
-            false
-        )
+        val openHelper = FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(), false, false)
         openHelper.setWriteAheadLoggingEnabled(true)
 
         val dbFileBeforeWritable = context.getDatabasePath(dbName)
@@ -106,14 +101,20 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onCreateError() {
         var createAttempts = 0
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                if (createAttempts++ < 2) {
-                    throw RuntimeException("Not an SQLiteException")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    if (createAttempts++ < 2) {
+                        throw RuntimeException("Not an SQLiteException")
+                    }
                 }
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
             }
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-        }
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
         try {
             openHelper.writableDatabase
@@ -129,15 +130,22 @@ class OpenHelperRecoveryTest {
     fun allowDataLossOnRecovery_onUpgradeError() {
         // Create DB at version 1, open and close it
         FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(1), false, true)
-            .writableDatabase.close()
+            .writableDatabase
+            .close()
 
         // A callback to open DB at version 2, it has a bad migration.
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(2) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
-                db.execSQL("SELECT * FROM bad_table")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(2) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {
+                    db.execSQL("SELECT * FROM bad_table")
+                }
             }
-        }
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
         try {
             openHelper.writableDatabase
@@ -151,15 +159,22 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onOpenNonSQLiteError() {
         var openAttempts = 0
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                if (openAttempts++ < 2) {
-                    throw RuntimeException("Not an SQLiteException")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    if (openAttempts++ < 2) {
+                        throw RuntimeException("Not an SQLiteException")
+                    }
                 }
             }
-        }
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
         try {
             openHelper.writableDatabase
@@ -174,20 +189,26 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onOpenSQLiteError_intermediate() {
         FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(), false, false)
-            .writableDatabase.use { db ->
-                db.execSQL("CREATE TABLE Foo (id INTEGER PRIMARY KEY)")
-            }
+            .writableDatabase
+            .use { db -> db.execSQL("CREATE TABLE Foo (id INTEGER PRIMARY KEY)") }
 
         var openAttempts = 0
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                if (openAttempts++ < 1) {
-                    db.execSQL("SELECT * FROM bad_table")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    if (openAttempts++ < 1) {
+                        db.execSQL("SELECT * FROM bad_table")
+                    }
                 }
             }
-        }
         // With only 1 onOpen error, the database is opened without being deleted, simulates an
         // intermediate error.
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
@@ -202,20 +223,26 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onOpenSQLiteError_recoverable() {
         FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(), false, false)
-            .writableDatabase.use { db ->
-                db.execSQL("CREATE TABLE Foo (id INTEGER PRIMARY KEY)")
-            }
+            .writableDatabase
+            .use { db -> db.execSQL("CREATE TABLE Foo (id INTEGER PRIMARY KEY)") }
 
         var openAttempts = 0
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                if (openAttempts++ < 2) {
-                    db.execSQL("SELECT * FROM bad_table")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    if (openAttempts++ < 2) {
+                        db.execSQL("SELECT * FROM bad_table")
+                    }
                 }
             }
-        }
         // With 2 onOpen error, the database is opened by deleting it, simulating a recoverable
         // error.
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
@@ -230,14 +257,21 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onOpenSQLiteError_permanent() {
         var openAttempts = 0
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                openAttempts++
-                db.execSQL("SELECT * FROM bad_table")
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    openAttempts++
+                    db.execSQL("SELECT * FROM bad_table")
+                }
             }
-        }
         // Consistent onOpen error, might be a user bug or an actual SQLite permanent error,
         // nothing we can do here, expect failure
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
@@ -254,13 +288,20 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onOpenRecursive() {
         var openHelper: FrameworkSQLiteOpenHelper? = null
-        val badCallback = object : SupportSQLiteOpenHelper.Callback(1) {
-            override fun onCreate(db: SupportSQLiteDatabase) {}
-            override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
-            override fun onOpen(db: SupportSQLiteDatabase) {
-                openHelper!!.writableDatabase
+        val badCallback =
+            object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {}
+
+                override fun onUpgrade(
+                    db: SupportSQLiteDatabase,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {}
+
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    openHelper!!.writableDatabase
+                }
             }
-        }
         // Use an open helper with a bad callback that will recursively try to open the database
         // again, this is a user error and it is expected for the exception with the recursive
         // stacktrace to be thrown and not swallowed.
@@ -275,16 +316,12 @@ class OpenHelperRecoveryTest {
     }
 
     class EmptyCallback(version: Int = 1) : SupportSQLiteOpenHelper.Callback(version) {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-        }
+        override fun onCreate(db: SupportSQLiteDatabase) {}
 
-        override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        }
+        override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
 
-        override fun onOpen(db: SupportSQLiteDatabase) {
-        }
+        override fun onOpen(db: SupportSQLiteDatabase) {}
 
-        override fun onCorruption(db: SupportSQLiteDatabase) {
-        }
+        override fun onCorruption(db: SupportSQLiteDatabase) {}
     }
 }

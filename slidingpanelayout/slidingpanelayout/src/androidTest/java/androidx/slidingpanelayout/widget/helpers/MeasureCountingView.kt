@@ -21,10 +21,8 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 
-class MeasureCountingView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null
-) : View(context, attrs) {
+class MeasureCountingView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    View(context, attrs) {
 
     private val _measureCallTraces = mutableListOf<Throwable>()
     val measureCallTraces: List<Throwable>
@@ -41,31 +39,28 @@ class MeasureCountingView @JvmOverloads constructor(
      * Run [block] and append [measureCallTraces] to the
      * [suppressed exceptions][Throwable.addSuppressed] of any [AssertionError] thrown for analysis
      */
-    inline fun <R> assertReportingMeasureCallTraces(
-        block: MeasureCountingView.() -> R
-    ): R = try {
-        block()
-    } catch (ae: AssertionError) {
-        for (trace in measureCallTraces) {
-            ae.addSuppressed(trace)
+    inline fun <R> assertReportingMeasureCallTraces(block: MeasureCountingView.() -> R): R =
+        try {
+            block()
+        } catch (ae: AssertionError) {
+            for (trace in measureCallTraces) {
+                ae.addSuppressed(trace)
+            }
+            throw ae
         }
-        throw ae
-    }
 
-    override fun onMeasure(
-        widthMeasureSpec: Int,
-        heightMeasureSpec: Int
-    ) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         _measureCallTraces += Throwable("measure pass ${measureCount + 1}")
 
         // Default View measurement treats AT_MOST identically to EXACTLY; default to a
         // content size of 100px
-        val modifiedWidthSpec = if (MeasureSpec.getMode(widthMeasureSpec) == AT_MOST) {
-            MeasureSpec.makeMeasureSpec(
-                MeasureSpec.getSize(widthMeasureSpec).coerceAtMost(100),
-                MeasureSpec.EXACTLY
-            )
-        } else widthMeasureSpec
+        val modifiedWidthSpec =
+            if (MeasureSpec.getMode(widthMeasureSpec) == AT_MOST) {
+                MeasureSpec.makeMeasureSpec(
+                    MeasureSpec.getSize(widthMeasureSpec).coerceAtMost(100),
+                    MeasureSpec.EXACTLY
+                )
+            } else widthMeasureSpec
         super.onMeasure(modifiedWidthSpec, heightMeasureSpec)
     }
 }

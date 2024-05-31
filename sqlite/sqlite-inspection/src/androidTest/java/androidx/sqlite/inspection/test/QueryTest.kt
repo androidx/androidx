@@ -44,63 +44,60 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 26)
 // TODO: add tests for invalid queries: union of unequal number of columns, syntax error, etc.
 class QueryTest {
-    @get:Rule
-    val testEnvironment = SqliteInspectorTestEnvironment()
+    @get:Rule val testEnvironment = SqliteInspectorTestEnvironment()
 
-    @get:Rule
-    val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
+    @get:Rule val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 
-    private val table1: Table = Table(
-        "table1",
-        Column("t", "TEXT"),
-        Column("nu", "NUMERIC"),
-        Column("i", "INTEGER"),
-        Column("r", "REAL"),
-        Column("b", "BLOB")
-    )
+    private val table1: Table =
+        Table(
+            "table1",
+            Column("t", "TEXT"),
+            Column("nu", "NUMERIC"),
+            Column("i", "INTEGER"),
+            Column("r", "REAL"),
+            Column("b", "BLOB")
+        )
 
-    private val table2: Table = Table(
-        "table2",
-        Column("id", "INTEGER"),
-        Column("name", "TEXT")
-    )
+    private val table2: Table = Table("table2", Column("id", "INTEGER"), Column("name", "TEXT"))
 
     /** Query verifying type affinity behaviour */
     @Test
     fun test_valid_query_type_affinity_cases() {
-        val values = listOf(
-            table1 to repeat5("'abc'"),
-            table1 to repeat5("'500.0'"),
-            table1 to repeat5("500.0"),
-            table1 to repeat5("500"),
-            table1 to repeat5("x'0500'"),
-            table1 to repeat5("NULL"),
-
-            table2 to arrayOf("1", "'A'"),
-            table2 to arrayOf("2", "'B'"),
-            table2 to arrayOf("3", "'C'"),
-            table2 to arrayOf("4", "'D'")
-        )
+        val values =
+            listOf(
+                table1 to repeat5("'abc'"),
+                table1 to repeat5("'500.0'"),
+                table1 to repeat5("500.0"),
+                table1 to repeat5("500"),
+                table1 to repeat5("x'0500'"),
+                table1 to repeat5("NULL"),
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'"),
+                table2 to arrayOf("3", "'C'"),
+                table2 to arrayOf("4", "'D'")
+            )
 
         val query = "select * from ${table1.name}"
 
-        val expectedValues = listOf(
-            repeat5("abc").toList(),
-            listOf("500.0", 500, 500, 500.0, "500.0"), // text|integer|integer|float|text
-            listOf("500.0", 500, 500, 500.0, 500.0), // text|integer|integer|float|float
-            listOf("500", 500, 500, 500.0, 500), // text|integer|integer|float|integer
-            listOf(*repeat5(arrayOf<Any?>(5.toByte(), 0.toByte()))), // blob|blob|blob|blob|blob
-            listOf(*repeat5<Any?>(null)) // null|null|null|null|null
-        )
+        val expectedValues =
+            listOf(
+                repeat5("abc").toList(),
+                listOf("500.0", 500, 500, 500.0, "500.0"), // text|integer|integer|float|text
+                listOf("500.0", 500, 500, 500.0, 500.0), // text|integer|integer|float|float
+                listOf("500", 500, 500, 500.0, 500), // text|integer|integer|float|integer
+                listOf(*repeat5(arrayOf<Any?>(5.toByte(), 0.toByte()))), // blob|blob|blob|blob|blob
+                listOf(*repeat5<Any?>(null)) // null|null|null|null|null
+            )
 
-        val expectedTypes = listOf(
-            repeat5("text").toList(),
-            listOf("text", "integer", "integer", "float", "text"),
-            listOf("text", "integer", "integer", "float", "float"),
-            listOf("text", "integer", "integer", "float", "integer"),
-            listOf("blob", "blob", "blob", "blob", "blob"),
-            listOf("null", "null", "null", "null", "null")
-        )
+        val expectedTypes =
+            listOf(
+                repeat5("text").toList(),
+                listOf("text", "integer", "integer", "float", "text"),
+                listOf("text", "integer", "integer", "float", "float"),
+                listOf("text", "integer", "integer", "float", "integer"),
+                listOf("blob", "blob", "blob", "blob", "blob"),
+                listOf("null", "null", "null", "null", "null")
+            )
 
         val expectedColumnNames = table1.columns.map { it.name }
 
@@ -119,20 +116,18 @@ class QueryTest {
         val databaseId = 123456789
         val command = "select * from sqlite_master"
         val queryParams = null
-        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams))
-            .let { response ->
-                assertThat(response.hasErrorOccurred()).isEqualTo(true)
-                val error = response.errorOccurred.content
-                assertThat(error.message).contains(
-                    "Unable to perform an operation on database (id=$databaseId)."
-                )
-                assertThat(error.message).contains("The database may have already been closed.")
-                assertThat(error.stackTrace).isEqualTo("")
-                assertThat(error.recoverability.isRecoverable).isEqualTo(true)
-                assertThat(error.errorCodeValue).isEqualTo(
-                    ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE
-                )
-            }
+        testEnvironment.sendCommand(createQueryCommand(databaseId, command, queryParams)).let {
+            response ->
+            assertThat(response.hasErrorOccurred()).isEqualTo(true)
+            val error = response.errorOccurred.content
+            assertThat(error.message)
+                .contains("Unable to perform an operation on database (id=$databaseId).")
+            assertThat(error.message).contains("The database may have already been closed.")
+            assertThat(error.stackTrace).isEqualTo("")
+            assertThat(error.recoverability.isRecoverable).isEqualTo(true)
+            assertThat(error.errorCodeValue)
+                .isEqualTo(ERROR_NO_OPEN_DATABASE_WITH_REQUESTED_ID_VALUE)
+        }
     }
 
     @Test
@@ -177,11 +172,12 @@ class QueryTest {
     fun test_valid_query_nested_query_with_a_comment() {
         test_valid_query(
             Database("db", table2),
-            values = listOf(
-                table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("2", "'B'"),
-                table2 to arrayOf("3", "'C'")
-            ),
+            values =
+                listOf(
+                    table2 to arrayOf("1", "'A'"),
+                    table2 to arrayOf("2", "'B'"),
+                    table2 to arrayOf("3", "'C'")
+                ),
             query = "select count(*) from (select * from table2 /* comment */)",
             expectedValues = listOf(listOf(3)),
             expectedTypes = listOf(listOf("integer")),
@@ -200,9 +196,8 @@ class QueryTest {
     }
 
     /**
-     * Same as [test_valid_query_with_params_syntax2a] but with reversed argument "names".
-     * Showcases that this syntax respects numerals after the "?" unlike all other cases (also
-     * tested here).
+     * Same as [test_valid_query_with_params_syntax2a] but with reversed argument "names". Showcases
+     * that this syntax respects numerals after the "?" unlike all other cases (also tested here).
      */
     @Test
     fun test_valid_query_with_params_syntax2b() {
@@ -253,14 +248,16 @@ class QueryTest {
     private fun test_valid_query_with_params(paramNameLeft: String, paramNameRight: String) {
         test_valid_query(
             Database("db", table2),
-            values = listOf(
-                table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("2", "'B'"),
-                table2 to arrayOf("3", "'C'")
-            ),
-            query = "select * from " +
-                "(select * from ${table2.name} where id > $paramNameLeft) " +
-                "where id < $paramNameRight",
+            values =
+                listOf(
+                    table2 to arrayOf("1", "'A'"),
+                    table2 to arrayOf("2", "'B'"),
+                    table2 to arrayOf("3", "'C'")
+                ),
+            query =
+                "select * from " +
+                    "(select * from ${table2.name} where id > $paramNameLeft) " +
+                    "where id < $paramNameRight",
             queryParams = listOf("1", "3"),
             expectedValues = listOf(listOf(2, "B")),
             expectedTypes = listOf(listOf("integer", "text")),
@@ -272,11 +269,12 @@ class QueryTest {
     fun test_valid_query_with_params_column_name_limitation() {
         test_valid_query(
             Database("db", table2),
-            values = listOf(
-                table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("2", "'B'"),
-                table2 to arrayOf("3", "'C'")
-            ),
+            values =
+                listOf(
+                    table2 to arrayOf("1", "'A'"),
+                    table2 to arrayOf("2", "'B'"),
+                    table2 to arrayOf("3", "'C'")
+                ),
             query = "select ? as col from ${table2.name}",
             queryParams = listOf("id"),
             // Note: instead of expected 1, 2, 3, we get "id", "id", "id". This is a result of
@@ -292,26 +290,19 @@ class QueryTest {
         // given
         val insertCommand = "insert into ${table2.name} values (?, ?)"
 
-        val insertValues = listOf(
-            listOf(null, null),
-            listOf("0.5", null),
-            listOf("'2'", null),
-            listOf(null, "A")
-        )
+        val insertValues =
+            listOf(listOf(null, null), listOf("0.5", null), listOf("'2'", null), listOf(null, "A"))
 
-        val expectedValues = listOf(
-            listOf(null, null),
-            listOf(0.5, null),
-            listOf("'2'", null),
-            listOf(null, "A")
-        )
+        val expectedValues =
+            listOf(listOf(null, null), listOf(0.5, null), listOf("'2'", null), listOf(null, "A"))
 
-        val expectedTypes = listOf(
-            listOf("null", "null"),
-            listOf("float", "null"),
-            listOf("text", "null"),
-            listOf("null", "text")
-        )
+        val expectedTypes =
+            listOf(
+                listOf("null", "null"),
+                listOf("float", "null"),
+                listOf("text", "null"),
+                listOf("null", "text")
+            )
 
         // when
         val databaseId = inspectDatabase(Database("db", table2).createInstance(temporaryFolder))
@@ -335,10 +326,7 @@ class QueryTest {
     fun test_valid_query_empty_result_column_names_present() {
         test_valid_query(
             Database("db", table2),
-            values = listOf(
-                table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("2", "'B'")
-            ),
+            values = listOf(table2 to arrayOf("1", "'A'"), table2 to arrayOf("2", "'B'")),
             query = "select * from ${table2.name} where 1=0", // impossible condition
             expectedValues = emptyList(),
             expectedTypes = emptyList(),
@@ -350,22 +338,16 @@ class QueryTest {
     fun test_valid_query_missing_column_values() {
         test_valid_query(
             Database("db", table2),
-            values = listOf(
-                table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("null", "null"),
-                table2 to arrayOf("null", "'C'")
-            ),
+            values =
+                listOf(
+                    table2 to arrayOf("1", "'A'"),
+                    table2 to arrayOf("null", "null"),
+                    table2 to arrayOf("null", "'C'")
+                ),
             query = "select * from ${table2.name}",
-            expectedValues = listOf(
-                listOf(1, "A"),
-                listOf(null, null),
-                listOf(null, "C")
-            ),
-            expectedTypes = listOf(
-                listOf("integer", "text"),
-                listOf("null", "null"),
-                listOf("null", "text")
-            ),
+            expectedValues = listOf(listOf(1, "A"), listOf(null, null), listOf(null, "C")),
+            expectedTypes =
+                listOf(listOf("integer", "text"), listOf("null", "null"), listOf("null", "text")),
             expectedColumnNames = table2.columns.map { it.name }
         )
     }
@@ -379,10 +361,9 @@ class QueryTest {
         val responseSizeLimitHint = expectedRecordCount.toLong() * recordSize / idealBatchCount
 
         // create a database
-        val db = Database(
-            "db_large_val",
-            Table("table1", Column("c1", "blob"))
-        ).createInstance(temporaryFolder, writeAheadLoggingEnabled = true)
+        val db =
+            Database("db_large_val", Table("table1", Column("c1", "blob")))
+                .createInstance(temporaryFolder, writeAheadLoggingEnabled = true)
 
         // populate the database
         val records = mutableListOf<ByteArray>()
@@ -399,13 +380,14 @@ class QueryTest {
         var recordCount = 0
         var batchCount = 0
         while (true) { // break close inside of the loop
-            val response = testEnvironment.sendCommand(
-                createQueryCommand(
-                    dbId,
-                    "select * from table1 LIMIT 999999 OFFSET $recordCount",
-                    responseSizeLimitHint = responseSizeLimitHint
+            val response =
+                testEnvironment.sendCommand(
+                    createQueryCommand(
+                        dbId,
+                        "select * from table1 LIMIT 999999 OFFSET $recordCount",
+                        responseSizeLimitHint = responseSizeLimitHint
+                    )
                 )
-            )
             assertThat(response.hasErrorOccurred()).isFalse()
             val rows = response.query.rowsList
             if (rows.isEmpty()) break // no more rows to process
@@ -427,12 +409,13 @@ class QueryTest {
     /** Union of two queries (different column names) resulting in using first query columns. */
     @Test
     fun test_valid_query_two_table_union() {
-        val values = listOf(
-            table1 to repeat5("'abc'"),
-            table1 to repeat5("'xyz'"),
-            table2 to arrayOf("1", "'A'"),
-            table2 to arrayOf("2", "'B'")
-        )
+        val values =
+            listOf(
+                table1 to repeat5("'abc'"),
+                table1 to repeat5("'xyz'"),
+                table2 to arrayOf("1", "'A'"),
+                table2 to arrayOf("2", "'B'")
+            )
 
         // query construction
         val columns1 = table1.columns.take(2).map { it.name }
@@ -445,15 +428,9 @@ class QueryTest {
         val query2 = "select $column21, $column22 from ${table2.name} where $column22 is 'B'"
         val query = "$query1 union $query2"
 
-        val expectedValues = listOf(
-            listOf(2, "B"),
-            listOf("abc", "abc")
-        )
+        val expectedValues = listOf(listOf(2, "B"), listOf("abc", "abc"))
 
-        val expectedTypes = listOf(
-            listOf("integer", "text"),
-            listOf("text", "text")
-        )
+        val expectedTypes = listOf(listOf("integer", "text"), listOf("text", "text"))
 
         test_valid_query(
             Database("db1", table1, table2),
@@ -507,9 +484,8 @@ class QueryTest {
         issueQuery(databaseId, newTable.toCreateString())
 
         // then
-        assertThat(querySchema(databaseId)).isEqualTo(
-            (database.tables + newTable).sortedBy { it.name }
-        )
+        assertThat(querySchema(databaseId))
+            .isEqualTo((database.tables + newTable).sortedBy { it.name })
         assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
     }
 
@@ -517,12 +493,13 @@ class QueryTest {
     fun test_drop_table() = runBlocking {
         // given
         val database = Database("db1", table1, table2)
-        val databaseId = inspectDatabase(
-            database.createInstance(temporaryFolder).also {
-                it.insertValues(table2, "1", "'1'")
-                it.insertValues(table2, "2", "'2'")
-            }
-        )
+        val databaseId =
+            inspectDatabase(
+                database.createInstance(temporaryFolder).also {
+                    it.insertValues(table2, "1", "'1'")
+                    it.insertValues(table2, "2", "'2'")
+                }
+            )
         val initialTotalChanges = queryTotalChanges(databaseId)
         assertThat(querySchema(databaseId)).isNotEmpty()
 
@@ -546,9 +523,8 @@ class QueryTest {
         issueQuery(databaseId, "alter table ${table.name} add ${newColumn.name} ${newColumn.type}")
 
         // then
-        assertThat(querySchema(databaseId)).isEqualTo(
-            listOf(Table(table.name, table.columns + newColumn))
-        )
+        assertThat(querySchema(databaseId))
+            .isEqualTo(listOf(Table(table.name, table.columns + newColumn)))
         assertThat(queryTotalChanges(databaseId)).isEqualTo(initialTotalChanges) // note no diff
     }
 
@@ -623,11 +599,14 @@ class QueryTest {
 
         db.execSQL("insert into t1 values ($value)")
         val query = "select * from t1"
-        val dbValue: T = db.rawQuery(query, emptyArray()).also { it.moveToNext() }.let {
-            val result = fromCursor(it)
-            it.close()
-            result
-        }
+        val dbValue: T =
+            db.rawQuery(query, emptyArray())
+                .also { it.moveToNext() }
+                .let {
+                    val result = fromCursor(it)
+                    it.close()
+                    result
+                }
         assertThat(dbValue).isEqualTo(value)
 
         testEnvironment.issueQuery(id, query, null).let { response ->

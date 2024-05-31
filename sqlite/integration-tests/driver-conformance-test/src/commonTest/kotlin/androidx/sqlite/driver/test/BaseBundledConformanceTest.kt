@@ -26,10 +26,11 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
     fun readSQLiteVersion() {
         val connection = getDriver().open(":memory:")
         try {
-            val version = connection.prepare("SELECT sqlite_version()").use {
-                it.step()
-                it.getText(0)
-            }
+            val version =
+                connection.prepare("SELECT sqlite_version()").use {
+                    it.step()
+                    it.getText(0)
+                }
             // The bundled androidx SQLite version compiled and statically included
             assertThat(version).isEqualTo(EXPECTED_SQLITE_VERSION)
         } finally {

@@ -54,25 +54,18 @@ import org.gradle.workers.WorkAction
 import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
-/**
- * Extension of AidlCompile that allows specifying extra command-line arguments.
- */
+/** Extension of AidlCompile that allows specifying extra command-line arguments. */
 @CacheableTask
 abstract class StableAidlCompile : DefaultTask() {
 
-    @get:Internal
-    abstract var variantName: String
+    @get:Internal abstract var variantName: String
 
-    /**
-     * List of directories containing AIDL sources to be compiled.
-     */
+    /** List of directories containing AIDL sources to be compiled. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceDirs: ListProperty<Directory>
 
-    /**
-     * List of directories containing AIDL sources available as imports.
-     */
+    /** List of directories containing AIDL sources available as imports. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
@@ -92,8 +85,7 @@ abstract class StableAidlCompile : DefaultTask() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val aidlExecutable: RegularFileProperty
 
-    @get:Input
-    abstract val aidlVersion: Property<String>
+    @get:Input abstract val aidlVersion: Property<String>
 
     /**
      * Variant's minimum SDK version.
@@ -101,29 +93,17 @@ abstract class StableAidlCompile : DefaultTask() {
      * This should only be specified when generating code. Do not specify this when dumping the API
      * surface, e.g. passing `--dumpapi` as an extra argument.
      */
-    @get:Input
-    @get:Optional
-    abstract val minSdkVersion: Property<AndroidVersion>
+    @get:Input @get:Optional abstract val minSdkVersion: Property<AndroidVersion>
 
-    /**
-     * Directory for storing AIDL-generated Java sources.
-     */
-    @get:OutputDirectory
-    abstract val sourceOutputDir: DirectoryProperty
+    /** Directory for storing AIDL-generated Java sources. */
+    @get:OutputDirectory abstract val sourceOutputDir: DirectoryProperty
 
-    /**
-     * Directory for storing Parcelable headers for consumers.
-     */
-    @get:OutputDirectory
-    @get:Optional
-    abstract val packagedDir: DirectoryProperty
+    /** Directory for storing Parcelable headers for consumers. */
+    @get:OutputDirectory @get:Optional abstract val packagedDir: DirectoryProperty
 
-    @get:Input
-    @get:Optional
-    abstract val extraArgs: ListProperty<String>
+    @get:Input @get:Optional abstract val extraArgs: ListProperty<String>
 
-    @get:Inject
-    abstract val workerExecutor: WorkerExecutor
+    @get:Inject abstract val workerExecutor: WorkerExecutor
 
     private class DepFileProcessor : DependencyFileProcessor {
         override fun processFile(dependencyFile: File): DependencyData? {
@@ -152,11 +132,12 @@ abstract class StableAidlCompile : DefaultTask() {
         // When using AIDL from build tools version 33 and later, pass the variant's minimum SDK
         // version. If it's a pre-release SDK, pass the most recently stabilized SDK version.
         val aidlMajorVersion = aidlVersion.get().substringBefore('.').toIntOrNull() ?: 0
-        val extraArgsWithSdk = if (minSdkVersion.isPresent && aidlMajorVersion >= 33) {
-            extraArgs.get() + listOf("--min_sdk_version", "${minSdkVersion.get().apiLevel}")
-        } else {
-            extraArgs.get()
-        }
+        val extraArgsWithSdk =
+            if (minSdkVersion.isPresent && aidlMajorVersion >= 33) {
+                extraArgs.get() + listOf("--min_sdk_version", "${minSdkVersion.get().apiLevel}")
+            } else {
+                extraArgs.get()
+            }
 
         aidlCompileDelegate(
             workerExecutor,
@@ -185,8 +166,7 @@ abstract class StableAidlCompile : DefaultTask() {
             abstract val extraArgs: ListProperty<String>
         }
 
-        @get:Inject
-        abstract val execOperations: ExecOperations
+        @get:Inject abstract val execOperations: ExecOperations
 
         override fun execute() {
             // Collect all aidl files in the directory then process them
@@ -209,12 +189,11 @@ abstract class StableAidlCompile : DefaultTask() {
             }
 
             val depFileProcessor = DepFileProcessor()
-            val executor =
-                GradleProcessExecutor(
-                    execOperations::exec
+            val executor = GradleProcessExecutor(execOperations::exec)
+            val logger =
+                LoggedProcessOutputHandler(
+                    LoggerWrapper.getLogger(StableAidlCompileRunnable::class.java)
                 )
-            val logger = LoggedProcessOutputHandler(
-                LoggerWrapper.getLogger(StableAidlCompileRunnable::class.java))
 
             for (request in processingRequests) {
                 callStableAidlProcessor(

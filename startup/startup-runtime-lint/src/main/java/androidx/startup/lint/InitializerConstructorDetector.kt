@@ -30,26 +30,27 @@ import com.intellij.lang.java.JavaLanguage
 import java.util.EnumSet
 import org.jetbrains.uast.UClass
 
-/**
- * A [Detector] which ensures that every `ComponentInitializer` has a no argument constructor.
- */
+/** A [Detector] which ensures that every `ComponentInitializer` has a no argument constructor. */
 class InitializerConstructorDetector : Detector(), SourceCodeScanner {
     companion object {
         private const val DESCRIPTION = "Missing Initializer no-arg constructor"
-        val ISSUE = Issue.create(
-            id = "EnsureInitializerNoArgConstr",
-            briefDescription = DESCRIPTION,
-            explanation = """
+        val ISSUE =
+            Issue.create(
+                id = "EnsureInitializerNoArgConstr",
+                briefDescription = DESCRIPTION,
+                explanation =
+                    """
                 Every `Initializer` must have a no argument constructor.
             """,
-            androidSpecific = true,
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                InitializerConstructorDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE)
+                androidSpecific = true,
+                category = Category.CORRECTNESS,
+                severity = Severity.FATAL,
+                implementation =
+                    Implementation(
+                        InitializerConstructorDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE)
+                    )
             )
-        )
     }
 
     override fun applicableSuperClasses() = listOf("androidx.startup.Initializer")
@@ -83,10 +84,6 @@ class InitializerConstructorDetector : Detector(), SourceCodeScanner {
 
         // Did not find any no-arg constructors
         val location = context.getLocation(declaration.javaPsi)
-        context.report(
-            issue = ISSUE,
-            location = location,
-            message = DESCRIPTION
-        )
+        context.report(issue = ISSUE, location = location, message = DESCRIPTION)
     }
 }

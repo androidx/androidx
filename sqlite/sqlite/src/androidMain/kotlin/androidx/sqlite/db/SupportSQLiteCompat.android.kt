@@ -24,16 +24,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.io.File
 
-/**
- * Helper for accessing features in [SupportSQLiteOpenHelper].
- *
- */
+/** Helper for accessing features in [SupportSQLiteOpenHelper]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SupportSQLiteCompat private constructor() {
-    /**
-     * Helper for accessing functions that require SDK version 21 and higher.
-     *
-     */
+    /** Helper for accessing functions that require SDK version 21 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(21)
     object Api21Impl {
@@ -41,8 +35,7 @@ class SupportSQLiteCompat private constructor() {
          * Returns the absolute path to the directory on the filesystem.
          *
          * @return The path of the directory holding application files that will not be
-         * automatically backed up to remote storage.
-         *
+         *   automatically backed up to remote storage.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -51,10 +44,7 @@ class SupportSQLiteCompat private constructor() {
         }
     }
 
-    /**
-     * Helper for accessing functions that require SDK version 23 and higher.
-     *
-     */
+    /** Helper for accessing functions that require SDK version 23 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(23)
     object Api23Impl {
@@ -62,7 +52,6 @@ class SupportSQLiteCompat private constructor() {
          * Sets a [Bundle] that will be returned by [Cursor.getExtras].
          *
          * @param extras [Bundle] to set, or null to set an empty bundle.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
@@ -71,40 +60,31 @@ class SupportSQLiteCompat private constructor() {
         }
     }
 
-    /**
-     * Helper for accessing functions that require SDK version 29 and higher.
-     *
-     */
+    /** Helper for accessing functions that require SDK version 29 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(29)
     object Api29Impl {
         /**
-         * Similar to [Cursor.setNotificationUri], except this version
-         * allows to watch multiple content URIs for changes.
+         * Similar to [Cursor.setNotificationUri], except this version allows to watch multiple
+         * content URIs for changes.
          *
-         * @param cr The content resolver from the caller's context. The listener attached to
-         * this resolver will be notified.
+         * @param cr The content resolver from the caller's context. The listener attached to this
+         *   resolver will be notified.
          * @param uris The content URIs to watch.
-         *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun setNotificationUris(
-            cursor: Cursor,
-            cr: ContentResolver,
-            uris: List<Uri?>
-        ) {
+        fun setNotificationUris(cursor: Cursor, cr: ContentResolver, uris: List<Uri?>) {
             cursor.setNotificationUris(cr, uris)
         }
 
         /**
-         * Return the URIs at which notifications of changes in this Cursor's data
-         * will be delivered, as previously set by [setNotificationUris].
+         * Return the URIs at which notifications of changes in this Cursor's data will be
+         * delivered, as previously set by [setNotificationUris].
          *
-         * @return Returns URIs that can be used with [ContentResolver.registerContentObserver]
-         * to find out about changes to this Cursor's data. May be null if no notification URI has
-         * been set.
-         *
+         * @return Returns URIs that can be used with [ContentResolver.registerContentObserver] to
+         *   find out about changes to this Cursor's data. May be null if no notification URI has
+         *   been set.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic

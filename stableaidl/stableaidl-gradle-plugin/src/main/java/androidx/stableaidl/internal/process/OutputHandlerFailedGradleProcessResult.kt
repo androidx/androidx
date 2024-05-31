@@ -19,12 +19,10 @@ import com.android.ide.common.process.ProcessException
 import com.android.ide.common.process.ProcessResult
 
 /**
- * Cloned from
- * `com.android.build.gradle.internal.process.OutputHandlerFailedGradleProcessResult`.
+ * Cloned from `com.android.build.gradle.internal.process.OutputHandlerFailedGradleProcessResult`.
  */
-class OutputHandlerFailedGradleProcessResult internal constructor(
-    private val failure: ProcessException
-) : ProcessResult {
+class OutputHandlerFailedGradleProcessResult
+internal constructor(private val failure: ProcessException) : ProcessResult {
     @Throws(ProcessException::class)
     override fun assertNormalExitValue(): ProcessResult {
         throw failure

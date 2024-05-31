@@ -38,8 +38,8 @@ class TwoPanePreferences : AppCompatActivity() {
         }
 
         /**
-         * Simulate the behavior of Hilt to ensure that PreferenceHeaderFragmentCompat
-         * does not rely on the Context being an OnBackPressedDispatcherOwner instance
+         * Simulate the behavior of Hilt to ensure that PreferenceHeaderFragmentCompat does not rely
+         * on the Context being an OnBackPressedDispatcherOwner instance
          */
         override fun getContext(): Context {
             return ContextWrapper(super.getContext())

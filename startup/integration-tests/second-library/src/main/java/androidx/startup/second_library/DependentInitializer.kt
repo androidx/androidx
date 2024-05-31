@@ -21,9 +21,7 @@ import android.util.Log
 import androidx.startup.Initializer
 import androidx.startup.first_library.WorkManagerInitializer
 
-/**
- * A [Initializer] that depends on [WorkManagerInitializer].
- */
+/** A [Initializer] that depends on [WorkManagerInitializer]. */
 class DependentInitializer : Initializer<Unit> {
     override fun create(context: Context) {
         Log.i(TAG, "Created.")

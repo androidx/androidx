@@ -19,8 +19,8 @@ package androidx.sqlite
 /**
  * SQLite connection definition.
  *
- * A connection to a database is a resource that must be released once it is no longer needed
- * via its [close] function.
+ * A connection to a database is a resource that must be released once it is no longer needed via
+ * its [close] function.
  *
  * See also [Database Connection](https://www.sqlite.org/c3ref/sqlite3.html)
  */

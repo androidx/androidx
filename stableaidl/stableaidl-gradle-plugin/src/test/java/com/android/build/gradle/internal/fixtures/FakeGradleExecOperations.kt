@@ -36,7 +36,9 @@ class FakeGradleExecOperations : ExecOperations {
         p0.execute(CapturingExecSpec().also { capturedExecutions.add(it) })
         return object : ExecResult {
             override fun getExitValue() = 1
+
             override fun assertNormalExitValue() = this
+
             override fun rethrowFailure() = this
         }
     }
@@ -79,15 +81,11 @@ class CapturingExecSpec : ExecSpec {
 
     override fun setCommandLine(p0: MutableIterable<*>) {
         commandLine.clear()
-        p0.filterNotNull().forEach {
-            commandLine.add(it.toString())
-        }
+        p0.filterNotNull().forEach { commandLine.add(it.toString()) }
     }
 
     override fun environment(p0: MutableMap<String, *>): ProcessForkOptions {
-        p0.forEach { (t, any) ->
-            environment[t] = any.toString()
-        }
+        p0.forEach { (t, any) -> environment[t] = any.toString() }
         return this
     }
 

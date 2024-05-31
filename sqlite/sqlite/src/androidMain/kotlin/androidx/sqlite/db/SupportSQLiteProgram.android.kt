@@ -17,30 +17,28 @@ package androidx.sqlite.db
 
 import java.io.Closeable
 
-/**
- * An interface to map the behavior of [android.database.sqlite.SQLiteProgram].
- */
+/** An interface to map the behavior of [android.database.sqlite.SQLiteProgram]. */
 interface SupportSQLiteProgram : Closeable {
     /**
-     * Bind a NULL value to this statement. The value remains bound until
-     * [.clearBindings] is called.
+     * Bind a NULL value to this statement. The value remains bound until [.clearBindings] is
+     * called.
      *
      * @param index The 1-based index to the parameter to bind null to
      */
     fun bindNull(index: Int)
 
     /**
-     * Bind a long value to this statement. The value remains bound until
-     * [clearBindings] is called.
+     * Bind a long value to this statement. The value remains bound until [clearBindings] is called.
      * addToBindArgs
+     *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */
     fun bindLong(index: Int, value: Long)
 
     /**
-     * Bind a double value to this statement. The value remains bound until
-     * [.clearBindings] is called.
+     * Bind a double value to this statement. The value remains bound until [.clearBindings] is
+     * called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
@@ -48,8 +46,8 @@ interface SupportSQLiteProgram : Closeable {
     fun bindDouble(index: Int, value: Double)
 
     /**
-     * Bind a String value to this statement. The value remains bound until
-     * [.clearBindings] is called.
+     * Bind a String value to this statement. The value remains bound until [.clearBindings] is
+     * called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
@@ -57,16 +55,14 @@ interface SupportSQLiteProgram : Closeable {
     fun bindString(index: Int, value: String)
 
     /**
-     * Bind a byte array value to this statement. The value remains bound until
-     * [.clearBindings] is called.
+     * Bind a byte array value to this statement. The value remains bound until [.clearBindings] is
+     * called.
      *
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
     fun bindBlob(index: Int, value: ByteArray)
 
-    /**
-     * Clears all existing bindings. Unset bindings are treated as NULL.
-     */
+    /** Clears all existing bindings. Unset bindings are treated as NULL. */
     fun clearBindings()
 }

@@ -38,8 +38,8 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
 /**
- * Fake implementation of [WorkerExecutor]. [ObjectFactory] is used to instantiate parameters,
- * while [File] is used to output generated decorated classes.
+ * Fake implementation of [WorkerExecutor]. [ObjectFactory] is used to instantiate parameters, while
+ * [File] is used to output generated decorated classes.
  */
 open class FakeGradleWorkExecutor(
     objectFactory: ObjectFactory,
@@ -97,10 +97,7 @@ open class FakeGradleWorkExecutor(
     }
 }
 
-class FakeInjectableService(
-    val methodReference: Method,
-    val implementation: Any
-)
+class FakeInjectableService(val methodReference: Method, val implementation: Any)
 
 enum class ExecutionMode {
     // Run work actions
@@ -126,16 +123,18 @@ private class FakeGradleWorkQueue(
     ) {
         val parameterTypeName =
             (aClass.genericSuperclass as? ParameterizedType
-                ?: aClass.genericInterfaces.single() as ParameterizedType)
-                .actualTypeArguments[0].typeName
+                    ?: aClass.genericInterfaces.single() as ParameterizedType)
+                .actualTypeArguments[0]
+                .typeName
         if (aClass.constructors.single().parameterCount != 0) {
             // we should just instantiate it and pass in all params + services
             runWorkAction(parameterTypeName, action, aClass)
         } else {
             val workerActionName = aClass.name.replace(".", "/")
             val bytes =
-                aClass.classLoader.getResourceAsStream("$workerActionName.class")
-                    .use { it!!.readBytes() }
+                aClass.classLoader.getResourceAsStream("$workerActionName.class").use {
+                    it!!.readBytes()
+                }
 
             val reader = ClassReader(bytes)
             val cw = ClassWriter(0)
@@ -145,13 +144,11 @@ private class FakeGradleWorkQueue(
                 it.parentFile.mkdirs()
                 it.writeBytes(cw.toByteArray())
             }
-            URLClassLoader(
-                arrayOf(generatedClassesOutput.toURI().toURL()),
-                aClass.classLoader
-            ).use { classloader ->
-                val actualClass = classloader.loadClass(aClass.name + CLASS_SUFFIX)
-                runWorkAction(parameterTypeName, action, actualClass)
-            }
+            URLClassLoader(arrayOf(generatedClassesOutput.toURI().toURL()), aClass.classLoader)
+                .use { classloader ->
+                    val actualClass = classloader.loadClass(aClass.name + CLASS_SUFFIX)
+                    runWorkAction(parameterTypeName, action, actualClass)
+                }
         }
     }
 
@@ -163,9 +160,8 @@ private class FakeGradleWorkQueue(
     ) {
         // initialize and configure parameters
         val parametersInstance =
-            objectFactory.newInstance(
-                this::class.java.classLoader.loadClass(parameterTypeName)
-            ) as T
+            objectFactory.newInstance(this::class.java.classLoader.loadClass(parameterTypeName))
+                as T
         action.execute(parametersInstance)
 
         when (executionMode) {
@@ -196,8 +192,7 @@ class WorkerActionDecorator(
     classWriter: ClassWriter,
     paramsType: String,
     private val injectableService: List<FakeInjectableService>
-) :
-    ClassVisitor(Opcodes.ASM7, classWriter) {
+) : ClassVisitor(Opcodes.ASM7, classWriter) {
 
     private val parameterDescriptor = binaryToDescriptor(paramsType)
 
@@ -229,13 +224,7 @@ class WorkerActionDecorator(
         val constructorArgs = fieldAndDescriptors.joinToString(separator = "") { it.second }
 
         // add new constructor for parameters and all injectable services
-        super.visitMethod(
-            Opcodes.ACC_PUBLIC,
-            "<init>",
-            "($constructorArgs)V",
-            null,
-            null
-        ).apply {
+        super.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "($constructorArgs)V", null, null).apply {
             visitAnnotation("Ljavax/inject/Inject;", true)
             visitCode()
             visitVarInsn(Opcodes.ALOAD, 0)
@@ -256,14 +245,7 @@ class WorkerActionDecorator(
             visitEnd()
         }
 
-        super.visit(
-            version,
-            access,
-            generatedClassName,
-            signature,
-            name,
-            interfaces
-        )
+        super.visit(version, access, generatedClassName, signature, name, interfaces)
     }
 
     private fun synthesizeFieldAndMethod(
@@ -274,20 +256,9 @@ class WorkerActionDecorator(
         val fieldName = methodName + "_field"
         super.visitField(Opcodes.ACC_PRIVATE, fieldName, descriptor, null, null)
 
-        super.visitMethod(
-            Opcodes.ACC_PUBLIC,
-            methodName,
-            "()$descriptor",
-            null,
-            null
-        ).apply {
+        super.visitMethod(Opcodes.ACC_PUBLIC, methodName, "()$descriptor", null, null).apply {
             visitVarInsn(Opcodes.ALOAD, 0)
-            visitFieldInsn(
-                Opcodes.GETFIELD,
-                generatedClassName,
-                fieldName,
-                descriptor
-            )
+            visitFieldInsn(Opcodes.GETFIELD, generatedClassName, fieldName, descriptor)
             visitInsn(Opcodes.ARETURN)
             visitMaxs(1, 1)
             visitEnd()

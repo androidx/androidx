@@ -22,9 +22,7 @@ import com.google.common.base.Joiner
 import org.gradle.process.ExecResult
 import org.gradle.process.internal.ExecException
 
-/**
- * Cloned from `com.android.build.gradle.internal.process.GradleProcessResult`.
- */
+/** Cloned from `com.android.build.gradle.internal.process.GradleProcessResult`. */
 internal class GradleProcessResult(
     private val result: ExecResult,
     private val processInfo: ProcessInfo

@@ -41,12 +41,13 @@ import sqlite3.sqlite3_open_v2
 class NativeSQLiteDriver : SQLiteDriver {
     override fun open(fileName: String): SQLiteConnection = memScoped {
         val dbPointer = allocPointerTo<sqlite3>()
-        val resultCode = sqlite3_open_v2(
-            filename = fileName,
-            ppDb = dbPointer.ptr,
-            flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
-            zVfs = null
-        )
+        val resultCode =
+            sqlite3_open_v2(
+                filename = fileName,
+                ppDb = dbPointer.ptr,
+                flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
+                zVfs = null
+            )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, null)
         }

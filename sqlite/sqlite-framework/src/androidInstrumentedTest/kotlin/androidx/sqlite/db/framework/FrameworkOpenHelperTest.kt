@@ -29,11 +29,12 @@ import org.junit.Test
 class FrameworkOpenHelperTest {
     private val dbName = "test.db"
     private val context: Context = ApplicationProvider.getApplicationContext()
-    private val openHelper = FrameworkSQLiteOpenHelper(
-        context = context,
-        name = dbName,
-        callback = OpenHelperRecoveryTest.EmptyCallback(),
-    )
+    private val openHelper =
+        FrameworkSQLiteOpenHelper(
+            context = context,
+            name = dbName,
+            callback = OpenHelperRecoveryTest.EmptyCallback(),
+        )
 
     @Before
     fun setup() {
