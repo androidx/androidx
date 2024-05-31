@@ -35,4 +35,10 @@ public expect open class NavGraphNavigator(
      * Gets the backstack of [NavBackStackEntry] associated with this Navigator
      */
     public val backStack: StateFlow<List<NavBackStackEntry>>
+
+    /**
+     * Creates a new [NavGraph] associated with this navigator.
+     * @return The created [NavGraph].
+     */
+    override fun createDestination(): NavGraph
 }

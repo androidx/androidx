@@ -24,14 +24,14 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Navigator.Name("NoOp")
 public actual class NoOpNavigator : Navigator<NavDestination>() {
-    override fun createDestination(): NavDestination = NavDestination(this)
+    public actual override fun createDestination(): NavDestination = NavDestination(this)
 
-    override fun navigate(
+    public actual override fun navigate(
         destination: NavDestination,
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ): NavDestination = destination
 
-    override fun popBackStack(): Boolean = true
+    public actual override fun popBackStack(): Boolean = true
 }

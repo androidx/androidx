@@ -50,7 +50,7 @@ public actual open class NavHostController
      * @param owner The [LifecycleOwner] associated with the containing [NavHost].
      * @see NavHostController.setOnBackPressedDispatcher
      */
-    public final override fun setLifecycleOwner(owner: LifecycleOwner) {
+    public actual final override fun setLifecycleOwner(owner: LifecycleOwner) {
         super.setLifecycleOwner(owner)
     }
 
@@ -97,7 +97,7 @@ public actual open class NavHostController
      * @throws IllegalStateException if this method is called when graph was already set via
      * [setGraph] or similar methods.
      */
-    public final override fun setViewModelStore(viewModelStore: ViewModelStore) {
+    public actual final override fun setViewModelStore(viewModelStore: ViewModelStore) {
         super.setViewModelStore(viewModelStore)
     }
 }

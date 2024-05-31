@@ -22,8 +22,10 @@ import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.navigation.serialization.decodeArguments
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
@@ -76,6 +78,15 @@ public expect class NavBackStackEntry :
     @get:MainThread
     public val savedStateHandle: SavedStateHandle
 
+    /**
+     * {@inheritDoc}
+     *
+     * If the [androidx.navigation.NavHost] has not called
+     * [androidx.navigation.NavHostController.setLifecycleOwner], the
+     * Lifecycle will be capped at [Lifecycle.State.CREATED].
+     */
+    public override val lifecycle: Lifecycle
+
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var maxLifecycle: Lifecycle.State
@@ -88,6 +99,21 @@ public expect class NavBackStackEntry :
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun updateState()
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if called before the [lifecycle] has moved to
+     * [Lifecycle.State.CREATED] or before the [androidx.navigation.NavHost] has called
+     * [androidx.navigation.NavHostController.setViewModelStore].
+     */
+    public override val viewModelStore: ViewModelStore
+
+    public override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+
+    public override val defaultViewModelCreationExtras: CreationExtras
+
+    public override val savedStateRegistry: SavedStateRegistry
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun saveState(outBundle: Bundle)

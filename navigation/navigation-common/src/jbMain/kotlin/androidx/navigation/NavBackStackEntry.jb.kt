@@ -152,7 +152,7 @@ public actual class NavBackStackEntry private constructor(
      * [androidx.navigation.NavHostController.setLifecycleOwner], the
      * Lifecycle will be capped at [Lifecycle.State.CREATED].
      */
-    override val lifecycle: Lifecycle
+    public actual override val lifecycle: Lifecycle
         get() = _lifecycle
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -191,7 +191,7 @@ public actual class NavBackStackEntry private constructor(
         }
     }
 
-    public override val viewModelStore: ViewModelStore
+    public actual override val viewModelStore: ViewModelStore
         /**
          * {@inheritDoc}
          *
@@ -216,11 +216,11 @@ public actual class NavBackStackEntry private constructor(
             return viewModelStoreProvider.getViewModelStore(id)
         }
 
-    override val defaultViewModelProviderFactory = object : ViewModelProvider.Factory {
+    public actual override val defaultViewModelProviderFactory = object : ViewModelProvider.Factory {
         // Use default implementation
     }
 
-    override val defaultViewModelCreationExtras: CreationExtras
+    public actual override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = MutableCreationExtras()
             extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
@@ -231,7 +231,7 @@ public actual class NavBackStackEntry private constructor(
             return extras
         }
 
-    override val savedStateRegistry: SavedStateRegistry
+    public actual override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

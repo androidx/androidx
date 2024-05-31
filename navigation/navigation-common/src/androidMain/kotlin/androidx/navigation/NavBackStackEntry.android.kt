@@ -153,7 +153,7 @@ private constructor(
      * [androidx.navigation.NavHostController.setLifecycleOwner], the
      * Lifecycle will be capped at [Lifecycle.State.CREATED].
      */
-    override val lifecycle: Lifecycle
+    public actual override val lifecycle: Lifecycle
         get() = _lifecycle
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -192,7 +192,7 @@ private constructor(
         }
     }
 
-    public override val viewModelStore: ViewModelStore
+    public actual public override val viewModelStore: ViewModelStore
         /**
          * {@inheritDoc}
          *
@@ -217,9 +217,9 @@ private constructor(
             return viewModelStoreProvider.getViewModelStore(id)
         }
 
-    override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
+    public actual override val defaultViewModelProviderFactory: ViewModelProvider.Factory = defaultFactory
 
-    override val defaultViewModelCreationExtras: CreationExtras
+    public actual override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = MutableCreationExtras()
             (context?.applicationContext as? Application)?.let { application ->
@@ -233,7 +233,7 @@ private constructor(
             return extras
         }
 
-    override val savedStateRegistry: SavedStateRegistry
+    public actual override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
