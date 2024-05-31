@@ -91,4 +91,5 @@ androidx {
     inceptionYear = "2017"
     description = "SQLite API"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

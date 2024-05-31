@@ -60,4 +60,5 @@ androidx {
     inceptionYear = "2021"
     description = "Library for powering Google features with Android app shortcuts"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

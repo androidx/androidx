@@ -90,4 +90,5 @@ androidx {
     inceptionYear = "2022"
     description = "Query segment data for android.graphics.Path objects"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

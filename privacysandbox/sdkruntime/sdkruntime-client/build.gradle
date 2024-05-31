@@ -155,4 +155,5 @@ androidx {
     inceptionYear = "2022"
     description = "Provides components for SdkRuntime aware Applications"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

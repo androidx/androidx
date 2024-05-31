@@ -81,4 +81,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Wear Complications Data"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

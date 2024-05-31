@@ -85,6 +85,7 @@ androidx {
             "developers to write Jetpack Compose applications for Wearable devices that " +
             "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
             "the Jetpack Compose libraries."
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:compose:compose-material3-samples"))
 }
 

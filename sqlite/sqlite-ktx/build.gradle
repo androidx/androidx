@@ -43,6 +43,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for DB"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

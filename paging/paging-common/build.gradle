@@ -143,6 +143,7 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Paging-Common"
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":paging:paging-samples"))
 }
 

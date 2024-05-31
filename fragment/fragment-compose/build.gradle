@@ -61,5 +61,6 @@ androidx {
     inceptionYear = "2024"
     description = "Integrate Fragments with Compose to provide helper APIs for using Fragments in" +
             "Compose or Compose inside of Fragments"
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":fragment:fragment-compose:fragment-compose-samples"))
 }

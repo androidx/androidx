@@ -39,6 +39,7 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

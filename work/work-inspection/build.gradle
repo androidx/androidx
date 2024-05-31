@@ -53,6 +53,7 @@ androidx {
     type = LibraryType.IDE_PLUGIN
     inceptionYear = "2020"
     description = "The implementation of WorkManager Inspector."
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

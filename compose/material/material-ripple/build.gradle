@@ -121,9 +121,6 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2020"
     description = "Material ripple used to build interactive components"
-    // Disable strict API mode for MPP builds as it will fail to compile androidAndroidTest
-    // sources, as it doesn't understand that they are tests and thinks they should have explicit
-    // visibility
     legacyDisableKotlinStrictApiMode = true
 }
 

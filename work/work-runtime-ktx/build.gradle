@@ -39,6 +39,7 @@ androidx {
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

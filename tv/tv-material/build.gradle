@@ -75,5 +75,6 @@ androidx {
     mavenVersion = LibraryVersions.TV_MATERIAL
     inceptionYear = "2022"
     description = "build TV applications using controls that adhere to Material Design Language."
+    legacyDisableKotlinStrictApiMode = true
     samples(project(":tv:tv-material-samples"))
 }

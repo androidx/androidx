@@ -52,6 +52,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

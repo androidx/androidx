@@ -95,4 +95,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room Testing"
+    legacyDisableKotlinStrictApiMode = true
 }

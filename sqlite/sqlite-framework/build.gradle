@@ -145,6 +145,7 @@ androidx {
     inceptionYear = "2017"
     description = "The implementation of SQLite library using the framework code."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

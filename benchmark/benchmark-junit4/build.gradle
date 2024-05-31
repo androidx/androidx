@@ -63,6 +63,7 @@ androidx {
     inceptionYear = "2019"
     description = "Android Benchmark - JUnit4"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

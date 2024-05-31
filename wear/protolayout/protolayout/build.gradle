@@ -62,4 +62,5 @@ androidx {
     inceptionYear = "2022"
     description = "Create layouts that can be rendered by a remote host."
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

@@ -47,6 +47,7 @@ androidx {
     inceptionYear = "2022"
     description = "Test utilities for AndroidX Bluetooth"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

@@ -88,4 +88,5 @@ androidx {
     inceptionYear = "2021"
     description = "This library helps developers create performant health applications in a platform agnostic way"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
