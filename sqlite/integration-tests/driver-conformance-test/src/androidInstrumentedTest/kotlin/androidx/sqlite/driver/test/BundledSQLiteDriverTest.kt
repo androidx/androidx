@@ -16,14 +16,38 @@
 
 package androidx.sqlite.driver.test
 
-import androidx.sqlite.SQLiteDriver
+import androidx.kruth.assertThat
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 
 class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
 
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val file = instrumentation.targetContext.getDatabasePath("test.db")
+
     override val driverType = TestDriverType.BUNDLED
 
-    override fun getDriver(): SQLiteDriver {
+    override fun getDatabaseFileName(): String = file.path
+
+    override fun getDriver(): BundledSQLiteDriver {
         return BundledSQLiteDriver()
+    }
+
+    @BeforeTest
+    fun before() {
+        assertThat(file).isNotNull()
+        file.parentFile?.mkdirs()
+        deleteDatabaseFile()
+    }
+
+    @AfterTest
+    fun after() {
+        deleteDatabaseFile()
+    }
+
+    private fun deleteDatabaseFile() {
+        instrumentation.targetContext.deleteDatabase(file.name)
     }
 }

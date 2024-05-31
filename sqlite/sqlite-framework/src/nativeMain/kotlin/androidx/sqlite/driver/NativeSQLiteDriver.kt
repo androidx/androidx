@@ -16,6 +16,7 @@
 
 package androidx.sqlite.driver
 
+import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.throwSQLiteException
@@ -28,6 +29,7 @@ import sqlite3.SQLITE_OK
 import sqlite3.SQLITE_OPEN_CREATE
 import sqlite3.SQLITE_OPEN_READWRITE
 import sqlite3.sqlite3_open_v2
+import sqlite3.sqlite3_threadsafe
 
 /**
  * A [SQLiteDriver] that uses a version of SQLite included with the host operating system.
@@ -35,16 +37,38 @@ import sqlite3.sqlite3_open_v2
  * Usage of this driver expects that `libsqlite` can be found in the shared library path.
  */
 // TODO:
-//    (b/307917398) more open flags
 //    (b/304295573) busy handler registering
 @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteDriver : SQLiteDriver {
-    override fun open(fileName: String): SQLiteConnection = memScoped {
+
+    /**
+     * The thread safe mode SQLite was compiled with.
+     *
+     * See also [SQLite In Multi-Threaded Applications](https://www.sqlite.org/threadsafe.html)
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    val threadingMode: Int
+        get() = sqlite3_threadsafe()
+
+    override fun open(fileName: String): SQLiteConnection {
+        return open(fileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE)
+    }
+
+    /**
+     * Opens a new database connection.
+     *
+     * See also [Opening A New Database Connection](https://www.sqlite.org/c3ref/open.html)
+     *
+     * @param fileName Name of the database file.
+     * @param flags Connection open flags.
+     * @return the database connection.
+     */
+    fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection = memScoped {
         val dbPointer = allocPointerTo<sqlite3>()
         val resultCode = sqlite3_open_v2(
             filename = fileName,
             ppDb = dbPointer.ptr,
-            flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE,
+            flags = flags,
             zVfs = null
         )
         if (resultCode != SQLITE_OK) {
