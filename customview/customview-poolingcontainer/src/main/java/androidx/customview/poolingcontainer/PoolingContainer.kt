@@ -1,4 +1,5 @@
 @file:JvmName("PoolingContainer")
+
 /*
  * Copyright 2021 The Android Open Source Project
  *
@@ -31,19 +32,18 @@ import androidx.core.view.children
  *
  * This callback is not necessarily triggered if the pooling container is disassociating the View
  * from a particular piece of data (that is, it is *not* an "unbind listener"). It is intended for
- * expensive resources that need to be cached across data items, but need a signal to be
- * disposed of.
+ * expensive resources that need to be cached across data items, but need a signal to be disposed
+ * of.
  */
 fun interface PoolingContainerListener {
     /**
      * Signals that this view should dispose any resources it may be holding onto, because its
      * container is either discarding the View or has been removed from the hierarchy itself.
      *
-     * Note: This may be called multiple times. A call to this method does *not* mean the View
-     * will not later be reattached.
+     * Note: This may be called multiple times. A call to this method does *not* mean the View will
+     * not later be reattached.
      */
-    @UiThread
-    fun onRelease()
+    @UiThread fun onRelease()
 }
 
 /**
@@ -56,9 +56,7 @@ fun View.addPoolingContainerListener(listener: PoolingContainerListener) {
     this.poolingContainerListenerHolder.addListener(listener)
 }
 
-/**
- * Remove a callback that was previously added by [addPoolingContainerListener]
- */
+/** Remove a callback that was previously added by [addPoolingContainerListener] */
 @SuppressLint("ExecutorRegistration") // This is a UI thread callback
 fun View.removePoolingContainerListener(listener: PoolingContainerListener) {
     this.poolingContainerListenerHolder.removeListener(listener)
@@ -67,10 +65,10 @@ fun View.removePoolingContainerListener(listener: PoolingContainerListener) {
 /**
  * Whether this View is a container that manages the lifecycle of its child Views.
  *
- * Any View that sets this to `true` must call [callPoolingContainerOnRelease] on child Views
- * before they are discarded and may possibly not be used in the future. This includes when the
- * view itself is detached from the window, unless it is being held for possible later
- * reattachment and its children should not release their resources.
+ * Any View that sets this to `true` must call [callPoolingContainerOnRelease] on child Views before
+ * they are discarded and may possibly not be used in the future. This includes when the view itself
+ * is detached from the window, unless it is being held for possible later reattachment and its
+ * children should not release their resources.
  *
  * **Warning: Failure to call [callPoolingContainerOnRelease] when a View is removed from the
  * hierarchy and discarded is likely to result in memory leaks!**
@@ -81,9 +79,7 @@ var View.isPoolingContainer: Boolean
         setTag(IsPoolingContainerTag, value)
     }
 
-/**
- * Whether one of this View's ancestors has `isPoolingContainer` set to `true`
- */
+/** Whether one of this View's ancestors has `isPoolingContainer` set to `true` */
 val View.isWithinPoolingContainer: Boolean
     get() {
         ancestors.forEach {
@@ -95,27 +91,23 @@ val View.isWithinPoolingContainer: Boolean
     }
 
 /**
- * Calls [PoolingContainerListener.onRelease] on any [PoolingContainerListener]s attached to
- * this View or any of its children.
+ * Calls [PoolingContainerListener.onRelease] on any [PoolingContainerListener]s attached to this
+ * View or any of its children.
  *
  * At the point when this is called, the View should be detached from the window.
  */
 fun View.callPoolingContainerOnRelease() {
-    this.allViews.forEach { child ->
-        child.poolingContainerListenerHolder.onRelease()
-    }
+    this.allViews.forEach { child -> child.poolingContainerListenerHolder.onRelease() }
 }
 
 /**
- * Calls [PoolingContainerListener.onRelease] on any [PoolingContainerListener]s attached to
- * any of its children (not including the `ViewGroup` itself)
+ * Calls [PoolingContainerListener.onRelease] on any [PoolingContainerListener]s attached to any of
+ * its children (not including the `ViewGroup` itself)
  *
  * At the point when this is called, the View should be detached from the window.
  */
 fun ViewGroup.callPoolingContainerOnReleaseForChildren() {
-    this.children.forEach { child ->
-        child.poolingContainerListenerHolder.onRelease()
-    }
+    this.children.forEach { child -> child.poolingContainerListenerHolder.onRelease() }
 }
 
 private val PoolingContainerListenerHolderTag = R.id.pooling_container_listener_holder_tag
@@ -141,8 +133,7 @@ private class PoolingContainerListenerHolder {
 
 private val View.poolingContainerListenerHolder: PoolingContainerListenerHolder
     get() {
-        var lifecycle =
-            getTag(PoolingContainerListenerHolderTag) as PoolingContainerListenerHolder?
+        var lifecycle = getTag(PoolingContainerListenerHolderTag) as PoolingContainerListenerHolder?
         if (lifecycle == null) {
             lifecycle = PoolingContainerListenerHolder()
             setTag(PoolingContainerListenerHolderTag, lifecycle)
