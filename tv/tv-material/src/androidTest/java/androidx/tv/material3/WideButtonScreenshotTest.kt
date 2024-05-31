@@ -37,38 +37,26 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class WideButtonScreenshotTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(TV_GOLDEN_MATERIAL3)
 
     @Test
     fun defaultWideButton_lightTheme() {
-        rule.setContent {
-            LightMaterialTheme {
-                WideButton(onClick = { }) {
-                    Text("Settings")
-                }
-            }
-        }
+        rule.setContent { LightMaterialTheme { WideButton(onClick = {}) { Text("Settings") } } }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_light_theme")
     }
 
     @Test
     fun defaultWideButton_darkTheme() {
-        rule.setContent {
-            DarkMaterialTheme {
-                WideButton(onClick = { }) {
-                    Text("Settings")
-                }
-            }
-        }
+        rule.setContent { DarkMaterialTheme { WideButton(onClick = {}) { Text("Settings") } } }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_dark_theme")
     }
@@ -76,14 +64,11 @@ class WideButtonScreenshotTest {
     @Test
     fun disabled_wideButton_lightTheme() {
         rule.setContent {
-            LightMaterialTheme {
-                WideButton(onClick = { }, enabled = false) {
-                    Text("Settings")
-                }
-            }
+            LightMaterialTheme { WideButton(onClick = {}, enabled = false) { Text("Settings") } }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_disabled_light_theme")
     }
@@ -91,14 +76,11 @@ class WideButtonScreenshotTest {
     @Test
     fun disabled_wideButton_darkTheme() {
         rule.setContent {
-            DarkMaterialTheme {
-                WideButton(onClick = { }, enabled = false) {
-                    Text("Settings")
-                }
-            }
+            DarkMaterialTheme { WideButton(onClick = {}, enabled = false) { Text("Settings") } }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_disabled_dark_theme")
     }
@@ -108,14 +90,15 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_subtitle_light_theme")
     }
@@ -125,14 +108,15 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_subtitle_dark_theme")
     }
@@ -142,7 +126,7 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
@@ -150,7 +134,8 @@ class WideButtonScreenshotTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "disabled_wide_button_with_subtitle_light_theme")
     }
@@ -160,7 +145,7 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
@@ -168,7 +153,8 @@ class WideButtonScreenshotTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "disabled_wide_button_with_subtitle_dark_theme")
     }
@@ -178,19 +164,17 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_icon_light_theme")
     }
@@ -200,19 +184,17 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_icon_dark_theme")
     }
@@ -222,20 +204,18 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "disabled_wide_button_with_icon_light_theme")
     }
@@ -245,20 +225,18 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "disabled_wide_button_with_icon_dark_theme")
     }
@@ -268,20 +246,18 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_subtitle_and_icon_light_theme")
     }
@@ -291,20 +267,18 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "wide_button_with_subtitle_and_icon_dark_theme")
     }
@@ -314,21 +288,19 @@ class WideButtonScreenshotTest {
         rule.setContent {
             LightMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
@@ -341,21 +313,19 @@ class WideButtonScreenshotTest {
         rule.setContent {
             DarkMaterialTheme {
                 WideButton(
-                    onClick = { },
+                    onClick = {},
                     enabled = false,
                     title = { Text("Settings") },
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                        Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
                     }
                 )
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,

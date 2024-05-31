@@ -38,16 +38,8 @@ fun StandardCardContainerSample() {
     StandardCardContainer(
         modifier = Modifier.size(150.dp, 120.dp),
         imageCard = { interactionSource ->
-            Card(
-                onClick = { },
-                interactionSource = interactionSource
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(Color.Blue)
-                )
+            Card(onClick = {}, interactionSource = interactionSource) {
+                Box(modifier = Modifier.fillMaxWidth().height(80.dp).background(Color.Blue))
             }
         },
         title = { Text("Standard Card") }
@@ -60,16 +52,8 @@ fun WideCardContainerSample() {
     WideCardContainer(
         modifier = Modifier.size(180.dp, 100.dp),
         imageCard = { interactionSource ->
-            Card(
-                onClick = { },
-                interactionSource = interactionSource
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(90.dp)
-                        .background(Color.Blue)
-                )
+            Card(onClick = {}, interactionSource = interactionSource) {
+                Box(modifier = Modifier.fillMaxWidth().height(90.dp).background(Color.Blue))
             }
         },
         title = { Text("Wide Card", Modifier.padding(start = 8.dp)) },

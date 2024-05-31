@@ -27,17 +27,17 @@ import androidx.compose.runtime.remember
  * Material Theming refers to the customization of your Material Design app to better reflect your
  * product’s brand.
  *
- * Material components such as Button and Checkbox use values provided here when retrieving
- * default values.
+ * Material components such as Button and Checkbox use values provided here when retrieving default
+ * values.
  *
  * All values may be set by providing this component with the [colorScheme][ColorScheme],
- * [typography][Typography] attributes. Use this to configure the overall
- * theme of elements within this MaterialTheme.
+ * [typography][Typography] attributes. Use this to configure the overall theme of elements within
+ * this MaterialTheme.
  *
  * Any values that are not set will inherit the current value from the theme, falling back to the
- * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top
- * of your application, and then separate MaterialTheme(s) for different screens / parts of your
- * UI, overriding only the parts of the theme definition that need to change.
+ * defaults if there is no parent MaterialTheme. This allows using a MaterialTheme at the top of
+ * your application, and then separate MaterialTheme(s) for different screens / parts of your UI,
+ * overriding only the parts of the theme definition that need to change.
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
@@ -51,13 +51,14 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rememberedColorScheme = remember {
-        // Explicitly creating a new object here so we don't mutate the initial [colorScheme]
-        // provided, and overwrite the values set in it.
-        colorScheme.copy()
-    }.apply {
-        updateColorSchemeFrom(colorScheme)
-    }
+    val rememberedColorScheme =
+        remember {
+                // Explicitly creating a new object here so we don't mutate the initial
+                // [colorScheme]
+                // provided, and overwrite the values set in it.
+                colorScheme.copy()
+            }
+            .apply { updateColorSchemeFrom(colorScheme) }
     val selectionColors = rememberTextSelectionColors(rememberedColorScheme)
     CompositionLocalProvider(
         LocalColorScheme provides rememberedColorScheme,
@@ -70,34 +71,24 @@ fun MaterialTheme(
 }
 
 /**
- * Contains functions to access the current theme values provided at the call site's position in
- * the hierarchy.
+ * Contains functions to access the current theme values provided at the call site's position in the
+ * hierarchy.
  */
 object MaterialTheme {
-    /**
-     * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
-     */
+    /** Retrieves the current [ColorScheme] at the call site's position in the hierarchy. */
     val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
         @SuppressWarnings("HiddenTypeParameter", "UnavailableSymbol")
         get() = LocalColorScheme.current
 
-    /**
-     * Retrieves the current [Typography] at the call site's position in the hierarchy.
-     */
+    /** Retrieves the current [Typography] at the call site's position in the hierarchy. */
     val typography: Typography
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalTypography.current
+        @Composable @ReadOnlyComposable get() = LocalTypography.current
 
-    /**
-     * Retrieves the current [Shapes] at the call site's position in the hierarchy.
-     */
+    /** Retrieves the current [Shapes] at the call site's position in the hierarchy. */
     val shapes: Shapes
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalShapes.current
+        @Composable @ReadOnlyComposable get() = LocalShapes.current
 }
 
 @Composable

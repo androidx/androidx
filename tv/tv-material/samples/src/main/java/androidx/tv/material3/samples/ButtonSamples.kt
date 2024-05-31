@@ -32,17 +32,13 @@ import androidx.tv.material3.Text
 @Sampled
 @Composable
 fun ButtonSample() {
-    Button(onClick = { }) {
-        Text("Button")
-    }
+    Button(onClick = {}) { Text("Button") }
 }
 
 @Sampled
 @Composable
 fun OutlinedButtonSample() {
-    OutlinedButton(onClick = {}) {
-        Text("Outlined Button")
-    }
+    OutlinedButton(onClick = {}) { Text("Outlined Button") }
 }
 
 @Sampled

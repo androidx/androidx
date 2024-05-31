@@ -33,6 +33,7 @@ internal fun rememberLazyGridSemanticState(
         object : LazyLayoutSemanticState {
             override val currentPosition: Float
                 get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
+
             override val canScrollForward: Boolean
                 get() = state.canScrollForward
 

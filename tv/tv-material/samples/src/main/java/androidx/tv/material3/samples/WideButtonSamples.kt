@@ -27,23 +27,16 @@ import androidx.tv.material3.WideButton
 @Sampled
 @Composable
 fun WideButtonSample() {
-    WideButton(onClick = { }) {
-        Text("Settings")
-    }
+    WideButton(onClick = {}) { Text("Settings") }
 }
 
 @Sampled
 @Composable
 fun WideButtonWithIcon() {
     WideButton(
-        onClick = { },
+        onClick = {},
         title = { Text("Settings") },
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
-            )
-        }
+        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") }
     )
 }
 
@@ -51,7 +44,7 @@ fun WideButtonWithIcon() {
 @Composable
 fun WideButtonWithSubtitle() {
     WideButton(
-        onClick = { },
+        onClick = {},
         title = { Text("Settings") },
         subtitle = { Text(text = "Update device preferences") },
     )
@@ -61,14 +54,9 @@ fun WideButtonWithSubtitle() {
 @Composable
 fun WideButtonWithIconAndSubtitle() {
     WideButton(
-        onClick = { },
+        onClick = {},
         title = { Text("Settings") },
         subtitle = { Text(text = "Update device preferences") },
-        icon = {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings"
-            )
-        }
+        icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings") }
     )
 }

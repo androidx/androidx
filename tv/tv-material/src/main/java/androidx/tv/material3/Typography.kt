@@ -32,48 +32,49 @@ import androidx.tv.material3.tokens.TypographyTokens
  * The type scale is a combination of thirteen styles that are supported by the type system. It
  * contains reusable categories of text, each with an intended application and meaning.
  *
- * To learn more about typography, see [Material Design typography](https://m3.material.io/styles/typography/overview).
+ * To learn more about typography, see
+ * [Material Design typography](https://m3.material.io/styles/typography/overview).
  *
  * @property displayLarge displayLarge is the largest display text.
  * @property displayMedium displayMedium is the second largest display text.
  * @property displaySmall displaySmall is the smallest display text.
  * @property headlineLarge headlineLarge is the largest headline, reserved for short, important text
- * or numerals. For headlines, you can choose an expressive font, such as a display, handwritten, or
- * script style. These unconventional font designs have details and intricacy that help attract the
- * eye.
+ *   or numerals. For headlines, you can choose an expressive font, such as a display, handwritten,
+ *   or script style. These unconventional font designs have details and intricacy that help attract
+ *   the eye.
  * @property headlineMedium headlineMedium is the second largest headline, reserved for short,
- * important text or numerals. For headlines, you can choose an expressive font, such as a display,
- * handwritten, or script style. These unconventional font designs have details and intricacy that
- * help attract the eye.
+ *   important text or numerals. For headlines, you can choose an expressive font, such as a
+ *   display, handwritten, or script style. These unconventional font designs have details and
+ *   intricacy that help attract the eye.
  * @property headlineSmall headlineSmall is the smallest headline, reserved for short, important
- * text or numerals. For headlines, you can choose an expressive font, such as a display,
- * handwritten, or script style. These unconventional font designs have details and intricacy that
- * help attract the eye.
+ *   text or numerals. For headlines, you can choose an expressive font, such as a display,
+ *   handwritten, or script style. These unconventional font designs have details and intricacy that
+ *   help attract the eye.
  * @property titleLarge titleLarge is the largest title, and is typically reserved for
- * medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
- * subtitles.
+ *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+ *   subtitles.
  * @property titleMedium titleMedium is the second largest title, and is typically reserved for
- * medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
- * subtitles.
+ *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+ *   subtitles.
  * @property titleSmall titleSmall is the smallest title, and is typically reserved for
- * medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
- * subtitles.
+ *   medium-emphasis text that is shorter in length. Serif or sans serif typefaces work well for
+ *   subtitles.
  * @property bodyLarge bodyLarge is the largest body, and is typically used for long-form writing as
- * it works well for small text sizes. For longer sections of text, a serif or sans serif typeface
- * is recommended.
+ *   it works well for small text sizes. For longer sections of text, a serif or sans serif typeface
+ *   is recommended.
  * @property bodyMedium bodyMedium is the second largest body, and is typically used for long-form
- * writing as it works well for small text sizes. For longer sections of text, a serif or sans serif
- * typeface is recommended.
+ *   writing as it works well for small text sizes. For longer sections of text, a serif or sans
+ *   serif typeface is recommended.
  * @property bodySmall bodySmall is the smallest body, and is typically used for long-form writing
- * as it works well for small text sizes. For longer sections of text, a serif or sans serif
- * typeface is recommended.
+ *   as it works well for small text sizes. For longer sections of text, a serif or sans serif
+ *   typeface is recommended.
  * @property labelLarge labelLarge text is a call to action used in different types of buttons (such
- * as text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is
- * typically sans serif, using all caps text.
+ *   as text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is
+ *   typically sans serif, using all caps text.
  * @property labelMedium labelMedium is one of the smallest font sizes. It is used sparingly to
- * annotate imagery or to introduce a headline.
+ *   annotate imagery or to introduce a headline.
  * @property labelSmall labelSmall is one of the smallest font sizes. It is used sparingly to
- * annotate imagery or to introduce a headline.
+ *   annotate imagery or to introduce a headline.
  */
 @Immutable
 class Typography(
@@ -182,9 +183,7 @@ class Typography(
     }
 }
 
-/**
- * Helper function for component typography tokens.
- */
+/** Helper function for component typography tokens. */
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
         TypographyKeyTokens.DisplayLarge -> displayLarge

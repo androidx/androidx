@@ -38,8 +38,7 @@ import org.junit.Test
 
 class LazyListsIndexedTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun lazyColumnShowsIndexedItems() {
@@ -52,24 +51,22 @@ class LazyListsIndexedTest {
             ) {
                 itemsIndexed(items) { index, item ->
                     Spacer(
-                        Modifier.height(101.dp).fillParentMaxWidth()
-                            .testTag("$index-$item").focusable()
+                        Modifier.height(101.dp)
+                            .fillParentMaxWidth()
+                            .testTag("$index-$item")
+                            .focusable()
                     )
                 }
             }
         }
 
-        rule.onNodeWithTag("0-1")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("0-1").assertIsDisplayed()
 
-        rule.onNodeWithTag("1-2")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("1-2").assertIsDisplayed()
 
-        rule.onNodeWithTag("2-3")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2-3").assertDoesNotExist()
 
-        rule.onNodeWithTag("3-4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("3-4").assertDoesNotExist()
     }
 
     @Test
@@ -83,17 +80,16 @@ class LazyListsIndexedTest {
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText(
-                        "${index}x$item", Modifier.fillParentMaxWidth().requiredHeight(100.dp)
+                        "${index}x$item",
+                        Modifier.fillParentMaxWidth().requiredHeight(100.dp)
                     )
                 }
             }
         }
 
-        rule.onNodeWithText("0x0")
-            .assertTopPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithText("0x0").assertTopPositionInRootIsEqualTo(0.dp)
 
-        rule.onNodeWithText("1x1")
-            .assertTopPositionInRootIsEqualTo(100.dp)
+        rule.onNodeWithText("1x1").assertTopPositionInRootIsEqualTo(100.dp)
     }
 
     @Test
@@ -101,30 +97,25 @@ class LazyListsIndexedTest {
         val items = (1..4).map { it.toString() }
 
         rule.setContent {
-            TvLazyRow(
-                Modifier.width(200.dp),
-                pivotOffsets = PivotOffsets(parentFraction = 0f)
-            ) {
+            TvLazyRow(Modifier.width(200.dp), pivotOffsets = PivotOffsets(parentFraction = 0f)) {
                 itemsIndexed(items) { index, item ->
                     Spacer(
-                        Modifier.width(101.dp).fillParentMaxHeight()
-                            .testTag("$index-$item").focusable()
+                        Modifier.width(101.dp)
+                            .fillParentMaxHeight()
+                            .testTag("$index-$item")
+                            .focusable()
                     )
                 }
             }
         }
 
-        rule.onNodeWithTag("0-1")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("0-1").assertIsDisplayed()
 
-        rule.onNodeWithTag("1-2")
-            .assertIsDisplayed()
+        rule.onNodeWithTag("1-2").assertIsDisplayed()
 
-        rule.onNodeWithTag("2-3")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("2-3").assertDoesNotExist()
 
-        rule.onNodeWithTag("3-4")
-            .assertDoesNotExist()
+        rule.onNodeWithTag("3-4").assertDoesNotExist()
     }
 
     @Test
@@ -132,10 +123,7 @@ class LazyListsIndexedTest {
         val items = (0..1).map { it.toString() }
 
         rule.setContent {
-            TvLazyRow(
-                Modifier.width(200.dp),
-                pivotOffsets = PivotOffsets(parentFraction = 0f)
-            ) {
+            TvLazyRow(Modifier.width(200.dp), pivotOffsets = PivotOffsets(parentFraction = 0f)) {
                 itemsIndexed(items) { index, item ->
                     BasicText(
                         "${index}x$item",
@@ -145,10 +133,8 @@ class LazyListsIndexedTest {
             }
         }
 
-        rule.onNodeWithText("0x0")
-            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithText("0x0").assertLeftPositionInRootIsEqualTo(0.dp)
 
-        rule.onNodeWithText("1x1")
-            .assertLeftPositionInRootIsEqualTo(100.dp)
+        rule.onNodeWithText("1x1").assertLeftPositionInRootIsEqualTo(100.dp)
     }
 }

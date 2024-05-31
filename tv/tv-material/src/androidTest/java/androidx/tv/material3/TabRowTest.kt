@@ -52,8 +52,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class TabRowTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun tabRow_shouldNotCrashWithOnly1Tab() {
@@ -158,34 +157,35 @@ class TabRowTest {
 
         setContent(
             tabs,
-            contentBuilder = @Composable {
-                var focusedTabIndex by remember { mutableStateOf(0) }
-                var activeTabIndex by remember { mutableStateOf(focusedTabIndex) }
-                TabRowSample(
-                    tabs = tabs,
-                    selectedTabIndex = activeTabIndex,
-                    onFocus = { focusedTabIndex = it },
-                    onClick = { activeTabIndex = it },
-                    buildTabPanel = @Composable { index, _ ->
-                        BasicText(text = "Panel ${index + 1}")
-                    },
-                    indicator = @Composable { tabPositions, doesTabRowHaveFocus ->
-                        // FocusedTab's indicator
-                        TabRowDefaults.PillIndicator(
-                            currentTabPosition = tabPositions[focusedTabIndex],
-                            doesTabRowHaveFocus = doesTabRowHaveFocus,
-                            activeColor = Color.Blue.copy(alpha = 0.4f),
-                            inactiveColor = Color.Transparent,
-                        )
+            contentBuilder =
+                @Composable {
+                    var focusedTabIndex by remember { mutableStateOf(0) }
+                    var activeTabIndex by remember { mutableStateOf(focusedTabIndex) }
+                    TabRowSample(
+                        tabs = tabs,
+                        selectedTabIndex = activeTabIndex,
+                        onFocus = { focusedTabIndex = it },
+                        onClick = { activeTabIndex = it },
+                        buildTabPanel =
+                            @Composable { index, _ -> BasicText(text = "Panel ${index + 1}") },
+                        indicator =
+                            @Composable { tabPositions, doesTabRowHaveFocus ->
+                                // FocusedTab's indicator
+                                TabRowDefaults.PillIndicator(
+                                    currentTabPosition = tabPositions[focusedTabIndex],
+                                    doesTabRowHaveFocus = doesTabRowHaveFocus,
+                                    activeColor = Color.Blue.copy(alpha = 0.4f),
+                                    inactiveColor = Color.Transparent,
+                                )
 
-                        // SelectedTab's indicator
-                        TabRowDefaults.PillIndicator(
-                            currentTabPosition = tabPositions[activeTabIndex],
-                            doesTabRowHaveFocus = doesTabRowHaveFocus,
-                        )
-                    }
-                )
-            }
+                                // SelectedTab's indicator
+                                TabRowDefaults.PillIndicator(
+                                    currentTabPosition = tabPositions[activeTabIndex],
+                                    doesTabRowHaveFocus = doesTabRowHaveFocus,
+                                )
+                            }
+                    )
+                }
         )
 
         rule.onNodeWithText(firstPanel).assertIsDisplayed()
@@ -217,9 +217,7 @@ class TabRowTest {
             )
         },
     ) {
-        rule.setContent {
-            contentBuilder()
-        }
+        rule.setContent { contentBuilder() }
 
         rule.waitForIdle()
 
@@ -248,30 +246,17 @@ private fun TabRowSample(
             )
         },
     indicator: @Composable ((tabPositions: List<DpRect>, isTabRowActive: Boolean) -> Unit)? = null,
-    buildTabPanel: @Composable ((index: Int, tab: String) -> Unit) = @Composable { _, tab ->
-        BasicText(text = tab)
-    },
+    buildTabPanel: @Composable ((index: Int, tab: String) -> Unit) =
+        @Composable { _, tab -> BasicText(text = tab) },
 ) {
     val fr = remember { FocusRequester() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         // Added so that this can get focus and pass it to the tab row
-        Box(
-            modifier = Modifier
-                .size(50.dp)
-                .focusRequester(fr)
-                .background(Color.White)
-                .focusable()
-        )
+        Box(modifier = Modifier.size(50.dp).focusRequester(fr).background(Color.White).focusable())
 
         // Send focus to button
-        LaunchedEffect(Unit) {
-            fr.requestFocus()
-        }
+        LaunchedEffect(Unit) { fr.requestFocus() }
 
         if (indicator != null) {
             TabRow(
@@ -309,19 +294,18 @@ private fun TabRowScope.TabSample(
         selected = selected,
         onFocus = onFocus,
         onClick = onClick,
-        modifier = modifier
-            .width(100.dp)
-            .height(50.dp)
-            .testTag(tag)
-            .border(2.dp, Color.White, RoundedCornerShape(50))
+        modifier =
+            modifier
+                .width(100.dp)
+                .height(50.dp)
+                .testTag(tag)
+                .border(2.dp, Color.White, RoundedCornerShape(50))
     ) {}
 }
 
 private fun performKeyPress(keyCode: Int, count: Int = 1) {
     for (i in 1..count) {
-        InstrumentationRegistry
-            .getInstrumentation()
-            .sendKeyDownUpSync(keyCode)
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(keyCode)
     }
 }
 

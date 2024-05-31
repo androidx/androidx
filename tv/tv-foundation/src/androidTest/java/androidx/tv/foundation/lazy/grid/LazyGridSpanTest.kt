@@ -41,8 +41,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class LazyGridSpanTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun spans() {
@@ -97,22 +96,28 @@ class LazyGridSpanTest {
             }
         }
 
-        rule.onNodeWithTag("0")
+        rule
+            .onNodeWithTag("0")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(0.dp)
-        rule.onNodeWithTag("1")
+        rule
+            .onNodeWithTag("1")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(columnWidth * 3)
-        rule.onNodeWithTag("2")
+        rule
+            .onNodeWithTag("2")
             .assertTopPositionInRootIsEqualTo(itemHeight)
             .assertLeftPositionInRootIsEqualTo(0.dp)
-        rule.onNodeWithTag("3")
+        rule
+            .onNodeWithTag("3")
             .assertTopPositionInRootIsEqualTo(itemHeight)
             .assertLeftPositionInRootIsEqualTo(columnWidth)
-        rule.onNodeWithTag("4")
+        rule
+            .onNodeWithTag("4")
             .assertTopPositionInRootIsEqualTo(itemHeight * 2)
             .assertLeftPositionInRootIsEqualTo(0.dp)
-        rule.onNodeWithTag("5")
+        rule
+            .onNodeWithTag("5")
             .assertTopPositionInRootIsEqualTo(itemHeight * 2)
             .assertLeftPositionInRootIsEqualTo(columnWidth)
     }
@@ -126,10 +131,11 @@ class LazyGridSpanTest {
         rule.setContent {
             TvLazyVerticalGrid(
                 columns = TvGridCells.Fixed(columns),
-                modifier = Modifier.requiredSize(
-                    columnWidth * columns + spacing * (columns - 1),
-                    itemHeight
-                ),
+                modifier =
+                    Modifier.requiredSize(
+                        columnWidth * columns + spacing * (columns - 1),
+                        itemHeight
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
                 items(
@@ -147,11 +153,13 @@ class LazyGridSpanTest {
             }
         }
 
-        rule.onNodeWithTag("0")
+        rule
+            .onNodeWithTag("0")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(columnWidth)
-        rule.onNodeWithTag("1")
+        rule
+            .onNodeWithTag("1")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(columnWidth + spacing)
             .assertWidthIsEqualTo(columnWidth * 3 + spacing * 2)
@@ -178,10 +186,12 @@ class LazyGridSpanTest {
                 ) {
                     Box(Modifier.height(itemHeight).testTag("0"))
                 }
-                item(span = {
-                    if (maxCurrentLineSpan != 3) error("Wrong maxSpan")
-                    TvGridItemSpan(2)
-                }) {
+                item(
+                    span = {
+                        if (maxCurrentLineSpan != 3) error("Wrong maxSpan")
+                        TvGridItemSpan(2)
+                    }
+                ) {
                     Box(Modifier.height(itemHeight).testTag("1"))
                 }
                 items(
@@ -199,15 +209,18 @@ class LazyGridSpanTest {
             }
         }
 
-        rule.onNodeWithTag("0")
+        rule
+            .onNodeWithTag("0")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(columnWidth)
-        rule.onNodeWithTag("1")
+        rule
+            .onNodeWithTag("1")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(columnWidth)
             .assertWidthIsEqualTo(columnWidth * 2)
-        rule.onNodeWithTag("2")
+        rule
+            .onNodeWithTag("2")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(columnWidth * 3)
             .assertWidthIsEqualTo(columnWidth)
@@ -223,23 +236,28 @@ class LazyGridSpanTest {
                 columns = TvGridCells.Fixed(columns),
                 modifier = Modifier.requiredSize(columnWidth * columns, itemHeight * 3)
             ) {
-                item(span = {
-                    if (maxCurrentLineSpan != 4) error("Wrong maxSpan")
-                    TvGridItemSpan(3)
-                }) {
+                item(
+                    span = {
+                        if (maxCurrentLineSpan != 4) error("Wrong maxSpan")
+                        TvGridItemSpan(3)
+                    }
+                ) {
                     Box(Modifier.height(itemHeight).testTag("0"))
                 }
                 items(
                     count = 4,
                     span = { index ->
-                        if (maxCurrentLineSpan != when (index) {
-                                0 -> 1
-                                1 -> 2
-                                2 -> 1
-                                3 -> 2
-                                else -> error("Wrong index")
-                            }
-                        ) error("Wrong maxSpan")
+                        if (
+                            maxCurrentLineSpan !=
+                                when (index) {
+                                    0 -> 1
+                                    1 -> 2
+                                    2 -> 1
+                                    3 -> 2
+                                    else -> error("Wrong index")
+                                }
+                        )
+                            error("Wrong maxSpan")
                         TvGridItemSpan(listOf(2, 1, 2, 2)[index])
                     }
                 ) {
@@ -248,23 +266,28 @@ class LazyGridSpanTest {
             }
         }
 
-        rule.onNodeWithTag("0")
+        rule
+            .onNodeWithTag("0")
             .assertTopPositionInRootIsEqualTo(0.dp)
             .assertLeftPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(columnWidth * 3)
-        rule.onNodeWithTag("1")
+        rule
+            .onNodeWithTag("1")
             .assertTopPositionInRootIsEqualTo(itemHeight)
             .assertLeftPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(columnWidth * 2)
-        rule.onNodeWithTag("2")
+        rule
+            .onNodeWithTag("2")
             .assertTopPositionInRootIsEqualTo(itemHeight)
             .assertLeftPositionInRootIsEqualTo(columnWidth * 2)
             .assertWidthIsEqualTo(columnWidth)
-        rule.onNodeWithTag("3")
+        rule
+            .onNodeWithTag("3")
             .assertTopPositionInRootIsEqualTo(itemHeight * 2)
             .assertLeftPositionInRootIsEqualTo(0.dp)
             .assertWidthIsEqualTo(columnWidth * 2)
-        rule.onNodeWithTag("4")
+        rule
+            .onNodeWithTag("4")
             .assertTopPositionInRootIsEqualTo(itemHeight * 2)
             .assertLeftPositionInRootIsEqualTo(columnWidth * 2)
             .assertWidthIsEqualTo(columnWidth * 2)
@@ -285,17 +308,11 @@ class LazyGridSpanTest {
                     item(span = { TvGridItemSpan(maxLineSpan) }) {
                         Box(Modifier.fillMaxWidth().height(1.dp))
                     }
-                    items(10) {
-                        Box(Modifier.fillMaxWidth().height(1.dp))
-                    }
+                    items(10) { Box(Modifier.fillMaxWidth().height(1.dp)) }
                 }
             }
         }
 
-        rule.runOnIdle {
-            runBlocking {
-                state.scrollToItem(state.layoutInfo.totalItemsCount)
-            }
-        }
+        rule.runOnIdle { runBlocking { state.scrollToItem(state.layoutInfo.totalItemsCount) } }
     }
 }

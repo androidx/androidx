@@ -48,8 +48,7 @@ import org.junit.runner.RunWith
 class LazyNestedScrollingTest {
     private val LazyTag = "LazyTag"
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val expectedDragOffset = 20f
     private val dragOffsetWithTouchSlop = expectedDragOffset + TestTouchSlop
@@ -63,33 +62,23 @@ class LazyNestedScrollingTest {
             it
         }
         rule.setContentWithTestViewConfiguration {
-            Box(
-                Modifier.scrollable(
-                    orientation = Orientation.Vertical,
-                    state = scrollable
-                )
-            ) {
+            Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 TvLazyVerticalGrid(
                     TvGridCells.Fixed(1),
                     Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it"))
-                    }
+                    items(items) { Spacer(Modifier.requiredSize(50.dp).testTag("$it")) }
                 }
             }
         }
 
-        rule.onNodeWithTag(LazyTag)
-            .performTouchInput {
-                down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = 100f + TestTouchSlop))
-                up()
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(100f)
+        rule.onNodeWithTag(LazyTag).performTouchInput {
+            down(Offset(x = 10f, y = 10f))
+            moveBy(Offset(x = 0f, y = 100f + TestTouchSlop))
+            up()
         }
+
+        rule.runOnIdle { Truth.assertThat(draggedOffset).isEqualTo(100f) }
     }
 
     @Test
@@ -101,19 +90,12 @@ class LazyNestedScrollingTest {
             it
         }
         rule.setContentWithTestViewConfiguration {
-            Box(
-                Modifier.scrollable(
-                    orientation = Orientation.Vertical,
-                    state = scrollable
-                )
-            ) {
+            Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 TvLazyVerticalGrid(
                     TvGridCells.Fixed(1),
                     Modifier.requiredSize(100.dp).testTag(LazyTag),
                 ) {
-                    items(items) {
-                        Box(Modifier.requiredHeight(50.dp).testTag("$it").focusable())
-                    }
+                    items(items) { Box(Modifier.requiredHeight(50.dp).testTag("$it").focusable()) }
                 }
             }
         }
@@ -125,17 +107,14 @@ class LazyNestedScrollingTest {
         // we scroll one extra dp to prevent rounding issues
         rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 2)
 
-        rule.onNodeWithTag(LazyTag)
-            .performTouchInput {
-                draggedOffset = 0f
-                down(Offset(x = 100f, y = 100f))
-                moveBy(Offset(x = 0f, y = dragOffsetWithTouchSlop))
-                up()
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(expectedDragOffset)
+        rule.onNodeWithTag(LazyTag).performTouchInput {
+            draggedOffset = 0f
+            down(Offset(x = 100f, y = 100f))
+            moveBy(Offset(x = 0f, y = dragOffsetWithTouchSlop))
+            up()
         }
+
+        rule.runOnIdle { Truth.assertThat(draggedOffset).isEqualTo(expectedDragOffset) }
     }
 
     @Test
@@ -147,33 +126,23 @@ class LazyNestedScrollingTest {
             it
         }
         rule.setContentWithTestViewConfiguration {
-            Box(
-                Modifier.scrollable(
-                    orientation = Orientation.Vertical,
-                    state = scrollable
-                )
-            ) {
+            Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 TvLazyVerticalGrid(
                     TvGridCells.Fixed(1),
                     Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    items(items) {
-                        Spacer(Modifier.requiredSize(40.dp).testTag("$it"))
-                    }
+                    items(items) { Spacer(Modifier.requiredSize(40.dp).testTag("$it")) }
                 }
             }
         }
 
-        rule.onNodeWithTag(LazyTag)
-            .performTouchInput {
-                down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
-                up()
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
+        rule.onNodeWithTag(LazyTag).performTouchInput {
+            down(Offset(x = 10f, y = 10f))
+            moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
+            up()
         }
+
+        rule.runOnIdle { Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset) }
     }
 
     @Ignore("b/278219642")
@@ -186,19 +155,12 @@ class LazyNestedScrollingTest {
             it
         }
         rule.setContentWithTestViewConfiguration {
-            Box(
-                Modifier.scrollable(
-                    orientation = Orientation.Vertical,
-                    state = scrollable
-                )
-            ) {
+            Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 TvLazyVerticalGrid(
                     TvGridCells.Fixed(1),
                     Modifier.requiredSize(100.dp).testTag(LazyTag)
                 ) {
-                    items(items) {
-                        Spacer(Modifier.requiredSize(50.dp).testTag("$it").focusable())
-                    }
+                    items(items) { Spacer(Modifier.requiredSize(50.dp).testTag("$it").focusable()) }
                 }
             }
         }
@@ -206,17 +168,14 @@ class LazyNestedScrollingTest {
         // scroll till the end
         rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
 
-        rule.onNodeWithTag(LazyTag)
-            .performTouchInput {
-                draggedOffset = 0f
-                down(Offset(x = 10f, y = 10f))
-                moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
-                up()
-            }
-
-        rule.runOnIdle {
-            Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset)
+        rule.onNodeWithTag(LazyTag).performTouchInput {
+            draggedOffset = 0f
+            down(Offset(x = 10f, y = 10f))
+            moveBy(Offset(x = 0f, y = -dragOffsetWithTouchSlop))
+            up()
         }
+
+        rule.runOnIdle { Truth.assertThat(draggedOffset).isEqualTo(-expectedDragOffset) }
     }
 
     // @Test

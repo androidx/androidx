@@ -35,7 +35,9 @@ import androidx.compose.ui.unit.Dp
  * [ModalNavigationDrawer]
  *
  * @sample androidx.tv.material3.samples.SampleNavigationDrawer
+ *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
+ *
  * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param selected defines whether this composable is selected or not
@@ -43,23 +45,23 @@ import androidx.compose.ui.unit.Dp
  * @param leadingContent the leading content of the list item
  * @param modifier to be applied to the list item
  * @param enabled controls the enabled state of this composable. When `false`, this component will
- * not respond to user input, and it will appear visually disabled and disabled to accessibility
- * services
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services
  * @param onLongClick called when this composable is long clicked (long-pressed)
  * @param supportingContent the content displayed below the headline content
  * @param trailingContent the trailing meta badge or icon
  * @param tonalElevation the tonal elevation of this composable
  * @param shape defines the shape of Composable's container in different interaction states
- * @param colors defines the background and content colors used in the composable
- * for different interaction states
- * @param scale defines the size of the composable relative to its original size in
- * different interaction states
+ * @param colors defines the background and content colors used in the composable for different
+ *   interaction states
+ * @param scale defines the size of the composable relative to its original size in different
+ *   interaction states
  * @param border defines a border around the composable in different interaction states
  * @param glow defines a shadow to be shown behind the composable for different interaction states
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this composable. You can use this to change the composable's
- * appearance or preview the composable in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ *   emitting [Interaction]s for this composable. You can use this to change the composable's
+ *   appearance or preview the composable in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param content main content of this composable
  */
 @Composable
@@ -81,19 +83,22 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
-    val animatedWidth by animateDpAsState(
-        targetValue = if (hasFocus) {
-            NavigationDrawerItemDefaults.ExpandedDrawerItemWidth
+    val animatedWidth by
+        animateDpAsState(
+            targetValue =
+                if (hasFocus) {
+                    NavigationDrawerItemDefaults.ExpandedDrawerItemWidth
+                } else {
+                    NavigationDrawerItemDefaults.CollapsedDrawerItemWidth
+                },
+            label = "NavigationDrawerItem width open/closed state of the drawer item"
+        )
+    val navDrawerItemHeight =
+        if (supportingContent == null) {
+            NavigationDrawerItemDefaults.ContainerHeightOneLine
         } else {
-            NavigationDrawerItemDefaults.CollapsedDrawerItemWidth
-        },
-        label = "NavigationDrawerItem width open/closed state of the drawer item"
-    )
-    val navDrawerItemHeight = if (supportingContent == null) {
-        NavigationDrawerItemDefaults.ContainerHeightOneLine
-    } else {
-        NavigationDrawerItemDefaults.ContainerHeightTwoLine
-    }
+            NavigationDrawerItemDefaults.ContainerHeightTwoLine
+        }
     ListItem(
         selected = selected,
         onClick = onClick,
@@ -107,47 +112,46 @@ fun NavigationDrawerScope.NavigationDrawerItem(
             }
         },
         leadingContent = {
-            Box(Modifier.size(NavigationDrawerItemDefaults.IconSize)) {
-                leadingContent()
-            }
+            Box(Modifier.size(NavigationDrawerItemDefaults.IconSize)) { leadingContent() }
         },
-        trailingContent = trailingContent?.let {
-            {
-                AnimatedVisibility(
-                    visible = hasFocus,
-                    enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
-                    exit = NavigationDrawerItemDefaults.ContentAnimationExit,
-                ) {
-                    it()
+        trailingContent =
+            trailingContent?.let {
+                {
+                    AnimatedVisibility(
+                        visible = hasFocus,
+                        enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
+                        exit = NavigationDrawerItemDefaults.ContentAnimationExit,
+                    ) {
+                        it()
+                    }
                 }
-            }
-        },
-        supportingContent = supportingContent?.let {
-            {
-                AnimatedVisibility(
-                    visible = hasFocus,
-                    enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
-                    exit = NavigationDrawerItemDefaults.ContentAnimationExit,
-                ) {
-                    it()
+            },
+        supportingContent =
+            supportingContent?.let {
+                {
+                    AnimatedVisibility(
+                        visible = hasFocus,
+                        enter = NavigationDrawerItemDefaults.ContentAnimationEnter,
+                        exit = NavigationDrawerItemDefaults.ContentAnimationExit,
+                    ) {
+                        it()
+                    }
                 }
-            }
-        },
-        modifier = modifier
-            .layout { measurable, constraints ->
+            },
+        modifier =
+            modifier.layout { measurable, constraints ->
                 val width = animatedWidth.roundToPx()
                 val height = navDrawerItemHeight.roundToPx()
-                val placeable = measurable.measure(
-                    constraints.copy(
-                        minWidth = width,
-                        maxWidth = width,
-                        minHeight = height,
-                        maxHeight = height,
+                val placeable =
+                    measurable.measure(
+                        constraints.copy(
+                            minWidth = width,
+                            maxWidth = width,
+                            minHeight = height,
+                            maxHeight = height,
+                        )
                     )
-                )
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
             },
         enabled = enabled,
         onLongClick = onLongClick,
@@ -189,7 +193,8 @@ private fun NavigationDrawerItemColors.toToggleableListItemColors(
         selectedContentColor = selectedContentColor,
         disabledContainerColor = disabledContainerColor,
         disabledContentColor =
-        if (doesNavigationDrawerHaveFocus) disabledContentColor else disabledInactiveContentColor,
+            if (doesNavigationDrawerHaveFocus) disabledContentColor
+            else disabledInactiveContentColor,
         focusedSelectedContainerColor = focusedSelectedContainerColor,
         focusedSelectedContentColor = focusedSelectedContentColor,
         pressedSelectedContainerColor = pressedSelectedContainerColor,

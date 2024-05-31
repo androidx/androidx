@@ -59,15 +59,7 @@ fun AppLazyRow(
             contentPadding = PaddingValues(horizontal = paddingLeft),
             horizontalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            items.forEachIndexed { index, movie ->
-                item {
-                    drawItem(
-                        movie,
-                        index,
-                        Modifier
-                    )
-                }
-            }
+            items.forEachIndexed { index, movie -> item { drawItem(movie, index, Modifier) } }
         }
     }
 }

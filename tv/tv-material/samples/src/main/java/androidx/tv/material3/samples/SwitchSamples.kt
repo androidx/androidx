@@ -23,5 +23,5 @@ import androidx.tv.material3.Switch
 @Sampled
 @Composable
 fun SwitchSample() {
-    Switch(checked = true, onCheckedChange = { })
+    Switch(checked = true, onCheckedChange = {})
 }

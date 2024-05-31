@@ -37,11 +37,12 @@ internal fun Modifier.tvSurfaceBorder(
         SurfaceBorderElement(
             shape = shape,
             border = border,
-            inspectorInfo = debugInspectorInfo {
-                name = "tvSurfaceBorder"
-                properties["shape"] = shape
-                properties["border"] = border
-            }
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "tvSurfaceBorder"
+                    properties["shape"] = shape
+                    properties["border"] = border
+                }
         )
     )
 }
@@ -77,8 +78,7 @@ private class SurfaceBorderElement(
 
     override fun equals(other: Any?): Boolean {
         val otherTyped = other as? SurfaceBorderElement ?: return false
-        return shape == otherTyped.shape &&
-            border == otherTyped.border
+        return shape == otherTyped.shape && border == otherTyped.border
     }
 }
 
@@ -104,35 +104,33 @@ private class SurfaceBorderNode(
         val borderStroke = border.border
 
         val borderShape =
-            if (border.shape == ShapeTokens.BorderDefaultShape) shape
-            else border.shape
+            if (border.shape == ShapeTokens.BorderDefaultShape) shape else border.shape
 
         if (shapeOutlineCache == null) {
-            shapeOutlineCache = SurfaceShapeOutlineCache(
-                shape = borderShape,
-                size = size,
-                layoutDirection = layoutDirection,
-                density = this
-            )
+            shapeOutlineCache =
+                SurfaceShapeOutlineCache(
+                    shape = borderShape,
+                    size = size,
+                    layoutDirection = layoutDirection,
+                    density = this
+                )
         }
 
         if (outlineStrokeCache == null) {
-            outlineStrokeCache = OutlineStrokeCache(
-                widthPx = borderStroke.width.toPx()
-            )
+            outlineStrokeCache = OutlineStrokeCache(widthPx = borderStroke.width.toPx())
         }
 
         inset(inset = -border.inset.toPx()) {
-            val shapeOutline = shapeOutlineCache!!.updatedOutline(
-                shape = borderShape,
-                size = size,
-                layoutDirection = layoutDirection,
-                density = this
-            )
+            val shapeOutline =
+                shapeOutlineCache!!.updatedOutline(
+                    shape = borderShape,
+                    size = size,
+                    layoutDirection = layoutDirection,
+                    density = this
+                )
 
-            val outlineStroke = outlineStrokeCache!!.updatedOutlineStroke(
-                widthPx = borderStroke.width.toPx()
-            )
+            val outlineStroke =
+                outlineStrokeCache!!.updatedOutlineStroke(widthPx = borderStroke.width.toPx())
 
             drawOutline(
                 outline = shapeOutline,
@@ -144,15 +142,13 @@ private class SurfaceBorderNode(
     }
 }
 
-/**
- * Caches the outline stroke across re-compositions
- */
+/** Caches the outline stroke across re-compositions */
 private class OutlineStrokeCache(private var widthPx: Float) {
     private var outlineStroke: Stroke? = null
 
     /**
-     * If there are updates to the arguments, creates a new outline
-     * stroke based on the updated values, else, returns the cached value
+     * If there are updates to the arguments, creates a new outline stroke based on the updated
+     * values, else, returns the cached value
      */
     fun updatedOutlineStroke(widthPx: Float): Stroke {
         if (outlineStroke == null || this.widthPx != widthPx) {
@@ -163,9 +159,6 @@ private class OutlineStrokeCache(private var widthPx: Float) {
     }
 
     private fun createOutlineStroke() {
-        outlineStroke = Stroke(
-            width = widthPx,
-            cap = StrokeCap.Round
-        )
+        outlineStroke = Stroke(width = widthPx, cap = StrokeCap.Round)
     }
 }

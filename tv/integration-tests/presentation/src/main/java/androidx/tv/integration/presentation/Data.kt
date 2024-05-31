@@ -17,8 +17,11 @@
 package androidx.tv.integration.presentation
 
 data class MovieImage(val url: String, val aspect: String)
+
 data class Movie(val name: String, val images: List<MovieImage>, val root: String)
+
 data class MovieCollection(val label: String, val items: List<Movie>)
+
 data class RootData(
     val data: List<MovieCollection>,
     val featuredCarouselMovies: List<String>,
@@ -34,13 +37,8 @@ var commonDescription = ""
 val Movie.description: String
     get() = commonDescription
 
-fun getMovieImageUrl(
-    movie: Movie,
-    aspect: String = "orientation/backdrop_16x9"
-): String =
-    movie
-        .images
-        .find { image -> image.aspect == aspect }?.url ?: movie.images.first().url
+fun getMovieImageUrl(movie: Movie, aspect: String = "orientation/backdrop_16x9"): String =
+    movie.images.find { image -> image.aspect == aspect }?.url ?: movie.images.first().url
 
 fun initializeData(rootData: RootData) {
     commonDescription = rootData.commonDescription
@@ -51,13 +49,15 @@ fun initializeData(rootData: RootData) {
         val titles = rootData.featuredCarouselMovies
         val previousTitles = mutableListOf<String>()
 
-        movieCollections.flatMap { it.items }.filter {
-            if (previousTitles.contains(it.name)) {
-                false
-            } else {
-                previousTitles.add(it.name)
-                titles.contains(it.name)
+        movieCollections
+            .flatMap { it.items }
+            .filter {
+                if (previousTitles.contains(it.name)) {
+                    false
+                } else {
+                    previousTitles.add(it.name)
+                    titles.contains(it.name)
+                }
             }
-        }
     }
 }

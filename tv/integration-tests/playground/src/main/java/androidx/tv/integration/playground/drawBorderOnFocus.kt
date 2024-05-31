@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Modifier.drawBorderOnFocus(borderColor: Color = Color.White, width: Dp = 5.dp): Modifier {
     var isFocused by remember { mutableStateOf(false) }
-    return this
-        .border(width, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
+    return this.border(width, borderColor.copy(alpha = if (isFocused) 1f else 0.2f))
         .onFocusChanged { isFocused = it.isFocused }
 }

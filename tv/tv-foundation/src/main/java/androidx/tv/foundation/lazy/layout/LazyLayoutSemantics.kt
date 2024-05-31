@@ -49,12 +49,7 @@ internal fun Modifier.lazyLayoutSemantics(
 ): Modifier {
     val coroutineScope = rememberCoroutineScope()
     return this.then(
-        remember(
-            itemProviderLambda,
-            state,
-            orientation,
-            userScrollEnabled
-        ) {
+        remember(itemProviderLambda, state, orientation, userScrollEnabled) {
             val isVertical = orientation == Orientation.Vertical
             val indexForKeyMapping: (Any) -> Int = { needle ->
                 val itemProvider = itemProviderLambda()
@@ -68,60 +63,61 @@ internal fun Modifier.lazyLayoutSemantics(
                 result
             }
 
-            val accessibilityScrollState = ScrollAxisRange(
-                value = {
-                    // This is a simple way of representing the current position without
-                    // needing any lazy items to be measured. It's good enough so far, because
-                    // screen-readers care mostly about whether scroll position changed or not
-                    // rather than the actual offset in pixels.
-                    state.currentPosition
-                },
-                maxValue = {
-                    val itemProvider = itemProviderLambda()
-                    if (state.canScrollForward) {
-                        // If we can scroll further, we don't know the end yet,
-                        // but it's upper bounded by #items + 1
-                        itemProvider.itemCount + 1f
-                    } else {
-                        // If we can't scroll further, the current value is the max
+            val accessibilityScrollState =
+                ScrollAxisRange(
+                    value = {
+                        // This is a simple way of representing the current position without
+                        // needing any lazy items to be measured. It's good enough so far, because
+                        // screen-readers care mostly about whether scroll position changed or not
+                        // rather than the actual offset in pixels.
                         state.currentPosition
-                    }
-                },
-                reverseScrolling = reverseScrolling
-            )
+                    },
+                    maxValue = {
+                        val itemProvider = itemProviderLambda()
+                        if (state.canScrollForward) {
+                            // If we can scroll further, we don't know the end yet,
+                            // but it's upper bounded by #items + 1
+                            itemProvider.itemCount + 1f
+                        } else {
+                            // If we can't scroll further, the current value is the max
+                            state.currentPosition
+                        }
+                    },
+                    reverseScrolling = reverseScrolling
+                )
 
-            val scrollByAction: ((x: Float, y: Float) -> Boolean)? = if (userScrollEnabled) {
-                { x, y ->
-                    val delta = if (isVertical) {
-                        y
-                    } else {
-                        x
+            val scrollByAction: ((x: Float, y: Float) -> Boolean)? =
+                if (userScrollEnabled) {
+                    { x, y ->
+                        val delta =
+                            if (isVertical) {
+                                y
+                            } else {
+                                x
+                            }
+                        coroutineScope.launch { state.animateScrollBy(delta) }
+                        // TODO(aelias): is it important to return false if we know in advance we
+                        // cannot scroll?
+                        true
                     }
-                    coroutineScope.launch {
-                        state.animateScrollBy(delta)
-                    }
-                    // TODO(aelias): is it important to return false if we know in advance we cannot scroll?
-                    true
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
 
-            val scrollToIndexAction: ((Int) -> Boolean)? = if (userScrollEnabled) {
-                { index ->
-                    val itemProvider = itemProviderLambda()
-                    require(index >= 0 && index < itemProvider.itemCount) {
-                        "Can't scroll to index $index, it is out of " +
-                            "bounds [0, ${itemProvider.itemCount})"
+            val scrollToIndexAction: ((Int) -> Boolean)? =
+                if (userScrollEnabled) {
+                    { index ->
+                        val itemProvider = itemProviderLambda()
+                        require(index >= 0 && index < itemProvider.itemCount) {
+                            "Can't scroll to index $index, it is out of " +
+                                "bounds [0, ${itemProvider.itemCount})"
+                        }
+                        coroutineScope.launch { state.scrollToItem(index) }
+                        true
                     }
-                    coroutineScope.launch {
-                        state.scrollToItem(index)
-                    }
-                    true
+                } else {
+                    null
                 }
-            } else {
-                null
-            }
 
             val collectionInfo = state.collectionInfo()
 
@@ -152,33 +148,38 @@ internal fun Modifier.lazyLayoutSemantics(
 internal interface LazyLayoutSemanticState {
     val currentPosition: Float
     val canScrollForward: Boolean
+
     fun collectionInfo(): CollectionInfo
+
     suspend fun animateScrollBy(delta: Float)
+
     suspend fun scrollToItem(index: Int)
 }
 
 internal fun LazyLayoutSemanticState(
     state: TvLazyListState,
     isVertical: Boolean
-): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
+): LazyLayoutSemanticState =
+    object : LazyLayoutSemanticState {
 
-    override val currentPosition: Float
-        get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
-    override val canScrollForward: Boolean
-        get() = state.canScrollForward
+        override val currentPosition: Float
+            get() = state.firstVisibleItemIndex + state.firstVisibleItemScrollOffset / 100_000f
 
-    override suspend fun animateScrollBy(delta: Float) {
-        state.animateScrollBy(delta)
-    }
+        override val canScrollForward: Boolean
+            get() = state.canScrollForward
 
-    override suspend fun scrollToItem(index: Int) {
-        state.scrollToItem(index)
-    }
-
-    override fun collectionInfo(): CollectionInfo =
-        if (isVertical) {
-            CollectionInfo(rowCount = -1, columnCount = 1)
-        } else {
-            CollectionInfo(rowCount = 1, columnCount = -1)
+        override suspend fun animateScrollBy(delta: Float) {
+            state.animateScrollBy(delta)
         }
-}
+
+        override suspend fun scrollToItem(index: Int) {
+            state.scrollToItem(index)
+        }
+
+        override fun collectionInfo(): CollectionInfo =
+            if (isVertical) {
+                CollectionInfo(rowCount = -1, columnCount = 1)
+            } else {
+                CollectionInfo(rowCount = 1, columnCount = -1)
+            }
+    }

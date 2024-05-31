@@ -32,11 +32,12 @@ fun Card(
     backgroundColor: Color = Color.Transparent,
 ) {
     Box(
-        modifier = modifier
-            .background(backgroundColor.copy(alpha = 0.3f))
-            .width(200.dp)
-            .height(150.dp)
-            .drawBorderOnFocus()
-            .clickable { }
+        modifier =
+            modifier
+                .background(backgroundColor.copy(alpha = 0.3f))
+                .width(200.dp)
+                .height(150.dp)
+                .drawBorderOnFocus()
+                .clickable {}
     )
 }

@@ -57,8 +57,8 @@ import androidx.compose.ui.unit.dp
  * @param onClick called when this chip is clicked
  * @param modifier the [Modifier] to be applied to this chip
  * @param enabled controls the enabled state of this chip. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed)
  * @param leadingIcon optional icon at the start of the chip, preceding the [content] text
  * @param trailingIcon optional icon at the end of the chip
@@ -68,9 +68,9 @@ import androidx.compose.ui.unit.dp
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -106,11 +106,12 @@ fun AssistChip(
         border = border,
         glow = glow,
         minHeight = AssistChipDefaults.ContainerHeight,
-        paddingValues = chipPadding(
-            hasAvatar = false,
-            hasLeadingIcon = leadingIcon != null,
-            hasTrailingIcon = trailingIcon != null
-        ),
+        paddingValues =
+            chipPadding(
+                hasAvatar = false,
+                hasLeadingIcon = leadingIcon != null,
+                hasTrailingIcon = trailingIcon != null
+            ),
         interactionSource = interactionSource
     )
 }
@@ -132,8 +133,8 @@ fun AssistChip(
  * @param onClick called when this chip is clicked
  * @param modifier the [Modifier] to be applied to this chip
  * @param enabled controls the enabled state of this chip. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed)
  * @param leadingIcon optional icon at the start of the chip, preceding the [content] text
  * @param trailingIcon optional icon at the end of the chip
@@ -143,9 +144,9 @@ fun AssistChip(
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -184,11 +185,12 @@ fun FilterChip(
         border = border,
         glow = glow,
         minHeight = FilterChipDefaults.ContainerHeight,
-        paddingValues = chipPadding(
-            hasAvatar = false,
-            hasLeadingIcon = leadingIcon != null,
-            hasTrailingIcon = trailingIcon != null
-        ),
+        paddingValues =
+            chipPadding(
+                hasAvatar = false,
+                hasLeadingIcon = leadingIcon != null,
+                hasTrailingIcon = trailingIcon != null
+            ),
         interactionSource = interactionSource
     )
 }
@@ -207,8 +209,8 @@ fun FilterChip(
  * @param onClick called when this chip is clicked
  * @param modifier the [Modifier] to be applied to this chip
  * @param enabled controls the enabled state of this chip. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed)
  * @param leadingIcon optional icon at the start of the chip, preceding the [content] text
  * @param avatar optional avatar at the start of the chip, preceding the [content] text
@@ -219,9 +221,9 @@ fun FilterChip(
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -261,11 +263,12 @@ fun InputChip(
         border = border,
         glow = glow,
         minHeight = InputChipDefaults.ContainerHeight,
-        paddingValues = chipPadding(
-            hasAvatar = avatar != null,
-            hasLeadingIcon = leadingIcon != null,
-            hasTrailingIcon = trailingIcon != null
-        ),
+        paddingValues =
+            chipPadding(
+                hasAvatar = avatar != null,
+                hasLeadingIcon = leadingIcon != null,
+                hasTrailingIcon = trailingIcon != null
+            ),
         interactionSource = interactionSource
     )
 }
@@ -283,8 +286,8 @@ fun InputChip(
  * @param onClick called when this chip is clicked
  * @param modifier the [Modifier] to be applied to this chip
  * @param enabled controls the enabled state of this chip. When `false`, this component will not
- * respond to user input, and it will appear visually disabled and disabled to accessibility
- * services
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services
  * @param onLongClick callback to be called when the surface is long clicked (long-pressed)
  * @param shape Defines the Chip's shape
  * @param colors Color to be used on background and content of the chip
@@ -292,9 +295,9 @@ fun InputChip(
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
  * @param content content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -328,11 +331,8 @@ fun SuggestionChip(
         border = border,
         glow = glow,
         minHeight = SuggestionChipDefaults.ContainerHeight,
-        paddingValues = chipPadding(
-            hasAvatar = false,
-            hasLeadingIcon = false,
-            hasTrailingIcon = false
-        ),
+        paddingValues =
+            chipPadding(hasAvatar = false, hasLeadingIcon = false, hasTrailingIcon = false),
         interactionSource = interactionSource
     )
 }
@@ -443,9 +443,7 @@ private fun ChipContent(
 ) {
 
     Row(
-        Modifier
-            .defaultMinSize(minHeight = minHeight)
-            .padding(paddingValues),
+        Modifier.defaultMinSize(minHeight = minHeight).padding(paddingValues),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -461,10 +459,7 @@ private fun ChipContent(
                 Spacer(Modifier.width(HorizontalElementsPadding))
             }
         }
-        CompositionLocalProvider(
-            LocalTextStyle provides labelTextStyle,
-            content = label
-        )
+        CompositionLocalProvider(LocalTextStyle provides labelTextStyle, content = label)
         trailingIcon?.let { nnTrailingIcon ->
             Spacer(Modifier.width(HorizontalElementsPadding))
             nnTrailingIcon()
@@ -472,9 +467,7 @@ private fun ChipContent(
     }
 }
 
-/**
- * Returns the [PaddingValues] for any TV chip component
- */
+/** Returns the [PaddingValues] for any TV chip component */
 private fun chipPadding(
     hasAvatar: Boolean,
     hasLeadingIcon: Boolean,
@@ -483,33 +476,22 @@ private fun chipPadding(
     val start = if (hasAvatar) 4.dp else if (hasLeadingIcon) 12.dp else 16.dp
     val end = if (hasTrailingIcon) 12.dp else 16.dp
     val vertical = if (hasAvatar) 4.dp else 8.dp
-    return PaddingValues(
-        start = start,
-        end = end,
-        top = vertical,
-        bottom = vertical
-    )
+    return PaddingValues(start = start, end = end, top = vertical, bottom = vertical)
 }
 
-/**
- * Contains the default values used by [AssistChip]
- */
+/** Contains the default values used by [AssistChip] */
 @ExperimentalTvMaterial3Api
 object AssistChipDefaults {
     /**
-     * The height applied to an assist chip.
-     * Note that you can override it by applying Modifier.height directly on a chip.
+     * The height applied to an assist chip. Note that you can override it by applying
+     * Modifier.height directly on a chip.
      */
     val ContainerHeight = 36.dp
 
-    /**
-     * The size of an Assist chip icon
-     */
+    /** The size of an Assist chip icon */
     val IconSize = 18.dp
 
-    /**
-     * The default [Shape] applied to an assist chip
-     */
+    /** The default [Shape] applied to an assist chip */
     val ContainerShape = RoundedCornerShape(8.dp)
 
     private const val DisabledBackgroundColorOpacity = 0.2f
@@ -531,17 +513,18 @@ object AssistChipDefaults {
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape
-    ) = ClickableChipShape(
-        shape = shape,
-        focusedShape = focusedShape,
-        pressedShape = pressedShape,
-        disabledShape = disabledShape,
-        focusedDisabledShape = focusedDisabledShape
-    )
+    ) =
+        ClickableChipShape(
+            shape = shape,
+            focusedShape = focusedShape,
+            pressedShape = pressedShape,
+            disabledShape = disabledShape,
+            focusedDisabledShape = focusedDisabledShape
+        )
 
     /**
-     * Creates a [ClickableChipColors] that represents the default container and content colors
-     * used in an [AssistChip]
+     * Creates a [ClickableChipColors] that represents the default container and content colors used
+     * in an [AssistChip]
      *
      * @param containerColor the container color of this Chip when enabled
      * @param contentColor the content color of this Chip when enabled
@@ -561,28 +544,26 @@ object AssistChipDefaults {
         focusedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         pressedContentColor: Color = MaterialTheme.colorScheme.surface,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundColorOpacity
-        ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.border.copy(
-            alpha = DisabledContentColorOpacity
-        ),
-    ) = ClickableChipColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        focusedContainerColor = focusedContainerColor,
-        focusedContentColor = focusedContentColor,
-        pressedContainerColor = pressedContainerColor,
-        pressedContentColor = pressedContentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-    )
+        disabledContainerColor: Color =
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledBackgroundColorOpacity),
+        disabledContentColor: Color =
+            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity),
+    ) =
+        ClickableChipColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = pressedContainerColor,
+            pressedContentColor = pressedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+        )
 
     /**
      * Creates a [ClickableChipScale] that represents the default scaleFactors used in an
-     * [AssistChip].
-     * scaleFactors are used to modify the size of a composable in different [Interaction]
-     * states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
+     * [AssistChip]. scaleFactors are used to modify the size of a composable in different
+     * [Interaction] states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
      * 0.8f (scaled down) in pressed state, etc
      *
      * @param scale the scaleFactor to be used for this Chip when enabled
@@ -590,7 +571,7 @@ object AssistChipDefaults {
      * @param pressedScale the scaleFactor to be used for this Chip when pressed
      * @param disabledScale the scaleFactor to be used for this Chip when disabled
      * @param focusedDisabledScale the scaleFactor to be used for this Chip when disabled and
-     * focused
+     *   focused
      */
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
@@ -598,13 +579,14 @@ object AssistChipDefaults {
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
-    ) = ClickableChipScale(
-        scale = scale,
-        focusedScale = focusedScale,
-        pressedScale = pressedScale,
-        disabledScale = disabledScale,
-        focusedDisabledScale = focusedDisabledScale
-    )
+    ) =
+        ClickableChipScale(
+            scale = scale,
+            focusedScale = focusedScale,
+            pressedScale = pressedScale,
+            disabledScale = disabledScale,
+            focusedDisabledScale = focusedDisabledScale
+        )
 
     /**
      * Creates a [ClickableChipBorder] that represents the default [Border]s applied on an
@@ -614,36 +596,33 @@ object AssistChipDefaults {
      * @param focusedBorder the [Border] to be used for this Chip when focused
      * @param pressedBorder the [Border] to be used for this Chip when pressed
      * @param disabledBorder the [Border] to be used for this Chip when disabled
-     * @param focusedDisabledBorder the [Border] to be used for this Chip when disabled and
-     * focused
+     * @param focusedDisabledBorder the [Border] to be used for this Chip when disabled and focused
      */
     @ReadOnlyComposable
     @Composable
     fun border(
-        border: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.border
+        border: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
-        disabledBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant
+        disabledBorder: Border =
+            Border(
+                border =
+                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedDisabledBorder: Border = border
-    ) = ClickableChipBorder(
-        border = border,
-        focusedBorder = focusedBorder,
-        pressedBorder = pressedBorder,
-        disabledBorder = disabledBorder,
-        focusedDisabledBorder = focusedDisabledBorder
-    )
+    ) =
+        ClickableChipBorder(
+            border = border,
+            focusedBorder = focusedBorder,
+            pressedBorder = pressedBorder,
+            disabledBorder = disabledBorder,
+            focusedDisabledBorder = focusedDisabledBorder
+        )
 
     /**
      * Creates a [ClickableChipGlow] that represents the default [Glow]s used in an [AssistChip]
@@ -652,36 +631,23 @@ object AssistChipDefaults {
      * @param focusedGlow the Glow behind this Button when focused
      * @param pressedGlow the Glow behind this Button when pressed
      */
-    fun glow(
-        glow: Glow = Glow.None,
-        focusedGlow: Glow = glow,
-        pressedGlow: Glow = glow
-    ) = ClickableChipGlow(
-        glow = glow,
-        focusedGlow = focusedGlow,
-        pressedGlow = pressedGlow
-    )
+    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
+        ClickableChipGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }
 
-/**
- * Contains the default values used by [FilterChip].
- */
+/** Contains the default values used by [FilterChip]. */
 @ExperimentalTvMaterial3Api
 object FilterChipDefaults {
     /**
-     * The height applied to a filter chip.
-     * Note that you can override it by applying Modifier.height directly on a chip.
+     * The height applied to a filter chip. Note that you can override it by applying
+     * Modifier.height directly on a chip.
      */
     val ContainerHeight = 36.dp
 
-    /**
-     * The size of a Filter chip icon
-     */
+    /** The size of a Filter chip icon */
     val IconSize = 18.dp
 
-    /**
-     * The default [Shape] applied to a filter chip
-     */
+    /** The default [Shape] applied to a filter chip */
     val ContainerShape = RoundedCornerShape(8.dp)
 
     private const val SelectedBackgroundColorOpacity = 0.4f
@@ -701,8 +667,8 @@ object FilterChipDefaults {
      * @param focusedDisabledShape the shape used when the Chip is not enabled and focused
      * @param pressedSelectedShape the shape used when the Chip is enabled, pressed and selected
      * @param selectedDisabledShape the shape used when the Chip is not enabled and selected
-     * @param focusedSelectedDisabledShape the shape used when the Chip is not enabled, focused
-     * and selected
+     * @param focusedSelectedDisabledShape the shape used when the Chip is not enabled, focused and
+     *   selected
      */
     fun shape(
         shape: Shape = ContainerShape,
@@ -715,27 +681,28 @@ object FilterChipDefaults {
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
         focusedSelectedDisabledShape: Shape = disabledShape
-    ) = SelectableChipShape(
-        shape = shape,
-        focusedShape = focusedShape,
-        pressedShape = pressedShape,
-        selectedShape = selectedShape,
-        disabledShape = disabledShape,
-        focusedSelectedShape = focusedSelectedShape,
-        focusedDisabledShape = focusedDisabledShape,
-        pressedSelectedShape = pressedSelectedShape,
-        selectedDisabledShape = selectedDisabledShape,
-        focusedSelectedDisabledShape = focusedSelectedDisabledShape
-    )
+    ) =
+        SelectableChipShape(
+            shape = shape,
+            focusedShape = focusedShape,
+            pressedShape = pressedShape,
+            selectedShape = selectedShape,
+            disabledShape = disabledShape,
+            focusedSelectedShape = focusedSelectedShape,
+            focusedDisabledShape = focusedDisabledShape,
+            pressedSelectedShape = pressedSelectedShape,
+            selectedDisabledShape = selectedDisabledShape,
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+        )
 
     /**
      * Creates a [SelectableChipColors] that represents the default container and content colors
      * used in a [FilterChip]
      *
      * @param containerColor the container color used when the Chip is enabled, and has no other
-     * [Interaction]s
+     *   [Interaction]s
      * @param contentColor the content color used when the Chip is enabled, and has no other
-     * [Interaction]s
+     *   [Interaction]s
      * @param focusedContainerColor the container color used when the Chip is enabled and focused
      * @param focusedContentColor the content color used when the Chip is enabled and focused
      * @param pressedContainerColor the container color used when the Chip is enabled and pressed
@@ -745,13 +712,13 @@ object FilterChipDefaults {
      * @param disabledContainerColor the container color used when the Chip is not enabled
      * @param disabledContentColor the content color used when the Chip is not enabled
      * @param focusedSelectedContainerColor the container color used when the Chip is enabled,
-     * focused and selected
-     * @param focusedSelectedContentColor the content color used when the Chip is enabled,
-     * focused and selected
+     *   focused and selected
+     * @param focusedSelectedContentColor the content color used when the Chip is enabled, focused
+     *   and selected
      * @param pressedSelectedContainerColor the container color used when the Chip is enabled,
-     * pressed and selected
-     * @param pressedSelectedContentColor the content color used when the Chip is enabled,
-     * pressed and selected
+     *   pressed and selected
+     * @param pressedSelectedContentColor the content color used when the Chip is enabled, pressed
+     *   and selected
      */
     @ReadOnlyComposable
     @Composable
@@ -762,36 +729,36 @@ object FilterChipDefaults {
         focusedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         pressedContentColor: Color = MaterialTheme.colorScheme.surface,
-        selectedContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer.copy(
-            alpha = SelectedBackgroundColorOpacity
-        ),
+        selectedContainerColor: Color =
+            MaterialTheme.colorScheme.secondaryContainer.copy(
+                alpha = SelectedBackgroundColorOpacity
+            ),
         selectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundColorOpacity
-        ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.border.copy(
-            alpha = DisabledContentColorOpacity
-        ),
+        disabledContainerColor: Color =
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledBackgroundColorOpacity),
+        disabledContentColor: Color =
+            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity),
         focusedSelectedContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         focusedSelectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
         pressedSelectedContainerColor: Color = MaterialTheme.colorScheme.secondary,
         pressedSelectedContentColor: Color = MaterialTheme.colorScheme.onSecondary,
-    ) = SelectableChipColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        focusedContainerColor = focusedContainerColor,
-        focusedContentColor = focusedContentColor,
-        pressedContainerColor = pressedContainerColor,
-        pressedContentColor = pressedContentColor,
-        selectedContainerColor = selectedContainerColor,
-        selectedContentColor = selectedContentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-        focusedSelectedContainerColor = focusedSelectedContainerColor,
-        focusedSelectedContentColor = focusedSelectedContentColor,
-        pressedSelectedContainerColor = pressedSelectedContainerColor,
-        pressedSelectedContentColor = pressedSelectedContentColor,
-    )
+    ) =
+        SelectableChipColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = pressedContainerColor,
+            pressedContentColor = pressedContentColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            focusedSelectedContainerColor = focusedSelectedContainerColor,
+            focusedSelectedContentColor = focusedSelectedContentColor,
+            pressedSelectedContainerColor = pressedSelectedContainerColor,
+            pressedSelectedContentColor = pressedSelectedContentColor,
+        )
 
     /**
      * Creates a [SelectableChipScale] that represents the default scaleFactors used in a
@@ -799,22 +766,19 @@ object FilterChipDefaults {
      * [Interaction] states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
      * 0.8f (scaled down) in pressed state, etc
      *
-     * @param scale the scaleFactor used when the Chip is enabled, and has no other
-     * [Interaction]s
+     * @param scale the scaleFactor used when the Chip is enabled, and has no other [Interaction]s
      * @param focusedScale the scaleFactor used when the Chip is enabled and focused
      * @param pressedScale the scaleFactor used when the Chip is enabled and pressed
      * @param selectedScale the scaleFactor used when the Chip is enabled and selected
      * @param disabledScale the scaleFactor used when the Chip is not enabled
      * @param focusedSelectedScale the scaleFactor used when the Chip is enabled, focused and
-     * selected
-     * @param focusedDisabledScale the scaleFactor used when the Chip is not enabled and
-     * focused
+     *   selected
+     * @param focusedDisabledScale the scaleFactor used when the Chip is not enabled and focused
      * @param pressedSelectedScale the scaleFactor used when the Chip is enabled, pressed and
-     * selected
-     * @param selectedDisabledScale the scaleFactor used when the Chip is not enabled and
-     * selected
+     *   selected
+     * @param selectedDisabledScale the scaleFactor used when the Chip is not enabled and selected
      * @param focusedSelectedDisabledScale the scaleFactor used when the Chip is not enabled,
-     * focused and selected
+     *   focused and selected
      */
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
@@ -827,88 +791,83 @@ object FilterChipDefaults {
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
         @FloatRange(from = 0.0) selectedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale
-    ) = SelectableChipScale(
-        scale = scale,
-        focusedScale = focusedScale,
-        pressedScale = pressedScale,
-        selectedScale = selectedScale,
-        disabledScale = disabledScale,
-        focusedSelectedScale = focusedSelectedScale,
-        focusedDisabledScale = focusedDisabledScale,
-        pressedSelectedScale = pressedSelectedScale,
-        selectedDisabledScale = selectedDisabledScale,
-        focusedSelectedDisabledScale = focusedSelectedDisabledScale
-    )
+    ) =
+        SelectableChipScale(
+            scale = scale,
+            focusedScale = focusedScale,
+            pressedScale = pressedScale,
+            selectedScale = selectedScale,
+            disabledScale = disabledScale,
+            focusedSelectedScale = focusedSelectedScale,
+            focusedDisabledScale = focusedDisabledScale,
+            pressedSelectedScale = pressedSelectedScale,
+            selectedDisabledScale = selectedDisabledScale,
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+        )
 
     /**
      * Creates a [SelectableChipBorder] that represents the default [Border]s applied on a
      * [FilterChip] in different [Interaction] states
      *
-     * @param border the [Border] used when the Chip is enabled, and has no other
-     * [Interaction]s
+     * @param border the [Border] used when the Chip is enabled, and has no other [Interaction]s
      * @param focusedBorder the [Border] used when the Chip is enabled and focused
      * @param pressedBorder the [Border] used when the Chip is enabled and pressed
      * @param selectedBorder the [Border] used when the Chip is enabled and selected
      * @param disabledBorder the [Border] used when the Chip is not enabled
-     * @param focusedSelectedBorder the [Border] used when the Chip is enabled, focused and
-     * selected
+     * @param focusedSelectedBorder the [Border] used when the Chip is enabled, focused and selected
      * @param focusedDisabledBorder the [Border] used when the Chip is not enabled and focused
-     * @param pressedSelectedBorder the [Border] used when the Chip is enabled, pressed and
-     * selected
-     * @param selectedDisabledBorder the [Border] used when the Chip is not enabled and
-     * selected
-     * @param focusedSelectedDisabledBorder the [Border] used when the Chip is not enabled,
-     * focused and selected
+     * @param pressedSelectedBorder the [Border] used when the Chip is enabled, pressed and selected
+     * @param selectedDisabledBorder the [Border] used when the Chip is not enabled and selected
+     * @param focusedSelectedDisabledBorder the [Border] used when the Chip is not enabled, focused
+     *   and selected
      */
     @ReadOnlyComposable
     @Composable
     fun border(
-        border: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.border
+        border: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
-        selectedBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.secondary
+        selectedBorder: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.secondary),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
-        disabledBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant
+        disabledBorder: Border =
+            Border(
+                border =
+                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
-        focusedSelectedBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.1.dp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+        focusedSelectedBorder: Border =
+            Border(
+                border =
+                    BorderStroke(
+                        width = 1.1.dp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedDisabledBorder: Border = border,
         pressedSelectedBorder: Border = Border.None,
         selectedDisabledBorder: Border = Border.None,
         focusedSelectedDisabledBorder: Border = border
-    ) = SelectableChipBorder(
-        border = border,
-        focusedBorder = focusedBorder,
-        pressedBorder = pressedBorder,
-        selectedBorder = selectedBorder,
-        disabledBorder = disabledBorder,
-        focusedSelectedBorder = focusedSelectedBorder,
-        focusedDisabledBorder = focusedDisabledBorder,
-        pressedSelectedBorder = pressedSelectedBorder,
-        selectedDisabledBorder = selectedDisabledBorder,
-        focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
-    )
+    ) =
+        SelectableChipBorder(
+            border = border,
+            focusedBorder = focusedBorder,
+            pressedBorder = pressedBorder,
+            selectedBorder = selectedBorder,
+            disabledBorder = disabledBorder,
+            focusedSelectedBorder = focusedSelectedBorder,
+            focusedDisabledBorder = focusedDisabledBorder,
+            pressedSelectedBorder = pressedSelectedBorder,
+            selectedDisabledBorder = selectedDisabledBorder,
+            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
+        )
 
     /**
      * Creates a [SelectableChipGlow] that represents the default [Glow]s used in a [FilterChip]
@@ -927,45 +886,36 @@ object FilterChipDefaults {
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow
-    ) = SelectableChipGlow(
-        glow = glow,
-        focusedGlow = focusedGlow,
-        pressedGlow = pressedGlow,
-        selectedGlow = selectedGlow,
-        focusedSelectedGlow = focusedSelectedGlow,
-        pressedSelectedGlow = pressedSelectedGlow
-    )
+    ) =
+        SelectableChipGlow(
+            glow = glow,
+            focusedGlow = focusedGlow,
+            pressedGlow = pressedGlow,
+            selectedGlow = selectedGlow,
+            focusedSelectedGlow = focusedSelectedGlow,
+            pressedSelectedGlow = pressedSelectedGlow
+        )
 }
 
-/**
- * Contains the default values used by [InputChip].
- */
+/** Contains the default values used by [InputChip]. */
 @ExperimentalTvMaterial3Api
 object InputChipDefaults {
     /**
-     * The height applied for an input chip.
-     * Note that you can override it by applying Modifier.height directly on a chip.
+     * The height applied for an input chip. Note that you can override it by applying
+     * Modifier.height directly on a chip.
      */
     val ContainerHeight = 36.dp
 
-    /**
-     * The size of an Input chip icon
-     */
+    /** The size of an Input chip icon */
     val IconSize = 18.dp
 
-    /**
-     * The size of an Input chip avatar
-     */
+    /** The size of an Input chip avatar */
     val AvatarSize = 28.dp
 
-    /**
-     * The default [Shape] applied to an input chip
-     */
+    /** The default [Shape] applied to an input chip */
     val ContainerShape = RoundedCornerShape(8.dp)
 
-    /**
-     * The default [Shape] applied to an input chip with avatar
-     */
+    /** The default [Shape] applied to an input chip with avatar */
     val ContainerShapeWithAvatar = RoundedCornerShape(36.dp)
 
     private const val SelectedBackgroundColorOpacity = 0.4f
@@ -976,10 +926,9 @@ object InputChipDefaults {
      * Creates a [SelectableChipShape] that represents the default container shapes used in an
      * [InputChip]
      *
-     * @param hasAvatar changes the default shape based on whether the avatar composable is not
-     * null in the Chip
-     * @param shape the shape used when the Chip is enabled, and has no other
-     * [Interaction]s
+     * @param hasAvatar changes the default shape based on whether the avatar composable is not null
+     *   in the Chip
+     * @param shape the shape used when the Chip is enabled, and has no other [Interaction]s
      * @param focusedShape the shape used when the Chip is enabled and focused
      * @param pressedShape the shape used when the Chip is enabled and pressed
      * @param selectedShape the shape used when the Chip is enabled and selected
@@ -988,8 +937,8 @@ object InputChipDefaults {
      * @param focusedDisabledShape the shape used when the Chip is not enabled and focused
      * @param pressedSelectedShape the shape used when the Chip is enabled, pressed and selected
      * @param selectedDisabledShape the shape used when the Chip is not enabled and selected
-     * @param focusedSelectedDisabledShape the shape used when the Chip is not enabled, focused
-     * and selected
+     * @param focusedSelectedDisabledShape the shape used when the Chip is not enabled, focused and
+     *   selected
      */
     fun shape(
         hasAvatar: Boolean,
@@ -1003,27 +952,28 @@ object InputChipDefaults {
         pressedSelectedShape: Shape = shape,
         selectedDisabledShape: Shape = disabledShape,
         focusedSelectedDisabledShape: Shape = disabledShape
-    ) = SelectableChipShape(
-        shape = shape,
-        focusedShape = focusedShape,
-        pressedShape = pressedShape,
-        selectedShape = selectedShape,
-        disabledShape = disabledShape,
-        focusedSelectedShape = focusedSelectedShape,
-        focusedDisabledShape = focusedDisabledShape,
-        pressedSelectedShape = pressedSelectedShape,
-        selectedDisabledShape = selectedDisabledShape,
-        focusedSelectedDisabledShape = focusedSelectedDisabledShape
-    )
+    ) =
+        SelectableChipShape(
+            shape = shape,
+            focusedShape = focusedShape,
+            pressedShape = pressedShape,
+            selectedShape = selectedShape,
+            disabledShape = disabledShape,
+            focusedSelectedShape = focusedSelectedShape,
+            focusedDisabledShape = focusedDisabledShape,
+            pressedSelectedShape = pressedSelectedShape,
+            selectedDisabledShape = selectedDisabledShape,
+            focusedSelectedDisabledShape = focusedSelectedDisabledShape
+        )
 
     /**
      * Creates a [SelectableChipColors] that represents the default container and content colors
      * used in an [InputChip]
      *
-     * @param containerColor the container color used when the Chip is enabled, and has no
-     * other [Interaction]s
+     * @param containerColor the container color used when the Chip is enabled, and has no other
+     *   [Interaction]s
      * @param contentColor the content color used when the Chip is enabled, and has no other
-     * [Interaction]s
+     *   [Interaction]s
      * @param focusedContainerColor the container color used when the Chip is enabled and focused
      * @param focusedContentColor the content color used when the Chip is enabled and focused
      * @param pressedContainerColor the container color used when the Chip is enabled and pressed
@@ -1033,13 +983,13 @@ object InputChipDefaults {
      * @param disabledContainerColor the container color used when the Chip is not enabled
      * @param disabledContentColor the content color used when the Chip is not enabled
      * @param focusedSelectedContainerColor the container color used when the Chip is enabled,
-     * focused and selected
-     * @param focusedSelectedContentColor the content color used when the Chip is enabled,
-     * focused and selected
+     *   focused and selected
+     * @param focusedSelectedContentColor the content color used when the Chip is enabled, focused
+     *   and selected
      * @param pressedSelectedContainerColor the container color used when the Chip is enabled,
-     * pressed and selected
+     *   pressed and selected
      * @param pressedSelectedContentColor the content color used when the Chip is enabled, pressed
-     * and selected
+     *   and selected
      */
     @ReadOnlyComposable
     @Composable
@@ -1050,36 +1000,36 @@ object InputChipDefaults {
         focusedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         pressedContentColor: Color = MaterialTheme.colorScheme.surface,
-        selectedContainerColor: Color = MaterialTheme.colorScheme.secondaryContainer.copy(
-            alpha = SelectedBackgroundColorOpacity
-        ),
+        selectedContainerColor: Color =
+            MaterialTheme.colorScheme.secondaryContainer.copy(
+                alpha = SelectedBackgroundColorOpacity
+            ),
         selectedContentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundColorOpacity
-        ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.border.copy(
-            alpha = DisabledContentColorOpacity
-        ),
+        disabledContainerColor: Color =
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledBackgroundColorOpacity),
+        disabledContentColor: Color =
+            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity),
         focusedSelectedContainerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
         focusedSelectedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
         pressedSelectedContainerColor: Color = MaterialTheme.colorScheme.secondary,
         pressedSelectedContentColor: Color = MaterialTheme.colorScheme.onSecondary,
-    ) = SelectableChipColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        focusedContainerColor = focusedContainerColor,
-        focusedContentColor = focusedContentColor,
-        pressedContainerColor = pressedContainerColor,
-        pressedContentColor = pressedContentColor,
-        selectedContainerColor = selectedContainerColor,
-        selectedContentColor = selectedContentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-        focusedSelectedContainerColor = focusedSelectedContainerColor,
-        focusedSelectedContentColor = focusedSelectedContentColor,
-        pressedSelectedContainerColor = pressedSelectedContainerColor,
-        pressedSelectedContentColor = pressedSelectedContentColor,
-    )
+    ) =
+        SelectableChipColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = pressedContainerColor,
+            pressedContentColor = pressedContentColor,
+            selectedContainerColor = selectedContainerColor,
+            selectedContentColor = selectedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            focusedSelectedContainerColor = focusedSelectedContainerColor,
+            focusedSelectedContentColor = focusedSelectedContentColor,
+            pressedSelectedContainerColor = pressedSelectedContainerColor,
+            pressedSelectedContentColor = pressedSelectedContentColor,
+        )
 
     /**
      * Creates a [SelectableChipScale] that represents the default scaleFactors used in an
@@ -1087,22 +1037,19 @@ object InputChipDefaults {
      * [Interaction] states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
      * 0.8f (scaled down) in pressed state, etc
      *
-     * @param scale the scaleFactor used when the Chip is enabled, and has no other
-     * [Interaction]s
+     * @param scale the scaleFactor used when the Chip is enabled, and has no other [Interaction]s
      * @param focusedScale the scaleFactor used when the Chip is enabled and focused
      * @param pressedScale the scaleFactor used when the Chip is enabled and pressed
      * @param selectedScale the scaleFactor used when the Chip is enabled and selected
      * @param disabledScale the scaleFactor used when the Chip is not enabled
      * @param focusedSelectedScale the scaleFactor used when the Chip is enabled, focused and
-     * selected
-     * @param focusedDisabledScale the scaleFactor used when the Chip is not enabled and
-     * focused
+     *   selected
+     * @param focusedDisabledScale the scaleFactor used when the Chip is not enabled and focused
      * @param pressedSelectedScale the scaleFactor used when the Chip is enabled, pressed and
-     * selected
-     * @param selectedDisabledScale the scaleFactor used when the Chip is not enabled and
-     * selected
+     *   selected
+     * @param selectedDisabledScale the scaleFactor used when the Chip is not enabled and selected
      * @param focusedSelectedDisabledScale the scaleFactor used when the Chip is not enabled,
-     * focused and selected
+     *   focused and selected
      */
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
@@ -1115,91 +1062,86 @@ object InputChipDefaults {
         @FloatRange(from = 0.0) pressedSelectedScale: Float = scale,
         @FloatRange(from = 0.0) selectedDisabledScale: Float = disabledScale,
         @FloatRange(from = 0.0) focusedSelectedDisabledScale: Float = disabledScale
-    ) = SelectableChipScale(
-        scale = scale,
-        focusedScale = focusedScale,
-        pressedScale = pressedScale,
-        selectedScale = selectedScale,
-        disabledScale = disabledScale,
-        focusedSelectedScale = focusedSelectedScale,
-        focusedDisabledScale = focusedDisabledScale,
-        pressedSelectedScale = pressedSelectedScale,
-        selectedDisabledScale = selectedDisabledScale,
-        focusedSelectedDisabledScale = focusedSelectedDisabledScale
-    )
+    ) =
+        SelectableChipScale(
+            scale = scale,
+            focusedScale = focusedScale,
+            pressedScale = pressedScale,
+            selectedScale = selectedScale,
+            disabledScale = disabledScale,
+            focusedSelectedScale = focusedSelectedScale,
+            focusedDisabledScale = focusedDisabledScale,
+            pressedSelectedScale = pressedSelectedScale,
+            selectedDisabledScale = selectedDisabledScale,
+            focusedSelectedDisabledScale = focusedSelectedDisabledScale
+        )
 
     /**
      * Creates a [SelectableChipBorder] that represents the default [Border]s applied on an
      * [InputChip] in different [Interaction] states
      *
      * @param hasAvatar changes the default border shape based on whether the avatar composable is
-     * not null in the Chip
-     * @param border the [Border] used when the Chip is enabled, and has no other
-     * [Interaction]s
+     *   not null in the Chip
+     * @param border the [Border] used when the Chip is enabled, and has no other [Interaction]s
      * @param focusedBorder the [Border] used when the Chip is enabled and focused
      * @param pressedBorder the [Border] used when the Chip is enabled and pressed
      * @param selectedBorder the [Border] used when the Chip is enabled and selected
      * @param disabledBorder the [Border] used when the Chip is not enabled
-     * @param focusedSelectedBorder the [Border] used when the Chip is enabled, focused and
-     * selected
+     * @param focusedSelectedBorder the [Border] used when the Chip is enabled, focused and selected
      * @param focusedDisabledBorder the [Border] used when the Chip is not enabled and focused
-     * @param pressedSelectedBorder the [Border] used when the Chip is enabled, pressed and
-     * selected
-     * @param selectedDisabledBorder the [Border] used when the Chip is not enabled and
-     * selected
-     * @param focusedSelectedDisabledBorder the [Border] used when the Chip is not enabled,
-     * focused and selected
+     * @param pressedSelectedBorder the [Border] used when the Chip is enabled, pressed and selected
+     * @param selectedDisabledBorder the [Border] used when the Chip is not enabled and selected
+     * @param focusedSelectedDisabledBorder the [Border] used when the Chip is not enabled, focused
+     *   and selected
      */
     @ReadOnlyComposable
     @Composable
     fun border(
         hasAvatar: Boolean,
-        border: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.border
+        border: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
             ),
-            shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
-        ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
-        selectedBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.secondary
+        selectedBorder: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.secondary),
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
             ),
-            shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
-        ),
-        disabledBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant
+        disabledBorder: Border =
+            Border(
+                border =
+                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
             ),
-            shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
-        ),
-        focusedSelectedBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.1.dp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+        focusedSelectedBorder: Border =
+            Border(
+                border =
+                    BorderStroke(
+                        width = 1.1.dp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
             ),
-            shape = if (hasAvatar) ContainerShapeWithAvatar else ContainerShape
-        ),
         focusedDisabledBorder: Border = border,
         pressedSelectedBorder: Border = Border.None,
         selectedDisabledBorder: Border = Border.None,
         focusedSelectedDisabledBorder: Border = border
-    ) = SelectableChipBorder(
-        border = border,
-        focusedBorder = focusedBorder,
-        pressedBorder = pressedBorder,
-        selectedBorder = selectedBorder,
-        disabledBorder = disabledBorder,
-        focusedSelectedBorder = focusedSelectedBorder,
-        focusedDisabledBorder = focusedDisabledBorder,
-        pressedSelectedBorder = pressedSelectedBorder,
-        selectedDisabledBorder = selectedDisabledBorder,
-        focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
-    )
+    ) =
+        SelectableChipBorder(
+            border = border,
+            focusedBorder = focusedBorder,
+            pressedBorder = pressedBorder,
+            selectedBorder = selectedBorder,
+            disabledBorder = disabledBorder,
+            focusedSelectedBorder = focusedSelectedBorder,
+            focusedDisabledBorder = focusedDisabledBorder,
+            pressedSelectedBorder = pressedSelectedBorder,
+            selectedDisabledBorder = selectedDisabledBorder,
+            focusedSelectedDisabledBorder = focusedSelectedDisabledBorder,
+        )
 
     /**
      * Creates a [SelectableChipGlow] that represents the default [Glow]s used in an [InputChip]
@@ -1218,30 +1160,27 @@ object InputChipDefaults {
         selectedGlow: Glow = glow,
         focusedSelectedGlow: Glow = focusedGlow,
         pressedSelectedGlow: Glow = glow
-    ) = SelectableChipGlow(
-        glow = glow,
-        focusedGlow = focusedGlow,
-        pressedGlow = pressedGlow,
-        selectedGlow = selectedGlow,
-        focusedSelectedGlow = focusedSelectedGlow,
-        pressedSelectedGlow = pressedSelectedGlow
-    )
+    ) =
+        SelectableChipGlow(
+            glow = glow,
+            focusedGlow = focusedGlow,
+            pressedGlow = pressedGlow,
+            selectedGlow = selectedGlow,
+            focusedSelectedGlow = focusedSelectedGlow,
+            pressedSelectedGlow = pressedSelectedGlow
+        )
 }
 
-/**
- * Contains the default values used by [SuggestionChip].
- */
+/** Contains the default values used by [SuggestionChip]. */
 @ExperimentalTvMaterial3Api
 object SuggestionChipDefaults {
     /**
-     * The height applied to a suggestion chip.
-     * Note that you can override it by applying Modifier.height directly on a chip.
+     * The height applied to a suggestion chip. Note that you can override it by applying
+     * Modifier.height directly on a chip.
      */
     val ContainerHeight = 36.dp
 
-    /**
-     * The default [Shape] applied to a suggestion chip
-     */
+    /** The default [Shape] applied to a suggestion chip */
     val ContainerShape = RoundedCornerShape(8.dp)
 
     private const val DisabledBackgroundColorOpacity = 0.2f
@@ -1263,17 +1202,18 @@ object SuggestionChipDefaults {
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
         focusedDisabledShape: Shape = disabledShape
-    ) = ClickableChipShape(
-        shape = shape,
-        focusedShape = focusedShape,
-        pressedShape = pressedShape,
-        disabledShape = disabledShape,
-        focusedDisabledShape = focusedDisabledShape
-    )
+    ) =
+        ClickableChipShape(
+            shape = shape,
+            focusedShape = focusedShape,
+            pressedShape = pressedShape,
+            disabledShape = disabledShape,
+            focusedDisabledShape = focusedDisabledShape
+        )
 
     /**
-     * Creates a [ClickableChipColors] that represents the default container and content colors
-     * used in a [SuggestionChip]
+     * Creates a [ClickableChipColors] that represents the default container and content colors used
+     * in a [SuggestionChip]
      *
      * @param containerColor the container color of this Chip when enabled
      * @param contentColor the content color of this Chip when enabled
@@ -1293,28 +1233,26 @@ object SuggestionChipDefaults {
         focusedContentColor: Color = MaterialTheme.colorScheme.inverseOnSurface,
         pressedContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         pressedContentColor: Color = MaterialTheme.colorScheme.surface,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(
-            alpha = DisabledBackgroundColorOpacity
-        ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.border.copy(
-            alpha = DisabledContentColorOpacity
+        disabledContainerColor: Color =
+            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = DisabledBackgroundColorOpacity),
+        disabledContentColor: Color =
+            MaterialTheme.colorScheme.border.copy(alpha = DisabledContentColorOpacity)
+    ) =
+        ClickableChipColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            focusedContainerColor = focusedContainerColor,
+            focusedContentColor = focusedContentColor,
+            pressedContainerColor = pressedContainerColor,
+            pressedContentColor = pressedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
         )
-    ) = ClickableChipColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
-        focusedContainerColor = focusedContainerColor,
-        focusedContentColor = focusedContentColor,
-        pressedContainerColor = pressedContainerColor,
-        pressedContentColor = pressedContentColor,
-        disabledContainerColor = disabledContainerColor,
-        disabledContentColor = disabledContentColor,
-    )
 
     /**
      * Creates a [ClickableChipScale] that represents the default scaleFactors used in a
-     * [SuggestionChip].
-     * scaleFactors are used to modify the size of a composable in different [Interaction]
-     * states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
+     * [SuggestionChip]. scaleFactors are used to modify the size of a composable in different
+     * [Interaction] states e.g. 1f (original) in default state, 1.2f (scaled up) in focused state,
      * 0.8f (scaled down) in pressed state, etc
      *
      * @param scale the scaleFactor to be used for this Chip when enabled
@@ -1322,7 +1260,7 @@ object SuggestionChipDefaults {
      * @param pressedScale the scaleFactor to be used for this Chip when pressed
      * @param disabledScale the scaleFactor to be used for this Chip when disabled
      * @param focusedDisabledScale the scaleFactor to be used for this Chip when disabled and
-     * focused
+     *   focused
      */
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
@@ -1330,13 +1268,14 @@ object SuggestionChipDefaults {
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
         @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
-    ) = ClickableChipScale(
-        scale = scale,
-        focusedScale = focusedScale,
-        pressedScale = pressedScale,
-        disabledScale = disabledScale,
-        focusedDisabledScale = focusedDisabledScale
-    )
+    ) =
+        ClickableChipScale(
+            scale = scale,
+            focusedScale = focusedScale,
+            pressedScale = pressedScale,
+            disabledScale = disabledScale,
+            focusedDisabledScale = focusedDisabledScale
+        )
 
     /**
      * Creates a [ClickableChipBorder] that represents the default [Border]s applied on a
@@ -1346,36 +1285,33 @@ object SuggestionChipDefaults {
      * @param focusedBorder the [Border] to be used for this Chip when focused
      * @param pressedBorder the [Border] to be used for this Chip when pressed
      * @param disabledBorder the [Border] to be used for this Chip when disabled
-     * @param focusedDisabledBorder the [Border] to be used for this Chip when disabled and
-     * focused
+     * @param focusedDisabledBorder the [Border] to be used for this Chip when disabled and focused
      */
     @ReadOnlyComposable
     @Composable
     fun border(
-        border: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.border
+        border: Border =
+            Border(
+                border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.border),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedBorder: Border = Border.None,
         pressedBorder: Border = focusedBorder,
-        disabledBorder: Border = Border(
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant
+        disabledBorder: Border =
+            Border(
+                border =
+                    BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
+                shape = ContainerShape
             ),
-            shape = ContainerShape
-        ),
         focusedDisabledBorder: Border = border
-    ) = ClickableChipBorder(
-        border = border,
-        focusedBorder = focusedBorder,
-        pressedBorder = pressedBorder,
-        disabledBorder = disabledBorder,
-        focusedDisabledBorder = focusedDisabledBorder
-    )
+    ) =
+        ClickableChipBorder(
+            border = border,
+            focusedBorder = focusedBorder,
+            pressedBorder = pressedBorder,
+            disabledBorder = disabledBorder,
+            focusedDisabledBorder = focusedDisabledBorder
+        )
 
     /**
      * Creates a [ClickableChipGlow] that represents the default [Glow]s used in a [SuggestionChip]
@@ -1384,18 +1320,9 @@ object SuggestionChipDefaults {
      * @param focusedGlow the Glow behind this Button when focused
      * @param pressedGlow the Glow behind this Button when pressed
      */
-    fun glow(
-        glow: Glow = Glow.None,
-        focusedGlow: Glow = glow,
-        pressedGlow: Glow = glow
-    ) = ClickableChipGlow(
-        glow = glow,
-        focusedGlow = focusedGlow,
-        pressedGlow = pressedGlow
-    )
+    fun glow(glow: Glow = Glow.None, focusedGlow: Glow = glow, pressedGlow: Glow = glow) =
+        ClickableChipGlow(glow = glow, focusedGlow = focusedGlow, pressedGlow = pressedGlow)
 }
 
-/**
- * The padding between the elements in the chip
- */
+/** The padding between the elements in the chip */
 internal val HorizontalElementsPadding = 8.dp
