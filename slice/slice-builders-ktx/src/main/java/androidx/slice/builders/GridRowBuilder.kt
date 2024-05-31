@@ -16,9 +16,9 @@
 package androidx.slice.builders
 
 /**
- * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
- * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
- * ensuring a type-safe DSL.
+ * Helper class annotated with @SliceMarker, which is annotated with @DslMarker. Two implicit
+ * receivers that are annotated with @SliceMarker are not accessible in the same scope, ensuring a
+ * type-safe DSL.
  */
 @Deprecated(
     """
@@ -26,15 +26,16 @@ package androidx.slice.builders
         If you are looking for a framework that handles communication across apps, 
         consider using AppSearchManager.
     """,
-    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+    ReplaceWith("AppSearchManager", "android.app.appsearch")
+)
 @Suppress("DEPRECATION")
 @SliceMarker
 class GridRowBuilderDsl : GridRowBuilder()
 
 /**
- * Helper class annotated with @SliceMarker, which is annotated with @DslMarker.
- * Two implicit receivers that are annotated with @SliceMarker are not accessible in the same scope,
- * ensuring a type-safe DSL.
+ * Helper class annotated with @SliceMarker, which is annotated with @DslMarker. Two implicit
+ * receivers that are annotated with @SliceMarker are not accessible in the same scope, ensuring a
+ * type-safe DSL.
  */
 @Deprecated(
     """
@@ -42,35 +43,34 @@ class GridRowBuilderDsl : GridRowBuilder()
         If you are looking for a framework that handles communication across apps, 
         consider using AppSearchManager.
     """,
-    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+    ReplaceWith("AppSearchManager", "android.app.appsearch")
+)
 @Suppress("DEPRECATION")
 @SliceMarker
 class CellBuilderDsl : GridRowBuilder.CellBuilder()
 
-/**
- * @see GridRowBuilder.addCell
- */
+/** @see GridRowBuilder.addCell */
 @Deprecated(
     """
         Slice framework has been deprecated, it will not receive any updates moving forward.
         If you are looking for a framework that handles communication across apps, 
         consider using AppSearchManager.
     """,
-    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+    ReplaceWith("AppSearchManager", "android.app.appsearch")
+)
 @Suppress("DEPRECATION")
 inline fun GridRowBuilderDsl.cell(buildCell: CellBuilderDsl.() -> Unit) =
     addCell(CellBuilderDsl().apply { buildCell() })
 
-/**
- * @see GridRowBuilder.setSeeMoreCell
- */
+/** @see GridRowBuilder.setSeeMoreCell */
 @Deprecated(
     """
         Slice framework has been deprecated, it will not receive any updates moving forward.
         If you are looking for a framework that handles communication across apps, 
         consider using AppSearchManager.
     """,
-    ReplaceWith("AppSearchManager", "android.app.appsearch"))
+    ReplaceWith("AppSearchManager", "android.app.appsearch")
+)
 @Suppress("DEPRECATION")
 inline fun GridRowBuilderDsl.seeMoreCell(buildCell: CellBuilderDsl.() -> Unit) =
     setSeeMoreCell(CellBuilderDsl().apply { buildCell() })
