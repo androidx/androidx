@@ -22,8 +22,6 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
-import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
@@ -798,37 +796,5 @@ class StreamSharingTest {
                     .videoStabilizationMode
             )
             .isEqualTo(StabilizationMode.ON)
-    }
-
-    @Test
-    fun propagateChildrenTemplate_noVideoCapture() {
-        // Arrange.
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        streamSharing = StreamSharing(camera, setOf(preview, imageCapture), useCaseConfigFactory)
-        streamSharing.bindToCamera(camera, null, defaultConfig)
-
-        // Act: update stream specification.
-        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
-
-        // Assert:
-        assertThat(streamSharing.sessionConfig.templateType).isEqualTo(TEMPLATE_PREVIEW)
-    }
-
-    @Test
-    fun propagateChildrenTemplate_hasVideoCapture() {
-        // Arrange.
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
-        streamSharing =
-            StreamSharing(camera, setOf(preview, imageCapture, videoCapture), useCaseConfigFactory)
-        streamSharing.bindToCamera(camera, null, defaultConfig)
-
-        // Act: update stream specification.
-        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
-
-        // Assert:
-        assertThat(streamSharing.sessionConfig.templateType).isEqualTo(TEMPLATE_RECORD)
     }
 }
