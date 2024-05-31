@@ -21,9 +21,10 @@ import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 
 object Stubs {
-    val TEST_INITIALIZER: TestFile = kotlin(
-        "com/example/TestInitializer.kt",
-        """
+    val TEST_INITIALIZER: TestFile =
+        kotlin(
+                "com/example/TestInitializer.kt",
+                """
             package com.example
 
             import androidx.startup.Initializer
@@ -32,11 +33,14 @@ object Stubs {
                 override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val TEST_INITIALIZER_WITH_DEPENDENCIES: TestFile = kotlin(
-        "com/example/TestInitializer.kt",
-        """
+    val TEST_INITIALIZER_WITH_DEPENDENCIES: TestFile =
+        kotlin(
+                "com/example/TestInitializer.kt",
+                """
             package com.example
 
             import androidx.startup.Initializer
@@ -47,11 +51,14 @@ object Stubs {
                 )
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val TEST_INITIALIZER_2: TestFile = kotlin(
-        "com/example/SecondInitializer.kt",
-        """
+    val TEST_INITIALIZER_2: TestFile =
+        kotlin(
+                "com/example/SecondInitializer.kt",
+                """
             package com.example
 
             import androidx.startup.Initializer
@@ -60,14 +67,15 @@ object Stubs {
                 override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    /**
-     * The Test Initializer in Java.
-     */
-    val TEST_INITIALIZER_JAVA: TestFile = java(
-        "com/example/TestInitializer.java",
-        """
+    /** The Test Initializer in Java. */
+    val TEST_INITIALIZER_JAVA: TestFile =
+        java(
+                "com/example/TestInitializer.java",
+                """
             package com.example;
 
             import androidx.startup.Initializer;
@@ -76,18 +84,21 @@ object Stubs {
 
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    /**
-     * The Initializer.
-     */
-    val INITIALIZER: TestFile = kotlin(
-        "androidx/startup/Initializer.kt",
-        """
+    /** The Initializer. */
+    val INITIALIZER: TestFile =
+        kotlin(
+                "androidx/startup/Initializer.kt",
+                """
             package androidx.startup
             interface Initializer<out T : Any> {
                 fun dependencies(): List<Class<out Initializer<*>>>
             }
         """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 }

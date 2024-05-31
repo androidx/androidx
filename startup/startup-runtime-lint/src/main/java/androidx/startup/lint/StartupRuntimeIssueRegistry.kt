@@ -23,20 +23,18 @@ import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
-/**
- * The [IssueRegistry] for `androidx.startup`.
- */
+/** The [IssueRegistry] for `androidx.startup`. */
 class StartupRuntimeIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 14
     override val issues: List<Issue>
-        get() = listOf(
-            InitializerConstructorDetector.ISSUE,
-            EnsureInitializerMetadataDetector.ISSUE
+        get() =
+            listOf(InitializerConstructorDetector.ISSUE, EnsureInitializerMetadataDetector.ISSUE)
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=823348",
+            identifier = "androidx.startup",
+            vendorName = "Android Open Source Project",
         )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=823348",
-        identifier = "androidx.startup",
-        vendorName = "Android Open Source Project",
-    )
 }
