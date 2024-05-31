@@ -175,7 +175,8 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val IntArrayType: NavType<IntArray?> = object : NavType<IntArray?>(true) {
+        public actual val IntArrayType: NavType<IntArray?> = object :
+            CollectionNavType<IntArray?>(true) {
             override val name: String
                 get() = "integer[]"
 
@@ -201,12 +202,14 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: IntArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         @JvmField
-        public actual val IntListType: NavType<List<Int>?> = object : CollectionNavType<List<Int>?>(
-            true
-        ) {
+        public actual val IntListType: NavType<List<Int>?> = object :
+            CollectionNavType<List<Int>?>(true) {
             override val name: String
                 get() = "List<Int>"
 
@@ -268,7 +271,8 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val LongArrayType: NavType<LongArray?> = object : NavType<LongArray?>(true) {
+        public actual val LongArrayType: NavType<LongArray?> = object :
+            CollectionNavType<LongArray?>(true) {
             override val name: String
                 get() = "long[]"
 
@@ -294,12 +298,14 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: LongArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         @JvmField
-        public actual val LongListType: NavType<List<Long>?> = object : CollectionNavType<List<Long>?>(
-            true
-        ) {
+        public actual val LongListType: NavType<List<Long>?> = object :
+            CollectionNavType<List<Long>?>(true) {
             override val name: String
                 get() = "List<Long>"
 
@@ -350,7 +356,8 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val FloatArrayType: NavType<FloatArray?> = object : NavType<FloatArray?>(true) {
+        public actual val FloatArrayType: NavType<FloatArray?> = object :
+            CollectionNavType<FloatArray?>(true) {
             override val name: String
                 get() = "float[]"
 
@@ -376,12 +383,14 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: FloatArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         @JvmField
-        public actual val FloatListType: NavType<List<Float>?> = object : CollectionNavType<List<Float>?>(
-            true
-        ) {
+        public actual val FloatListType: NavType<List<Float>?> =
+            object : CollectionNavType<List<Float>?>(true) {
             override val name: String
                 get() = "List<Float>"
 
@@ -440,7 +449,8 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val BoolArrayType: NavType<BooleanArray?> = object : NavType<BooleanArray?>(true) {
+        public actual val BoolArrayType: NavType<BooleanArray?> = object :
+            CollectionNavType<BooleanArray?>(true) {
             override val name: String
                 get() = "boolean[]"
 
@@ -466,6 +476,9 @@ public actual abstract class NavType<T> actual constructor(
                 val otherArray = other?.toTypedArray()
                 return valueArray.contentDeepEquals(otherArray)
             }
+
+            override fun serializeAsValues(value: BooleanArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
         }
 
         @JvmField
@@ -525,9 +538,8 @@ public actual abstract class NavType<T> actual constructor(
         }
 
         @JvmField
-        public actual val StringArrayType: NavType<Array<String>?> = object : NavType<Array<String>?>(
-            true
-        ) {
+        public actual val StringArrayType: NavType<Array<String>?> = object :
+            CollectionNavType<Array<String>?>(true) {
             override val name: String
                 get() = "string[]"
 
@@ -550,6 +562,10 @@ public actual abstract class NavType<T> actual constructor(
 
             override fun valueEquals(value: Array<String>?, other: Array<String>?) =
                 value.contentDeepEquals(other)
+
+            override fun serializeAsValues(value: Array<String>?): List<String> =
+                // TODO value?.map { Uri.encode(it) } ?: emptyList()
+                value?.toList() ?: emptyList()
         }
 
         @JvmField
