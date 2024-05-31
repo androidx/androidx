@@ -37,16 +37,15 @@ class FragmentViewModelSupport : FragmentActivity() {
 
         // First time init, create the UI.
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().add(
-                android.R.id.content,
-                UiFragment()
-            ).commit()
+            supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, UiFragment())
+                .commit()
         }
     }
 
     /**
-     * This is a fragment showing UI that will be updated from work done
-     * in the ProgressViewModel.
+     * This is a fragment showing UI that will be updated from work done in the ProgressViewModel.
      */
     class UiFragment : Fragment(R.layout.fragment_view_model) {
 
@@ -67,14 +66,15 @@ class FragmentViewModelSupport : FragmentActivity() {
     }
 
     /**
-     * This is the ViewModel implementation that will be retained across
-     * activity instances.  It represents some ongoing work, here a Job
-     * we have that sits around incrementing a progress indicator.
+     * This is the ViewModel implementation that will be retained across activity instances. It
+     * represents some ongoing work, here a Job we have that sits around incrementing a progress
+     * indicator.
      */
     class ProgressViewModel : ViewModel() {
         private var progress = 0
         private val _progressLiveData = MutableLiveData<Int>(progress)
-        val progressLiveData: LiveData<Int> get() = _progressLiveData
+        val progressLiveData: LiveData<Int>
+            get() = _progressLiveData
 
         var max = 10000
 
