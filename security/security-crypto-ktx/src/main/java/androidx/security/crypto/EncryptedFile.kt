@@ -30,10 +30,10 @@ import java.io.File
  * @param file The backing [File].
  * @param masterKey The [MasterKey] that should be used.
  * @param fileEncryptionScheme The [FileEncryptionScheme] to use, defaulting to
- * [FileEncryptionScheme.AES256_GCM_HKDF_4KB].
+ *   [FileEncryptionScheme.AES256_GCM_HKDF_4KB].
  * @param keysetPrefName The `SharedPreferences` file to store the keyset for this [EncryptedFile].
  * @param keysetAlias The alias in the `SharedPreferences` file to store the keyset for this
- * [EncryptedFile].
+ *   [EncryptedFile].
  */
 @SuppressLint("StreamFiles")
 @Deprecated("Use java.io.File instead")
@@ -44,7 +44,10 @@ public fun EncryptedFile(
     fileEncryptionScheme: FileEncryptionScheme = FileEncryptionScheme.AES256_GCM_HKDF_4KB,
     keysetPrefName: String? = null,
     keysetAlias: String? = null
-): EncryptedFile = EncryptedFile.Builder(context, file, masterKey, fileEncryptionScheme).apply {
-    if (keysetPrefName != null) setKeysetPrefName(keysetPrefName)
-    if (keysetAlias != null) setKeysetAlias(keysetAlias)
-}.build()
+): EncryptedFile =
+    EncryptedFile.Builder(context, file, masterKey, fileEncryptionScheme)
+        .apply {
+            if (keysetPrefName != null) setKeysetPrefName(keysetPrefName)
+            if (keysetAlias != null) setKeysetAlias(keysetAlias)
+        }
+        .build()
